@@ -1,4 +1,4 @@
-rootProject.name = 'MyCard'
+rootProject.name = 'gowid'
 
 include 'gm-api-user'
 include 'gm-swagger'
