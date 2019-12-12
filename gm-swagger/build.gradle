@@ -1,0 +1,8 @@
+dependencies {
+    implementation(
+            "org.springframework.boot:spring-boot-starter-web",
+            "io.swagger:swagger-annotations:1.5.21",
+            "io.swagger:swagger-models:1.5.21",
+    )
+}
+jar.enabled = true; bootJar.enabled = false

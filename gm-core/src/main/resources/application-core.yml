@@ -1,0 +1,44 @@
+spring:
+  profiles: dev
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      ddl-auto: update
+      use-new-id-generator-mappings: true
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+    generate-ddl: true
+    open-in-view: false
+  datasource:
+    initialization-mode: always
+#    url: jdbc:mysql://127.0.0.1:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://13.125.216.181:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+    username: card
+    password: card2019
+
+---
+
+spring:
+  profiles: aws
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      ddl-auto: update
+      use-new-id-generator-mappings: true
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+    generate-ddl: true
+    open-in-view: false
+  datasource:
+    initialization-mode: always
+    url: jdbc:mysql://127.0.0.1:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+    username: card
+    password: card2019
