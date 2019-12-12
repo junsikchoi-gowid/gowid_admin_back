@@ -152,6 +152,7 @@ public class UserService {
 				.email(dto.getEmail())
 				.name(dto.getName())
 				.dept(dept)
+				.corp(user.corp())
 				.authentication(new Authentication().setEnabled(false))
 				.authorities(Collections.singleton(authority))
 				.creditLimit(dto.getCreditLimit())
