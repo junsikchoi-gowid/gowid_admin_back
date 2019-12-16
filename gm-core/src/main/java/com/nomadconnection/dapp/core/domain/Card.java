@@ -32,7 +32,7 @@ public class Card extends BaseTime {
 	private String cvc; // card verification code
 
 	@Column(nullable = false)
-	private String validThru; // MM/YY
+	private String cvt; // card valid thru, MM/YY
 
 	@Enumerated(EnumType.STRING)
 	private CardStatus status;

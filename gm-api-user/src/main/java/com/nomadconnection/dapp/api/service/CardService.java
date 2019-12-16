@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 
 @Slf4j
 @Service
@@ -148,6 +147,7 @@ public class CardService {
 		Card card = repo.save(Card.builder()
 				.cardNo(dto.getCardNo())
 				.cvc(dto.getCvc())
+				.cvt(dto.getCvt())
 				.creditLimit(creditLimit)
 				.status(CardStatus.CS_ACTIVATED)
 				.password(passwordEncoder.encode(dto.getPassword()))
@@ -155,9 +155,7 @@ public class CardService {
 				.overseas(false)
 				.corp(user.corp())
 				.owner(user)
-				.validThru(dto.getValidThru())
 				.build());
-
 		repoUser.save(user.card(card));
 		return CardDto.from(card);
 	}
@@ -253,10 +251,10 @@ public class CardService {
 					.resource("cvc")
 					.build();
 		}
-		if (!card.validThru().equals(dto.getCvt())) {
+		if (!card.cvt().equals(dto.getCvt())) {
 			throw UnverifiedException.builder()
 					.idx(card.idx())
-					.resource("validThru")
+					.resource("cvt")
 					.build();
 		}
 		card.password(passwordEncoder.encode(dto.getPassword()));
@@ -290,7 +288,7 @@ public class CardService {
 					throw CVCMismatchedException.builder()
 							.build();
 				}
-				if (!card.validThru().equals(dto.getCvt())) {
+				if (!card.cvt().equals(dto.getCvt())) {
 					throw CVTMismatchedException.builder()
 							.build();
 				}

@@ -26,11 +26,11 @@ public class CardDto {
 	@ApiModelProperty("카드번호(12 or 13 digits)")
 	private String cardNo;
 
-	@ApiModelProperty("카드인증코드(3 digits)")
+	@ApiModelProperty("카드인증코드(3 digits, card verification code)")
 	private String cvc;
 
-	@ApiModelProperty("카드유효기간(MM/YY)")
-	private String validThru;
+	@ApiModelProperty("카드유효기간(MM/YY, card valid thru)")
+	private String cvt;
 
 	@ApiModelProperty("카드상태")
 	private CardStatus status;
@@ -44,6 +44,9 @@ public class CardDto {
 	@ApiModelProperty("카드한도")
 	private Long creditLimit;
 
+	@ApiModelProperty("법인카드한도")
+	private Long corpCreditLimit;
+
 	@ApiModelProperty("등록일시")
 	private LocalDateTime createdAt;
 
@@ -55,11 +58,12 @@ public class CardDto {
 				.idx(card.idx())
 				.cardNo(card.cardNo())
 				.cvc(card.cvc())
-				.validThru(card.validThru())
+				.cvt(card.cvt())
 				.status(card.status())
 				.domestic(card.domestic())
 				.overseas(card.overseas())
 				.creditLimit(card.creditLimit())
+				.corpCreditLimit(card.corp().creditLimit())
 				.createdAt(card.getCreatedAt())
 				.updatedAt(card.getUpdatedAt())
 				.build();
@@ -238,10 +242,7 @@ public class CardDto {
 		private String password; // 4 digits
 
 		@ApiModelProperty("카드유효기간(MM/YY)")
-		private String validThru; // MM/YY
-
-		@ApiModelProperty("인증번호(4 digits, SMS)")
-		private String verificationCode;
+		private String cvt; // card valid thru, MM/YY
 	}
 
 	@Data
