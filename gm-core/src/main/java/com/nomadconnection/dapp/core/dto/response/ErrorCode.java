@@ -48,4 +48,10 @@ public class ErrorCode {
 		MISMATCHED_VALID_THRU,
 		MISMATCHED_CORP,
 	}
+
+	public enum Unverified implements ErrorCodeDescriptor {
+		UNVERIFIED,
+		UNVERIFIED_CVC, // CVC: CARD VERIFICATION CODE
+		UNVERIFIED_CVT, // CVT: CARD VALID THRU
+	}
 }

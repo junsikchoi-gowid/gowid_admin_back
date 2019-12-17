@@ -248,13 +248,13 @@ public class CardService {
 		if (!card.cvc().equals(dto.getCvc())) {
 			throw UnverifiedException.builder()
 					.idx(card.idx())
-					.resource("cvc")
+					.resource(UnverifiedException.Resource.CVC)
 					.build();
 		}
 		if (!card.cvt().equals(dto.getCvt())) {
 			throw UnverifiedException.builder()
 					.idx(card.idx())
-					.resource("cvt")
+					.resource(UnverifiedException.Resource.CVT)
 					.build();
 		}
 		card.password(passwordEncoder.encode(dto.getPassword()));

@@ -118,6 +118,24 @@ public class CustomExceptionHandler {
 
 	//==================================================================================================================
 	//
+	//	UNVERIFIED
+	//
+	//==================================================================================================================
+
+	@ExceptionHandler(UnverifiedException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	protected ErrorResponse onUnverifiedException(UnverifiedException e) {
+		switch (e.resource()) {
+			case CVC:
+				return ErrorResponse.from(ErrorCode.Unverified.UNVERIFIED_CVC);
+			case CVT:
+				return ErrorResponse.from(ErrorCode.Unverified.UNVERIFIED_CVT);
+		}
+		return ErrorResponse.from(ErrorCode.Unverified.UNVERIFIED);
+	}
+
+	//==================================================================================================================
+	//
 	//	RESOURCE
 	//
 	//==================================================================================================================
