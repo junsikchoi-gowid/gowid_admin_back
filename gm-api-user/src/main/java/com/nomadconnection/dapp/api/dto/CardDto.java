@@ -296,6 +296,9 @@ public class CardDto {
 
 		@ApiModelProperty("카드유효기간(분실신고해제시필요, card valid thru, mm/yy)")
 		private String cvt;
+
+		@ApiModelProperty("카드비밀번호(분실신고해제시필요)")
+		private String password;
 	}
 
 	@Data

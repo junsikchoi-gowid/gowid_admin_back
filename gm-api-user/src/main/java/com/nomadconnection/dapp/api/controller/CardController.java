@@ -210,7 +210,7 @@ public class CardController implements PageableController {
 
 	//==================================================================================================================
 	//
-	//	카드 상태변경 - 활성화 / 비활성화 / 분실신고
+	//	카드 상태변경 - 활성화 / 비활성화 / 분실신고 / 분실신고해제
 	//
 	//==================================================================================================================
 
@@ -220,6 +220,7 @@ public class CardController implements PageableController {
 			"\n - 활성화" +
 			"\n - 비활성화" +
 			"\n - 분실신고" +
+			"\n - 분실신고해제" +
 			"\n")
 	@PutMapping(URI.CARDS_CARD_STATUS)
 	public ResponseEntity<?> putCardStatus(

@@ -261,7 +261,7 @@ public class CardService {
 	}
 
 	/**
-	 * 카드 상태변경 - 활성화 / 비활성화 / 분실신고
+	 * 카드 상태변경 - 활성화 / 비활성화 / 분실신고 / 분실신고해제
 	 *
 	 * @param idxUser 식별자(사용자)
 	 * @param idxCard 식별자(카드)
@@ -285,12 +285,13 @@ public class CardService {
 			}
 			if (CardStatus.CS_LOST_REPORTED.equals(card.status())) {
 				if (!card.cvc().equals(dto.getCvc())) {
-					throw CVCMismatchedException.builder()
-							.build();
+					throw MismatchedException.builder().category(MismatchedException.Category.VERIFICATION_CODE).build();
 				}
 				if (!card.cvt().equals(dto.getCvt())) {
-					throw CVTMismatchedException.builder()
-							.build();
+					throw MismatchedException.builder().category(MismatchedException.Category.VALID_THRU).build();
+				}
+				if (!card.password().equals(dto.getPassword())) {
+					throw MismatchedException.builder().category(MismatchedException.Category.PASSWORD).build();
 				}
 				//
 				//	todo: 분실신고 해제 처리
