@@ -315,6 +315,23 @@ public class CardDto {
 		}
 	}
 
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class CardCancellation {
+
+		@ApiModelProperty("카드 비밀번호(4 digits)")
+		private String password;
+
+		@ApiModelProperty("카드 해지사유")
+		private String reason;
+
+		public String toString() {
+			return "CardCancellation(password=****, reason="+ reason +")";
+		}
+	}
+
 //	@Data
 //	@Builder
 //	@NoArgsConstructor

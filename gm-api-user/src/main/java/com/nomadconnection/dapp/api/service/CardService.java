@@ -32,6 +32,21 @@ public class CardService {
 	private final PasswordEncoder passwordEncoder;
 
 	/**
+	 * 카드 엔터티 조회
+	 *
+	 * @param idxCard 식별자(카드)
+	 * @return 엔터티(카드)
+	 */
+	Card getCard(Long idxCard) {
+		return repo.findById(idxCard).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.idx(idxCard)
+						.entity("card")
+						.build()
+		);
+	}
+
+	/**
 	 * 카드 발급 신청
 	 *
 	 * - 직원수
@@ -341,10 +356,33 @@ public class CardService {
 	 *
 	 * @param idxUser 식별자(사용자)
 	 * @param idxCard 식별자(카드)
+	 * @param dto 카드 해지 정보(카드 패스워드, 카드 해지사유)
 	 */
-	public void deleteCard(Long idxUser, Long idxCard) {
-		//
-		//	todo: 카드 해지
-		//
+	@Transactional(rollbackFor = Exception.class)
+	public void deleteCard(Long idxUser, Long idxCard, CardDto.CardCancellation dto) {
+		Card card = getCard(idxCard);
+		{
+			if (!passwordEncoder.matches(dto.getPassword(), card.password())) {
+				throw MismatchedException.builder().category(MismatchedException.Category.PASSWORD).build();
+			}
+			if (!card.owner().idx().equals(idxUser)) {
+				throw MismatchedException.builder().category(MismatchedException.Category.OWNER).build();
+			}
+			detachCard(card, serviceUser.getUser(idxUser));
+		}
+		card.status(CardStatus.CS_CLOSED);
+		card.disabled(true);
+	}
+
+	/**
+	 * 전달된 엔터티(카드)가 사용자의 활성화된 카드와 일치하는 경우, 디태치
+	 *
+	 * @param user 엔터티(사용자)
+	 * @param card 엔터티(카드)
+	 */
+	private void detachCard(Card card, User user) {
+		if (card.equals(user.card())) {
+			user.card(null);
+		}
 	}
 }

@@ -6,4 +6,5 @@ public enum CardStatus {
 	CS_DEACTIVATED,
 	CS_ACTIVATED,
 	CS_LOST_REPORTED,
+	CS_CLOSED,
 }

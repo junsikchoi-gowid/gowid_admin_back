@@ -285,6 +285,7 @@ public class CardController implements PageableController {
 	@ApiOperation(value = "카드 해지", notes = "" +
 			"\n ### Remarks" +
 			"\n" +
+			"\n - 파라미터: 식별자(카드) + 해지정보(비밀번호 + 해지사유)" +
 			"\n - " +
 			"\n")
 	@ApiImplicitParams({
@@ -293,12 +294,13 @@ public class CardController implements PageableController {
 	@DeleteMapping(URI.CARDS_CARD)
 	public ResponseEntity<?> deleteCard(
 			@ApiIgnore @CurrentUser CustomUser user,
-			@PathVariable Long card
+			@PathVariable Long card,
+			@RequestBody CardDto.CardCancellation dto
 	) {
 		if (log.isDebugEnabled()) {
-			log.debug("([ deleteCard ]) $user='{}', $card.idx='{}'", user, card);
+			log.debug("([ deleteCard ]) $user='{}', $card.idx='{}', $dto='{}'", user, card, dto);
 		}
-		service.deleteCard(user.idx(), card);
+		service.deleteCard(user.idx(), card, dto);
 		return ResponseEntity.ok().build();
 	}
 }
