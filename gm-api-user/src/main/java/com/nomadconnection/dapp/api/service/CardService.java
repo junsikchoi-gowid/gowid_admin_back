@@ -305,7 +305,7 @@ public class CardService {
 				if (!card.cvt().equals(dto.getCvt())) {
 					throw MismatchedException.builder().category(MismatchedException.Category.VALID_THRU).build();
 				}
-				if (!card.password().equals(dto.getPassword())) {
+				if (!passwordEncoder.matches(dto.getPassword(), card.password())) {
 					throw MismatchedException.builder().category(MismatchedException.Category.PASSWORD).build();
 				}
 				//
