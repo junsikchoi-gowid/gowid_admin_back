@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigInteger;
 import java.util.List;
 
 public interface CardTransactionCustomRepository {
@@ -61,7 +62,7 @@ public interface CardTransactionCustomRepository {
 		private String week;
 
 		@ApiModelProperty("총금액")
-		private Long usedAmount;
+		private BigInteger usedAmount;
 	}
 
 	@Data

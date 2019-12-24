@@ -26,8 +26,7 @@ public interface CardTransactionRepository extends JpaRepository<CardTransaction
     Long findMonthAmount(@Param("strYear") String strYear,@Param("strMonth") String strMonth, @Param("cards") List<Long> cards);
 
     // 카드정보로 카드이용 내역 출력 - 날짜별 총금액
-    @Query(value = "select new com.nomadconnection.dapp.core.domain.repository.querydsl.CardTransactionCustomRepository() " +
-            "DATE_FORMAT(usedAt , '%m.%d' ) as asUsedAt \n" +
+    @Query(value = "select DATE_FORMAT(usedAt , '%m.%d' ) as asUsedAt \n" +
             ",SUBSTR( _UTF8'일월화수목금토' , DAYOFWEEK(usedAt), 1) AS week \n" +
             ",sum(usedAmount) as usedAmount \n" +
             "from CardTransaction \n" +
@@ -36,7 +35,7 @@ public interface CardTransactionRepository extends JpaRepository<CardTransaction
             "AND idxCard in (:cards)" +
             "group by asUsedAt, week "
             , nativeQuery = true)
-    List<PerDailyDto> findHistoryByDate(@Param("strDate") String strDate, @Param("cards") List<Long> cards);
+    List<Object[]> findHistoryByDate(@Param("strDate") String strDate, @Param("cards") List<Long> cards);
 
     // 카드정보로 카드이용 내역 출력 - 항목별 총금액
 

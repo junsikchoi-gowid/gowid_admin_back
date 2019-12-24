@@ -63,13 +63,8 @@ public class HistService {
 		log.info("([ historyByDate ]), $month='{}'", month  );
 		log.info("([ historyByDate ]), $cards='{}'", cards  );
 
-		repo.findHistoryByDate(year + String.format("%02d",month) + "01", cards);
-
-		// List<CardTransactionCustomRepository.PerDailyDto> perDaily = repo.findHistoryByDate(year + String.format("%02d",month) + "01", cards);
-
-		//log.info("([ historyByDate ]), $perDaily='{}'", perDaily  );
-
-		return null;
+		List perDaily = repo.findHistoryByDate(year + String.format("%02d",month) + "01", cards);
+		return perDaily;
 	}
 
 
