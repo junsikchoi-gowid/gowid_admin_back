@@ -212,4 +212,6 @@ public class UserService {
 		User member = getUser(idxMember);
 		member.dept(null);
 	}
+
+
 }
