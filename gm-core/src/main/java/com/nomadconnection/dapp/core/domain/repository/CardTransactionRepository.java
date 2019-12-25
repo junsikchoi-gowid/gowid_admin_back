@@ -28,20 +28,52 @@ public interface CardTransactionRepository extends JpaRepository<CardTransaction
     // 카드정보로 카드이용 내역 출력 - 날짜별 총금액
     @Query(value = "select DATE_FORMAT(usedAt , '%m.%d' ) as asUsedAt \n" +
             ",SUBSTR( _UTF8'일월화수목금토' , DAYOFWEEK(usedAt), 1) AS week \n" +
-            ",sum(usedAmount) as usedAmount \n" +
+            // ",CONCAT(sum(usedAmount),'')  as usedAmount  \n" +
             "from CardTransaction \n" +
             "where ( usedAt > LAST_DAY(STR_TO_DATE( CONCAT(:strDate), '%Y%m%d'))- interval 1 month) \n" +
             "AND usedAt <= LAST_DAY(STR_TO_DATE(CONCAT(:strDate), '%Y%m%d')) \n" +
             "AND idxCard in (:cards)" +
             "group by asUsedAt, week "
             , nativeQuery = true)
-    List<Object[]> findHistoryByDate(@Param("strDate") String strDate, @Param("cards") List<Long> cards);
+    List<PerDailyDto> findHistoryByDate(@Param("strDate") String strDate, @Param("cards") List<Long> cards);
 
     // 카드정보로 카드이용 내역 출력 - 항목별 총금액
 
     // 카드정보로 카드이용 내역 출력 - 지역별 총금액
 
-    // 카드정보 각 항목별 리스트
+    // 월별 카드사용금액 - 관리자
+//    @Query(value = "select\n" +
+//            "        c.idx,\n" +
+//            "        c.cardNo,\n" +
+//            "        c.idxUser,\n" +
+//            "        sum(ct.usedAmount) as usedAmount  \n" +
+//            "    from\n" +
+//            "        CardTransaction ct\n" +
+//            "        right join Card c on c.idxCorp = :idx and c.idx = ct.idxCard\n" +
+//            "    where\n" +
+//            "        (usedAt > LAST_DAY(STR_TO_DATE( CONCAT(:strDate), '%Y%m%d'))- interval 1 month)  \n" +
+//            "        AND usedAt <= LAST_DAY(STR_TO_DATE(CONCAT(:strDate), '%Y%m%d'))   \n" +
+//            "    group by\n" +
+//            "        c.idx", nativeQuery = true)
+//    List findCardAdmin(@Param("strDate") Integer strDate, Long idx);
+
+//    // 월별 카드사용금액 - 사용자
+//    @Query(value = "select\n" +
+//            "        c.idx,\n" +
+//            "        c.cardNo,\n" +
+//            "        c.idxUser,\n" +
+//            "        sum(ct.usedAmount) as usedAmount  \n" +
+//            "    from\n" +
+//            "        CardTransaction ct\n" +
+//            "        right join Card c on c.idxUser = :idx and c.idx = ct.idxCard \n" +
+//            "    where\n" +
+//            "        (usedAt > LAST_DAY(STR_TO_DATE( CONCAT(:strDate), '%Y%m%d'))- interval 1 month)  \n" +
+//            "        AND usedAt <= LAST_DAY(STR_TO_DATE(CONCAT(:strDate), '%Y%m%d'))   \n" +
+//            "    group by\n" +
+//            "        c.idx", nativeQuery = true)
+//    List findCardUser(@Param("strDate") String strDate, Long idx);
+
+
 
     // 카드 상세 내역
 

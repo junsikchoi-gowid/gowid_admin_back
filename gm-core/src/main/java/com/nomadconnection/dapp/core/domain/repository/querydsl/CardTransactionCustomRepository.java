@@ -9,10 +9,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 
-import java.math.BigInteger;
 import java.util.List;
 
+
 public interface CardTransactionCustomRepository {
+
+
+
 
 	@Data
 	@Builder
@@ -37,17 +40,23 @@ public interface CardTransactionCustomRepository {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	class CardListDto {
+		@ApiModelProperty("카드 idx")
+		private Long cardIdx;
+
 		@ApiModelProperty("카드번호")
 		private String cardNo;
 
-		@ApiModelProperty("사용자명")
-		private String userName;
+		@ApiModelProperty("사용자 idx")
+		private Long idxUser;
 
-		@ApiModelProperty("부서명")
-		private String name;
+//		@ApiModelProperty("사용자명")
+//		private String userName;
+//
+//		@ApiModelProperty("부서명")
+//		private String deptName;
 
 		@ApiModelProperty("총금액")
-		private Long amount;
+		private Long usedAmount;
 	}
 
 	@Data
@@ -62,8 +71,25 @@ public interface CardTransactionCustomRepository {
 		private String week;
 
 		@ApiModelProperty("총금액")
-		private BigInteger usedAmount;
+		private Long usedAmount;
 	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	class PerDailyDetailDto{
+		@ApiModelProperty("날짜/항목/지역")
+		private String asUsedAt;
+
+		@ApiModelProperty("요일")
+		private String week;
+
+		@ApiModelProperty("총금액")
+		private Long usedAmount;
+	}
+
+
 
 	@Data
 	@Builder
@@ -126,13 +152,20 @@ public interface CardTransactionCustomRepository {
 
 
 	}
-	//카드정보로 카드이용 내역 출력 - 날짜별 총금액
-	// List<PerDailyDto> findHistoryByDate(@Param("strDate") String strDate, @Param("cards") List<Long> cards);
 
-	//카드정보로 카드이용 내역 출력 - 날짜별 총금액
-    Page<PerHour> findHistoryByHour(@Param("strDate") String strDate, @Param("cards") List<Long> cards  , Pageable pageable);
+	List<PerDailyDto> findCustomHistoryByDate(String strDate, List<Long> cards);
 
-    //카드상세 정보 내역 출력
-    DetailInfo findHistoryByOne(@Param("strDate") String strDate, @Param("cards") List<Long> cards );
+	Page<PerDailyDetailDto> findHistoryByTypeDate(List<Long> cards, Pageable pageable);
+
+	Page<PerDailyDetailDto> findHistoryByTypeCategory(List<Long> cards, Pageable pageable);
+
+	Page<PerDailyDetailDto> findHistoryByTypeArea(List<Long> cards, Pageable pageable);
+
+	List<CardListDto> findCardAdmin(String iYearMon, Long idx);
+
+	List<CardListDto> findCardUser(String iYearMon, Long idx);
+
+    DetailInfo findDetailInfo(@Param("strDate") String strDate, @Param("cards") List<Long> cards );
 
 }
+

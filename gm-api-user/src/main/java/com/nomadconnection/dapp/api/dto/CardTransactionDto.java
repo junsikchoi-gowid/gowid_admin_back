@@ -104,7 +104,35 @@ public class CardTransactionDto {
       }
     }
 
-    public class MonthSumCard {
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CardInfo{
+        @ApiModelProperty("식별자(카드)")
+        private String idxCard;
+
+        @ApiModelProperty("카드사용자")
+        private String cardUserName;
+
+        @ApiModelProperty("식별자(부서)")
+        private Long idxDept;
+
+        @ApiModelProperty("부서명")
+        private Long deptName;
+
+        @ApiModelProperty("카드No")
+        private String cardNo;
+
+        @ApiModelProperty("카드/월별/사용금액")
+        private String usedAmount;
+
+        public static CardInfo from(CardInfo cardInfo) {
+            return CardInfo.builder()
+                    // .asUsedAt(perDaily.getAsUsedAt())
+                    .build();
+        }
     }
 
     @Data
@@ -129,4 +157,16 @@ public class CardTransactionDto {
                     .build();
         }
     }
+
+    public class UsedInfo {
+    }
+
+    public class MonthUsedCard {
+        @ApiModelProperty("식별자(사용자)")
+        private Long idx;
+
+        @ApiModelProperty("검색년월")
+        private String yearMon;
+    }
 }
+

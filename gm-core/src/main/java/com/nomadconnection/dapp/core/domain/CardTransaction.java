@@ -1,12 +1,36 @@
 package com.nomadconnection.dapp.core.domain;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
+import com.nomadconnection.dapp.core.domain.repository.querydsl.CardTransactionCustomRepository;
 import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@SqlResultSetMapping(
+		name="PerDailyDtoMapping",
+		classes = @ConstructorResult(
+				targetClass = CardTransactionCustomRepository.PerDailyDto.class,
+				columns = {
+						@ColumnResult(name="asUsedAt", type = String.class),
+						@ColumnResult(name="week", type = String.class),
+						@ColumnResult(name="usedAmount", type = Long.class),
+				})
+)
+@SqlResultSetMapping(
+		name="CardListDtoMapping",
+		classes = @ConstructorResult(
+				targetClass = CardTransactionCustomRepository.CardListDto.class,
+				columns = {
+						@ColumnResult(name = "cardIdx", type = Long.class),
+						@ColumnResult(name = "cardNo", type = String.class),
+						@ColumnResult(name = "idxUser", type = Long.class),
+//						@ColumnResult(name = "userName", type = String.class),
+//						@ColumnResult(name = "deptName", type = String.class),
+						@ColumnResult(name = "usedAmount", type = Long.class),
+				})
+)
 @Data
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true)

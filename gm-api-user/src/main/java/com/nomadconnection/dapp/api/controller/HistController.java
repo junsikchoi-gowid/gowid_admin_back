@@ -11,9 +11,12 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -33,6 +36,7 @@ public class HistController {
 		public static final String DAYHEADER = "/dayheader";
 		public static final String DAYDETAILS = "/daydetails";
 		public static final String DAYDETAILS_DAYDETAIL = "/daydetails/{daydetail}";
+		public static final String CARDLIST = "/monthusedcard";
 	}
 
 	private final HistService service;
@@ -84,85 +88,73 @@ public class HistController {
 			@ApiImplicitParam(name = "cards", value = "카드정보 리스트 idx ( 전체 or 선택한 카드정보들) ", dataType = "Integer", allowMultiple = true )
 	})
 	@GetMapping(URI.DAYHEADER)
-	// public List<CardTransactionDto.HistHeaders> getHistoryByDate(
-	public List<CardTransactionCustomRepository.PerDailyDto> getHistoryByDate(
+	public Collection<CardTransactionCustomRepository.PerDailyDto> getHistoryByDate(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestParam Integer year,
 			@RequestParam Integer month,
 			@RequestParam(required = false) List<Long> cards
 	){
-
-		// return service.getCardList(user.idx(), year, month);
 		return service.historyByDate(user.idx(), year, month, cards);
 	}
-
-
-
-
-
-
-
-
-
-
-
-	//==================================================================================================================
-	//
-	//	D-2. 해당달의 전체금액 = 관리자일경우 리스트 출력
-	//	input : 월
-	//	output : List - 사용자명, 부서명, 카드번호, 합계
-	//
-	//==================================================================================================================
-//
-//	@ApiOperation(value = "해당달의 전체금액 .. ", notes = "관리자일경우 리스트 출력" +
-//			"\n ### Remarks" +
-//			"\n" +
-//			"\n - " +
-//			"\n")
-//	@ApiImplicitParams({
-//			@ApiImplicitParam(name = "year", value = "검색년도", dataType = "Integer", required = true),
-//			@ApiImplicitParam(name = "month", value = "검색월정보", dataType = "Integer", required = true)
-//	})
-//	@GetMapping(URI.MONTHSUMCARD)
-//	public List<CardTransactionDto.MonthSumCard> getMonthSumCard(
-//			// @ApiIgnore @CurrentUser CustomUser user,
-//			@RequestBody CardTransactionDto.MonthSum dto
-//	){
-//
-//		// return service.getCardList(user.idx(), year, month);
-//		return null;
-//	}
 
 
 
 	//==================================================================================================================
 	//
 	//	D-1. 카드리스트 정보로 이용내역 상세정보 - 종류별
-	//	input : 일, 카드리스트
+	//	input : 종류, 일, 카드리스트
 	//	output : List - 시간, 항목, 사용자명, 부서명, 위치, 국내, 정상, 금액
 	//
 	//==================================================================================================================
 
-	@ApiOperation(value = " 카드리스트 정보로 이용내역 상세정보", notes = "카드리스트 정보로 이용내역 일자별 합계 - 종류별" +
+	@ApiOperation(value = " 카드리스트 정보로 이용내역 상세정보 - 종류별 ", notes = "카드리스트 정보로 이용내역 일자별 합계 - 종류별" +
 			"\n ### Remarks" +
 			"\n" +
 			"\n - " +
 			"\n")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "year", value = "검색년도", dataType = "Integer", required = true),
-			@ApiImplicitParam(name = "month", value = "검색월", dataType = "Integer", required = true),
-			@ApiImplicitParam(name = "cards", value = "카드정보 리스트 ( 전체 or 선택한 카드정보들) ", dataType = "String", allowMultiple = true )
+			@ApiImplicitParam(name = "iYearMon", value = "검색년월", defaultValue =  "201912", dataType = "Integer"),
+			@ApiImplicitParam(name = "cards", value = "카드정보 리스트 ( 전체 or 선택한 카드정보들) \n ", dataType = "String", allowMultiple = true ),
+			@ApiImplicitParam(name = "type", value = "검색타입" +
+					"날짜별 Value : 0 \n" +
+					"항목별 Value : 1 \n" +
+					"지역별 Value : 2 ", defaultValue =  "0", dataType = "Integer")
 	})
 	@GetMapping(URI.DAYDETAILS)
-	public List<CardTransactionDto.DayHeader> getDayDetails(
+	public Page<CardTransactionCustomRepository.PerDailyDetailDto> getDayDetails(
 			@ApiIgnore @CurrentUser CustomUser user,
-			@PathVariable Integer year,
-			@PathVariable Integer month,
-			@PathVariable String cards
-	){
+			@RequestParam Integer iYearMon,
+			@RequestParam(required = false) List<Long> cards,
+			@RequestParam Integer type,
+			@ApiIgnore Pageable pageable)
+	{
+		return service.historyByDateUseType(user.idx(), iYearMon, cards, type, pageable);
+	}
 
-		// return service.getCardList(user.idx(), year, month);
-		return null;
+
+
+	//==================================================================================================================
+	//
+	//	D-1. 카드리스트 - 카드별 사용금액 group by
+	//	input : 사용자정보
+	//	output : 사용자이름, 부서이름, 카드정보 idx, 카드별 사용금액 group by
+	//
+	//==================================================================================================================
+
+	@ApiOperation(value = " 카드리스트 - 카드별 사용금액 ", notes = "카드리스트 - 카드별 사용금액 group by " +
+			"\n ### Remarks" +
+			"\n" +
+			"\n - " +
+			"\n")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "yearmonth", value = "검색년도", defaultValue =  "201912", dataType = "Integer")
+	})
+	@GetMapping(URI.CARDLIST)
+	public Collection<CardTransactionCustomRepository.CardListDto> getMonthUsedCard( @ApiIgnore @CurrentUser CustomUser user, @RequestParam int yearmonth){
+		if (log.isDebugEnabled()) {
+			log.debug("([ putDept ]) $user='{}', $yearmonth='{}'", user, yearmonth);
+		}
+		return service.MonthUsedCard(user.idx(), yearmonth);
 	}
 
 	//==================================================================================================================
@@ -173,25 +165,22 @@ public class HistController {
 	//
 	//==================================================================================================================
 
-	@ApiOperation(value = " 카드리스트 정보로 이용내역 상세정보", notes = "카드리스트 정보로 이용내역 일자별 합계 - 종류별" +
+	@ApiOperation(value = " 결재정보 1건의 상세검색 ", notes = "결재정보 1건의 상세검색" +
 			"\n ### Remarks" +
 			"\n" +
 			"\n - " +
 			"\n")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "year", value = "결재정보", dataType = "String", required = true),
-			@ApiImplicitParam(name = "month", value = "검색월", dataType = "Integer", required = true),
-			@ApiImplicitParam(name = "cards", value = "카드정보 리스트 ( 전체 or 선택한 카드정보들) ", dataType = "String", allowMultiple = true )
+			@ApiImplicitParam(name = "iYearMon", value = "검색년월", defaultValue =  "201912", dataType = "Integer"),
+			@ApiImplicitParam(name = "card", value = "카드정보 ", dataType = "String", allowMultiple = true )
 	})
 	@GetMapping(URI.DAYDETAILS_DAYDETAIL)
-	public CardTransactionDto.DayHeader getDayDetail(
+	public CardTransactionDto.UsedInfo getUseDetail(
 			@ApiIgnore @CurrentUser CustomUser user,
-			@PathVariable Integer year,
-			@PathVariable Integer month,
-			@PathVariable String cards
+			@RequestParam Integer iYearMon,
+			@RequestParam String card
 	){
-
-		// return service.getCardList(user.idx(), year, month);
+ 		// return service.usedDetail(user, iYearMon, card);
 		return null;
 	}
 

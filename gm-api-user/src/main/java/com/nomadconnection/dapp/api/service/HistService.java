@@ -1,13 +1,18 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
+import com.nomadconnection.dapp.core.domain.Role;
 import com.nomadconnection.dapp.core.domain.User;
 import com.nomadconnection.dapp.core.domain.repository.CardTransactionRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CardTransactionCustomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -57,15 +62,79 @@ public class HistService {
 	 * @return 이용내역 목록
 	 **/
 	@Transactional
-	public List<CardTransactionCustomRepository.PerDailyDto> historyByDate(Long idx, Integer year, Integer month, List<Long> cards) {
+	public Collection<CardTransactionCustomRepository.PerDailyDto> historyByDate(Long idx, Integer year, Integer month, List<Long> cards) {
 		log.info("([ historyByDate ]), $idx='{}'", idx  );
 		log.info("([ historyByDate ]), $year='{}'", year  );
 		log.info("([ historyByDate ]), $month='{}'", month  );
 		log.info("([ historyByDate ]), $cards='{}'", cards  );
 
-		List perDaily = repo.findHistoryByDate(year + String.format("%02d",month) + "01", cards);
+		Collection<CardTransactionCustomRepository.PerDailyDto> perDaily = repo.findCustomHistoryByDate(year + String.format("%02d",month) + "01", cards);
+
 		return perDaily;
 	}
+
+
+	/**
+	 * 이용내역 목록 조회
+	 *
+	 * @param user 식별자(사용자), iYearMon 검색년월,  cards 카드정보, type 형태구분(날짜,항목, 지역)
+	 * @param cards
+	 * @return 종류별 결과 리스트
+	 **/
+	@Transactional
+	public Page<CardTransactionCustomRepository.PerDailyDetailDto> historyByDateUseType(Long user, Integer iYearMon, List<Long> cards, Integer type, Pageable pageable) {
+		log.info("([ historyByDateUseType ]), $iYearMon='{}'", iYearMon  );
+		log.info("([ historyByDateUseType ]), $type='{}'", type  );
+
+		Page<CardTransactionCustomRepository.PerDailyDetailDto> perDailyDetailDtos;
+
+		switch (type){
+			case 0: perDailyDetailDtos = repo.findHistoryByTypeDate(cards, pageable);
+				break;
+			case 1: perDailyDetailDtos = repo.findHistoryByTypeCategory(cards, pageable);
+				break;
+			case 2: perDailyDetailDtos = repo.findHistoryByTypeArea(cards, pageable);
+				break;
+			default:
+				throw new IllegalStateException("Unexpected value: " + type);
+		}
+
+		return perDailyDetailDtos;
+	}
+
+
+	/**
+	 * 기간별 카드 리스트 ( 관리자/일반사용자 ) 별 월별 사용 총 금액
+	 *
+	 * @param idx 식별자(사용자), iYearMon 검색년월
+	 * @return 권한별 월별 카드목록 및 총 사용금액
+	 **/
+	@Transactional
+	public Collection<CardTransactionCustomRepository.CardListDto> MonthUsedCard(Long idx, Integer iYearMon) {
+		log.info("([ historyByDateUseType ]), $idx'{}'", idx  );
+		log.info("([ historyByDateUseType ]), $iYearMon='{}'", iYearMon  );
+		User user = serviceUser.getUser(idx);
+		{
+			if (user.corp() == null) {
+				throw CorpNotRegisteredException.builder()
+						.account(user.email())
+						.build();
+			}
+		}
+
+		List<CardTransactionCustomRepository.CardListDto> returnList; // cardIdx, cardNo, usedAmount
+
+		if (user.authorities().stream().anyMatch(o -> o.role().equals(Role.ROLE_MASTER) || o.role().equals(Role.ROLE_ADMIN) )) {
+			returnList = repo.findCardAdmin(String.valueOf(iYearMon), user.corp().idx());
+		}else{
+			returnList = repo.findCardUser(String.valueOf(iYearMon), user.idx());
+		}
+
+		return returnList;
+	}
+
+
+
 
 
 	/*
@@ -125,40 +194,10 @@ public class HistService {
 		// return repo.findHistoryByDate(cardTransactionDto.getSearchDate(), cardTransactionDto.getCards());
 		return null;
 	}
-
-
-
-			//return repo.findHistoryByHour(cardTransactionDto.getSearchDate(), cardTransactionDto.getCards() ,pageable)
-			//.map(CardTransactionDto.HistHeaders::from);
-
-
-	/**
-	 * 기간별 카드 리스트 ( 관리자/일반사용자 )
-	 *
-	 * @param idxUser 식별자(사용자), year 검색년도, month 검색월, cards 카드정보
-	 * @return 이용내역 목록
-	 */
-	/*
-	public List<CardDto.CardBasicInfo> getCardList(Long idxUser,Integer year, Integer month, Pageable pageable) {
-
-		User user = serviceUser.getUser(idxUser);
-		{
-			if (user.corp() == null) {
-				throw CorpNotRegisteredException.builder()
-						.account(user.email())
-						.build();
-			}
-		}
-
-		List<CardDto.CardBasicInfo> returnList;
-
-		if (user.authorities().stream().anyMatch(o -> o.role().equals(Role.ROLE_MASTER) || o.role().equals(Role.ROLE_ADMIN) )) {
-			returnList = repo.fidnByCardAdmin(user.corp().idx(), pageable).map(HistDto.HistCards::from);
-		}else{
-			returnList = repo.fidnByCardUser(user.idx(), pageable).map(HistDto.HistCards::from);
-		}
-
-		return returnList ;
-	}
 	*/
+
+
+
+	//return repo.findHistoryByHour(cardTransactionDto.getSearchDate(), cardTransactionDto.getCards() ,pageable)
+	//.map(CardTransactionDto.HistHeaders::from);
 }
