@@ -77,23 +77,24 @@ public class HistService {
 	/**
 	 * 이용내역 목록 조회
 	 *
-	 * @param user 식별자(사용자), iYearMon 검색년월,  cards 카드정보, type 형태구분(날짜,항목, 지역)
+	 * @param userIdx 식별자(사용자), iYearMonDay 검색년월,  cards 카드정보, type 형태구분(날짜,항목, 지역)
 	 * @param cards
 	 * @return 종류별 결과 리스트
 	 **/
 	@Transactional
-	public Page<CardTransactionCustomRepository.PerDailyDetailDto> historyByDateUseType(Long user, Integer iYearMon, List<Long> cards, Integer type, Pageable pageable) {
-		log.info("([ historyByDateUseType ]), $iYearMon='{}'", iYearMon  );
+	public Page<CardTransactionCustomRepository.PerDailyDetailDto> historyByDateUseType(Long userIdx, Integer date, List<Long> cards, Integer type, Pageable pageable) {
+		log.info("([ historyByDateUseType ]), $userIdx='{}'", userIdx  );
+		log.info("([ historyByDateUseType ]), $date='{}'", date  );
 		log.info("([ historyByDateUseType ]), $type='{}'", type  );
 
 		Page<CardTransactionCustomRepository.PerDailyDetailDto> perDailyDetailDtos;
 
 		switch (type){
-			case 0: perDailyDetailDtos = repo.findHistoryByTypeDate(cards, pageable);
+			case 0: perDailyDetailDtos = repo.findHistoryByTypeDate(date, cards, pageable);
 				break;
-			case 1: perDailyDetailDtos = repo.findHistoryByTypeCategory(cards, pageable);
+			case 1: perDailyDetailDtos = repo.findHistoryByTypeCategory(date, cards, pageable);
 				break;
-			case 2: perDailyDetailDtos = repo.findHistoryByTypeArea(cards, pageable);
+			case 2: perDailyDetailDtos = repo.findHistoryByTypeArea(date, cards, pageable);
 				break;
 			default:
 				throw new IllegalStateException("Unexpected value: " + type);

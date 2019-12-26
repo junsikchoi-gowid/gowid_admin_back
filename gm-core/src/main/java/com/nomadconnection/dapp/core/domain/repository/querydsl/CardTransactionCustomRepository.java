@@ -79,14 +79,26 @@ public interface CardTransactionCustomRepository {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	class PerDailyDetailDto{
-		@ApiModelProperty("날짜/항목/지역")
-		private String asUsedAt;
+		@ApiModelProperty("식별자")
+		private String idx;
 
-		@ApiModelProperty("요일")
-		private String week;
+		@ApiModelProperty("카드번호")
+		private String cardNo;
+
+		@ApiModelProperty("사용자명")
+		private String userName;
+
+		@ApiModelProperty("부서명")
+		private String deptName;
 
 		@ApiModelProperty("총금액")
 		private Long usedAmount;
+
+		@ApiModelProperty("날짜/항목/지역")
+		private String typeValue;
+
+		@ApiModelProperty("가맹점정보")
+		private String memberStoreName;
 	}
 
 
@@ -95,7 +107,10 @@ public interface CardTransactionCustomRepository {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
-	class PerHour{
+	class PerHourDto{
+		@ApiModelProperty("식별자")
+		private String idx;
+
 		@ApiModelProperty("카드번호")
 		private String cardNo;
 
@@ -155,11 +170,11 @@ public interface CardTransactionCustomRepository {
 
 	List<PerDailyDto> findCustomHistoryByDate(String strDate, List<Long> cards);
 
-	Page<PerDailyDetailDto> findHistoryByTypeDate(List<Long> cards, Pageable pageable);
+	Page<PerDailyDetailDto> findHistoryByTypeDate(Integer date, List<Long> cards, Pageable pageable);
 
-	Page<PerDailyDetailDto> findHistoryByTypeCategory(List<Long> cards, Pageable pageable);
+	Page<PerDailyDetailDto> findHistoryByTypeCategory(Integer date, List<Long> cards, Pageable pageable);
 
-	Page<PerDailyDetailDto> findHistoryByTypeArea(List<Long> cards, Pageable pageable);
+	Page<PerDailyDetailDto> findHistoryByTypeArea(Integer date, List<Long> cards, Pageable pageable);
 
 	List<CardListDto> findCardAdmin(String iYearMon, Long idx);
 

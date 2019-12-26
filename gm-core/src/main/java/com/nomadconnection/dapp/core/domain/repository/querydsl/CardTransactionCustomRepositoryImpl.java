@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
-import com.nomadconnection.dapp.core.domain.CardTransaction;
-import com.nomadconnection.dapp.core.domain.QCardTransaction;
+import com.nomadconnection.dapp.core.domain.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -14,6 +13,9 @@ import java.util.List;
 public class CardTransactionCustomRepositoryImpl extends QuerydslRepositorySupport implements CardTransactionCustomRepository {
 
 	private final QCardTransaction cardTransaction = QCardTransaction.cardTransaction;
+	private final QUser user = QUser.user;
+	private final QDept dept = QDept.dept;
+	private final QCard card = QCard.card;
 
 	/**
 	 * Creates a new {@link QuerydslRepositorySupport} instance for the given domain type.
@@ -91,9 +93,7 @@ public class CardTransactionCustomRepositoryImpl extends QuerydslRepositorySuppo
 		nativeQuery.setParameter("iYearMon",iYearMon);
 		nativeQuery.setParameter("idx",idx);
 
-		List<CardListDto> resultList  = nativeQuery.getResultList();
-
-		return resultList;
+		return (List<CardListDto>) nativeQuery.getResultList();
 	}
 
 
@@ -105,17 +105,28 @@ public class CardTransactionCustomRepositoryImpl extends QuerydslRepositorySuppo
 
 
 	@Override
-	public Page<PerDailyDetailDto> findHistoryByTypeDate(List<Long> cards, Pageable pageable) {
+	public Page<PerDailyDetailDto> findHistoryByTypeDate(Integer date, List<Long> cards, Pageable pageable) {
+//		LocalDateTime tempDate ;
+//		JPQLQuery<PerDailyDetailDto> query = from(cardTransaction)
+//				.select(Projections.bean(PerDailyDetailDto.class,
+//						cardTransaction.idx.as("idx"),
+//						cardTransaction.card.cardNo.as("cardNo"),
+//						cardTransaction.card.owner.name.as("userName"),
+//						cardTransaction.card.owner.dept.name.as("deptName"),
+//						cardTransaction.usedAmount.as("usedAmount"),
+//						cardTransaction.usedAt.dayOfMonth().as("typeValue"),
+//						cardTransaction.memberStoreName.as("memberStoreName")))
+//				.where(cardTransaction.usedAt.eq()
 		return null;
 	}
 
 	@Override
-	public Page<PerDailyDetailDto> findHistoryByTypeCategory(List<Long> cards, Pageable pageable) {
+	public Page<PerDailyDetailDto> findHistoryByTypeCategory(Integer date, List<Long> cards, Pageable pageable) {
 		return null;
 	}
 
 	@Override
-	public Page<PerDailyDetailDto> findHistoryByTypeArea(List<Long> cards, Pageable pageable) {
+	public Page<PerDailyDetailDto> findHistoryByTypeArea(Integer date, List<Long> cards, Pageable pageable) {
 		return null;
 	}
 

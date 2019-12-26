@@ -113,7 +113,7 @@ public class HistController {
 			"\n - " +
 			"\n")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "iYearMon", value = "검색년월", defaultValue =  "201912", dataType = "Integer"),
+			@ApiImplicitParam(name = "date", value = "검색년월일", defaultValue =  "20191211", dataType = "Integer"),
 			@ApiImplicitParam(name = "cards", value = "카드정보 리스트 ( 전체 or 선택한 카드정보들) \n ", dataType = "String", allowMultiple = true ),
 			@ApiImplicitParam(name = "type", value = "검색타입" +
 					"날짜별 Value : 0 \n" +
@@ -123,12 +123,12 @@ public class HistController {
 	@GetMapping(URI.DAYDETAILS)
 	public Page<CardTransactionCustomRepository.PerDailyDetailDto> getDayDetails(
 			@ApiIgnore @CurrentUser CustomUser user,
-			@RequestParam Integer iYearMon,
+			@RequestParam Integer date,
 			@RequestParam(required = false) List<Long> cards,
 			@RequestParam Integer type,
 			@ApiIgnore Pageable pageable)
 	{
-		return service.historyByDateUseType(user.idx(), iYearMon, cards, type, pageable);
+		return service.historyByDateUseType(user.idx(), date, cards, type, pageable);
 	}
 
 
