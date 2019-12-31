@@ -1,16 +1,16 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.dto.ConsentDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
-import com.nomadconnection.dapp.core.domain.repository.AuthorityRepository;
-import com.nomadconnection.dapp.core.domain.repository.DeptRepository;
-import com.nomadconnection.dapp.core.domain.repository.UserRepository;
-import com.nomadconnection.dapp.core.domain.repository.VerificationCodeRepository;
+import com.nomadconnection.dapp.core.domain.embed.BankAccount;
+import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 @Slf4j
@@ -32,9 +33,12 @@ public class UserService {
 
 	private final PasswordEncoder encoder;
 	private final UserRepository repo;
+	private final ConsentRepository repoConsent;
+	private final CorpRepository repoCorp;
 	private final DeptRepository repoDept;
 	private final AuthorityRepository repoAuthority;
 	private final VerificationCodeRepository repoVerificationCode;
+
 
 	/**
 	 * 사용자 엔터티 조회
@@ -68,6 +72,8 @@ public class UserService {
 	@Transactional(rollbackFor = Exception.class)
 	public void registerUser(UserDto.UserRegister dto) {
 		//	이메일 중복 체크
+
+
 		if (repo.findByEmail(dto.getEmail()).isPresent()) {
 			throw AlreadyExistException.builder()
 					.category("email")
@@ -211,5 +217,85 @@ public class UserService {
 		}
 		User member = getUser(idxMember);
 		member.dept(null);
+	}
+
+
+	/**
+	 * 사용자 등록
+	 *
+	 * 브랜드 - 회사와 사용자를 한번에 등록함
+	 *
+	 * @param dto 등록정보
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public void registerUserCorp(UserDto.RegisterUserCorp dto) {
+
+		UserDto.UserRegister userDto = new UserDto.UserRegister();
+		BeanUtils.copyProperties(dto, userDto);
+		userDto.setName(dto.getUserName());
+
+		// 메일확인
+		if (repo.findByEmail(userDto.getEmail()).isPresent()) {
+			throw AlreadyExistException.builder()
+					.category("email")
+					.resource(userDto.getEmail())
+					.build();
+		}
+
+		List<Integer> listConsentIdx = null;
+
+		for(ConsentDto s:dto.getListConsent()){
+			listConsentIdx.add(s.idxConsent);
+		}
+
+		// 필수사항 체크 확인
+
+		if (repoConsent.findByIdxNotIn(listConsentIdx)){
+			log.debug("exception 처리 필요 - 미정");
+		}
+
+		//	마스터 등록 (권한 설정 필요)
+		User user = repo.save(User.builder()
+				.consent(true)
+				.email(userDto.getEmail())
+				.password(encoder.encode(userDto.getPassword()))
+				.name(userDto.getName())
+				.mdn(userDto.getMdn())
+				.authentication(new Authentication())
+				.authorities(Collections.singleton(
+						repoAuthority.findByRole(Role.ROLE_MASTER).orElseThrow(
+								() -> new RuntimeException("ROLE_MASTER NOT FOUND")
+						)))
+				.build());
+
+		// user info - end
+		// corp info - start
+
+		if (repoCorp.findByBizRegNo(dto.getBizRegNo()).isPresent()) {
+			if (log.isDebugEnabled()) {
+				log.debug("([ registerCorp ]) BRN ALREADY EXIST, $user.idx='{}', $brn='{}'", user.idx(), dto.getBizRegNo());
+			}
+			throw AlreadyExistException.builder()
+					.resource(dto.getBizRegNo())
+					.build();
+		}
+
+		//	법인정보 저장(상태: 대기)
+		Corp corp = repoCorp.save(Corp.builder()
+				.user(user)
+				.name(dto.getCorpName())
+				.bizRegNo(dto.getBizRegNo())
+				.reqCreditLimit(dto.getReqCreditLimit())
+				.bankAccount(BankAccount.builder()
+						.bankAccount(dto.getBankAccount().getAccount())
+						.bankAccountHolder(dto.getBankAccount().getAccountHolder())
+						.build())
+				.status(CorpStatus.PENDING)
+				.build());
+
+		//	사용자-법인 매핑
+		log.debug("update user info $corp.idx='{}' " , corp.idx() );
+		user.corp(corp);
+
 	}
 }

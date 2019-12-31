@@ -119,6 +119,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_ISSUE).permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_REISSUE).permitAll()
 				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTER).permitAll()
+				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION).permitAll()
 				.antMatchers(CorpController.URI.BASE + CorpController.URI.REGISTRABLE).permitAll()
 				.anyRequest().authenticated();
 	}
