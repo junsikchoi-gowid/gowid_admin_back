@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.dto.ConsentDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.core.domain.*;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 @Slf4j
@@ -240,6 +242,8 @@ public class UserService {
 					.build();
 		}
 
+		List<Long> listIdx = getConsentIdxList(dto.getConsents());
+
 		//	마스터 등록 (권한 설정 필요)
 		User user = repo.save(User.builder()
 				.consent(true)
@@ -252,7 +256,7 @@ public class UserService {
 						repoAuthority.findByRole(Role.ROLE_MASTER).orElseThrow(
 								() -> new RuntimeException("ROLE_MASTER NOT FOUND")
 						)))
-				.consents(repoConsent.findByVersionAndEssential(dto.getConsentVersion(),true))
+				.consents(repoConsent.findByIdxIn(listIdx))
 				.build());
 
 		// user info - end
@@ -284,5 +288,21 @@ public class UserService {
 		log.debug("update user info $corp.idx='{}' " , corp.idx() );
 		user.corp(corp);
 
+		// 이용약관 매핑
+		for(ConsentDto.RegDto regDto : dto.getConsents()) {
+			if(regDto.status) {
+				repoConsent.updateConsentMapping(1, user.idx(), regDto.idxConsent);
+			}else{
+				repoConsent.updateConsentMapping(0, user.idx(), regDto.idxConsent);
+			}
+		}
+	}
+
+	private List<Long> getConsentIdxList(List<ConsentDto.RegDto> consents) {
+		List<Long> listDto = null;
+		for(ConsentDto.RegDto regDto : consents){
+			listDto.add(regDto.idxConsent);
+		}
+		return listDto;
 	}
 }

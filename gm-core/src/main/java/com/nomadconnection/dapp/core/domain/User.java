@@ -71,9 +71,10 @@ public class User extends BaseTime {
 	private Set<Authority> authorities = new HashSet<>();
 
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinTable(name = "ConsentMapping",
+	@JoinTable(
 			joinColumns = @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_ConsentMapping")),
-			inverseJoinColumns = @JoinColumn(name = "version", foreignKey = @ForeignKey(name = "FK_Consent_ConsentMapping")))
+			inverseJoinColumns = @JoinColumn(name = "idxConsent", foreignKey = @ForeignKey(name = "FK_Consent_ConsentMapping"))
+    )
 	@Builder.Default
 	private List<Consent> consents = new ArrayList<>();
 	//private Set<Consent> consents = new HashSet<>();
