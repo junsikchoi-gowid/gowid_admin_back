@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.nomadconnection.dapp.api.dto.ConsentDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.core.domain.*;
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
 @Slf4j
@@ -242,18 +240,6 @@ public class UserService {
 					.build();
 		}
 
-		List<Integer> listConsentIdx = null;
-
-		for(ConsentDto s:dto.getListConsent()){
-			listConsentIdx.add(s.idxConsent);
-		}
-
-		// 필수사항 체크 확인
-
-		if (repoConsent.findByIdxNotIn(listConsentIdx)){
-			log.debug("exception 처리 필요 - 미정");
-		}
-
 		//	마스터 등록 (권한 설정 필요)
 		User user = repo.save(User.builder()
 				.consent(true)
@@ -266,6 +252,7 @@ public class UserService {
 						repoAuthority.findByRole(Role.ROLE_MASTER).orElseThrow(
 								() -> new RuntimeException("ROLE_MASTER NOT FOUND")
 						)))
+				.consents(repoConsent.findByVersionAndEssential(dto.getConsentVersion(),true))
 				.build());
 
 		// user info - end

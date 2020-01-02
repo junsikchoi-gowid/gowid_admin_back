@@ -14,6 +14,9 @@ public class ConsentDto {
     @ApiModelProperty("이용약관(식별자)")
     public Integer idxConsent;
 
+    @ApiModelProperty("버전")
+    public String version;
+
     @ApiModelProperty("제목")
     public String title;
 

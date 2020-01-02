@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ConsentRepository extends JpaRepository<Consent, Long> {
-	boolean findByIdxNotIn(List<Integer> listConsent);
+	List<Consent> findByVersionAndEssential(String consentVersion, boolean b);
 }

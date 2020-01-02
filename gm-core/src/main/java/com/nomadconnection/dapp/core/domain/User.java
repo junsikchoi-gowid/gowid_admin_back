@@ -9,7 +9,9 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -71,7 +73,9 @@ public class User extends BaseTime {
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(name = "ConsentMapping",
 			joinColumns = @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_ConsentMapping")),
-			inverseJoinColumns = @JoinColumn(name = "idxConsent", foreignKey = @ForeignKey(name = "FK_Consent_ConsentMapping")))
+			inverseJoinColumns = @JoinColumn(name = "version", foreignKey = @ForeignKey(name = "FK_Consent_ConsentMapping")))
 	@Builder.Default
-	private Set<Consent> consents = new HashSet<>();
+	private List<Consent> consents = new ArrayList<>();
+	//private Set<Consent> consents = new HashSet<>();
+
 }

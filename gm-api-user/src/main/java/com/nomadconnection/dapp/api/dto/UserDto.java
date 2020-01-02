@@ -9,8 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @SuppressWarnings({"unused"})
@@ -99,7 +97,7 @@ public class UserDto {
 	public static class RegisterUserCorp {
 
 		@ApiModelProperty("선택약관동의여부")
-		private boolean consent;
+		private boolean idxConsent;
 
 		@ApiModelProperty("이메일(계정)")
 		private String email;
@@ -131,7 +129,7 @@ public class UserDto {
 		@ApiModelProperty("결제계좌정보")
 		private BankAccountDto bankAccount;
 
-		@ApiModelProperty("선택약관 확인정보")
-		private List<ConsentDto> listConsent;
+		@ApiModelProperty("약관 버전정보")
+		private String consentVersion;
 	}
 }

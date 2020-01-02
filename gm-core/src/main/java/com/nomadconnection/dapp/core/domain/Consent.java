@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.core.domain;
 
 
-import com.mysql.cj.jdbc.Clob;
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -24,8 +23,12 @@ public class Consent extends BaseTime {
 	@Column(nullable = false, updatable = false)
 	private Long idx;
 
+	private String version;
 	private String title;
-	private Clob contents;
+
+	@Column(length = 65535, columnDefinition = "Text")
+	private String contents;
+
 	private boolean essential;
 	private LocalDateTime usedAt; // 승인(사용)일시
 }
