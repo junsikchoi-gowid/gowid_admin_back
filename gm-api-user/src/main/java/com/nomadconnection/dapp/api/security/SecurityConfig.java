@@ -116,6 +116,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.CHECK_VERIFICATION_CODE).permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.ACCOUNT).permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.PASSWORD_RESET_EMAIL).permitAll()
+				.antMatchers(AuthController.URI.BASE + AuthController.URI.PASSWORD_RESET_EMAIL+ "2").permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.PASSWORD).permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_ISSUE).permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_REISSUE).permitAll()

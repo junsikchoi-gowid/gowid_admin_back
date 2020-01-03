@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.nomadconnection.dapp.api.dto.BconsentDto;
+import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.service.ConsentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -9,6 +9,8 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -41,20 +43,13 @@ public class ConsentController {
 			@ApiResponse(code = 404, message = "등록되지 않은 이메일"),
 			@ApiResponse(code = 500, message = "")
 	})
-	@PostMapping(URI.CONSENT)
+	@GetMapping(URI.CONSENT)
 	@ExceptionHandler(Exception.class)
-	public Integer consentList(
-			@RequestBody BconsentDto dto
+	public List<BrandConsentDto> consentList(
+			@RequestBody BrandConsentDto dto
 	) {
-		log.debug("ConsentController ");
+		log.debug("ConsentController consentList");
 
-		service.consentList(dto.getIntData());
-
-		return dto.getIntData();
-		// service.registerUserCorp(dto);
-//		return serviceAuth.issueTokenSet(AccountDto.builder()
-//				.email(dto.getEmail())
-//				.password(dto.getPassword())
-//				.build());
+		return service.consentList(true );
 	}
 }

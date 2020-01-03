@@ -1,6 +1,8 @@
 package com.nomadconnection.dapp.api.controller.error;
 
+import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
+import com.nomadconnection.dapp.core.dto.response.ErrorCodeDescriptor;
 import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
@@ -68,5 +70,13 @@ public class CommonExceptionHandler {
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	protected ErrorResponse onIOException(IOException e) {
 		return ErrorResponse.from(ErrorCode.Regular.IO_EXCEPTION);
+	}
+
+	@ExceptionHandler(BusinessException.class)
+	@ResponseStatus(HttpStatus.OK)
+	protected ErrorResponse onBusinessException(Exception e) {
+		ErrorCodeDescriptor descriptor = null;
+		descriptor.description(e.getMessage());
+		return ErrorResponse.from(
 	}
 }

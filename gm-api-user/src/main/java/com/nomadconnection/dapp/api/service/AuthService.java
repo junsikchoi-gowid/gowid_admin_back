@@ -2,14 +2,12 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.AuthDto;
-import com.nomadconnection.dapp.api.dto.CardDto;
+import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.EmailValidator;
 import com.nomadconnection.dapp.api.helper.MdnValidator;
-import com.nomadconnection.dapp.core.domain.Card;
-import com.nomadconnection.dapp.core.domain.CardStatus;
 import com.nomadconnection.dapp.core.domain.User;
 import com.nomadconnection.dapp.core.domain.VerificationCode;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
@@ -143,7 +141,7 @@ public class AuthService {
 	 *
 	 * @param email 이메일주소
 	 */
-	public void sendPasswordResetEmail(String email) throws UserNotFoundException {
+	public void sendPasswordResetEmail(String email) throws UserNotFoundException  {
 		User user = repoUser.findByEmail(email).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(email)
@@ -257,5 +255,23 @@ public class AuthService {
 				.mdn(user.mdn())
 				.corpStatus(user.corp() != null ? user.corp().status() : null)
 				.build();
+	}
+
+	public void sendPasswordResetEmail2(String email) throws UserNotFoundException, BusinessException {
+		log.debug("sendPasswordResetEmail2");
+
+		if(true) {
+			throw UserNotFoundException.builder()
+					.email("sasdfasdfasdf")
+					.build();
+		}
+
+
+		if(true){
+			throw BusinessException.builder()
+					.businessErrorMessage("여기에 이렇게")
+					.resFlag(true)
+					.build();
+		}
 	}
 }

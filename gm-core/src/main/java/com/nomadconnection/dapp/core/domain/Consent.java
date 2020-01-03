@@ -23,12 +23,12 @@ public class Consent extends BaseTime {
 	@Column(nullable = false, updatable = false)
 	private Long idx;
 
-	private String version;
-	private String title;
-
+    private String title;
 	@Column(length = 65535, columnDefinition = "Text")
 	private String contents;
+    private String version;
 
-	private boolean essential;
+	private boolean essential; // 필수 선택 여부
+	private boolean enabled; // 현재 사용 여부
 	private LocalDateTime usedAt; // 승인(사용)일시
 }
