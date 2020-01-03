@@ -19,9 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -290,19 +288,20 @@ public class UserService {
 
 		// 이용약관 매핑
 		for(ConsentDto.RegDto regDto : dto.getConsents()) {
-			if(regDto.status) {
-				repoConsent.updateConsentMapping(1, user.idx(), regDto.idxConsent);
-			}else{
-				repoConsent.updateConsentMapping(0, user.idx(), regDto.idxConsent);
-			}
+			repoConsent.updateConsentMapping(regDto.status, user.idx(), regDto.idxConsent);
 		}
 	}
 
 	private List<Long> getConsentIdxList(List<ConsentDto.RegDto> consents) {
-		List<Long> listDto = null;
-		for(ConsentDto.RegDto regDto : consents){
-			listDto.add(regDto.idxConsent);
+		Long[] l = new Long[consents.size()];
+		int index = 0 ;
+		for(ConsentDto.RegDto r : consents){
+			l[index] = r.idxConsent;
+			index++;
 		}
-		return listDto;
+
+		List<Long> returnList = new ArrayList<>();
+		Collections.addAll(returnList,l);
+		return returnList;
 	}
 }

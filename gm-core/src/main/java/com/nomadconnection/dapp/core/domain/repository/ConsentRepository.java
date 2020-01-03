@@ -14,8 +14,8 @@ public interface ConsentRepository extends JpaRepository<Consent, Long> {
 	List<Consent> findByIdxIn(List<Long> idx);
 
 	@Modifying
-	@Query("UPDATE ConsentMapping u SET u.Status = :status WHERE u.idxUser = :idxUser and u.idxConsent = :idxConsent")
-	int updateConsentMapping(@Param("status") Integer status,
-							 @Param("idxUser") Long idxUser,
-							 @Param("idxConsent") Long idxConsent);
+	@Query("UPDATE ConsentMapping u SET u.status = :status WHERE u.idxUser = :idxuser and u.idxConsent = :idxconsent")
+	int updateConsentMapping(@Param("status") boolean status,
+							 @Param("idxuser") Long idxuser,
+							 @Param("idxconsent") Long idxconsent);
 }
