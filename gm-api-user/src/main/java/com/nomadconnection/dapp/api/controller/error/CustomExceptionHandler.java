@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.controller.error;
 
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
+import com.nomadconnection.dapp.core.dto.response.ErrorCodeDescriptor;
 import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import com.nomadconnection.dapp.jwt.exception.AccessTokenNotFoundException;
 import com.nomadconnection.dapp.jwt.exception.JwtSubjectMismatchedException;
@@ -15,6 +16,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.util.Collections;
+import java.util.List;
 
 @ControllerAdvice
 @ResponseBody
@@ -31,6 +35,7 @@ public class CustomExceptionHandler {
 	protected ResponseEntity onAlreadyExistException(AlreadyExistException e) {
 		return ResponseEntity.status(e.status()).body(ErrorResponse.from(ErrorCode.Common.ALREADY_EXIST));
 	}
+
 //	@ExceptionHandler(AlreadyExistException.class)
 //	@ResponseStatus(HttpStatus.BAD_REQUEST)
 //	protected ErrorResponse onAlreadyExistException(AlreadyExistException e) {
@@ -168,5 +173,11 @@ public class CustomExceptionHandler {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	protected ErrorResponse onDeptNotFoundException(DeptNotFoundException e) {
 		return ErrorResponse.from(ErrorCode.Resource.DEPT_NOT_FOUND);
+	}
+
+	@ExceptionHandler(BusinessException.class)
+	@ResponseStatus(HttpStatus.OK)
+	protected ErrorResponse onBusinessException(BusinessException e) {
+		return ErrorResponse.from(e.getError(), e.getDescription());
 	}
 }

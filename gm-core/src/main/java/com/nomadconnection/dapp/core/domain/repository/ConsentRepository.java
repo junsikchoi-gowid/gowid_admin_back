@@ -13,6 +13,8 @@ import java.util.List;
 public interface ConsentRepository extends JpaRepository<Consent, Long> {
 	List<Consent> findByIdxIn(List<Long> idx);
 
+	// List<Consent> findAllBy
+
 	@Modifying
 	@Query("UPDATE ConsentMapping u SET u.status = :status WHERE u.idxUser = :idxuser and u.idxConsent = :idxconsent")
 	int updateConsentMapping(@Param("status") boolean status,

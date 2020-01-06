@@ -15,7 +15,6 @@ spring:
     open-in-view: false
   datasource:
     initialization-mode: always
-#    url: jdbc:mysql://127.0.0.1:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
     url: jdbc:mysql://13.125.216.181:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
     username: card
     password: card2019

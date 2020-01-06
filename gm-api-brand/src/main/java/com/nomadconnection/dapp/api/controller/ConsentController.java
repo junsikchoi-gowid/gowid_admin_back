@@ -45,11 +45,14 @@ public class ConsentController {
 	})
 	@GetMapping(URI.CONSENT)
 	@ExceptionHandler(Exception.class)
-	public List<BrandConsentDto> consentList(
+	public List<BrandConsentDto> getConsents(
 			@RequestBody BrandConsentDto dto
 	) {
-		log.debug("ConsentController consentList");
+		if(log.isDebugEnabled()){
+			log.debug("ConsentController consentList $title={}" , dto.title);
+		}
 
-		return service.consentList(true );
+		// return service.consents;\
+		return null;
 	}
 }

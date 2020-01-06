@@ -67,6 +67,18 @@ public class AuthService {
 		return false;
 	}
 
+	@Transactional(rollbackFor = Exception.class)
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+	public boolean sendVerificationCodeMail(String key) {
+		if (MdnValidator.isValid(key)) {
+			return sendMdnVerificationCode(key);
+		}
+		if (EmailValidator.isValid(key)) {
+			return sendEmailVerificationCode(key);
+		}
+		return false;
+	}
+
 	private boolean sendMdnVerificationCode(String mdn) {
 		//
 		//	todo: send mdn verification code
@@ -77,10 +89,11 @@ public class AuthService {
 	/**
 	 * 인증번호(4 digits, EMAIL) 발송
 	 *
-	 * @param email 수신메일주소
+	 * @param email 수신메일주소 Password 비밀번호
 	 */
 	private boolean sendEmailVerificationCode(String email) {
 		String code = String.format("%04d", new Random().nextInt(10000));
+
 		try {
 			repoVerificationCode.save(VerificationCode.builder()
 					.verificationKey(email)
@@ -257,21 +270,44 @@ public class AuthService {
 				.build();
 	}
 
-	public void sendPasswordResetEmail2(String email) throws UserNotFoundException, BusinessException {
-		log.debug("sendPasswordResetEmail2");
+	/**
+	 * 인증번호(4 digits, EMAIL) 발송
+	 *
+	 * @param email 수신메일주소 Password 비밀번호
+	 */
+	public boolean sendEmailVerificationCode(AccountDto dto) {
+		String code = String.format("%04d", new Random().nextInt(10000));
 
-		if(true) {
-			throw UserNotFoundException.builder()
-					.email("sasdfasdfasdf")
+		User user = repoUser.findByEmail(dto.getEmail()).orElseThrow(
+				() -> UserNotFoundException.builder()
+						.email(dto.getEmail())
+						.build()
+		);
+		if (!encoder.matches(dto.getPassword(), user.password())) {
+			throw UnauthorizedException.builder()
+					.account(dto.getEmail())
 					.build();
 		}
 
-
-		if(true){
-			throw BusinessException.builder()
-					.businessErrorMessage("여기에 이렇게")
-					.resFlag(true)
-					.build();
+		try {
+			repoVerificationCode.save(VerificationCode.builder()
+					.verificationKey(user.email())
+					.code(code)
+					.build());
+		} catch (Exception e) {
+			if (log.isErrorEnabled()) {
+				log.error("([ sendVerificationCode ]) REPOSITORY.SAVE ERROR, $email='{}'", user.email(), e);
+			}
+			return false;
 		}
+		final MimeMessagePreparator preparator = mimeMessage -> {
+			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			helper.setFrom("MyCard <service@popsoda.io>");
+			helper.setTo(user.email());
+			helper.setSubject("[MyCard] 인증코드");
+			helper.setText("Verification Code: " + code, false);
+		};
+		sender.send(preparator);
+		return true;
 	}
 }

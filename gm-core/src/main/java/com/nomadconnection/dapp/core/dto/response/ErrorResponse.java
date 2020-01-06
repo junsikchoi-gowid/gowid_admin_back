@@ -45,4 +45,12 @@ public class ErrorResponse {
 				.fieldErrors(errors)
 				.build();
 	}
+
+
+	public static ErrorResponse from(String value, String reason) {
+		return ErrorResponse.builder()
+				.error(value)
+				.description(reason)
+				.build();
+	}
 }

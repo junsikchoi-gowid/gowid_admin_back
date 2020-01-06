@@ -68,6 +68,7 @@ public class AuthController {
         if (!service.isPresent(account)) {
             return ResponseEntity.notFound().build();
         }
+
         return ResponseEntity.ok().build();
     }
 
@@ -85,7 +86,7 @@ public class AuthController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "key", value = "연락처(폰) or 이메일")
     })
-    @PostMapping(URI.VERIFICATION_CODE)
+    @GetMapping(URI.VERIFICATION_CODE)
     public ResponseEntity verificationCode(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam String key) {
@@ -110,7 +111,7 @@ public class AuthController {
             "\n - <mark>액세스토큰 불필요</mark>" +
             "\n - 인증메일 발송 실패: <mark>500(INTERNAL SERVER ERROR)</mark>" +
             "\n")
-    @PostMapping(URI.SEND_VERIFICATION_CODE)
+    @GetMapping(URI.SEND_VERIFICATION_CODE)
     @Deprecated
     public ResponseEntity sendVerificationCode(@RequestParam String email) {
         if (log.isDebugEnabled()) {
@@ -151,7 +152,7 @@ public class AuthController {
             "\n - 200 OK: " +
             "\n 	- <pre>{ \"error\": \"MISMATCHED_VERIFICATION_CODE\" }</pre>" +
             "\n")
-    @PostMapping(URI.CHECK_VERIFICATION_CODE)
+    @GetMapping(URI.CHECK_VERIFICATION_CODE)
     public ResponseEntity checkVerificationCode(@RequestParam String key, @RequestParam String code) {
         if (log.isDebugEnabled()) {
             log.debug("([ checkVerificationCode ]) $key='{}', $code='{}'", key, code);
@@ -207,7 +208,8 @@ public class AuthController {
             log.debug("([ sendPasswordResetEmail ]) $email='{}'", email);
         }
         service.sendPasswordResetEmail(email);
-        return ResponseEntity.ok().build();
+        // return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(ErrorResponse.from("","정상처리"));
     }
 
     //	비밀번호 재설정 - 새 비밀번호 설정: 인증키, 새 비밀번호
@@ -304,15 +306,35 @@ public class AuthController {
         return service.info(user.idx());
     }
 
+    //==================================================================================================================
+    //
+    //	인증코드(4 digits, EMAIL) 발송 요청
+    //
+    //==================================================================================================================
 
-    @PostMapping(URI.PASSWORD_RESET_EMAIL+"2")
-    public ResponseEntity sendPasswordResetEmail2(
-            @RequestParam String email
-    ) {
+    @ApiOperation(value = "인증코드(4 digits, EMAIL) 발송 요청", notes = "" +
+            "\n ### Remarks" +
+            "\n" +
+            "\n - <mark>액세스토큰 불필요</mark>" +
+            "\n - 인증메일 발송 실패: <mark>500(INTERNAL SERVER ERROR)</mark>" +
+            "\n")
+    @PostMapping(URI.SEND_VERIFICATION_CODE)
+    public ResponseEntity sendMailVerificationCode(@RequestBody AccountDto dto) {
         if (log.isDebugEnabled()) {
-            log.debug("([ sendPasswordResetEmail ]) $email='{}'", email);
+            log.debug("([ sendVerificationCode ]) $email='{}'", dto.getEmail());
         }
-        service.sendPasswordResetEmail2(email);
-        return ResponseEntity.ok().build();
+        try {
+            if (!service.sendEmailVerificationCode(dto)) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error("([ sendVerificationCode ]) FAILED TO SEND VERIFICATION CODE, $email='{}', $exception='{} => {}'",
+                        dto.getEmail(),
+                        e.getClass().getSimpleName(), e.getMessage(), e);
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        return ResponseEntity.ok().body(ErrorResponse.from("success","정상처리"));
     }
 }
