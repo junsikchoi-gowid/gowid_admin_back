@@ -2,15 +2,19 @@ package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.service.ConsentService;
+import com.nomadconnection.dapp.core.annotation.ApiPageable;
+import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Slf4j
 @RestController
@@ -24,14 +28,15 @@ public class ConsentController {
 	public static class URI {
 		public static final String BASE = "/brand/v1";
 		public static final String CONSENT = "/consent";
-		// public static final String MEMBERS_MEMBER_DEPT = "/members/{member}/dept";
-		// public static final String INFO = "/info";
+		public static final String CONSENT_SAVE = "/consentsave";
+		public static final String CONSENT_CONSENT = "/consent/{consent}";
+
 	}
 
 	private final ConsentService service;
 
 	@ApiOperation(
-			value = "Brand 이용약관",
+			value = "Brand 이용약관 조회",
 			notes = "### Remarks \n - <mark>액세스토큰 불필요</mark>",
 			tags = "1. 브랜드"
 	)
@@ -43,16 +48,60 @@ public class ConsentController {
 			@ApiResponse(code = 404, message = "등록되지 않은 이메일"),
 			@ApiResponse(code = 500, message = "")
 	})
-	@GetMapping(URI.CONSENT)
-	@ExceptionHandler(Exception.class)
-	public List<BrandConsentDto> getConsents(
-			@RequestBody BrandConsentDto dto
+	@ApiPageable
+	@PostMapping(URI.CONSENT)
+	public Page<BrandConsentDto> getConsents(
+			@RequestBody BrandConsentDto dto,
+			Pageable pageable
 	) {
 		if(log.isDebugEnabled()){
 			log.debug("ConsentController consentList $title={}" , dto.title);
 		}
 
-		// return service.consents;\
-		return null;
+		return service.consents( dto, pageable);
 	}
+
+	//==================================================================================================================
+	//
+	//	새로운 정보 등록: 부서명
+	//
+	//==================================================================================================================
+
+	@ApiOperation(value = "Brand 이용약관 등록",
+			notes = "### Remarks \n - <mark>액세스 필요</mark> \n - <mark> 마스터권한 필요</mark>",
+			tags = "1. 브랜드")
+	@PostMapping(URI.CONSENT_SAVE)
+	public ResponseEntity postConsent(
+			@ApiIgnore @CurrentUser org.springframework.security.core.userdetails.User user,
+			@RequestBody BrandConsentDto dto
+	) {
+		if (log.isDebugEnabled()) {
+			log.debug("([ postConsent ]) $user='{}', $dto='{}' ", user, dto);
+		}
+
+		return service.postConsent(user, dto);
+	}
+
+	//==================================================================================================================
+	//
+	//	새로운 정보 등록: 부서명
+	//
+	//==================================================================================================================
+
+	@ApiOperation(value = "Brand 이용약관 삭제",
+			notes = "### Remarks \n - <mark>액세스 필요</mark> \n - <mark> 마스터권한 필요</mark>",
+			tags = "1. 브랜드")
+	@PutMapping(URI.CONSENT_CONSENT)
+	public ResponseEntity putConsent(
+			@ApiIgnore @CurrentUser org.springframework.security.core.userdetails.User user,
+			@PathVariable Long consent
+	) {
+		if (log.isDebugEnabled()) {
+			log.debug("([ postConsent ]) $user='{}', $dto='{}' ", user, consent);
+		}
+
+		return service.consentDel(user, consent);
+	}
+
+
 }

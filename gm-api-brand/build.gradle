@@ -1,5 +1,8 @@
 dependencies {
+    implementation project(":gm-swagger")
+    implementation project(":gm-jwt")
     implementation project(":gm-core")
+    implementation project(":gm-resx")
     implementation(
             "org.springframework.boot:spring-boot-starter-web",
             "org.springframework.boot:spring-boot-starter-security",
@@ -16,3 +19,4 @@ dependencies {
     )
 }
 jar.enabled = true; bootJar.enabled = false
+

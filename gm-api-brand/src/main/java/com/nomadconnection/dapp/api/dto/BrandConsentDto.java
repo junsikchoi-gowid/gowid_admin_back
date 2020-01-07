@@ -40,15 +40,4 @@ public class BrandConsentDto {
                 .version(consent.version())
                 .build();
     }
-
-    /*
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class consent {
-        @ApiModelProperty("이메일(계정)")
-        private String
-    }
-    */
 }

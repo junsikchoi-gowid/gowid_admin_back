@@ -4,6 +4,7 @@ package com.nomadconnection.dapp.core.domain;
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -23,7 +24,9 @@ public class Consent extends BaseTime {
 	@Column(nullable = false, updatable = false)
 	private Long idx;
 
+	@Length(min = 1, max =55, message = "제목은 255자리 이하로 입력해 주시기바랍니다." )
     private String title;
+
 	@Column(length = 65535, columnDefinition = "Text")
 	private String contents;
     private String version;
