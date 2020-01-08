@@ -24,7 +24,8 @@ public class FaqService {
 
     /**
      * FaQ 조회
-     * @param id
+     *
+     * @param dto BrandFaq 내용
      * @return body success , 정상처리
      */
     @Transactional(rollbackFor = Exception.class)
@@ -35,7 +36,8 @@ public class FaqService {
 
     /**
      * FaQ 조회
-     * @param BrandFaqDto
+     *
+     * @param dto BrandFaq 내용
      * @return body success , 정상처리
      */
     @Transactional(rollbackFor = Exception.class)
@@ -43,12 +45,12 @@ public class FaqService {
 
         faqRepository.save(
                 Faq.builder()
-                .idx(dto.idx)
-                .contents(dto.contents)
-                .title(dto.title)
-                .email(dto.email)
-                .replyStatus(dto.replyStatus)
-                .build()
+                        .idx(dto.idx)
+                        .contents(dto.contents)
+                        .title(dto.title)
+                        .email(dto.email)
+                        .replyStatus(dto.replyStatus)
+                        .build()
         );
 
         return ResponseEntity.ok().body(BusinessResponse.builder()
@@ -60,11 +62,12 @@ public class FaqService {
 
     /**
      * FaQ 조회
-     * @param id , user
+     *
+     * @param faqIds , user
      * @return body success , 정상처리
      */
     @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity faqDel(List<Long> faqIds ,org.springframework.security.core.userdetails.User user) {
+    public ResponseEntity faqDel(List<Long> faqIds, org.springframework.security.core.userdetails.User user) {
 
         //	권한
         if (user.getAuthorities().stream().anyMatch(o -> o.getAuthority().equals(Role.ROLE_MASTER.toString()))) {

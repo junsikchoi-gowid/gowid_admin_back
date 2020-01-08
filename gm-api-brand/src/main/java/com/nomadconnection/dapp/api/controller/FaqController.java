@@ -95,7 +95,7 @@ public class FaqController {
             @RequestParam List<Long> faqIds
     ) {
         if (log.isDebugEnabled()) {
-            log.debug("([ postConsent ]) $faqIds='{}' ", faqIds );
+            log.debug("([ postConsent ]) $faqIds='{}' ", faqIds);
         }
 
         return service.faqDel(faqIds, user);
