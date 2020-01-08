@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.controller;
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.dto.BrandFaqDto;
 import com.nomadconnection.dapp.api.service.ConsentService;
+import com.nomadconnection.dapp.api.service.FaqService;
 import com.nomadconnection.dapp.core.annotation.ApiPageable;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import io.swagger.annotations.Api;
@@ -21,51 +22,62 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(ConsentController.URI.BASE)
+@RequestMapping(FaqController.URI.BASE)
 @RequiredArgsConstructor
-@Api(tags = "사용자", description = ConsentController.URI.BASE)
+@Api(tags = "사용자", description = FaqController.URI.BASE)
 @SuppressWarnings({"unused", "deprecation"})
-public class ConsentController {
+public class FaqController {
 
     @SuppressWarnings("WeakerAccess")
     public static class URI {
         public static final String BASE = "/brand/v1";
-        public static final String CONSENT = "/consent";
-        public static final String CONSENT_SAVE = "/consentsave";
-        public static final String CONSENT_DEL = "/consentdel/{consent}";
         public static final String FAQ = "/faq";
         public static final String FAQ_SAVE = "/faqsave";
         public static final String FAQ_DEL = "/faqdel";
-
-
     }
 
-    private final ConsentService service;
+    private final FaqService service;
 
     @ApiOperation(
-            value = "Brand 이용약관 조회",
+            value = "Brand 문의하기 조회",
             notes = "### Remarks \n - <mark>액세스토큰 불필요</mark>",
             tags = "1. 브랜드"
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "정상"),
-            @ApiResponse(code = 201, message = "생성"),
-            @ApiResponse(code = 401, message = "권한없음(패스워드 불일치)"),
-            @ApiResponse(code = 403, message = "권한없음(패스워드 불일치)"),
-            @ApiResponse(code = 404, message = "등록되지 않은 이메일"),
             @ApiResponse(code = 500, message = "")
     })
     @ApiPageable
-    @PostMapping(URI.CONSENT)
-    public Page<BrandConsentDto> getConsents(
-            @RequestBody BrandConsentDto dto,
+    @PostMapping(URI.FAQ)
+    public Page<BrandFaqDto> getConsents(
+            @RequestBody BrandFaqDto dto,
             Pageable pageable
     ) {
         if (log.isDebugEnabled()) {
-            log.debug("ConsentController consentList $title={}", dto.title);
+            log.debug("BFaqDtoController FaqList $dto={}", dto);
         }
 
-        return service.consents(dto, pageable);
+        return service.faqs(dto, pageable);
+    }
+
+    //==================================================================================================================
+    //
+    //	문의하기 등록
+    //
+    //==================================================================================================================
+
+    @ApiOperation(value = "Brand 문의하기 저장",
+            notes = "### Remarks \n - <mark>액세스토큰 불필요</mark>",
+            tags = "1. 브랜드")
+    @PostMapping(URI.FAQ_SAVE)
+    public ResponseEntity faqSave(
+            @RequestBody BrandFaqDto dto
+    ) {
+        if (log.isDebugEnabled()) {
+            log.debug("([ postConsent ]) $dto='{}' ", dto);
+        }
+
+        return service.faqSave(dto);
     }
 
     //==================================================================================================================
@@ -74,39 +86,18 @@ public class ConsentController {
     //
     //==================================================================================================================
 
-    @ApiOperation(value = "Brand 이용약관 등록",
+    @ApiOperation(value = "Brand 문의하기 삭제",
             notes = "### Remarks \n - <mark>액세스 필요</mark> \n - <mark> 마스터권한 필요</mark>",
             tags = "1. 브랜드")
-    @PostMapping(URI.CONSENT_SAVE)
-    public ResponseEntity consentSave(
+    @GetMapping(URI.FAQ_DEL)
+    public ResponseEntity faqDel(
             @ApiIgnore @CurrentUser org.springframework.security.core.userdetails.User user,
-            @RequestBody BrandConsentDto dto
+            @RequestParam List<Long> faqIds
     ) {
         if (log.isDebugEnabled()) {
-            log.debug("([ postConsent ]) $user='{}', $dto='{}' ", user, dto);
+            log.debug("([ postConsent ]) $faqIds='{}' ", faqIds );
         }
 
-        return service.postConsent(user, dto);
-    }
-
-    //==================================================================================================================
-    //
-    //	새로운 정보 등록: 부서명
-    //
-    //==================================================================================================================
-
-    @ApiOperation(value = "Brand 이용약관 삭제",
-            notes = "### Remarks \n - <mark>액세스 필요</mark> \n - <mark> 마스터권한 필요</mark>",
-            tags = "1. 브랜드")
-    @PutMapping(URI.CONSENT_DEL)
-    public ResponseEntity putConsentDel(
-            @ApiIgnore @CurrentUser org.springframework.security.core.userdetails.User user,
-            @PathVariable Long consent
-    ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ postConsent ]) $user='{}', $dto='{}' ", user, consent);
-        }
-
-        return service.consentDel(user, consent);
+        return service.faqDel(faqIds, user);
     }
 }

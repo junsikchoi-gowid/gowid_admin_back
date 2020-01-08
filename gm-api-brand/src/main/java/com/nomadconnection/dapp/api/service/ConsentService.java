@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
+import com.nomadconnection.dapp.api.dto.BrandFaqDto;
 import com.nomadconnection.dapp.core.domain.Consent;
 import com.nomadconnection.dapp.core.domain.Role;
 import com.nomadconnection.dapp.core.domain.repository.ConsentRepository;
@@ -22,8 +23,8 @@ public class ConsentService {
     private final ConsentRepository repoConsent;
 
     /**
-     이용약관 현재 사용여부 등
-     이용약관 목록
+     * 이용약관 현재 사용여부 등
+     * 이용약관 목록
      */
     @Transactional(rollbackFor = Exception.class)
     public Page<BrandConsentDto> consents(BrandConsentDto dto, Pageable pageable) {
@@ -40,7 +41,7 @@ public class ConsentService {
      * @return body success , 정상처리
      */
     @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity<BusinessResponse> postConsent(org.springframework.security.core.userdetails.User user, BrandConsentDto dto){
+    public ResponseEntity<BusinessResponse> postConsent(org.springframework.security.core.userdetails.User user, BrandConsentDto dto) {
 
         //	권한
         if (user.getAuthorities().stream().anyMatch(o -> o.getAuthority().equals(Role.ROLE_MASTER.toString()))) {
@@ -74,20 +75,18 @@ public class ConsentService {
      */
 
     @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity<ErrorResponse>  consentDel(org.springframework.security.core.userdetails.User user, Long idx){
+    public ResponseEntity<ErrorResponse> consentDel(org.springframework.security.core.userdetails.User user, Long idx) {
 
         if (user.getAuthorities().stream().anyMatch(o -> o.getAuthority().equals(Role.ROLE_MASTER.toString()))) {
 
             repoConsent.deleteById(idx);
-        }else{
+        } else {
             if (log.isErrorEnabled()) {
                 log.error("([ postConsent ]) auth check , $user='{}', $key='{}'", user, idx);
             }
             throw new RuntimeException("마스터 권한이 없음");
         }
 
-
-
-        return ResponseEntity.ok().body(ErrorResponse.from("success","정상처리"));
+        return ResponseEntity.ok().body(ErrorResponse.from("success", "정상처리"));
     }
 }
