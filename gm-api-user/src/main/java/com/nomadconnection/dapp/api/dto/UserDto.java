@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -96,7 +97,7 @@ public class UserDto {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
-	public static class RegisterUserCorp {
+	public static class RegisterBrandUser {
 
 		@ApiModelProperty("선택약관동의여부")
 		private boolean idxConsent;
@@ -113,14 +114,39 @@ public class UserDto {
 		@ApiModelProperty("연락처(폰)")
 		private String mdn;
 
-		@ApiModelProperty("인증코드(4 digits, 초대된 멤버인 경우에만)")
-		private String verificationCode;
+		@ApiModelProperty("이용약관 정보")
+		private List<ConsentDto.RegDto> consents;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class RegisterBrandCorp {
+
+		@ApiModelProperty("이메일(계정)")
+		private String email;
 
 		@ApiModelProperty("법인명")
 		private String corpName;
 
 		@ApiModelProperty("사업자등록번호")
 		private String bizRegNo;
+
+		@ApiModelProperty("개업일")
+		private LocalDateTime openingDay;
+
+		@ApiModelProperty("사업자등록일")
+		private LocalDateTime businessLicenseDate;
+
+		@ApiModelProperty("업종")
+		private String kindOfBusiness;
+
+		@ApiModelProperty("업태")
+		private String typeOfBusiness;
+
+		@ApiModelProperty("카드회사 etc. 삼성/현대")
+		private String typeOfCardCorp;
 
 		@ApiModelProperty("주주명부")
 		private MultipartFile resxShareholderList;
@@ -131,7 +157,34 @@ public class UserDto {
 		@ApiModelProperty("결제계좌정보")
 		private BankAccountDto bankAccount;
 
-		@ApiModelProperty("이용약관 정보")
-		private List<ConsentDto.RegDto> consents;
+
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class registerUserUpdate {
+
+		@ApiModelProperty("결제계좌정보")
+		private String userName;
+
+		@ApiModelProperty("전화번호")
+		private String mdn;
+
+		@ApiModelProperty("email")
+		private String email;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class registerUserPasswordUpdate {
+		@ApiModelProperty("email")
+		private String oldPassword;
+
+		@ApiModelProperty("email")
+		private String newPassword;
 	}
 }

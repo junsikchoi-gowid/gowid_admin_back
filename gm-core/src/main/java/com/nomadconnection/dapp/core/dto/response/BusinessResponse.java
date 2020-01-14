@@ -8,9 +8,23 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@SuppressWarnings("unused")
 public class BusinessResponse {
-    private String category;
-    private String value;
-    private String reason;
-    private LocalDateTime current;
+
+    private ErrorInfo errorInfo;
+    private Object data;
+
+
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ErrorInfo {
+
+        @Builder.Default
+        private boolean status = true;
+        private String key;
+        private String value;
+    }
 }

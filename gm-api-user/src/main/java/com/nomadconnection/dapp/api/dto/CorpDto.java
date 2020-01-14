@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -29,6 +31,21 @@ public class CorpDto {
 
 //	@ApiModelProperty("법인인감증명서")
 //	private String uriRegSeal;
+
+	@ApiModelProperty("개업일")
+	private LocalDateTime openingDay;
+
+	@ApiModelProperty("사업자등록일")
+	private LocalDateTime businessLicenseDate;
+
+	@ApiModelProperty("업종")
+	private String kindOfBusiness;
+
+	@ApiModelProperty("업태")
+	private String typeOfBusiness;
+
+	@ApiModelProperty("카드회사 etc. 삼성/현대")
+	private String typeOfCardCorp;
 
 	@ApiModelProperty("주주명부")
 	private String uriShareholderList;
@@ -55,6 +72,21 @@ public class CorpDto {
 
 //		@ApiModelProperty("법인인감증명서")
 //		private MultipartFile resxRegSeal;
+
+		@ApiModelProperty("개업일")
+		private LocalDateTime openingDay;
+
+		@ApiModelProperty("사업자등록일")
+		private LocalDateTime businessLicenseDate;
+
+		@ApiModelProperty("업종")
+		private String kindOfBusiness;
+
+		@ApiModelProperty("업태")
+		private String typeOfBusiness;
+
+		@ApiModelProperty("카드회사 etc. 삼성/현대")
+		private String typeOfCardCorp;
 
 		@ApiModelProperty("주주명부")
 		private MultipartFile resxShareholderList;

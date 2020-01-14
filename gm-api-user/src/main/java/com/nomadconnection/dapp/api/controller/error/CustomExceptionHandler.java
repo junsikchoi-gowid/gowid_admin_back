@@ -1,8 +1,8 @@
 package com.nomadconnection.dapp.api.controller.error;
 
 import com.nomadconnection.dapp.api.exception.*;
+import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
-import com.nomadconnection.dapp.core.dto.response.ErrorCodeDescriptor;
 import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import com.nomadconnection.dapp.jwt.exception.AccessTokenNotFoundException;
 import com.nomadconnection.dapp.jwt.exception.JwtSubjectMismatchedException;
@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
-import java.util.Collections;
-import java.util.List;
 
 @ControllerAdvice
 @ResponseBody

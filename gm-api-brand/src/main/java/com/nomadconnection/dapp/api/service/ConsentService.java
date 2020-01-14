@@ -37,7 +37,7 @@ public class ConsentService {
      * 이용약관 단건 저장
      * idx 키값이 있으면 수정됨
      *
-     * @param title,contents,enabled,essential,version,idx
+     * @param user,contents,enabled,essential,version,idx
      * @return body success , 정상처리
      */
     @Transactional(rollbackFor = Exception.class)
@@ -60,11 +60,7 @@ public class ConsentService {
             throw new RuntimeException("마스터 권한이 없음");
         }
 
-        return ResponseEntity.ok().body(BusinessResponse.builder()
-                .category("postConsent")
-                .value("success")
-                .reason("success")
-                .build());
+        return ResponseEntity.ok().body(BusinessResponse.builder().build());
     }
 
     /**

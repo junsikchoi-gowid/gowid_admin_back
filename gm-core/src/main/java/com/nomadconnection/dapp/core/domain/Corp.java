@@ -4,10 +4,12 @@ import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import com.nomadconnection.dapp.core.domain.embed.Address;
 import com.nomadconnection.dapp.core.domain.embed.BankAccount;
 import com.nomadconnection.dapp.core.domain.embed.CorpStockholdersListResx;
+import com.querydsl.core.types.dsl.DateTimePath;
 import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @Accessors(fluent = true)
@@ -33,6 +35,16 @@ public class Corp extends BaseTime {
 	@Column(length = 10)
 	@EqualsAndHashCode.Include
 	private String bizRegNo; // 사업자등록번호(10 Digits)
+
+	private DateTimePath<LocalDateTime> openingDay; // 개업일
+
+	private DateTimePath<LocalDateTime> businessLicenseDate; // 사업자등록일
+
+	private String kindOfBusiness; //업종
+
+	private String typeOfBusiness; //업태
+
+	private String typeOfCardCorp; // 카드회사 etc. 삼성/현대
 
 	@Embedded
 	private CorpStockholdersListResx resxStockholdersList;

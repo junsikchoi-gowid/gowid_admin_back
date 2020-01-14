@@ -1,4 +1,5 @@
 dependencies {
+    implementation project(":gm-codef")
     implementation(
             "org.springframework.boot:spring-boot-starter-web",
             "io.swagger:swagger-annotations:1.5.21",

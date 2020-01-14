@@ -147,7 +147,8 @@ public class AuthController {
             "\n - 확인에 성공하는 경우, 인증코드 삭제됨" +
             "\n - 확인성공: 200 OK" +
             "\n - <s>확인실패: 400 BAD REQUEST</s>" +
-            "\n" +
+            "\n - code 인증번호(4 digits)" +
+            "\n - key 연락처(폰) or 메일주소" +
             "\n ### Errors" +
             "\n" +
             "\n - 200 OK: " +
@@ -318,7 +319,8 @@ public class AuthController {
             "\n" +
             "\n - <mark>액세스토큰 불필요</mark>" +
             "\n - 인증메일 발송 실패: <mark>500(INTERNAL SERVER ERROR)</mark>" +
-            "\n")
+            "\n",
+            tags = "1. 브랜드")
     @PostMapping(URI.SEND_VERIFICATION_CODE)
     public ResponseEntity sendMailVerificationCode(@RequestBody AccountDto dto) {
         if (log.isDebugEnabled()) {

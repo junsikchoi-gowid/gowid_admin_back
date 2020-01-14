@@ -53,11 +53,7 @@ public class FaqService {
                         .build()
         );
 
-        return ResponseEntity.ok().body(BusinessResponse.builder()
-                .category("faqSave")
-                .value("success")
-                .reason("success")
-                .build());
+        return ResponseEntity.ok().body(BusinessResponse.builder().build());
     }
 
     /**
@@ -79,10 +75,6 @@ public class FaqService {
             throw new RuntimeException("마스터 권한이 없음");
         }
 
-        return ResponseEntity.ok().body(BusinessResponse.builder()
-                .category("faqDel")
-                .value("success")
-                .reason("success")
-                .build());
+        return ResponseEntity.ok().body(BusinessResponse.builder().build());
     }
 }
