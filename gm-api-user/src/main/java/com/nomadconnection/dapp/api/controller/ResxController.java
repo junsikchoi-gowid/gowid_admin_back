@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.nomadconnection.dapp.api.security.CustomUser;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.api.service.ResxService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import io.swagger.annotations.Api;

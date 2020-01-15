@@ -2,7 +2,7 @@ package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
-import com.nomadconnection.dapp.api.security.CustomUser;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
 @Slf4j
@@ -30,8 +29,8 @@ public class UserController {
 		public static final String REGISTER = "/register";
 		public static final String REGISTRATION_USER = "/registration/user";
 		public static final String REGISTRATION_CORP = "/registration/corp";
-		public static final String REGISTRATION_REGISTRATION  = "/registration/{registration}";;
-		public static final String REGISTRATION_REGISTRATION_PW = "/registrationpw/{registration}";
+		public static final String REGISTRATION_INFO  = "/registration/info";;
+		public static final String REGISTRATION_PW = "/registrationpw/pw";
 		public static final String MEMBERS = "/members";
 		public static final String MEMBERS_MEMBER_DEPT = "/members/{member}/dept";
 		public static final String INFO = "/info";
@@ -235,17 +234,16 @@ public class UserController {
 			@ApiResponse(code = 404, message = "등록되지 않은 이메일"),
 			@ApiResponse(code = 500, message = "")
 	})
-	@PostMapping(URI.REGISTRATION_REGISTRATION)
+	@PostMapping(URI.REGISTRATION_INFO)
 	public ResponseEntity registerUserUpdate(
 			@ApiIgnore @CurrentUser CustomUser user,
-			@RequestBody UserDto.registerUserUpdate dto,
-			@PathVariable Long member
+			@RequestBody UserDto.registerUserUpdate dto
 	) {
 		if (log.isDebugEnabled()) {
-			log.debug("([ registerUserUpdate ]) $member.idx='{}'", member , user);
+			log.debug("([ registerUserUpdate ]) $member.idx='{}'", user);
 		}
 
-		return service.registerUserUpdate(dto, member, user.idx());
+		return service.registerUserUpdate(dto, user.idx());
 	}
 
 	@ApiOperation(
@@ -253,15 +251,7 @@ public class UserController {
 			notes = "### Remarks ",
 			tags = "1. 브랜드"
 	)
-	@ApiResponses(value={
-			@ApiResponse(code = 200, message = "정상"),
-			@ApiResponse(code = 201, message = "생성"),
-			@ApiResponse(code = 401, message = "권한없음(패스워드 불일치)"),
-			@ApiResponse(code = 403, message = "권한없음(패스워드 불일치)"),
-			@ApiResponse(code = 404, message = "등록되지 않은 이메일"),
-			@ApiResponse(code = 500, message = "")
-	})
-	@PostMapping(URI.REGISTRATION_REGISTRATION_PW)
+	@PostMapping(URI.REGISTRATION_PW)
 	public ResponseEntity registerUserPasswordUpdate(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody UserDto.registerUserPasswordUpdate dto,
@@ -271,10 +261,6 @@ public class UserController {
 			log.debug("([ registerUserUpdate ]) $member.idx='{}'", member , user);
 		}
 
-		return service.registerUserPasswordUpdate(dto, member, user.idx());
+		return service.registerUserPasswordUpdate(dto, user.idx());
 	}
-
-
-
-
 }

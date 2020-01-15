@@ -273,7 +273,7 @@ public class AuthService {
 	/**
 	 * 인증번호(4 digits, EMAIL) 발송
 	 *
-	 * @param email 수신메일주소 Password 비밀번호
+	 * @param dto 수신메일주소 Password 비밀번호
 	 */
 	public boolean sendEmailVerificationCode(AccountDto dto) {
 		String code = String.format("%04d", new Random().nextInt(10000));

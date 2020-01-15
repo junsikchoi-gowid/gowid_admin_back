@@ -55,17 +55,13 @@ public class ConsentController {
             @ApiResponse(code = 404, message = "등록되지 않은 이메일"),
             @ApiResponse(code = 500, message = "")
     })
-    @ApiPageable
     @PostMapping(URI.CONSENT)
-    public Page<BrandConsentDto> getConsents(
-            @RequestBody BrandConsentDto dto,
-            Pageable pageable
-    ) {
+    public ResponseEntity consents() {
         if (log.isDebugEnabled()) {
-            log.debug("ConsentController consentList $title={}", dto.title);
+            log.debug("getConsents List");
         }
 
-        return service.consents(dto, pageable);
+        return service.consents();
     }
 
     //==================================================================================================================

@@ -11,7 +11,9 @@ import java.time.LocalDateTime;
 @SuppressWarnings("unused")
 public class BusinessResponse {
 
-    private ErrorInfo errorInfo;
+    @Builder.Default
+    private Normal normal = new Normal();
+
     private Object data;
 
 
@@ -20,7 +22,7 @@ public class BusinessResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ErrorInfo {
+    public static class Normal {
 
         @Builder.Default
         private boolean status = true;

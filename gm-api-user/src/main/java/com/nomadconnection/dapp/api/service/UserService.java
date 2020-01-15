@@ -15,8 +15,6 @@ import com.nomadconnection.dapp.resx.config.ResourceConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -255,17 +253,27 @@ public class UserService {
 	 *
 	 * @param dto 정보
 	 */
-    public ResponseEntity registerUserUpdate(UserDto.registerUserUpdate dto, Long member, Long idx) {
+	@Transactional
+    public ResponseEntity registerUserUpdate(UserDto.registerUserUpdate dto, Long idx) {
+		// validation start
+		// mail check
+		if(repo.findByIdxNotAndEmail(idx, dto.getEmail()).isPresent()){
+			throw AlreadyExistException.builder()
+					.category("email")
+					.resource(dto.getEmail())
+					.build();
+		}
+		// validation end
 
-		// validation 체크 필요
+		User user = getUser(idx);
 
-		repo.save(User.builder()
-				.name(dto.getUserName())
-				.email(dto.getEmail())
-				.mdn(dto.getMdn())
+		user.email(dto.getEmail());
+		user.mdn(dto.getMdn());
+		user.name(dto.getUserName());
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.data(repo.save(user))
 				.build());
-
-		return ResponseEntity.ok().body(BusinessResponse.builder().build());
     }
 
 	/**
@@ -275,15 +283,16 @@ public class UserService {
 	 *
 	 * @param dto 정보
 	 */
-	public ResponseEntity registerUserPasswordUpdate(UserDto.registerUserPasswordUpdate dto, Long member, Long idx) {
+	public ResponseEntity registerUserPasswordUpdate(UserDto.registerUserPasswordUpdate dto, Long idx) {
 
 		// validation 체크 필요
+		User user = getUser(idx);
 
-		repo.save(User.builder()
-				.password(encoder.encode(dto.getNewPassword()))
+		user.password(encoder.encode(dto.getNewPassword()));
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.data(repo.save(user))
 				.build());
-
-		return ResponseEntity.ok().body(BusinessResponse.builder().build());
 	}
 
 	/**

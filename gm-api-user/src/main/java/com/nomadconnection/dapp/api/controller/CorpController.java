@@ -2,7 +2,7 @@ package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.CorpDto;
 import com.nomadconnection.dapp.api.exception.AlreadyExistException;
-import com.nomadconnection.dapp.api.security.CustomUser;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.api.service.CorpService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import io.swagger.annotations.Api;

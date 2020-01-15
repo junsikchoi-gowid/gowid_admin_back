@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
-import com.nomadconnection.dapp.api.dto.BrandFaqDto;
 import com.nomadconnection.dapp.core.domain.Consent;
 import com.nomadconnection.dapp.core.domain.Role;
 import com.nomadconnection.dapp.core.domain.repository.ConsentRepository;
@@ -9,11 +8,12 @@ import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -27,10 +27,16 @@ public class ConsentService {
      * 이용약관 목록
      */
     @Transactional(rollbackFor = Exception.class)
-    public Page<BrandConsentDto> consents(BrandConsentDto dto, Pageable pageable) {
+    public ResponseEntity consents() {
 
-        // findall 기타 조건 설정 없음
-        return repoConsent.findAll(pageable).map(BrandConsentDto::from);
+        List<BrandConsentDto> consents = repoConsent.findAllByEnabledOrderByConsentOrderAsc(true)
+                .map(BrandConsentDto::from)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(
+                BusinessResponse.builder()
+                    .data(consents)
+                    .build());
     }
 
     /**

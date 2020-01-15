@@ -17,6 +17,10 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
 
 	Optional<User> findByEmail(String email);
 
+	Optional<User> findByIdxNotAndEmail(Long idx, String email);
+
+	Optional<User> findByMdnAndName(String mdn, String name);
+
 	Stream<User> findByNameAndMdn(String name, String mdn);
 	Stream<User> findByCorp(Corp corp);
 

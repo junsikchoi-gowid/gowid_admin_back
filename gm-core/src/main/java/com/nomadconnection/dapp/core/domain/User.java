@@ -36,7 +36,7 @@ public class User extends BaseTime {
 //	private String pin; // 개인식별번호(6 Digits)
 	private String name;
 	private String mdn;
-	private String cardCompany; // 카드회사
+	private CardCompany cardCompany; // 카드회사 enum
 	private Long creditLimit; // 월한도(예정) -> Card::creditLimit 월한도(적용)
 
 	private Boolean consent; // 선택약관동의여부

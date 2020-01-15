@@ -35,4 +35,5 @@ public class Consent extends BaseTime {
 	private boolean essential; // 필수 선택 여부
 	private boolean enabled; // 현재 사용 여부
 	private LocalDateTime usedAt; // 승인(사용)일시
+	private Long consentOrder; // 순서
 }

@@ -1,9 +1,7 @@
 package com.nomadconnection.dapp.api.security;
 
-import com.nomadconnection.dapp.api.controller.AuthController;
-import com.nomadconnection.dapp.api.controller.ConsentController;
-import com.nomadconnection.dapp.api.controller.CorpController;
-import com.nomadconnection.dapp.api.controller.UserController;
+import com.nomadconnection.dapp.api.controller.*;
+import com.nomadconnection.dapp.core.security.CustomUserDetailsService;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationEntryPoint;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -125,7 +123,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 						UserController.URI.BASE + UserController.URI.REGISTRATION_CORP
 				).permitAll()
 				.antMatchers(CorpController.URI.BASE + CorpController.URI.REGISTRABLE).permitAll()
-				.antMatchers(ConsentController.URI.BASE + ConsentController.URI.CONSENT).permitAll()
+				.antMatchers(ConsentController.URI.BASE + ConsentController.URI.CONSENT,
+						BrandController.URI.BASE + BrandController.URI.ACCOUNT
+				).permitAll()
 				.anyRequest().authenticated();
 	}
 }
