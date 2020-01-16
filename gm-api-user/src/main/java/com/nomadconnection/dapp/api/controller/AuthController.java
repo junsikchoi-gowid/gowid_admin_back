@@ -70,11 +70,21 @@ public class AuthController {
         if (log.isDebugEnabled()) {
             log.debug("([ exists ]) $account='{}'", account);
         }
+
         if (!service.isPresent(account)) {
-            return ResponseEntity.notFound().build();
+            // return ResponseEntity.notFound().build();
+            return ResponseEntity.ok().body(
+                    BusinessResponse.builder()
+                            .normal(BusinessResponse.Normal.builder()
+                                    .status(false)
+                                    .value("notFound")
+                                    .build()).build()
+            );
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(
+                BusinessResponse.builder().build()
+        );
     }
 
     //==================================================================================================================

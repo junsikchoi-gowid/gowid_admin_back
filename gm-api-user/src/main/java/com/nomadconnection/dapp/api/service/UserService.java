@@ -22,6 +22,7 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -424,7 +425,11 @@ public class UserService {
 					.account(dto.getEmail())
 					.build();
 		}
-		return jwt.issue(dto.getEmail(), user.authorities(), user.idx());
+
+		boolean corpMapping = StringUtils.isEmpty(user.corp())? true: false;
+		boolean cardCompanyMapping = StringUtils.isEmpty(user.cardCompany())? true: false;
+
+		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping);
 	}
 
 	public Path getResxStockholdersListPath(Long idxCorp) {

@@ -24,6 +24,7 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -233,7 +234,11 @@ public class AuthService {
 					.account(dto.getEmail())
 					.build();
 		}
-		return jwt.issue(dto.getEmail(), user.authorities(), user.idx());
+
+		boolean corpMapping = StringUtils.isEmpty(user.corp())? false: true;
+		boolean cardCompanyMapping = StringUtils.isEmpty(user.cardCompany())? false:true;
+
+		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping , cardCompanyMapping);
 	}
 
 	/**
