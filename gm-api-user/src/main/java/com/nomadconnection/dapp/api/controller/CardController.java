@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -22,6 +23,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @RestController
 @RequestMapping(CardController.URI.BASE)
 @RequiredArgsConstructor
+@Validated
 @Api(tags = "카드", description = CardController.URI.BASE)
 @SuppressWarnings({"unused", "deprecation"})
 public class CardController implements PageableController {

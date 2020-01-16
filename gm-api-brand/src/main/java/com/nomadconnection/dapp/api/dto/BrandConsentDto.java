@@ -31,7 +31,11 @@ public class BrandConsentDto {
     public Boolean enabled;
 
     @ApiModelProperty("현재사용여부")
-    public Long consentorder;
+    public Long consentOrder;
+
+    @ApiModelProperty("이용약관 Type 법인 ")
+    public boolean corpStatus;
+
 
     public static BrandConsentDto from(Consent consent) {
         return BrandConsentDto.builder()
@@ -41,7 +45,7 @@ public class BrandConsentDto {
                 .essential(consent.essential())
                 .title(consent.title())
                 .version(consent.version())
-                .consentorder(consent.consentOrder())
+                .consentOrder(consent.consentOrder())
                 .build();
     }
 }

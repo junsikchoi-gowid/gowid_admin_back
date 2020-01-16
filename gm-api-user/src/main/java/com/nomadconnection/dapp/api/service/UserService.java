@@ -80,7 +80,7 @@ public class UserService {
 		//	이메일 중복 체크
 
 
-		if (repo.findByEmail(dto.getEmail()).isPresent()) {
+		if (repo.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).isPresent()) {
 			throw AlreadyExistException.builder()
 					.category("email")
 					.resource(dto.getEmail())
@@ -111,7 +111,7 @@ public class UserService {
 							.code(dto.getVerificationCode())
 							.build()
 			);
-			User user = repo.findByEmail(dto.getEmail()).orElseThrow(
+			User user = repo.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).orElseThrow(
 					() -> UserNotFoundException.builder()
 							.email(dto.getEmail())
 							.build()
@@ -312,7 +312,7 @@ public class UserService {
 		userDto.setName(dto.getUserName());
 
 		// 메일확인
-		if (repo.findByEmail(userDto.getEmail()).isPresent()) {
+		if (repo.findByAuthentication_EnabledAndEmail(true,userDto.getEmail()).isPresent()) {
 			throw AlreadyExistException.builder()
 					.category("email")
 					.resource(userDto.getEmail())
@@ -414,7 +414,7 @@ public class UserService {
 
 
 	public TokenDto.TokenSet issueTokenSet(AccountDto dto) {
-		User user = repo.findByEmail(dto.getEmail()).orElseThrow(
+		User user = repo.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(dto.getEmail())
 						.build()

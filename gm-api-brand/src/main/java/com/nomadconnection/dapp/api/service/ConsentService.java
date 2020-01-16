@@ -58,6 +58,8 @@ public class ConsentService {
                     .essential(dto.essential)
                     .version(dto.version)
                     .idx(dto.idx)
+                    .consentOrder(dto.consentOrder)
+                    .corpStatus(dto.corpStatus)
                     .build()));
         } else {
             if (log.isErrorEnabled()) {

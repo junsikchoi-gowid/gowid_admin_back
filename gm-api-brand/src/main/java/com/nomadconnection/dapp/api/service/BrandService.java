@@ -1,16 +1,20 @@
 package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.dto.BrandDto;
+import com.nomadconnection.dapp.core.domain.Authority;
 import com.nomadconnection.dapp.core.domain.User;
+import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -53,6 +57,19 @@ public class BrandService {
 
         return ResponseEntity.ok().body(BusinessResponse.builder()
                 .data(repoUser.save(user))
+                .build());
+    }
+
+    public ResponseEntity deleteEmail(String email) {
+        User user = repoUser.findByEmail(email).get();
+
+        user.authentication(Authentication.builder().enabled(false).build());
+
+        repoUser.save(user);
+
+        return ResponseEntity.ok().body(BusinessResponse.builder()
+                .normal(BusinessResponse.Normal.builder()
+                        .build())
                 .build());
     }
 }

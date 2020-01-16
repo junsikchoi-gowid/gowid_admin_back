@@ -124,7 +124,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				).permitAll()
 				.antMatchers(CorpController.URI.BASE + CorpController.URI.REGISTRABLE).permitAll()
 				.antMatchers(ConsentController.URI.BASE + ConsentController.URI.CONSENT,
-						BrandController.URI.BASE + BrandController.URI.ACCOUNT
+						BrandController.URI.BASE + BrandController.URI.ACCOUNT,
+						BrandController.URI.BASE + BrandController.URI.USERDELETE
 				).permitAll()
 				.anyRequest().authenticated();
 	}

@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.AuthDto;
 import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -16,9 +17,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import java.util.List;
 
@@ -27,6 +30,7 @@ import java.util.List;
 @RequestMapping(AuthController.URI.BASE)
 @RequiredArgsConstructor
 @Api(tags = "인증", description = AuthController.URI.BASE)
+@Validated
 @SuppressWarnings({"unused", "deprecation"})
 public class AuthController {
 
@@ -73,11 +77,11 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-	//==================================================================================================================
-	//
-	//	인증코드(4 digits, SMS/EMAIL) 발송 요청
-	//
-	//==================================================================================================================
+    //==================================================================================================================
+    //
+    //	인증코드(4 digits, SMS/EMAIL) 발송 요청
+    //
+    //==================================================================================================================
 
     @ApiOperation(value = "인증코드(4 digits, SMS/EMAIL) 발송 요청", notes = "" +
             "\n ### Remarks" +
@@ -111,16 +115,21 @@ public class AuthController {
             "\n" +
             "\n - <mark>액세스토큰 불필요</mark>" +
             "\n - 인증메일 발송 실패: <mark>500(INTERNAL SERVER ERROR)</mark>" +
-            "\n")
+            "\n", tags = "1. 브랜드")
     @GetMapping(URI.SEND_VERIFICATION_CODE)
-    @Deprecated
-    public ResponseEntity sendVerificationCode(@RequestParam String email) {
+    public ResponseEntity sendVerificationCode(@Email(message = "잘못된 이메일 형식입니다.") @RequestParam String email) {
         if (log.isDebugEnabled()) {
             log.debug("([ sendVerificationCode ]) $email='{}'", email);
         }
         try {
             if (!service.sendVerificationCode(email)) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                return ResponseEntity.ok().body(BusinessResponse.builder().normal(
+                        BusinessResponse.Normal.builder()
+                                .status(false)
+                                .value(HttpStatus.INTERNAL_SERVER_ERROR.toString())
+                                .build()
+                ).build());
             }
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -128,9 +137,15 @@ public class AuthController {
                         email,
                         e.getClass().getSimpleName(), e.getMessage(), e);
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.ok().body(BusinessResponse.builder().normal(
+                    BusinessResponse.Normal.builder()
+                            .status(false)
+                            .value(HttpStatus.INTERNAL_SERVER_ERROR.toString())
+                            .build()
+            ).build());
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(BusinessResponse.builder().build());
     }
 
     //==================================================================================================================
@@ -319,8 +334,7 @@ public class AuthController {
             "\n" +
             "\n - <mark>액세스토큰 불필요</mark>" +
             "\n - 인증메일 발송 실패: <mark>500(INTERNAL SERVER ERROR)</mark>" +
-            "\n",
-            tags = "1. 브랜드")
+            "\n")
     @PostMapping(URI.SEND_VERIFICATION_CODE)
     public ResponseEntity sendMailVerificationCode(@RequestBody AccountDto dto) {
         if (log.isDebugEnabled()) {

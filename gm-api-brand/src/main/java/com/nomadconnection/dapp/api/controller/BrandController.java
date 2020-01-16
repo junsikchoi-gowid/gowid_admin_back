@@ -25,6 +25,7 @@ public class BrandController {
         public static final String BASE = "/brand/v1";
         public static final String ACCOUNT = "/account";
         public static final String COMPANYCARD = "/companycard";
+        public static final String USERDELETE = "/userdelete";
     }
 
     private final BrandService service;
@@ -33,7 +34,7 @@ public class BrandController {
             "\n ### Remarks" +
             "\n" +
             "\n - <mark>액세스토큰 불필요</mark>" +
-            "\n")
+            "\n", tags = "1. 브랜드")
     @GetMapping(URI.ACCOUNT)
     public ResponseEntity Account(@ModelAttribute BrandDto.FindAccount dto) {
         if (log.isDebugEnabled()) {
@@ -44,7 +45,7 @@ public class BrandController {
 
     @ApiOperation(value = "카드사(삼성/현대) 선택", notes = "" +
             "\n ### Remarks" +
-            "\n")
+            "\n", tags = "1. 브랜드")
     @GetMapping(URI.COMPANYCARD)
     public ResponseEntity CompanyCard(
             @ApiIgnore @CurrentUser CustomUser user,
@@ -53,5 +54,13 @@ public class BrandController {
             log.debug("([ getAccount ]) $dto.account.find='{}'", dto);
         }
         return service.companyCard(dto, user.idx());
+    }
+
+    @ApiOperation(value = "사용자 삭제 Email 정보 입력", notes = "" +
+            "\n ### Remarks" +
+            "\n", tags = "1. 브랜드")
+    @GetMapping(URI.USERDELETE)
+    public ResponseEntity deleteEmail (@RequestParam String email) {
+        return service.deleteEmail(email);
     }
 }

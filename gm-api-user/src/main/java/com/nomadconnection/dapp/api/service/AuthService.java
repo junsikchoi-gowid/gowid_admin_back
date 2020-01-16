@@ -10,6 +10,7 @@ import com.nomadconnection.dapp.api.helper.EmailValidator;
 import com.nomadconnection.dapp.api.helper.MdnValidator;
 import com.nomadconnection.dapp.core.domain.User;
 import com.nomadconnection.dapp.core.domain.VerificationCode;
+import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.VerificationCodeRepository;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
@@ -52,7 +53,9 @@ public class AuthService {
 	 * @return 아이디(이메일) 존재여부
 	 */
 	public boolean isPresent(String account) {
-		return repoUser.findByEmail(account).isPresent();
+		// return repoUser.findByEmail(account).isPresent();
+		return repoUser.findByAuthentication_EnabledAndEmail( true, account	).isPresent();
+
 	}
 
 	@Transactional(rollbackFor = Exception.class)
@@ -155,7 +158,7 @@ public class AuthService {
 	 * @param email 이메일주소
 	 */
 	public void sendPasswordResetEmail(String email) throws UserNotFoundException  {
-		User user = repoUser.findByEmail(email).orElseThrow(
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true,email).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(email)
 						.build()
@@ -199,7 +202,7 @@ public class AuthService {
 						.build();
 			}
 		}
-		User user = repoUser.findByEmail(token.getIdentifier()).orElseThrow(
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true,token.getIdentifier()).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(token.getIdentifier())
 						.build()
@@ -220,7 +223,7 @@ public class AuthService {
 	 * @return 인증토큰(세트) - 인증토큰, 갱신토큰, 발급일시, 만료일시(인증토큰), 만료일시(갱신토큰), 부가정보(권한, ...)
 	 */
 	public TokenDto.TokenSet issueTokenSet(AccountDto dto) {
-		User user = repoUser.findByEmail(dto.getEmail()).orElseThrow(
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(dto.getEmail())
 						.build()
@@ -278,7 +281,7 @@ public class AuthService {
 	public boolean sendEmailVerificationCode(AccountDto dto) {
 		String code = String.format("%04d", new Random().nextInt(10000));
 
-		User user = repoUser.findByEmail(dto.getEmail()).orElseThrow(
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(dto.getEmail())
 						.build()

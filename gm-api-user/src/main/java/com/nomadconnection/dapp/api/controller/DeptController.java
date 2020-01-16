@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -24,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping(DeptController.URI.BASE)
 @RequiredArgsConstructor
+@Validated
 @Api(tags = "부서", description = DeptController.URI.BASE)
 @SuppressWarnings({"unused", "deprecation"})
 public class DeptController {

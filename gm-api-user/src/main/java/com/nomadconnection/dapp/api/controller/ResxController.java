@@ -13,6 +13,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +27,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping(ResxController.URI.BASE)
 @RequiredArgsConstructor
+@Validated
 @Api(tags = "리소스", description = ResxController.URI.BASE)
 @SuppressWarnings({"unused", "deprecation"})
 public class ResxController {
