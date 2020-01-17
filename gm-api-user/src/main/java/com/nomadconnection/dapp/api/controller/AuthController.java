@@ -188,7 +188,9 @@ public class AuthController {
             return ResponseEntity.ok()
                     .body(ErrorResponse.from(ErrorCode.Mismatched.MISMATCHED_VERIFICATION_CODE));
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(
+                BusinessResponse.builder().build()
+        );
     }
 
     //==================================================================================================================

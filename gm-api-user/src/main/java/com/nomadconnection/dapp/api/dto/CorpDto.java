@@ -32,17 +32,21 @@ public class CorpDto {
 //	@ApiModelProperty("법인인감증명서")
 //	private String uriRegSeal;
 
-	@ApiModelProperty("개업일")
-	private LocalDateTime openingDay;
-
-	@ApiModelProperty("사업자등록일")
-	private LocalDateTime businessLicenseDate;
-
-	@ApiModelProperty("업종")
-	private String kindOfBusiness;
-
-	@ApiModelProperty("업태")
-	private String typeOfBusiness;
+	private String resBusinessItems;
+	private String resBusinessTypes;
+	private String resBusinessmanType;
+	private String resCompanyIdentityNo;
+	private String resCompanyNm;
+	private String resIssueNo;
+	private String resIssueOgzNm;
+	private String resJointIdentityNo;
+	private String resJointRepresentativeNm;
+	private String resOpenDate;
+	private String resOriGinalData;
+	private String resRegisterDate;
+	private String resUserAddr;
+	private String resUserIdentiyNo;
+	private String resUserNm;
 
 	@ApiModelProperty("카드회사 etc. 삼성/현대")
 	private String typeOfCardCorp;
@@ -73,17 +77,21 @@ public class CorpDto {
 //		@ApiModelProperty("법인인감증명서")
 //		private MultipartFile resxRegSeal;
 
-		@ApiModelProperty("개업일")
-		private LocalDateTime openingDay;
-
-		@ApiModelProperty("사업자등록일")
-		private LocalDateTime businessLicenseDate;
-
-		@ApiModelProperty("업종")
-		private String kindOfBusiness;
-
-		@ApiModelProperty("업태")
-		private String typeOfBusiness;
+		private String resBusinessItems;
+		private String resBusinessTypes;
+		private String resBusinessmanType;
+		private String resCompanyIdentityNo;
+		private String resCompanyNm;
+		private String resIssueNo;
+		private String resIssueOgzNm;
+		private String resJointIdentityNo;
+		private String resJointRepresentativeNm;
+		private String resOpenDate;
+		private String resOriGinalData;
+		private String resRegisterDate;
+		private String resUserAddr;
+		private String resUserIdentiyNo;
+		private String resUserNm;
 
 		@ApiModelProperty("카드회사 etc. 삼성/현대")
 		private String typeOfCardCorp;

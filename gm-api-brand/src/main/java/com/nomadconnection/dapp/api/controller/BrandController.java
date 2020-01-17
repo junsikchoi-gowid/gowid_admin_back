@@ -60,7 +60,7 @@ public class BrandController {
             "\n ### Remarks" +
             "\n", tags = "1. 브랜드")
     @GetMapping(URI.USERDELETE)
-    public ResponseEntity deleteEmail (@RequestParam String email) {
+    public ResponseEntity deleteEmail(@RequestParam String email) {
         return service.deleteEmail(email);
     }
 }

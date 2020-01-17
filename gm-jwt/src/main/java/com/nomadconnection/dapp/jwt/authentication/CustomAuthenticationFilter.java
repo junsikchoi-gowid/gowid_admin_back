@@ -64,6 +64,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 					}
 				}
 				UserDetails user = service.loadUserByUsername(dto.getIdentifier());
+
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 				{
 					authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

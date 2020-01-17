@@ -36,14 +36,6 @@ public class Corp extends BaseTime {
 	@EqualsAndHashCode.Include
 	private String bizRegNo; // 사업자등록번호(10 Digits)
 
-	private DateTimePath<LocalDateTime> openingDay; // 개업일
-
-	private DateTimePath<LocalDateTime> businessLicenseDate; // 사업자등록일
-
-	private String kindOfBusiness; //업종
-
-	private String typeOfBusiness; //업태
-
 	private String typeOfCardCorp; // 카드회사 etc. 삼성/현대
 
 	@Embedded
@@ -53,6 +45,22 @@ public class Corp extends BaseTime {
 	private Address recipientAddress; // 수령지
 
 	private Integer staffs; // 직원수
+
+	private String resBusinessItems;
+	private String resBusinessTypes;
+	private String resBusinessmanType;
+	private String resCompanyIdentityNo;
+	private String resCompanyNm;
+	private String resIssueNo;
+	private String resIssueOgzNm;
+	private String resJointIdentityNo;
+	private String resJointRepresentativeNm;
+	private String resOpenDate;
+	private String resOriGinalData;
+	private String resRegisterDate;
+	private String resUserAddr;
+	private String resUserIdentiyNo;
+	private String resUserNm;
 
 //	@OneToMany(mappedBy = "corp")
 //	private List<Resx> resxList; // 법인인감증명서, 주주명부

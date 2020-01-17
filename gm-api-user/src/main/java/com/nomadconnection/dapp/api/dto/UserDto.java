@@ -98,10 +98,6 @@ public class UserDto {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class RegisterBrandUser {
-
-		@ApiModelProperty("선택약관동의여부")
-		private boolean idxConsent;
-
 		@ApiModelProperty("이메일(계정)")
 		private String email;
 
@@ -139,12 +135,6 @@ public class UserDto {
 		@ApiModelProperty("사업자등록일")
 		private LocalDateTime businessLicenseDate;
 
-		@ApiModelProperty("업종")
-		private String kindOfBusiness;
-
-		@ApiModelProperty("업태")
-		private String typeOfBusiness;
-
 		@ApiModelProperty("카드회사 etc. 삼성/현대")
 		private String typeOfCardCorp;
 
@@ -156,6 +146,22 @@ public class UserDto {
 
 		@ApiModelProperty("결제계좌정보")
 		private BankAccountDto bankAccount;
+
+		private String resBusinessItems;
+		private String resBusinessTypes;
+		private String resBusinessmanType;
+		private String resCompanyIdentityNo;
+		private String resCompanyNm;
+		private String resIssueNo;
+		private String resIssueOgzNm;
+		private String resJointIdentityNo;
+		private String resJointRepresentativeNm;
+		private String resOpenDate;
+		private String resOriGinalData;
+		private String resRegisterDate;
+		private String resUserAddr;
+		private String resUserIdentiyNo;
+		private String resUserNm;
 
 
 	}

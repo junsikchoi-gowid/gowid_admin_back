@@ -17,7 +17,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return repo.findByEmail(username).map(com.nomadconnection.dapp.core.security.CustomUser::new).orElseThrow(
+        return repo.findByAuthentication_EnabledAndEmail(true,username).map(com.nomadconnection.dapp.core.security.CustomUser::new).orElseThrow(
                 () -> new UsernameNotFoundException(String.format("`%s` not found", username))
         );
     }

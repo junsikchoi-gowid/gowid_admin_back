@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -61,9 +62,10 @@ public class BrandService {
     }
 
     public ResponseEntity deleteEmail(String email) {
-        User user = repoUser.findByEmail(email).get();
+        User user = repoUser.findByAuthentication_EnabledAndEmail(true,email).get();
 
         user.authentication(Authentication.builder().enabled(false).build());
+        user.enabledDate(LocalDateTime.now());
 
         repoUser.save(user);
 
