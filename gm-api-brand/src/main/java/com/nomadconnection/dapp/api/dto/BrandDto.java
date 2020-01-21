@@ -37,4 +37,32 @@ public class BrandDto {
         @ApiModelProperty("카드회사이름 etc 1.현대 2.삼성")
         private CardCompany companyCode;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PasswordPre {
+
+        @ApiModelProperty("인증번호")
+        private String code;
+
+        @ApiModelProperty("email")
+        private String email;
+
+        @ApiModelProperty("비밀번호")
+        private String password;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PasswordAfter {
+        @ApiModelProperty("이전 비밀번호")
+        private String prePassword;
+
+        @ApiModelProperty("이후 비밀번호")
+        private String afterPassword;
+    }
 }

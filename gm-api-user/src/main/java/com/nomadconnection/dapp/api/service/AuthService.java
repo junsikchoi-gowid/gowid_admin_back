@@ -229,6 +229,7 @@ public class AuthService {
 						.email(dto.getEmail())
 						.build()
 		);
+
 		if (!encoder.matches(dto.getPassword(), user.password())) {
 			throw UnauthorizedException.builder()
 					.account(dto.getEmail())

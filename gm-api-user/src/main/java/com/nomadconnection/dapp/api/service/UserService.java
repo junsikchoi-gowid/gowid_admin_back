@@ -381,10 +381,10 @@ public class UserService {
 				.name(dto.getCorpName())
 				.bizRegNo(dto.getBizRegNo())
 				.reqCreditLimit(dto.getReqCreditLimit())
-				.bankAccount(BankAccount.builder()
-						.bankAccount(dto.getBankAccount().getAccount())
-						.bankAccountHolder(dto.getBankAccount().getAccountHolder())
-						.build())
+//				.bankAccount(BankAccount.builder()
+//						.bankAccount(dto.getBankAccount().getAccount())
+//						.bankAccountHolder(dto.getBankAccount().getAccountHolder())
+//						.build())
 				.status(CorpStatus.PENDING)
 				.build());
 

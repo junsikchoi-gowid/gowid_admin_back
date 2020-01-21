@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -26,6 +27,8 @@ public class BrandController {
         public static final String ACCOUNT = "/account";
         public static final String COMPANYCARD = "/companycard";
         public static final String USERDELETE = "/userdelete";
+        public static final String USERPASSWORDCHANGE_PRE = "/password/pre";
+        public static final String USERPASSWORDCHANGE_AFTER = "/password/after";
     }
 
     private final BrandService service;
@@ -62,5 +65,27 @@ public class BrandController {
     @GetMapping(URI.USERDELETE)
     public ResponseEntity deleteEmail(@RequestParam String email) {
         return service.deleteEmail(email);
+    }
+
+
+    @ApiOperation(value = "비밀번호 변경 - 로그인전", notes = "" +
+            "\n ### Remarks" +
+            "\n", tags = "1. 브랜드")
+    @PostMapping(URI.USERPASSWORDCHANGE_PRE)
+    public ResponseEntity passwordPre(
+            @ModelAttribute BrandDto.PasswordPre dto)
+    {
+        return service.passwordAuthPre(dto.getEmail(), dto.getCode(), dto.getPassword());
+    }
+
+    @ApiOperation(value = "비밀번호 변경 - 로그인후", notes = "" +
+            "\n ### Remarks" +
+            "\n", tags = "1. 브랜드")
+    @PostMapping(URI.USERPASSWORDCHANGE_AFTER)
+    public ResponseEntity passwordAfter(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @ModelAttribute BrandDto.PasswordAfter dto
+    ){
+        return service.passwordAuthAfter(user.idx(), dto.getPrePassword(), dto.getAfterPassword());
     }
 }
