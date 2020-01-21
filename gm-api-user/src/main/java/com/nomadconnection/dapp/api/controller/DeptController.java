@@ -2,7 +2,7 @@ package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.DeptDto;
 import com.nomadconnection.dapp.api.exception.NotAllowedException;
-import com.nomadconnection.dapp.api.security.CustomUser;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.api.service.DeptService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.domain.Role;
@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -24,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping(DeptController.URI.BASE)
 @RequiredArgsConstructor
+@Validated
 @Api(tags = "부서", description = DeptController.URI.BASE)
 @SuppressWarnings({"unused", "deprecation"})
 public class DeptController {

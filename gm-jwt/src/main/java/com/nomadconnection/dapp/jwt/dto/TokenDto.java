@@ -94,6 +94,12 @@ public class TokenDto {
 
 			@ApiModelProperty("부여된 권한")
 			private List<Role> authorities;
+
+			@ApiModelProperty("법인 매핑")
+			private boolean corpMapping;
+
+			@ApiModelProperty("법인 매핑")
+			private boolean cardCompanyMapping;
 		}
 
 		@ApiModelProperty("인증토큰(액세스)")

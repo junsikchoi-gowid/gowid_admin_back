@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.api.security;
+package com.nomadconnection.dapp.core.security;
 
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +13,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-	private final UserRepository repo;
+    private final UserRepository repo;
 
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		return repo.findByEmail(username).map(CustomUser::new).orElseThrow(
-				() -> new UsernameNotFoundException(String.format("`%s` not found", username))
-		);
-	}
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return repo.findByAuthentication_EnabledAndEmail(true,username).map(com.nomadconnection.dapp.core.security.CustomUser::new).orElseThrow(
+                () -> new UsernameNotFoundException(String.format("`%s` not found", username))
+        );
+    }
 }

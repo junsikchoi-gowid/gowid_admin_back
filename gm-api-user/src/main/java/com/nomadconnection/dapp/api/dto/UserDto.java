@@ -7,6 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -87,5 +91,106 @@ public class UserDto {
 
 		@ApiModelProperty("월한도(단위: 원)")
 		private Long creditLimit;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class RegisterBrandUser {
+		@ApiModelProperty("이메일(계정)")
+		private String email;
+
+		@ApiModelProperty("비밀번호")
+		private String password;
+
+		@ApiModelProperty("이름")
+		private String userName;
+
+		@ApiModelProperty("연락처(폰)")
+		private String mdn;
+
+		@ApiModelProperty("이용약관 정보")
+		private List<ConsentDto.RegDto> consents;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class RegisterBrandCorp {
+
+		@ApiModelProperty("이메일(계정)")
+		private String email;
+
+		@ApiModelProperty("법인명")
+		private String corpName;
+
+		@ApiModelProperty("사업자등록번호")
+		private String bizRegNo;
+
+		@ApiModelProperty("개업일")
+		private LocalDateTime openingDay;
+
+		@ApiModelProperty("사업자등록일")
+		private LocalDateTime businessLicenseDate;
+
+		@ApiModelProperty("카드회사 etc. 삼성/현대")
+		private String typeOfCardCorp;
+
+		@ApiModelProperty("주주명부")
+		private MultipartFile resxShareholderList;
+
+		@ApiModelProperty("희망법인총한도")
+		private Long reqCreditLimit;
+
+		@ApiModelProperty("결제계좌정보")
+		private BankAccountDto bankAccount;
+
+		private String resBusinessItems;
+		private String resBusinessTypes;
+		private String resBusinessmanType;
+		private String resCompanyIdentityNo;
+		private String resCompanyNm;
+		private String resIssueNo;
+		private String resIssueOgzNm;
+		private String resJointIdentityNo;
+		private String resJointRepresentativeNm;
+		private String resOpenDate;
+		private String resOriGinalData;
+		private String resRegisterDate;
+		private String resUserAddr;
+		private String resUserIdentiyNo;
+		private String resUserNm;
+
+
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class registerUserUpdate {
+
+		@ApiModelProperty("결제계좌정보")
+		private String userName;
+
+		@ApiModelProperty("전화번호")
+		private String mdn;
+
+		@ApiModelProperty("email")
+		private String email;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class registerUserPasswordUpdate {
+		@ApiModelProperty("email")
+		private String oldPassword;
+
+		@ApiModelProperty("email")
+		private String newPassword;
 	}
 }

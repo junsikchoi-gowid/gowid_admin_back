@@ -1,0 +1,22 @@
+dependencies {
+    implementation project(":gm-swagger")
+    implementation project(":gm-jwt")
+    implementation project(":gm-core")
+    implementation project(":gm-resx")
+    implementation(
+            "org.springframework.boot:spring-boot-starter-web",
+            "org.springframework.boot:spring-boot-starter-security",
+            "org.springframework.boot:spring-boot-starter-data-jpa",
+            "org.apache.commons:commons-lang3:3.4",
+            "com.googlecode.json-simple:json-simple:1.1.1",
+            "org.json:json:20180813",
+            "com.fasterxml.jackson.core:jackson-core:2.9.9",
+            "com.fasterxml.jackson.core:jackson-annotations:2.9.9",
+            "com.fasterxml.jackson.core:jackson-databind:2.9.9.2",
+            "org.codehaus.jackson:jackson-mapper-asl:1.9.13",
+            "commons-codec:commons-codec:1.11",
+            "commons-io:commons-io:2.6",
+    )
+}
+jar.enabled = true; bootJar.enabled = false
+

@@ -2,16 +2,15 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.AuthDto;
-import com.nomadconnection.dapp.api.dto.CardDto;
+import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.EmailValidator;
 import com.nomadconnection.dapp.api.helper.MdnValidator;
-import com.nomadconnection.dapp.core.domain.Card;
-import com.nomadconnection.dapp.core.domain.CardStatus;
 import com.nomadconnection.dapp.core.domain.User;
 import com.nomadconnection.dapp.core.domain.VerificationCode;
+import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.VerificationCodeRepository;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
@@ -25,6 +24,7 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -54,12 +54,26 @@ public class AuthService {
 	 * @return 아이디(이메일) 존재여부
 	 */
 	public boolean isPresent(String account) {
-		return repoUser.findByEmail(account).isPresent();
+		// return repoUser.findByEmail(account).isPresent();
+		return repoUser.findByAuthentication_EnabledAndEmail( true, account	).isPresent();
+
 	}
 
 	@Transactional(rollbackFor = Exception.class)
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean sendVerificationCode(String key) {
+		if (MdnValidator.isValid(key)) {
+			return sendMdnVerificationCode(key);
+		}
+		if (EmailValidator.isValid(key)) {
+			return sendEmailVerificationCode(key);
+		}
+		return false;
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+	public boolean sendVerificationCodeMail(String key) {
 		if (MdnValidator.isValid(key)) {
 			return sendMdnVerificationCode(key);
 		}
@@ -79,10 +93,11 @@ public class AuthService {
 	/**
 	 * 인증번호(4 digits, EMAIL) 발송
 	 *
-	 * @param email 수신메일주소
+	 * @param email 수신메일주소 Password 비밀번호
 	 */
 	private boolean sendEmailVerificationCode(String email) {
 		String code = String.format("%04d", new Random().nextInt(10000));
+
 		try {
 			repoVerificationCode.save(VerificationCode.builder()
 					.verificationKey(email)
@@ -143,8 +158,8 @@ public class AuthService {
 	 *
 	 * @param email 이메일주소
 	 */
-	public void sendPasswordResetEmail(String email) throws UserNotFoundException {
-		User user = repoUser.findByEmail(email).orElseThrow(
+	public void sendPasswordResetEmail(String email) throws UserNotFoundException  {
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true,email).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(email)
 						.build()
@@ -188,7 +203,7 @@ public class AuthService {
 						.build();
 			}
 		}
-		User user = repoUser.findByEmail(token.getIdentifier()).orElseThrow(
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true,token.getIdentifier()).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(token.getIdentifier())
 						.build()
@@ -209,17 +224,22 @@ public class AuthService {
 	 * @return 인증토큰(세트) - 인증토큰, 갱신토큰, 발급일시, 만료일시(인증토큰), 만료일시(갱신토큰), 부가정보(권한, ...)
 	 */
 	public TokenDto.TokenSet issueTokenSet(AccountDto dto) {
-		User user = repoUser.findByEmail(dto.getEmail()).orElseThrow(
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(dto.getEmail())
 						.build()
 		);
+
 		if (!encoder.matches(dto.getPassword(), user.password())) {
 			throw UnauthorizedException.builder()
 					.account(dto.getEmail())
 					.build();
 		}
-		return jwt.issue(dto.getEmail(), user.authorities(), user.idx());
+
+		boolean corpMapping = StringUtils.isEmpty(user.corp())? false: true;
+		boolean cardCompanyMapping = StringUtils.isEmpty(user.cardCompany())? false:true;
+
+		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping , cardCompanyMapping);
 	}
 
 	/**
@@ -257,5 +277,46 @@ public class AuthService {
 				.mdn(user.mdn())
 				.corpStatus(user.corp() != null ? user.corp().status() : null)
 				.build();
+	}
+
+	/**
+	 * 인증번호(4 digits, EMAIL) 발송
+	 *
+	 * @param dto 수신메일주소 Password 비밀번호
+	 */
+	public boolean sendEmailVerificationCode(AccountDto dto) {
+		String code = String.format("%04d", new Random().nextInt(10000));
+
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).orElseThrow(
+				() -> UserNotFoundException.builder()
+						.email(dto.getEmail())
+						.build()
+		);
+		if (!encoder.matches(dto.getPassword(), user.password())) {
+			throw UnauthorizedException.builder()
+					.account(dto.getEmail())
+					.build();
+		}
+
+		try {
+			repoVerificationCode.save(VerificationCode.builder()
+					.verificationKey(user.email())
+					.code(code)
+					.build());
+		} catch (Exception e) {
+			if (log.isErrorEnabled()) {
+				log.error("([ sendVerificationCode ]) REPOSITORY.SAVE ERROR, $email='{}'", user.email(), e);
+			}
+			return false;
+		}
+		final MimeMessagePreparator preparator = mimeMessage -> {
+			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			helper.setFrom("MyCard <service@popsoda.io>");
+			helper.setTo(user.email());
+			helper.setSubject("[MyCard] 인증코드");
+			helper.setText("Verification Code: " + code, false);
+		};
+		sender.send(preparator);
+		return true;
 	}
 }

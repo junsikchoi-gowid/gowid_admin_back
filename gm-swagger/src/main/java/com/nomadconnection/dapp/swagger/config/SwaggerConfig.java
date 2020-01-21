@@ -1,7 +1,8 @@
 package com.nomadconnection.dapp.swagger.config;
 
+import com.google.common.collect.Lists;
+import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,19 +12,16 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.schema.ModelRef;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.Contact;
-import springfox.documentation.service.VendorExtension;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -85,7 +83,9 @@ public class SwaggerConfig {
 				.build()
 				.apiInfo(getApiInfo())
 				.ignoredParameterTypes()
-				.globalOperationParameters(
+				.securityContexts(Lists.newArrayList(securityContext()))
+				.securitySchemes(Lists.newArrayList(apiKey()))
+				/*.globalOperationParameters(
 						Collections.singletonList(
 								new ParameterBuilder()
 										.name("Authorization")
@@ -95,7 +95,8 @@ public class SwaggerConfig {
 										.required(false)
 										.build()
 						)
-				);
+				)*/
+				;
 	}
 
 	private ApiInfo getApiInfo() {
@@ -109,5 +110,21 @@ public class SwaggerConfig {
 				apiInfo.getLicenseUrl(),
 				apiInfo.getVendorExtensions()
 		);
+	}
+
+	private ApiKey apiKey()
+	{
+		return new ApiKey("JWT","Authorization", CommonConstant.ACCESS_TOKEN);
+	}
+
+	private springfox.documentation.spi.service.contexts.SecurityContext securityContext() {
+		return springfox.documentation.spi.service.contexts.SecurityContext.builder().securityReferences(defaultAuth()).forPaths(PathSelectors.any()).build();
+	}
+
+	List<SecurityReference> defaultAuth() {
+		AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
+		AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+		authorizationScopes[0] = authorizationScope;
+		return Lists.newArrayList(new SecurityReference("JWT", authorizationScopes));
 	}
 }

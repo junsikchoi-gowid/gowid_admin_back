@@ -9,6 +9,8 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +19,7 @@ import java.util.Set;
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "email", name = "UK_User_Email"))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"email","enabledDate"}, name = "UK_User_Email"))
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,15 +31,19 @@ public class User extends BaseTime {
 	@Column(nullable = false, updatable = false)
 	private Long idx;
 
-	@NaturalId
+
 	private String email; // 아이디
 	private String password;
 //	private String pin; // 개인식별번호(6 Digits)
 	private String name;
 	private String mdn;
+	private CardCompany cardCompany; // 카드회사 enum
 	private Long creditLimit; // 월한도(예정) -> Card::creditLimit 월한도(적용)
 
 	private Boolean consent; // 선택약관동의여부
+
+	@Column(columnDefinition = "DATETIME default 99991231010101")
+	private LocalDateTime enabledDate; // 삭제된 날짜
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "FK_Corp_User"))
@@ -68,4 +74,14 @@ public class User extends BaseTime {
 			inverseJoinColumns = @JoinColumn(name = "idxAuthority", foreignKey = @ForeignKey(name = "FK_Authority_AuthoritiesMapping")))
 	@Builder.Default
 	private Set<Authority> authorities = new HashSet<>();
+
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinTable(
+			name = "ConsentMapping",
+			joinColumns = @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_ConsentMapping")),
+			inverseJoinColumns = @JoinColumn(name = "idxConsent", foreignKey = @ForeignKey(name = "FK_Consent_ConsentMapping"))
+    )
+	@Builder.Default
+	private List<Consent> consents = new ArrayList<>();
+
 }

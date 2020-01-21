@@ -1,8 +1,7 @@
 package com.nomadconnection.dapp.api.security;
 
-import com.nomadconnection.dapp.api.controller.AuthController;
-import com.nomadconnection.dapp.api.controller.CorpController;
-import com.nomadconnection.dapp.api.controller.UserController;
+import com.nomadconnection.dapp.api.controller.*;
+import com.nomadconnection.dapp.core.security.CustomUserDetailsService;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationEntryPoint;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -118,8 +117,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.PASSWORD).permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_ISSUE).permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_REISSUE).permitAll()
+				.antMatchers(AuthController.URI.BASE + AuthController.URI.VERIFICATION_CODE).permitAll()
 				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTER).permitAll()
+				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_USER,
+						UserController.URI.BASE + UserController.URI.REGISTRATION_CORP
+				).permitAll()
 				.antMatchers(CorpController.URI.BASE + CorpController.URI.REGISTRABLE).permitAll()
+				.antMatchers(ConsentController.URI.BASE + ConsentController.URI.CONSENT,
+						BrandController.URI.BASE + BrandController.URI.ACCOUNT,
+						BrandController.URI.BASE + BrandController.URI.USERDELETE,
+						BrandController.URI.BASE + BrandController.URI.USERPASSWORDCHANGE_PRE
+				).permitAll()
 				.anyRequest().authenticated();
 	}
 }

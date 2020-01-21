@@ -54,4 +54,8 @@ public class ErrorCode {
 		UNVERIFIED_CVC, // CVC: CARD VERIFICATION CODE
 		UNVERIFIED_CVT, // CVT: CARD VALID THRU
 	}
+
+	public enum Business implements ErrorCodeDescriptor {
+		BUSINESS,
+	}
 }

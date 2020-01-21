@@ -2,18 +2,17 @@ package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
-import com.nomadconnection.dapp.api.security.CustomUser;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -21,6 +20,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @RestController
 @RequestMapping(UserController.URI.BASE)
 @RequiredArgsConstructor
+@Validated
 @Api(tags = "사용자", description = UserController.URI.BASE)
 @SuppressWarnings({"unused", "deprecation"})
 public class UserController {
@@ -29,6 +29,10 @@ public class UserController {
 	public static class URI {
 		public static final String BASE = "/user/v1";
 		public static final String REGISTER = "/register";
+		public static final String REGISTRATION_USER = "/registration/user";
+		public static final String REGISTRATION_CORP = "/registration/corp";
+		public static final String REGISTRATION_INFO  = "/registration/info";;
+		public static final String REGISTRATION_PW = "/registrationpw/pw";
 		public static final String MEMBERS = "/members";
 		public static final String MEMBERS_MEMBER_DEPT = "/members/{member}/dept";
 		public static final String INFO = "/info";
@@ -50,7 +54,7 @@ public class UserController {
 	//	- 이메일인증
 	//
 
-	@ApiOperation(value = "회원가입 - 법인관리자 등록", notes = "" +
+	@ApiOperation(value = "회원가입 - 법인관리자 등록", position = 3, notes = "" +
 			"\n ### Remarks" +
 			"\n" +
 			"\n - <mark>액세스토큰 불필요</mark>" +
@@ -179,5 +183,86 @@ public class UserController {
 		}
 		service.removeDept(user.idx(), member);
 		return ResponseEntity.ok().build();
+	}
+
+
+	@ApiOperation(
+			value = "Brand 회원가입 유저정보",
+			notes = "### Remarks \n - <mark>액세스토큰 불필요</mark>",
+			tags = "1. 브랜드"
+	)
+	@ApiResponses(value={
+			@ApiResponse(code = 200, message = "정상"),
+			@ApiResponse(code = 201, message = "생성"),
+			@ApiResponse(code = 401, message = "권한없음(패스워드 불일치)"),
+			@ApiResponse(code = 403, message = "권한없음(패스워드 불일치)"),
+			@ApiResponse(code = 404, message = "등록되지 않은 이메일"),
+			@ApiResponse(code = 500, message = "")
+	})
+	@PostMapping(URI.REGISTRATION_USER)
+	public ResponseEntity<?> registerBrandUser(
+			@RequestBody UserDto.RegisterBrandUser dto) {
+		log.debug("registerBrandUser controller ");
+
+		return service.registerBrandUser(dto);
+	}
+
+
+	@ApiOperation(
+			value = "Brand 회원가입 법인정보",
+			notes = "### Remarks \n",
+			tags = "1. 브랜드"
+	)
+	@PostMapping(path = URI.REGISTRATION_CORP, consumes = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity registerBrandCorp(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody UserDto.RegisterBrandCorp dto
+	) {
+		log.debug("registerUserCorp controller ");
+
+		return service.registerBrandCorp(user.idx(), dto);
+	}
+
+	@ApiOperation(
+			value = "Brand 내 정보 수정",
+			notes = "### Remarks ",
+			tags = "1. 브랜드"
+	)
+	@ApiResponses(value={
+			@ApiResponse(code = 200, message = "정상"),
+			@ApiResponse(code = 201, message = "생성"),
+			@ApiResponse(code = 401, message = "권한없음(패스워드 불일치)"),
+			@ApiResponse(code = 403, message = "권한없음(패스워드 불일치)"),
+			@ApiResponse(code = 404, message = "등록되지 않은 이메일"),
+			@ApiResponse(code = 500, message = "")
+	})
+	@PostMapping(URI.REGISTRATION_INFO)
+	public ResponseEntity registerUserUpdate(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody UserDto.registerUserUpdate dto
+	) {
+		if (log.isDebugEnabled()) {
+			log.debug("([ registerUserUpdate ]) $member.idx='{}'", user);
+		}
+
+		return service.registerUserUpdate(dto, user.idx());
+	}
+
+	@ApiOperation(
+			value = "Brand 비밀번호 수정",
+			notes = "### Remarks ",
+			tags = "1. 브랜드"
+	)
+	@PostMapping(URI.REGISTRATION_PW)
+	public ResponseEntity registerUserPasswordUpdate(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody UserDto.registerUserPasswordUpdate dto,
+			@PathVariable Long member
+	) {
+		if (log.isDebugEnabled()) {
+			log.debug("([ registerUserUpdate ]) $member.idx='{}'", member , user);
+		}
+
+		return service.registerUserPasswordUpdate(dto, user.idx());
 	}
 }

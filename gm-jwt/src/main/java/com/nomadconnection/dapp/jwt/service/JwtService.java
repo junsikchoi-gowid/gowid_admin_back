@@ -58,12 +58,13 @@ public class JwtService {
 		}
 	}
 
-	public TokenDto.TokenSet issue(String identifier, Set<Authority> authorities, Long idx) {
+	public TokenDto.TokenSet issue(String identifier, Set<Authority> authorities, Long idx, boolean corpMapping, boolean cardCompanyMapping) {
 		Date now = new Date();
 		List<TokenDto.Token> jwts = Arrays.asList(
 				issue(identifier, TokenDto.TokenType.JWT_FOR_ACCESS, now, idx),
 				issue(identifier, TokenDto.TokenType.JWT_FOR_REFRESH, now, idx)
 		);
+
 		return TokenDto.TokenSet.builder()
 				.jwtAccess(jwts.get(0).getJwt())
 				.jwtRefresh(jwts.get(1).getJwt())
@@ -72,6 +73,8 @@ public class JwtService {
 				.jwtRefreshExpiration(jwts.get(1).getExpiration())
 				.info(TokenDto.TokenSet.AccountInfo.builder()
 						.authorities(authorities.stream().map(Authority::role).collect(Collectors.toList()))
+						.cardCompanyMapping(cardCompanyMapping)
+						.corpMapping(corpMapping)
 						.build())
 				.build();
 	}

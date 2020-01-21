@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -29,6 +31,25 @@ public class CorpDto {
 
 //	@ApiModelProperty("법인인감증명서")
 //	private String uriRegSeal;
+
+	private String resBusinessItems;
+	private String resBusinessTypes;
+	private String resBusinessmanType;
+	private String resCompanyIdentityNo;
+	private String resCompanyNm;
+	private String resIssueNo;
+	private String resIssueOgzNm;
+	private String resJointIdentityNo;
+	private String resJointRepresentativeNm;
+	private String resOpenDate;
+	private String resOriGinalData;
+	private String resRegisterDate;
+	private String resUserAddr;
+	private String resUserIdentiyNo;
+	private String resUserNm;
+
+	@ApiModelProperty("카드회사 etc. 삼성/현대")
+	private String typeOfCardCorp;
 
 	@ApiModelProperty("주주명부")
 	private String uriShareholderList;
@@ -55,6 +76,25 @@ public class CorpDto {
 
 //		@ApiModelProperty("법인인감증명서")
 //		private MultipartFile resxRegSeal;
+
+		private String resBusinessItems;
+		private String resBusinessTypes;
+		private String resBusinessmanType;
+		private String resCompanyIdentityNo;
+		private String resCompanyNm;
+		private String resIssueNo;
+		private String resIssueOgzNm;
+		private String resJointIdentityNo;
+		private String resJointRepresentativeNm;
+		private String resOpenDate;
+		private String resOriGinalData;
+		private String resRegisterDate;
+		private String resUserAddr;
+		private String resUserIdentiyNo;
+		private String resUserNm;
+
+		@ApiModelProperty("카드회사 etc. 삼성/현대")
+		private String typeOfCardCorp;
 
 		@ApiModelProperty("주주명부")
 		private MultipartFile resxShareholderList;
