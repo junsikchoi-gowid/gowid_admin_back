@@ -255,7 +255,7 @@ public class UserService {
 	 * @param dto 정보
 	 */
 	@Transactional
-    public ResponseEntity registerUserUpdate(UserDto.registerUserUpdate dto, Long idx) {
+	public ResponseEntity registerUserUpdate(UserDto.registerUserUpdate dto, Long idx) {
 		// validation start
 		// mail check
 		if(repo.findByIdxNotAndEmail(idx, dto.getEmail()).isPresent()){
@@ -275,7 +275,7 @@ public class UserService {
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(repo.save(user))
 				.build());
-    }
+	}
 
 	/**
 	 * 사용자 등록
