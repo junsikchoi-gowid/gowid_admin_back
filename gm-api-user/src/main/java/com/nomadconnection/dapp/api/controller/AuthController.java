@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.AuthDto;
+import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
@@ -366,6 +367,9 @@ public class AuthController {
             }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.ok().body(ErrorResponse.from("success","정상처리"));
+        return ResponseEntity.ok().body(BusinessResponse.builder()
+                .normal(BusinessResponse.Normal.builder()
+                        .build())
+                .build());
     }
 }
