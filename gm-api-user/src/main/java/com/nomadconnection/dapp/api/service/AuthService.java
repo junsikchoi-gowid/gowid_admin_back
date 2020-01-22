@@ -2,7 +2,6 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.AuthDto;
-import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
@@ -10,7 +9,6 @@ import com.nomadconnection.dapp.api.helper.EmailValidator;
 import com.nomadconnection.dapp.api.helper.MdnValidator;
 import com.nomadconnection.dapp.core.domain.User;
 import com.nomadconnection.dapp.core.domain.VerificationCode;
-import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.VerificationCodeRepository;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
@@ -18,6 +16,7 @@ import com.nomadconnection.dapp.jwt.exception.UnacceptableJwtException;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -25,13 +24,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,6 +38,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @SuppressWarnings("unused")
 public class AuthService {
+
+	@Autowired
+	private ITemplateEngine templateEngine;
 
 	private final JwtService jwt;
 	private final JavaMailSenderImpl sender;
@@ -312,11 +314,16 @@ public class AuthService {
 			return false;
 		}
 		final MimeMessagePreparator preparator = mimeMessage -> {
+
+
 			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 			helper.setFrom("MyCard <service@popsoda.io>");
 			helper.setTo(user.email());
-			helper.setSubject("[MyCard] 인증코드");
-			helper.setText("Verification Code: " + code, false);
+
+			Context context = new Context();
+			context.setVariable("verification_code", code);
+			String content = templateEngine.process("mail-template",context);
+			helper.setText(content, true);
 		};
 		sender.send(preparator);
 		return true;

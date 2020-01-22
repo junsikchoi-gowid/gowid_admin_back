@@ -243,24 +243,24 @@ public class AuthController {
         return ResponseEntity.ok().body(ErrorResponse.from("","정상처리"));
     }
 
-    //	비밀번호 재설정 - 새 비밀번호 설정: 인증키, 새 비밀번호
-
-    @ApiOperation(value = "비밀번호 재설정 - 새 비밀번호 설정", notes = "" +
-            "\n ### Remarks" +
-            "\n" +
-            "\n - <mark>액세스토큰 불필요</mark>" +
-            "\n - <mark>인증키</mark>" +
-            "\n")
-    @PutMapping(URI.PASSWORD)
-    public ResponseEntity putPassword(
-            @RequestBody AccountDto.PasswordReset dto
-    ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ putPassword ]) $dto='{}'", dto);
-        }
-        service.resetPassword(dto.getKey(), dto.getPassword());
-        return ResponseEntity.ok().build();
-    }
+//
+//    //	비밀번호 재설정 - 새 비밀번호 설정: 인증키, 새 비밀번호
+//    @ApiOperation(value = "비밀번호 재설정 - 새 비밀번호 설정", notes = "" +
+//            "\n ### Remarks" +
+//            "\n" +
+//            "\n - <mark>액세스토큰 불필요</mark>" +
+//            "\n - <mark>인증키</mark>" +
+//            "\n")
+//    @PutMapping(URI.PASSWORD)
+//    public ResponseEntity putPassword(
+//            @RequestBody AccountDto.PasswordReset dto
+//    ) {
+//        if (log.isDebugEnabled()) {
+//            log.debug("([ putPassword ]) $dto='{}'", dto);
+//        }
+//        service.resetPassword(dto.getKey(), dto.getPassword());
+//        return ResponseEntity.ok().build();
+//    }
 
     //==================================================================================================================
     //

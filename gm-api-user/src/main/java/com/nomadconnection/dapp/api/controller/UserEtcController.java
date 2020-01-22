@@ -51,7 +51,7 @@ public class UserEtcController {
 	@ApiOperation(value = "카드사(삼성/현대) 선택", notes = "" +
 			"\n ### Remarks" +
 			"\n")
-	@GetMapping(URI.COMPANYCARD)
+	@PutMapping(URI.COMPANYCARD)
 	public ResponseEntity CompanyCard(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@ModelAttribute BrandDto.CompanyCard dto) {

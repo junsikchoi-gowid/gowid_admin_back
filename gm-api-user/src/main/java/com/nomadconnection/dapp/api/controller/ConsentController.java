@@ -48,7 +48,7 @@ public class ConsentController {
             @ApiResponse(code = 404, message = "등록되지 않은 이메일"),
             @ApiResponse(code = 500, message = "")
     })
-    @PostMapping(URI.CONSENT)
+    @GetMapping(URI.CONSENT)
     public ResponseEntity consents() {
         if (log.isDebugEnabled()) {
             log.debug("getConsents List");
