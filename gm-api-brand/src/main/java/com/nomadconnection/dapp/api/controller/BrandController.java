@@ -74,7 +74,7 @@ public class BrandController {
             "\n", tags = "1. 브랜드")
     @PostMapping(URI.USERPASSWORDCHANGE_PRE)
     public ResponseEntity passwordPre(
-            @ModelAttribute BrandDto.PasswordPre dto)
+            @RequestBody BrandDto.PasswordPre dto)
     {
         return service.passwordAuthPre(dto.getEmail(), dto.getCode(), dto.getPassword());
     }
@@ -85,7 +85,7 @@ public class BrandController {
     @PostMapping(URI.USERPASSWORDCHANGE_AFTER)
     public ResponseEntity passwordAfter(
             @ApiIgnore @CurrentUser CustomUser user,
-            @ModelAttribute BrandDto.PasswordAfter dto
+            @RequestBody BrandDto.PasswordAfter dto
     ){
         return service.passwordAuthAfter(user.idx(), dto.getPrePassword(), dto.getAfterPassword());
     }
