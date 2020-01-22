@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.AccountDto;
+import com.nomadconnection.dapp.api.dto.BrandDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.api.service.AuthService;
@@ -188,8 +189,7 @@ public class UserController {
 
 	@ApiOperation(
 			value = "Brand 회원가입 유저정보",
-			notes = "### Remarks \n - <mark>액세스토큰 불필요</mark>",
-			tags = "1. 브랜드"
+			notes = "### Remarks \n - <mark>액세스토큰 불필요</mark>"
 	)
 	@ApiResponses(value={
 			@ApiResponse(code = 200, message = "정상"),
@@ -210,8 +210,7 @@ public class UserController {
 
 	@ApiOperation(
 			value = "Brand 회원가입 법인정보",
-			notes = "### Remarks \n",
-			tags = "1. 브랜드"
+			notes = "### Remarks \n"
 	)
 	@PostMapping(path = URI.REGISTRATION_CORP, consumes = {MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity registerBrandCorp(
@@ -225,8 +224,7 @@ public class UserController {
 
 	@ApiOperation(
 			value = "Brand 내 정보 수정",
-			notes = "### Remarks ",
-			tags = "1. 브랜드"
+			notes = "### Remarks "
 	)
 	@ApiResponses(value={
 			@ApiResponse(code = 200, message = "정상"),
@@ -250,8 +248,7 @@ public class UserController {
 
 	@ApiOperation(
 			value = "Brand 비밀번호 수정",
-			notes = "### Remarks ",
-			tags = "1. 브랜드"
+			notes = "### Remarks "
 	)
 	@PostMapping(URI.REGISTRATION_PW)
 	public ResponseEntity registerUserPasswordUpdate(

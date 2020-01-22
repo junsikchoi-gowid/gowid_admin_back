@@ -144,9 +144,6 @@ public class UserDto {
 		@ApiModelProperty("희망법인총한도")
 		private Long reqCreditLimit;
 
-		@ApiModelProperty("결제계좌정보")
-		private BankAccountDto bankAccount;
-
 		private String resBusinessItems;
 		private String resBusinessTypes;
 		private String resBusinessmanType;

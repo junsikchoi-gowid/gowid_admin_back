@@ -271,7 +271,7 @@ public class AuthService {
 		return AuthDto.AuthInfo.builder()
 				.idx(user.idx())
 				.idxCorp(user.corp() != null ? user.corp().idx() : null)
-				.idxCard(user.card() != null ? user.card().idx() : null)
+//				.idxCard(user.card() != null ? user.card().idx() : null)
 //				.cards(user.cards().stream().map(CardDto.CardBasicInfo::from).collect(Collectors.toList()))
 				.recipientAddress(user.corp() != null ? user.corp().recipientAddress() : null)
 				.email(user.email())

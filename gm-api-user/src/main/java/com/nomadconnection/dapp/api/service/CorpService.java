@@ -1,28 +1,21 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.nomadconnection.dapp.api.controller.ResxController;
 import com.nomadconnection.dapp.api.dto.CorpDto;
 import com.nomadconnection.dapp.api.exception.AlreadyExistException;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
-import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.CorpStatus;
 import com.nomadconnection.dapp.core.domain.ResxCategory;
 import com.nomadconnection.dapp.core.domain.User;
-import com.nomadconnection.dapp.core.domain.embed.BankAccount;
 import com.nomadconnection.dapp.core.domain.repository.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
-import com.nomadconnection.dapp.resx.config.ResourceConfig;
-import com.nomadconnection.dapp.resx.service.ResourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,24 +25,10 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"unused", "SameParameterValue"})
 public class CorpService {
 
-	private final ResourceConfig configResx;
-	private final ResourceService serviceResx;
 	private final UserService serviceUser;
 	private final UserRepository repoUser;
 
 	private final CorpRepository repo;
-
-	public Path getResxStockholdersListPath(Long idxCorp) {
-		return Paths.get(configResx.getRoot(), ResxCategory.RESX_CORP_SHAREHOLDERS_LIST.name(), idxCorp.toString()).toAbsolutePath().normalize();
-	}
-
-	public String getResxStockholdersListUri(Long idxCorp) {
-		return configResx.getResxUriPrefix()
-				+ ResxController.URI.BASE
-				+ ResxController.URI.STOCKHOLDERSLIST
-				+ "?corp="
-				+ idxCorp.toString();
-	}
 
 	/**
 	 * 법인등록여부 조회
@@ -99,10 +78,10 @@ public class CorpService {
 				.name(dto.getName())
 				.bizRegNo(dto.getBizRegNo())
 				.reqCreditLimit(dto.getReqCreditLimit())
-				.bankAccount(BankAccount.builder()
-						.bankAccount(dto.getBankAccount().getAccount())
-						.bankAccountHolder(dto.getBankAccount().getAccountHolder())
-						.build())
+//				.bankAccount(BankAccount.builder()
+//						.bankAccount(dto.getBankAccount().getAccount())
+//						.bankAccountHolder(dto.getBankAccount().getAccountHolder())
+//						.build())
 				.status(CorpStatus.PENDING)
 				.build());
 
@@ -110,7 +89,7 @@ public class CorpService {
 		repoUser.save(user.corp(corp));
 
 		//	주주명부 저장경로
-		Path path = getResxStockholdersListPath(corp.idx());
+//		Path path = getResxStockholdersListPath(corp.idx());
 
 		//	법인정보 갱신(주주명부)
 //		corp.setResxStockholdersList(CorpStockholdersListResx.builder()
@@ -133,7 +112,6 @@ public class CorpService {
 				.idx(corp.idx())
 				.name(corp.name())
 				.bizRegNo(corp.bizRegNo())
-				.uriShareholderList(getResxStockholdersListUri(corp.idx()))
 				.creditLimit(corp.creditLimit())
 				.build();
 	}

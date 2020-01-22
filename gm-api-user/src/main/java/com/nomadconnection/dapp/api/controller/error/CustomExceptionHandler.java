@@ -1,15 +1,12 @@
 package com.nomadconnection.dapp.api.controller.error;
 
 import com.nomadconnection.dapp.api.exception.*;
-import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import com.nomadconnection.dapp.jwt.exception.AccessTokenNotFoundException;
 import com.nomadconnection.dapp.jwt.exception.JwtSubjectMismatchedException;
 import com.nomadconnection.dapp.jwt.exception.UnacceptableJwtException;
 import com.nomadconnection.dapp.api.exception.EmptyResxException;
-import com.nomadconnection.dapp.resx.exception.FailedToCreateDirectoriesException;
-import com.nomadconnection.dapp.resx.exception.FailedToSaveException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -154,17 +151,6 @@ public class CustomExceptionHandler {
 		return ErrorResponse.from(ErrorCode.Resource.USER_NOT_FOUND);
 	}
 
-	@ExceptionHandler(FailedToCreateDirectoriesException.class)
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	protected ErrorResponse onFailedToCreateDirectoriesException(FailedToCreateDirectoriesException e) {
-		return ErrorResponse.from(ErrorCode.Resource.FAILED_TO_CREATE_DIRECTORIES);
-	}
-
-	@ExceptionHandler(FailedToSaveException.class)
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	protected ErrorResponse onFailedToSaveException(FailedToSaveException e) {
-		return ErrorResponse.from(ErrorCode.Resource.FAILED_TO_SAVE);
-	}
 
 	@ExceptionHandler(DeptNotFoundException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)

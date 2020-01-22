@@ -1,17 +1,16 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.AccountDto;
+import com.nomadconnection.dapp.api.dto.BrandDto;
 import com.nomadconnection.dapp.api.dto.ConsentDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
-import com.nomadconnection.dapp.core.domain.embed.BankAccount;
 import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import com.nomadconnection.dapp.jwt.service.JwtService;
-import com.nomadconnection.dapp.resx.config.ResourceConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -25,9 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -44,7 +43,6 @@ public class UserService {
 	private final VerificationCodeRepository repoVerificationCode;
 
 	private final JwtService jwt;
-	private final ResourceConfig configResx;
 
 	/**
 	 * 사용자 엔터티 조회
@@ -258,7 +256,7 @@ public class UserService {
 	public ResponseEntity registerUserUpdate(UserDto.registerUserUpdate dto, Long idx) {
 		// validation start
 		// mail check
-		if(repo.findByIdxNotAndEmail(idx, dto.getEmail()).isPresent()){
+		if(repo.findByIdxNotAndEmailAndAuthentication_Enabled(idx, dto.getEmail(),true).isPresent()){
 			throw AlreadyExistException.builder()
 					.category("email")
 					.resource(dto.getEmail())
@@ -392,7 +390,7 @@ public class UserService {
 		repo.save(user.corp(corp));
 
 		//	주주명부 저장경로
-		Path path = getResxStockholdersListPath(corp.idx());
+//		Path path = getResxStockholdersListPath(corp.idx());
 
 		//	법인정보 갱신(주주명부)
 //		corp.setResxStockholdersList(CorpStockholdersListResx.builder()
@@ -432,7 +430,117 @@ public class UserService {
 		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping);
 	}
 
-	public Path getResxStockholdersListPath(Long idxCorp) {
-		return Paths.get(configResx.getRoot(), ResxCategory.RESX_CORP_SHAREHOLDERS_LIST.name(), idxCorp.toString()).toAbsolutePath().normalize();
+
+	/**
+	 * 사용자 계정 찾기
+	 *
+	 * @param name 이름
+	 * @param mdn 연락처(폰)
+	 * @return 계정 정보
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity findAccount(String name, String mdn) {
+		List<String> user = repo.findByNameAndMdn(name, mdn)
+				.map(User::email)
+				.map(email -> email.replaceAll("(^[^@]{3}|(?!^)\\G)[^@]", "$1*"))
+				.collect(Collectors.toList());
+		return ResponseEntity.ok().body(BusinessResponse.builder().data(user).build());
+	}
+
+	/**
+	 * 사용자 회사 설정 MAPPING
+	 *
+	 * @param dto 카드회사
+	 * @param idxUser 사용자정보
+	 * @return 계정 정보
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity companyCard(BrandDto.CompanyCard dto, Long idxUser) {
+
+		User user = repo.findById(idxUser).orElseThrow(
+				() -> UserNotFoundException.builder().id(idxUser).build()
+		);
+
+		user.cardCompany(dto.getCompanyCode());
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.data(repo.save(user))
+				.build());
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity deleteEmail(String email) {
+		User user = repo.findByAuthentication_EnabledAndEmail(true,email).get();
+
+		user.authentication(Authentication.builder().enabled(false).build());
+		user.enabledDate(LocalDateTime.now());
+
+		repo.save(user);
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(BusinessResponse.Normal.builder()
+						.build())
+				.build());
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity passwordAuthPre(String email, String value, String password) {
+
+		if(repoVerificationCode.findByVerificationKeyAndCode(email, value).isPresent()){
+			User user = repo.findByAuthentication_EnabledAndEmail(true,email).orElseThrow(
+					() -> UserNotFoundException.builder()
+							.email(email)
+							.build()
+			);
+
+			repoVerificationCode.deleteById(email);
+
+			log.debug("pass $pass='{}'" , encoder.encode(password));
+			user.password(encoder.encode(password));
+			repo.save(user);
+		}else{
+
+			return ResponseEntity.ok().body(BusinessResponse.builder()
+					.normal(BusinessResponse.Normal.builder()
+							.status(false).value("비밀번호 or Email 이 맞지않음").build())
+					.build());
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(BusinessResponse.Normal.builder().build())
+				.build());
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity passwordAuthAfter(Long idxUser, String prePassword, String afterPassword) {
+
+		User userEmail = repo.findById(idxUser).orElseThrow(
+				() -> UserNotFoundException.builder().id(idxUser).build()
+		);
+
+		User user = repo.findByAuthentication_EnabledAndEmail(true, userEmail.email()).orElseThrow(
+				() -> UserNotFoundException.builder()
+						.email(userEmail.email())
+						.build()
+		);
+
+		if (!encoder.matches(prePassword, user.password())) {
+			return ResponseEntity.ok().body(BusinessResponse.builder()
+					.normal(BusinessResponse.Normal.builder()
+							.status(false)
+							.key("1")
+							.value("현재 비밀번호가 맞지않음")
+							.build())
+					.build());
+		}
+
+		user.password(encoder.encode(afterPassword));
+		User returnUser = repo.save(user);
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(BusinessResponse.Normal.builder()
+						.build())
+				.data(returnUser)
+				.build());
 	}
 }

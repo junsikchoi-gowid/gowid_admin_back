@@ -28,7 +28,7 @@ spring:
   freemarker:
     cache: false
 server:
-  port: 8081
+  port: 8080
   error:
     include-stacktrace: never
 logging:

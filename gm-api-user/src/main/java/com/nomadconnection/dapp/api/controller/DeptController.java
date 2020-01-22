@@ -2,11 +2,11 @@ package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.DeptDto;
 import com.nomadconnection.dapp.api.exception.NotAllowedException;
-import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.api.service.DeptService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.domain.Role;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.DeptCustomRepository;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

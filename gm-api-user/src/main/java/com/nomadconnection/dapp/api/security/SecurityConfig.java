@@ -120,16 +120,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_REISSUE).permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.VERIFICATION_CODE).permitAll()
 				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTER).permitAll()
-				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_USER,
-						UserController.URI.BASE + UserController.URI.REGISTRATION_CORP
-				).permitAll()
+				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_USER).permitAll()
+				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_CORP).permitAll()
+				.antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.ACCOUNT).permitAll()
+				.antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.USERDELETE).permitAll()
+				.antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.USERPASSWORDCHANGE_PRE).permitAll()
 				.antMatchers(CorpController.URI.BASE + CorpController.URI.REGISTRABLE).permitAll()
-				.antMatchers(ConsentController.URI.BASE + ConsentController.URI.CONSENT,
-						BrandController.URI.BASE + BrandController.URI.ACCOUNT,
-						BrandController.URI.BASE + BrandController.URI.USERDELETE,
-						BrandController.URI.BASE + BrandController.URI.USERPASSWORDCHANGE_PRE,
-						FaqController.URI.BASE + FaqController.URI.FAQ_SAVE
-				).permitAll()
+				.antMatchers(ConsentController.URI.BASE + ConsentController.URI.CONSENT).permitAll()
+				.antMatchers(FaqController.URI.BASE + FaqController.URI.FAQ_SAVE).permitAll()
 				.anyRequest().authenticated();
 	}
 }

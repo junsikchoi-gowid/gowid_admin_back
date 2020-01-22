@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implements UserCustomRepository {
 
 	private final QUser user = QUser.user;
-	private final QCard card = QCard.card;
 
 	/**
 	 * Creates a new {@link QuerydslRepositorySupport} instance for the given domain type.

@@ -51,9 +51,6 @@ public class CorpDto {
 	@ApiModelProperty("카드회사 etc. 삼성/현대")
 	private String typeOfCardCorp;
 
-	@ApiModelProperty("주주명부")
-	private String uriShareholderList;
-
 	@ApiModelProperty("수령지(주소)")
 	private Address recipientAddress;
 
@@ -96,14 +93,8 @@ public class CorpDto {
 		@ApiModelProperty("카드회사 etc. 삼성/현대")
 		private String typeOfCardCorp;
 
-		@ApiModelProperty("주주명부")
-		private MultipartFile resxShareholderList;
-
 		@ApiModelProperty("희망법인총한도")
 		private Long reqCreditLimit;
-
-		@ApiModelProperty("결제계좌정보")
-		private BankAccountDto bankAccount;
 	}
 
 	@Data
@@ -173,11 +164,6 @@ public class CorpDto {
 			if (user.dept() != null) {
 				member.setIdxDept(user.dept().idx());
 				member.setDept(user.dept().name());
-			}
-			if (user.card() != null) {
-				member.setIdxCard(user.card().idx());
-				member.setCardNo(user.card().cardNo());
-				member.setCreditLimit(user.card().creditLimit());
 			}
 			if (user.profileResx() != null) {
 				//

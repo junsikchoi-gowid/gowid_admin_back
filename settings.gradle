@@ -4,7 +4,5 @@ include 'gm-api-user'
 include 'gm-swagger'
 include 'gm-jwt'
 include 'gm-core'
-include 'gm-resx'
 include 'gm-codef'
-include 'gm-api-brand'
 

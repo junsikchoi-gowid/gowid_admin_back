@@ -1,8 +1,6 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.dto.BrandFaqDto;
-import com.nomadconnection.dapp.api.service.ConsentService;
 import com.nomadconnection.dapp.api.service.FaqService;
 import com.nomadconnection.dapp.core.annotation.ApiPageable;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
@@ -24,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping(FaqController.URI.BASE)
 @RequiredArgsConstructor
-@Api(tags = "사용자", description = FaqController.URI.BASE)
+@Api(tags = "회원관리", description = FaqController.URI.BASE)
 @SuppressWarnings({"unused", "deprecation"})
 public class FaqController {
 
@@ -40,17 +38,16 @@ public class FaqController {
 
     @ApiOperation(
             value = "Brand 문의하기 조회",
-            notes = "### Remarks \n - <mark>액세스토큰 불필요</mark>",
-            tags = "1. 브랜드"
+            notes = "### Remarks \n - <mark>액세스토큰 불필요</mark>"
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "정상"),
             @ApiResponse(code = 500, message = "")
     })
     @ApiPageable
-    @PostMapping(URI.FAQ)
+    @GetMapping(URI.FAQ)
     public Page<BrandFaqDto> getConsents(
-            @RequestBody BrandFaqDto dto,
+            @ModelAttribute BrandFaqDto dto,
             Pageable pageable
     ) {
         if (log.isDebugEnabled()) {
@@ -67,8 +64,7 @@ public class FaqController {
     //==================================================================================================================
 
     @ApiOperation(value = "Brand 문의하기 저장",
-            notes = "### Remarks \n - <mark>액세스토큰 불필요</mark>",
-            tags = "1. 브랜드")
+            notes = "### Remarks \n - <mark>액세스토큰 불필요</mark>")
     @PostMapping(URI.FAQ_SAVE)
     public ResponseEntity faqSave(
             @RequestBody BrandFaqDto dto
@@ -87,9 +83,8 @@ public class FaqController {
     //==================================================================================================================
 
     @ApiOperation(value = "Brand 문의하기 삭제",
-            notes = "### Remarks \n - <mark>액세스 필요</mark> \n - <mark> 마스터권한 필요</mark>",
-            tags = "1. 브랜드")
-    @GetMapping(URI.FAQ_DEL)
+            notes = "### Remarks \n - <mark>액세스 필요</mark> \n - <mark> 마스터권한 필요</mark>")
+    @DeleteMapping(URI.FAQ_DEL)
     public ResponseEntity faqDel(
             @ApiIgnore @CurrentUser org.springframework.security.core.userdetails.User user,
             @RequestParam List<Long> faqIds

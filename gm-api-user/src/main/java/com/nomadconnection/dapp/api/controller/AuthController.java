@@ -126,7 +126,7 @@ public class AuthController {
             "\n" +
             "\n - <mark>액세스토큰 불필요</mark>" +
             "\n - 인증메일 발송 실패: <mark>500(INTERNAL SERVER ERROR)</mark>" +
-            "\n", tags = "1. 브랜드")
+            "\n")
     @GetMapping(URI.SEND_VERIFICATION_CODE)
     public ResponseEntity sendVerificationCode(@Email(message = "잘못된 이메일 형식입니다.") @RequestParam String email) {
         if (log.isDebugEnabled()) {
@@ -179,8 +179,7 @@ public class AuthController {
             "\n" +
             "\n - 200 OK: " +
             "\n 	- <pre>{ \"error\": \"MISMATCHED_VERIFICATION_CODE\" }</pre>" +
-            "\n",
-            tags = "1. 브랜드"
+            "\n"
     )
     @GetMapping(URI.CHECK_VERIFICATION_CODE)
     public ResponseEntity checkVerificationCode(@RequestParam String key, @RequestParam String code, @RequestParam Boolean deleteFlag) {

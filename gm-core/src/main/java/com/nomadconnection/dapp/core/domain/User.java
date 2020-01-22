@@ -53,10 +53,10 @@ public class User extends BaseTime {
 	@JoinColumn(name = "idxDept", foreignKey = @ForeignKey(name = "FK_Dept_User"))
 	private Dept dept; // 부서
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "idxCard", foreignKey = @ForeignKey(name = "FK_Card_User"))
-	@Where(clause = "disabled=false")
-	private Card card; // 활성화된 카드
+//	@OneToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "idxCard", foreignKey = @ForeignKey(name = "FK_Card_User"))
+//	@Where(clause = "disabled=false")
+//	private Card card; // 활성화된 카드
 
 //	@Embedded
 //	private Address address;
