@@ -130,11 +130,13 @@ public class AuthService {
 	 * @return 존재여부
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public boolean checkVerificationCode(String key, String code) {
+	public boolean checkVerificationCode(String key, String code, boolean boolDelete) {
 		if (!repoVerificationCode.findByVerificationKeyAndCode(key, code).isPresent()) {
 			return false;
 		}
-		repoVerificationCode.deleteById(key);
+		if(boolDelete){
+			repoVerificationCode.deleteById(key);
+		}
 		return true;
 	}
 

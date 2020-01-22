@@ -9,6 +9,7 @@ import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -178,13 +179,15 @@ public class AuthController {
             "\n" +
             "\n - 200 OK: " +
             "\n 	- <pre>{ \"error\": \"MISMATCHED_VERIFICATION_CODE\" }</pre>" +
-            "\n")
+            "\n",
+            tags = "1. 브랜드"
+    )
     @GetMapping(URI.CHECK_VERIFICATION_CODE)
-    public ResponseEntity checkVerificationCode(@RequestParam String key, @RequestParam String code) {
+    public ResponseEntity checkVerificationCode(@RequestParam String key, @RequestParam String code, @RequestParam Boolean deleteFlag) {
         if (log.isDebugEnabled()) {
             log.debug("([ checkVerificationCode ]) $key='{}', $code='{}'", key, code);
         }
-        if (!service.checkVerificationCode(key, code)) {
+        if (!service.checkVerificationCode(key, code, deleteFlag)) {
             return ResponseEntity.ok()
                     .body(ErrorResponse.from(ErrorCode.Mismatched.MISMATCHED_VERIFICATION_CODE));
         }

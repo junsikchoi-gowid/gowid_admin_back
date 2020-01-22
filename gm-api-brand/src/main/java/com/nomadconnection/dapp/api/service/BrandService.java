@@ -85,6 +85,8 @@ public class BrandService {
                     () -> new RuntimeException("UserNotFound")
             );
 
+            repoVerificationCode.deleteById(email);
+
             log.debug("pass $pass='{}'" , encoder.encode(password));
             user.password(encoder.encode(password));
             repoUser.save(user);

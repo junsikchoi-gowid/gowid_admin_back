@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.security;
 
 import com.nomadconnection.dapp.api.controller.*;
+import com.nomadconnection.dapp.core.domain.Faq;
 import com.nomadconnection.dapp.core.security.CustomUserDetailsService;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationEntryPoint;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationFilter;
@@ -126,7 +127,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(ConsentController.URI.BASE + ConsentController.URI.CONSENT,
 						BrandController.URI.BASE + BrandController.URI.ACCOUNT,
 						BrandController.URI.BASE + BrandController.URI.USERDELETE,
-						BrandController.URI.BASE + BrandController.URI.USERPASSWORDCHANGE_PRE
+						BrandController.URI.BASE + BrandController.URI.USERPASSWORDCHANGE_PRE,
+						FaqController.URI.BASE + FaqController.URI.FAQ_SAVE
 				).permitAll()
 				.anyRequest().authenticated();
 	}

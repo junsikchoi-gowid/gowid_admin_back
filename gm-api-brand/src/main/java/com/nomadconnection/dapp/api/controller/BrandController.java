@@ -70,6 +70,7 @@ public class BrandController {
 
     @ApiOperation(value = "비밀번호 변경 - 로그인전", notes = "" +
             "\n ### Remarks" +
+            "\n 로그인후 인증번호 삭제됨" +
             "\n", tags = "1. 브랜드")
     @PostMapping(URI.USERPASSWORDCHANGE_PRE)
     public ResponseEntity passwordPre(
