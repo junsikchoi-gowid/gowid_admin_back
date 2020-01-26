@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+
+    <if condition='isNull("logging.path")'>
+        <then>
+            <property name="logging.path" value="${user.home}/gowid"/>
+        </then>
+    </if>
+    <property name="_base_" value="${logging.path}/logs"/>
+    <property name="_backup_" value="${logging.path}/backups"/>
+    <property name="_ptn_level_" value="%highlight(%1.-1level)"/>
+    <property name="_ptn_timestamp_" value="%yellow(%d{yyyyMMdd.HHmmss.SSS,Asia/Seoul})"/>
+    <property name="_ptn_logger_" value="%cyan(%60.60logger{60})"/>
+    <property name="_ptn_" value="[${_ptn_level_}][${_ptn_timestamp_}][${_ptn_logger_}] %msg%n"/>
+
+    <!-- CONSOLE -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${_ptn_}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ROLLING.FILE.DI -->
+    <appender name="di" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${_base_}/di.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${_backup_}/di.%d{yyyyMMddHH}.log.gz</fileNamePattern>
+            <maxHistory>2</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>UTF-8</charset>
+            <pattern>${_ptn_}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>trace</level>
+        </filter>
+    </appender>
+
+    <root level="${logging.level.root}">
+        <appender-ref ref="console"/>
+        <appender-ref ref="di"/>
+    </root>
+
+</configuration>

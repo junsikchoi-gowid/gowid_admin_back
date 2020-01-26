@@ -1,0 +1,42 @@
+spring:
+  profiles:
+    active: junit, dev, mobile
+    include:
+      - swagger
+      - jwt
+      - core
+      - resx
+  mail:
+    host: smtp.daum.net
+    port: 465
+    username: service@popsoda.io
+    password: digital23!
+    default-encoding: UTF-8
+    properties:
+      mail:
+        debug: true
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: smtp.daum.net
+    protocol: smtps
+  devtools:
+    livereload:
+      enabled: true
+  freemarker:
+    cache: false
+server:
+  port: 8080
+  error:
+    include-stacktrace: never
+logging:
+  level:
+    root: info
+    com.nomadconnection.dapp: debug
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.springframework.jdbc.core.JdbcTemplate: debug
+    org.springframework.jdbc.core.StatementCreatorUtils: trace
+  config: classpath:application-logback.xml
