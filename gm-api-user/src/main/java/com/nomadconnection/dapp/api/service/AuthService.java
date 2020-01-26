@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.AuthDto;
 import com.nomadconnection.dapp.api.exception.ExpiredException;
@@ -16,7 +17,6 @@ import com.nomadconnection.dapp.jwt.exception.UnacceptableJwtException;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -30,7 +30,9 @@ import org.thymeleaf.context.Context;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,8 +41,8 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class AuthService {
 
-	@Autowired
-	private ITemplateEngine templateEngine;
+	private final EmailConfig config;
+	private final ITemplateEngine templateEngine;
 
 	private final JwtService jwt;
 	private final JavaMailSenderImpl sender;
@@ -52,12 +54,13 @@ public class AuthService {
 
 	/**
 	 * 아이디(이메일) 존재여부 확인
+	 *
 	 * @param account 아이디(이메일)
 	 * @return 아이디(이메일) 존재여부
 	 */
 	public boolean isPresent(String account) {
 		// return repoUser.findByEmail(account).isPresent();
-		return repoUser.findByAuthentication_EnabledAndEmail( true, account	).isPresent();
+		return repoUser.findByAuthentication_EnabledAndEmail(true, account).isPresent();
 
 	}
 
@@ -74,7 +77,6 @@ public class AuthService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean sendVerificationCodeMail(String key) {
 		if (MdnValidator.isValid(key)) {
 			return sendMdnVerificationCode(key);
@@ -113,7 +115,7 @@ public class AuthService {
 		}
 		final MimeMessagePreparator preparator = mimeMessage -> {
 			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
-			helper.setFrom("MyCard <service@popsoda.io>");
+			helper.setFrom(config.getSender());
 			helper.setTo(email);
 			helper.setSubject("[MyCard] 인증코드");
 			helper.setText("Verification Code: " + code, false);
@@ -124,10 +126,10 @@ public class AuthService {
 
 	/**
 	 * 인증번호(4 digits) 확인
-	 *
+	 * <p>
 	 * - 확인에 성공하더라도 인증번호를 삭제하지 않음
 	 *
-	 * @param key 연락처(폰) or 메일주소
+	 * @param key  연락처(폰) or 메일주소
 	 * @param code 인증번호(4 digits)
 	 * @return 존재여부
 	 */
@@ -136,7 +138,7 @@ public class AuthService {
 		if (!repoVerificationCode.findByVerificationKeyAndCode(key, code).isPresent()) {
 			return false;
 		}
-		if(boolDelete){
+		if (boolDelete) {
 			repoVerificationCode.deleteById(key);
 		}
 		return true;
@@ -146,7 +148,7 @@ public class AuthService {
 	 * 사용자 계정 찾기
 	 *
 	 * @param name 이름
-	 * @param mdn 연락처(폰)
+	 * @param mdn  연락처(폰)
 	 * @return 계정 정보
 	 */
 	@Transactional
@@ -162,8 +164,8 @@ public class AuthService {
 	 *
 	 * @param email 이메일주소
 	 */
-	public void sendPasswordResetEmail(String email) throws UserNotFoundException  {
-		User user = repoUser.findByAuthentication_EnabledAndEmail(true,email).orElseThrow(
+	public void sendPasswordResetEmail(String email) throws UserNotFoundException {
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true, email).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(email)
 						.build()
@@ -171,7 +173,7 @@ public class AuthService {
 		final TokenDto.Token token = jwt.issue(email, TokenDto.TokenType.JWT_FOR_AUTHENTICATION, new Date());
 		final MimeMessagePreparator preparator = mimeMessage -> {
 			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
-			helper.setFrom("MyCard <service@popsoda.io>");
+			helper.setFrom(config.getSender());
 			helper.setTo(email);
 			helper.setSubject("[MyCard] 비밀번호 재설정");
 			helper.setText("인증키: " + token.getJwt(), false);
@@ -183,7 +185,7 @@ public class AuthService {
 	 * 비밀번호 재설정 - 새 비밀번호 설정
 	 *
 	 * @param authenticationKey 인증키
-	 * @param password 비밀번호(신규)
+	 * @param password          비밀번호(신규)
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public void resetPassword(String authenticationKey, String password) {
@@ -207,7 +209,7 @@ public class AuthService {
 						.build();
 			}
 		}
-		User user = repoUser.findByAuthentication_EnabledAndEmail(true,token.getIdentifier()).orElseThrow(
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true, token.getIdentifier()).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(token.getIdentifier())
 						.build()
@@ -217,7 +219,7 @@ public class AuthService {
 
 	/**
 	 * 인증토큰 발급
-	 *
+	 * <p>
 	 * - 인증토큰
 	 * - 갱신토큰
 	 * - 발급일시
@@ -228,7 +230,7 @@ public class AuthService {
 	 * @return 인증토큰(세트) - 인증토큰, 갱신토큰, 발급일시, 만료일시(인증토큰), 만료일시(갱신토큰), 부가정보(권한, ...)
 	 */
 	public TokenDto.TokenSet issueTokenSet(AccountDto dto) {
-		User user = repoUser.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).orElseThrow(
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true, dto.getEmail()).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(dto.getEmail())
 						.build()
@@ -240,17 +242,17 @@ public class AuthService {
 					.build();
 		}
 
-		boolean corpMapping = StringUtils.isEmpty(user.corp())? false: true;
-		boolean cardCompanyMapping = StringUtils.isEmpty(user.cardCompany())? false:true;
+		boolean corpMapping = !StringUtils.isEmpty(user.corp());
+		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 
-		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping , cardCompanyMapping);
+		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping);
 	}
 
 	/**
 	 * 인증토큰 갱신
 	 *
 	 * @param email 아이디(이메일)
-	 * @param jwt 갱신토큰
+	 * @param jwt   갱신토큰
 	 * @return 재발급된 인증토큰 정보 - 인증토큰, 생성일시, 만료일시
 	 */
 	public TokenDto.Token reissueAccessToken(String email, String jwt) {
@@ -259,7 +261,7 @@ public class AuthService {
 
 	/**
 	 * 정보 조회
-	 *
+	 * <p>
 	 * - 사용자 정보
 	 * - 소속 법인 정보
 	 * - 각 상태 정보
@@ -291,7 +293,7 @@ public class AuthService {
 	public boolean sendEmailVerificationCode(AccountDto dto) {
 		String code = String.format("%04d", new Random().nextInt(10000));
 
-		User user = repoUser.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).orElseThrow(
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true, dto.getEmail()).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(dto.getEmail())
 						.build()
@@ -317,12 +319,12 @@ public class AuthService {
 
 
 			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
-			helper.setFrom("MyCard <service@popsoda.io>");
+			helper.setFrom(config.getSender());
 			helper.setTo(user.email());
 
 			Context context = new Context();
 			context.setVariable("verification_code", code);
-			String content = templateEngine.process("mail-template",context);
+			String content = templateEngine.process("mail-template", context);
 			helper.setText(content, true);
 		};
 		sender.send(preparator);

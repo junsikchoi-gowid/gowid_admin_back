@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.BrandDto;
 import com.nomadconnection.dapp.api.dto.ConsentDto;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
+	private final EmailConfig config;
 	private final JavaMailSenderImpl sender;
 	private final PasswordEncoder encoder;
 	private final UserRepository repo;
@@ -177,7 +179,7 @@ public class UserService {
 		//	메일 발송
 		final MimeMessagePreparator preparator = mimeMessage -> {
 			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
-			helper.setFrom("MyCard <service@popsoda.io>");
+			helper.setFrom(config.getSender());
 			helper.setTo(dto.getEmail());
 			helper.setSubject("[MyCard] 멤버초대");
 			helper.setText("Email: " + dto.getEmail() + ", VerificationCode: " + code, false);
@@ -253,7 +255,7 @@ public class UserService {
 	 * @param dto 정보
 	 */
 	@Transactional
-	public ResponseEntity registerUserUpdate(UserDto.registerUserUpdate dto, Long idx) {
+	public ResponseEntity<?> registerUserUpdate(UserDto.registerUserUpdate dto, Long idx) {
 		// validation start
 		// mail check
 		if(repo.findByIdxNotAndEmailAndAuthentication_Enabled(idx, dto.getEmail(),true).isPresent()){
@@ -282,7 +284,7 @@ public class UserService {
 	 *
 	 * @param dto 정보
 	 */
-	public ResponseEntity registerUserPasswordUpdate(UserDto.registerUserPasswordUpdate dto, Long idx) {
+	public ResponseEntity<?> registerUserPasswordUpdate(UserDto.registerUserPasswordUpdate dto, Long idx) {
 
 		// validation 체크 필요
 		User user = getUser(idx);
@@ -359,7 +361,7 @@ public class UserService {
 	 * @param dto 정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity registerBrandCorp(Long idxUser, UserDto.RegisterBrandCorp dto) {
+	public ResponseEntity<?> registerBrandCorp(Long idxUser, UserDto.RegisterBrandCorp dto) {
 		//	중복체크
 		if (repoCorp.findByBizRegNo(dto.getBizRegNo()).isPresent()) {
 			if (log.isDebugEnabled()) {
@@ -424,8 +426,8 @@ public class UserService {
 					.build();
 		}
 
-		boolean corpMapping = StringUtils.isEmpty(user.corp())? true: false;
-		boolean cardCompanyMapping = StringUtils.isEmpty(user.cardCompany())? true: false;
+		boolean corpMapping = StringUtils.isEmpty(user.corp());
+		boolean cardCompanyMapping = StringUtils.isEmpty(user.cardCompany());
 
 		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping);
 	}
@@ -439,7 +441,7 @@ public class UserService {
 	 * @return 계정 정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity findAccount(String name, String mdn) {
+	public ResponseEntity<?> findAccount(String name, String mdn) {
 		List<String> user = repo.findByNameAndMdn(name, mdn)
 				.map(User::email)
 				.map(email -> email.replaceAll("(^[^@]{3}|(?!^)\\G)[^@]", "$1*"))
@@ -455,7 +457,7 @@ public class UserService {
 	 * @return 계정 정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity companyCard(BrandDto.CompanyCard dto, Long idxUser) {
+	public ResponseEntity<?> companyCard(BrandDto.CompanyCard dto, Long idxUser) {
 
 		User user = repo.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().id(idxUser).build()
@@ -469,7 +471,7 @@ public class UserService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity deleteEmail(String email) {
+	public ResponseEntity<?> deleteEmail(String email) {
 		User user = repo.findByAuthentication_EnabledAndEmail(true,email).get();
 
 		user.authentication(Authentication.builder().enabled(false).build());
@@ -484,7 +486,7 @@ public class UserService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity passwordAuthPre(String email, String value, String password) {
+	public ResponseEntity<?> passwordAuthPre(String email, String value, String password) {
 
 		if(repoVerificationCode.findByVerificationKeyAndCode(email, value).isPresent()){
 			User user = repo.findByAuthentication_EnabledAndEmail(true,email).orElseThrow(
@@ -512,7 +514,7 @@ public class UserService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity passwordAuthAfter(Long idxUser, String prePassword, String afterPassword) {
+	public ResponseEntity<?> passwordAuthAfter(Long idxUser, String prePassword, String afterPassword) {
 
 		User userEmail = repo.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().id(idxUser).build()
