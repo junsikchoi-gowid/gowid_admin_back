@@ -6,8 +6,6 @@ import com.nomadconnection.dapp.api.dto.AuthDto;
 import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
-import com.nomadconnection.dapp.api.helper.EmailValidator;
-import com.nomadconnection.dapp.api.helper.MdnValidator;
 import com.nomadconnection.dapp.core.domain.User;
 import com.nomadconnection.dapp.core.domain.VerificationCode;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
@@ -64,65 +62,65 @@ public class AuthService {
 
 	}
 
-	@Transactional(rollbackFor = Exception.class)
-	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
-	public boolean sendVerificationCode(String key) {
-		if (MdnValidator.isValid(key)) {
-			return sendMdnVerificationCode(key);
-		}
-		if (EmailValidator.isValid(key)) {
-			return sendEmailVerificationCode(key);
-		}
-		return false;
-	}
-
-	@Transactional(rollbackFor = Exception.class)
-	public boolean sendVerificationCodeMail(String key) {
-		if (MdnValidator.isValid(key)) {
-			return sendMdnVerificationCode(key);
-		}
-		if (EmailValidator.isValid(key)) {
-			return sendEmailVerificationCode(key);
-		}
-		return false;
-	}
-
-	private boolean sendMdnVerificationCode(String mdn) {
-		//
-		//	todo: send mdn verification code
-		//
-		return true;
-	}
-
-	/**
-	 * 인증번호(4 digits, EMAIL) 발송
-	 *
-	 * @param email 수신메일주소 Password 비밀번호
-	 */
-	private boolean sendEmailVerificationCode(String email) {
-		String code = String.format("%04d", new Random().nextInt(10000));
-
-		try {
-			repoVerificationCode.save(VerificationCode.builder()
-					.verificationKey(email)
-					.code(code)
-					.build());
-		} catch (Exception e) {
-			if (log.isErrorEnabled()) {
-				log.error("([ sendVerificationCode ]) REPOSITORY.SAVE ERROR, $email='{}'", email, e);
-			}
-			return false;
-		}
-		final MimeMessagePreparator preparator = mimeMessage -> {
-			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
-			helper.setFrom(config.getSender());
-			helper.setTo(email);
-			helper.setSubject("[MyCard] 인증코드");
-			helper.setText("Verification Code: " + code, false);
-		};
-		sender.send(preparator);
-		return true;
-	}
+//	@Transactional(rollbackFor = Exception.class)
+//	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+//	public boolean sendVerificationCode(String key) {
+//		if (MdnValidator.isValid(key)) {
+//			return sendMdnVerificationCode(key);
+//		}
+//		if (EmailValidator.isValid(key)) {
+//			return sendEmailVerificationCode(key);
+//		}
+//		return false;
+//	}
+//
+//	@Transactional(rollbackFor = Exception.class)
+//	public boolean sendVerificationCodeMail(String key) {
+//		if (MdnValidator.isValid(key)) {
+//			return sendMdnVerificationCode(key);
+//		}
+//		if (EmailValidator.isValid(key)) {
+//			return sendEmailVerificationCode(key);
+//		}
+//		return false;
+//	}
+//
+//	private boolean sendMdnVerificationCode(String mdn) {
+//		//
+//		//	todo: send mdn verification code
+//		//
+//		return true;
+//	}
+//
+//	/**
+//	 * 인증번호(4 digits, EMAIL) 발송
+//	 *
+//	 * @param email 수신메일주소 Password 비밀번호
+//	 */
+//	private boolean sendEmailVerificationCode(String email) {
+//		String code = String.format("%04d", new Random().nextInt(10000));
+//
+//		try {
+//			repoVerificationCode.save(VerificationCode.builder()
+//					.verificationKey(email)
+//					.code(code)
+//					.build());
+//		} catch (Exception e) {
+//			if (log.isErrorEnabled()) {
+//				log.error("([ sendVerificationCode ]) REPOSITORY.SAVE ERROR, $email='{}'", email, e);
+//			}
+//			return false;
+//		}
+//		final MimeMessagePreparator preparator = mimeMessage -> {
+//			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+//			helper.setFrom(config.getSender());
+//			helper.setTo(email);
+//			helper.setSubject("[MyCard] 인증코드");
+//			helper.setText("Verification Code: " + code, false);
+//		};
+//		sender.send(preparator);
+//		return true;
+//	}
 
 	/**
 	 * 인증번호(4 digits) 확인
@@ -286,48 +284,86 @@ public class AuthService {
 	}
 
 	/**
-	 * 인증번호(4 digits, EMAIL) 발송
+	 * 인증코드(4 digits) 발송(이메일)
 	 *
-	 * @param dto 수신메일주소 Password 비밀번호
+	 * @param email 수신메일주소
+	 * @return true if succeeded, otherwise false
 	 */
-	public boolean sendEmailVerificationCode(AccountDto dto) {
+//	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+	@Transactional(rollbackFor = Exception.class)
+	public boolean sendVerificationCode(String email) {
 		String code = String.format("%04d", new Random().nextInt(10000));
-
-		User user = repoUser.findByAuthentication_EnabledAndEmail(true, dto.getEmail()).orElseThrow(
-				() -> UserNotFoundException.builder()
-						.email(dto.getEmail())
-						.build()
-		);
-		if (!encoder.matches(dto.getPassword(), user.password())) {
-			throw UnauthorizedException.builder()
-					.account(dto.getEmail())
-					.build();
-		}
-
 		try {
 			repoVerificationCode.save(VerificationCode.builder()
-					.verificationKey(user.email())
+					.verificationKey(email)
 					.code(code)
 					.build());
 		} catch (Exception e) {
 			if (log.isErrorEnabled()) {
-				log.error("([ sendVerificationCode ]) REPOSITORY.SAVE ERROR, $email='{}'", user.email(), e);
+				log.error("([ sendVerificationCode ]) REPOSITORY.SAVE ERROR, $email='{}'", email, e);
 			}
 			return false;
 		}
 		final MimeMessagePreparator preparator = mimeMessage -> {
-
-
 			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
-			helper.setFrom(config.getSender());
-			helper.setTo(user.email());
-
-			Context context = new Context();
-			context.setVariable("verification_code", code);
-			String content = templateEngine.process("mail-template", context);
-			helper.setText(content, true);
+			{
+				Context context = new Context();
+				{
+					context.setVariable("verification_code", code);
+				}
+				helper.setFrom(config.getSender());
+				helper.setTo(email);
+				helper.setSubject("[Gowid] 회원가입 이메일 인증번호");
+				helper.setText(templateEngine.process("mail-template", context), true);
+			}
 		};
 		sender.send(preparator);
 		return true;
 	}
+
+//	/**
+//	 * 인증번호(4 digits, EMAIL) 발송
+//	 *
+//	 * @param dto 수신메일주소 Password 비밀번호
+//	 */
+//	public boolean sendEmailVerificationCode(AccountDto dto) {
+//		String code = String.format("%04d", new Random().nextInt(10000));
+//
+//		User user = repoUser.findByAuthentication_EnabledAndEmail(true, dto.getEmail()).orElseThrow(
+//				() -> UserNotFoundException.builder()
+//						.email(dto.getEmail())
+//						.build()
+//		);
+//		if (!encoder.matches(dto.getPassword(), user.password())) {
+//			throw UnauthorizedException.builder()
+//					.account(dto.getEmail())
+//					.build();
+//		}
+//
+//		try {
+//			repoVerificationCode.save(VerificationCode.builder()
+//					.verificationKey(user.email())
+//					.code(code)
+//					.build());
+//		} catch (Exception e) {
+//			if (log.isErrorEnabled()) {
+//				log.error("([ sendVerificationCode ]) REPOSITORY.SAVE ERROR, $email='{}'", user.email(), e);
+//			}
+//			return false;
+//		}
+//		final MimeMessagePreparator preparator = mimeMessage -> {
+//
+//
+//			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+//			helper.setFrom(config.getSender());
+//			helper.setTo(user.email());
+//
+//			Context context = new Context();
+//			context.setVariable("verification_code", code);
+//			String content = templateEngine.process("mail-template", context);
+//			helper.setText(content, true);
+//		};
+//		sender.send(preparator);
+//		return true;
+//	}
 }
