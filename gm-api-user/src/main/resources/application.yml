@@ -30,7 +30,7 @@ logging:
 spring:
   profiles: dev, stage
   mail:
-    sender: gowid <shkim@nomadconnection.com>
+    sender: gowid <support@gowid.com>
     host: email-smtp.us-west-2.amazonaws.com
     port: 587
     username: AKIAXD7XVDFHCXKO7DE5
@@ -49,7 +49,7 @@ spring:
 spring:
   profiles: prod
   mail:
-    sender: gowid <shkim@nomadconnection.com>
+    sender: gowid <support@gowid.com>
     host: email-smtp.us-west-2.amazonaws.com
     port: 587
     username: AKIAXD7XVDFHCXKO7DE5
