@@ -5,36 +5,7 @@
     <title>Gowid</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style type="text/css">
-        /* font 절대경로 필요 */
-        @font-face {
-            font-family: "Noto Sans KR";
-            font-style: normal;
-            font-weight: 400;
-            src: url(../public/fonts/notosanskr/NotoSansKR-Regular.woff2)
-            format("woff2"),
-            url(../public/fonts/notosanskr/NotoSansKR-Regular.woff) format("woff"),
-            url(../public/fonts/notosanskr/NotoSansKR-Regular.otf)
-            format("opentype");
-        }
-        @font-face {
-            font-family: "Noto Sans KR";
-            font-style: normal;
-            font-weight: 500;
-            src: url(../public/fonts/notosanskr/NotoSansKR-Medium.woff2)
-            format("woff2"),
-            url(../public/fonts/notosanskr/NotoSansKR-Medium.woff) format("woff"),
-            url(../public/fonts/notosanskr/NotoSansKR-Medium.otf)
-            format("opentype");
-        }
-        @font-face {
-            font-family: "Noto Sans KR";
-            font-style: bold;
-            font-weight: 700;
-            src: url(../public/fonts/notosanskr/NotoSansKR-Bold.woff2)
-            format("woff2"),
-            url(../public/fonts/notosanskr/NotoSansKR-Bold.woff) format("woff"),
-            url(../public/fonts/notosanskr/NotoSansKR-Bold.otf) format("opentype");
-        }
+        @import url("https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,500,700&display=swap");
         body,
         #bodyTable {
             width: 100% !important;
@@ -44,7 +15,10 @@
             font-family: "Noto Sans KR", sans-serif !important;
         }
         #bodyTable {
-            padding: 20px 0 30px 0;
+            padding-top: 40px;
+            padding-right: 0;
+            padding-bottom: 40px;
+            padding-left: 0;
             background-color: #ffffff;
         }
         img,
@@ -94,6 +68,45 @@
             -ms-text-size-adjust: 100%;
             -webkit-text-size-adjust: 100%;
         }
+        .responsive-width {
+            width: 600px;
+        }
+        .responsive-inner {
+            padding-top: 40px;
+            padding-right: 32px;
+            padding-bottom: 40px;
+            padding-left: 32px;
+        }
+        .responsive-logo {
+            padding-top: 0;
+            padding-right: 0;
+            padding-bottom: 40px;
+            padding-left: 0;
+        }
+
+        @media (max-width: 767px) {
+            #bodyTable {
+                padding-top: 28px;
+                padding-right: 16px;
+                padding-bottom: 16px;
+                padding-left: 16px;
+            }
+            .responsive-width {
+                width: 100%;
+            }
+            .responsive-inner {
+                padding-top: 32px;
+                padding-right: 16px;
+                padding-bottom: 32px;
+                padding-left: 16px;
+            }
+            .responsive-logo {
+                padding-top: 0;
+                padding-right: 0;
+                padding-bottom: 28px;
+                padding-left: 0;
+            }
+        }
     </style>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f8f8f8;">
@@ -103,7 +116,7 @@
         cellspacing="0"
         width="100%"
         id="bodyTable"
-        style="border-collapse: separate; margin: 0; padding-top: 40px; padding-right: 0; padding-bottom: 40px; padding-left: 0; background-color: #f8f8f8;"
+        style="border-collapse: separate; margin: 0; background-color: #f8f8f8;"
 >
     <tr>
         <td>
@@ -111,8 +124,8 @@
                     align="center"
                     cellpadding="0"
                     cellspacing="0"
-                    width="600"
                     style="padding-top: 40px; padding-right: 0; padding-bottom: 0; padding-left: 0;"
+                    class="responsive-width"
             >
                 <tr>
                     <td>
@@ -120,15 +133,14 @@
                                 cellpadding="0"
                                 cellspacing="0"
                                 width="100%"
-                                style="border-radius: 16px; border: 1px solid #e6e6e6; border-collapse: separate; background-color: #ffffff; padding-top: 40px; padding-right: 32px; padding-bottom: 40px; padding-left: 32px;"
+                                style="border-radius: 16px; border: 1px solid #e6e6e6; border-collapse: separate; background-color: #ffffff;"
+                                class="responsive-inner"
                         >
                             <tr>
-                                <td
-                                        style="padding-top: 0; padding-right: 0; padding-bottom: 40px; padding-left: 0;"
-                                >
+                                <td class="responsive-logo">
                                     <!-- 절대경로 필요함 -->
                                     <img
-                                            src="https://gowid.com/static/media/logovector_logo_basic_black.c88d4e0e.svg"
+                                            src="./svg/gowid-png.png"
                                             alt="gowid"
                                             style="height: 25px; vertical-align: top;"
                                     />
@@ -155,7 +167,8 @@
                                 >
                                     <b
                                             style="font-size: 14px; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.18px; color: #333333;"
-                                    >인증번호: <span th:text="${verification_code}"></span></b>
+                                    >인증번호: <span th:text="${verification_code}"></span></b
+                                    >
                                 </td>
                             </tr>
                             <tr>
@@ -184,21 +197,16 @@
                                         style="padding-top: 4px; padding-right: 0; padding-bottom: 4px; padding-left: 0;"
                                 >
                                     <a
-                                            href="tel:00-000-0000"
+                                            href="mailto:support@gowid.com"
                                             target="_blank"
                                             style="color: #333333; text-decoration: none; padding-top: 0; padding-right: 8px; padding-bottom: 0; padding-left: 8px;"
-                                    >대표 전화 00-000-0000</a
-                                    >|<a
-                                        href="mailto:gowid87j@gowid.com"
-                                        target="_blank"
-                                        style="color: #333333; text-decoration: none; padding-top: 0; padding-right: 8px; padding-bottom: 0; padding-left: 8px;"
-                                >이메일 gowid87j@gowid.com</a
-                                >
+                                    >이메일 support@gowid.com</a
+                                    >
                                 </td>
                             </tr>
                             <tr>
                                 <td
-                                        style="padding-top: 4px; padding-right: 0; padding-bottom: 4px; padding-left: 0; color: #cfcfcf;"
+                                        style="padding-top: 4px; padding-right: 0; padding-bottom: 4px; padding-left: 0; color: #cfcfcf; word-break: keep-all;"
                                 >
                                     <a
                                             href="#"
@@ -227,15 +235,14 @@
                                 <td
                                         style="padding-top: 4px; padding-right: 0; padding-bottom: 4px; padding-left: 0;"
                                 >
-                                    서울특별시 영등포구 국제금융로 10, 서울 국제 금융 센터
-                                    Three IFC 18층
+                                    서울특별시 강남구 도산대로 317 호림아트센터 14층
                                 </td>
                             </tr>
                             <tr>
                                 <td
-                                        style="padding-top: 4px; padding-right: 0; padding-bottom: 4px; padding-left: 0;"
+                                        style="padding-top: 4px; padding-right: 0; padding-bottom: 4px; padding-left: 0; word-break: keep-all;"
                                 >
-                                    COPYRIGHT © 2017 DAYLI Financial Group. ALL RIGHTS
+                                    COPYRIGHT &copy; 2017 DAYLI Financial Group. ALL RIGHTS
                                     RESERVED.
                                 </td>
                             </tr>
