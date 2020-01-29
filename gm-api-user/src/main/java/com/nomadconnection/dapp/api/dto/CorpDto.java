@@ -22,16 +22,6 @@ public class CorpDto {
 
 	@ApiModelProperty("식별자(법인)")
 	private Long idx;
-
-	@ApiModelProperty("법인명")
-	private String name;
-
-	@ApiModelProperty("사업자등록번호(10 Digits)")
-	private String bizRegNo;
-
-//	@ApiModelProperty("법인인감증명서")
-//	private String uriRegSeal;
-
 	private String resBusinessItems;
 	private String resBusinessTypes;
 	private String resBusinessmanType;
@@ -48,28 +38,17 @@ public class CorpDto {
 	private String resUserIdentiyNo;
 	private String resUserNm;
 
-	@ApiModelProperty("카드회사 etc. 삼성/현대")
-	private String typeOfCardCorp;
-
-	@ApiModelProperty("수령지(주소)")
-	private Address recipientAddress;
-
-	@ApiModelProperty("법인총한도")
-	private Long creditLimit;
-
-
-
 	@Data
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class CorpRegister { // 법인정보등록
 
-		@ApiModelProperty("법인명")
-		private String name;
-
-		@ApiModelProperty("사업자등록번호")
-		private String bizRegNo;
+//		@ApiModelProperty("법인명")
+//		private String name;
+//
+//		@ApiModelProperty("사업자등록번호")
+//		private String bizRegNo;
 
 //		@ApiModelProperty("법인인감증명서")
 //		private MultipartFile resxRegSeal;
@@ -89,25 +68,6 @@ public class CorpDto {
 		private String resUserAddr;
 		private String resUserIdentiyNo;
 		private String resUserNm;
-
-		@ApiModelProperty("카드회사 etc. 삼성/현대")
-		private String typeOfCardCorp;
-
-		@ApiModelProperty("희망법인총한도")
-		private Long reqCreditLimit;
-	}
-
-	@Data
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public static class CorpAuthCert { // 법인공인인증
-
-		@ApiModelProperty("법인명")
-		private String name;
-
-		@ApiModelProperty("사업자등록번호")
-		private String bizRegNo;
 	}
 
 	@Data
@@ -158,13 +118,12 @@ public class CorpDto {
 					.mdn(user.mdn())
 					.creditLimit(user.creditLimit())
 					.build();
-			if (MemberAuthority.MASTER.equals(member.authority) && user.corp() != null) {
-				member.setCreditLimit(user.corp().creditLimit());
-			}
+
 			if (user.dept() != null) {
 				member.setIdxDept(user.dept().idx());
 				member.setDept(user.dept().name());
 			}
+
 			if (user.profileResx() != null) {
 				//
 				//	todo: make or get profile image uri

@@ -70,19 +70,19 @@ public class CorpController {
 	//
 	//==================================================================================================================
 
-	@ApiOperation(value = "법인정보 등록", notes = "" +
-			"\n ### Remarks" +
-			"\n" +
-			"\n - <mark>multipart/form-data</mark>" +
-			"\n - 결제계좌의 은행코드는 아직 반영되어 있지 않음" +
-			"\n")
-	@PostMapping(path = URI.REGISTER, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-	public CorpDto postCorps(@ApiIgnore @CurrentUser CustomUser user, CorpDto.CorpRegister dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ postCorps ]) $user='{}', $dto='{}'", user, dto);
-		}
-		return service.registerCorp(user.idx(), dto);
-	}
+//	@ApiOperation(value = "법인정보 등록", notes = "" +
+//			"\n ### Remarks" +
+//			"\n" +
+//			"\n - <mark>multipart/form-data</mark>" +
+//			"\n - 결제계좌의 은행코드는 아직 반영되어 있지 않음" +
+//			"\n")
+//	@PostMapping(path = URI.REGISTER, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+//	public CorpDto postCorps(@ApiIgnore @CurrentUser CustomUser user, CorpDto.CorpRegister dto) {
+//		if (log.isDebugEnabled()) {
+//			log.debug("([ postCorps ]) $user='{}', $dto='{}'", user, dto);
+//		}
+//		return service.registerCorp(user.idx(), dto);
+//	}
 
 	//==================================================================================================================
 	//

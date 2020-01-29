@@ -7,7 +7,9 @@ import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.asm.Advice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +34,8 @@ public class UserEtcController {
 		public static final String USERPASSWORDCHANGE_AFTER = "/password/after";
 	}
 
+
+	private final Boolean boolDebug = true;
 	private final UserService service;
 	private final AuthService serviceAuth;
 
@@ -61,14 +65,6 @@ public class UserEtcController {
 		return service.companyCard(dto, user.idx());
 	}
 
-	@ApiOperation(value = "사용자 삭제 Email 정보 입력", notes = "" +
-			"\n ### Remarks" +
-			"\n")
-	@DeleteMapping(URI.USERDELETE)
-	public ResponseEntity deleteEmail(@RequestParam String email) {
-		return service.deleteEmail(email);
-	}
-
 
 	@ApiOperation(value = "비밀번호 변경 - 로그인전", notes = "" +
 			"\n ### Remarks" +
@@ -91,4 +87,16 @@ public class UserEtcController {
 	){
 		return service.passwordAuthAfter(user.idx(), dto.getPrePassword(), dto.getAfterPassword());
 	}
+
+
+
+	@ApiOperation(value = "사용자 삭제 Email 정보 입력", notes = "" +
+			"\n ### Remarks" +
+			"\n")
+	@DeleteMapping(URI.USERDELETE)
+	public ResponseEntity deleteEmail(@RequestParam String email) {
+		return service.deleteEmail(email);
+	}
+
+
 }

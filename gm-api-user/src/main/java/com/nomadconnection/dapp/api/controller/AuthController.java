@@ -14,6 +14,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -127,12 +128,13 @@ public class AuthController {
             "\n - 인증메일 발송 실패: <mark>500(INTERNAL SERVER ERROR)</mark>" +
             "\n")
     @GetMapping(URI.SEND_VERIFICATION_CODE)
-    public ResponseEntity<?> sendVerificationCode(@Email(message = "잘못된 이메일 형식입니다.") @RequestParam String email) {
+    public ResponseEntity<?> sendVerificationCode(@Email(message = "잘못된 이메일 형식입니다.") @RequestParam String email,
+                                                  @RequestParam String type) {
         if (log.isDebugEnabled()) {
             log.debug("([ sendVerificationCode ]) $email='{}'", email);
         }
         try {
-            if (!service.sendVerificationCode(email)) {
+            if (!service.sendVerificationCode(email, type)) {
                 // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 return ResponseEntity.ok().body(BusinessResponse.builder().normal(
                         BusinessResponse.Normal.builder()

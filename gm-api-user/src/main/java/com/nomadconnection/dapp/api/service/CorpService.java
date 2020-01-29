@@ -11,6 +11,7 @@ import com.nomadconnection.dapp.core.domain.repository.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +41,7 @@ public class CorpService {
 		//
 		//	확인필요: 인증상테에서 호출되어야 하는지, 어떤 정보로 인증을 진행해야 하는지
 		//
-		return repo.findByBizRegNo(bizRegNo).isPresent();
+		return repo.findByResCompanyIdentityNo(bizRegNo).isPresent();
 	}
 
 	/**
@@ -56,65 +57,58 @@ public class CorpService {
 	 * @param idxUser 식별자(사용자)
 	 * @param dto 등록정보
 	 */
-	@Transactional(rollbackFor = Exception.class)
-	public CorpDto registerCorp(Long idxUser, CorpDto.CorpRegister dto) {
-
-		//	중복체크
-		if (repo.findByBizRegNo(dto.getBizRegNo()).isPresent()) {
-			if (log.isDebugEnabled()) {
-				log.debug("([ registerCorp ]) BRN ALREADY EXIST, $user.idx='{}', $brn='{}'", idxUser, dto.getBizRegNo());
-			}
-			throw AlreadyExistException.builder()
-					.resource(dto.getBizRegNo())
-					.build();
-		}
-
-		//	사용자 조회
-		User user = serviceUser.getUser(idxUser);
-
-		//	법인정보 저장(상태: 대기)
-		Corp corp = repo.save(Corp.builder()
-				.user(user)
-				.name(dto.getName())
-				.bizRegNo(dto.getBizRegNo())
-				.reqCreditLimit(dto.getReqCreditLimit())
-//				.bankAccount(BankAccount.builder()
-//						.bankAccount(dto.getBankAccount().getAccount())
-//						.bankAccountHolder(dto.getBankAccount().getAccountHolder())
-//						.build())
-				.status(CorpStatus.PENDING)
-				.build());
-
-		//	사용자-법인 매핑
-		repoUser.save(user.corp(corp));
-
-		//	주주명부 저장경로
-//		Path path = getResxStockholdersListPath(corp.idx());
-
-		//	법인정보 갱신(주주명부)
-//		corp.setResxStockholdersList(CorpStockholdersListResx.builder()
-//				.resxStockholdersListPath(path.toString())
-//				.resxStockholdersListFilenameOrigin(dto.getResxShareholderList().getOriginalFilename())
-//				.resxStockholdersListSize(dto.getResxShareholderList().getSize())
-//				.build());
-
-		// 주주명부 저장
-//		serviceResx.save(dto.getResxShareholderList(), path, true);
-
-		//	fixme: dummy data - credit limit check
-		Long creditLimit = dto.getReqCreditLimit();
-
-		//	법인정보 갱신(상태: 승인/거절, 법인한도)
-		corp.creditLimit(creditLimit);
-		corp.status(CorpStatus.APPROVED);
-
-		return CorpDto.builder()
-				.idx(corp.idx())
-				.name(corp.name())
-				.bizRegNo(corp.bizRegNo())
-				.creditLimit(corp.creditLimit())
-				.build();
-	}
+//	@Transactional(rollbackFor = Exception.class)
+//	public CorpDto registerCorp(Long idxUser, CorpDto.CorpRegister dto) {
+//
+//		//	중복체크
+//		if (repo.findByBizRegNo(dto.getBizRegNo()).isPresent()) {
+//			if (log.isDebugEnabled()) {
+//				log.debug("([ registerCorp ]) BRN ALREADY EXIST, $user.idx='{}', $brn='{}'", idxUser, dto.getBizRegNo());
+//			}
+//			throw AlreadyExistException.builder()
+//					.resource(dto.getBizRegNo())
+//					.build();
+//		}
+//
+//		//	사용자 조회
+//		User user = serviceUser.getUser(idxUser);
+//
+//		Corp corpDto = new Corp();
+//		BeanUtils.copyProperties(dto, corpDto);
+//
+//		corpDto.user(user);
+//		corpDto.status(CorpStatus.PENDING);
+//
+//		//	법인정보 저장(상태: 대기)
+//		Corp corp = repo.save(corpDto);
+//
+//		//	주주명부 저장경로
+////		Path path = getResxStockholdersListPath(corp.idx());
+//
+//		//	법인정보 갱신(주주명부)
+////		corp.setResxStockholdersList(CorpStockholdersListResx.builder()
+////				.resxStockholdersListPath(path.toString())
+////				.resxStockholdersListFilenameOrigin(dto.getResxShareholderList().getOriginalFilename())
+////				.resxStockholdersListSize(dto.getResxShareholderList().getSize())
+////				.build());
+//
+//		// 주주명부 저장
+////		serviceResx.save(dto.getResxShareholderList(), path, true);
+//
+//		//	fixme: dummy data - credit limit check
+//		Long creditLimit = dto.getReqCreditLimit();
+//
+//		//	법인정보 갱신(상태: 승인/거절, 법인한도)
+////		corp.creditLimit(creditLimit);
+//		corp.status(CorpStatus.APPROVED);
+//
+//		return CorpDto.builder()
+//				.idx(corp.idx())
+//				.name(corp.name())
+//				.bizRegNo(corp.bizRegNo())
+//				.creditLimit(corp.creditLimit())
+//				.build();
+//	}
 
 	/**
 	 * 동일법인에 소속된 모든 멤버 조회
