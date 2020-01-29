@@ -1,10 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
-import com.nomadconnection.dapp.api.dto.AccountDto;
-import com.nomadconnection.dapp.api.dto.BrandDto;
-import com.nomadconnection.dapp.api.dto.ConsentDto;
-import com.nomadconnection.dapp.api.dto.UserDto;
+import com.nomadconnection.dapp.api.dto.*;
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
@@ -363,12 +360,12 @@ public class UserService {
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity<?> registerBrandCorp(Long idxUser, UserDto.RegisterBrandCorp dto) {
 		//	중복체크
-		if (repoCorp.findByBizRegNo(dto.getBizRegNo()).isPresent()) {
+		if (repoCorp.findByResCompanyIdentityNo(dto.getResCompanyIdentityNo()).isPresent()) {
 			if (log.isDebugEnabled()) {
-				log.debug("([ registerBrandCorp ]) registerBrandCorp ALREADY EXIST, $idxUser='{}', $getBizRegNo='{}'", idxUser, dto.getBizRegNo());
+				log.debug("([ registerBrandCorp ]) registerBrandCorp ALREADY EXIST, $idxUser='{}', $resCompanyIdentityNo='{}'", idxUser, dto.getResCompanyIdentityNo());
 			}
 			throw AlreadyExistException.builder()
-					.resource(dto.getBizRegNo())
+					.resource(dto.getResCompanyIdentityNo())
 					.build();
 		}
 
@@ -376,41 +373,44 @@ public class UserService {
 		User user = getUser(idxUser);
 
 		//	법인정보 저장(상태: 대기)
-		Corp corp = repoCorp.save(Corp.builder()
-				.user(user)
-				.name(dto.getCorpName())
-				.bizRegNo(dto.getBizRegNo())
-				.reqCreditLimit(dto.getReqCreditLimit())
-//				.bankAccount(BankAccount.builder()
-//						.bankAccount(dto.getBankAccount().getAccount())
-//						.bankAccountHolder(dto.getBankAccount().getAccountHolder())
-//						.build())
-				.status(CorpStatus.PENDING)
-				.build());
+		Corp corp = repoCorp.save(
+				Corp.builder()
+						.idx(dto.getIdx())
+						.resJointRepresentativeNm(dto.getResJointRepresentativeNm())
+						.resIssueOgzNm(dto.getResIssueOgzNm())
+						.resCompanyNm(dto.getResCompanyNm())
+						.resBusinessTypes(dto.getResBusinessTypes())
+						.resBusinessItems(dto.getResBusinessItems())
+						.resBusinessmanType(dto.getResBusinessmanType())
+						.resCompanyIdentityNo(dto.getResCompanyIdentityNo())
+						.resIssueNo(dto.getResIssueNo())
+						.resJointIdentityNo(dto.getResJointIdentityNo())
+						.resOpenDate(dto.getResOpenDate())
+						.resOriGinalData(dto.getResOriGinalData())
+						.resRegisterDate(dto.getResRegisterDate())
+						.resUserAddr(dto.getResUserAddr())
+						.resUserIdentiyNo(dto.getResUserIdentiyNo())
+						.resUserNm(dto.getResUserNm())
+						.status(CorpStatus.PENDING)
+						.user(user)
+						.build()
+		);
 
 		//	사용자-법인 매핑
 		repo.save(user.corp(corp));
 
-		//	주주명부 저장경로
-//		Path path = getResxStockholdersListPath(corp.idx());
-
-		//	법인정보 갱신(주주명부)
-//		corp.setResxStockholdersList(CorpStockholdersListResx.builder()
-//				.resxStockholdersListPath(path.toString())
-//				.resxStockholdersListFilenameOrigin(dto.getResxShareholderList().getOriginalFilename())
-//				.resxStockholdersListSize(dto.getResxShareholderList().getSize())
-//				.build());
-
-		// 주주명부 저장
-//		serviceResx.save(dto.getResxShareholderList(), path, true);
-
-		//	fixme: dummy data - credit limit check
-		Long creditLimit = dto.getReqCreditLimit();
+		// fixme: dummy data - credit limit check
+		// Long creditLimit = dto.getReqCreditLimit();
 
 		//	법인정보 갱신(상태: 승인/거절, 법인한도)
-		corp.creditLimit(creditLimit);
+//		corp.creditLimit(creditLimit);
 		corp.status(CorpStatus.APPROVED);
-		return ResponseEntity.ok().body(BusinessResponse.builder().build());
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(BusinessResponse.Normal.builder()
+						.status(true)
+						.build())
+				.data(corp)
+				.build());
 	}
 
 

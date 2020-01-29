@@ -9,6 +9,7 @@ import java.util.Optional;
 @Repository
 public interface CorpRepository extends JpaRepository<Corp, Long> {
 
-	Optional<Corp> findByBizRegNo(String bizRegNo);
-	Optional<Corp> findByNameAndBizRegNo(String name, String bizRegNo);
+	// Optional<Corp> findByBizRegNo(String bizRegNo);
+	// Optional<Corp> findByNameAndBizRegNo(String name, String bizRegNo);
+	Optional<Corp> findByResCompanyIdentityNo(String resCompanyIdentityNo);
 }

@@ -275,7 +275,7 @@ public class AuthService {
 				.idxCorp(user.corp() != null ? user.corp().idx() : null)
 //				.idxCard(user.card() != null ? user.card().idx() : null)
 //				.cards(user.cards().stream().map(CardDto.CardBasicInfo::from).collect(Collectors.toList()))
-				.recipientAddress(user.corp() != null ? user.corp().recipientAddress() : null)
+//				.recipientAddress(user.corp() != null ? user.corp().recipientAddress() : null)
 				.email(user.email())
 				.name(user.name())
 				.mdn(user.mdn())

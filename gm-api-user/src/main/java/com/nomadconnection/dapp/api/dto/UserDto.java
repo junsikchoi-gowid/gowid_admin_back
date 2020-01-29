@@ -119,31 +119,7 @@ public class UserDto {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class RegisterBrandCorp {
-
-		@ApiModelProperty("이메일(계정)")
-		private String email;
-
-		@ApiModelProperty("법인명")
-		private String corpName;
-
-		@ApiModelProperty("사업자등록번호")
-		private String bizRegNo;
-
-		@ApiModelProperty("개업일")
-		private LocalDateTime openingDay;
-
-		@ApiModelProperty("사업자등록일")
-		private LocalDateTime businessLicenseDate;
-
-		@ApiModelProperty("카드회사 etc. 삼성/현대")
-		private String typeOfCardCorp;
-
-		@ApiModelProperty("주주명부")
-		private MultipartFile resxShareholderList;
-
-		@ApiModelProperty("희망법인총한도")
-		private Long reqCreditLimit;
-
+		private Long idx;
 		private String resBusinessItems;
 		private String resBusinessTypes;
 		private String resBusinessmanType;
@@ -159,8 +135,6 @@ public class UserDto {
 		private String resUserAddr;
 		private String resUserIdentiyNo;
 		private String resUserNm;
-
-
 	}
 
 	@Data
