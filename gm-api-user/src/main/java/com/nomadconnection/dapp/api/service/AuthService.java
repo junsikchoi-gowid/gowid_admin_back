@@ -291,7 +291,7 @@ public class AuthService {
 	 */
 //	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	@Transactional(rollbackFor = Exception.class)
-	public boolean sendVerificationCode(String email) {
+	public boolean sendVerificationCode(String email, String type) {
 		String code = String.format("%04d", new Random().nextInt(10000));
 		try {
 			repoVerificationCode.save(VerificationCode.builder()
@@ -313,8 +313,17 @@ public class AuthService {
 				}
 				helper.setFrom(config.getSender());
 				helper.setTo(email);
-				helper.setSubject("[Gowid] 회원가입 이메일 인증번호");
-				helper.setText(templateEngine.process("mail-template", context), true);
+
+				if(type.equals("register")){
+					helper.setSubject("[Gowid] 회원가입 이메일 인증번호");
+					helper.setText(templateEngine.process("mail-template_register", context), true);
+				}else if(type.equals("password_reset")){
+					helper.setSubject("[Gowid] 비밀번호 재설정 이메일 인증번호");
+					helper.setText(templateEngine.process("mail-template_password", context), true);
+				}else{
+					helper.setSubject("[Gowid] 이메일 인증번호");
+					helper.setText(templateEngine.process("mail-template", context), true);
+				}
 			}
 		};
 		sender.send(preparator);
