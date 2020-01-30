@@ -48,6 +48,29 @@ spring:
 ---
 
 spring:
+  profiles: prod
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      ddl-auto: validate
+      use-new-id-generator-mappings: true
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+    generate-ddl: true
+    open-in-view: false
+  datasource:
+    initialization-mode: always
+    url: jdbc:mysql://gowid-mysql.clb82ylu4eie.ap-northeast-2.rds.amazonaws.com:3306/gowid?useSSL=true&characterEncoding=UTF-8&serverTimezone=UTC&sslMode=VERIFY_IDENTITY&trustCertificateKeyStoreUrl=classpath:cacerts&trustCertificateKeyStorePassword=Gowid@0115
+    username: gowid
+    password: Gowid%0203
+
+---
+
+spring:
   profiles: aws
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
