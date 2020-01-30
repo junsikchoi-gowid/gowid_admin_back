@@ -4,7 +4,7 @@ package com.nomadconnection.dapp.core.domain;
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.Columns;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -17,7 +17,7 @@ import javax.validation.constraints.Email;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuppressWarnings("unused")
-public class Faq extends BaseTime {
+public class Reception extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,15 +25,8 @@ public class Faq extends BaseTime {
 	private Long idx;
 
 	@Column(nullable = false)
-	private String title;
+	private String receiver;
 
 	@Column(nullable = false)
-	@Email
-	private String email;
-
-	@Column(nullable = false, length = 65535, columnDefinition = "Text")
-	private String contents;
-
-	@Column(nullable = false)
-	private boolean replyStatus;
+	private boolean status;
 }

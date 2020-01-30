@@ -22,6 +22,6 @@ public class ConsentMapping {
 	private Long idxUser;
 	private Long idxConsent;
 
-	@Column(columnDefinition = "boolean default false")
+	@Column(nullable = false)
 	private boolean status;
 }
