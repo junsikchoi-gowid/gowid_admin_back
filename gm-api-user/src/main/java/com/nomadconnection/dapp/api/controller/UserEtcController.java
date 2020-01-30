@@ -32,6 +32,7 @@ public class UserEtcController {
 		public static final String USERDELETE = "/userdelete";
 		public static final String USERPASSWORDCHANGE_PRE = "/password/pre";
 		public static final String USERPASSWORDCHANGE_AFTER = "/password/after";
+		public static final String RECEPTION = "/reception";
 	}
 
 
@@ -88,6 +89,22 @@ public class UserEtcController {
 		return service.passwordAuthAfter(user.idx(), dto.getPrePassword(), dto.getAfterPassword());
 	}
 
+
+	@ApiOperation(value = "수신거부 등록", notes = "" +
+			"\n ### Remarks" +
+			"\n ")
+	@GetMapping(URI.RECEPTION)
+	public ResponseEntity saveReception(@RequestParam String key) {
+		return service.saveReception(key);
+	}
+
+	@ApiOperation(value = "수신거부 삭제", notes = "" +
+			"\n ### Remarks" +
+			"\n")
+	@DeleteMapping(URI.RECEPTION)
+	public ResponseEntity deleteReception(@RequestParam String key){
+		return service.deleteReception(key);
+	}
 
 
 	@ApiOperation(value = "사용자 삭제 Email 정보 입력", notes = "" +

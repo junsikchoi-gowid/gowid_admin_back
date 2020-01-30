@@ -17,6 +17,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -35,7 +36,8 @@ public class UserService {
 	private final JavaMailSenderImpl sender;
 	private final PasswordEncoder encoder;
 	private final UserRepository repo;
-	private final ConsentRepository repoConsent;
+	private final ConsentMappingRepository repoConsentMapping;
+	private final ReceptionRepository receptionRepository;
 	private final CorpRepository repoCorp;
 	private final DeptRepository repoDept;
 	private final AuthorityRepository repoAuthority;
@@ -331,13 +333,18 @@ public class UserService {
 						repoAuthority.findByRole(Role.ROLE_MASTER).orElseThrow(
 								() -> new RuntimeException("ROLE_MASTER NOT FOUND")
 						)))
-				.consents(repoConsent.findByIdxIn(listIdx))
 				.build());
 		// user info - end
 
 		// 이용약관 매핑
 		for(ConsentDto.RegDto regDto : dto.getConsents()) {
-			repoConsent.updateConsentMapping(regDto.status, user.idx(), regDto.idxConsent);
+			repoConsentMapping.save(
+					ConsentMapping.builder()
+							.idxConsent(regDto.idxConsent)
+							.idxUser(user.idx())
+							.status(regDto.status)
+					.build()
+			);
 		}
 
 		TokenDto.TokenSet tokenSet = issueTokenSet(AccountDto.builder()
@@ -544,5 +551,22 @@ public class UserService {
 						.build())
 				.data(returnUser)
 				.build());
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity saveReception(String key) {
+		receptionRepository.save(
+				Reception.builder()
+						.receiver(key)
+						.status(true)
+				.build()
+		);
+		return ResponseEntity.ok().body(BusinessResponse.builder().build());
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity deleteReception(String key) {
+		receptionRepository.deleteByReceiver(key);
+		return ResponseEntity.ok().body(BusinessResponse.builder().build());
 	}
 }

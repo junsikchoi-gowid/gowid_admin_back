@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BrandFaqDto;
 import com.nomadconnection.dapp.core.domain.Faq;
 import com.nomadconnection.dapp.core.domain.Role;
@@ -10,10 +11,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.thymeleaf.ITemplateEngine;
 
 @Slf4j
 @Service
@@ -21,7 +28,9 @@ import java.util.List;
 public class FaqService {
 
     private final FaqRepository faqRepository;
-
+    private final JavaMailSenderImpl sender;
+    private final EmailConfig config;
+    private final ITemplateEngine templateEngine;
     /**
      * FaQ 조회
      *
@@ -43,6 +52,7 @@ public class FaqService {
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity faqSave(BrandFaqDto dto) {
 
+        /*
         faqRepository.save(
                 Faq.builder()
                         .idx(dto.idx)
@@ -52,6 +62,24 @@ public class FaqService {
                         .replyStatus(dto.replyStatus)
                         .build()
         );
+        */
+
+        final MimeMessagePreparator preparator = mimeMessage -> {
+            final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+            {
+                Context context = new Context();
+                {
+                    context.setVariable("from", dto.email);
+                    context.setVariable("contents", dto.contents);
+                }
+
+                helper.setFrom(config.getSender());
+                helper.setTo(config.getSender());
+                helper.setSubject("[Gowid 문의] " + dto.title);
+                helper.setText(templateEngine.process("mail-template_qna", context), true);
+            }
+        };
+        sender.send(preparator);
 
         return ResponseEntity.ok().body(BusinessResponse.builder().build());
     }
