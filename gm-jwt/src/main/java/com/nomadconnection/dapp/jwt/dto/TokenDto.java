@@ -98,7 +98,7 @@ public class TokenDto {
 			@ApiModelProperty("법인 매핑")
 			private boolean corpMapping;
 
-			@ApiModelProperty("법인 매핑")
+			@ApiModelProperty("카드 매핑")
 			private boolean cardCompanyMapping;
 		}
 

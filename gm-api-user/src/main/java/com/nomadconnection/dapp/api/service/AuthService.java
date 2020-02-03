@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.api.dto.AuthDto;
 import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
+import com.nomadconnection.dapp.core.domain.Authority;
 import com.nomadconnection.dapp.core.domain.User;
 import com.nomadconnection.dapp.core.domain.VerificationCode;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
@@ -31,6 +32,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -270,16 +272,24 @@ public class AuthService {
 	@Transactional
 	public AuthDto.AuthInfo info(Long idxUser) {
 		User user = serviceUser.getUser(idxUser);
+		Set<Authority> authorities = user.authorities(); 
+		
+		boolean corpMapping = !StringUtils.isEmpty(user.corp());
+		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
+		
+		
 		return AuthDto.AuthInfo.builder()
 				.idx(user.idx())
 				.idxCorp(user.corp() != null ? user.corp().idx() : null)
-//				.idxCard(user.card() != null ? user.card().idx() : null)
-//				.cards(user.cards().stream().map(CardDto.CardBasicInfo::from).collect(Collectors.toList()))
-//				.recipientAddress(user.corp() != null ? user.corp().recipientAddress() : null)
 				.email(user.email())
 				.name(user.name())
 				.mdn(user.mdn())
 				.corpStatus(user.corp() != null ? user.corp().status() : null)
+				.info(TokenDto.TokenSet.AccountInfo.builder()
+						.authorities(authorities.stream().map(Authority::role).collect(Collectors.toList()))
+						.cardCompanyMapping(cardCompanyMapping)
+						.corpMapping(corpMapping)
+						.build())
 				.build();
 	}
 
