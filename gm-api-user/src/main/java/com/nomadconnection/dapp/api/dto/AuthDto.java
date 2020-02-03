@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.CorpStatus;
 import com.nomadconnection.dapp.core.domain.MemberAuthority;
+import com.nomadconnection.dapp.core.domain.Role;
 import com.nomadconnection.dapp.core.domain.embed.Address;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import io.swagger.annotations.ApiModelProperty;
@@ -43,5 +44,8 @@ public class AuthDto {
 
 		@ApiModelProperty("법인 등록 상태")
 		private CorpStatus corpStatus;
+
+		@ApiModelProperty("부가정보")
+		private TokenDto.TokenSet.AccountInfo info;
 	}
 }
