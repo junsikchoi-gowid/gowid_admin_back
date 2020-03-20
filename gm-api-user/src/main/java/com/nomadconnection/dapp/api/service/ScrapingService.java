@@ -15,6 +15,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
@@ -199,34 +200,23 @@ public class ScrapingService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    void saveAccount(int iType, JSONObject jsonData, JSONArray jsonArrayResTrHistoryList, String connectedId, Long idx, BankDto.AccountBatch dto) {
+    void saveAccount(int iType, JSONObject jsonData, JSONArray jsonArrayResTrHistoryList, String connectedId, Long idx, BankDto.AccountBatch dto, String nowFlag) {
 
         String strDefault = null;
+
+
         // iType 별로 데이터 가져오는데 문제확인 필요 ex 대출에는 resAccountName 없음
 
         repoResAccountHistory.deleteResAccountTrDate(jsonData.get("resAccount").toString(), dto.getStartDate(), dto.getEndDate());
 
-        //   0 실시간 적금   40:대출  20:외화 30:펀드
+        //   실시간 적금   40:대출  20:외화 30:펀드
         if (iType == 10) {
 
-            Optional<ResAccount> resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString());
-
-            resAccount.ifPresent(
-                    account -> {
-                        account.resAccount(jsonData.get("resAccount").toString());
-                        account.resAccountName("" + jsonData.get("resAccountName").toString());
-                        account.resAccountHolder("" + jsonData.get("resAccountHolder").toString());
-                        account.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-                        account.resAccountEndDate("" + jsonData.get("resAccountEndDate").toString());
-                        account.resManagementBranch("" + jsonData.get("resManagementBranch").toString());
-                        account.resAccountStatus("" + jsonData.get("resAccountStatus").toString());
-                        account.resLastTranDate("" + jsonData.get("resLastTranDate").toString());
-                        account.resAccountCurrency("" + jsonData.get("resAccountCurrency").toString());
-                        account.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
-                        account.resWithdrawalAmt("" + jsonData.get("resWithdrawalAmt").toString());
-                        ResAccount newResAccount = repoResAccount.save(account);
-                    }
-            );
+            ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
+            resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+            repoResAccount.save(resAccount);
+            log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
+            log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
                 jsonArrayResTrHistoryList.forEach(item2 -> {
@@ -242,36 +232,17 @@ public class ScrapingService {
                                     .resAccountDesc3(""+obj.get("resAccountDesc3").toString())
                                     .resAccountDesc4(""+obj.get("resAccountDesc4").toString())
                                     .resAfterTranBalance(""+obj.get("resAfterTranBalance").toString())
-                                    .resAccount(resAccount.get().resAccount())
+                                    .resAccount(resAccount.resAccount())
                                     .build()
                     );
                 });
             }
         } else if (iType == 12) {
-            Optional<ResAccount> resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString());
-
-            resAccount.ifPresent(
-                    account -> {
-                        account.resAccount(jsonData.get("resAccount").toString());
-                        account.resAccountName("" + jsonData.get("resAccountName").toString());
-                        account.resAccountNickName("" + jsonData.get("resAccountNickName").toString());
-                        account.resAccountHolder("" + jsonData.get("resAccountHolder").toString());
-                        account.resFinalRoundNo("" + jsonData.get("resFinalRoundNo").toString());
-                        account.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-                        account.resAccountEndDate("" + jsonData.get("resAccountEndDate").toString());
-                        account.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
-                        account.resMonthlyPayment("" + jsonData.get("resMonthlyPayment").toString());
-                        account.resValidPeriod("" + jsonData.get("resValidPeriod").toString());
-                        account.resType("" + jsonData.get("resType").toString());
-                        account.resManagementBranch("" + jsonData.get("resManagementBranch").toString());
-                        account.resRate("" + jsonData.get("resRate").toString());
-                        account.resAccountStatus("" + jsonData.get("resAccountStatus").toString());
-                        account.resContractAmount("" + jsonData.get("resContractAmount").toString());
-                        account.resPaymentMethods("" + jsonData.get("resPaymentMethods").toString());
-                        account.resLastTranDate("" + jsonData.get("resLastTranDate").toString());
-                        repoResAccount.save(account);
-                    }
-            );
+            ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
+            resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+            repoResAccount.save(resAccount);
+            log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
+            log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
                 jsonArrayResTrHistoryList.forEach(item2 -> {
@@ -287,30 +258,17 @@ public class ScrapingService {
                                     .resAccountDesc3(""+obj.get("resAccountDesc3").toString())
                                     .resAccountDesc4(""+obj.get("resAccountDesc4").toString())
                                     .resAfterTranBalance(""+obj.get("resAfterTranBalance").toString())
-                                    .resAccount(resAccount.get().resAccount())
+                                    .resAccount(resAccount.resAccount())
                                     .build()
                     );
                 });
             }
         } else if (iType == 40) {
-            Optional<ResAccount> resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString());
-
-            resAccount.ifPresent(
-                    account -> {
-                        account.resAccount(jsonData.get("resAccount").toString());
-                        account.resLoanKind("" + jsonData.get("resLoanKind").toString());
-                        account.resAccountHolder("" + jsonData.get("resAccountHolder").toString());
-                        account.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-                        account.resAccountEndDate("" + jsonData.get("resAccountEndDate").toString());
-                        account.resLoanBalance("" + jsonData.get("resLoanBalance").toString());
-                        account.resPrincipal("" + jsonData.get("resPrincipal").toString());
-                        account.resRate("" + jsonData.get("resRate").toString());
-                        account.resDatePayment("" + jsonData.get("resDatePayment").toString());
-                        account.resState("" + jsonData.get("resState").toString());
-                        account.commStartDate("" + jsonData.get("commStartDate").toString());
-                        account.commEndDate("" + jsonData.get("commEndDate").toString());
-                    }
-            );
+            ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
+            resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+            repoResAccount.save(resAccount);
+            log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
+            log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
                 jsonArrayResTrHistoryList.forEach(item2 -> {
@@ -330,32 +288,17 @@ public class ScrapingService {
                                     .commEndDate(""+obj.get("commEndDate").toString())
                                     .resLoanBalance(""+obj.get("resLoanBalance").toString())
                                     .resInterestRate(""+obj.get("resInterestRate").toString())
-                                    .resAccount(resAccount.get().resAccount())
+                                    .resAccount(resAccount.resAccount())
                                     .build()
                     );
                 });
             }
         } else if (iType == 30) {
-            Optional<ResAccount> resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString());
-
-            resAccount.ifPresent(
-                    account -> {
-                        account.resAccount(jsonData.get("resAccount").toString());
-                        account.resAccountName("" + jsonData.get("resAccountName").toString());
-                        account.resAccountHolder("" + jsonData.get("resAccountHolder").toString());
-                        account.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-                        account.resAccountEndDate("" + jsonData.get("resAccountEndDate").toString());
-                        account.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
-                        account.resAccountInvestedCost("" + jsonData.get("resAccountInvestedCost").toString());
-                        account.resEarningsRate("" + jsonData.get("resEarningsRate").toString());
-                        account.resType("" + jsonData.get("resType").toString());
-                        account.resBalanceNum("" + jsonData.get("resBalanceNum").toString());
-                        account.resAccountCurrency("" + jsonData.get("resAccountCurrency").toString());
-                        account.commStartDate("" + jsonData.get("commStartDate").toString());
-                        account.commEndDate("" + jsonData.get("commEndDate").toString());
-                        ResAccount newResAccount = repoResAccount.save(account);
-                    }
-            );
+            ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
+            resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+            repoResAccount.save(resAccount);
+            log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
+            log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
                 jsonArrayResTrHistoryList.forEach(item2 -> {
@@ -374,33 +317,18 @@ public class ScrapingService {
                                     .resAccountDesc4(""+obj.get("resAccountDesc4").toString())
                                     .resAfterTranBalance(""+obj.get("resAfterTranBalance").toString())
                                     .resValuationAmt(""+obj.get("resValuationAmt").toString())
-                                    .resAccount(resAccount.get().resAccount())
+                                    .resAccount(resAccount.resAccount())
                                     .build()
                     );
                 });
             }
         } else if (iType == 20) {
             // 외화 20
-            Optional<ResAccount> resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString());
-
-            resAccount.ifPresent(
-                    account -> {
-                        account.resAccount(jsonData.get("resAccount").toString());
-                        account.resAccountName("" + jsonData.get("resAccountName").toString());
-                        account.resAccountHolder("" + jsonData.get("resAccountHolder").toString());
-                        account.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-                        account.resAccountEndDate("" + jsonData.get("resAccountEndDate").toString());
-                        account.resManagementBranch("" + jsonData.get("resManagementBranch").toString());
-                        account.resAccountStatus("" + jsonData.get("resAccountStatus").toString());
-                        account.resLastTranDate("" + jsonData.get("resLastTranDate").toString());
-                        account.resAccountCurrency("" + jsonData.get("resAccountCurrency").toString());
-                        account.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
-                        account.resWithdrawalAmt("" + jsonData.get("resWithdrawalAmt").toString());
-                        account.commStartDate("" + jsonData.get("commStartDate").toString());
-                        account.commEndDate("" + jsonData.get("commEndDate").toString());
-                        ResAccount newResAccount = repoResAccount.save(account);
-                    }
-            );
+            ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
+            resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+            repoResAccount.save(resAccount);
+            log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
+            log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
                 jsonArrayResTrHistoryList.forEach(item2 -> {
@@ -416,7 +344,7 @@ public class ScrapingService {
                                     .resAccountDesc3(""+obj.get("resAccountDesc3").toString())
                                     .resAccountDesc4(""+obj.get("resAccountDesc4").toString())
                                     .resAfterTranBalance(""+obj.get("resAfterTranBalance").toString())
-                                    .resAccount(resAccount.get().resAccount())
+                                    .resAccount(resAccount.resAccount())
                                     .build()
                     );
                 });
@@ -819,7 +747,9 @@ public class ScrapingService {
                         , (JSONArray) strResult[1].get("resTrHistoryList")
                         , resData.getConnectedId()
                         , idx
-                        , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build());
+                        , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build()
+                        , resData.getNowMonth()
+                );
             }
 
             endLog(ResBatchList.builder()
@@ -957,9 +887,10 @@ public class ScrapingService {
                         , (JSONArray) strResult[1].get("resTrHistoryList")
                         , resData.getConnectedId()
                         , idx
-                        , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build());
+                        , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build()
+                        , resData.getNowMonth()
+                );
             }
-
         });
     }
 
@@ -1225,7 +1156,9 @@ public class ScrapingService {
                         , (JSONArray) strResult[1].get("resTrHistoryList")
                         , resData.getConnectedId()
                         , idx
-                        , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build());
+                        , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build()
+                        , resData.getNowMonth()
+                );
             }
 
             endLog(ResBatchList.builder()
@@ -1490,7 +1423,9 @@ public class ScrapingService {
                         , (JSONArray) strResult[1].get("resTrHistoryList")
                         , resData.getConnectedId()
                         , idx
-                        , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build());
+                        , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build()
+                        , resData.getNowMonth()
+                );
             }
 
             endLog(ResBatchList.builder()

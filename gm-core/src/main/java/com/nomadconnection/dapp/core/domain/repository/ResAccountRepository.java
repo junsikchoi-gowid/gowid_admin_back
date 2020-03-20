@@ -93,7 +93,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             "   join ConnectedMng c  on c.connectedId = b.connectedId and c.idxUser = :idxUser     " +
             "  where Date_Format(resAccountTrDate,  '%Y%m') >= :startMonth and  Date_Format(resAccountTrDate,  '%Y%m') <= :endMonth     " +
             "  group by Date_Format(resAccountTrDate,  '%Y%m')     " +
-            " ) groupTableB  on groupTableA.ms = groupTableB.resAccountTrMonth", nativeQuery = true)
+            " ) groupTableB  on groupTableA.ms = groupTableB.resAccountTrMonth order by sumDate", nativeQuery = true)
     List<CaccountMonthDto> findMonthHistory(String startMonth, String endMonth, Long idxUser);
 
     @Query(value = "select  " +

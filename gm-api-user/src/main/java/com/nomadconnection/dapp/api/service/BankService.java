@@ -61,6 +61,8 @@ public class BankService {
 
 	private final UserService serviceUser;
 	private final ScrapingService serviceScraping;
+	private final CodefService serviceCodef;
+
 
 	private final UserRepository repoUser;
 	private final ResBatchListRepository repoResBatchList;
@@ -260,6 +262,7 @@ public class BankService {
 							.value("Request again after 3 minutes").build()
 			).build());
 		}
+		serviceCodef.getScrapingAccount(idx);
 		serviceScraping.scrapingRegister1YearAll(idx);
 		Thread.sleep(1000);
 		return refresh(idx);

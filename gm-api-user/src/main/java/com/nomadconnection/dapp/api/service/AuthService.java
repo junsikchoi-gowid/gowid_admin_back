@@ -283,8 +283,11 @@ public class AuthService {
 			signMapping = true;
 		}
 
+		boolean refreshMapping = true;
+		if(repoConnectedMng.findRefresh(idxUser) > 0 ){
+			refreshMapping = false;
+		}
 
-		
 		return AuthDto.AuthInfo.builder()
 				.idx(user.idx())
 				.idxCorp(user.corp() != null ? user.corp().idx() : null)
@@ -297,6 +300,7 @@ public class AuthService {
 						.cardCompanyMapping(cardCompanyMapping)
 						.corpMapping(corpMapping)
 						.signMapping(signMapping)
+						.refreshMapping(refreshMapping)
 						.build())
 				.build();
 	}

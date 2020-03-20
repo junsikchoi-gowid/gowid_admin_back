@@ -72,29 +72,28 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "    where y >= Date_Format(if( a.resAccountStartDate = a.firstSuccessDay , endDay, resAccountStartDate) , '%Y')",nativeQuery = true)
     List<ResBatchRepository.CResYears> find10year(Long idxUser);
 
-    @Query(value = "select distinct main.*\n" +
-            "from (select if(y = Date_Format(resAccountStartDate , '%Y%m'), resAccountStartDate, concat(L.y,'01')) startDay    \n" +
-            "\t\t, if(y = Date_Format(now() , '%Y%m'), Date_Format(now() , '%Y%m%d'), date_format(last_day(concat(L.y,'01')),'%Y%m%d')) as endDay\n" +
-            "\t\t, R.resAccount\n" +
-            "\t\t, R.connectedId\n" +
-            "\t\t, R.organization       \n" +
-            "        , R.ResAccountDeposit\n" +
-            "\t\tfrom ResAccount R \n" +
-            "\t\t\tjoin ConnectedMng cm on R.connectedId = cm.connectedId and idxUser = :idxUser             \n" +
-            "\t\tcross join \n" +
-            "\t\t(\n" +
-            "\t\tselect y from\n" +
-            "\t\t\t(\n" +
-            "\t\t\tSELECT date_format(  date_add(now(), INTERVAL - (a.a + (10 * b.a) + (100 * c.a)) month), '%Y%m') y\n" +
-            "\t\t\t\t\tfrom (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a\n" +
-            "\t\t\t\tcross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b\n" +
-            "\t\t\t\tcross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c\n" +
-            "\t\t\t) a where a.y >  date_format(date_add(now(), INTERVAL - 10 year), '%Y%m')\n" +
-            "\t\t) L\n" +
-            "\t\twhere y >= Date_Format(resAccountStartDate , '%Y%m') and y >= date_format(  date_add(now(), INTERVAL - 12 month), '%Y%m')\n" +
-            "    ) main \n" +
-            "\t\tleft join ResBatchList b on main.startDay = b.startDate and main.endDay = b.endDate and main.resAccount = b.account and resBatchType = 1\n" +
-            "\twhere endDate = Date_Format(now() , '%Y%m%d') or idx is null",nativeQuery = true)
+    @Query(value = "select main.*, if(Date_Format(now() , '%Y%m') = Date_Format(main.startDay, '%Y%m'), 1, 0 ) as nowMonth from \n" +
+            "\t(select if(y = Date_Format(resAccountStartDate , '%Y%m'), resAccountStartDate, concat(L.y,'01')) startDay    \n" +
+            "\t, if(y = Date_Format(now() , '%Y%m'), Date_Format(now() , '%Y%m%d'), date_format(last_day(concat(L.y,'01')),'%Y%m%d')) as endDay\n" +
+            "\t, R.resAccountStartDate\n" +
+            "\t, R.resAccount\n" +
+            "\t, R.connectedId\n" +
+            "\t, R.organization       \n" +
+            "\t, R.ResAccountDeposit\n" +
+            "\tfrom (\n" +
+            "\tselect y from\n" +
+            "\t(\n" +
+            "\tSELECT date_format(  date_add(now(), INTERVAL - (a.a + (10 * b.a) + (100 * c.a)) month), '%Y%m') y\n" +
+            "\tfrom (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a\n" +
+            "\tcross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b\n" +
+            "\tcross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c\n" +
+            "\t) a where a.y >  date_format(date_add(now(), INTERVAL - 12 month), '%Y%m')\n" +
+            "\t) L\n" +
+            "\tjoin ResAccount R \n" +
+            "\tjoin ConnectedMng cm on R.connectedId = cm.connectedId and idxUser = 23\n" +
+            ") main \n" +
+            "\tleft join ResBatchList b on b.account = main.resAccount\n" +
+            "where endDate = Date_Format(now() , '%Y%m%d') or idx is null",nativeQuery = true)
     List<ResBatchRepository.CResYears> findStartDateMonth(Long idxUser);
 
     @Query(value = "select distinct main.* \n" +
@@ -150,5 +149,6 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
         String getConnectedId();
         String getOrganization();
         String getResAccountDeposit();
+        String getNowMonth();
     }
 }

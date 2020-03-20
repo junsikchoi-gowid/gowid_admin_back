@@ -103,6 +103,9 @@ public class TokenDto {
 
 			@ApiModelProperty("인증서 매핑")
 			private boolean signMapping;
+
+			@ApiModelProperty("새로고침 매핑")
+			private boolean refreshMapping;
 		}
 
 		@ApiModelProperty("인증토큰(액세스)")
