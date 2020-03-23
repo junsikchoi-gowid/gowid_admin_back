@@ -26,7 +26,9 @@ public class TokenDto {
 	public enum TokenType {
 		JWT_FOR_AUTHENTICATION,
 		JWT_FOR_ACCESS,
-		JWT_FOR_REFRESH;
+		JWT_FOR_REFRESH,
+		JWT_OUTER_ACCESS;
+
 		public static TokenType from(String name) {
 			try {
 				return valueOf(name);

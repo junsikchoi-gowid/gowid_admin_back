@@ -117,6 +117,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.PASSWORD_RESET_EMAIL).permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.PASSWORD).permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_ISSUE).permitAll()
+				.antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_ISSUE_OUT).permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_REISSUE).permitAll()
 				.antMatchers(AuthController.URI.BASE + AuthController.URI.VERIFICATION_CODE).permitAll()
 				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTER).permitAll()
@@ -131,6 +132,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.RECEPTION).permitAll()
 				.antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.ALARM).permitAll()
 				.antMatchers(RiskController.URI.BASE + RiskController.URI.RISK).permitAll()
+				.antMatchers(ScrapingController.URI.BASE + ScrapingController.URI.SCRAPING_ACCOUNT_HISTORY).permitAll()
 				.anyRequest().authenticated();
 	}
 }

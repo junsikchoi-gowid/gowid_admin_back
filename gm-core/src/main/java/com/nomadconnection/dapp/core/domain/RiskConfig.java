@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Risk extends BaseTime {
+public class RiskConfig extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,31 +21,10 @@ public class Risk extends BaseTime {
 	@EqualsAndHashCode.Include
 	private Long idx;
 	private Long idxUser;
-
-	private String date;
 	private boolean ceoGuarantee;
 	private Float depositGuarantee;
 	private boolean depositPayment;
 	private boolean cardIssuance;
 	private boolean ventureCertification;
 	private boolean vcInvestment;
-	private String grade;
-	private Integer gradeLimitPercentage;
-	private Float minStartCash;
-	private Float minCashNeed;
-	private Float currentBalance;
-	private Integer error;
-	private Float dma45;
-	private Float dmm45;
-	private Float actualBalance;
-	private Float cashBalance;
-	private boolean cardAvailable;
-	private Float cardLimitCalculation;
-	private Float realtimeLimit;
-	private Float cardLimit;
-	private Float cardLimitNow;
-	private boolean emergencyStop;
-	private Integer cardRestartCount;
-	private boolean cardRestart;
-
 }

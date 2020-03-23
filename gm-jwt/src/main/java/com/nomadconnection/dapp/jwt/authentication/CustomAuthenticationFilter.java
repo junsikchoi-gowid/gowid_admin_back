@@ -52,7 +52,9 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 				);
 				TokenDto dto = jwt.parse(token);
 				{
-					if (!TokenDto.TokenType.JWT_FOR_ACCESS.equals(dto.getTokenType())) {
+					if (!(TokenDto.TokenType.JWT_FOR_ACCESS.equals(dto.getTokenType())
+							|| TokenDto.TokenType.JWT_OUTER_ACCESS.equals(dto.getTokenType()))
+						) {
 						if (log.isDebugEnabled()) {
 							log.debug("([ doFilterInternal ]) INVALID JWT TYPE( {} ), $jwt='{}'", dto.getTokenType(), token);
 						}

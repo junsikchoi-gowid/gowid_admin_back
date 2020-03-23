@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
+import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import com.nomadconnection.dapp.codef.io.sandbox.bk.*;
@@ -48,6 +49,7 @@ public class ScrapingService {
 
     private final ResBatchListRepository repoResBatchList;
     private final ResBatchRepository repoResBatch;
+    private final RiskService serviceRisk;
 
     private final ConnectedMngRepository repoConnectedMng;
     private final PasswordEncoder encoder;
@@ -213,10 +215,13 @@ public class ScrapingService {
         if (iType == 10) {
 
             ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
-            resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-            repoResAccount.save(resAccount);
-            log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
-            log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
+            if(nowFlag.equals("1")){
+                resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
+                repoResAccount.save(resAccount);
+                log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
+                log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
+            }
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
                 jsonArrayResTrHistoryList.forEach(item2 -> {
@@ -239,10 +244,13 @@ public class ScrapingService {
             }
         } else if (iType == 12) {
             ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
-            resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-            repoResAccount.save(resAccount);
-            log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
-            log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
+            if(nowFlag.equals("1")){
+                resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
+                repoResAccount.save(resAccount);
+                log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
+                log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
+            }
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
                 jsonArrayResTrHistoryList.forEach(item2 -> {
@@ -265,10 +273,14 @@ public class ScrapingService {
             }
         } else if (iType == 40) {
             ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
-            resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-            repoResAccount.save(resAccount);
-            log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
-            log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
+            if(nowFlag.equals("1")){
+                // resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                // resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
+                repoResAccount.save(resAccount);
+                log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
+                log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
+            }
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
                 jsonArrayResTrHistoryList.forEach(item2 -> {
@@ -295,10 +307,13 @@ public class ScrapingService {
             }
         } else if (iType == 30) {
             ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
-            resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-            repoResAccount.save(resAccount);
-            log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
-            log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
+            if(nowFlag.equals("1")){
+                resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
+                repoResAccount.save(resAccount);
+                log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
+                log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
+            }
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
                 jsonArrayResTrHistoryList.forEach(item2 -> {
@@ -325,10 +340,13 @@ public class ScrapingService {
         } else if (iType == 20) {
             // 외화 20
             ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
-            resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-            repoResAccount.save(resAccount);
-            log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
-            log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
+            if(nowFlag.equals("1")){
+                resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
+                repoResAccount.save(resAccount);
+                log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
+                log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
+            }
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
                 jsonArrayResTrHistoryList.forEach(item2 -> {
@@ -730,7 +748,8 @@ public class ScrapingService {
                             , strStart
                             , strEnd
                             , "0"
-                            , "KRW"));
+                            , resData.getResAccountCurrency()
+                    ));
                 }
 
                 log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
@@ -863,7 +882,8 @@ public class ScrapingService {
                             , strStart
                             , strEnd
                             , "0"
-                            , "KRW"));
+                            , resData.getResAccountCurrency()
+                    ));
                 }
 
                 log.debug("([scrapingAccountHistoryList ]) $strResult='{}'", strResult.toString());
@@ -1066,9 +1086,19 @@ public class ScrapingService {
             }
         });
 
+        saveAccountProcessBatch(idx, idxResBatchParent, true );
 
+        return true;
+    }
+
+    private void saveAccountProcess(Long idx, Long idxResBatchParent, boolean boolRetry) {
         // user ConnectedId List
-        List<ResBatchRepository.CResYears> list = repoResBatch.find10yearMonth(idx);
+        List<ResBatchRepository.CResYears> list ;
+        if(!boolRetry) {
+            list = repoResBatch.find10yearMonth(idx, true);
+        }else{
+            list = repoResBatch.find10yearMonth(idx, false);
+        }
 
         // ConnId 의 계좌분류별 스크랩
         list.forEach(resData -> {
@@ -1139,7 +1169,8 @@ public class ScrapingService {
                             , strStart
                             , strEnd
                             , "0"
-                            , "KRW"));
+                            , resData.getResAccountCurrency()
+                    ));
                 }
 
                 log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
@@ -1170,7 +1201,235 @@ public class ScrapingService {
                     .errMessage(strResult[0].get("message").toString())
                     .build());
         });
-        return true;
+
+    }
+
+    /**
+     * 에러가 났을경우 2번 더 작업
+     * 리스크 작업 추가
+     * @param idx
+     * @param idxResBatchParent
+     * @param boolRetry
+     */
+    private void saveAccountProcessBatch(Long idx, Long idxResBatchParent, boolean boolRetry) {
+        // user ConnectedId List
+        List<ResBatchRepository.CResYears> list ;
+        list = repoResBatch.find10yearMonth(idx, true);
+        // ConnId 의 계좌분류별 스크랩
+        list.forEach(resData -> {
+
+            int iType = 0;
+            String strType = resData.getResAccountDeposit();
+
+            String strStart, strEnd;
+
+            strStart = resData.getStartDay();
+            strEnd = resData.getEndDay();
+
+            if (strType.equals("10") || strType.equals("11")) {
+                iType = 10;
+            } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
+                iType = 12;
+            } else if (strType.equals("40")) {
+                iType = 40;
+            } else if (strType.equals("20")) {
+                iType = 20;
+            } else if (strType.equals("30")) {
+                iType = 30;
+            }
+
+            JSONParser jsonParse = new JSONParser();
+            JSONObject[] strResult = new JSONObject[0];
+
+            Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
+
+            try {
+
+                if (strType.equals("10") || strType.equals("11")) {
+                    strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                            , resData.getOrganization()
+                            , resData.getResAccount()
+                            , strStart
+                            , strEnd
+                            , "0"
+                            , "1"));
+                } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
+                    strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                            , resData.getOrganization()
+                            , resData.getResAccount()
+                            , strStart
+                            , strEnd
+                            , "0"
+                            , "1"));
+                } else if (strType.equals("40")) {
+                    strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                            , resData.getOrganization()
+                            , resData.getResAccount()
+                            , strStart
+                            , strEnd
+                            , "0"
+                            , ""));
+                } else if (strType.equals("30")) {
+                    strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                            , resData.getOrganization()
+                            , resData.getResAccount()
+                            , strStart
+                            , strEnd
+                            , "0"
+                            , "1"));
+                } else if (strType.equals("20")) {
+                    strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                            , resData.getOrganization()
+                            , resData.getResAccount()
+                            , strStart
+                            , strEnd
+                            , "0"
+                            , resData.getResAccountCurrency()
+                    ));
+                }
+
+                log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            log.debug("([scrapingAccountHistory10year ]) $resData.getConnectedId()='{}'", resData.getConnectedId());
+
+            if (strResult[0].get("code").toString().equals("CF-00000") || strResult[0].get("code").toString().equals("CF-04012")) {
+                saveAccount(iType
+                        , strResult[1]
+                        , (JSONArray) strResult[1].get("resTrHistoryList")
+                        , resData.getConnectedId()
+                        , idx
+                        , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build()
+                        , resData.getNowMonth()
+                );
+            }
+
+            endLog(ResBatchList.builder()
+                    .idx(idxResBatch)
+                    .startDate(resData.getStartDay())
+                    .endDate(resData.getEndDay())
+                    .account(resData.getResAccount())
+                    .errCode(strResult[0].get("code").toString())
+                    .errMessage(strResult[0].get("message").toString())
+                    .build());
+        });
+
+        // 에러 상황에 대해 2번 반복 확인
+        for( int i = 0 ; i < 2 ; i++ ){
+            saveAccountProcessBatchRetry(idx, idxResBatchParent );
+        }
+        // 리스크 데이터 저장
+        serviceRisk.saveRisk(idx);
+
+    }
+
+    private void saveAccountProcessBatchRetry(Long idx, Long idxResBatchParent) {
+        List<ResBatchRepository.CResYears> list ;
+        list = repoResBatch.find10yearMonth(idx, false);
+        // ConnId 의 계좌분류별 스크랩
+        list.forEach(resData -> {
+
+            int iType = 0;
+            String strType = resData.getResAccountDeposit();
+
+            String strStart, strEnd;
+
+            strStart = resData.getStartDay();
+            strEnd = resData.getEndDay();
+
+            if (strType.equals("10") || strType.equals("11")) {
+                iType = 10;
+            } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
+                iType = 12;
+            } else if (strType.equals("40")) {
+                iType = 40;
+            } else if (strType.equals("20")) {
+                iType = 20;
+            } else if (strType.equals("30")) {
+                iType = 30;
+            }
+
+            JSONParser jsonParse = new JSONParser();
+            JSONObject[] strResult = new JSONObject[0];
+
+            Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
+
+            try {
+
+                if (strType.equals("10") || strType.equals("11")) {
+                    strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                            , resData.getOrganization()
+                            , resData.getResAccount()
+                            , strStart
+                            , strEnd
+                            , "0"
+                            , "1"));
+                } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
+                    strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                            , resData.getOrganization()
+                            , resData.getResAccount()
+                            , strStart
+                            , strEnd
+                            , "0"
+                            , "1"));
+                } else if (strType.equals("40")) {
+                    strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                            , resData.getOrganization()
+                            , resData.getResAccount()
+                            , strStart
+                            , strEnd
+                            , "0"
+                            , ""));
+                } else if (strType.equals("30")) {
+                    strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                            , resData.getOrganization()
+                            , resData.getResAccount()
+                            , strStart
+                            , strEnd
+                            , "0"
+                            , "1"));
+                } else if (strType.equals("20")) {
+                    strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                            , resData.getOrganization()
+                            , resData.getResAccount()
+                            , strStart
+                            , strEnd
+                            , "0"
+                            , resData.getResAccountCurrency()
+                    ));
+                }
+
+                log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            log.debug("([scrapingAccountHistory10year ]) $resData.getConnectedId()='{}'", resData.getConnectedId());
+
+            if (strResult[0].get("code").toString().equals("CF-00000") || strResult[0].get("code").toString().equals("CF-04012")) {
+                saveAccount(iType
+                        , strResult[1]
+                        , (JSONArray) strResult[1].get("resTrHistoryList")
+                        , resData.getConnectedId()
+                        , idx
+                        , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build()
+                        , resData.getNowMonth()
+                );
+            }
+
+            endLog(ResBatchList.builder()
+                    .idx(idxResBatch)
+                    .startDate(resData.getStartDay())
+                    .endDate(resData.getEndDay())
+                    .account(resData.getResAccount())
+                    .errCode(strResult[0].get("code").toString())
+                    .errMessage(strResult[0].get("message").toString())
+                    .build());
+        });
     }
 
 
@@ -1335,7 +1594,7 @@ public class ScrapingService {
 
 
         // user ConnectedId List
-        List<ResBatchRepository.CResYears> list = repoResBatch.find10yearMonth(idx);
+        List<ResBatchRepository.CResYears> list = repoResBatch.find10yearMonth(idx, true);
 
         // ConnId 의 계좌분류별 스크랩
         list.forEach(resData -> {
@@ -1400,13 +1659,17 @@ public class ScrapingService {
                             , "0"
                             , "1"));
                 } else if (strType.equals("20")) {
+
                     strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
                             , resData.getOrganization()
                             , resData.getResAccount()
                             , strStart
                             , strEnd
                             , "0"
-                            , "KRW"));
+                            , resData.getResAccountCurrency()
+                    ));
+
+                    log.debug("([scrapingAccountHistory10year ]) $resData='{}'", strResult.toString() );
                 }
 
                 log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());

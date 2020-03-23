@@ -3,7 +3,6 @@ package com.nomadconnection.dapp.core.domain;
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.embed.UserProfileResx;
-import jdk.jfr.Enabled;
 import lombok.*;
 import lombok.experimental.Accessors;
 

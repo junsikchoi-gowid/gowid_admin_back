@@ -250,6 +250,25 @@ public class AuthService {
 		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping);
 	}
 
+	public TokenDto.TokenSet issueTokenSetOut(AccountDto dto) {
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true, dto.getEmail()).orElseThrow(
+				() -> UserNotFoundException.builder()
+						.email(dto.getEmail())
+						.build()
+		);
+
+		if (!encoder.matches(dto.getPassword(), user.password())) {
+			throw UnauthorizedException.builder()
+					.account(dto.getEmail())
+					.build();
+		}
+
+		boolean corpMapping = !StringUtils.isEmpty(user.corp());
+		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
+
+		return jwt.issueOut(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping);
+	}
+
 	/**
 	 * 인증토큰 갱신
 	 *

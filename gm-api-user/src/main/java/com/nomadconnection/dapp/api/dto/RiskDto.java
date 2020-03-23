@@ -1,8 +1,7 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.core.domain.CardCompany;
-import com.nomadconnection.dapp.core.domain.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.Risk;
+import com.nomadconnection.dapp.core.domain.RiskConfig;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,12 +15,12 @@ import lombok.NoArgsConstructor;
 public class RiskDto {
     @ApiModelProperty("이용약관(식별자)")
     public Long idx;
-
+    public Long idxUser;
     private String date;
     private boolean ceoGuarantee;
     private float depositGuarantee;
     private boolean depositPayment;
-    private String cardIssuance;
+    private boolean cardIssuance;
     private boolean ventureCertification;
     private boolean vcInvestment;
     private String grade;
@@ -45,6 +44,7 @@ public class RiskDto {
 
     public static RiskDto from(Risk risk){
         RiskDto riskDto = RiskDto.builder()
+                .idxUser(risk.idxUser())
                 .date(risk.date())
                 .ceoGuarantee(risk.ceoGuarantee())
                 .depositGuarantee(risk.depositGuarantee())
@@ -72,5 +72,23 @@ public class RiskDto {
                 .cardRestart(risk.cardRestart())
                 .build();
         return riskDto;
+    }
+
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RiskConfigDto {
+        @ApiModelProperty("이용약관(식별자)")
+        public Long idx;
+        public Long idxUser;
+        private String date;
+        private boolean ceoGuarantee;
+        private float depositGuarantee;
+        private boolean depositPayment;
+        private boolean cardIssuance;
+        private boolean ventureCertification;
+        private boolean vcInvestment;
     }
 }

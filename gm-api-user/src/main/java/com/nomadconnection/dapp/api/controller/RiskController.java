@@ -34,6 +34,7 @@ public class RiskController {
 		public static final String BASE = "/risk/v1";
 
 		public static final String RISK = "/risk";			// 리스크
+		public static final String RISKCONFIG = "/riskconfig";			// 리스크
 	}
 
 	private final Boolean boolDebug = true;
@@ -43,9 +44,14 @@ public class RiskController {
 
 	@ApiOperation(value = "리스크", notes = "" + "\n")
 	@GetMapping( URI.RISK )
-	public ResponseEntity AccountList(@RequestParam Long idxUser ,
-									  @ModelAttribute RiskDto riskDto) {
-		return service.saveRisk(riskDto, idxUser);
+	public ResponseEntity SaveRisk(@RequestParam Long idxUser) {
+		return service.saveRisk(idxUser);
 	}
 
+	@ApiOperation(value = "리스크 설정 저장", notes = "" + "\n")
+	@GetMapping( URI.RISKCONFIG )
+	public ResponseEntity SaveRiskConfig(@RequestParam Long idxUser ,
+									  @ModelAttribute RiskDto.RiskConfigDto riskConfigDto) {
+		return service.saveRiskConfig(riskConfigDto);
+	}
 }

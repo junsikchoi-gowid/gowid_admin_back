@@ -22,5 +22,6 @@ public class JwtConfig {
 		private Long defaultTokenValidity = 5 * 60 * 1000L; // 5 Minutes
 		private Long accessTokenValidity = 60 * 60 * 1000L; // 60 Minutes
 		private Long refreshTokenValidity = 7 * 24 * 60 * 60 * 1000L; // 7 Days
+		private Long outConnectTokenValidity = 30 * 24 * 60 * 60 * 1000L; // 30 Days
 	}
 }

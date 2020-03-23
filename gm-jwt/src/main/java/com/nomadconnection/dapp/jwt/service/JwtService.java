@@ -79,6 +79,27 @@ public class JwtService {
 				.build();
 	}
 
+	public TokenDto.TokenSet issueOut(String identifier, Set<Authority> authorities, Long idx, boolean corpMapping, boolean cardCompanyMapping) {
+		Date now = new Date();
+		List<TokenDto.Token> jwts = Arrays.asList(
+				issue(identifier, TokenDto.TokenType.JWT_OUTER_ACCESS, now, idx),
+				issue(identifier, TokenDto.TokenType.JWT_FOR_REFRESH, now, idx)
+		);
+
+		return TokenDto.TokenSet.builder()
+				.jwtAccess(jwts.get(0).getJwt())
+				.jwtRefresh(jwts.get(1).getJwt())
+				.issuedAt(now)
+				.jwtAccessExpiration(jwts.get(0).getExpiration())
+				.jwtRefreshExpiration(jwts.get(1).getExpiration())
+				.info(TokenDto.TokenSet.AccountInfo.builder()
+						.authorities(authorities.stream().map(Authority::role).collect(Collectors.toList()))
+						.cardCompanyMapping(cardCompanyMapping)
+						.corpMapping(corpMapping)
+						.build())
+				.build();
+	}
+
 	public TokenDto.Token issue(String identifier, TokenDto.TokenType tokenType, Date now) {
 		return issue(identifier, tokenType, now, null, null);
 	}
@@ -96,6 +117,9 @@ public class JwtService {
 					break;
 				case JWT_FOR_REFRESH:
 					expiration = new Date(now.getTime() + config.getValidity().getRefreshTokenValidity());
+					break;
+				case JWT_OUTER_ACCESS:
+					expiration = new Date(now.getTime() + config.getValidity().getOutConnectTokenValidity());
 					break;
 				default:
 					expiration = new Date(now.getTime() + config.getValidity().getDefaultTokenValidity());
