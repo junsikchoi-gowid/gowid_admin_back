@@ -262,7 +262,6 @@ public class BankService {
 							.value("Request again after 3 minutes").build()
 			).build());
 		}
-		serviceCodef.getScrapingAccount(idx);
 		serviceScraping.scrapingRegister1YearAll(idx);
 		Thread.sleep(1000);
 		return refresh(idx);

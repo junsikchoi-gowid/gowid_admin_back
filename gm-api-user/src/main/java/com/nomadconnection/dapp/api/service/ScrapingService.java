@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -56,7 +57,6 @@ public class ScrapingService {
     private final VerificationCodeRepository repoVerificationCode;
 
     private final String urlPath = CommonConstant.getRequestDomain();
-
 
     /**
      * 1. 은행 기업 보유계좌
@@ -274,12 +274,9 @@ public class ScrapingService {
         } else if (iType == 40) {
             ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
             if(nowFlag.equals("1")){
-                // resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-                // resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-                resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
+                resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
                 repoResAccount.save(resAccount);
                 log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
-                log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
             }
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
@@ -553,8 +550,9 @@ public class ScrapingService {
     @Async
     public boolean scrapingRegister1YearAll(Long idx, Long idxResBatchParent) {
 
-        log.debug("start scrapingRegister1Year $idxResBatchParent={}", idxResBatchParent);
         List<ConnectedMng> connectedMng = getConnectedMng(idx);
+
+        log.debug("start scrapingRegister1Year $idxResBatchParent={}", idxResBatchParent);
 
         connectedMng.forEach(mngItem -> {
             String connId = mngItem.connectedId();
@@ -781,8 +779,6 @@ public class ScrapingService {
                     .build());
         });
 
-        // 실패한 목록을 검색후 재시도함
-
         return true;
     }
 
@@ -797,18 +793,8 @@ public class ScrapingService {
         }
     }
 
-
-    public void asyncAwaitScrapingRegister(Long idxUser) {
-        log.debug("asyncAwaitScrapingRegister");
-        ResBatch idxLog = startBatchLog(idxUser);
-        try {
-            scrapingRegisterAccount(idxUser, idxLog.idx());
-        } finally {
-            endBatchLog(idxLog.idx());
-        }
-    }
-
-    private void scrapingRegisterAccount(Long idx, Long idxResBatch) {
+    @Async
+    public void scrapingRegisterAccount(Long idx, Long idxResBatch) {
 
         log.debug("start scrapingAccountHistoryList $idxResBatch={}", idxResBatch);
         List<ResBatchRepository.CResYears> list = repoResBatch.findStartDateMonth(idx);

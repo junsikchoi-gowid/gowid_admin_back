@@ -1,6 +1,8 @@
 package com.nomadconnection.dapp.core.domain.repository;
 
 import com.nomadconnection.dapp.core.domain.ResAccount;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -73,7 +75,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             "      ,     " +
             "           (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r      " +
             "       where Date_Format(resAccountTrDate,  '%Y%m') >= ms and b.resAccount = r.resAccount      " +
-            "       order by Date_Format(resAccountTrDate,  '%Y%m') desc , resAccountTrDate desc, resAccountTrTime desc, idx desc limit 1)     " +
+            "       order by Date_Format(resAccountTrDate,  '%Y%m') asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1)     " +
             "     ),     " +
             "           (select if(ms >= left(resAccountStartDate,6) ,resAccountBalance,0 ) resAccountBalance      " +
             "      from ResAccount r where b.resAccount = r.resAccount limit 1 )      " +
@@ -106,7 +108,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             "      ,  " +
             "       (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r   " +
             "       where Date_Format(resAccountTrDate,  '%Y%m') >= ms and b.resAccount = r.resAccount   " +
-            "       order by Date_Format(resAccountTrDate,  '%Y%m') desc , resAccountTrDate desc, resAccountTrTime desc, idx desc limit 1)  " +
+            "       order by Date_Format(resAccountTrDate,  '%Y%m') asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1)  " +
             "     ),  " +
             "       (select if(ms >= left(resAccountStartDate,6),resAccountBalance,0 ) resAccountBalance   " +
             "      from ResAccount r where b.resAccount = r.resAccount  limit 1 )   " +
@@ -170,4 +172,11 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
         String getResAccountDeposit();
         String getResAccountCurrency();
     }
+
+    @Query(
+            value = "select R.* from ResAccount R where connectedId in (select connectedId from ConnectedMng where idxUser =:idxUser)",
+            countQuery = "select count(*) from ResAccount R where connectedId in (select connectedId from ConnectedMng where idxUser =:idxUser) ",
+            nativeQuery = true
+    )
+    Page<ResAccount> findExternalAccount(Pageable pageable, Long idxUser);
 }

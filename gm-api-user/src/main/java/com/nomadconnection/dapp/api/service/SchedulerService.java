@@ -48,6 +48,7 @@ public class SchedulerService {
 
                     log.error("schedule run");
                     service.aWaitJScraping10Years(user.idx());
+                    log.error("schedule end");
                 });
             }, Instant.now()
         );

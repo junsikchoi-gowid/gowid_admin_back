@@ -18,7 +18,7 @@ buildscript {
 subprojects {
 
     group = 'com.nomadconnection.dapp'
-    version = '0.1.SNAPSHOT'
+    version = '1.2.SNAPSHOT'
 
     plugins.apply("java")
     plugins.apply("idea")

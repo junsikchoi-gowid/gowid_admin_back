@@ -36,12 +36,19 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "        and resBatchType = 1",nativeQuery = true)
     List<ResBatchRepository.CResBatchDto> findRefresh(Long idxUser);
 
-    @Query(value = "select * from \n" +
+    @Query(value = "select comm.resAccountStartDate\n" +
+            ", if(Date_Format(resAccountStartDate , '%Y%m') = Date_Format(startDay , '%Y%m'), resAccountStartDate, startDay) startDay\n" +
+            ", comm.endDay as endDay\n" +
+            ", comm.resAccount as resAccount\n" +
+            ", comm.connectedId as connectedId\n" +
+            ", comm.organization as  organization\n" +
+            ", comm.ResAccountDeposit as ResAccountDeposit\n" +
+            ", comm.nowMonth as nowMonth from \n" +
             "( select \n" +
             "case  \n" +
             "when organization = 0003 then 201301\n" +
             "when organization = 0007 then date_format(date_add(now(), INTERVAL - 5 year), '%Y%m%d')\n" +
-            "when organization = 0020 then date_format(date_add(now(), INTERVAL - 3 month), '%Y%m%d')\n" +
+            "when organization = 0020 then date_format(date_add(now(), INTERVAL - 12 month), '%Y%m%d')\n" +
             "when organization = 0027 then date_format(date_add(now(), INTERVAL - 6 month), '%Y%m%d')\n" +
             "when organization = 0048 then date_format(date_add(now(), INTERVAL - 5 year), '%Y%m%d')\n" +
             "when organization = 0081 then date_format(date_add(now(), INTERVAL - 12 month), '%Y%m%d')\n" +
@@ -79,16 +86,23 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "join ConnectedMng cm on R.connectedId = cm.connectedId and idxUser = :idxUser\n" +
             ") main\n" +
             ") A \n" +
-            ") comm where (errCode != 'CF-00000' and startDay >= resAccountStartDate)  or nowMonth = 1\n" +
+            ") comm where ((errCode is null or errCode != 'CF-00000') and Date_Format(startDay , '%Y%m') >= Date_Format(resAccountStartDate , '%Y%m')) or nowMonth = 1\n" +
             "order by startDay desc, endDay desc",nativeQuery = true)
     List<ResBatchRepository.CResYears> findStartDateMonth(Long idxUser);
 
-    @Query(value = "select * from \n" +
+    @Query(value = "select comm.resAccountStartDate\n" +
+            ", if(Date_Format(resAccountStartDate , '%Y%m') = Date_Format(startDay , '%Y%m'), resAccountStartDate, startDay) startDay\n" +
+            ", comm.endDay as endDay\n" +
+            ", comm.resAccount as resAccount\n" +
+            ", comm.connectedId as connectedId\n" +
+            ", comm.organization as  organization\n" +
+            ", comm.ResAccountDeposit as ResAccountDeposit\n" +
+            ", comm.nowMonth as nowMonth from \n" +
             "( select \n" +
             "case  \n" +
             "when organization = 0003 then 201301\n" +
             "when organization = 0007 then date_format(date_add(now(), INTERVAL - 5 year), '%Y%m%d')\n" +
-            "when organization = 0020 then date_format(date_add(now(), INTERVAL - 3 month), '%Y%m%d')\n" +
+            "when organization = 0020 then date_format(date_add(now(), INTERVAL - 12 month), '%Y%m%d')\n" +
             "when organization = 0027 then date_format(date_add(now(), INTERVAL - 6 month), '%Y%m%d')\n" +
             "when organization = 0048 then date_format(date_add(now(), INTERVAL - 5 year), '%Y%m%d')\n" +
             "when organization = 0081 then date_format(date_add(now(), INTERVAL - 12 month), '%Y%m%d')\n" +
@@ -128,7 +142,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "join ConnectedMng cm on R.connectedId = cm.connectedId and idxUser = :idxUser\n" +
             ") main\n" +
             ") A \n" +
-            ") comm where (errCode != 'CF-00000' and startDay >= resAccountStartDate)  or ( :boolNow and nowMonth = 1) \n" +
+            ") comm where ((errCode is null or errCode != 'CF-00000') and Date_Format(startDay , '%Y%m') >= Date_Format(resAccountStartDate , '%Y%m')) or ( :boolNow and nowMonth = 1) \n" +
             "order by startDay desc, endDay desc",nativeQuery = true)
     List<ResBatchRepository.CResYears> find10yearMonth(Long idxUser , Boolean boolNow);
 
