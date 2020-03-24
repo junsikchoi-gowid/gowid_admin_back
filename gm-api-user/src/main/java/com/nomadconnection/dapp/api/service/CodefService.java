@@ -165,8 +165,6 @@ public class CodefService {
 			normal.setValue((((JSONObject)jsonParse.parse(strResultCode)).get("message")).toString());
 		}
 
-
-
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(normal)
 				.data(resAccount).build());

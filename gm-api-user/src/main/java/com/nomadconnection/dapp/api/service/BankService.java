@@ -333,37 +333,6 @@ public class BankService {
 	}
 
 	@Transactional
-	public Long startLog(String account, String connectedId, ResBatchType resBatchType,Long idxResBatch, Long idxUser) {
-		ResBatchList result = repoResBatchList.save(
-				ResBatchList.builder()
-						.idxUser(idxUser)
-						.account(account)
-						.connectedId(connectedId)
-						.resBatchType(resBatchType)
-						.idxResBatch(idxResBatch)
-						.build());
-		return result.idx();
-	}
-
-	@Transactional
-	public void endLog(String account, Long idxResBatch, String code, String message) {
-		repoResBatchList.findById(idxResBatch).ifPresent(resBatch -> {
-			repoResBatchList.save(
-					ResBatchList.builder()
-							.idx(idxResBatch)
-							.account(account)
-							.errCode(code)
-							.errMessage(message)
-							.connectedId(resBatch.connectedId())
-							.resBatchType(resBatch.resBatchType())
-							.idxResBatch(resBatch.idxResBatch())
-							.build());
-		});
-	}
-
-
-
-	@Transactional
 	public ResBatch startBatchLog(Long userIdx) {
 		return repoResBatch.save(ResBatch.builder()
 				.idxUser(userIdx)

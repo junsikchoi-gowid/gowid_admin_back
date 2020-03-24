@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IrDashboardDto {
+public class IrDashBoardDto {
     @ApiModelProperty("식별자")
     public Long idx;
 
@@ -24,8 +24,8 @@ public class IrDashboardDto {
     @ApiModelProperty("내용")
     public String contents;
 
-    public static IrDashboardDto from(IrDashBoard irDashBoard) {
-        IrDashboardDto irDashboardDto = IrDashboardDto.builder()
+    public static IrDashBoardDto from(IrDashBoard irDashBoard) {
+        IrDashBoardDto irDashboardDto = IrDashBoardDto.builder()
                 .idx(irDashBoard.idx())
                 .irType(irDashBoard.irType())
                 .title(irDashBoard.title())

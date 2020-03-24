@@ -3,8 +3,11 @@ package com.nomadconnection.dapp.core.domain.repository;
 import com.nomadconnection.dapp.core.domain.ResBatch;
 import com.nomadconnection.dapp.core.domain.ResBatchList;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -145,6 +148,11 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ") comm where ((errCode is null or errCode != 'CF-00000') and Date_Format(startDay , '%Y%m') >= Date_Format(resAccountStartDate , '%Y%m')) or ( :boolNow and nowMonth = 1) \n" +
             "order by startDay desc, endDay desc",nativeQuery = true)
     List<ResBatchRepository.CResYears> find10yearMonth(Long idxUser , Boolean boolNow);
+
+    @Transactional
+    @Modifying
+    @Query("update ResBatch set endFlag = 1 where idxUser = :idxUser and endFlag = 0 ")
+    int updateProcessIdx(@Param("idxUser") Long idxUser);
 
     public static interface CResBatchDto {
         String getMin();

@@ -1,8 +1,9 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.nomadconnection.dapp.api.dto.IrDashboardDto;
+import com.nomadconnection.dapp.api.dto.IrDashBoardDto;
 import com.nomadconnection.dapp.core.domain.IrDashBoard;
 import com.nomadconnection.dapp.core.domain.repository.IrDashBoardRepository;
+import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,26 +21,28 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class IrDashBoardService {
 
-    private final IrDashBoardRepository repoIrDashboard;
+    private final IrDashBoardRepository repoIrDashBoard;
 
-    public ResponseEntity saveList(IrDashboardDto irDashBoard, Long idxUser) {
-        return null;
+    public ResponseEntity saveList(IrDashBoardDto irDashBoard, Long idxUser) {
+
+        return ResponseEntity.ok().body(BusinessResponse.builder()
+                .data(repoIrDashBoard.save(IrDashBoard.builder()
+                        .irType(irDashBoard.irType)
+                        .title(irDashBoard.title)
+                        .contents(irDashBoard.contents)
+                        .idx(irDashBoard.idx)
+                        .build()))
+                .build());
     }
 
-    public Page getList(Pageable page, IrDashboardDto irDashBoard, Long idxUser) {
+    public Page getList(Pageable page, IrDashBoardDto irDashBoard, Long idxUser) {
 
-
-        // Page<IrDashBoard> result = repoIrDashboard.findByIrTypeAndTitleLikeAndContentsLike(page, irDashBoard.irType, irDashBoard.title, irDashBoard.contents);
-        // Page<IrDashBoard> result = repoIrDashboard.findByIrTypeAndTitleLikeAndContentsLike(page, "%c%", "%i%", "%c%");
-        Page<IrDashBoard> result = repoIrDashboard.findByTitle(page, "c");
-        List<IrDashBoard> list = result.getContent();
-
-        System.out.println("PAGE SIZE: " + result.getSize());
-        System.out.println("TOTAL PAGE: " + result.getTotalPages());
-        System.out.println("TOTAL COUNT: " + result.getTotalElements());
-        System.out.println("NEXT: " + result.nextPageable());
-        System.out.println("NEXT: " + list);
-
+        Page<IrDashBoardDto> result = repoIrDashBoard.findList(IrDashBoard.builder()
+                .irType(irDashBoard.irType)
+                .contents(irDashBoard.contents)
+                .title(irDashBoard.title)
+                .build(), page).map(IrDashBoardDto::from);
+        List<IrDashBoardDto> list = result.getContent();
         return result;
     }
 }

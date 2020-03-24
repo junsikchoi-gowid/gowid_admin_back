@@ -36,30 +36,6 @@ public class SchedulerService {
     private ScheduledFuture<?> future;
     private final CronConfig cronConfig;
 
-    public void register() {
-        ScheduledFuture<?> task = taskScheduler.schedule(
-            ()->{
-                log.error("schedule start");
-                repoUser.findByAuthentication_Enabled(true).forEach( user -> {
-//                    List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(user.idx());
-//                    if(returnData.size()>0 && Integer.valueOf(returnData.get(0).getMin()) < 3){
-//                        return;
-//                    }
-
-                    log.error("schedule run");
-                    service.aWaitJScraping10Years(user.idx());
-                    log.error("schedule end");
-                });
-            }, Instant.now()
-        );
-        scheduledTasks.put("mySchedulerId", task);
-    }
-
-    public void remove() {
-        log.debug(" remove ");
-        scheduledTasks.get("mySchedulerId").cancel(true);
-    }
-
     @Scheduled(cron="${spring.cron.time}")
     private void schedule() {
         log.error("schedule start");

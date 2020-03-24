@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.nomadconnection.dapp.api.dto.IrDashboardDto;
+import com.nomadconnection.dapp.api.dto.IrDashBoardDto;
 import com.nomadconnection.dapp.api.service.IrDashBoardService;
 import com.nomadconnection.dapp.core.annotation.ApiPageable;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
@@ -20,17 +20,17 @@ import springfox.documentation.annotations.ApiIgnore;
 
 @Slf4j
 @RestController
-@RequestMapping(IrDashboardController.URI.BASE)
+@RequestMapping(IrDashBoardController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "Ir 게시판", description = IrDashboardController.URI.BASE)
+@Api(tags = "Ir 게시판", description = IrDashBoardController.URI.BASE)
 @SuppressWarnings({"unused", "deprecation"})
-public class IrDashboardController {
+public class IrDashBoardController {
 
 	@SuppressWarnings("WeakerAccess")
 	public static class URI {
-		public static final String BASE = "/IrDashboard/v1";
-		public static final String IRDASHBOARD = "/IrDashboard";			// 리스크
+		public static final String BASE = "/IrDashBoard/v1";
+		public static final String IRDASHBOARD = "/IrDashBoard";			// 리스크
 	}
 
 	private final Boolean boolDebug = true;
@@ -38,7 +38,7 @@ public class IrDashboardController {
 
 	@ApiOperation(value = "리스트", notes = "" + "\n")
 	@GetMapping( URI.IRDASHBOARD )
-	public Page<IrDashboardDto> getList(@ApiIgnore @CurrentUser CustomUser user, @ModelAttribute IrDashboardDto irDashBoard,
+	public Page<IrDashBoardDto> getList(@ApiIgnore @CurrentUser CustomUser user, @ModelAttribute IrDashBoardDto irDashBoard,
 						@PageableDefault Pageable page) {
 		return service.getList(page, irDashBoard, user.idx());
 	}
@@ -46,7 +46,7 @@ public class IrDashboardController {
 	@ApiOperation(value = "리스트", notes = "" + "\n")
 	@PostMapping( URI.IRDASHBOARD )
 	public ResponseEntity saveList(@RequestParam Long idxUser ,
-								   @ModelAttribute IrDashboardDto irDashBoard) {
+								   @ModelAttribute IrDashBoardDto irDashBoard) {
 		return service.saveList(irDashBoard, idxUser);
 	}
 }

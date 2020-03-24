@@ -78,6 +78,9 @@ public class ScrapingService {
                 String code = null, message = null;
                 JSONObject[] strResult = new JSONObject[0];
                 Long idxResBatchList = startLog(null, connId, ResBatchType.BANK, idxResBatch, idx);
+
+                if(repoResBatch.findById(idxResBatch).get().endFlag()){throw new RuntimeException("process kill");}
+
                 try {
                     strResult = getApiResult(KR_BK_1_B_001.krbk1b001(connId, strBank));
                 } catch (Exception e) {
@@ -203,15 +206,10 @@ public class ScrapingService {
 
     @Transactional(rollbackFor = Exception.class)
     void saveAccount(int iType, JSONObject jsonData, JSONArray jsonArrayResTrHistoryList, String connectedId, Long idx, BankDto.AccountBatch dto, String nowFlag) {
-
         String strDefault = null;
-
-
-        // iType 별로 데이터 가져오는데 문제확인 필요 ex 대출에는 resAccountName 없음
-
         repoResAccountHistory.deleteResAccountTrDate(jsonData.get("resAccount").toString(), dto.getStartDate(), dto.getEndDate());
 
-        //   실시간 적금   40:대출  20:외화 30:펀드
+        //   10 :실시간 적금  40:대출  20:외화  30:펀드
         if (iType == 10) {
 
             ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
@@ -563,6 +561,9 @@ public class ScrapingService {
                 String code = null, message = null;
                 JSONObject[] strResult = new JSONObject[0];
                 Long idxResBatchList = startLog(null, connId, ResBatchType.BANK, idxResBatchParent, idx);
+
+                if(repoResBatch.findById(idxResBatchParent).get().endFlag()){throw new RuntimeException("process kill");}
+
                 try {
                     strResult = getApiResult(KR_BK_1_B_001.krbk1b001(connId, strBank));
                 } catch (Exception e) {
@@ -570,6 +571,7 @@ public class ScrapingService {
                 } finally {
                     endLog(ResBatchList.builder()
                             .idx(idxResBatchList)
+                            .account(strBank)
                             .errCode(strResult[0].get("code").toString())
                             .errMessage(strResult[0].get("message").toString())
                             .build());
@@ -705,8 +707,9 @@ public class ScrapingService {
 
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
 
-            try {
+            if(repoResBatch.findById(idxResBatchParent).get().endFlag()){throw new RuntimeException("process kill");}
 
+            try {
                 if (strType.equals("10") || strType.equals("11")) {
                     strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
                             , resData.getOrganization()
@@ -751,7 +754,6 @@ public class ScrapingService {
                 }
 
                 log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -768,6 +770,13 @@ public class ScrapingService {
                         , resData.getNowMonth()
                 );
             }
+
+            // 에러 상황에 대해 2번 반복 확인
+            for( int i = 0 ; i < 2 ; i++ ){
+                saveAccountProcessBatchRetry(idx, idxResBatchParent );
+            }
+            // 리스크 데이터 저장
+            serviceRisk.saveRisk(idx);
 
             endLog(ResBatchList.builder()
                     .idx(idxResBatch)
@@ -826,6 +835,8 @@ public class ScrapingService {
             JSONObject[] strResult = new JSONObject[0];
 
             Long idxResBatchList = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatch, idx);
+
+            if(repoResBatch.findById(idxResBatch).get().endFlag()){throw new RuntimeException("process kill");}
 
             try {
 
@@ -961,6 +972,9 @@ public class ScrapingService {
                 String code = null, message = null;
                 JSONObject[] strResult = new JSONObject[0];
                 Long idxResBatchList = startLog(null, connId, ResBatchType.BANK, idxResBatchParent, idx);
+
+                if(repoResBatch.findById(idxResBatchParent).get().endFlag()){throw new RuntimeException("process kill");}
+
                 try {
                     strResult = getApiResult(KR_BK_1_B_001.krbk1b001(connId, strBank));
                 } catch (Exception e) {
@@ -1114,78 +1128,83 @@ public class ScrapingService {
 
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
 
-            try {
+            if (!repoResBatch.findById(idxResBatchParent).get().endFlag()) {
+                try {
 
-                if (strType.equals("10") || strType.equals("11")) {
-                    strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
-                            , resData.getOrganization()
-                            , resData.getResAccount()
-                            , strStart
-                            , strEnd
-                            , "0"
-                            , "1"));
-                } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
-                    strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
-                            , resData.getOrganization()
-                            , resData.getResAccount()
-                            , strStart
-                            , strEnd
-                            , "0"
-                            , "1"));
-                } else if (strType.equals("40")) {
-                    strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
-                            , resData.getOrganization()
-                            , resData.getResAccount()
-                            , strStart
-                            , strEnd
-                            , "0"
-                            , ""));
-                } else if (strType.equals("30")) {
-                    strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
-                            , resData.getOrganization()
-                            , resData.getResAccount()
-                            , strStart
-                            , strEnd
-                            , "0"
-                            , "1"));
-                } else if (strType.equals("20")) {
-                    strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
-                            , resData.getOrganization()
-                            , resData.getResAccount()
-                            , strStart
-                            , strEnd
-                            , "0"
-                            , resData.getResAccountCurrency()
-                    ));
+                    if (strType.equals("10") || strType.equals("11")) {
+                        strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                                , resData.getOrganization()
+                                , resData.getResAccount()
+                                , strStart
+                                , strEnd
+                                , "0"
+                                , "1"));
+                    } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
+                        strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                                , resData.getOrganization()
+                                , resData.getResAccount()
+                                , strStart
+                                , strEnd
+                                , "0"
+                                , "1"));
+                    } else if (strType.equals("40")) {
+                        strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                                , resData.getOrganization()
+                                , resData.getResAccount()
+                                , strStart
+                                , strEnd
+                                , "0"
+                                , ""));
+                    } else if (strType.equals("30")) {
+                        strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                                , resData.getOrganization()
+                                , resData.getResAccount()
+                                , strStart
+                                , strEnd
+                                , "0"
+                                , "1"));
+                    } else if (strType.equals("20")) {
+                        strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                                , resData.getOrganization()
+                                , resData.getResAccount()
+                                , strStart
+                                , strEnd
+                                , "0"
+                                , resData.getResAccountCurrency()
+                        ));
+                    }
+
+                    log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
-                log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
+                log.debug("([scrapingAccountHistory10year ]) $resData.getConnectedId()='{}'", resData.getConnectedId());
 
-            } catch (Exception e) {
-                e.printStackTrace();
+                if (strResult[0].get("code").toString().equals("CF-00000") || strResult[0].get("code").toString().equals("CF-04012")) {
+                    saveAccount(iType
+                            , strResult[1]
+                            , (JSONArray) strResult[1].get("resTrHistoryList")
+                            , resData.getConnectedId()
+                            , idx
+                            , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build()
+                            , resData.getNowMonth()
+                    );
+                }
+
+                endLog(ResBatchList.builder()
+                        .idx(idxResBatch)
+                        .startDate(resData.getStartDay())
+                        .endDate(resData.getEndDay())
+                        .account(resData.getResAccount())
+                        .errCode(strResult[0].get("code").toString())
+                        .errMessage(strResult[0].get("message").toString())
+                        .build());
+            } else {
+                throw new RuntimeException("process kill");
             }
 
-            log.debug("([scrapingAccountHistory10year ]) $resData.getConnectedId()='{}'", resData.getConnectedId());
-
-            if (strResult[0].get("code").toString().equals("CF-00000") || strResult[0].get("code").toString().equals("CF-04012")) {
-                saveAccount(iType
-                        , strResult[1]
-                        , (JSONArray) strResult[1].get("resTrHistoryList")
-                        , resData.getConnectedId()
-                        , idx
-                        , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build()
-                        , resData.getNowMonth()
-                );
-            }
-
-            endLog(ResBatchList.builder()
-                    .idx(idxResBatch)
-                    .startDate(resData.getStartDay())
-                    .endDate(resData.getEndDay())
-                    .account(resData.getResAccount())
-                    .errCode(strResult[0].get("code").toString())
-                    .errMessage(strResult[0].get("message").toString())
-                    .build());
         });
 
     }
@@ -1228,6 +1247,8 @@ public class ScrapingService {
             JSONObject[] strResult = new JSONObject[0];
 
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
+
+            if(repoResBatch.findById(idxResBatchParent).get().endFlag()){throw new RuntimeException("process kill");}
 
             try {
 
@@ -1342,6 +1363,8 @@ public class ScrapingService {
             JSONObject[] strResult = new JSONObject[0];
 
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
+
+            if(repoResBatch.findById(idxResBatchParent).get().endFlag()){throw new RuntimeException("process kill");}
 
             try {
 
@@ -1467,6 +1490,9 @@ public class ScrapingService {
                 String code = null, message = null;
                 JSONObject[] strResult = new JSONObject[0];
                 Long idxResBatchList = startLog(null, connId, ResBatchType.BANK, idxResBatchParent, idx);
+
+                if(repoResBatch.findById(idxResBatchParent).get().endFlag()){throw new RuntimeException("process kill");}
+
                 try {
                     strResult = getApiResult(KR_BK_1_B_001.krbk1b001(connId, strBank));
                 } catch (Exception e) {
@@ -1610,6 +1636,8 @@ public class ScrapingService {
 
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
 
+            if(repoResBatch.findById(idxResBatchParent).get().endFlag()){throw new RuntimeException("process kill");}
+
             try {
 
                 if (strType.equals("10") || strType.equals("11")) {
@@ -1664,7 +1692,6 @@ public class ScrapingService {
                 e.printStackTrace();
             }
 
-            log.debug("([scrapingAccountHistory10year ]) $resData.getConnectedId()='{}'", resData.getConnectedId());
 
             if (strResult[0].get("code").toString().equals("CF-00000") || strResult[0].get("code").toString().equals("CF-04012")) {
                 saveAccount(iType
@@ -1687,5 +1714,9 @@ public class ScrapingService {
                     .build());
         });
         return true;
+    }
+
+    public ResponseEntity scrapingProcessKill(Long idx) {
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(repoResBatch.updateProcessIdx(idx)).build());
     }
 }
