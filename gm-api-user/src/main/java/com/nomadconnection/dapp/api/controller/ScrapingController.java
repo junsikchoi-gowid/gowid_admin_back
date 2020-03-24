@@ -29,7 +29,7 @@ public class ScrapingController {
     @SuppressWarnings("WeakerAccess")
     public static class URI {
         public static final String BASE = "/batch/v1";
-        public static final String JUST_ACCOUNT = "/account";    // 입출금 거래내역
+        public static final String STOP = "/stop";    // 입출금 거래내역
         public static final String SCRAPING_ACCOUNT = "/account-all";    // 은행 기업 보유계좌 + 거래내역
         public static final String SCRAPING_ACCOUNT_HISTORY = "/account-history";    // 입출금 거래내역
 
@@ -57,7 +57,7 @@ public class ScrapingController {
     }
 
     @ApiOperation(value = "스크래핑 중지", notes = "" + "\n")
-    @GetMapping( BankController.URI.ACCOUNT_LIST )
+    @GetMapping( URI.STOP )
     public ResponseEntity scrapingProcessKill(@RequestParam Long idxUser) {
         return service.scrapingProcessKill(idxUser);
     }
