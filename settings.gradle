@@ -1,0 +1,8 @@
+rootProject.name = 'gowid'
+
+include 'gm-api-user'
+include 'gm-swagger'
+include 'gm-jwt'
+include 'gm-core'
+include 'gm-codef'
+

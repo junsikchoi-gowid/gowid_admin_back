@@ -1,0 +1,20 @@
+swagger:
+  api-info:
+    contact:
+      email: shkim@nomadconnection.com
+      name: ichimara
+      url: www.nomadconnection.com
+  base-package: com.nomadconnection.dapp
+
+---
+
+spring:
+  profiles: mobile
+swagger:
+  api-info:
+    title: MyCard APIs for Mobile
+    version: v0.1
+    description: |+
+      description( fixme )
+
+---

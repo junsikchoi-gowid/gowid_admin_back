@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Gowid</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+            href="https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,700&display=swap"
+            rel="stylesheet"
+    />
+    <style type="text/css">
+        body,
+        #bodyTable {
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0;
+            padding: 0;
+            font-family: "Noto Sans KR", sans-serif !important;
+        }
+        #bodyTable {
+            padding-top: 40px;
+            padding-right: 0;
+            padding-bottom: 40px;
+            padding-left: 0;
+            background-color: #ffffff;
+        }
+        img,
+        a img {
+            border: 0;
+            outline: none;
+            text-decoration: none;
+        }
+        .imageFix {
+            display: block;
+        }
+        table,
+        td {
+            border-collapse: collapse;
+            font-family: "Noto Sans KR", sans-serif !important;
+        }
+
+        .ReadMsgBody {
+            width: 100%;
+        }
+        .ExternalClass {
+            width: 100%;
+        }
+        .ExternalClass,
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td,
+        .ExternalClass div {
+            line-height: 100%;
+        }
+
+        table,
+        td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+        }
+        body,
+        table,
+        td,
+        p,
+        a,
+        li,
+        blockquote {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+        .responsive-width {
+            width: 600px;
+        }
+        .responsive-inner {
+            padding-top: 40px;
+            padding-right: 32px;
+            padding-bottom: 40px;
+            padding-left: 32px;
+        }
+        .responsive-logo {
+            padding-top: 0;
+            padding-right: 0;
+            padding-bottom: 40px;
+            padding-left: 0;
+        }
+        .responsive-font {
+            font-size: 18px;
+        }
+
+        @media (max-width: 767px) {
+            #bodyTable {
+                padding-top: 28px;
+                padding-right: 16px;
+                padding-bottom: 16px;
+                padding-left: 16px;
+            }
+            .responsive-width {
+                width: 100%;
+            }
+            .responsive-inner {
+                padding-top: 32px;
+                padding-right: 16px;
+                padding-bottom: 32px;
+                padding-left: 16px;
+            }
+            .responsive-logo {
+                padding-top: 0;
+                padding-right: 0;
+                padding-bottom: 28px;
+                padding-left: 0;
+            }
+            .responsive-font {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8f8f8;">
+<table
+        border="0"
+        cellpadding="0"
+        cellspacing="0"
+        width="100%"
+        id="bodyTable"
+        style="border-collapse: separate; margin: 0; background-color: #f8f8f8;"
+>
+    <tr>
+        <td>
+            <table
+                    align="center"
+                    cellpadding="0"
+                    cellspacing="0"
+                    style="padding-top: 40px; padding-right: 0; padding-bottom: 0; padding-left: 0;"
+                    class="responsive-width"
+            >
+                <tr>
+                    <td>
+                        <table
+                                cellpadding="0"
+                                cellspacing="0"
+                                width="100%"
+                                style="border-radius: 16px; border: 1px solid #e6e6e6; border-collapse: separate; background-color: #ffffff;"
+                                class="responsive-inner"
+                        >
+                            <tr>
+                                <td class="responsive-logo">
+                                    <!-- 절대경로 필요함 -->
+                                    <img
+                                            src="https://staging.gowid.com/img/gowid-png.png"
+                                            alt="gowid"
+                                            style="height: 25px; vertical-align: top;"
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td
+                                        class="responsive-font"
+                                        style="border-bottom: 1px solid #e6e6e6; padding-top: 0; padding-right: 0; padding-bottom: 16px; padding-left: 0; font-family: NotoSansKR; font-weight: 500; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.3px; color: #333333; "
+                                >
+                                    Gowid 알림메일
+                                </td>
+                            </tr>
+                            <tr>
+                                <td
+                                        style="padding-top: 24px; padding-right: 0; padding-top: 24px; padding-left: 0; font-family: NotoSansKR; font-size: 14px; font-weight: normal; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.18px; color: #333333;"
+                                >
+                                    법인명 :
+                                </td>
+                                <td
+                                        style="padding-top: 24px; padding-right: 0; padding-top: 24px; padding-left: 0; font-family: NotoSansKR; font-size: 14px; font-weight: normal; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.18px; color: #333333;"
+                                >
+                                    <b><span th:text="${contents1}"></span></b></br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td
+                                        style="padding-top: 0px; padding-right: 0; padding-top: 0px; padding-left: 0; font-family: NotoSansKR; font-size: 14px; font-weight: normal; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.18px; color: #333333;"
+                                >
+                                    담당자 :
+                                </td>
+                                <td
+                                        style="padding-top: 0px; padding-right: 0; padding-top: 0px; padding-left: 0; font-family: NotoSansKR; font-size: 14px; font-weight: normal; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.18px; color: #333333;"
+                                >
+                                    <b><span th:text="${contents2}"></span></b></br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td
+                                        style="padding-top: 0px; padding-right: 0; padding-top: 0px; padding-left: 0; font-family: NotoSansKR; font-size: 14px; font-weight: normal; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.18px; color: #333333;"
+                                >
+                                    메일 :
+                                </td>
+                                <td
+                                        style="padding-top: 0px; padding-right: 0; padding-top: 0px; padding-left: 0; font-family: NotoSansKR; font-size: 14px; font-weight: normal; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.18px; color: #333333;"
+                                >
+                                    <b><span th:text="${contents3}"></span></b></br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td
+                                        style="padding-top: 0px; padding-right: 0; padding-top: 0px; padding-left: 0; font-family: NotoSansKR; font-size: 14px; font-weight: normal; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.18px; color: #333333;"
+                                >
+                                    벤처인증 :
+                                </td>
+                                <td
+                                        style="padding-top: 0px; padding-right: 0; padding-top: 0px; padding-left: 0; font-family: NotoSansKR; font-size: 14px; font-weight: normal; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.18px; color: #333333;"
+                                >
+                                    <b><span th:text="${contents4}"></span></b></br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td
+                                        style="padding-top: 0px; padding-right: 0; padding-top: 0px; padding-left: 0; font-family: NotoSansKR; font-size: 14px; font-weight: normal; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.18px; color: #333333;"
+                                >
+                                    VC 투자 여부 :
+                                </td>
+                                <td
+                                        style="padding-top: 0px; padding-right: 0; padding-top: 0px; padding-left: 0; font-family: NotoSansKR; font-size: 14px; font-weight: normal; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.18px; color: #333333;"
+                                >
+                                    <b><span th:text="${contents5}"></span></b></br>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,25 @@
+dependencies {
+    implementation(
+            "org.springframework.boot:spring-boot-starter-web",
+            "org.springframework.boot:spring-boot-starter-security",
+            "org.springframework.boot:spring-boot-starter-data-jpa",
+            "com.querydsl:querydsl-jpa",
+            "mysql:mysql-connector-java",
+    )
+    annotationProcessor(
+            "org.springframework.boot:spring-boot-starter-data-jpa",
+            "com.querydsl:querydsl-apt::jpa"
+    )
+}
+jar.enabled = true; bootJar.enabled = false
+
+def generated = "src/main/generated"
+sourceSets {
+    main.java.srcDirs += [generated]
+}
+tasks.withType(JavaCompile) {
+    options.annotationProcessorGeneratedSourcesDirectory = file(generated)
+}
+clean.doLast {
+    file(generated).deleteDir()
+}
