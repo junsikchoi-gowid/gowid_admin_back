@@ -13,5 +13,5 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface IrDashBoardCustomRepository {
-	Page<IrDashBoard> findList(IrDashBoard irDashBoard, Pageable pageable);
+	Page<IrDashBoard> findList(IrDashBoard irDashBoard, Pageable pageable, String sortBt);
 }

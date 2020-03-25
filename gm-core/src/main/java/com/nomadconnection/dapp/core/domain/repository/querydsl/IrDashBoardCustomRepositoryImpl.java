@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
 import com.nomadconnection.dapp.core.domain.*;
-import com.nomadconnection.dapp.core.domain.repository.IrDashBoardRepository;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,7 +22,7 @@ public class IrDashBoardCustomRepositoryImpl extends QuerydslRepositorySupport i
 	}
 
 	@Override
-	public Page<IrDashBoard> findList(IrDashBoard dto, Pageable pageable) {
+	public Page<IrDashBoard> findList(IrDashBoard dto, Pageable pageable, String sortBy) {
 
 		final JPQLQuery<IrDashBoard> query = from(irDashBoard) ;
 		if(dto.irType() != null ){
@@ -34,6 +33,14 @@ public class IrDashBoardCustomRepositoryImpl extends QuerydslRepositorySupport i
 			query.where(irDashBoard.contents.contains(dto.contents()));
 		} else if ( dto.idx() != null ) {
 			query.where(irDashBoard.idx.eq(dto.idx()));
+		}
+
+		if(sortBy != null) {
+			if (sortBy.toLowerCase().equals("asc")) {
+				query.orderBy(QIrDashBoard.irDashBoard.createdAt.asc());
+			} else if (sortBy.toLowerCase().equals("desc")) {
+				query.orderBy(QIrDashBoard.irDashBoard.createdAt.desc());
+			}
 		}
 
 		final List<IrDashBoard> irDashBoardList = getQuerydsl().applyPagination(pageable, query).fetch();

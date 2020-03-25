@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -71,11 +73,11 @@ public class ScrapingService {
 
             ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
             if(nowFlag.equals("1")){
-                resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                if(!jsonData.get("resAccountStartDate").toString().isEmpty()){
+                    resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                }
                 resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
                 repoResAccount.save(resAccount);
-                log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
-                log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
             }
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
@@ -100,11 +102,11 @@ public class ScrapingService {
         } else if (iType == 12) {
             ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
             if(nowFlag.equals("1")){
-                resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                if(!jsonData.get("resAccountStartDate").toString().isEmpty()){
+                    resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                }
                 resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
                 repoResAccount.save(resAccount);
-                log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
-                log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
             }
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
@@ -129,9 +131,10 @@ public class ScrapingService {
         } else if (iType == 40) {
             ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
             if(nowFlag.equals("1")){
-                resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-                repoResAccount.save(resAccount);
-                log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
+                if(!jsonData.get("resAccountStartDate").toString().isEmpty()){
+                    resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                    repoResAccount.save(resAccount);
+                }
             }
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
@@ -160,11 +163,11 @@ public class ScrapingService {
         } else if (iType == 30) {
             ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
             if(nowFlag.equals("1")){
-                resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                if(!jsonData.get("resAccountStartDate").toString().isEmpty()){
+                    resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
+                }
                 resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
                 repoResAccount.save(resAccount);
-                log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
-                log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
             }
 
             if (!jsonArrayResTrHistoryList.isEmpty()) {
@@ -405,7 +408,7 @@ public class ScrapingService {
 
 
     /**
-     * 매일 밤 스크립트 처리
+     * 새로고침 계좌 + 거래내역
      *
      * @param idx
      * @param idxResBatchParent
@@ -453,90 +456,123 @@ public class ScrapingService {
 
                     jsonArrayResDepositTrust.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                        if (!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
-                            repoResAccount.save(ResAccount.builder()
-                                    .connectedId(connId)
-                                    .organization(strBank)
-                                    .type("DepositTrust")
-                                    .resAccount(""+obj.get("resAccount").toString())
-                                    .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                    .resAccountBalance(""+obj.get("resAccountBalance").toString())
-                                    .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-                                    .resAccountNickName(""+obj.get("resAccountNickName").toString())
-                                    .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-                                    .resAccountStartDate(""+obj.get("resAccountStartDate").toString())
-                                    .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-                                    .resLastTranDate(""+obj.get("resLastTranDate").toString())
-                                    .resAccountName(""+obj.get("resAccountName").toString())
-                                    .build()
-                            );
+                        Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Long idxTemp = null;
+                        if(idxLongTemp.isPresent()){
+                            idxTemp = idxLongTemp.get().idx();
                         }
+
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+                        if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+                            startDate = obj.get("resAccountStartDate").toString();
+                        }
+                        repoResAccount.save(ResAccount.builder()
+                                .idx(idxTemp)
+                                .connectedId(connId)
+                                .organization(strBank)
+                                .type("DepositTrust")
+                                .resAccount(""+obj.get("resAccount").toString())
+                                .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
+                                .resAccountNickName(""+obj.get("resAccountNickName").toString())
+                                .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+                                .resAccountStartDate(startDate)
+                                .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
+                                .resLastTranDate(""+obj.get("resLastTranDate").toString())
+                                .resAccountName(""+obj.get("resAccountName").toString())
+                                .build()
+                        );
                     });
 
                     jsonArrayResLoan.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                        if (!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
-                            repoResAccount.save(ResAccount.builder()
-                                    .connectedId(connId)
-                                    .organization(strBank)
-                                    .type("Loan")
-                                    .resAccount(""+obj.get("resAccount").toString())
-                                    .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                    .resAccountBalance(""+obj.get("resAccountBalance").toString())
-                                    .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-                                    .resAccountNickName(""+obj.get("resAccountNickName").toString())
-                                    .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-                                    .resAccountStartDate(""+obj.get("resAccountStartDate").toString())
-                                    .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-                                    .resAccountName(""+obj.get("resAccountName").toString())
-                                    .resAccountLoanExecNo(""+obj.get("resAccountLoanExecNo").toString())
-                                    .build()
-                            );
+                                                Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Long idxTemp = null;
+                        if(idxLongTemp.isPresent()){
+                            idxTemp = idxLongTemp.get().idx();
                         }
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+                        if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+                            startDate = obj.get("resAccountStartDate").toString();
+                        }
+                        repoResAccount.save(ResAccount.builder()
+                                .idx(idxTemp)
+                                .connectedId(connId)
+                                .organization(strBank)
+                                .type("Loan")
+                                .resAccount(""+obj.get("resAccount").toString())
+                                .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
+                                .resAccountNickName(""+obj.get("resAccountNickName").toString())
+                                .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+                                .resAccountStartDate(startDate)
+                                .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
+                                .resAccountName(""+obj.get("resAccountName").toString())
+                                .resAccountLoanExecNo(""+obj.get("resAccountLoanExecNo").toString())
+                                .build()
+                        );
                     });
 
                     jsonArrayResForeignCurrency.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                        if (!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
-                            repoResAccount.save(ResAccount.builder()
-                                    .connectedId(connId)
-                                    .organization(strBank)
-                                    .type("ResForeignCurrency")
-                                    .resAccount(""+obj.get("resAccount").toString())
-                                    .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                    .resAccountBalance(""+obj.get("resAccountBalance").toString())
-                                    .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-                                    .resAccountNickName(""+obj.get("resAccountNickName").toString())
-                                    .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-                                    .resAccountStartDate(""+obj.get("resAccountStartDate").toString())
-                                    .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-                                    .resLastTranDate(""+obj.get("resLastTranDate").toString())
-                                    .resAccountName(""+obj.get("resAccountName").toString())
-                                    .build()
-                            );
+                                                Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Long idxTemp = null;
+                        if(idxLongTemp.isPresent()){
+                            idxTemp = idxLongTemp.get().idx();
                         }
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+                        if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+                            startDate = obj.get("resAccountStartDate").toString();
+                        }
+                        repoResAccount.save(ResAccount.builder()
+                                .idx(idxTemp)
+                                .connectedId(connId)
+                                .organization(strBank)
+                                .type("ResForeignCurrency")
+                                .resAccount(""+obj.get("resAccount").toString())
+                                .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
+                                .resAccountNickName(""+obj.get("resAccountNickName").toString())
+                                .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+                                .resAccountStartDate(startDate)
+                                .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
+                                .resLastTranDate(""+obj.get("resLastTranDate").toString())
+                                .resAccountName(""+obj.get("resAccountName").toString())
+                                .build()
+                        );
                     });
 
                     jsonArrayResFund.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                        if (!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
-                            repoResAccount.save(ResAccount.builder()
-                                    .connectedId(connId)
-                                    .organization(strBank)
-                                    .type("ResFund")
-                                    .resAccount(""+obj.get("resAccount").toString())
-                                    .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                    .resAccountBalance(""+obj.get("resAccountBalance").toString())
-                                    .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-                                    .resAccountNickName(""+obj.get("resAccountNickName").toString())
-                                    .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-                                    .resAccountStartDate(""+obj.get("resAccountStartDate").toString())
-                                    .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-                                    .resAccountInvestedCost(""+obj.get("resAccountInvestedCost").toString())
-                                    .resEarningsRate(""+obj.get("resEarningsRate").toString())
-                                    .build()
-                            );
+                                                Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Long idxTemp = null;
+                        if(idxLongTemp.isPresent()){
+                            idxTemp = idxLongTemp.get().idx();
                         }
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+                        if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+                            startDate = obj.get("resAccountStartDate").toString();
+                        }
+                        repoResAccount.save(ResAccount.builder()
+                                .idx(idxTemp)
+                                .connectedId(connId)
+                                .organization(strBank)
+                                .type("ResFund")
+                                .resAccount(""+obj.get("resAccount").toString())
+                                .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
+                                .resAccountNickName(""+obj.get("resAccountNickName").toString())
+                                .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+                                .resAccountStartDate(startDate)
+                                .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
+                                .resAccountInvestedCost(""+obj.get("resAccountInvestedCost").toString())
+                                .resEarningsRate(""+obj.get("resEarningsRate").toString())
+                                .build()
+                        );
                     });
                 }
             }
@@ -872,90 +908,122 @@ public class ScrapingService {
 
                     jsonArrayResDepositTrust.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                        if (!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
-                            repoResAccount.save(ResAccount.builder()
-                                    .connectedId(connId)
-                                    .organization(strBank)
-                                    .type("DepositTrust")
-                                    .resAccount(""+obj.get("resAccount").toString())
-                                    .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                    .resAccountBalance(""+obj.get("resAccountBalance").toString())
-                                    .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-                                    .resAccountNickName(""+obj.get("resAccountNickName").toString())
-                                    .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-                                    .resAccountStartDate(""+obj.get("resAccountStartDate").toString())
-                                    .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-                                    .resLastTranDate(""+obj.get("resLastTranDate").toString())
-                                    .resAccountName(""+obj.get("resAccountName").toString())
-                                    .build()
-                            );
+                                                Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Long idxTemp = null;
+                        if(idxLongTemp.isPresent()){
+                            idxTemp = idxLongTemp.get().idx();
                         }
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+                        if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+                            startDate = obj.get("resAccountStartDate").toString();
+                        }
+                        repoResAccount.save(ResAccount.builder()
+                                .idx(idxTemp)
+                                .connectedId(connId)
+                                .organization(strBank)
+                                .type("DepositTrust")
+                                .resAccount(""+obj.get("resAccount").toString())
+                                .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
+                                .resAccountNickName(""+obj.get("resAccountNickName").toString())
+                                .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+                                .resAccountStartDate(startDate)
+                                .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
+                                .resLastTranDate(""+obj.get("resLastTranDate").toString())
+                                .resAccountName(""+obj.get("resAccountName").toString())
+                                .build()
+                        );
                     });
 
                     jsonArrayResLoan.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                        if (!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
-                            repoResAccount.save(ResAccount.builder()
-                                    .connectedId(connId)
-                                    .organization(strBank)
-                                    .type("Loan")
-                                    .resAccount(""+obj.get("resAccount").toString())
-                                    .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                    .resAccountBalance(""+obj.get("resAccountBalance").toString())
-                                    .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-                                    .resAccountNickName(""+obj.get("resAccountNickName").toString())
-                                    .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-                                    .resAccountStartDate(""+obj.get("resAccountStartDate").toString())
-                                    .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-                                    .resAccountName(""+obj.get("resAccountName").toString())
-                                    .resAccountLoanExecNo(""+obj.get("resAccountLoanExecNo").toString())
-                                    .build()
-                            );
+                                                Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Long idxTemp = null;
+                        if(idxLongTemp.isPresent()){
+                            idxTemp = idxLongTemp.get().idx();
                         }
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+                        if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+                            startDate = obj.get("resAccountStartDate").toString();
+                        }
+                        repoResAccount.save(ResAccount.builder()
+                                .idx(idxTemp)
+                                .connectedId(connId)
+                                .organization(strBank)
+                                .type("Loan")
+                                .resAccount(""+obj.get("resAccount").toString())
+                                .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
+                                .resAccountNickName(""+obj.get("resAccountNickName").toString())
+                                .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+                                .resAccountStartDate(startDate)
+                                .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
+                                .resAccountName(""+obj.get("resAccountName").toString())
+                                .resAccountLoanExecNo(""+obj.get("resAccountLoanExecNo").toString())
+                                .build()
+                        );
                     });
 
                     jsonArrayResForeignCurrency.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                        if (!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
-                            repoResAccount.save(ResAccount.builder()
-                                    .connectedId(connId)
-                                    .organization(strBank)
-                                    .type("ResForeignCurrency")
-                                    .resAccount(""+obj.get("resAccount").toString())
-                                    .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                    .resAccountBalance(""+obj.get("resAccountBalance").toString())
-                                    .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-                                    .resAccountNickName(""+obj.get("resAccountNickName").toString())
-                                    .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-                                    .resAccountStartDate(""+obj.get("resAccountStartDate").toString())
-                                    .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-                                    .resLastTranDate(""+obj.get("resLastTranDate").toString())
-                                    .resAccountName(""+obj.get("resAccountName").toString())
-                                    .build()
-                            );
+                                                Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Long idxTemp = null;
+                        if(idxLongTemp.isPresent()){
+                            idxTemp = idxLongTemp.get().idx();
                         }
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+                        if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+                            startDate = obj.get("resAccountStartDate").toString();
+                        }
+                        repoResAccount.save(ResAccount.builder()
+                                .idx(idxTemp)
+                                .connectedId(connId)
+                                .organization(strBank)
+                                .type("ResForeignCurrency")
+                                .resAccount(""+obj.get("resAccount").toString())
+                                .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
+                                .resAccountNickName(""+obj.get("resAccountNickName").toString())
+                                .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+                                .resAccountStartDate(startDate)
+                                .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
+                                .resLastTranDate(""+obj.get("resLastTranDate").toString())
+                                .resAccountName(""+obj.get("resAccountName").toString())
+                                .build()
+                        );
                     });
 
                     jsonArrayResFund.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                        if (!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
-                            repoResAccount.save(ResAccount.builder()
-                                    .connectedId(connId)
-                                    .organization(strBank)
-                                    .type("ResFund")
-                                    .resAccount(""+obj.get("resAccount").toString())
-                                    .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                    .resAccountBalance(""+obj.get("resAccountBalance").toString())
-                                    .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-                                    .resAccountNickName(""+obj.get("resAccountNickName").toString())
-                                    .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-                                    .resAccountStartDate(""+obj.get("resAccountStartDate").toString())
-                                    .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-                                    .resAccountInvestedCost(""+obj.get("resAccountInvestedCost").toString())
-                                    .resEarningsRate(""+obj.get("resEarningsRate").toString())
-                                    .build()
-                            );
+                                                Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Long idxTemp = null;
+                        if(idxLongTemp.isPresent()){
+                            idxTemp = idxLongTemp.get().idx();
                         }
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+                        if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+                            startDate = obj.get("resAccountStartDate").toString();
+                        }
+                        repoResAccount.save(ResAccount.builder()
+                                .idx(idxTemp)
+                                .connectedId(connId)
+                                .organization(strBank)
+                                .type("ResFund")
+                                .resAccount(""+obj.get("resAccount").toString())
+                                .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
+                                .resAccountNickName(""+obj.get("resAccountNickName").toString())
+                                .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+                                .resAccountStartDate(startDate)
+                                .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
+                                .resAccountInvestedCost(""+obj.get("resAccountInvestedCost").toString())
+                                .resEarningsRate(""+obj.get("resEarningsRate").toString())
+                                .build()
+                        );
                     });
                 }
             }
@@ -1147,47 +1215,56 @@ public class ScrapingService {
             if (!repoResBatch.findById(idxResBatchParent).get().endFlag()) {
                 try {
 
-                    if (strType.equals("10") || strType.equals("11")) {
-                        strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
-                                , resData.getOrganization()
-                                , resData.getResAccount()
-                                , strStart
-                                , strEnd
-                                , "0"
-                                , "1"));
-                    } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
-                        strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
-                                , resData.getOrganization()
-                                , resData.getResAccount()
-                                , strStart
-                                , strEnd
-                                , "0"
-                                , "1"));
-                    } else if (strType.equals("40")) {
-                        strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
-                                , resData.getOrganization()
-                                , resData.getResAccount()
-                                , strStart
-                                , strEnd
-                                , "0"
-                                , ""));
-                    } else if (strType.equals("30")) {
-                        strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
-                                , resData.getOrganization()
-                                , resData.getResAccount()
-                                , strStart
-                                , strEnd
-                                , "0"
-                                , "1"));
-                    } else if (strType.equals("20")) {
-                        strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
-                                , resData.getOrganization()
-                                , resData.getResAccount()
-                                , strStart
-                                , strEnd
-                                , "0"
-                                , resData.getResAccountCurrency()
-                        ));
+                    switch (strType) {
+                        case "10":
+                        case "11":
+                            strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                                    , resData.getOrganization()
+                                    , resData.getResAccount()
+                                    , strStart
+                                    , strEnd
+                                    , "0"
+                                    , "1"));
+                            break;
+                        case "12":
+                        case "13":
+                        case "14":
+                            strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                                    , resData.getOrganization()
+                                    , resData.getResAccount()
+                                    , strStart
+                                    , strEnd
+                                    , "0"
+                                    , "1"));
+                            break;
+                        case "40":
+                            strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                                    , resData.getOrganization()
+                                    , resData.getResAccount()
+                                    , strStart
+                                    , strEnd
+                                    , "0"
+                                    , ""));
+                            break;
+                        case "30":
+                            strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                                    , resData.getOrganization()
+                                    , resData.getResAccount()
+                                    , strStart
+                                    , strEnd
+                                    , "0"
+                                    , "1"));
+                            break;
+                        case "20":
+                            strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                                    , resData.getOrganization()
+                                    , resData.getResAccount()
+                                    , strStart
+                                    , strEnd
+                                    , "0"
+                                    , resData.getResAccountCurrency()
+                            ));
+                            break;
                     }
 
                     log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
@@ -1195,8 +1272,6 @@ public class ScrapingService {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-                log.debug("([scrapingAccountHistory10year ]) $resData.getConnectedId()='{}'", resData.getConnectedId());
 
                 if (strResult[0].get("code").toString().equals("CF-00000") || strResult[0].get("code").toString().equals("CF-04012")) {
                     saveAccount(iType
@@ -1242,16 +1317,25 @@ public class ScrapingService {
             strStart = resData.getStartDay();
             strEnd = resData.getEndDay();
 
-            if (strType.equals("10") || strType.equals("11")) {
-                iType = 10;
-            } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
-                iType = 12;
-            } else if (strType.equals("40")) {
-                iType = 40;
-            } else if (strType.equals("20")) {
-                iType = 20;
-            } else if (strType.equals("30")) {
-                iType = 30;
+            switch (strType) {
+                case "10":
+                case "11":
+                    iType = 10;
+                    break;
+                case "12":
+                case "13":
+                case "14":
+                    iType = 12;
+                    break;
+                case "40":
+                    iType = 40;
+                    break;
+                case "20":
+                    iType = 20;
+                    break;
+                case "30":
+                    iType = 30;
+                    break;
             }
 
             JSONParser jsonParse = new JSONParser();
@@ -1261,48 +1345,56 @@ public class ScrapingService {
 
             if (!repoResBatch.findById(idxResBatchParent).get().endFlag()) {
                 try {
-
-                    if (strType.equals("10") || strType.equals("11")) {
-                        strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
-                                , resData.getOrganization()
-                                , resData.getResAccount()
-                                , strStart
-                                , strEnd
-                                , "0"
-                                , "1"));
-                    } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
-                        strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
-                                , resData.getOrganization()
-                                , resData.getResAccount()
-                                , strStart
-                                , strEnd
-                                , "0"
-                                , "1"));
-                    } else if (strType.equals("40")) {
-                        strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
-                                , resData.getOrganization()
-                                , resData.getResAccount()
-                                , strStart
-                                , strEnd
-                                , "0"
-                                , ""));
-                    } else if (strType.equals("30")) {
-                        strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
-                                , resData.getOrganization()
-                                , resData.getResAccount()
-                                , strStart
-                                , strEnd
-                                , "0"
-                                , "1"));
-                    } else if (strType.equals("20")) {
-                        strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
-                                , resData.getOrganization()
-                                , resData.getResAccount()
-                                , strStart
-                                , strEnd
-                                , "0"
-                                , resData.getResAccountCurrency()
-                        ));
+                    switch (strType) {
+                        case "10":
+                        case "11":
+                            strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                                    , resData.getOrganization()
+                                    , resData.getResAccount()
+                                    , strStart
+                                    , strEnd
+                                    , "0"
+                                    , "1"));
+                            break;
+                        case "12":
+                        case "13":
+                        case "14":
+                            strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                                    , resData.getOrganization()
+                                    , resData.getResAccount()
+                                    , strStart
+                                    , strEnd
+                                    , "0"
+                                    , "1"));
+                            break;
+                        case "40":
+                            strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                                    , resData.getOrganization()
+                                    , resData.getResAccount()
+                                    , strStart
+                                    , strEnd
+                                    , "0"
+                                    , ""));
+                            break;
+                        case "30":
+                            strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                                    , resData.getOrganization()
+                                    , resData.getResAccount()
+                                    , strStart
+                                    , strEnd
+                                    , "0"
+                                    , "1"));
+                            break;
+                        case "20":
+                            strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                                    , resData.getOrganization()
+                                    , resData.getResAccount()
+                                    , strStart
+                                    , strEnd
+                                    , "0"
+                                    , resData.getResAccountCurrency()
+                            ));
+                            break;
                     }
 
                     log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
@@ -1376,7 +1468,7 @@ public class ScrapingService {
 
         log.debug("start scrapingAccountHistory10year $idxResBatchParent={}", idxResBatchParent);
 
-        List<ConnectedMng> connectedMng = getConnectedMng(idx);
+        List<ConnectedMng> connectedMng = getConnectedMng(idx); 
 
         connectedMng.forEach(mngItem -> {
             String connId = mngItem.connectedId();
@@ -1412,90 +1504,123 @@ public class ScrapingService {
 
                     jsonArrayResDepositTrust.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                        if (!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
-                            repoResAccount.save(ResAccount.builder()
-                                    .connectedId(connId)
-                                    .organization(strBank)
-                                    .type("DepositTrust")
-                                    .resAccount(""+obj.get("resAccount").toString())
-                                    .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                    .resAccountBalance(""+obj.get("resAccountBalance").toString())
-                                    .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-                                    .resAccountNickName(""+obj.get("resAccountNickName").toString())
-                                    .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-                                    .resAccountStartDate(""+obj.get("resAccountStartDate").toString())
-                                    .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-                                    .resLastTranDate(""+obj.get("resLastTranDate").toString())
-                                    .resAccountName(""+obj.get("resAccountName").toString())
-                                    .build()
-                            );
+                                                Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Long idxTemp = null;
+                        if(idxLongTemp.isPresent()){
+                            idxTemp = idxLongTemp.get().idx();
                         }
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+                        if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+                            startDate = obj.get("resAccountStartDate").toString();
+                        }
+                            
+                        repoResAccount.save(ResAccount.builder()
+                                .idx(idxTemp)
+                                .connectedId(connId)
+                                .organization(strBank)
+                                .type("DepositTrust")
+                                .resAccount(""+obj.get("resAccount").toString())
+                                .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
+                                .resAccountNickName(""+obj.get("resAccountNickName").toString())
+                                .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+                                .resAccountStartDate(startDate)
+                                .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
+                                .resLastTranDate(""+obj.get("resLastTranDate").toString())
+                                .resAccountName(""+obj.get("resAccountName").toString())
+                                .build()
+                        );
                     });
 
                     jsonArrayResLoan.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                        if (!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
-                            repoResAccount.save(ResAccount.builder()
-                                    .connectedId(connId)
-                                    .organization(strBank)
-                                    .type("Loan")
-                                    .resAccount(""+obj.get("resAccount").toString())
-                                    .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                    .resAccountBalance(""+obj.get("resAccountBalance").toString())
-                                    .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-                                    .resAccountNickName(""+obj.get("resAccountNickName").toString())
-                                    .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-                                    .resAccountStartDate(""+obj.get("resAccountStartDate").toString())
-                                    .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-                                    .resAccountName(""+obj.get("resAccountName").toString())
-                                    .resAccountLoanExecNo(""+obj.get("resAccountLoanExecNo").toString())
-                                    .build()
-                            );
+                                                Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Long idxTemp = null;
+                        if(idxLongTemp.isPresent()){
+                            idxTemp = idxLongTemp.get().idx();
                         }
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+                        if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+                            startDate = obj.get("resAccountStartDate").toString();
+                        }
+                        repoResAccount.save(ResAccount.builder()
+                                .idx(idxTemp)
+                                .connectedId(connId)
+                                .organization(strBank)
+                                .type("Loan")
+                                .resAccount(""+obj.get("resAccount").toString())
+                                .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
+                                .resAccountNickName(""+obj.get("resAccountNickName").toString())
+                                .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+                                .resAccountStartDate(startDate)
+                                .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
+                                .resAccountName(""+obj.get("resAccountName").toString())
+                                .resAccountLoanExecNo(""+obj.get("resAccountLoanExecNo").toString())
+                                .build()
+                        );
                     });
 
                     jsonArrayResForeignCurrency.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                        if (!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
-                            repoResAccount.save(ResAccount.builder()
-                                    .connectedId(connId)
-                                    .organization(strBank)
-                                    .type("ResForeignCurrency")
-                                    .resAccount(""+obj.get("resAccount").toString())
-                                    .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                    .resAccountBalance(""+obj.get("resAccountBalance").toString())
-                                    .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-                                    .resAccountNickName(""+obj.get("resAccountNickName").toString())
-                                    .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-                                    .resAccountStartDate(""+obj.get("resAccountStartDate").toString())
-                                    .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-                                    .resLastTranDate(""+obj.get("resLastTranDate").toString())
-                                    .resAccountName(""+obj.get("resAccountName").toString())
-                                    .build()
-                            );
+                                                Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Long idxTemp = null;
+                        if(idxLongTemp.isPresent()){
+                            idxTemp = idxLongTemp.get().idx();
                         }
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+                        if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+                            startDate = obj.get("resAccountStartDate").toString();
+                        }
+                        repoResAccount.save(ResAccount.builder()
+                                .idx(idxTemp)
+                                .connectedId(connId)
+                                .organization(strBank)
+                                .type("ResForeignCurrency")
+                                .resAccount(""+obj.get("resAccount").toString())
+                                .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
+                                .resAccountNickName(""+obj.get("resAccountNickName").toString())
+                                .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+                                .resAccountStartDate(startDate)
+                                .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
+                                .resLastTranDate(""+obj.get("resLastTranDate").toString())
+                                .resAccountName(""+obj.get("resAccountName").toString())
+                                .build()
+                        );
                     });
 
                     jsonArrayResFund.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                        if (!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
-                            repoResAccount.save(ResAccount.builder()
-                                    .connectedId(connId)
-                                    .organization(strBank)
-                                    .type("ResFund")
-                                    .resAccount(""+obj.get("resAccount").toString())
-                                    .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                    .resAccountBalance(""+obj.get("resAccountBalance").toString())
-                                    .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-                                    .resAccountNickName(""+obj.get("resAccountNickName").toString())
-                                    .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-                                    .resAccountStartDate(""+obj.get("resAccountStartDate").toString())
-                                    .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-                                    .resAccountInvestedCost(""+obj.get("resAccountInvestedCost").toString())
-                                    .resEarningsRate(""+obj.get("resEarningsRate").toString())
-                                    .build()
-                            );
+                                                Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Long idxTemp = null;
+                        if(idxLongTemp.isPresent()){
+                            idxTemp = idxLongTemp.get().idx();
                         }
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+                        if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+                            startDate = obj.get("resAccountStartDate").toString();
+                        }
+                        repoResAccount.save(ResAccount.builder()
+                                .idx(idxTemp)
+                                .connectedId(connId)
+                                .organization(strBank)
+                                .type("ResFund")
+                                .resAccount(""+obj.get("resAccount").toString())
+                                .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
+                                .resAccountNickName(""+obj.get("resAccountNickName").toString())
+                                .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+                                .resAccountStartDate(startDate)
+                                .resAccountEndDate(""+obj.get("resAccountEndDate").toString())
+                                .resAccountInvestedCost(""+obj.get("resAccountInvestedCost").toString())
+                                .resEarningsRate(""+obj.get("resEarningsRate").toString())
+                                .build()
+                        );
                     });
                 }
             }
@@ -1537,50 +1662,59 @@ public class ScrapingService {
             }
 
             try {
-                if (strType.equals("10") || strType.equals("11")) {
-                    strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
-                            , resData.getOrganization()
-                            , resData.getResAccount()
-                            , strStart
-                            , strEnd
-                            , "0"
-                            , "1"));
-                } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
-                    strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
-                            , resData.getOrganization()
-                            , resData.getResAccount()
-                            , strStart
-                            , strEnd
-                            , "0"
-                            , "1"));
-                } else if (strType.equals("40")) {
-                    strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
-                            , resData.getOrganization()
-                            , resData.getResAccount()
-                            , strStart
-                            , strEnd
-                            , "0"
-                            , ""));
-                } else if (strType.equals("30")) {
-                    strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
-                            , resData.getOrganization()
-                            , resData.getResAccount()
-                            , strStart
-                            , strEnd
-                            , "0"
-                            , "1"));
-                } else if (strType.equals("20")) {
+                switch (strType) {
+                    case "10":
+                    case "11":
+                        strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                                , resData.getOrganization()
+                                , resData.getResAccount()
+                                , strStart
+                                , strEnd
+                                , "0"
+                                , "1"));
+                        break;
+                    case "12":
+                    case "13":
+                    case "14":
+                        strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                                , resData.getOrganization()
+                                , resData.getResAccount()
+                                , strStart
+                                , strEnd
+                                , "0"
+                                , "1"));
+                        break;
+                    case "40":
+                        strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                                , resData.getOrganization()
+                                , resData.getResAccount()
+                                , strStart
+                                , strEnd
+                                , "0"
+                                , ""));
+                        break;
+                    case "30":
+                        strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                                , resData.getOrganization()
+                                , resData.getResAccount()
+                                , strStart
+                                , strEnd
+                                , "0"
+                                , "1"));
+                        break;
+                    case "20":
 
-                    strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
-                            , resData.getOrganization()
-                            , resData.getResAccount()
-                            , strStart
-                            , strEnd
-                            , "0"
-                            , resData.getResAccountCurrency()
-                    ));
+                        strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                                , resData.getOrganization()
+                                , resData.getResAccount()
+                                , strStart
+                                , strEnd
+                                , "0"
+                                , resData.getResAccountCurrency()
+                        ));
 
-                    log.debug("([scrapingAccountHistory10year ]) $resData='{}'", strResult.toString());
+                        log.debug("([scrapingAccountHistory10year ]) $resData='{}'", strResult.toString());
+                        break;
                 }
 
                 log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());

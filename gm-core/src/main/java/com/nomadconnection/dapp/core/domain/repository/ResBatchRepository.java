@@ -70,7 +70,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", A.errCode \n" +
             "from (\n" +
             "select \n" +
-            "(select errCode from ResBatchList where account = main.resAccount and startDate = main.startDay order by idx desc limit 1) errCode,\n" +
+            "(select errCode from ResBatchList where account = main.resAccount and Date_Format(startDate, '%Y%m') = Date_Format(main.startDay, '%Y%m') order by idx desc limit 1) errCode,\n" +
             "main.*, if(Date_Format(now() , '%Y%m') = Date_Format(main.startDay, '%Y%m'), 1, 0 ) as nowMonth from \n" +
             "(select if(y = Date_Format(resAccountStartDate , '%Y%m'), resAccountStartDate, concat(L.y,'01')) startDay\n" +
             ", if(y = Date_Format(now() , '%Y%m'), Date_Format(now() , '%Y%m%d'), date_format(last_day(concat(L.y,'01')),'%Y%m%d')) as endDay\n" +
@@ -129,7 +129,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", A.errCode\n" +
             "from (\n" +
             "select \n" +
-            "(select errCode from ResBatchList where account = main.resAccount and startDate = main.startDay order by idx desc limit 1) errCode,\n" +
+            "(select errCode from ResBatchList where account = main.resAccount and Date_Format(startDate, '%Y%m') = Date_Format(main.startDay, '%Y%m') order by idx desc limit 1) errCode,\n" +
             "main.*, if(Date_Format(now() , '%Y%m') = Date_Format(main.startDay, '%Y%m'), 1, 0 ) as nowMonth from \n" +
             "(select if(y = Date_Format(resAccountStartDate , '%Y%m'), resAccountStartDate, concat(L.y,'01')) startDay\n" +
             ", if(y = Date_Format(now() , '%Y%m'), Date_Format(now() , '%Y%m%d'), date_format(last_day(concat(L.y,'01')),'%Y%m%d')) as endDay\n" +

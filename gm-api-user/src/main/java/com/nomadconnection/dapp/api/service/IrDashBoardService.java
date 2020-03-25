@@ -7,12 +7,15 @@ import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -35,14 +38,18 @@ public class IrDashBoardService {
                 .build());
     }
 
-    public Page getList(Pageable page, IrDashBoardDto irDashBoard, Long idxUser) {
+    public Page<IrDashBoardDto> getList(Pageable pageable) {
 
+        /*
         Page<IrDashBoardDto> result = repoIrDashBoard.findList(IrDashBoard.builder()
                 .irType(irDashBoard.irType)
                 .contents(irDashBoard.contents)
                 .title(irDashBoard.title)
-                .build(), page).map(IrDashBoardDto::from);
-        List<IrDashBoardDto> list = result.getContent();
+                .build(), page, sortBy).map(IrDashBoardDto::from);
+         List<IrDashBoardDto> list = result.getContent();
+        */
+        Page<IrDashBoardDto> result = repoIrDashBoard.findAll(pageable).map(IrDashBoardDto::from);
+
         return result;
     }
 }

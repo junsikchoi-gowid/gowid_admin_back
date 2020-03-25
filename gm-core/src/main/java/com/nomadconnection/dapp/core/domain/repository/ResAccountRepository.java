@@ -121,6 +121,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
     List<Long> findBalance(Long idxUser);
 
     Optional<ResAccount> findByConnectedIdAndResAccount(String connectedId, String resAccount);
+    Optional<ResAccount> findByResAccount(String resAccount);
 
     @Query(value = "select DATEDIFF(now(),ds) dsc , ds, sum(ifnull(ifnull(if(errCnt is null, value1,0),if(errCnt is null, value2,0)),if(errCnt is null, value3,0))) currentBalance  " +
             "from  " +

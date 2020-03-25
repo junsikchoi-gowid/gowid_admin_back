@@ -35,4 +35,11 @@ public class IrDashBoard extends BaseTime {
 
 	@Column(length = 65535, columnDefinition = "Text")
 	private String contents;
+
+	@Column
+	private Long idxUser;
+
+	@Column(columnDefinition = "BIT(1) NOT NULL comment '사용유무'")
+	private Boolean enable;
+
 }

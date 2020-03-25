@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -24,12 +26,16 @@ public class IrDashBoardDto {
     @ApiModelProperty("내용")
     public String contents;
 
+    @ApiModelProperty("내용")
+    public LocalDateTime createAt;
+
     public static IrDashBoardDto from(IrDashBoard irDashBoard) {
         IrDashBoardDto irDashboardDto = IrDashBoardDto.builder()
                 .idx(irDashBoard.idx())
                 .irType(irDashBoard.irType())
                 .title(irDashBoard.title())
                 .contents(irDashBoard.contents())
+                .createAt(irDashBoard.getCreatedAt())
                 .build();
         return irDashboardDto;
     }
