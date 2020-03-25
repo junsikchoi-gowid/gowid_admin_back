@@ -46,8 +46,10 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", comm.connectedId as connectedId\n" +
             ", comm.organization as  organization\n" +
             ", comm.ResAccountDeposit as ResAccountDeposit\n" +
-            ", comm.nowMonth as nowMonth from \n" +
-            "( select \n" +
+            ", comm.resAccountCurrency as resAccountCurrency\n" +
+            ", comm.nowMonth as nowMonth " +
+            ", comm.errCode as errCode " +
+            " from ( select \n" +
             "case  \n" +
             "when organization = 0003 then 201301\n" +
             "when organization = 0007 then date_format(date_add(now(), INTERVAL - 5 year), '%Y%m%d')\n" +
@@ -62,12 +64,13 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", A.resAccount\n" +
             ", A.connectedId\n" +
             ", A.organization       \n" +
-            ", A.ResAccountDeposit\n" +
-            ", A.nowMonth\n" +
-            ", A.errCode\n" +
+            ", A.resAccountDeposit \n" +
+            ", A.resAccountCurrency \n" +
+            ", A.nowMonth \n" +
+            ", A.errCode \n" +
             "from (\n" +
             "select \n" +
-            "(select errCode from ResBatchList where account = main.resAccount and startDate = main.startDay and endDate = main.endDay order by idx desc limit 1) errCode,\n" +
+            "(select errCode from ResBatchList where account = main.resAccount and startDate = main.startDay order by idx desc limit 1) errCode,\n" +
             "main.*, if(Date_Format(now() , '%Y%m') = Date_Format(main.startDay, '%Y%m'), 1, 0 ) as nowMonth from \n" +
             "(select if(y = Date_Format(resAccountStartDate , '%Y%m'), resAccountStartDate, concat(L.y,'01')) startDay\n" +
             ", if(y = Date_Format(now() , '%Y%m'), Date_Format(now() , '%Y%m%d'), date_format(last_day(concat(L.y,'01')),'%Y%m%d')) as endDay\n" +
@@ -75,7 +78,8 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", R.resAccount\n" +
             ", R.connectedId\n" +
             ", R.organization       \n" +
-            ", R.ResAccountDeposit\n" +
+            ", R.resAccountDeposit \n" +
+            ", R.resAccountCurrency \n" +
             "from (\n" +
             "select y from\n" +
             "(\n" +
@@ -99,11 +103,14 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", comm.resAccount as resAccount\n" +
             ", comm.connectedId as connectedId\n" +
             ", comm.organization as  organization\n" +
-            ", comm.ResAccountDeposit as ResAccountDeposit\n" +
-            ", comm.nowMonth as nowMonth from \n" +
+            ", comm.resAccountDeposit as resAccountDeposit\n" +
+            ", comm.resAccountCurrency as resAccountCurrency\n" +
+            ", comm.nowMonth as nowMonth " +
+            ", comm.errCode as errCode " +
+            "from \n" +
             "( select \n" +
             "case  \n" +
-            "when organization = 0003 then 201301\n" +
+            "when organization = 0003 then 201301 \n" +
             "when organization = 0007 then date_format(date_add(now(), INTERVAL - 5 year), '%Y%m%d')\n" +
             "when organization = 0020 then date_format(date_add(now(), INTERVAL - 12 month), '%Y%m%d')\n" +
             "when organization = 0027 then date_format(date_add(now(), INTERVAL - 6 month), '%Y%m%d')\n" +
@@ -122,7 +129,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", A.errCode\n" +
             "from (\n" +
             "select \n" +
-            "(select errCode from ResBatchList where account = main.resAccount and startDate = main.startDay and endDate = main.endDay order by idx desc limit 1) errCode,\n" +
+            "(select errCode from ResBatchList where account = main.resAccount and startDate = main.startDay order by idx desc limit 1) errCode,\n" +
             "main.*, if(Date_Format(now() , '%Y%m') = Date_Format(main.startDay, '%Y%m'), 1, 0 ) as nowMonth from \n" +
             "(select if(y = Date_Format(resAccountStartDate , '%Y%m'), resAccountStartDate, concat(L.y,'01')) startDay\n" +
             ", if(y = Date_Format(now() , '%Y%m'), Date_Format(now() , '%Y%m%d'), date_format(last_day(concat(L.y,'01')),'%Y%m%d')) as endDay\n" +

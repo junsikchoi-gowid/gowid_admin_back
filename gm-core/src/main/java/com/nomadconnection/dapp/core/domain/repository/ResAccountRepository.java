@@ -56,7 +56,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             "                sum(resAccountIn) sumResAccountIn ,   " +
             "                sum(resAccountOut) sumResAccountOut    " +
             "                from ResAccountHistory a                      " +
-            "          join ResAccount b on b.resAccount = a.resAccount and resAccountDeposit in ('10','11','12','13','14','30')   " +
+            "          join ResAccount b on b.resAccount = a.resAccount and resAccountDeposit in ('10','11','12','13','14')   " +
             "          join ConnectedMng c  on c.connectedId = b.connectedId and c.idxUser = :idxUser   " +
             "                where resAccountTrDate  between  :startDate and  :endDate     " +
             "                group by resAccountTrDate ) groupB    " +
@@ -91,7 +91,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             "  sum(resAccountIn) sumResAccountIn ,     " +
             "  sum(resAccountOut) sumResAccountOut      " +
             "  from ResAccountHistory a1                       " +
-            "   join ResAccount b on b.resAccount = a1.resAccount and resAccountDeposit in ('10','11','12','13','14','30')     " +
+            "   join ResAccount b on b.resAccount = a1.resAccount and resAccountDeposit in ('10','11','12','13','14')     " +
             "   join ConnectedMng c  on c.connectedId = b.connectedId and c.idxUser = :idxUser     " +
             "  where Date_Format(resAccountTrDate,  '%Y%m') >= :startMonth and  Date_Format(resAccountTrDate,  '%Y%m') <= :endMonth     " +
             "  group by Date_Format(resAccountTrDate,  '%Y%m')     " +

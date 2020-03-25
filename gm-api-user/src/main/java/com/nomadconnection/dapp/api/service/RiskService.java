@@ -61,14 +61,6 @@ public class RiskService {
 				&& repoRiskConfig.findByIdxUser(idxUser).isPresent()
 			){
 
-			// 기본으로 있어야함 -
-			// CEOGuarantee
-			// DepositGuarantee
-			// DepositPayment
-			// CardIssuance
-			// VentureCertification
-			// VCInvestment
-
 			RiskConfig riskconfig = repoRiskConfig.findByIdxUser(idxUser).get();
 
 			Risk risk = repoRisk.save(Risk.builder()
@@ -89,14 +81,6 @@ public class RiskService {
 			Stream<ResAccountRepository.CRisk> cRisk45daysTemp = cRisk45days.stream().filter(cRisk -> cRisk.getDsc() > 0);
 			Stream<ResAccountRepository.CRisk> cRisk45daysTemp2 = cRisk45days.stream().filter(cRisk -> cRisk.getDsc() > 0);
 
-//		if(riskDto.getDepositGuarantee().){
-//			risk.depositGuarantee(0.0);
-//		}
-
-			// Grade
-			// GradeLimitPercentage
-			// MinStartCash
-			// MinCashNeed
 			if(risk.ventureCertification() && risk.vcInvestment()){
 				risk.grade("A");
 				risk.gradeLimitPercentage(10);
@@ -133,9 +117,9 @@ public class RiskService {
 			// 45DMM
 			AtomicInteger i = new AtomicInteger(1);
 			arrList.stream().sorted().forEach( l -> {
-				log.debug("sort order $={} $={}" , i.getAndIncrement(), l.floatValue());
+				log.debug("sort order $={} $={}" , i.getAndIncrement(), l);
 				if(i.get() == 23){
-					risk.dmm45(l.floatValue());
+					risk.dmm45(l);
 				}
 			});
 
