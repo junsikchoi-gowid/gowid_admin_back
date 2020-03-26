@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
 
 import javax.sound.midi.MidiSystem;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -55,7 +56,9 @@ public class RiskService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity saveRisk(Long idxUser) {
+	public ResponseEntity saveRisk(Long idxUser, String calcDate) {
+
+		if(calcDate == null || calcDate.isEmpty()) calcDate = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
 
 		RiskConfig riskconfig = repoRiskConfig.findByIdxUser(idxUser).orElse(
 				RiskConfig.builder()
@@ -69,10 +72,10 @@ public class RiskService {
 						.build()
 		);
 
-		Risk risk = repoRisk.findByIdxUserAndDate(idxUser, LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)).orElse(
+		Risk risk = repoRisk.findByIdxUserAndDate(idxUser, calcDate).orElse(
 				Risk.builder()
 						.idxUser(idxUser)
-						.date(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE))
+						.date(calcDate)
 						.ceoGuarantee(riskconfig.ceoGuarantee())
 						.depositGuarantee(riskconfig.depositGuarantee())
 						.depositPayment(riskconfig.depositPayment())
@@ -83,7 +86,7 @@ public class RiskService {
 		);
 
 		// 46일
-		List<ResAccountRepository.CRisk> cRisk45days = repoResAccount.find45dayValance(idxUser);
+		List<ResAccountRepository.CRisk> cRisk45days = repoResAccount.find45dayValance(idxUser, calcDate);
 
 		// 45일
 		Stream<ResAccountRepository.CRisk> cRisk45daysTemp = cRisk45days.stream().filter(cRisk -> cRisk.getDsc() > 0);

@@ -36,6 +36,8 @@ import org.thymeleaf.ITemplateEngine;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -76,7 +78,7 @@ public class CodefService {
 		List<HashMap<String, Object>> list = new ArrayList<>();
 		HashMap<String, Object> accountMap1;
 		String createUrlPath = urlPath + CommonConstant.CREATE_ACCOUNT;
-		List<BankDto.ResAccountDto> resAccount = null;
+		List<ResAccount> resAccount = null;
 
 		for( String s : CommonConstant.LISTBANK){
 			accountMap1 = new HashMap<>();
@@ -128,9 +130,7 @@ public class CodefService {
 			);
 
 			if(getScrapingAccount(idx)){
-				resAccount = repoResAccount.findConnectedId(idx)
-						.map(BankDto.ResAccountDto::from)
-						.collect(Collectors.toList());
+				resAccount = repoResAccount.findConnectedId(idx);
 			}
 
 		}else if(code.equals("CF-04004")){
@@ -149,9 +149,7 @@ public class CodefService {
 				);
 
 				if(getScrapingAccount(idx)){
-					resAccount = repoResAccount.findConnectedId(idx)
-							.map(BankDto.ResAccountDto::from)
-							.collect(Collectors.toList());
+					resAccount = repoResAccount.findConnectedId(idx);
 				}
 
 			}else{
@@ -204,8 +202,19 @@ public class CodefService {
 
 							jsonArrayResDepositTrust.forEach(item -> {
 								JSONObject obj = (JSONObject) item;
+								Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+								Long idxTemp = null;
+								if(idxLongTemp.isPresent()){
+									idxTemp = idxLongTemp.get().idx();
+								}
+								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+									startDate = obj.get("resAccountStartDate").toString();
+								}
+
 								if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
 									repoResAccount.save(ResAccount.builder()
+											.idx(idxTemp)
 											.connectedId(connId)
 											.organization(s)
 											.type("DepositTrust")
@@ -215,7 +224,7 @@ public class CodefService {
 											.resAccountDeposit(""+obj.get("resAccountDeposit").toString())
 											.resAccountNickName(""+obj.get("resAccountNickName").toString())
 											.resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-											.resAccountStartDate(""+obj.get("resAccountStartDate").toString())
+											.resAccountStartDate(startDate)
 											.resAccountEndDate(""+obj.get("resAccountEndDate").toString())
 											.resLastTranDate(""+obj.get("resLastTranDate").toString())
 											.resAccountName(""+obj.get("resAccountName").toString())
@@ -226,8 +235,18 @@ public class CodefService {
 
 							jsonArrayResLoan.forEach(item -> {
 								JSONObject obj = (JSONObject) item;
+								Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+								Long idxTemp = null;
+								if(idxLongTemp.isPresent()){
+									idxTemp = idxLongTemp.get().idx();
+								}
+								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+									startDate = obj.get("resAccountStartDate").toString();
+								}
 								if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
 									repoResAccount.save(ResAccount.builder()
+											.idx(idxTemp)
 											.connectedId(connId)
 											.organization(s)
 											.type("Loan")
@@ -237,7 +256,7 @@ public class CodefService {
 											.resAccountDeposit(""+obj.get("resAccountDeposit").toString())
 											.resAccountNickName(""+obj.get("resAccountNickName").toString())
 											.resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-											.resAccountStartDate(""+obj.get("resAccountStartDate").toString())
+											.resAccountStartDate(startDate)
 											.resAccountEndDate(""+obj.get("resAccountEndDate").toString())
 											.resAccountName(""+obj.get("resAccountName").toString())
 											.resAccountLoanExecNo(""+obj.get("resAccountLoanExecNo").toString())
@@ -248,8 +267,18 @@ public class CodefService {
 
 							jsonArrayResForeignCurrency.forEach(item -> {
 								JSONObject obj = (JSONObject) item;
+								Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+								Long idxTemp = null;
+								if(idxLongTemp.isPresent()){
+									idxTemp = idxLongTemp.get().idx();
+								}
+								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+									startDate = obj.get("resAccountStartDate").toString();
+								}
 								if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
 									repoResAccount.save(ResAccount.builder()
+											.idx(idxTemp)
 											.connectedId(connId)
 											.organization(s)
 											.type("ResForeignCurrency")
@@ -259,7 +288,7 @@ public class CodefService {
 											.resAccountDeposit(""+obj.get("resAccountDeposit").toString())
 											.resAccountNickName(""+obj.get("resAccountNickName").toString())
 											.resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-											.resAccountStartDate(""+obj.get("resAccountStartDate").toString())
+											.resAccountStartDate(startDate)
 											.resAccountEndDate(""+obj.get("resAccountEndDate").toString())
 											.resLastTranDate(""+obj.get("resLastTranDate").toString())
 											.resAccountName(""+obj.get("resAccountName").toString())
@@ -270,8 +299,18 @@ public class CodefService {
 
 							jsonArrayResFund.forEach(item -> {
 								JSONObject obj = (JSONObject) item;
+								Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+								Long idxTemp = null;
+								if(idxLongTemp.isPresent()){
+									idxTemp = idxLongTemp.get().idx();
+								}
+								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+									startDate = obj.get("resAccountStartDate").toString();
+								}
 								if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
 									repoResAccount.save(ResAccount.builder()
+											.idx(idxTemp)
 											.connectedId(connId)
 											.organization(s)
 											.type("ResFund")
@@ -281,7 +320,7 @@ public class CodefService {
 											.resAccountDeposit(""+obj.get("resAccountDeposit").toString())
 											.resAccountNickName(""+obj.get("resAccountNickName").toString())
 											.resAccountCurrency(""+obj.get("resAccountCurrency").toString())
-											.resAccountStartDate(""+obj.get("resAccountStartDate").toString())
+											.resAccountStartDate(startDate)
 											.resAccountEndDate(""+obj.get("resAccountEndDate").toString())
 											.resAccountInvestedCost(""+obj.get("resAccountInvestedCost").toString())
 											.resEarningsRate(""+obj.get("resEarningsRate").toString())
@@ -321,7 +360,7 @@ public class CodefService {
 		List<HashMap<String, Object>> list = new ArrayList<>();
 		HashMap<String, Object> accountMap1;
 		String createUrlPath = urlPath + CommonConstant.CREATE_ACCOUNT;
-		List<BankDto.ResAccountDto> resAccount = null;
+		List<ResAccount> resAccount = null;
 
 		for( String s : CommonConstant.LISTBANK){
 			accountMap1 = new HashMap<>();
@@ -372,9 +411,7 @@ public class CodefService {
 			);
 
 			if(getScrapingAccount(idx)){
-				resAccount = repoResAccount.findConnectedId(idx)
-						.map(BankDto.ResAccountDto::from)
-						.collect(Collectors.toList());
+				resAccount = repoResAccount.findConnectedId(idx);
 			}
 
 		}else if(code.equals("CF-04004")){
@@ -393,9 +430,7 @@ public class CodefService {
 				);
 
 				if(getScrapingAccount(idx)){
-					resAccount = repoResAccount.findConnectedId(idx)
-							.map(BankDto.ResAccountDto::from)
-							.collect(Collectors.toList());
+					resAccount = repoResAccount.findConnectedId(idx);
 				}
 
 			}else{

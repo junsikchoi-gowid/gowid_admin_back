@@ -337,9 +337,7 @@ public class ScrapingService {
      */
     public ResponseEntity accountList(Long idx) {
 
-        List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(idx)
-                .map(BankDto.ResAccountDto::from)
-                .collect(Collectors.toList());
+        List<ResAccount> resAccount = repoResAccount.findConnectedId(idx);
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(resAccount).build());
     }
@@ -461,7 +459,6 @@ public class ScrapingService {
                         if(idxLongTemp.isPresent()){
                             idxTemp = idxLongTemp.get().idx();
                         }
-
                         String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
                         if(!obj.get("resAccountStartDate").toString().isEmpty()) {
                             startDate = obj.get("resAccountStartDate").toString();
@@ -678,7 +675,7 @@ public class ScrapingService {
                 saveAccountProcessBatchRetry(idx, idxResBatchParent );
             }
             // 리스크 데이터 저장
-            serviceRisk.saveRisk(idx);
+            serviceRisk.saveRisk(idx, "");
 
             endLog(ResBatchList.builder()
                     .idx(idxResBatch)
@@ -721,16 +718,25 @@ public class ScrapingService {
 
             log.debug(" scrapingAccountHistoryList $account={}, $strStart={} , $strEnd={} ", resData.getResAccount(), strStart, strEnd);
 
-            if (strType.equals("10") || strType.equals("11")) {
-                iType = 10;
-            } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
-                iType = 12;
-            } else if (strType.equals("40")) {
-                iType = 40;
-            } else if (strType.equals("20")) {
-                iType = 20;
-            } else if (strType.equals("30")) {
-                iType = 30;
+            switch (strType) {
+                case "10":
+                case "11":
+                    iType = 10;
+                    break;
+                case "12":
+                case "13":
+                case "14":
+                    iType = 12;
+                    break;
+                case "40":
+                    iType = 40;
+                    break;
+                case "20":
+                    iType = 20;
+                    break;
+                case "30":
+                    iType = 30;
+                    break;
             }
 
             JSONParser jsonParse = new JSONParser();
@@ -908,7 +914,7 @@ public class ScrapingService {
 
                     jsonArrayResDepositTrust.forEach(item -> {
                         JSONObject obj = (JSONObject) item;
-                                                Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+                        Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
                         Long idxTemp = null;
                         if(idxLongTemp.isPresent()){
                             idxTemp = idxLongTemp.get().idx();
@@ -1302,7 +1308,7 @@ public class ScrapingService {
             saveAccountProcessBatchRetry(idx, idxResBatchParent );
         }
         // 리스크 데이터 저장
-        serviceRisk.saveRisk(idx);
+        serviceRisk.saveRisk(idx, "");
 
     }
 

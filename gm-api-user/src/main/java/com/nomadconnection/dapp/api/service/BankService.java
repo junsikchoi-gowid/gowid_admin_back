@@ -190,7 +190,7 @@ public class BankService {
 	@Transactional(readOnly = true)
 	public ResponseEntity accountList(Long idx) {
 
-		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(idx)
+		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(idx).stream()
 				.map(BankDto.ResAccountDto::from)
 				.collect(Collectors.toList());
 
