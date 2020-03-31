@@ -181,6 +181,12 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             ") a group by dsc ", nativeQuery = true)
     List<CRisk> find45dayValance(Long idxUser, String calcDate);
 
+    @Query(value = "select sum(resAccountBalance) as resAccountBalance from ResAccount " +
+            " where " +
+            " resAccountDeposit in (10,11,12,13,14) " +
+            " and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser) ", nativeQuery = true)
+    Float findAccountBalance(Long idxUser);
+
     public static interface CRisk {
         Integer getDsc();
         String getDs();

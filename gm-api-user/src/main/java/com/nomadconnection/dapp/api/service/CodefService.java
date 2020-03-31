@@ -130,7 +130,7 @@ public class CodefService {
 			);
 
 			if(getScrapingAccount(idx)){
-				resAccount = repoResAccount.findConnectedId(idx);
+				resAccount = repoResAccount.findConnectedId(idx).stream().collect(Collectors.toList());
 			}
 
 		}else if(code.equals("CF-04004")){
@@ -149,7 +149,7 @@ public class CodefService {
 				);
 
 				if(getScrapingAccount(idx)){
-					resAccount = repoResAccount.findConnectedId(idx);
+					resAccount = repoResAccount.findConnectedId(idx).stream().collect(Collectors.toList());
 				}
 
 			}else{
@@ -411,7 +411,7 @@ public class CodefService {
 			);
 
 			if(getScrapingAccount(idx)){
-				resAccount = repoResAccount.findConnectedId(idx);
+				resAccount = repoResAccount.findConnectedId(idx).stream().collect(Collectors.toList());
 			}
 
 		}else if(code.equals("CF-04004")){
@@ -430,7 +430,7 @@ public class CodefService {
 				);
 
 				if(getScrapingAccount(idx)){
-					resAccount = repoResAccount.findConnectedId(idx);
+					resAccount = repoResAccount.findConnectedId(idx).stream().collect(Collectors.toList());
 				}
 
 			}else{

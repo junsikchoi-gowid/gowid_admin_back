@@ -329,19 +329,6 @@ public class ScrapingService {
         return df.format(cal.getTime());
     }
 
-
-    /**
-     * 유저의 계좌정보
-     *
-     * @param idx 엔터티(사용자)
-     */
-    public ResponseEntity accountList(Long idx) {
-
-        List<ResAccount> resAccount = repoResAccount.findConnectedId(idx);
-
-        return ResponseEntity.ok().body(BusinessResponse.builder().data(resAccount).build());
-    }
-
     /**
      * 거래내역
      *
