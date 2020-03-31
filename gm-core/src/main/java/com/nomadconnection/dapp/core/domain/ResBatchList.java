@@ -30,4 +30,5 @@ public class ResBatchList extends BaseTime {
     private ResBatchType resBatchType; // account, history
     private String startDate;
     private String endDate;
+    private String transactionId;
 }

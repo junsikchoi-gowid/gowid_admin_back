@@ -36,12 +36,16 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
 		final JPQLQuery<RiskCustomDto> query = from(risk)
 				.join(user).on(user.idx.eq(risk.idxUser))
 				.join(corp).on(corp.idx.eq(user.corp.idx))
+				.join(connectedMng).on(connectedMng.idxUser.eq(risk.idxUser))
+				.join(resAccount).on(connectedMng.connectedId.eq(resAccount.connectedId))
 				.select(Projections.bean(RiskCustomDto.class,
 						corp.resCompanyNm.as("idxCorpName"),
+						resAccount.resAccountBalance.castToNum(Float.class).sum().as("Balance"),
 						risk.cardLimitNow.as("cardLimitNow"),
 						risk.currentBalance.as("currentBalance"),
-						risk.grade.as("grade"))
-				);
+						risk.grade.as("grade")))
+				.groupBy(corp.resCompanyNm,risk.cardLimitNow,risk.currentBalance,risk.grade )
+				;
 
 
 		if(dto.idxCorpName != null ){

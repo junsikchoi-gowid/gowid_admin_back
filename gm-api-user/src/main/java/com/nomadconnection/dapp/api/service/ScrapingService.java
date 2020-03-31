@@ -259,6 +259,7 @@ public class ScrapingService {
                             .errMessage(resBatchList.errMessage())
                             .startDate(resBatchList.startDate())
                             .endDate(resBatchList.endDate())
+                            .transactionId(resBatchList.transactionId())
                             .idxUser(resBatch.idxUser())
                             .connectedId(resBatch.connectedId())
                             .resBatchType(resBatch.resBatchType())
@@ -428,6 +429,7 @@ public class ScrapingService {
                             .account(strBank)
                             .errCode(strResult[0].get("code").toString())
                             .errMessage(strResult[0].get("message").toString())
+                            .transactionId(strResult[0].get("transactionId").toString())
                             .build());
                 }
 
@@ -566,7 +568,7 @@ public class ScrapingService {
         List<ResBatchRepository.CResYears> list = repoResBatch.findStartDateMonth(idx);
 
         // ConnId 의 계좌분류별 스크랩
-        list.forEach(resData -> {
+        for (ResBatchRepository.CResYears resData : list) {
 
             int iType = 0;
             String strType = resData.getResAccountDeposit();
@@ -591,6 +593,7 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
+            if (iType == 0) continue;
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
 
             if(repoResBatch.findById(idxResBatchParent).get().endFlag()){throw new RuntimeException("process kill");}
@@ -658,7 +661,7 @@ public class ScrapingService {
             }
 
             // 에러 상황에 대해 2번 반복 확인
-            for( int i = 0 ; i < 2 ; i++ ){
+            for( int i = 0 ; i < 4 ; i++ ){
                 saveAccountProcessBatchRetry(idx, idxResBatchParent );
             }
             // 리스크 데이터 저장
@@ -670,10 +673,10 @@ public class ScrapingService {
                     .endDate(resData.getEndDay())
                     .account(resData.getResAccount())
                     .errCode(strResult[0].get("code").toString())
+                    .transactionId(strResult[0].get("transactionId").toString())
                     .errMessage(strResult[0].get("message").toString())
                     .build());
-        });
-
+        }
         return true;
     }
 
@@ -695,8 +698,7 @@ public class ScrapingService {
         List<ResBatchRepository.CResYears> list = repoResBatch.findStartDateMonth(idx);
 
         // ConnId 의 계좌분류별 스크랩
-        list.forEach(resData -> {
-
+        for (ResBatchRepository.CResYears resData : list) {
             int iType = 0;
             String strType = resData.getResAccountDeposit();
             String strStart = resData.getStartDay();
@@ -729,12 +731,14 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
+            if (iType == 0) continue;
             Long idxResBatchList = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatch, idx);
 
-            if(repoResBatch.findById(idxResBatch).get().endFlag()){throw new RuntimeException("process kill");}
+            if (repoResBatch.findById(idxResBatch).get().endFlag()) {
+                throw new RuntimeException("process kill");
+            }
 
             try {
-
                 switch (strType) {
                     case "10":
                     case "11":
@@ -786,9 +790,6 @@ public class ScrapingService {
                         ));
                         break;
                 }
-
-                log.debug("([scrapingAccountHistoryList ]) $strResult='{}'", strResult.toString());
-
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -798,6 +799,7 @@ public class ScrapingService {
                         .endDate(resData.getEndDay())
                         .account(resData.getResAccount())
                         .errCode(strResult[0].get("code").toString())
+                        .transactionId(strResult[0].get("transactionId").toString())
                         .errMessage(strResult[0].get("message").toString())
                         .build());
             }
@@ -812,7 +814,7 @@ public class ScrapingService {
                         , resData.getNowMonth()
                 );
             }
-        });
+        }
     }
 
 
@@ -887,6 +889,7 @@ public class ScrapingService {
                     endLog(ResBatchList.builder()
                             .idx(idxResBatchList)
                             .errCode(strResult[0].get("code").toString())
+                            .transactionId(strResult[0].get("transactionId").toString())
                             .errMessage(strResult[0].get("message").toString())
                             .build());
                 }
@@ -1037,8 +1040,7 @@ public class ScrapingService {
         }
 
         // ConnId 의 계좌분류별 스크랩
-        list.forEach(resData -> {
-
+        for (ResBatchRepository.CResYears resData : list) {
             int iType = 0;
             String strType = resData.getResAccountDeposit();
 
@@ -1071,6 +1073,7 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
+            if (iType == 0) continue;
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
 
             if (!repoResBatch.findById(idxResBatchParent).get().endFlag()) {
@@ -1148,13 +1151,14 @@ public class ScrapingService {
                         .endDate(resData.getEndDay())
                         .account(resData.getResAccount())
                         .errCode(strResult[0].get("code").toString())
+                        .transactionId(strResult[0].get("transactionId").toString())
                         .errMessage(strResult[0].get("message").toString())
                         .build());
             } else {
                 throw new RuntimeException("process kill");
             }
 
-        });
+        }
 
     }
 
@@ -1203,6 +1207,7 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
+            if (iType == 0) continue;
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
 
             if (!repoResBatch.findById(idxResBatchParent).get().endFlag()) {
@@ -1283,6 +1288,7 @@ public class ScrapingService {
                         .endDate(resData.getEndDay())
                         .account(resData.getResAccount())
                         .errCode(strResult[0].get("code").toString())
+                        .transactionId(strResult[0].get("transactionId").toString())
                         .errMessage(strResult[0].get("message").toString())
                         .build());
             } else {
@@ -1334,7 +1340,21 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
+            if (iType == 0) continue;
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
+
+            if(iType == 0) {
+                endLog(ResBatchList.builder()
+                        .idx(idxResBatch)
+                        .startDate(resData.getStartDay())
+                        .endDate(resData.getEndDay())
+                        .account(resData.getResAccount())
+                        .transactionId(strResult[0].get("transactionId").toString())
+                        .errCode(strResult[0].get("code").toString())
+                        .errMessage(strResult[0].get("message").toString())
+                        .build());
+                return;
+            }
 
             if (!repoResBatch.findById(idxResBatchParent).get().endFlag()) {
                 try {
@@ -1415,6 +1435,7 @@ public class ScrapingService {
                         .endDate(resData.getEndDay())
                         .account(resData.getResAccount())
                         .errCode(strResult[0].get("code").toString())
+                        .transactionId(strResult[0].get("transactionId").toString())
                         .errMessage(strResult[0].get("message").toString())
                         .build());
             } else {
@@ -1483,6 +1504,7 @@ public class ScrapingService {
                     endLog(ResBatchList.builder()
                             .idx(idxResBatchList)
                             .errCode(strResult[0].get("code").toString())
+                            .transactionId(strResult[0].get("transactionId").toString())
                             .errMessage(strResult[0].get("message").toString())
                             .build());
                 }
@@ -1648,6 +1670,7 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
+            if (iType == 0) continue;
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
 
             if (repoResBatch.findById(idxResBatchParent).get().endFlag()) {
@@ -1734,6 +1757,7 @@ public class ScrapingService {
                     .endDate(resData.getEndDay())
                     .account(resData.getResAccount())
                     .errCode(strResult[0].get("code").toString())
+                    .transactionId(strResult[0].get("transactionId").toString())
                     .errMessage(strResult[0].get("message").toString())
                     .build());
         }
