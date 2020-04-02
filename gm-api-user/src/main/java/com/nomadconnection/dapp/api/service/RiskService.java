@@ -88,6 +88,7 @@ public class RiskService {
 		// 46일
 		List<ResAccountRepository.CRisk> cRisk45days = repoResAccount.find45dayValance(idxUser, calcDate);
 
+		System.out.println(cRisk45days.size());
 		// 45일
 		Stream<ResAccountRepository.CRisk> cRisk45daysTemp = cRisk45days.stream().filter(cRisk -> cRisk.getDsc() > 0);
 		Stream<ResAccountRepository.CRisk> cRisk45daysTemp2 = cRisk45days.stream().filter(cRisk -> cRisk.getDsc() > 0);
@@ -110,10 +111,9 @@ public class RiskService {
 		}
 
 		// currentBalance
+		risk.currentBalance(0F);
 		if(cRisk45days.size() > 0 ){
 			risk.currentBalance(cRisk45days.get(1).getCurrentBalance());
-		}else{
-			risk.currentBalance(0F);
 		}
 
 
@@ -122,14 +122,18 @@ public class RiskService {
 		risk.error(repoRisk.findErrCount(idxUser));
 
 		// 45DMA
-		List<Float> arrList = new ArrayList<>();
+ 		List<Float> arrList = new ArrayList<>();
 		cRisk45daysTemp.forEach( cRisk -> { arrList.add(cRisk.getCurrentBalance()); });
-		float avg = (float) arrList.stream()
-				.mapToDouble(Float::floatValue)
-				.average()
-				.orElse(0);
-
-		risk.dma45(avg);
+//		float avg = (float) arrList.stream()
+//				.filter(n -> n%2 == 0)
+//				.mapToDouble(Float::floatValue)
+//				.average()
+//				.orElse(0);
+		float avg = 0F;
+		for( ResAccountRepository.CRisk cRisk: cRisk45days){
+			if(cRisk.getDsc() > 0 )	avg += cRisk.getCurrentBalance();
+		}
+		risk.dma45(avg/45);
 
 		// 45DMM
 		AtomicInteger i = new AtomicInteger(1);

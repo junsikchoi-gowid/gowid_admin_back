@@ -21,6 +21,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.security.cert.X509Certificate;
+import java.io.ByteArrayInputStream;
+import java.security.cert.CertificateFactory;
+
 
 @Slf4j
 @RestController
@@ -72,23 +76,12 @@ public class AdminController {
 	)
 	@GetMapping( URI.RISK + 1 )
 	@ApiPageable
-	public ResponseEntity genVid(@RequestParam String idNum,
-								 @RequestParam byte[] idRandumNum,
-								 @RequestParam String digestName) throws Exception{
-		byte[] result = null;
+	public boolean genVid() throws Exception{
 
-		DERSequence hashContent = new DERSequence (
-				new ASN1Encodable[] {
-						new DERPrintableString(idNum),
-						new DERBitString(idRandumNum)
-				});
+		return service.getVid();
 
-		byte[] content = hashContent.getDEREncoded();
 
-		result = CryptoUtil.getMessageDigest(content, digestName);
-		result = CryptoUtil.getMessageDigest(result, digestName);
-
-		return result;
 	}
+
 
 }
