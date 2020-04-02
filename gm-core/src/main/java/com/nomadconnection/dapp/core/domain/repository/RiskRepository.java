@@ -16,7 +16,7 @@ import java.util.Optional;
 @Repository
 public interface RiskRepository extends JpaRepository<Risk, Long>, AdminCustomRepository {
 
-    @Query(value = "select sum(if( R.errCode = 'CF-00000', 0, 1 ))\n" +
+    @Query(value = "select ifnull(sum(if( R.errCode = 'CF-00000', 0, 1 )), 0) \n" +
             " from ResBatchList R \n" +
             " join (select account, max(idx) idx  from ResBatchList r where resBatchType = 1 " +
             " and idxResBatch = (SELECT idxResBatch FROM ResBatchList where idxUser = :idxUser order by idxResBatch desc limit 1)  \n" +

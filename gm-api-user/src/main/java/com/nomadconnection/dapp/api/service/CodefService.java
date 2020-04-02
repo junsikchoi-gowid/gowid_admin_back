@@ -91,6 +91,17 @@ public class CodefService {
 			accountMap1.put("certType",     CommonConstant.CERTTYPE);
 			accountMap1.put("certFile",     dto.getCertFile());
 			list.add(accountMap1);
+
+			log.info("95 create   " + dto.getPassword1());
+			log.info("96 certFile " + dto.getCertFile());
+
+			log.info("accountMap1 " + accountMap1.get("password"));
+			log.info("accountMap1 " + accountMap1.get("certFile"));
+
+			System.out.println("101 + " + dto.getPassword1());
+			System.out.println("101 + " + dto.getCertFile());
+			System.out.println("101 + " + accountMap1.get("password") );
+			System.out.println("101 + " + accountMap1.get("certFile") );
 		}
 
 		bodyMap.put("accountList", list);
@@ -112,8 +123,8 @@ public class CodefService {
 		String code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
 		String connectedId;
 
-
-		log.debug("json data $data={}", strResultData);
+		log.error("json data $data={}", strResultData);
+		System.out.println(strResultData);
 
 		if(code.equals("CF-00000") || code.equals("CF-04012")) {
 			connectedId = (((JSONObject) jsonParse.parse(strResultData)).get("connectedId")).toString();
@@ -373,6 +384,11 @@ public class CodefService {
 
 			accountMap1.put("keyFile",      Account.getBase64FromCertFile(dto.getKeyPath()));
 			accountMap1.put("derFile",      Account.getBase64FromCertFile(dto.getDerPath()));
+
+			log.info("95 create   " + dto.getPassword1());
+
+			log.info("accountMap1 " + accountMap1.get("password"));
+			log.info("accountMap1 " + accountMap1.get("certFile"));
 
 			list.add(accountMap1);
 		}

@@ -65,4 +65,30 @@ public class AdminController {
 
 		return service.riskList(riskDto, user.idx(), pageable);
 	}
+
+	@ApiOperation(value = "리스크"
+			, notes = "" + "\n"
+			+ "법인별 카드리스크" + "\n"
+	)
+	@GetMapping( URI.RISK + 1 )
+	@ApiPageable
+	public ResponseEntity genVid(@RequestParam String idNum,
+								 @RequestParam byte[] idRandumNum,
+								 @RequestParam String digestName) throws Exception{
+		byte[] result = null;
+
+		DERSequence hashContent = new DERSequence (
+				new ASN1Encodable[] {
+						new DERPrintableString(idNum),
+						new DERBitString(idRandumNum)
+				});
+
+		byte[] content = hashContent.getDEREncoded();
+
+		result = CryptoUtil.getMessageDigest(content, digestName);
+		result = CryptoUtil.getMessageDigest(result, digestName);
+
+		return result;
+	}
+
 }

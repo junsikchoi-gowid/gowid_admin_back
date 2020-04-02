@@ -110,9 +110,15 @@ public class RiskService {
 		}
 
 		// currentBalance
-		risk.currentBalance(cRisk45days.get(1).getCurrentBalance());
+		if(cRisk45days.size() > 0 ){
+			risk.currentBalance(cRisk45days.get(1).getCurrentBalance());
+		}else{
+			risk.currentBalance(0F);
+		}
+
 
 		// Error
+
 		risk.error(repoRisk.findErrCount(idxUser));
 
 		// 45DMA

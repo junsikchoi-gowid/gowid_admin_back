@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
+
 public interface AdminCustomRepository {
 
 	@Data
@@ -27,8 +29,8 @@ public interface AdminCustomRepository {
 		@ApiModelProperty("카드발급여부")
 		private String cardIssuance;
 
-		@ApiModelProperty("udpateAt")
-		private String updateAt;
+		@ApiModelProperty("updatedAt")
+		private LocalDateTime updatedAt;
 	}
 
 	@Data
@@ -40,21 +42,34 @@ public interface AdminCustomRepository {
 		@ApiModelProperty("법인명")
 		private String idxCorpName;
 
-		@ApiModelProperty("최신잔고")
-		private Float balance;
+		@ApiModelProperty("변경 잔고 ")
+		private float cardLimitNow;
+
+		@ApiModelProperty("부여 한도")
+		private float cardLimit;
 
 		@ApiModelProperty("법인 등급")
 		private String grade;
 
+		@ApiModelProperty("최신잔고")
+		private Float balance;
+
+		@ApiModelProperty("현재잔고")
+		private float currentBalance;
+
+		@ApiModelProperty("cardRestartCount")
+		private Integer cardRestartCount;
+
 		@ApiModelProperty("긴급중지")
-		private String emergencyStop;
+		private Boolean emergencyStop;
 
 		@ApiModelProperty("카드발급여부")
-		private String cardIssuance;
+		private Boolean cardIssuance;
 
-		@ApiModelProperty("udpateAt")
-		private String updateAt;
+		@ApiModelProperty("updatedAt")
+		private LocalDateTime updatedAt;
 
+		/*
 		@ApiModelProperty("법인명(식별자)")
 		public Long idxCorp;
 
@@ -95,8 +110,7 @@ public interface AdminCustomRepository {
 		@ApiModelProperty("최소 유지 잔고")
 		private float minCashNeed;
 
-		@ApiModelProperty("현재잔고")
-		private float currentBalance;
+
 
 		@ApiModelProperty("계좌 스크래핑 오류발생 여부")
 		private Integer error;
@@ -121,12 +135,7 @@ public interface AdminCustomRepository {
 
 		@ApiModelProperty("실시간 한도")
 		private float realtimeLimit;
-
-		@ApiModelProperty("부여 한도")
-		private float cardLimit;
-
-		@ApiModelProperty("변경 잔고 ")
-		private float cardLimitNow;
+		*/
 	}
 
 	Page<RiskCustomDto> riskList(SearchRiskDto risk, Long idx, Pageable pageable);

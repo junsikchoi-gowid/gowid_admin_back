@@ -48,6 +48,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", comm.ResAccountDeposit as ResAccountDeposit\n" +
             ", comm.resAccountCurrency as resAccountCurrency\n" +
             ", comm.nowMonth as nowMonth " +
+            ", comm.nowMonthFirst as nowMonthFirst "+
             ", comm.errCode as errCode " +
             " from ( select \n" +
             "case  \n" +
@@ -67,11 +68,14 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", A.resAccountDeposit \n" +
             ", A.resAccountCurrency \n" +
             ", A.nowMonth \n" +
+            ", A.nowMonthFirst \n" +
             ", A.errCode \n" +
             "from (\n" +
             "select \n" +
             "(select errCode from ResBatchList where account = main.resAccount and Date_Format(startDate, '%Y%m') = Date_Format(main.startDay, '%Y%m') order by idx desc limit 1) errCode,\n" +
-            "main.*, if(Date_Format(now() , '%Y%m') = Date_Format(main.startDay, '%Y%m'), 1, 0 ) as nowMonth from \n" +
+            "main.*, " +
+            " if(Date_Format(now() , '%Y%m') = Date_Format(main.startDay, '%Y%m'), 1, 0 ) as nowMonth, \n" +
+            " if(Date_Format(now() ,'%d') = '01', 1,0 ) as nowMonthFirst  from " +
             "(select if(y = Date_Format(resAccountStartDate , '%Y%m'), resAccountStartDate, concat(L.y,'01')) startDay\n" +
             ", if(y = Date_Format(now() , '%Y%m'), Date_Format(now() , '%Y%m%d'), date_format(last_day(concat(L.y,'01')),'%Y%m%d')) as endDay\n" +
             ", R.resAccountStartDate\n" +
@@ -93,7 +97,9 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "join ConnectedMng cm on R.connectedId = cm.connectedId and idxUser = :idxUser\n" +
             ") main\n" +
             ") A \n" +
-            ") comm where ((errCode is null or errCode != 'CF-00000') and Date_Format(startDay , '%Y%m') >= Date_Format(resAccountStartDate , '%Y%m')) or nowMonth = 1\n" +
+            ") comm where ((errCode is null or errCode != 'CF-00000') and Date_Format(startDay , '%Y%m') >= Date_Format(resAccountStartDate , '%Y%m')) " +
+            "or (true and nowMonth = 1) \n" +
+            "or (true and Date_Format(startDay , '%Y%m') >= date_format(date_add(now(), INTERVAL - 1 month), '%Y%m') and nowMonthFirst = 1) \n"+
             "order by startDay desc, endDay desc",nativeQuery = true)
     List<ResBatchRepository.CResYears> findStartDateMonth(Long idxUser);
 
@@ -106,6 +112,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", comm.resAccountDeposit as resAccountDeposit\n" +
             ", comm.resAccountCurrency as resAccountCurrency\n" +
             ", comm.nowMonth as nowMonth " +
+            ", comm.nowMonthFirst as nowMonthFirst " +
             ", comm.errCode as errCode " +
             "from \n" +
             "( select \n" +
@@ -126,11 +133,14 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", A.resAccountDeposit \n" +
             ", A.resAccountCurrency \n" +
             ", A.nowMonth\n" +
+            ", A.nowMonthFirst \n" +
             ", A.errCode\n" +
             "from (\n" +
             "select \n" +
             "(select errCode from ResBatchList where account = main.resAccount and Date_Format(startDate, '%Y%m') = Date_Format(main.startDay, '%Y%m') order by idx desc limit 1) errCode,\n" +
-            "main.*, if(Date_Format(now() , '%Y%m') = Date_Format(main.startDay, '%Y%m'), 1, 0 ) as nowMonth from \n" +
+            "main.*, " +
+            " if(Date_Format(now() , '%Y%m') = Date_Format(main.startDay, '%Y%m'), 1, 0 ) as nowMonth, \n" +
+            " if(Date_Format(now() ,'%d') = '01', 1,0 ) as nowMonthFirst  from " +
             "(select if(y = Date_Format(resAccountStartDate , '%Y%m'), resAccountStartDate, concat(L.y,'01')) startDay\n" +
             ", if(y = Date_Format(now() , '%Y%m'), Date_Format(now() , '%Y%m%d'), date_format(last_day(concat(L.y,'01')),'%Y%m%d')) as endDay\n" +
             ", R.resAccountStartDate\n" +
@@ -152,7 +162,9 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "join ConnectedMng cm on R.connectedId = cm.connectedId and idxUser = :idxUser\n" +
             ") main\n" +
             ") A \n" +
-            ") comm where ((errCode is null or errCode != 'CF-00000') and Date_Format(startDay , '%Y%m') >= Date_Format(resAccountStartDate , '%Y%m')) or ( :boolNow and nowMonth = 1) \n" +
+            ") comm where ((errCode is null or errCode != 'CF-00000') and Date_Format(startDay , '%Y%m') >= Date_Format(resAccountStartDate , '%Y%m')) " +
+            "or (:boolNow and nowMonth = 1) \n" +
+            "or (:boolNow and Date_Format(startDay , '%Y%m') >= date_format(date_add(now(), INTERVAL - 1 month), '%Y%m') and nowMonthFirst = 1) \n"+
             "order by startDay desc, endDay desc",nativeQuery = true)
     List<ResBatchRepository.CResYears> find10yearMonth(Long idxUser , Boolean boolNow);
 

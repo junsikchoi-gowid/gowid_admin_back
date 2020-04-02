@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.core.domain.repository.querydsl;
 import com.nomadconnection.dapp.core.domain.*;
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
@@ -40,14 +41,30 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
 				.join(resAccount).on(connectedMng.connectedId.eq(resAccount.connectedId))
 				.select(Projections.bean(RiskCustomDto.class,
 						corp.resCompanyNm.as("idxCorpName"),
-						resAccount.resAccountBalance.castToNum(Float.class).sum().as("Balance"),
 						risk.cardLimitNow.as("cardLimitNow"),
+						risk.cardLimit.as("cardLimit"),
+						risk.grade.as("grade"),
+						resAccount.resAccountBalance.castToNum(Float.class).sum().as("Balance"),
 						risk.currentBalance.as("currentBalance"),
-						risk.grade.as("grade")))
-				.groupBy(corp.resCompanyNm,risk.cardLimitNow,risk.currentBalance,risk.grade )
+						risk.cardRestartCount.as("cardRestartCount"),
+						risk.emergencyStop.as("emergencyStop"),
+						risk.cardIssuance.as("cardIssuance"),
+						risk.updatedAt.as("updatedAt")
+				))
+				.groupBy(
+						corp.resCompanyNm,
+						risk.cardLimitNow,
+						risk.cardLimit,
+						risk.grade,
+						risk.currentBalance,
+						risk.cardRestartCount,
+						risk.emergencyStop,
+						risk.cardIssuance,
+						risk.updatedAt
+						)
 				;
 
-
+		/*
 		if(dto.idxCorpName != null ){
 			// query.where( risk.irType.eq(dto.irType()));
 		}
@@ -64,9 +81,10 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
 			query.where(risk.cardIssuance.eq(dto.getCardIssuance().equals("true")));
 		}
 
-		if ( dto.getUpdateAt() != null ) {
+		if ( dto.getUpdatedAt() != null ) {
 			// query.(risk.updatedAt( ))
 		}
+		*/
 
 		/*
 		if(sortBy != null) {
