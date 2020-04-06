@@ -11,6 +11,7 @@ dependencies {
             "org.springframework.boot:spring-boot-starter-thymeleaf",
             "org.codehaus.janino:janino",
             "org.springframework.boot:spring-boot-devtools",
-            "com.googlecode.json-simple:json-simple:1.1.1"
+            "com.googlecode.json-simple:json-simple:1.1.1",
+            "org.bouncycastle:bcprov-jdk16:1.46"
     )
 }

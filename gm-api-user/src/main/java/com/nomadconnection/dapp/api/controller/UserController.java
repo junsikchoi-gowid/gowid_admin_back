@@ -275,4 +275,17 @@ public class UserController {
 
 		return service.registerUserPasswordUpdate(dto, user.idx());
 	}
+
+	@ApiOperation(
+			value = "Brand 비밀번호 수정 2 ",
+			notes = "### Remarks "
+	)
+	@PostMapping(URI.REGISTRATION_PW+2)
+	public ResponseEntity registerUserPasswordUpdate2(
+			@RequestParam Long idxUser ,
+			@RequestBody UserDto.registerUserPasswordUpdate dto
+	) {
+
+		return service.registerUserPasswordUpdate(dto, idxUser);
+	}
 }

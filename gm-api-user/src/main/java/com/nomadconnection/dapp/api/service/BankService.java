@@ -117,13 +117,19 @@ public class BankService {
 	public ResponseEntity dayBalance(BankDto.DayBalance dto, Long idx) {
 
 		String strDate = dto.getDay();
+		String endDate = dto.getDay();
 		if(strDate == null){
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 			Calendar c1 = Calendar.getInstance();
+			// strDate = sdf.format(c1.getTime());
+			endDate = sdf.format(c1.getTime());
+			c1.add(Calendar.MONTH, -1);
+			c1.add(Calendar.DATE, 1);
 			strDate = sdf.format(c1.getTime());
+
 		}
 
-		List<ResAccountRepository.CaccountCountDto> transactionList = repoResAccount.findDayHistory(strDate.substring(0, 6) + "00", strDate.substring(0, 6) + "32", idx);
+		List<ResAccountRepository.CaccountCountDto> transactionList = repoResAccount.findDayHistory(strDate, endDate, idx);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(transactionList).build());
 	}

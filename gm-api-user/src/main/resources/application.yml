@@ -32,6 +32,7 @@ spring:
   cron:
     enabled: false
     time: 0 0 2 * * *
+    endtime: 0 0 6 * * *
   mail:
     sender: gowid <support@gowid.com>
     host: email-smtp.us-west-2.amazonaws.com
@@ -54,6 +55,7 @@ spring:
   cron:
     enabled: true
     time: 0 0 2 * * *
+    endtime: 0 0 6 * * *
   mail:
     sender: gowid <support@gowid.com>
     host: email-smtp.us-west-2.amazonaws.com

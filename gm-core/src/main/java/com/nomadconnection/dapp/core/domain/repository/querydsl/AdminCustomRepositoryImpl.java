@@ -20,7 +20,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
 	private final QRisk risk = QRisk.risk;
 	private final QUser user = QUser.user;
 	private final QCorp corp = QCorp.corp;
-	private final QResAccount resAccount = QResAccount.resAccount1;
+	private final QResAccount resAccount1 = QResAccount.resAccount1;
 	private final QConnectedMng connectedMng = QConnectedMng.connectedMng;
 
 
@@ -33,18 +33,18 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
 
 	@Override
 	public Page<RiskCustomDto> riskList(SearchRiskDto dto, Long idx, Pageable pageable) {
-		
+
 		final JPQLQuery<RiskCustomDto> query = from(risk)
 				.join(user).on(user.idx.eq(risk.idxUser))
 				.join(corp).on(corp.idx.eq(user.corp.idx))
 				.join(connectedMng).on(connectedMng.idxUser.eq(risk.idxUser))
-				.join(resAccount).on(connectedMng.connectedId.eq(resAccount.connectedId))
+				.join(resAccount1).on(connectedMng.connectedId.eq(resAccount1.connectedId))
 				.select(Projections.bean(RiskCustomDto.class,
 						corp.resCompanyNm.as("idxCorpName"),
 						risk.cardLimitNow.as("cardLimitNow"),
 						risk.cardLimit.as("cardLimit"),
 						risk.grade.as("grade"),
-						resAccount.resAccountBalance.castToNum(Float.class).sum().as("Balance"),
+						resAccount1.resAccountBalance.castToNum(Float.class).sum().as("Balance"),
 						risk.currentBalance.as("currentBalance"),
 						risk.cardRestartCount.as("cardRestartCount"),
 						risk.emergencyStop.as("emergencyStop"),
@@ -98,6 +98,6 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
 
 		final List<RiskCustomDto> riskList = getQuerydsl().applyPagination(pageable, query).fetch();
 
-		return new PageImpl(riskList, pageable, query.fetchCount());
+		return new PageImpl(riskList, pageable, riskList.size());
 	}
 }

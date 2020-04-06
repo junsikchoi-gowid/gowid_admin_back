@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository;
 
+import com.nomadconnection.dapp.core.domain.Dept;
 import com.nomadconnection.dapp.core.domain.ResBatch;
 import com.nomadconnection.dapp.core.domain.ResBatchList;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +14,11 @@ import java.util.List;
 
 @Repository
 public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
+
+    @Transactional
+    @Modifying
+    @Query("update ResBatch set endFlag = true , updatedAt = now() where createdAt > date_format( now(), '%Y%m%d') and endFlag = false ")
+    int endBatch();
 
     @Query(value = "select \n" +
             "    a.idx as idx, \n" +

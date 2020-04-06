@@ -39,4 +39,11 @@ public class SchedulerService {
         }
     }
 
+    @Scheduled(cron="${spring.cron.endtime}")
+    private void schedule_end() {
+        log.error("schedule end");
+        if( cronConfig.getEnabled().equals("true")){
+            repoResBatch.endBatch();
+        }
+    }
 }
