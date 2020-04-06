@@ -12,4 +12,5 @@ public class CronConfig {
 
 	private String enabled;
 	private String time;
+	private String endtime;
 }

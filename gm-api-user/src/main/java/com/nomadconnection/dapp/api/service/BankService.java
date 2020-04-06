@@ -117,13 +117,19 @@ public class BankService {
 	public ResponseEntity dayBalance(BankDto.DayBalance dto, Long idx) {
 
 		String strDate = dto.getDay();
+		String endDate = dto.getDay();
 		if(strDate == null){
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 			Calendar c1 = Calendar.getInstance();
+			// strDate = sdf.format(c1.getTime());
+			endDate = sdf.format(c1.getTime());
+			c1.add(Calendar.MONTH, -1);
+			c1.add(Calendar.DATE, 1);
 			strDate = sdf.format(c1.getTime());
+
 		}
 
-		List<ResAccountRepository.CaccountCountDto> transactionList = repoResAccount.findDayHistory(strDate.substring(0, 6) + "00", strDate.substring(0, 6) + "32", idx);
+		List<ResAccountRepository.CaccountCountDto> transactionList = repoResAccount.findDayHistory(strDate, endDate, idx);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(transactionList).build());
 	}
@@ -190,7 +196,7 @@ public class BankService {
 	@Transactional(readOnly = true)
 	public ResponseEntity accountList(Long idx) {
 
-		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(idx)
+		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(idx).stream()
 				.map(BankDto.ResAccountDto::from)
 				.collect(Collectors.toList());
 
@@ -331,37 +337,6 @@ public class BankService {
 	List<ConnectedMng> getFindByIdxUser(Long idx) {
 		return repoConnectedMng.findByIdxUser(idx);
 	}
-
-	@Transactional
-	public Long startLog(String account, String connectedId, ResBatchType resBatchType,Long idxResBatch, Long idxUser) {
-		ResBatchList result = repoResBatchList.save(
-				ResBatchList.builder()
-						.idxUser(idxUser)
-						.account(account)
-						.connectedId(connectedId)
-						.resBatchType(resBatchType)
-						.idxResBatch(idxResBatch)
-						.build());
-		return result.idx();
-	}
-
-	@Transactional
-	public void endLog(String account, Long idxResBatch, String code, String message) {
-		repoResBatchList.findById(idxResBatch).ifPresent(resBatch -> {
-			repoResBatchList.save(
-					ResBatchList.builder()
-							.idx(idxResBatch)
-							.account(account)
-							.errCode(code)
-							.errMessage(message)
-							.connectedId(resBatch.connectedId())
-							.resBatchType(resBatch.resBatchType())
-							.idxResBatch(resBatch.idxResBatch())
-							.build());
-		});
-	}
-
-
 
 	@Transactional
 	public ResBatch startBatchLog(Long userIdx) {

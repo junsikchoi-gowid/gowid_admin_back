@@ -44,13 +44,13 @@ public class RiskController {
 
 	@ApiOperation(value = "리스크", notes = "" + "\n")
 	@GetMapping( URI.RISK )
-	public ResponseEntity SaveRisk(@RequestParam Long idxUser) {
-		return service.saveRisk(idxUser);
+	public ResponseEntity saveRisk(@RequestParam Long idxUser,@RequestParam(required = false) String calcDate) {
+		return service.saveRisk(idxUser, calcDate);
 	}
 
 	@ApiOperation(value = "리스크 설정 저장", notes = "" + "\n")
 	@GetMapping( URI.RISKCONFIG )
-	public ResponseEntity SaveRiskConfig(@RequestParam Long idxUser ,
+	public ResponseEntity saveRiskConfig(@RequestParam Long idxUser ,
 									  @ModelAttribute RiskDto.RiskConfigDto riskConfigDto) {
 		return service.saveRiskConfig(riskConfigDto);
 	}

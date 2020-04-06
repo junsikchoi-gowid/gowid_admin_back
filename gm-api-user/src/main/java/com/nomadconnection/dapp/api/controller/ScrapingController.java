@@ -2,15 +2,19 @@ package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.service.ScrapingService;
+import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 
 @Slf4j
@@ -25,7 +29,7 @@ public class ScrapingController {
     @SuppressWarnings("WeakerAccess")
     public static class URI {
         public static final String BASE = "/batch/v1";
-        public static final String JUST_ACCOUNT = "/account";    // 입출금 거래내역
+        public static final String STOP = "/stop";    // 입출금 거래내역
         public static final String SCRAPING_ACCOUNT = "/account-all";    // 은행 기업 보유계좌 + 거래내역
         public static final String SCRAPING_ACCOUNT_HISTORY = "/account-history";    // 입출금 거래내역
 
@@ -52,12 +56,9 @@ public class ScrapingController {
         return service.aWaitScraping10Years(idxUser);
     }
 
-    @ApiOperation(value = "계좌만", notes = "" + "\n")
-    @GetMapping(URI.JUST_ACCOUNT)
-    public void scrapingRegisterAccount(@RequestParam Long idxUser) throws InterruptedException {
-        if (log.isDebugEnabled()) {
-            log.debug("([AccountTransactionList ]) $dto='{}'", idxUser);
-        }
-        service.scrapingAccount(idxUser, (long) 1);
+    @ApiOperation(value = "스크래핑 중지", notes = "" + "\n")
+    @GetMapping( URI.STOP )
+    public ResponseEntity scrapingProcessKill(@RequestParam Long idxUser) {
+        return service.scrapingProcessKill(idxUser);
     }
 }

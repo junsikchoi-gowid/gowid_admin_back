@@ -16,10 +16,52 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
 
     List<ResAccount> findByConnectedIdAndResAccountDepositIn(String connectedId, List<String> resAccountDeposit);
 
-    @Query("select R from ResAccount R " +
-            "   where connectedId in (select connectedId from ConnectedMng where idxUser =:idxUser)" +
-            "   order by field(resAccountDeposit, 10,11,12,13,14,30,20,40), resAccountNickName ASC, resAccountName ASC ")
-    Stream<ResAccount> findConnectedId(Long idxUser);
+    @Query(value = " select idx" +
+            ",ifnull ( nullif(nickName, ''), ifnull ( nullif(resAccountNickName,''), nullif(resAccountName,'') )) as nickName" +
+            ",resAccountNickName "+
+            ",connectedId" +
+            ",organization" +
+            ",type" +
+            ",resAccount " +
+            ",resAccountDisplay " +
+            ",resAccountBalance" +
+            ",resAccountDeposit" +
+            ",resAccountCurrency" +
+            ",resAccountStartDate" +
+            ",resAccountEndDate" +
+            ",resLastTranDate" +
+            ",resAccountName" +
+            ",resOverdraftAcctYN" +
+            ",resLoanKind" +
+            ",resLoanBalance" +
+            ",resLoanStartDate" +
+            ",resLoanEndDate" +
+            ",resAccountInvestedCost" +
+            ",resEarningsRate" +
+            ",resAccountLoanExecNo" +
+            ",resAccountHolder" +
+            ",resManagementBranch" +
+            ",resAccountStatus" +
+            ",resWithdrawalAmt" +
+            ",commEndDate" +
+            ",commStartDate" +
+            ",resFinalRoundNo" +
+            ",resMonthlyPayment" +
+            ",resValidPeriod" +
+            ",resType" +
+            ",resRate" +
+            ",resContractAmount" +
+            ",resPaymentMethods" +
+            ",resBalanceNum" +
+            ",resPrincipal" +
+            ",resDatePayment" +
+            ",resState" +
+            ",createdAt" +
+            ",updatedAt" +
+            " from ResAccount " +
+            "   where connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser ) " +
+            "   order by field(resAccountDeposit , 10,11,12,13,14,30,20,40), resAccountNickName ASC, resAccountName ASC ", nativeQuery = true)
+    List<ResAccount> findConnectedId(Long idxUser);
 
     @Query(value = " select      " +
             " R.resAccountDeposit,     " +
@@ -56,7 +98,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             "                sum(resAccountIn) sumResAccountIn ,   " +
             "                sum(resAccountOut) sumResAccountOut    " +
             "                from ResAccountHistory a                      " +
-            "          join ResAccount b on b.resAccount = a.resAccount and resAccountDeposit in ('10','11','12','13','14','30')   " +
+            "          join ResAccount b on b.resAccount = a.resAccount and resAccountDeposit in ('10','11','12','13','14')   " +
             "          join ConnectedMng c  on c.connectedId = b.connectedId and c.idxUser = :idxUser   " +
             "                where resAccountTrDate  between  :startDate and  :endDate     " +
             "                group by resAccountTrDate ) groupB    " +
@@ -91,7 +133,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             "  sum(resAccountIn) sumResAccountIn ,     " +
             "  sum(resAccountOut) sumResAccountOut      " +
             "  from ResAccountHistory a1                       " +
-            "   join ResAccount b on b.resAccount = a1.resAccount and resAccountDeposit in ('10','11','12','13','14','30')     " +
+            "   join ResAccount b on b.resAccount = a1.resAccount and resAccountDeposit in ('10','11','12','13','14')     " +
             "   join ConnectedMng c  on c.connectedId = b.connectedId and c.idxUser = :idxUser     " +
             "  where Date_Format(resAccountTrDate,  '%Y%m') >= :startMonth and  Date_Format(resAccountTrDate,  '%Y%m') <= :endMonth     " +
             "  group by Date_Format(resAccountTrDate,  '%Y%m')     " +
@@ -121,22 +163,29 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
     List<Long> findBalance(Long idxUser);
 
     Optional<ResAccount> findByConnectedIdAndResAccount(String connectedId, String resAccount);
+    Optional<ResAccount> findByResAccount(String resAccount);
 
-    @Query(value = "select DATEDIFF(now(),ds) dsc , ds, sum(ifnull(ifnull(if(errCnt is null, value1,0),if(errCnt is null, value2,0)),if(errCnt is null, value3,0))) currentBalance  " +
+    @Query(value = "select DATEDIFF(:calcDate,ds) dsc , ds, sum(ifnull(ifnull(if(errCnt is null, value1,0),if(errCnt is null, value2,0)),if(errCnt is null, value3,0))) currentBalance  " +
             "from  " +
             "(  select ds, resAccount, errCnt " +
             "  ,(select resAfterTranBalance from ResAccountHistory r       " +
             "    where r.resAccount = b.resAccount and resAccountTrDate < ds order by resAccountTrDate desc, resAccountTrTime desc, idx limit 1) value1 " +
             "  ,(select resAfterTranBalance from ResAccountHistory r       " +
-            "    where resAccountTrDate >= ds and r.resAccount = b.resAccount order by resAccountTrDate asc, resAccountTrTime asc, idx desc limit 1) value2   " +
+            "    where resAccountTrDate >= ds and r.resAccount = b.resAccount order by resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1) value2   " +
             "  , (select if( ds >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance       " +
             "  from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3 " +
-            "    from (select ds from date_t c where d between date_add(now(), INTERVAL - 46 day) and now()) g     " +
+            "    from (select ds from date_t c where d between date_add(now(), INTERVAL - 46 day) and :calcDate) g     " +
             "    join ResAccount b on b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14') " +
             "    left join (select count(account) as errCnt, account from ResBatchList r where errCode != 'CF-00000' and resBatchType = 1  " +
             "      and idxResBatch = (SELECT idxResBatch FROM ResBatchList where idxUser = :idxUser order by idxResBatch desc limit 1) group by account) c on c.account = b.resAccount " +
-            ") a group by ds ", nativeQuery = true)
-    List<CRisk> find45dayValance(Long idxUser);
+            ") a group by dsc ", nativeQuery = true)
+    List<CRisk> find45dayValance(Long idxUser, String calcDate);
+
+    @Query(value = "select sum(resAccountBalance) as resAccountBalance from ResAccount " +
+            " where " +
+            " resAccountDeposit in (10,11,12,13,14) " +
+            " and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser) ", nativeQuery = true)
+    Float findAccountBalance(Long idxUser);
 
     public static interface CRisk {
         Integer getDsc();

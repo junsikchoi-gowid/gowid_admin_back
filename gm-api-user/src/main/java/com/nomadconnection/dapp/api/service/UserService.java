@@ -37,6 +37,8 @@ public class UserService {
 	private final JavaMailSenderImpl sender;
 	private final PasswordEncoder encoder;
 	private final UserRepository repo;
+	private final RiskConfigRepository repoRiskConfig;
+
 	private final ConsentMappingRepository repoConsentMapping;
 	private final ReceptionRepository receptionRepository;
 	private final CorpRepository repoCorp;
@@ -350,6 +352,16 @@ public class UserService {
 			);
 		}
 
+		repoRiskConfig.save(RiskConfig.builder()
+				.idxUser(user.idx())
+				.ceoGuarantee(false)
+				.cardIssuance(false)
+				.ventureCertification(false)
+				.vcInvestment(false)
+				.depositPayment(false)
+				.depositGuarantee(0F)
+				.build());
+
 		TokenDto.TokenSet tokenSet = issueTokenSet(AccountDto.builder()
 				.email(dto.getEmail())
 				.password(dto.getPassword())
@@ -415,6 +427,7 @@ public class UserService {
 		// 법인정보 갱신(상태: 승인/거절, 법인한도)
 		// corp.creditLimit(creditLimit);
 		corp.status(CorpStatus.APPROVED);
+
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(BusinessResponse.Normal.builder()
 						.status(true)

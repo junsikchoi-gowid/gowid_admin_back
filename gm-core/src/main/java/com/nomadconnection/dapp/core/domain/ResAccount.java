@@ -21,6 +21,7 @@ public class ResAccount extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
     private Long idx;
+
     private String nickName; // 별칭 시스템용
     private String connectedId; // 커넥트드 아이디
     private String organization; // 기관코드
