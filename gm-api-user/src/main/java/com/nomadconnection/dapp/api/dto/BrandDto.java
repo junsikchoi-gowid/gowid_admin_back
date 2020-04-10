@@ -34,7 +34,7 @@ public class BrandDto {
     @AllArgsConstructor
     public static class CompanyCard {
 
-        @ApiModelProperty("카드회사이름 etc 1.현대 2.삼성")
+        @ApiModelProperty("카드회사이름 etc 1.현대 2.삼성 3.신한")
         private CardCompany companyCode;
     }
 

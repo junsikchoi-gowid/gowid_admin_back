@@ -257,12 +257,6 @@ public class AuthService {
 						.build()
 		);
 
-		if (!encoder.matches(dto.getPassword(), user.password())) {
-			throw UnauthorizedException.builder()
-					.account(dto.getEmail())
-					.build();
-		}
-
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 
@@ -293,8 +287,8 @@ public class AuthService {
 	@Transactional
 	public AuthDto.AuthInfo info(Long idxUser) {
 		User user = serviceUser.getUser(idxUser);
-		Set<Authority> authorities = user.authorities(); 
-		
+		Set<Authority> authorities = user.authorities();
+
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 		boolean signMapping = false;

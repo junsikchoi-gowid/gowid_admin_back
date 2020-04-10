@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Repository
 public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
@@ -165,32 +164,52 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
     Optional<ResAccount> findByConnectedIdAndResAccount(String connectedId, String resAccount);
     Optional<ResAccount> findByResAccount(String resAccount);
 
-    @Query(value = "select DATEDIFF(:calcDate,ds) dsc , ds, sum(ifnull(ifnull(if(errCnt is null, value1,0),if(errCnt is null, value2,0)),if(errCnt is null, value3,0))) currentBalance  " +
-            "from  " +
-            "(  select ds, resAccount, errCnt " +
-            "  ,(select resAfterTranBalance from ResAccountHistory r       " +
-            "    where r.resAccount = b.resAccount and resAccountTrDate < ds order by resAccountTrDate desc, resAccountTrTime desc, idx limit 1) value1 " +
-            "  ,(select resAfterTranBalance from ResAccountHistory r       " +
-            "    where resAccountTrDate >= ds and r.resAccount = b.resAccount order by resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1) value2   " +
-            "  , (select if( ds >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance       " +
-            "  from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3 " +
-            "    from (select ds from date_t c where d between date_add(now(), INTERVAL - 46 day) and :calcDate) g     " +
-            "    join ResAccount b on b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14') " +
-            "    left join (select count(account) as errCnt, account from ResBatchList r where errCode != 'CF-00000' and resBatchType = 1  " +
-            "      and idxResBatch = (SELECT idxResBatch FROM ResBatchList where idxUser = :idxUser order by idxResBatch desc limit 1) group by account) c on c.account = b.resAccount " +
-            ") a group by dsc ", nativeQuery = true)
+    @Query(value = "select DATEDIFF(:calcDate,ds) dsc " +
+            " , ds" +
+            " , sum(ifnull(ifnull(if(errCnt is null, value1,0),if(errCnt is null, value2,0)),if(errCnt is null, value3,0))) as currentBalance \n" +
+            " , max(errCnt) errCnt " +
+            " , max(errCode) errCode " +
+            "from  \n" +
+            "(  select ds, resAccount, errCnt, errCode \n" +
+            "  , (select resAfterTranBalance from ResAccountHistory r\n" +
+            "     where resAccountTrDate <= ds and b.resAccount = r.resAccount \n" +
+            "     order by resAccountTrDate desc , resAccountTrDate desc, resAccountTrTime desc, idx limit 1) value1 \n" +
+            "  , (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r       \n" +
+            "    where resAccountTrDate >= ds and b.resAccount = r.resAccount\n" +
+            "    order by resAccountTrDate asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1) value2   \n" +
+            "  , (select if( ds >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance       \n" +
+            "  from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3 \n" +
+            "    from (select ds from date_t c where d between date_add(:calcDate, INTERVAL - 44 day) and :calcDate) g     \n" +
+            "    join ResAccount b on b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14') \n" +
+            "    left join (select count(account) as errCnt, max(errCode) as errCode, account from ResBatchList r where errCode != 'CF-00000' and resBatchType = 1    \n" +
+            "      and idxResBatch = (SELECT idxResBatch FROM ResBatchList where idxUser = :idxUser order by idxResBatch desc limit 1) group by account, errCode) c on c.account = b.resAccount\n" +
+            ") a group by dsc order by dsc asc ", nativeQuery = true)
     List<CRisk> find45dayValance(Long idxUser, String calcDate);
 
-    @Query(value = "select sum(resAccountBalance) as resAccountBalance from ResAccount " +
-            " where " +
-            " resAccountDeposit in (10,11,12,13,14) " +
-            " and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser) ", nativeQuery = true)
-    Float findAccountBalance(Long idxUser);
+    @Query(value = " select sum(ifnull(ifnull(if(errCnt is null, value1,0),if(errCnt is null, value2,0)),if(errCnt is null, value3,0))) as currentBalance \n" +
+            "from  \n" +
+            "( select resAccount, errCnt \n" +
+            "  , (select resAfterTranBalance from ResAccountHistory r\n" +
+            "     where resAccountTrDate <= Date_Format(now(),  '%Y%m%d')  and b.resAccount = r.resAccount \n" +
+            "     order by resAccountTrDate desc , resAccountTrDate desc, resAccountTrTime desc, idx limit 1) value1 \n" +
+            "  , (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r       \n" +
+            "    where resAccountTrDate >= Date_Format(now(),  '%Y%m%d') and b.resAccount = r.resAccount\n" +
+            "    order by resAccountTrDate asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1) value2   \n" +
+            "  , (select if( Date_Format(now(),  '%Y%m%d') >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance       \n" +
+            "  from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3 \n" +
+            "from ResAccount b     \n" +
+            "\tleft join (select count(account) as errCnt, account from ResBatchList r where errCode != 'CF-00000' and resBatchType = 1  \n" +
+            "      and idxResBatch = (SELECT idxResBatch FROM ResBatchList where idxUser = :idxUser order by idxResBatch desc limit 1) group by account) c on c.account = b.resAccount\n" +
+            "where b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14') \n" +
+            ") z ", nativeQuery = true)
+    Double findRecentBalance(Long idxUser);
 
     public static interface CRisk {
         Integer getDsc();
         String getDs();
         float getCurrentBalance();
+        String getErrCnt();
+        String getErrCode();
     }
 
     public static interface CaccountCountDto {
@@ -228,4 +247,6 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             nativeQuery = true
     )
     Page<ResAccount> findExternalAccount(Pageable pageable, Long idxUser);
+
+
 }

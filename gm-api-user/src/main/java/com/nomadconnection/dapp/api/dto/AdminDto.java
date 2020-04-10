@@ -37,7 +37,7 @@ public class AdminDto {
 		private boolean ceoGuarantee;
 
 		@ApiModelProperty("요구 보증금")
-		private float depositGuarantee;
+		private double depositGuarantee;
 
 		@ApiModelProperty("보증금 납입 여부")
 		private boolean depositPayment;
@@ -58,43 +58,43 @@ public class AdminDto {
 		private Integer gradeLimitPercentage;
 
 		@ApiModelProperty("최소 잔고")
-		private float minStartCash;
+		private double minStartCash;
 
 		@ApiModelProperty("최소 유지 잔고")
-		private float minCashNeed;
+		private double minCashNeed;
 
 		@ApiModelProperty("현재잔고")
-		private float currentBalance;
+		private double currentBalance;
 
 		@ApiModelProperty("계좌 스크래핑 오류발생 여부")
 		private Integer error;
 
 		@ApiModelProperty("잔고의 45일 평균값")
-		private float dma45;
+		private double dma45;
 
 		@ApiModelProperty("잔고의 45일 중간값")
-		private float dmm45;
+		private double dmm45;
 
 		@ApiModelProperty("보증금제외 현재잔고")
-		private Float actualBalance;
+		private double actualBalance;
 
 		@ApiModelProperty("한도기준잔고")
-		private float cashBalance;
+		private double cashBalance;
 
 		@ApiModelProperty("발급가능여부")
 		private boolean cardAvailable;
 
 		@ApiModelProperty("한도계산값")
-		private float cardLimitCalculation;
+		private double cardLimitCalculation;
 
 		@ApiModelProperty("실시간 한도")
-		private float realtimeLimit;
+		private double realtimeLimit;
 
 		@ApiModelProperty("부여 한도")
-		private float cardLimit;
+		private double cardLimit;
 
 		@ApiModelProperty("변경 잔고 ")
-		private float cardLimitNow;
+		private double cardLimitNow;
 
 		@ApiModelProperty("긴급중지")
 		private boolean emergencyStop;
@@ -102,7 +102,7 @@ public class AdminDto {
 
 		public static RiskDto from(Risk risk){
 			RiskDto riskDto = RiskDto.builder()
-					.idxUser(risk.idxUser())
+					.idxUser(risk.user().idx())
 					.date(risk.date())
 					.ceoGuarantee(risk.ceoGuarantee())
 					.depositGuarantee(risk.depositGuarantee())

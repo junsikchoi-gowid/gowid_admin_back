@@ -348,18 +348,19 @@ public class UserService {
 							.idxConsent(regDto.idxConsent)
 							.idxUser(user.idx())
 							.status(regDto.status)
-					.build()
+							.build()
 			);
 		}
 
 		repoRiskConfig.save(RiskConfig.builder()
-				.idxUser(user.idx())
+				.user(user)
 				.ceoGuarantee(false)
 				.cardIssuance(false)
 				.ventureCertification(false)
 				.vcInvestment(false)
 				.depositPayment(false)
 				.depositGuarantee(0F)
+				.enabled(true)
 				.build());
 
 		TokenDto.TokenSet tokenSet = issueTokenSet(AccountDto.builder()
@@ -575,7 +576,7 @@ public class UserService {
 				Reception.builder()
 						.receiver(key)
 						.status(true)
-				.build()
+						.build()
 		);
 		return ResponseEntity.ok().body(BusinessResponse.builder().build());
 	}

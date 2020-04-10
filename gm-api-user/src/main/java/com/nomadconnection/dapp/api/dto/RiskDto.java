@@ -15,36 +15,37 @@ import lombok.NoArgsConstructor;
 public class RiskDto {
     @ApiModelProperty("이용약관(식별자)")
     public Long idx;
+
+    public String date;
+    public boolean ceoGuarantee;
+    public double depositGuarantee;
+    public boolean depositPayment;
+    public boolean cardIssuance;
+    public boolean ventureCertification;
+    public boolean vcInvestment;
+    public String grade;
+    public Integer gradeLimitPercentage;
+    public double minStartCash;
+    public double minCashNeed;
+    public double currentBalance;
+    public Integer error;
+    public double dma45;
+    public double dmm45;
+    public double actualBalance;
+    public double cashBalance;
+    public Boolean cardAvailable;
+    public double cardLimitCalculation;
+    public double realtimeLimit;
+    public double cardLimit;
+    public double cardLimitNow;
+    public boolean emergencyStop;
+    public Integer cardRestartCount;
+    public boolean cardRestart;
+
     public Long idxUser;
-    private String date;
-    private boolean ceoGuarantee;
-    private float depositGuarantee;
-    private boolean depositPayment;
-    private boolean cardIssuance;
-    private boolean ventureCertification;
-    private boolean vcInvestment;
-    private String grade;
-    private Integer gradeLimitPercentage;
-    private float minStartCash;
-    private float minCashNeed;
-    private float currentBalance;
-    private Integer error;
-    private float dma45;
-    private float dmm45;
-    private Float actualBalance;
-    private float cashBalance;
-    private Boolean cardAvailable;
-    private float cardLimitCalculation;
-    private float realtimeLimit;
-    private float cardLimit;
-    private float cardLimitNow;
-    private boolean emergencyStop;
-    private Integer cardRestartCount;
-    private boolean cardRestart;
 
     public static RiskDto from(Risk risk){
         RiskDto riskDto = RiskDto.builder()
-                .idxUser(risk.idxUser())
                 .date(risk.date())
                 .ceoGuarantee(risk.ceoGuarantee())
                 .depositGuarantee(risk.depositGuarantee())
@@ -83,12 +84,13 @@ public class RiskDto {
         @ApiModelProperty("이용약관(식별자)")
         public Long idx;
         public Long idxUser;
-        private String date;
-        private boolean ceoGuarantee;
-        private float depositGuarantee;
-        private boolean depositPayment;
-        private boolean cardIssuance;
-        private boolean ventureCertification;
-        private boolean vcInvestment;
+        public String date;
+        public boolean ceoGuarantee;
+        public double depositGuarantee;
+        public boolean depositPayment;
+        public boolean cardIssuance;
+        public boolean ventureCertification;
+        public boolean vcInvestment;
+        public boolean enabled;
     }
 }

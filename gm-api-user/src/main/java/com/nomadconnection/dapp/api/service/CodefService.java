@@ -92,16 +92,6 @@ public class CodefService {
 			accountMap1.put("certFile",     dto.getCertFile());
 			list.add(accountMap1);
 
-			log.info("95 create   " + dto.getPassword1());
-			log.info("96 certFile " + dto.getCertFile());
-
-			log.info("accountMap1 " + accountMap1.get("password"));
-			log.info("accountMap1 " + accountMap1.get("certFile"));
-
-			System.out.println("101 + " + dto.getPassword1());
-			System.out.println("101 + " + dto.getCertFile());
-			System.out.println("101 + " + accountMap1.get("password") );
-			System.out.println("101 + " + accountMap1.get("certFile") );
 		}
 
 		bodyMap.put("accountList", list);
@@ -384,11 +374,6 @@ public class CodefService {
 
 			accountMap1.put("keyFile",      Account.getBase64FromCertFile(dto.getKeyPath()));
 			accountMap1.put("derFile",      Account.getBase64FromCertFile(dto.getDerPath()));
-
-			log.info("95 create   " + dto.getPassword1());
-
-			log.info("accountMap1 " + accountMap1.get("password"));
-			log.info("accountMap1 " + accountMap1.get("certFile"));
 
 			list.add(accountMap1);
 		}
