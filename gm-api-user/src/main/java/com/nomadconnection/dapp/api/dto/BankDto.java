@@ -218,7 +218,7 @@ public class BankDto {
 		private String type; // 종류
 		private String resAccount              ; //계좌번호
 		private String resAccountDisplay       ; //계좌번호_표시용
-		private String resAccountBalance       ; //현재잔액
+		private Double resAccountBalance       ; //현재잔액
 		private String resAccountDeposit       ; //예금구분
 		private String resAccountNickName      ; //계좌별칭
 		private String resAccountCurrency      ; //통화코드

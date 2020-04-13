@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
+import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import com.nomadconnection.dapp.codef.io.sandbox.bk.*;
 import com.nomadconnection.dapp.core.domain.*;
@@ -76,7 +77,10 @@ public class ScrapingService {
                 if(!jsonData.get("resAccountStartDate").toString().isEmpty()){
                     resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
                 }
-                resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
+                double balance = 0;
+                if(jsonData.get("resAccountBalance") != "") balance = (double) jsonData.get("resAccountBalance");
+                resAccount.resAccountBalance(balance);
+
                 repoResAccount.save(resAccount);
             }
 
@@ -105,7 +109,9 @@ public class ScrapingService {
                 if(!jsonData.get("resAccountStartDate").toString().isEmpty()){
                     resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
                 }
-                resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
+                                double balance = 0;
+                if(jsonData.get("resAccountBalance") != "") balance = (double) jsonData.get("resAccountBalance");
+                resAccount.resAccountBalance(balance);
                 repoResAccount.save(resAccount);
             }
 
@@ -166,7 +172,9 @@ public class ScrapingService {
                 if(!jsonData.get("resAccountStartDate").toString().isEmpty()){
                     resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
                 }
-                resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
+                                double balance = 0;
+                if(jsonData.get("resAccountBalance") != "") balance = (double) jsonData.get("resAccountBalance");
+                resAccount.resAccountBalance(balance);
                 repoResAccount.save(resAccount);
             }
 
@@ -197,7 +205,9 @@ public class ScrapingService {
             ResAccount resAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString()).get();
             if(nowFlag.equals("1")){
                 resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
-                resAccount.resAccountBalance("" + jsonData.get("resAccountBalance").toString());
+                                double balance = 0;
+                if(jsonData.get("resAccountBalance") != "") balance = (double) jsonData.get("resAccountBalance");
+                resAccount.resAccountBalance(balance);
                 repoResAccount.save(resAccount);
                 log.debug("1 $resAccountStartDate='{}'" , jsonData.get("resAccountStartDate").toString());
                 log.debug("2 $resAccountBalance='{}'" , jsonData.get("resAccountBalance").toString());
@@ -459,7 +469,7 @@ public class ScrapingService {
                                 .type("DepositTrust")
                                 .resAccount(""+obj.get("resAccount").toString())
                                 .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
                                 .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
                                 .resAccountNickName(""+obj.get("resAccountNickName").toString())
                                 .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -489,7 +499,7 @@ public class ScrapingService {
                                 .type("Loan")
                                 .resAccount(""+obj.get("resAccount").toString())
                                 .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
                                 .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
                                 .resAccountNickName(""+obj.get("resAccountNickName").toString())
                                 .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -519,7 +529,7 @@ public class ScrapingService {
                                 .type("ResForeignCurrency")
                                 .resAccount(""+obj.get("resAccount").toString())
                                 .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
                                 .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
                                 .resAccountNickName(""+obj.get("resAccountNickName").toString())
                                 .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -549,7 +559,7 @@ public class ScrapingService {
                                 .type("ResFund")
                                 .resAccount(""+obj.get("resAccount").toString())
                                 .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
                                 .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
                                 .resAccountNickName(""+obj.get("resAccountNickName").toString())
                                 .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -920,7 +930,7 @@ public class ScrapingService {
                                 .type("DepositTrust")
                                 .resAccount(""+obj.get("resAccount").toString())
                                 .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
                                 .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
                                 .resAccountNickName(""+obj.get("resAccountNickName").toString())
                                 .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -950,7 +960,7 @@ public class ScrapingService {
                                 .type("Loan")
                                 .resAccount(""+obj.get("resAccount").toString())
                                 .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
                                 .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
                                 .resAccountNickName(""+obj.get("resAccountNickName").toString())
                                 .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -980,7 +990,7 @@ public class ScrapingService {
                                 .type("ResForeignCurrency")
                                 .resAccount(""+obj.get("resAccount").toString())
                                 .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
                                 .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
                                 .resAccountNickName(""+obj.get("resAccountNickName").toString())
                                 .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -1010,7 +1020,7 @@ public class ScrapingService {
                                 .type("ResFund")
                                 .resAccount(""+obj.get("resAccount").toString())
                                 .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
                                 .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
                                 .resAccountNickName(""+obj.get("resAccountNickName").toString())
                                 .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -1143,6 +1153,8 @@ public class ScrapingService {
                             , BankDto.AccountBatch.builder().startDate(strStart).endDate(strEnd).build()
                             , resData.getNowMonth()
                     );
+                }else{
+                    repoResAccount.findByResAccount(resData.getResAccount());
                 }
 
                 endLog(ResBatchList.builder()
@@ -1536,7 +1548,7 @@ public class ScrapingService {
                                 .type("DepositTrust")
                                 .resAccount(""+obj.get("resAccount").toString())
                                 .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
                                 .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
                                 .resAccountNickName(""+obj.get("resAccountNickName").toString())
                                 .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -1566,7 +1578,7 @@ public class ScrapingService {
                                 .type("Loan")
                                 .resAccount(""+obj.get("resAccount").toString())
                                 .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
                                 .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
                                 .resAccountNickName(""+obj.get("resAccountNickName").toString())
                                 .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -1596,7 +1608,7 @@ public class ScrapingService {
                                 .type("ResForeignCurrency")
                                 .resAccount(""+obj.get("resAccount").toString())
                                 .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
                                 .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
                                 .resAccountNickName(""+obj.get("resAccountNickName").toString())
                                 .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -1626,7 +1638,7 @@ public class ScrapingService {
                                 .type("ResFund")
                                 .resAccount(""+obj.get("resAccount").toString())
                                 .resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-                                .resAccountBalance(""+obj.get("resAccountBalance").toString())
+                                .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
                                 .resAccountDeposit(""+obj.get("resAccountDeposit").toString())
                                 .resAccountNickName(""+obj.get("resAccountNickName").toString())
                                 .resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -1767,4 +1779,6 @@ public class ScrapingService {
     public ResponseEntity scrapingProcessKill(Long idx) {
         return ResponseEntity.ok().body(BusinessResponse.builder().data(repoResBatch.updateProcessIdx(idx)).build());
     }
+
+    public Void
 }

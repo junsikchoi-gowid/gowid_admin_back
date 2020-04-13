@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
+import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.codef.io.helper.Account;
 import com.nomadconnection.dapp.codef.io.helper.ApiRequest;
 import com.nomadconnection.dapp.codef.io.helper.RSAUtil;
@@ -221,7 +222,7 @@ public class CodefService {
 											.type("DepositTrust")
 											.resAccount(obj.get("resAccount").toString())
 											.resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-											.resAccountBalance(""+obj.get("resAccountBalance").toString())
+											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
 											.resAccountDeposit(""+obj.get("resAccountDeposit").toString())
 											.resAccountNickName(""+obj.get("resAccountNickName").toString())
 											.resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -253,7 +254,7 @@ public class CodefService {
 											.type("Loan")
 											.resAccount(obj.get("resAccount").toString())
 											.resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-											.resAccountBalance(""+obj.get("resAccountBalance").toString())
+											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
 											.resAccountDeposit(""+obj.get("resAccountDeposit").toString())
 											.resAccountNickName(""+obj.get("resAccountNickName").toString())
 											.resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -285,7 +286,7 @@ public class CodefService {
 											.type("ResForeignCurrency")
 											.resAccount(obj.get("resAccount").toString())
 											.resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-											.resAccountBalance(""+obj.get("resAccountBalance").toString())
+											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
 											.resAccountDeposit(""+obj.get("resAccountDeposit").toString())
 											.resAccountNickName(""+obj.get("resAccountNickName").toString())
 											.resAccountCurrency(""+obj.get("resAccountCurrency").toString())
@@ -317,7 +318,7 @@ public class CodefService {
 											.type("ResFund")
 											.resAccount(obj.get("resAccount").toString())
 											.resAccountDisplay(""+obj.get("resAccountDisplay").toString())
-											.resAccountBalance(""+obj.get("resAccountBalance").toString())
+											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
 											.resAccountDeposit(""+obj.get("resAccountDeposit").toString())
 											.resAccountNickName(""+obj.get("resAccountNickName").toString())
 											.resAccountCurrency(""+obj.get("resAccountCurrency").toString())

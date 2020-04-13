@@ -41,6 +41,7 @@ public class AdminController {
 		public static final String BASE = "/admin/v1";
 
 		public static final String RISK = "/risk";		// 카드 리스크
+		public static final String RISK_ID_NOWBALANCE = "/risk_id_nowbalance";		// 카드 현재 잔고
 		public static final String RISK_ID_CALC = "/risk/id/calc";		// 11 한도 재계산 - 리스크 저장
 		public static final String RISK_ID_LEVEL_CHANGE = "/risk/id/level_change";		// 1 등급 변경
 		public static final String RISK_ID_E_STOP = "/risk/id/e_stop";		// 3 긴급중지

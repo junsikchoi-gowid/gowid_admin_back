@@ -8,7 +8,9 @@ import com.nomadconnection.dapp.core.domain.QUser;
 import com.nomadconnection.dapp.core.domain.QResBatchList;
 import com.nomadconnection.dapp.core.domain.QConnectedMng;
 import com.nomadconnection.dapp.core.domain.QResBatch;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,13 +42,23 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
     public Page<SearchRiskResultDto> riskList(SearchRiskDto dto, Long idxUser, Pageable pageable) {
 
         final List<SearchRiskResultDto> riskList;
+
         final JPQLQuery<SearchRiskResultDto> query = from(risk)
                 .select(Projections.bean(SearchRiskResultDto.class,
                         risk.user.corp.resCompanyNm.as("idxCorpName"),
                         risk.cardLimitNow.as("cardLimitNow"),
                         risk.cardLimit.as("cardLimit"),
                         risk.grade.as("grade"),
-                        risk.recentBalance.as("balance"),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(resAccount1.resAccountRiskBalance.sum())
+                                        .from(resAccount1)
+                                        .where(resAccount1.connectedId.in(
+                                                        JPAExpressions.select(connectedMng.connectedId)
+                                                        .from(connectedMng)
+                                                        .where(connectedMng.idxUser.eq(risk.user.idx))
+                                                )
+                                        )
+                                ,"balance"),
                         risk.currentBalance.as("currentBalance"),
                         risk.cardRestartCount.as("cardRestartCount"),
                         risk.emergencyStop.as("emergencyStop"),
@@ -59,7 +71,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
         query.where(risk.date.eq(LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE)));
 
         if (dto.idxCorpName != null) {
-            query.where(corp.resCompanyNm.like(dto.getIdxCorpName()));
+            query.where(corp.resCompanyNm.contains(dto.getIdxCorpName()));
         }
 
         if (dto.getGrade() != null) {

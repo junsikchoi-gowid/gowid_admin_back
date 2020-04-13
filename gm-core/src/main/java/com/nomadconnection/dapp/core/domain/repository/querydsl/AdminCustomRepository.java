@@ -17,6 +17,9 @@ public interface AdminCustomRepository {
     @NoArgsConstructor
     @AllArgsConstructor
     class SearchRiskDto {
+        @ApiModelProperty("법인 idx")
+        public String idxCorp;
+
         @ApiModelProperty("법인명 order : user.corp.resCompanyNm")
         public String idxCorpName;
 
