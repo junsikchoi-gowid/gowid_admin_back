@@ -1,13 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
-import com.nomadconnection.dapp.core.domain.Risk;
-import com.nomadconnection.dapp.core.domain.QRisk;
-import com.nomadconnection.dapp.core.domain.QResAccount;
-import com.nomadconnection.dapp.core.domain.QCorp;
-import com.nomadconnection.dapp.core.domain.QUser;
-import com.nomadconnection.dapp.core.domain.QResBatchList;
-import com.nomadconnection.dapp.core.domain.QConnectedMng;
-import com.nomadconnection.dapp.core.domain.QResBatch;
+import com.nomadconnection.dapp.core.domain.*;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
@@ -15,10 +8,15 @@ import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
+import javax.persistence.TypedQuery;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
 public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport implements AdminCustomRepository {
@@ -27,6 +25,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
     private final QUser user = QUser.user;
     private final QCorp corp = QCorp.corp;
     private final QResAccount resAccount1 = QResAccount.resAccount1;
+    private final QResAccountHistory resAccountHistory = QResAccountHistory.resAccountHistory;
     private final QConnectedMng connectedMng = QConnectedMng.connectedMng;
     private final QResBatch resBatch = QResBatch.resBatch;
     private final QResBatchList resBatchList = QResBatchList.resBatchList;
@@ -45,6 +44,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
 
         final JPQLQuery<SearchRiskResultDto> query = from(risk)
                 .select(Projections.bean(SearchRiskResultDto.class,
+                        risk.user.corp.idx.as("idxCorp"),
                         risk.user.corp.resCompanyNm.as("idxCorpName"),
                         risk.cardLimitNow.as("cardLimitNow"),
                         risk.cardLimit.as("cardLimit"),
@@ -52,12 +52,12 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
                         ExpressionUtils.as(
                                 JPAExpressions.select(resAccount1.resAccountRiskBalance.sum())
                                         .from(resAccount1)
+                                        .where(resAccount1.resAccountDeposit.in("10","11","12","13","14"))
                                         .where(resAccount1.connectedId.in(
                                                         JPAExpressions.select(connectedMng.connectedId)
                                                         .from(connectedMng)
                                                         .where(connectedMng.idxUser.eq(risk.user.idx))
-                                                )
-                                        )
+                                                ))
                                 ,"balance"),
                         risk.currentBalance.as("currentBalance"),
                         risk.cardRestartCount.as("cardRestartCount"),
@@ -104,70 +104,54 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
     }
 
 
+    @Override
+    public Page<CashResultDto> cashList( String searchCorpName, String updateStatus, Long idxUser, Pageable pageable) {
 
-    /*public Page<RiskCustomDto> riskList2(SearchRiskDto dto, Long idxUser, Pageable pageable) {
+        final TypedQuery<CashResultDto> query =
+                getEntityManager().createQuery("select idx, idxCorp, resCompanyNm, sum(resAccountIn) as resAccountIn, \n " +
+                                "sum(resAccountOut) as resAccountOut,   \n" +
+                                "max(befoBalance) as befoBalance, \n" +
+                                "max(createdAt) as createdAt, \n" +
+                                "max(errCode) as errCode FROM \n" +
+                                " (select u.idx,  u.idxCorp,  \n c.resCompanyNm,  \n cm.connectedId,    \n" +
+                                "ifnull((select sum(resAccountIn) from ResAccountHistory  \n" +
+                                "where resAccountTrDate  =  Date_Format(now(),  '%Y%m%d') and resAccount in  \n" +
+                                "(select resAccount from ResAccount d WHERE d.connectedId = cm.connectedId and  resAccountDeposit in ('10','11','12','13','14'))),0) \n" +
+                                "as resAccountIn, ifnull((select sum(resAccountOut) from ResAccountHistory  where resAccountTrDate  =  Date_Format(now(),  '%Y%m%d') \n" +
+                                "and resAccount in  (select resAccount from ResAccount d WHERE d.connectedId = cm.connectedId \n" +
+                                "and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountOut, ifnull((select currentBalance from Risk r\n" +
+                                " where r.idxUser = u.idx and r.date = Date_Format(date_add(now(), INTERVAL - 1 DAY),  '%Y%m%d') ) , 0) befoBalance,        \n" +
+                                " (select max(createdAt) from ResBatch where idxUser = u.idx) as createdAt,        \n" +
+                                " (select max(errCode) from ResBatchList where errCode != 'CF-00000' and idxUser = u.idx and resBatchType = 1         \n" +
+                                " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode \n" +
+                                " from User u  join Corp c on c.idx = u.idxCorp \n" +
+                                " join ConnectedMng cm  on cm.idxUser = u.idx ) z "
+//                        " where z.resCompanyNm like :resCompanyNm " +
+//                        " and (z.errCode is null = :errCode)  " +
+//                        "    group by idx  order by idx asc "
+                        , CashResultDto.class );
 
-        String strQuery =
-                " select c.resCompanyNm as idxCorpName \n " +
-                        "  , r.cardLimitNow as cardLimitNow  \n " +
-                        "  , r.cardLimit as cardLimit  \n " +
-                        "  , r.grade   " +
-                        "  , (select sum(cast(resAccount1.resAccountBalance as decimal(19, 2)))  \n " +
-                        "  from ResAccount resAccount1  \n " +
-                        "  inner join ConnectedMng connectedMng on connectedMng.connectedId = resAccount1.connectedId  \n " +
-                        "  where connectedMng.idxUser = r.idxUser) as balance,   \n " +
-                        " r.currentBalance as currentBalance, r.cardRestartCount as cardRestartCount,   \n " +
-                        " r.emergencyStop as emergencyStop, r.cardIssuance as cardIssuance, r.updatedAt as updatedAt,   \n " +
-                        "  (select max(resBatchList.errCode)  \n " +
-                        "  from ResBatchList resBatchList  \n " +
-                        "  where resBatchList.idxResBatch = (select max(resBatch.idx)  \n " +
-                        "  from ResBatch resBatch  \n " +
-                        "  where resBatch.idxUser = r.idxUser) and resBatchList.resBatchType = 1 and resBatchList.errCode <> 'CF-00000') as updatedStatus  \n " +
-                        " from Risk r  \n " +
-                        "  inner join User u on u.idx = r.idxUser  \n " +
-                        "  inner join Corp c on c.idx = u.idxCorp  \n " +
-                        " where r.date = date_format(date_add(now(), INTERVAL - 1 day), '%Y%m%d' ) ";
+        String ordering = "idx asc";
+        if( searchCorpName.isEmpty()) searchCorpName = "";
 
-        if (dto.idxCorpName != null) {
-			strQuery.concat( " and c.resCompanyNm like CONCAT('%',:idxCorpName,'%') " );
-        }
+        if(updateStatus.isEmpty()) updateStatus = null;
 
-        if (dto.getGrade() != null) {
-			strQuery.concat( " and risk.grade = :grade " );
-        }
+//        query.setParameter("resCompanyNm", "%"+ searchCorpName +"%");
+//        query.setParameter( "errCode", updateStatus);
+//        query.setParameter("orders" , ordering);
 
-        if (dto.getEmergencyStop() != null) {
-			strQuery.concat( " and risk.emergencyStop = :emergencyStop " );
-        }
+        query.setFirstResult((int)pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
 
-        if (dto.getCardIssuance() != null) {
-			strQuery.concat( " and risk.cardIssuance = :cardIssuance " );
-        }
+        int total = query.getMaxResults();
+        List<CashResultDto> content = total > pageable.getOffset() ? query.getResultList() : Collections.<CashResultDto> emptyList();
 
-		if (dto.getUpdatedStatus() != null) {
-			if( dto.getUpdatedStatus().toLowerCase().equals("true")){
-				strQuery.concat( " having updatedStatus is null " );
-			}else{
-				strQuery.concat( " having updatedStatus not is null " );
-			}
-		}
+        return new PageImpl(content, pageable, total);
+    }
 
-		if(pageable.getSort().isSorted()){
-			strQuery.concat( " order by c.resCompanyNm asc" );
-		}
+    @Override
+    public Page<ErrorResultDto> errorList(ErrorResultDto risk, Long idxUser, Pageable pageable){
 
-        TypedQuery<RiskCustomDto> query = getEntityManager().createQuery(strQuery,RiskCustomDto.class);
-
-		query.setParameter("idxCorpName",dto.getIdxCorpName());
-		query.setParameter("grade",dto.getGrade());
-		query.setParameter("emergencyStop",dto.getEmergencyStop());
-		query.setParameter("cardIssuance",dto.getCardIssuance());
-
-		query.setFirstResult(10);
-		query.setMaxResults(10);
-
-		final List<RiskCustomDto> riskList = query.getResultList();
-
-        return new PageImpl(riskList, pageable, query.getMaxResults());
-    }*/
+        return null;
+    }
 }

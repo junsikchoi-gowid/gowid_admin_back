@@ -55,11 +55,10 @@ public class AdminController {
 		public static final String CORP_ID = "/corp/id";	// 법인 정보
 
 		public static final String CASH = "/cash";		// 현금흐름
-		public static final String CASH_ID_LIST1 = "/cash/id/list1";		// 현금흐름
-		public static final String CASH_ID_LIST2 = "/cash/id/list2";		// 현금흐름
+		public static final String CASH_ID_LIST = "/cash/id/list";		// 현금흐름
 
 		public static final String SCRAPING = "/scraping";		// 계좌 스크래핑
-		public static final String SCRAPING_ID = "/scraping/id";		// 계좌 스크래핑
+		public static final String SCRAPING_UPDATE= "/scraping/update";		// 계좌 스크래핑 update
 
 		public static final String ERROR = "/error";	// 에러내역
 		public static final String ERROR_ID = "/error/id";	// 에러내역
@@ -82,6 +81,7 @@ public class AdminController {
 
 	@ApiOperation(value = "카드 리스크"
 			, notes = "" + "\n"
+			+ "법인ID idxCorp "  + "\n"
 			+ "법인명 idxCorpName "  + "\n"
 			+ "변경잔고 cardLimitNow "  + "\n"
 			+ "부여한도 cardLimit "  + "\n"
@@ -104,6 +104,17 @@ public class AdminController {
 		}
 		return service.riskList(riskDto, user.idx(), pageable);
 	}
+
+	@ApiOperation(value = "현재 잔고" , notes = "" + "\n" + "")
+    @GetMapping( URI.RISK_ID_NOWBALANCE )
+    public ResponseEntity riskIdNowbalance(@ApiIgnore @CurrentUser CustomUser user, @RequestParam(required = false) Long idxCorp) {
+        if (log.isDebugEnabled()) {
+            log.debug("([ riskIdNowbalance ]) $user='{}'", user.idx());
+        }
+        return service.riskIdNowbalance( user.idx(), idxCorp);
+    }
+
+
 
 	@ApiOperation(value = "등급 변경" , notes = "" + "\n")
 	@PostMapping( URI.RISK_ID_LEVEL_CHANGE )
@@ -218,4 +229,89 @@ public class AdminController {
 		}
 		return service.corpId(user.idx(), idxCorp);
 	}
+
+	@ApiOperation(value = "현금흐름"
+			, notes = "" + "\n"
+			+ "법인명 corpName" + "\n"
+			+ "updateStatus true/false" + "\n"
+	)
+	@GetMapping( URI.CASH )
+	@ApiPageable
+	public ResponseEntity cashList(@ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable
+			, @RequestParam(required = false) String corpName, @RequestParam(required = false) String updateStatus  ) {
+		if (log.isDebugEnabled()) {
+			log.debug("([ cashList ]) $user='{}'", user.idx());
+		}
+		return service.cashList(user.idx(), corpName, updateStatus,pageable);
+	}
+
+	@ApiOperation(value = "현금흐름 상세"
+			, notes = "" + "\n"
+			+ "법인id idxCorp" + "\n"
+	)
+	@GetMapping( URI.CASH_ID_LIST )
+	public ResponseEntity cashIdList(@ApiIgnore @CurrentUser CustomUser user
+			, @RequestParam(required = false) String idxCorp) {
+		if (log.isDebugEnabled()) {
+			log.debug("([ cashIdList ]) $user='{}'", user.idx());
+		}
+		return service.cashIdList(user.idx(), idxCorp);
+	}
+
+	@ApiOperation(value = "계좌 스크래핑"
+			, notes = "" + "\n"
+			+ "법인명 corpName" + "\n"
+			+ "updateStatus true/false" + "\n"
+	)
+	@GetMapping( URI.SCRAPING )
+	@ApiPageable
+	public ResponseEntity scrapingList(@ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable ) {
+		if (log.isDebugEnabled()) {
+			log.debug("([ scrapingList ]) $user='{}'", user.idx());
+		}
+		return service.scrapingList(user.idx(), pageable);
+	}
+
+	@ApiOperation(value = "계좌 스크래핑 업데이트"
+			, notes = "" + "\n"
+			+ "법인id idxCorp" + "\n"
+	)
+	@GetMapping( URI.SCRAPING_UPDATE )
+	public ResponseEntity scrapingUpdate(@ApiIgnore @CurrentUser CustomUser user, @RequestParam String idxCorp){
+		if (log.isDebugEnabled()) {
+			log.debug("([ scrapingUpdate ]) $user='{}'", user.idx());
+		}
+		return service.scrapingUpdate(user.idx(), idxCorp);
+	}
+
+
+	@ApiOperation(value = "에러내역"
+			, notes = "" + "\n"
+			+ "법인명 corpName" + "\n"
+			+ "updateStatus true/false" + "\n"
+	)
+	@GetMapping( URI.ERROR )
+	@ApiPageable
+	public ResponseEntity errorList(@ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable
+									,@ModelAttribute AdminCustomRepository.ErrorSearchDto riskDto
+		) {
+		if (log.isDebugEnabled()) {
+			log.debug("([ errorList ]) $user='{}'", user.idx());
+		}
+		return service.errorList(user.idx(), pageable, riskDto);
+	}
+
+	@ApiOperation(value = "에러내역 상세"
+			, notes = "" + "\n"
+			+ "법인id idxCorp" + "\n"
+	)
+	@GetMapping( URI.ERROR_ID )
+	public ResponseEntity errorCorp(@ApiIgnore @CurrentUser CustomUser user, @RequestParam String idxCorp){
+		if (log.isDebugEnabled()) {
+			log.debug("([ errorCorp ]) $user='{}'", user.idx());
+		}
+		return service.errorCorp(user.idx(), idxCorp);
+	}
+
+
 }

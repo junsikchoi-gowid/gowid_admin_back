@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public interface AdminCustomRepository {
@@ -44,6 +45,9 @@ public interface AdminCustomRepository {
     @NoArgsConstructor
     @AllArgsConstructor
     class SearchRiskResultDto {
+        @ApiModelProperty("법인ID")
+        public Long idxCorp;
+
         @ApiModelProperty("법인명 ")
         public String idxCorpName;
 
@@ -79,4 +83,74 @@ public interface AdminCustomRepository {
     }
 
     Page<SearchRiskResultDto> riskList(SearchRiskDto risk, Long idxUser, Pageable pageable);
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class CashResultDto {
+        @ApiModelProperty("법인ID")
+        public String idxCorp;
+
+        @ApiModelProperty("법인명 ")
+        public String resCompanyNm;
+
+        @ApiModelProperty("입금 ")
+        public Double resAccountIn;
+
+        @ApiModelProperty("출금 ")
+        public Double resAccountOut;
+
+        @ApiModelProperty("순입출 ")
+        public Double resAccountInOut;
+
+        @ApiModelProperty("전일잔고 ")
+        public Double befoBalance;
+
+        @ApiModelProperty("Burn Rate ")
+        public String BurnRate;
+
+        @ApiModelProperty("RunWay ")
+        public String RunWay;
+
+        @ApiModelProperty("createdAt ")
+        public LocalDateTime createdAt;
+
+        @ApiModelProperty("errorCode ")
+        public String errorCode;
+    }
+
+    Page<CashResultDto> cashList( String searchCorpName, String updateStatus, Long idxUser, Pageable pageable);
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class ErrorSearchDto {
+        @ApiModelProperty("법인명 ")
+        public String corpName;
+
+        @ApiModelProperty("에러메세지")
+        private String errorMessage;
+
+        @ApiModelProperty("에러코드 true/false")
+        private String errorCode;
+
+        @ApiModelProperty("금일여부 true/false")
+        private String boolToday;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class ErrorResultDto {
+        @ApiModelProperty("법인ID")
+        public String idxCorp;
+
+        @ApiModelProperty("법인명 ")
+        public String idxCorpName;
+    }
+
+    Page<ErrorResultDto> errorList(ErrorResultDto risk, Long idxUser, Pageable pageable);
 }

@@ -24,6 +24,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             ",resAccount " +
             ",resAccountDisplay " +
             ",resAccountBalance" +
+            ",resAccountRiskBalance" +
             ",resAccountDeposit" +
             ",resAccountCurrency" +
             ",resAccountStartDate" +
@@ -204,6 +205,11 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             "where b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14') \n" +
             ") z ", nativeQuery = true)
     Double findRecentBalance(Long idxUser);
+
+    @Query(value = "select sum(resAccountRiskBalance) from ResAccount "+
+            " where connectedId in (select connectedId from ConnectedMng where idxUser in (select idxUser from Corp where idx = :idxCorp))"
+            , nativeQuery = true)
+    Double findNowBalance(Long idxCorp);
 
     public static interface CRisk {
         Integer getDsc();

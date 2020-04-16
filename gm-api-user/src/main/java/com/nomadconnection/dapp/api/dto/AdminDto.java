@@ -126,11 +126,18 @@ public class AdminDto {
 					.cardLimit(risk.cardLimit())
 					.cardLimitNow(risk.cardLimitNow())
 					.emergencyStop(risk.emergencyStop())
-					// .cardRestartCount(risk.cardRestartCount())
-					// .cardRestart(risk.cardRestart())
 					.build();
 			return riskDto;
 		}
 
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class RiskBalanceDto {
+		@ApiModelProperty("현재잔고")
+		public Double riskBalance ;
 	}
 }
