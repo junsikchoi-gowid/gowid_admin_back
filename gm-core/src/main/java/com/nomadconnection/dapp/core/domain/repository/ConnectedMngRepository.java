@@ -28,6 +28,9 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 	@Query(value = "select ifnull(max(a),0) from (select if(endFlag is null , 0 , endFlag) a from ResBatch where idxUser = :idxUser order by idx desc limit 1 ) a " ,nativeQuery = true)
 	Integer findRefresh(@Param("idxUser")Long idxUser);
 
+	@Query(value = "select count(idx) from ResAccount where connectedId in ( select connectedId from ConnectedMng where idxUser = :idxUser)" ,nativeQuery = true)
+	Integer findResAccountCount(@Param("idxUser")Long idxUser);
+
 	Optional<ConnectedMng> findByConnectedIdAndIdxUser(String connectedId, Long idxUser);
 
 	public static interface CconnectedMngDto {

@@ -20,6 +20,11 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
     @Query("update ResBatch set endFlag = true , updatedAt = now() where createdAt > date_format( now(), '%Y%m%d') and endFlag = false ")
     int endBatch();
 
+    @Transactional
+    @Modifying
+    @Query("update ResBatch set endFlag = true where idxUser = :idxUser and endFlag = false ")
+    int endBatchUser(Long idxUser);
+
     @Query(value = "select \n" +
             "    a.idx as idx, \n" +
             "    a.min as min, \n" +
@@ -28,7 +33,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "    ifnull(b.errMessage ,'') as errMessage, \n" +
             "    ifnull(b.resBatchType ,'') as resBatchType, \n" +
             "    (select count(*) from ResAccount  \n" +
-            "  where connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser )) as total , \n" +
+            "  where resAccountDeposit != 99 and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser )) as total , \n" +
             "    (select count(distinct account) from ResBatchList where a.idx = idxResBatch and resBatchType = 1) as progressCnt, \n" +
             "    (select count(distinct account) from ResBatchList where a.idx = idxResBatch and errCode <> 'CF-00000' and resBatchType = 1 ) as errorCnt \n" +
             "from \n" +

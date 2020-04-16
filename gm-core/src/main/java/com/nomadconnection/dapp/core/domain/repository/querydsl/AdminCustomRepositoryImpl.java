@@ -63,6 +63,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
                         risk.cardRestartCount.as("cardRestartCount"),
                         risk.emergencyStop.as("emergencyStop"),
                         risk.cardIssuance.as("cardIssuance"),
+                        risk.pause.as("pause"),
                         risk.updatedAt.as("updatedAt"),
                         risk.errCode.as("errCode")
                 ))
@@ -149,9 +150,36 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
         return new PageImpl(content, pageable, total);
     }
 
+
+    @Override
+    public Page<ScrapingResultDto> scrapingList(Pageable pageable){
+
+        final List<ScrapingResultDto> list;
+
+        final JPQLQuery<ScrapingResultDto> query = from(corp)
+                .join(resBatch).on(corp.user.idx.eq(resBatch.idxUser))
+                .select(Projections.bean(ScrapingResultDto.class,
+                        corp.idx.as("idxCorp"),
+                        corp.resCompanyNm.as("idxCorpName"),
+                        resBatch.createdAt.max().as("createdAt"),
+                        resBatch.updatedAt.max().as("updatedAt"),
+                        resBatch.endFlag.as("endFlag"),
+                        resBatch.idxUser.as("idxUser")
+                ))
+                .groupBy(corp.idx)
+                .orderBy(corp.idx.asc())
+                ;
+
+        list = getQuerydsl().applyPagination(pageable, query).fetch();
+
+        return new PageImpl(list, pageable, query.fetchCount());
+    }
+
     @Override
     public Page<ErrorResultDto> errorList(ErrorResultDto risk, Long idxUser, Pageable pageable){
 
         return null;
     }
+
+
 }

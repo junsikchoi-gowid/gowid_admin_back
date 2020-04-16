@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
-import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.codef.io.helper.Account;
@@ -21,18 +20,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import org.aspectj.bridge.IMessage;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.thymeleaf.ITemplateEngine;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 
@@ -47,19 +43,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CodefService {
 
-	private final EmailConfig config;
-	private final ITemplateEngine templateEngine;
-
-	private final JwtService jwt;
-	private final JavaMailSenderImpl sender;
-
-	private final UserService serviceUser;
 	private final UserRepository repoUser;
-	private final ScrapingService serviceScraping;
 	private final ResAccountRepository repoResAccount;
 	private final ConnectedMngRepository repoConnectedMng;
-	private final PasswordEncoder encoder;
-	private final VerificationCodeRepository repoVerificationCode;
 
 	private final String urlPath = CommonConstant.getRequestDomain();
 
@@ -220,16 +206,16 @@ public class CodefService {
 											.connectedId(connId)
 											.organization(s)
 											.type("DepositTrust")
-											.resAccount(obj.get("resAccount").toString())
-											.resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+											.resAccount(GowidUtils.getEmptyStringToString(obj, "resAccount"))
+											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
 											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-											.resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-											.resAccountNickName(""+obj.get("resAccountNickName").toString())
-											.resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
+											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
+											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
 											.resAccountStartDate(startDate)
-											.resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-											.resLastTranDate(""+obj.get("resLastTranDate").toString())
-											.resAccountName(""+obj.get("resAccountName").toString())
+											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
+											.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate"))
+											.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName"))
 											.build()
 									);
 								}
@@ -253,15 +239,15 @@ public class CodefService {
 											.organization(s)
 											.type("Loan")
 											.resAccount(obj.get("resAccount").toString())
-											.resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay").toString())
 											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-											.resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-											.resAccountNickName(""+obj.get("resAccountNickName").toString())
-											.resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit").toString())
+											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName").toString())
+											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency").toString())
 											.resAccountStartDate(startDate)
-											.resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-											.resAccountName(""+obj.get("resAccountName").toString())
-											.resAccountLoanExecNo(""+obj.get("resAccountLoanExecNo").toString())
+											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate").toString())
+											.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName").toString())
+											.resAccountLoanExecNo(GowidUtils.getEmptyStringToString(obj,"resAccountLoanExecNo").toString())
 											.build()
 									);
 								}
@@ -285,15 +271,15 @@ public class CodefService {
 											.organization(s)
 											.type("ResForeignCurrency")
 											.resAccount(obj.get("resAccount").toString())
-											.resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay").toString())
 											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-											.resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-											.resAccountNickName(""+obj.get("resAccountNickName").toString())
-											.resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit").toString())
+											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName").toString())
+											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency").toString())
 											.resAccountStartDate(startDate)
-											.resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-											.resLastTranDate(""+obj.get("resLastTranDate").toString())
-											.resAccountName(""+obj.get("resAccountName").toString())
+											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate").toString())
+											.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate").toString())
+											.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName").toString())
 											.build()
 									);
 								}
@@ -317,15 +303,15 @@ public class CodefService {
 											.organization(s)
 											.type("ResFund")
 											.resAccount(obj.get("resAccount").toString())
-											.resAccountDisplay(""+obj.get("resAccountDisplay").toString())
+											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay").toString())
 											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-											.resAccountDeposit(""+obj.get("resAccountDeposit").toString())
-											.resAccountNickName(""+obj.get("resAccountNickName").toString())
-											.resAccountCurrency(""+obj.get("resAccountCurrency").toString())
+											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit").toString())
+											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName").toString())
+											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency").toString())
 											.resAccountStartDate(startDate)
-											.resAccountEndDate(""+obj.get("resAccountEndDate").toString())
-											.resAccountInvestedCost(""+obj.get("resAccountInvestedCost").toString())
-											.resEarningsRate(""+obj.get("resEarningsRate").toString())
+											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate").toString())
+											.resAccountInvestedCost(GowidUtils.getEmptyStringToString(obj,"resAccountInvestedCost").toString())
+											.resEarningsRate(GowidUtils.getEmptyStringToString(obj,"resEarningsRate").toString())
 											.build()
 									);
 								}
@@ -389,7 +375,7 @@ public class CodefService {
 		String strResultData = jsonObject.get("data").toString();
 
 		// insert user table - connectedId save
-		User user = repoUser.findById(idx).orElseThrow(
+		repoUser.findById(idx).orElseThrow(
 				() -> new RuntimeException("UserNotFound")
 		);
 
@@ -592,14 +578,13 @@ public class CodefService {
 		String urlPath = CommonConstant.getRequestDomain() + CommonConstant.GET_CONNECTED_IDS;
 
 		// 요청 파라미터 설정 시작
-		HashMap<String, Object> bodyMap = new HashMap<String, Object>();
+		HashMap<String, Object> bodyMap = new HashMap<>();
 		bodyMap.put(CommonConstant.PAGE_NO, 0);		// 페이지 번호(생략 가능) 생략시 1페이지 값(0) 자동 설정
 		// 요청 파라미터 설정 종료
 
 		// API 요청
-		String result = ApiRequest.request(urlPath, bodyMap);
 
 		// 응답결과 확인
-		return result;
+		return ApiRequest.request(urlPath, bodyMap);
 	}
 }

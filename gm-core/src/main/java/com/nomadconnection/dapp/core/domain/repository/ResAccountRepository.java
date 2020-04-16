@@ -254,6 +254,4 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             nativeQuery = true
     )
     Page<ResAccount> findExternalAccount(Pageable pageable, Long idxUser);
-
-
 }

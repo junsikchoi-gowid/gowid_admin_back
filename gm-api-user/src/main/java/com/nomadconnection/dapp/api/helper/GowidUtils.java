@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.helper;
 
+import org.json.simple.JSONObject;
 import org.springframework.util.StringUtils;
 
 import java.util.regex.Pattern;
@@ -27,4 +28,12 @@ public class GowidUtils {
 
 		return dReturn;
 	}
+
+    public static String getEmptyStringToString(JSONObject obj, String objName) {
+		if(obj.get(objName) != null ){
+			return obj.get(objName).toString();
+		}else{
+			return "";
+		}
+    }
 }

@@ -277,7 +277,7 @@ public class AdminController {
 			+ "법인id idxCorp" + "\n"
 	)
 	@GetMapping( URI.SCRAPING_UPDATE )
-	public ResponseEntity scrapingUpdate(@ApiIgnore @CurrentUser CustomUser user, @RequestParam String idxCorp){
+	public ResponseEntity scrapingUpdate(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxCorp){
 		if (log.isDebugEnabled()) {
 			log.debug("([ scrapingUpdate ]) $user='{}'", user.idx());
 		}

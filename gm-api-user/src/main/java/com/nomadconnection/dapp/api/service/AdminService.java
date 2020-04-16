@@ -9,11 +9,9 @@ import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepository;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
-import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.parser.ParseException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -40,9 +38,12 @@ public class AdminService {
 	private final JavaMailSenderImpl sender;
 
 	private final UserService serviceUser;
+	private final UserRepository repoUser;
 	private final RiskRepository repoRisk;
 	private final CorpRepository repoCorp;
 	private final ResAccountRepository repoResAccount;
+	private final ResBatchRepository repoResBatch;
+
 
 	private final ResAccountHistoryRepository resAccountHistoryRepository;
 	private final RiskConfigRepository repoRiskConfig;
@@ -197,11 +198,29 @@ public class AdminService {
 	}
 
 	public ResponseEntity scrapingList(Long idx, Pageable pageable) {
-		return null;
+
+		Page<AdminCustomRepository.ScrapingResultDto> resAccountPage = repoRisk.scrapingList(pageable);
+
+		resAccountPage.getContent().stream().forEach(
+				x ->{
+					List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(x.idxUser);
+					x.setSuccessAccountCnt(returnData.get(0).getProgressCnt());
+					x.setAllAccountCnt(returnData.get(0).getTotal());
+					log.debug(" err " + Integer.parseInt(returnData.get(0).getErrorCnt())  );
+					x.setSuccessPercent( 100.0 - (Double.parseDouble(returnData.get(0).getErrorCnt()) / Double.parseDouble(x.getAllAccountCnt()) * 100 ) );
+				}
+		);
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().data(resAccountPage).build());
 	}
 
-	public ResponseEntity scrapingUpdate(Long idx, String idxCorp) {
-		return null;
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity scrapingUpdate(Long idx, Long idxCorp) {
+		Optional<Corp> corp = Optional.ofNullable(repoCorp.findById(idxCorp).orElseThrow(
+				() -> new RuntimeException("idxCopr Check")
+		));
+		repoUser.findByCorp(corp.get());
+		return ResponseEntity.ok().body(BusinessResponse.builder().data(repoResBatch.endBatchUser(idxCorp)).build());
 	}
 
 	public ResponseEntity errorList(Long idx, Pageable pageable, AdminCustomRepository.ErrorSearchDto riskDto) {
