@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
+import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import com.nomadconnection.dapp.codef.io.helper.HttpRequest;
 import com.nomadconnection.dapp.codef.io.sandbox.bk.*;
@@ -65,6 +66,7 @@ public class BankService {
 
 
 	private final UserRepository repoUser;
+	private final CorpRepository repoCorp;
 	private final ResBatchListRepository repoResBatchList;
 
 	private final ResAccountRepository repoResAccount;
@@ -152,12 +154,19 @@ public class BankService {
 	}
 
 	/**
-	 * (기간별) 일별 입출금 잔고
-	 * @param idx 엔터티(사용자)
+	 * BrunRate
+	 * @param idxUser 엔터티(사용자)
 	 */
-	public ResponseEntity burnRate(Long idx) {
+	public ResponseEntity burnRate(Long idxUser, Long idxCorp) {
 
-		List<Long> firstBalance = repoResAccount.findBalance(idx);
+		if( idxCorp != null ){
+			Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
+			);
+			idxUser = corp.user().idx();
+		}
+
+		List<Long> firstBalance = repoResAccount.findBalance(idxUser);
 
 		Long longFirstBalance = 0L;
 		Long longEndBalance = 0L;
@@ -270,7 +279,7 @@ public class BankService {
 		}
 		serviceScraping.scrapingRegister1YearAll(idx);
 		Thread.sleep(1000);
-		return refresh(idx);
+		return refresh(idx, null);
 	}
 
 	public ResponseEntity checkAccountList(Long idx) throws IOException, InterruptedException {
@@ -285,11 +294,19 @@ public class BankService {
 		}
 		serviceScraping.scrapingRegister1YearList(idx);
 		Thread.sleep(1000);
-		return refresh(idx);
+		return refresh(idx,null);
 	}
 
-	public ResponseEntity refresh(Long idx) {
-		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idx);
+	public ResponseEntity refresh(Long idxUser, Long idxCorp) {
+
+		if( idxCorp != null ){
+			Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
+			);
+			idxUser = corp.user().idx();
+		}
+
+		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idxUser);
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(returnData).build());
 	}
 

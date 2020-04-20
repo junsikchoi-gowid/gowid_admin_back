@@ -1,12 +1,15 @@
 package com.nomadconnection.dapp.core.domain.repository;
 
 import com.nomadconnection.dapp.core.domain.ResAccount;
+import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
+import lombok.Data;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -254,4 +257,58 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             nativeQuery = true
     )
     Page<ResAccount> findExternalAccount(Pageable pageable, Long idxUser);
+
+
+    public static interface CashResultDto {
+        Long getIdxUser();
+        Long getIdxCorp();
+        String getResCompanyNm();
+        Double getResAccountIn();
+        Double getResAccountOut();
+        Double getResAccountInOut();
+        Long getBurnRate();
+        Integer getRunWay();
+        Double getBefoBalance();
+        LocalDateTime getCreatedAt();
+        String getErrCode();
+        String getErrStatus();
+    }
+
+    @Query(
+            value =  "select * from\n" +
+                    "(select idxUser, idxCorp, resCompanyNm, resAccountIn, resAccountOut, (resAccountIn - resAccountOut) as  resAccountInOut ,0 as burnRate, 0 as runWay,  befoBalance, createdAt, errCode, if(errCode is null ,0,1) errStatus  from \n" +
+                    "(select distinct u.idx as idxUser, u.idxCorp,   c.resCompanyNm, \n" +
+                    "ifnull((select sum(resAccountIn) from ResAccountHistory  \n" +
+                    " where resAccountTrDate = date_Format(now(),  '%Y%m%d') and resAccount in  \n" +
+                    " (select resAccount from ResAccount d WHERE d.connectedId = cm.connectedId and  resAccountDeposit in ('10','11','12','13','14'))),0) \n" +
+                    " as resAccountIn, ifnull((select sum(resAccountOut) from ResAccountHistory  where resAccountTrDate  =  Date_Format(now(),  '%Y%m%d') \n" +
+                    " and resAccount in  (select resAccount from ResAccount d WHERE d.connectedId = cm.connectedId \n" +
+                    " and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountOut, ifnull((select currentBalance from Risk r\n" +
+                    " where r.idxUser = u.idx and r.date = Date_Format(date_add(now(), INTERVAL - 1 DAY),  '%Y%m%d') ) , 0) befoBalance,        \n" +
+                    " (select max(createdAt) from ResBatch where idxUser = u.idx) as createdAt,        \n" +
+                    " (select max(errCode) from ResBatchList where errCode != 'CF-00000' and idxUser = u.idx and resBatchType = 1         \n" +
+                    " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode \n" +
+                    " from User u  join Corp c on c.idx = u.idxCorp \n" +
+                    " join ConnectedMng cm  on cm.idxUser = u.idx ) z\n" +
+                    ") z where resCompanyNm like %:searchCorpName% and ( errStatus = :updateStatus or :updateStatus is null) ",
+            countQuery = "select count(*) from\n" +
+                    "(select idx, idxCorp, resCompanyNm, resAccountIn, resAccountOut, (resAccountIn - resAccountOut) resAccountInOut, befoBalance, createdAt, errCode, if(errCode is null ,0,1) errStatus  from \n" +
+                    "(select distinct u.idx,  u.idxCorp,   c.resCompanyNm, \n" +
+                    "ifnull((select sum(resAccountIn) from ResAccountHistory  \n" +
+                    "where resAccountTrDate  =  Date_Format(now(),  '%Y%m%d') and resAccount in  \n" +
+                    "(select resAccount from ResAccount d WHERE d.connectedId = cm.connectedId and  resAccountDeposit in ('10','11','12','13','14'))),0) \n" +
+                    "as resAccountIn, ifnull((select sum(resAccountOut) from ResAccountHistory  where resAccountTrDate  =  Date_Format(now(),  '%Y%m%d') \n" +
+                    "and resAccount in  (select resAccount from ResAccount d WHERE d.connectedId = cm.connectedId \n" +
+                    "and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountOut, ifnull((select currentBalance from Risk r\n" +
+                    " where r.idxUser = u.idx and r.date = Date_Format(date_add(now(), INTERVAL - 1 DAY),  '%Y%m%d') ) , 0) befoBalance,        \n" +
+                    " (select max(createdAt) from ResBatch where idxUser = u.idx) as createdAt,        \n" +
+                    " (select max(errCode) from ResBatchList where errCode != 'CF-00000' and idxUser = u.idx and resBatchType = 1         \n" +
+                    " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode \n" +
+                    " from User u  join Corp c on c.idx = u.idxCorp \n" +
+                    " join ConnectedMng cm  on cm.idxUser = u.idx ) z\n" +
+                    ") z where resCompanyNm like %:searchCorpName% and ( errStatus = :updateStatus or :updateStatus is null) ",
+            nativeQuery = true
+    )
+    Page<CashResultDto> cashList(String searchCorpName, String updateStatus, Pageable pageable);
+
 }

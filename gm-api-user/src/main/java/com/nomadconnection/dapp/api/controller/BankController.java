@@ -105,8 +105,9 @@ public class BankController {
 
 	@ApiOperation(value = "Burn Rate", notes = "" + "\n")
 	@GetMapping( URI.BURN_RATE )
-	public ResponseEntity BurnRate(@ApiIgnore @CurrentUser CustomUser user) {
-		return service.burnRate(user.idx());
+	public ResponseEntity BurnRate(@ApiIgnore @CurrentUser CustomUser user,
+								@RequestParam(required = false) Long idxCorp) {
+		return service.burnRate(user.idx(), idxCorp);
 	}
 
 	@ApiOperation(value = "계좌 별명수정", notes = "" + "\n")
@@ -132,8 +133,8 @@ public class BankController {
 
 	@ApiOperation(value = "새로고침", notes = "" + "\n")
 	@GetMapping( URI.CHECK_REFRESH )
-	public ResponseEntity CheckRefresh(@ApiIgnore @CurrentUser CustomUser user) {
+	public ResponseEntity CheckRefresh(@ApiIgnore @CurrentUser CustomUser user, @RequestParam(required = false) Long idxCorp) {
 
-		return service.refresh(user.idx());
+		return service.refresh(user.idx(), idxCorp);
 	}
 }

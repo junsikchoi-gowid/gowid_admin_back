@@ -1347,7 +1347,7 @@ public class ScrapingService {
             saveAccountProcessBatchRetry(idx, idxResBatchParent);
         }
         // 리스크 데이터 저장
-        serviceRisk.saveRisk(idx, "");
+        serviceRisk.saveRisk(idx, null,"");
 
     }
 

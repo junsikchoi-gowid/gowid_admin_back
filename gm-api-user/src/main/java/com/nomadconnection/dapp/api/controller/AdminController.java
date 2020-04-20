@@ -129,23 +129,21 @@ public class AdminController {
 	@ApiOperation(value = "긴급중지" , notes = "" + "\n booleanValue true / false ")
 	@PostMapping( URI.RISK_ID_E_STOP )
 	public ResponseEntity saveEmergencyStop(@ApiIgnore @CurrentUser CustomUser user,
-											@RequestParam(required = false) Long idxCorp,
-											@RequestParam(required = false) String booleanValue) {
+											@RequestBody AdminDto.StopDto dto) {
 		if (log.isDebugEnabled()) {
 			log.debug("([ saveEmergencyStop ]) $user='{}'", user.idx());
 		}
-		return service.saveEmergencyStop(user.idx(), idxCorp, booleanValue);
+		return service.saveEmergencyStop(user.idx(), dto.idxCorp, dto.booleanValue);
 	}
 
 	@ApiOperation(value = "일시정지" , notes = "" + "\n booleanValue true / false ")
 	@PostMapping( URI.RISK_ID_A_STOP )
 	public ResponseEntity savePause(@ApiIgnore @CurrentUser CustomUser user,
-									@RequestParam(required = false) Long idxCorp,
-									@RequestParam(required = false) String booleanValue) {
+									@RequestBody AdminDto.StopDto dto) {
 		if (log.isDebugEnabled()) {
 			log.debug("([ savePause ]) $user='{}'", user.idx());
 		}
-		return service.savePause(user.idx(), idxCorp, booleanValue);
+		return service.savePause(user.idx(),  dto.idxCorp, dto.booleanValue);
 	}
 
 	@ApiOperation(value = "한도기록 ."
@@ -265,7 +263,8 @@ public class AdminController {
 	)
 	@GetMapping( URI.SCRAPING )
 	@ApiPageable
-	public ResponseEntity scrapingList(@ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable ) {
+	public ResponseEntity scrapingList(@ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable,
+		@RequestParam(required = false) Long idxCorp) {
 		if (log.isDebugEnabled()) {
 			log.debug("([ scrapingList ]) $user='{}'", user.idx());
 		}
@@ -277,7 +276,7 @@ public class AdminController {
 			+ "법인id idxCorp" + "\n"
 	)
 	@GetMapping( URI.SCRAPING_UPDATE )
-	public ResponseEntity scrapingUpdate(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxCorp){
+	public ResponseEntity scrapingUpdate(@ApiIgnore @CurrentUser CustomUser user,  @RequestParam(required = false) Long idxCorp) {
 		if (log.isDebugEnabled()) {
 			log.debug("([ scrapingUpdate ]) $user='{}'", user.idx());
 		}

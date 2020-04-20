@@ -93,37 +93,40 @@ public interface AdminCustomRepository {
     @AllArgsConstructor
     class CashResultDto {
         @ApiModelProperty("법인ID")
-        public String idxCorp;
+        private String idxCorp;
 
         @ApiModelProperty("법인명 ")
-        public String resCompanyNm;
+        private String resCompanyNm;
 
         @ApiModelProperty("입금 ")
-        public Double resAccountIn;
+        private Double resAccountIn;
 
         @ApiModelProperty("출금 ")
-        public Double resAccountOut;
+        private Double resAccountOut;
 
         @ApiModelProperty("순입출 ")
-        public Double resAccountInOut;
+        private Double resAccountInOut;
 
         @ApiModelProperty("전일잔고 ")
-        public Double befoBalance;
+        private Double befoBalance;
 
         @ApiModelProperty("Burn Rate ")
-        public String BurnRate;
+        private String BurnRate;
 
         @ApiModelProperty("RunWay ")
-        public String RunWay;
+        private String RunWay;
 
         @ApiModelProperty("createdAt ")
-        public LocalDateTime createdAt;
+        private LocalDateTime createdAt;
 
         @ApiModelProperty("errorCode ")
-        public String errorCode;
+        private String errorCode;
+
+        @ApiModelProperty("errStatus ")
+        private String errStatus;
     }
 
-    Page<CashResultDto> cashList( String searchCorpName, String updateStatus, Long idxUser, Pageable pageable);
+    // Page<CashResultDto> cashList( String searchCorpName, String updateStatus, Long idxUser, Pageable pageable);
 
     @Data
     @Builder

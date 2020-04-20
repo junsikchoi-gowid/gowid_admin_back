@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.RiskDto;
+import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.*;
@@ -34,6 +35,7 @@ public class RiskService {
 	private final JwtService jwt;
 	private final JavaMailSenderImpl sender;
 
+	private final CorpRepository repoCorp;
 	private final UserService serviceUser;
 	private final RiskRepository repoRisk;
 	private final UserRepository repoUser;
@@ -57,14 +59,21 @@ public class RiskService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity saveRisk(Long idxUser, String calcDate) {
+	public ResponseEntity saveRisk(Long idxUser, Long idxCorp, String calcDate) {
 
 		User user = repoUser.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().id(idxUser).build()
 		);
-		Corp corp = user.corp();
 
-		System.out.println( user.corp().idx() );
+		Corp corp ;
+
+		if(idxCorp != null){
+			corp = repoCorp.findById(idxCorp).orElseThrow(
+					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
+			);
+		}else{
+			corp = user.corp();
+		}
 
 		if(calcDate == null || calcDate.isEmpty()){
 			calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);

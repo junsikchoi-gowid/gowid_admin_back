@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -41,6 +43,9 @@ public class RiskDto {
     public boolean emergencyStop;
     public Integer cardRestartCount;
     public boolean cardRestart;
+    public LocalDateTime updatedAt;
+    public boolean pause;
+    public double recentBalance;
 
     public Long idxUser;
 
@@ -71,6 +76,9 @@ public class RiskDto {
                 .emergencyStop(risk.emergencyStop())
                 .cardRestartCount(risk.cardRestartCount())
                 .cardRestart(risk.cardRestart())
+                .pause(risk.pause())
+                .updatedAt(risk.getUpdatedAt())
+                .recentBalance(risk.recentBalance())
                 .build();
         return riskDto;
     }
@@ -84,6 +92,7 @@ public class RiskDto {
         @ApiModelProperty("이용약관(식별자)")
         public Long idx;
         public Long idxUser;
+        public Long idxCorp;
         public String date;
         public boolean ceoGuarantee;
         public double depositGuarantee;

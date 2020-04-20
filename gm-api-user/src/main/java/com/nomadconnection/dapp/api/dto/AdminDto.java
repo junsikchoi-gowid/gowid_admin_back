@@ -1,17 +1,19 @@
 package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.Risk;
+import com.nomadconnection.dapp.core.domain.repository.ResAccountRepository;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @SuppressWarnings("unused")
 public class AdminDto {
-
 	@Data
 	@Builder
 	@NoArgsConstructor
@@ -139,5 +141,56 @@ public class AdminDto {
 	public static class RiskBalanceDto {
 		@ApiModelProperty("현재잔고")
 		public Double riskBalance ;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class StopDto {
+		@ApiModelProperty("idxCorp")
+		public Long idxCorp ;
+
+		@ApiModelProperty("true/false")
+		public String booleanValue ;
+	}
+
+
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class CashListDto {
+		public Long idxUser;
+		public Long idxCorp;
+		public String resCompanyNm;
+		public Double resAccountIn;
+		public Double resAccountOut;
+		public Double resAccountInOut;
+		public Long burnRate;
+		public Integer runWay;
+		public Double befoBalance;
+		public LocalDateTime createdAt;
+		public String errCode;
+		public String errStatus;
+
+		public static CashListDto from(ResAccountRepository.CashResultDto cashResultDto) {
+			CashListDto cashListDto = CashListDto.builder()
+					.idxUser(cashResultDto.getIdxUser())
+					.idxCorp(cashResultDto.getIdxCorp())
+					.resCompanyNm(cashResultDto.getResCompanyNm())
+					.resAccountIn(cashResultDto.getResAccountIn())
+					.resAccountOut(cashResultDto.getResAccountOut())
+					.resAccountInOut(cashResultDto.getResAccountInOut())
+					.burnRate(cashResultDto.getBurnRate())
+					.runWay(cashResultDto.getRunWay())
+					.befoBalance(cashResultDto.getBefoBalance())
+					.createdAt(cashResultDto.getCreatedAt())
+					.errCode(cashResultDto.getErrCode())
+					.errStatus(cashResultDto.getErrStatus())
+					.build();
+			return cashListDto;
+		}
 	}
 }

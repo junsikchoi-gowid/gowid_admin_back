@@ -1,9 +1,12 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.AdminDto;
+import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.CorpDto;
 import com.nomadconnection.dapp.api.dto.RiskDto;
+import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
@@ -84,34 +87,19 @@ public class AdminService {
 
 		//	todo: idxUser Auth check
 
-		Optional<RiskConfig> riskConfig = repoRiskConfig.findByUserAndEnabled(User.builder().idx(idxUser).build(), true);
+		RiskConfig riskConfig = repoRiskConfig.findByCorpAndEnabled(Corp.builder().idx(dto.idxCorp).build(), true)
+				.orElseThrow(
+						() -> CorpNotRegisteredException.builder().account(dto.idxCorp.toString()).build()
+				);
 
-		Boolean cardIssuance = false;
+		riskConfig.enabled(true);
+		riskConfig.ceoGuarantee(dto.isCeoGuarantee());
+		riskConfig.ventureCertification(dto.isVentureCertification());
+		riskConfig.vcInvestment(dto.isVcInvestment());
+		riskConfig.depositPayment(dto.isDepositPayment());
+		riskConfig.depositGuarantee(dto.getDepositGuarantee());
 
-		if(riskConfig.isPresent()){
-			riskConfig.ifPresent( x -> repoRiskConfig.save(
-					RiskConfig.builder()
-							.idx(x.idx())
-							.enabled(false)
-							.build()
-			));
-
-			cardIssuance = riskConfig.get().cardIssuance();
-		}
-
-		return ResponseEntity.ok().body(BusinessResponse.builder().data(
-				repoRiskConfig.save(RiskConfig.builder()
-						.user(User.builder().idx(idxUser).build())
-						.enabled(true)
-						.ceoGuarantee(dto.isCeoGuarantee())
-						.cardIssuance(cardIssuance)
-						.ventureCertification(dto.isVentureCertification())
-						.vcInvestment(dto.isVcInvestment())
-						.depositPayment(dto.isDepositPayment())
-						.corp(User.builder().idx(idxUser).build().corp())
-						.depositGuarantee(dto.getDepositGuarantee())
-						.build())
-		).build());
+		return ResponseEntity.ok().body(BusinessResponse.builder().data(repoRiskConfig.save(riskConfig)).build());
 	}
 
 	@Transactional(rollbackFor = Exception.class)
@@ -187,9 +175,33 @@ public class AdminService {
 	public ResponseEntity cashList(Long idx, String corpName, String updateStatus, Pageable pageable) {
 		//	todo: idxUser Auth check
 
-		Page<AdminCustomRepository.CashResultDto> resAccountPage = repoRisk.cashList(corpName, updateStatus, idx, pageable);
+		Page<AdminDto.CashListDto> returnData = repoResAccount.cashList(corpName, updateStatus, pageable).map(AdminDto.CashListDto::from);
 
-		return ResponseEntity.ok().body(BusinessResponse.builder().data(resAccountPage).build());
+		returnData.getContent().stream().forEach(
+				x ->{
+					if(x.getIdxUser() != null) {
+
+						List<Long> firstBalance = repoResAccount.findBalance(x.getIdxUser());
+
+						Long longFirstBalance = 0L;
+						Long longEndBalance = 0L;
+
+						longFirstBalance = Long.valueOf(firstBalance.get(0));
+						longEndBalance = Long.valueOf(firstBalance.get(3));
+
+						Long BurnRate = (longFirstBalance - longEndBalance) / 3;
+						Integer intMonth = 1;
+						if (BurnRate > 0) {
+							intMonth = (int) Math.ceil((double) longEndBalance / BurnRate);
+						}
+
+						x.setBurnRate(BurnRate);
+						x.setRunWay(intMonth);
+					}
+				}
+		);
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().data(returnData).build());
 
 	}
 

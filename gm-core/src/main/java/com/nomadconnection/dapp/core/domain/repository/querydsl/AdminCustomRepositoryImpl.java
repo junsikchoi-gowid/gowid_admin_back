@@ -104,51 +104,51 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
         return new PageImpl(riskList, pageable, query.fetchCount());
     }
 
-
-    @Override
-    public Page<CashResultDto> cashList( String searchCorpName, String updateStatus, Long idxUser, Pageable pageable) {
-
-        final TypedQuery<CashResultDto> query =
-                getEntityManager().createQuery("select idx, idxCorp, resCompanyNm, sum(resAccountIn) as resAccountIn, \n " +
-                                "sum(resAccountOut) as resAccountOut,   \n" +
-                                "max(befoBalance) as befoBalance, \n" +
-                                "max(createdAt) as createdAt, \n" +
-                                "max(errCode) as errCode FROM \n" +
-                                " (select u.idx,  u.idxCorp,  \n c.resCompanyNm,  \n cm.connectedId,    \n" +
-                                "ifnull((select sum(resAccountIn) from ResAccountHistory  \n" +
-                                "where resAccountTrDate  =  Date_Format(now(),  '%Y%m%d') and resAccount in  \n" +
-                                "(select resAccount from ResAccount d WHERE d.connectedId = cm.connectedId and  resAccountDeposit in ('10','11','12','13','14'))),0) \n" +
-                                "as resAccountIn, ifnull((select sum(resAccountOut) from ResAccountHistory  where resAccountTrDate  =  Date_Format(now(),  '%Y%m%d') \n" +
-                                "and resAccount in  (select resAccount from ResAccount d WHERE d.connectedId = cm.connectedId \n" +
-                                "and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountOut, ifnull((select currentBalance from Risk r\n" +
-                                " where r.idxUser = u.idx and r.date = Date_Format(date_add(now(), INTERVAL - 1 DAY),  '%Y%m%d') ) , 0) befoBalance,        \n" +
-                                " (select max(createdAt) from ResBatch where idxUser = u.idx) as createdAt,        \n" +
-                                " (select max(errCode) from ResBatchList where errCode != 'CF-00000' and idxUser = u.idx and resBatchType = 1         \n" +
-                                " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode \n" +
-                                " from User u  join Corp c on c.idx = u.idxCorp \n" +
-                                " join ConnectedMng cm  on cm.idxUser = u.idx ) z "
-//                        " where z.resCompanyNm like :resCompanyNm " +
-//                        " and (z.errCode is null = :errCode)  " +
-//                        "    group by idx  order by idx asc "
-                        , CashResultDto.class );
-
-        String ordering = "idx asc";
-        if( searchCorpName.isEmpty()) searchCorpName = "";
-
-        if(updateStatus.isEmpty()) updateStatus = null;
-
-//        query.setParameter("resCompanyNm", "%"+ searchCorpName +"%");
-//        query.setParameter( "errCode", updateStatus);
-//        query.setParameter("orders" , ordering);
-
-        query.setFirstResult((int)pageable.getOffset());
-        query.setMaxResults(pageable.getPageSize());
-
-        int total = query.getMaxResults();
-        List<CashResultDto> content = total > pageable.getOffset() ? query.getResultList() : Collections.<CashResultDto> emptyList();
-
-        return new PageImpl(content, pageable, total);
-    }
+//
+//    @Override
+//    public Page<CashResultDto> cashList( String searchCorpName, String updateStatus, Long idxUser, Pageable pageable) {
+//
+//        final TypedQuery<CashResultDto> query =
+//                getEntityManager().createQuery("select idx, idxCorp, resCompanyNm, sum(resAccountIn) as resAccountIn, \n " +
+//                                "sum(resAccountOut) as resAccountOut,   \n" +
+//                                "max(befoBalance) as befoBalance, \n" +
+//                                "max(createdAt) as createdAt, \n" +
+//                                "max(errCode) as errCode FROM \n" +
+//                                " (select u.idx,  u.idxCorp,  \n c.resCompanyNm,  \n cm.connectedId,    \n" +
+//                                "ifnull((select sum(resAccountIn) from ResAccountHistory  \n" +
+//                                "where resAccountTrDate  =  Date_Format(now(),  '%Y%m%d') and resAccount in  \n" +
+//                                "(select resAccount from ResAccount d WHERE d.connectedId = cm.connectedId and  resAccountDeposit in ('10','11','12','13','14'))),0) \n" +
+//                                "as resAccountIn, ifnull((select sum(resAccountOut) from ResAccountHistory  where resAccountTrDate  =  Date_Format(now(),  '%Y%m%d') \n" +
+//                                "and resAccount in  (select resAccount from ResAccount d WHERE d.connectedId = cm.connectedId \n" +
+//                                "and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountOut, ifnull((select currentBalance from Risk r\n" +
+//                                " where r.idxUser = u.idx and r.date = Date_Format(date_add(now(), INTERVAL - 1 DAY),  '%Y%m%d') ) , 0) befoBalance,        \n" +
+//                                " (select max(createdAt) from ResBatch where idxUser = u.idx) as createdAt,        \n" +
+//                                " (select max(errCode) from ResBatchList where errCode != 'CF-00000' and idxUser = u.idx and resBatchType = 1         \n" +
+//                                " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode \n" +
+//                                " from User u  join Corp c on c.idx = u.idxCorp \n" +
+//                                " join ConnectedMng cm  on cm.idxUser = u.idx ) z "
+////                        " where z.resCompanyNm like :resCompanyNm " +
+////                        " and (z.errCode is null = :errCode)  " +
+////                        "    group by idx  order by idx asc "
+//                        , CashResultDto.class );
+//
+//        String ordering = "idx asc";
+//        if( searchCorpName.isEmpty()) searchCorpName = "";
+//
+//        if(updateStatus.isEmpty()) updateStatus = null;
+//
+////        query.setParameter("resCompanyNm", "%"+ searchCorpName +"%");
+////        query.setParameter( "errCode", updateStatus);
+////        query.setParameter("orders" , ordering);
+//
+//        query.setFirstResult((int)pageable.getOffset());
+//        query.setMaxResults(pageable.getPageSize());
+//
+//        int total = query.getMaxResults();
+//        List<CashResultDto> content = total > pageable.getOffset() ? query.getResultList() : Collections.<CashResultDto> emptyList();
+//
+//        return new PageImpl(content, pageable, total);
+//    }
 
 
     @Override
