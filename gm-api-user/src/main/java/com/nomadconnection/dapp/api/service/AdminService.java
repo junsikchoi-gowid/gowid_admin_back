@@ -7,10 +7,13 @@ import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.CorpDto;
 import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
+import com.nomadconnection.dapp.api.exception.UserNotFoundException;
+import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepository;
+import com.nomadconnection.dapp.core.domain.repository.querydsl.ResBatchListCustomRepository;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +30,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -44,19 +48,42 @@ public class AdminService {
 	private final UserRepository repoUser;
 	private final RiskRepository repoRisk;
 	private final CorpRepository repoCorp;
+	private final AuthorityRepository repoAuthority;
 	private final ResAccountRepository repoResAccount;
 	private final ResBatchRepository repoResBatch;
-
-
+	private final ResBatchListRepository repoResBatchList;	
 	private final ResAccountHistoryRepository resAccountHistoryRepository;
 	private final RiskConfigRepository repoRiskConfig;
 
 
+	public Boolean isGowidMaster(Long idxUser){
+		boolean boolV = false;
+
+		User user = repoUser.findById(idxUser).orElseThrow(
+				() -> UserNotFoundException.builder().build()
+		);
+
+		if(user.authorities().stream().anyMatch(o -> o.role().equals(Role.GOWID_ADMIN.toString()))) boolV = true;
+
+		return boolV;
+	}
+
+	/**
+	 * admin page 의 risk 리스트
+	 * @param riskDto
+	 * @param idxUser
+	 * @param pageable
+	 * @return
+	 */
 	public ResponseEntity riskList(AdminCustomRepository.SearchRiskDto riskDto, Long idxUser, Pageable pageable) {
 
-		//	todo: idxUser Auth check
+		//	todo: idxUser Auth check GOWID_USER
+		if(!isGowidMaster(idxUser))riskDto.setIdxCorpName("");
 
-		Page<AdminCustomRepository.SearchRiskResultDto> resAccountPage = repoRisk.riskList(riskDto, idxUser, pageable);
+		Page<AdminDto.RiskDto> resAccountPage = repoRisk.riskList(riskDto, idxUser, pageable).map(AdminDto.RiskDto::from);
+
+		if(isGowidMaster(idxUser))
+			for (AdminDto.RiskDto x : resAccountPage.getContent()) x.setIdxCorpName("#" + x.idxCorp);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(resAccountPage).build());
 	}
@@ -172,6 +199,7 @@ public class AdminService {
 	 * 현금흐름 리스트
 	 *
 	 */
+	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity cashList(Long idx, String corpName, String updateStatus, Pageable pageable) {
 		//	todo: idxUser Auth check
 
@@ -205,13 +233,31 @@ public class AdminService {
 
 	}
 
-	public ResponseEntity cashIdList(Long idx, String idxCorp) {
-		return null;
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity cashIdList(Long idxUser, Long idxCorp) {
+		//	todo: idxUser Auth check
+
+		List<AdminDto.CashListDetailDto> transactionList = null;
+
+		if( idxCorp != null ){
+			Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
+			);
+
+			log.debug(" user idx " + corp.user().idx());
+			String startDate = GowidUtils.getMonth(-11);
+			String endDate = GowidUtils.getMonth(0);
+
+			transactionList = repoResAccount.findMonthHistory(startDate, endDate, corp.user().idx()).stream().map(AdminDto.CashListDetailDto::from).collect(Collectors.toList());
+
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().data(transactionList).build());
 	}
 
 	public ResponseEntity scrapingList(Long idx, Pageable pageable) {
 
-		Page<AdminCustomRepository.ScrapingResultDto> resAccountPage = repoRisk.scrapingList(pageable);
+		Page<CorpCustomRepository.ScrapingResultDto> resAccountPage = repoCorp.scrapingList(pageable);
 
 		resAccountPage.getContent().stream().forEach(
 				x ->{
@@ -235,11 +281,10 @@ public class AdminService {
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(repoResBatch.endBatchUser(idxCorp)).build());
 	}
 
-	public ResponseEntity errorList(Long idx, Pageable pageable, AdminCustomRepository.ErrorSearchDto riskDto) {
-		return null;
-	}
+	public ResponseEntity errorList(Long idx, Pageable pageable, ResBatchListCustomRepository.ErrorSearchDto dto) {
 
-	public ResponseEntity errorCorp(Long idx, String idxCorp) {
-		return null;
+		Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto, pageable).map(AdminDto.ErrorResultDto::from);
+		
+		return ResponseEntity.ok().body(BusinessResponse.builder().data(list).build());
 	}
 }

@@ -24,7 +24,7 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
      * Creates a new {@link QuerydslRepositorySupport} instance for the given domain type.
      */
     public CorpCustomRepositoryImpl() {
-        super(Risk.class);
+        super(Corp.class);
     }
 
     @Override
@@ -67,5 +67,30 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
         riskList = getQuerydsl().applyPagination(pageable, query).fetch();
 
         return new PageImpl(riskList, pageable, query.fetchCount());
+    }
+
+    @Override
+    public Page<CorpCustomRepository.ScrapingResultDto> scrapingList(Pageable pageable){
+
+        final List<CorpCustomRepository.ScrapingResultDto> list;
+
+        final JPQLQuery<CorpCustomRepository.ScrapingResultDto> query = from(corp)
+                .join(resBatch).on(corp.user.idx.eq(resBatch.idxUser))
+                .select(Projections.bean(CorpCustomRepository.ScrapingResultDto.class,
+                        corp.idx.as("idxCorp"),
+                        corp.resCompanyNm.as("idxCorpName"),
+                        resBatch.createdAt.max().as("createdAt"),
+                        resBatch.updatedAt.max().as("updatedAt"),
+                        resBatch.endFlag.as("endFlag"),
+                        resBatch.idxUser.as("idxUser")
+                ))
+                .groupBy(corp.idx)
+                ;
+
+        if( pageable.getSort().isEmpty()) query.orderBy(corp.idx.asc());
+
+        list = getQuerydsl().applyPagination(pageable, query).fetch();
+
+        return new PageImpl(list, pageable, query.fetchCount());
     }
 }

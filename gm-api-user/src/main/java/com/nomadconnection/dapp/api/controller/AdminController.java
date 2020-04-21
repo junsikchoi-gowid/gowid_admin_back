@@ -10,6 +10,7 @@ import com.nomadconnection.dapp.core.annotation.ApiPageable;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepository;
+import com.nomadconnection.dapp.core.domain.repository.querydsl.ResBatchListCustomRepository;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -119,7 +120,7 @@ public class AdminController {
 	@ApiOperation(value = "등급 변경" , notes = "" + "\n")
 	@PostMapping( URI.RISK_ID_LEVEL_CHANGE )
 	public ResponseEntity riskIdLevelChange(@ApiIgnore @CurrentUser CustomUser user,
-											@ModelAttribute RiskDto.RiskConfigDto dto) {
+											@RequestBody RiskDto.RiskConfigDto dto) {
 		if (log.isDebugEnabled()) {
 			log.debug("([ riskIdLevelChange ]) $user='{}'", user.idx());
 		}
@@ -249,7 +250,7 @@ public class AdminController {
 	)
 	@GetMapping( URI.CASH_ID_LIST )
 	public ResponseEntity cashIdList(@ApiIgnore @CurrentUser CustomUser user
-			, @RequestParam(required = false) String idxCorp) {
+			, @RequestParam(required = false) Long idxCorp) {
 		if (log.isDebugEnabled()) {
 			log.debug("([ cashIdList ]) $user='{}'", user.idx());
 		}
@@ -286,31 +287,23 @@ public class AdminController {
 
 	@ApiOperation(value = "에러내역"
 			, notes = "" + "\n"
-			+ "법인명 corpName" + "\n"
-			+ "updateStatus true/false" + "\n"
+			+ "Sort 방식 " + "\n"
+			+ "발생시간 : updatedAt  " + "\n"
+			+ "법인명 : corp.resCompanyNm  " + "\n"
+			+ "은행 : commonCodeDetail.value1  " + "\n"
+			+ "계좌번호 : account  " + "\n"
+			+ "에러메시지 : errMessage  " + "\n"
+			+ "에러코드 : errCode  " + "\n"
+			+ "transactionId : transactionId  " + "\n"
 	)
 	@GetMapping( URI.ERROR )
 	@ApiPageable
 	public ResponseEntity errorList(@ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable
-									,@ModelAttribute AdminCustomRepository.ErrorSearchDto riskDto
+									,@ModelAttribute ResBatchListCustomRepository.ErrorSearchDto dto
 		) {
 		if (log.isDebugEnabled()) {
 			log.debug("([ errorList ]) $user='{}'", user.idx());
 		}
-		return service.errorList(user.idx(), pageable, riskDto);
+		return service.errorList(user.idx(), pageable, dto);
 	}
-
-	@ApiOperation(value = "에러내역 상세"
-			, notes = "" + "\n"
-			+ "법인id idxCorp" + "\n"
-	)
-	@GetMapping( URI.ERROR_ID )
-	public ResponseEntity errorCorp(@ApiIgnore @CurrentUser CustomUser user, @RequestParam String idxCorp){
-		if (log.isDebugEnabled()) {
-			log.debug("([ errorCorp ]) $user='{}'", user.idx());
-		}
-		return service.errorCorp(user.idx(), idxCorp);
-	}
-
-
 }

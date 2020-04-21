@@ -46,10 +46,14 @@ public class RiskDto {
     public LocalDateTime updatedAt;
     public boolean pause;
     public double recentBalance;
+    public String errCode;
 
     public Long idxUser;
 
     public static RiskDto from(Risk risk){
+
+        if( risk.errCode() == null) risk.errCode("");
+
         RiskDto riskDto = RiskDto.builder()
                 .date(risk.date())
                 .ceoGuarantee(risk.ceoGuarantee())
@@ -79,6 +83,7 @@ public class RiskDto {
                 .pause(risk.pause())
                 .updatedAt(risk.getUpdatedAt())
                 .recentBalance(risk.recentBalance())
+                .errCode(risk.errCode())
                 .build();
         return riskDto;
     }

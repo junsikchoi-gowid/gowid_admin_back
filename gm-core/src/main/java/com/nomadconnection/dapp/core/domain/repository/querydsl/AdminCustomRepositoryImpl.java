@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import javax.persistence.TypedQuery;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +25,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
     private final QRisk risk = QRisk.risk;
     private final QUser user = QUser.user;
     private final QCorp corp = QCorp.corp;
+    private final QCommonCodeDetail commonCodeDetail = QCommonCodeDetail.commonCodeDetail;
     private final QResAccount resAccount1 = QResAccount.resAccount1;
     private final QResAccountHistory resAccountHistory = QResAccountHistory.resAccountHistory;
     private final QConnectedMng connectedMng = QConnectedMng.connectedMng;
@@ -103,83 +105,4 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
 
         return new PageImpl(riskList, pageable, query.fetchCount());
     }
-
-//
-//    @Override
-//    public Page<CashResultDto> cashList( String searchCorpName, String updateStatus, Long idxUser, Pageable pageable) {
-//
-//        final TypedQuery<CashResultDto> query =
-//                getEntityManager().createQuery("select idx, idxCorp, resCompanyNm, sum(resAccountIn) as resAccountIn, \n " +
-//                                "sum(resAccountOut) as resAccountOut,   \n" +
-//                                "max(befoBalance) as befoBalance, \n" +
-//                                "max(createdAt) as createdAt, \n" +
-//                                "max(errCode) as errCode FROM \n" +
-//                                " (select u.idx,  u.idxCorp,  \n c.resCompanyNm,  \n cm.connectedId,    \n" +
-//                                "ifnull((select sum(resAccountIn) from ResAccountHistory  \n" +
-//                                "where resAccountTrDate  =  Date_Format(now(),  '%Y%m%d') and resAccount in  \n" +
-//                                "(select resAccount from ResAccount d WHERE d.connectedId = cm.connectedId and  resAccountDeposit in ('10','11','12','13','14'))),0) \n" +
-//                                "as resAccountIn, ifnull((select sum(resAccountOut) from ResAccountHistory  where resAccountTrDate  =  Date_Format(now(),  '%Y%m%d') \n" +
-//                                "and resAccount in  (select resAccount from ResAccount d WHERE d.connectedId = cm.connectedId \n" +
-//                                "and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountOut, ifnull((select currentBalance from Risk r\n" +
-//                                " where r.idxUser = u.idx and r.date = Date_Format(date_add(now(), INTERVAL - 1 DAY),  '%Y%m%d') ) , 0) befoBalance,        \n" +
-//                                " (select max(createdAt) from ResBatch where idxUser = u.idx) as createdAt,        \n" +
-//                                " (select max(errCode) from ResBatchList where errCode != 'CF-00000' and idxUser = u.idx and resBatchType = 1         \n" +
-//                                " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode \n" +
-//                                " from User u  join Corp c on c.idx = u.idxCorp \n" +
-//                                " join ConnectedMng cm  on cm.idxUser = u.idx ) z "
-////                        " where z.resCompanyNm like :resCompanyNm " +
-////                        " and (z.errCode is null = :errCode)  " +
-////                        "    group by idx  order by idx asc "
-//                        , CashResultDto.class );
-//
-//        String ordering = "idx asc";
-//        if( searchCorpName.isEmpty()) searchCorpName = "";
-//
-//        if(updateStatus.isEmpty()) updateStatus = null;
-//
-////        query.setParameter("resCompanyNm", "%"+ searchCorpName +"%");
-////        query.setParameter( "errCode", updateStatus);
-////        query.setParameter("orders" , ordering);
-//
-//        query.setFirstResult((int)pageable.getOffset());
-//        query.setMaxResults(pageable.getPageSize());
-//
-//        int total = query.getMaxResults();
-//        List<CashResultDto> content = total > pageable.getOffset() ? query.getResultList() : Collections.<CashResultDto> emptyList();
-//
-//        return new PageImpl(content, pageable, total);
-//    }
-
-
-    @Override
-    public Page<ScrapingResultDto> scrapingList(Pageable pageable){
-
-        final List<ScrapingResultDto> list;
-
-        final JPQLQuery<ScrapingResultDto> query = from(corp)
-                .join(resBatch).on(corp.user.idx.eq(resBatch.idxUser))
-                .select(Projections.bean(ScrapingResultDto.class,
-                        corp.idx.as("idxCorp"),
-                        corp.resCompanyNm.as("idxCorpName"),
-                        resBatch.createdAt.max().as("createdAt"),
-                        resBatch.updatedAt.max().as("updatedAt"),
-                        resBatch.endFlag.as("endFlag"),
-                        resBatch.idxUser.as("idxUser")
-                ))
-                .groupBy(corp.idx)
-                .orderBy(corp.idx.asc())
-                ;
-
-        list = getQuerydsl().applyPagination(pageable, query).fetch();
-
-        return new PageImpl(list, pageable, query.fetchCount());
-    }
-
-    @Override
-    public Page<ErrorResultDto> errorList(ErrorResultDto risk, Long idxUser, Pageable pageable){
-
-        return null;
-    }
-
-
 }

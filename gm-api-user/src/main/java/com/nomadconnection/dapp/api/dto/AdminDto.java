@@ -1,7 +1,10 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.core.domain.ResBatchList;
 import com.nomadconnection.dapp.core.domain.Risk;
 import com.nomadconnection.dapp.core.domain.repository.ResAccountRepository;
+import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
+import com.nomadconnection.dapp.core.domain.repository.querydsl.ResBatchListCustomRepository;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,118 +23,63 @@ public class AdminDto {
 	@AllArgsConstructor
 	public static class RiskDto {
 
-		@ApiModelProperty("법인명(식별자)")
+		@ApiModelProperty("법인ID")
 		public Long idxCorp;
 
-		@ApiModelProperty("법인명")
+		@ApiModelProperty("법인명 ")
 		public String idxCorpName;
 
-		@ApiModelProperty("이용약관(식별자)")
-		public Long idx;
-
-		@ApiModelProperty("사용자")
-		public Long idxUser;
-
-		@ApiModelProperty("일정")
-		private String date;
-
-		@ApiModelProperty("대표이사 연대보증 여부")
-		private boolean ceoGuarantee;
-
-		@ApiModelProperty("요구 보증금")
-		private double depositGuarantee;
-
-		@ApiModelProperty("보증금 납입 여부")
-		private boolean depositPayment;
-
-		@ApiModelProperty("카드발급여부")
-		private boolean cardIssuance;
-
-		@ApiModelProperty("벤처인증여부")
-		private boolean ventureCertification;
-
-		@ApiModelProperty("투자여부")
-		private boolean vcInvestment;
-
-		@ApiModelProperty("법인 등급")
-		private String grade;
-
-		@ApiModelProperty("등급별 한도율")
-		private Integer gradeLimitPercentage;
-
-		@ApiModelProperty("최소 잔고")
-		private double minStartCash;
-
-		@ApiModelProperty("최소 유지 잔고")
-		private double minCashNeed;
-
-		@ApiModelProperty("현재잔고")
-		private double currentBalance;
-
-		@ApiModelProperty("계좌 스크래핑 오류발생 여부")
-		private Integer error;
-
-		@ApiModelProperty("잔고의 45일 평균값")
-		private double dma45;
-
-		@ApiModelProperty("잔고의 45일 중간값")
-		private double dmm45;
-
-		@ApiModelProperty("보증금제외 현재잔고")
-		private double actualBalance;
-
-		@ApiModelProperty("한도기준잔고")
-		private double cashBalance;
-
-		@ApiModelProperty("발급가능여부")
-		private boolean cardAvailable;
-
-		@ApiModelProperty("한도계산값")
-		private double cardLimitCalculation;
-
-		@ApiModelProperty("실시간 한도")
-		private double realtimeLimit;
+		@ApiModelProperty("변경 잔고 ")
+		public double cardLimitNow;
 
 		@ApiModelProperty("부여 한도")
-		private double cardLimit;
+		public double cardLimit;
 
-		@ApiModelProperty("변경 잔고 ")
-		private double cardLimitNow;
+		@ApiModelProperty("법인 등급")
+		public String grade;
+
+		@ApiModelProperty("최신잔고")
+		public double balance;
+
+		@ApiModelProperty("현재잔고")
+		public double currentBalance;
+
+		@ApiModelProperty("cardRestartCount")
+		public Integer cardRestartCount;
 
 		@ApiModelProperty("긴급중지")
-		private boolean emergencyStop;
+		public Boolean emergencyStop;
 
+		@ApiModelProperty("카드발급여부")
+		public Boolean cardIssuance;
 
-		public static RiskDto from(Risk risk){
+		@ApiModelProperty("updatedAt")
+		public LocalDateTime updatedAt;
+
+		@ApiModelProperty("errCode")
+		public String errCode;
+
+		@ApiModelProperty("pause")
+		public Boolean pause;
+
+		public static RiskDto from(AdminCustomRepository.SearchRiskResultDto searchRiskResultDto){
 			RiskDto riskDto = RiskDto.builder()
-					.idxUser(risk.user().idx())
-					.date(risk.date())
-					.ceoGuarantee(risk.ceoGuarantee())
-					.depositGuarantee(risk.depositGuarantee())
-					.depositPayment(risk.depositPayment())
-					.cardIssuance(risk.cardIssuance())
-					.ventureCertification(risk.ventureCertification())
-					.vcInvestment(risk.vcInvestment())
-					.grade(risk.grade())
-					.gradeLimitPercentage(risk.gradeLimitPercentage())
-					.minStartCash(risk.minStartCash())
-					.minCashNeed(risk.minCashNeed())
-					.currentBalance(risk.currentBalance())
-					.error(risk.error())
-					.dma45(risk.dma45())
-					.dmm45(risk.dmm45())
-					.actualBalance(risk.actualBalance())
-					.cashBalance(risk.cashBalance())
-					.cardAvailable(risk.cardAvailable())
-					.cardLimitCalculation(risk.cardLimitCalculation())
-					.realtimeLimit(risk.realtimeLimit())
-					.cardLimit(risk.cardLimit())
-					.cardLimitNow(risk.cardLimitNow())
-					.emergencyStop(risk.emergencyStop())
+					.idxCorp(searchRiskResultDto.getIdxCorp())
+					.idxCorpName(searchRiskResultDto.getIdxCorpName())
+					.cardLimitNow(searchRiskResultDto.getCardLimitNow())
+					.cardLimit(searchRiskResultDto.getCardLimit())
+					.grade(searchRiskResultDto.getGrade())
+					.balance(searchRiskResultDto.getBalance())
+					.currentBalance(searchRiskResultDto.getCurrentBalance())
+					.cardRestartCount(searchRiskResultDto.getCardRestartCount())
+					.emergencyStop(searchRiskResultDto.getEmergencyStop())
+					.cardIssuance(searchRiskResultDto.getCardIssuance())
+					.updatedAt(searchRiskResultDto.getUpdatedAt())
+					.errCode(searchRiskResultDto.getErrCode())
+					.pause(searchRiskResultDto.getPause())
 					.build();
 			return riskDto;
 		}
-
 	}
 
 	@Data
@@ -192,5 +140,97 @@ public class AdminDto {
 					.build();
 			return cashListDto;
 		}
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class CashListDetailDto {
+		public String sumDate;
+		public Long sumResAccountIn;
+		public Long sumResAccountOut;
+		public Long sumResAccountInOut;
+		public Long lastResAfterTranBalance;
+
+		public static CashListDetailDto from(ResAccountRepository.CaccountMonthDto caccountMonthDto) {
+			CashListDetailDto cashListDetailDto = CashListDetailDto.builder()
+					.sumDate(caccountMonthDto.getSumDate())
+					.sumResAccountIn(caccountMonthDto.getSumResAccountIn())
+					.sumResAccountOut(caccountMonthDto.getSumResAccountOut())
+					.sumResAccountInOut(caccountMonthDto.getSumResAccountIn()-caccountMonthDto.getSumResAccountOut())
+					.lastResAfterTranBalance(caccountMonthDto.getLastResAfterTranBalance())
+					.build();
+			return cashListDetailDto;
+		}
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ErrorSearchDto {
+		@ApiModelProperty("법인 idx")
+		public Long idxCorp;
+
+		@ApiModelProperty("법인명 ")
+		public String corpName;
+
+		@ApiModelProperty("에러메세지")
+		private String errorMessage;
+
+		@ApiModelProperty("에러코드 true/false")
+		private String errorCode;
+
+		@ApiModelProperty("금일여부 true/false")
+		private String boolToday;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ErrorResultDto {
+		@ApiModelProperty("법인 idx")
+		public Long idxCorp;
+
+		@ApiModelProperty("발생시간")
+		public LocalDateTime updatedAt;
+
+		@ApiModelProperty("법인명")
+		public String corpName;
+
+		@ApiModelProperty("은행")
+		public String bankName;
+
+		@ApiModelProperty("계좌번호")
+		public String account;
+
+		@ApiModelProperty("에러메세지")
+		public String errorMessage;
+
+		@ApiModelProperty("에러코드")
+		public String errorCode;
+
+		@ApiModelProperty("transactionId")
+		public String transactionId;
+
+		public static ErrorResultDto from (ResBatchListCustomRepository.ErrorResultDto dto){
+
+			ErrorResultDto errorResultDto = ErrorResultDto.builder()
+					.updatedAt(dto.getUpdatedAt())
+					.corpName(dto.getCorpName()==null?"":dto.getCorpName())
+					.bankName(dto.getBankName()==null?"":dto.getBankName())
+					.account(dto.getAccount()==null?"":dto.getAccount())
+					.errorMessage(dto.getErrMessage()==null?"":dto.getErrMessage())
+					.errorCode(dto.getErrCode()==null?"":dto.getErrCode())
+					.transactionId(dto.getTransactionId()==null?"":dto.getTransactionId())
+					.build();
+
+			return errorResultDto;
+		}
+	}
+
+	public class SearchRiskResultDto {
 	}
 }

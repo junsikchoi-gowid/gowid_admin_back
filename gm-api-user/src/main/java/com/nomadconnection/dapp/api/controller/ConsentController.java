@@ -27,8 +27,6 @@ public class ConsentController {
         public static final String CONSENT = "/consent";
         public static final String CONSENT_SAVE = "/consentsave";
         public static final String CONSENT_DEL = "/consentdel/{consent}";
-
-
     }
 
     private final ConsentService service;

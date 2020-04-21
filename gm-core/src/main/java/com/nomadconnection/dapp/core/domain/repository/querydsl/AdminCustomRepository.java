@@ -46,43 +46,43 @@ public interface AdminCustomRepository {
     @AllArgsConstructor
     class SearchRiskResultDto {
         @ApiModelProperty("법인ID")
-        public Long idxCorp;
+        private Long idxCorp;
 
         @ApiModelProperty("법인명 ")
-        public String idxCorpName;
+        private String idxCorpName;
 
         @ApiModelProperty("변경 잔고 ")
-        public double cardLimitNow;
+        private double cardLimitNow;
 
         @ApiModelProperty("부여 한도")
-        public double cardLimit;
+        private double cardLimit;
 
         @ApiModelProperty("법인 등급")
-        public String grade;
+        private String grade;
 
         @ApiModelProperty("최신잔고")
-        public double balance;
+        private double balance;
 
         @ApiModelProperty("현재잔고")
-        public double currentBalance;
+        private double currentBalance;
 
         @ApiModelProperty("cardRestartCount")
-        public Integer cardRestartCount;
+        private Integer cardRestartCount;
 
         @ApiModelProperty("긴급중지")
-        public Boolean emergencyStop;
+        private Boolean emergencyStop;
 
         @ApiModelProperty("카드발급여부")
-        public Boolean cardIssuance;
+        private Boolean cardIssuance;
 
         @ApiModelProperty("updatedAt")
-        public LocalDateTime updatedAt;
+        private LocalDateTime updatedAt;
 
         @ApiModelProperty("errCode")
-        public String errCode;
+        private String errCode;
 
         @ApiModelProperty("pause")
-        public Boolean pause;
+        private Boolean pause;
     }
 
     Page<SearchRiskResultDto> riskList(SearchRiskDto risk, Long idxUser, Pageable pageable);
@@ -125,75 +125,4 @@ public interface AdminCustomRepository {
         @ApiModelProperty("errStatus ")
         private String errStatus;
     }
-
-    // Page<CashResultDto> cashList( String searchCorpName, String updateStatus, Long idxUser, Pageable pageable);
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    class ScrapingResultDto {
-        @ApiModelProperty("법인ID")
-        public Long idxCorp;
-
-        @ApiModelProperty("법인명 ")
-        public String idxCorpName;
-
-        @ApiModelProperty("성공계좌")
-        public String successAccountCnt;
-
-        @ApiModelProperty("총계좌개수")
-        public String allAccountCnt;
-
-        @ApiModelProperty("성공률")
-        public Double successPercent;
-
-        @ApiModelProperty("createdAt")
-        public LocalDateTime createdAt;
-
-        @ApiModelProperty("updatedAt")
-        public LocalDateTime updatedAt;
-
-        @ApiModelProperty("endFlag")
-        public boolean endFlag;
-
-        @ApiModelProperty("user")
-        public Long idxUser;
-    }
-
-    Page<ScrapingResultDto> scrapingList(Pageable pageable);
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    class ErrorSearchDto {
-        @ApiModelProperty("법인명 ")
-        public String corpName;
-
-        @ApiModelProperty("에러메세지")
-        private String errorMessage;
-
-        @ApiModelProperty("에러코드 true/false")
-        private String errorCode;
-
-        @ApiModelProperty("금일여부 true/false")
-        private String boolToday;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    class ErrorResultDto {
-        @ApiModelProperty("법인ID")
-        public Long idxCorp;
-
-        @ApiModelProperty("법인명 ")
-        public String idxCorpName;
-    }
-
-    Page<ErrorResultDto> errorList(ErrorResultDto risk, Long idxUser, Pageable pageable);
-
-
 }

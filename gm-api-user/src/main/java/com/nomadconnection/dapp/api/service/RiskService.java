@@ -205,7 +205,7 @@ public class RiskService {
 		risk.cardLimit(Math.max(risk.depositGuarantee(),risk.realtimeLimit()));
 
 		// EmergencyStop
-		if(risk.cashBalance() < risk.minCashNeed()){
+		if(risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow()){
 			risk.emergencyStop(true);
 		}else{
 			risk.emergencyStop(false);

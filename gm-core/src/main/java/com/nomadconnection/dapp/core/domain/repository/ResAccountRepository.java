@@ -290,7 +290,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
                     " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode \n" +
                     " from User u  join Corp c on c.idx = u.idxCorp \n" +
                     " join ConnectedMng cm  on cm.idxUser = u.idx ) z\n" +
-                    ") z where resCompanyNm like %:searchCorpName% and ( errStatus = :updateStatus or :updateStatus is null) ",
+                    ") z where (resCompanyNm like :searchCorpName or :searchCorpName is null ) and ( errStatus = :updateStatus or :updateStatus is null) ",
             countQuery = "select count(*) from\n" +
                     "(select idx, idxCorp, resCompanyNm, resAccountIn, resAccountOut, (resAccountIn - resAccountOut) resAccountInOut, befoBalance, createdAt, errCode, if(errCode is null ,0,1) errStatus  from \n" +
                     "(select distinct u.idx,  u.idxCorp,   c.resCompanyNm, \n" +
@@ -306,7 +306,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
                     " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode \n" +
                     " from User u  join Corp c on c.idx = u.idxCorp \n" +
                     " join ConnectedMng cm  on cm.idxUser = u.idx ) z\n" +
-                    ") z where resCompanyNm like %:searchCorpName% and ( errStatus = :updateStatus or :updateStatus is null) ",
+                    ") z where (resCompanyNm like :searchCorpName or :searchCorpName is null ) and ( errStatus = :updateStatus or :updateStatus is null) ",
             nativeQuery = true
     )
     Page<CashResultDto> cashList(String searchCorpName, String updateStatus, Pageable pageable);

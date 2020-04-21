@@ -281,6 +281,7 @@ public class ScrapingService {
                     ResBatchList.builder()
                             .idx(resBatchList.idx())
                             .account(resBatchList.account())
+                            .bank(resBatchList.bank())
                             .errCode(resBatchList.errCode())
                             .errMessage(resBatchList.errMessage())
                             .startDate(resBatchList.startDate())
@@ -338,22 +339,12 @@ public class ScrapingService {
 
         String startDate = dto.getMonth();
         String endDate = dto.getMonth();
-        if (startDate == null) startDate = getMonth(-11);
-        if (endDate == null) endDate = getMonth(0);
+        if (startDate == null) startDate = GowidUtils.getMonth(-11);
+        if (endDate == null) endDate = GowidUtils.getMonth(0);
 
         List<ResAccountRepository.CaccountMonthDto> transactionList = repoResAccount.findMonthHistory(startDate, endDate, idx);
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(transactionList).build());
-    }
-
-
-    private String getMonth(int i) {
-        Calendar cal = Calendar.getInstance();
-        DateFormat df = new SimpleDateFormat("yyyyMM");
-        Date date = new Date();
-        cal.setTime(date);
-        cal.add(Calendar.MONDAY, i);
-        return df.format(cal.getTime());
     }
 
     /**
@@ -454,7 +445,7 @@ public class ScrapingService {
                 } finally {
                     endLog(ResBatchList.builder()
                             .idx(idxResBatchList)
-                            .account(strBank)
+                            .bank(strBank)
                             .errCode(strResult[0].get("code").toString())
                             .errMessage(strResult[0].get("message").toString())
                             .transactionId(strResult[0].get("transactionId").toString())
@@ -706,6 +697,7 @@ public class ScrapingService {
                     .startDate(resData.getStartDay())
                     .endDate(resData.getEndDay())
                     .account(resData.getResAccount())
+                    .bank(resData.getOrganization())
                     .errCode(strResult[0].get("code").toString())
                     .transactionId(strResult[0].get("transactionId").toString())
                     .errMessage(strResult[0].get("message").toString())
@@ -832,6 +824,7 @@ public class ScrapingService {
                         .startDate(resData.getStartDay())
                         .endDate(resData.getEndDay())
                         .account(resData.getResAccount())
+                        .bank(resData.getOrganization())
                         .errCode(strResult[0].get("code").toString())
                         .transactionId(strResult[0].get("transactionId").toString())
                         .errMessage(strResult[0].get("message").toString())
@@ -927,6 +920,7 @@ public class ScrapingService {
                 } finally {
                     endLog(ResBatchList.builder()
                             .idx(idxResBatchList)
+                            .bank(strBank)
                             .errCode(strResult[0].get("code").toString())
                             .transactionId(strResult[0].get("transactionId").toString())
                             .errMessage(strResult[0].get("message").toString())
@@ -1191,6 +1185,7 @@ public class ScrapingService {
                         .startDate(resData.getStartDay())
                         .endDate(resData.getEndDay())
                         .account(resData.getResAccount())
+                        .bank(resData.getOrganization())
                         .errCode(strResult[0].get("code").toString())
                         .transactionId(strResult[0].get("transactionId").toString())
                         .errMessage(strResult[0].get("message").toString())
@@ -1333,6 +1328,7 @@ public class ScrapingService {
                         .startDate(resData.getStartDay())
                         .endDate(resData.getEndDay())
                         .account(resData.getResAccount())
+                        .bank(resData.getOrganization())
                         .errCode(strResult[0].get("code").toString())
                         .transactionId(strResult[0].get("transactionId").toString())
                         .errMessage(strResult[0].get("message").toString())
@@ -1395,6 +1391,7 @@ public class ScrapingService {
                         .startDate(resData.getStartDay())
                         .endDate(resData.getEndDay())
                         .account(resData.getResAccount())
+                        .bank(resData.getOrganization())
                         .transactionId(strResult[0].get("transactionId").toString())
                         .errCode(strResult[0].get("code").toString())
                         .errMessage(strResult[0].get("message").toString())
@@ -1484,6 +1481,7 @@ public class ScrapingService {
                         .startDate(resData.getStartDay())
                         .endDate(resData.getEndDay())
                         .account(resData.getResAccount())
+                        .bank(resData.getOrganization())
                         .errCode(strResult[0].get("code").toString())
                         .transactionId(strResult[0].get("transactionId").toString())
                         .errMessage(strResult[0].get("message").toString())
@@ -1556,6 +1554,7 @@ public class ScrapingService {
                     endLog(ResBatchList.builder()
                             .idx(idxResBatchList)
                             .errCode(strResult[0].get("code").toString())
+                            .bank(strBank)
                             .transactionId(strResult[0].get("transactionId").toString())
                             .errMessage(strResult[0].get("message").toString())
                             .build());
@@ -1812,6 +1811,7 @@ public class ScrapingService {
                     .startDate(resData.getStartDay())
                     .endDate(resData.getEndDay())
                     .account(resData.getResAccount())
+                    .bank(resData.getOrganization())
                     .errCode(strResult[0].get("code").toString())
                     .transactionId(strResult[0].get("transactionId").toString())
                     .errMessage(strResult[0].get("message").toString())

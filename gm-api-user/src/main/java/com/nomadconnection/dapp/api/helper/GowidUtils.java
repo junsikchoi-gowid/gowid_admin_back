@@ -3,6 +3,10 @@ package com.nomadconnection.dapp.api.helper;
 import org.json.simple.JSONObject;
 import org.springframework.util.StringUtils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 public class GowidUtils {
@@ -36,4 +40,13 @@ public class GowidUtils {
 			return "";
 		}
     }
+
+	public static String getMonth(int i) {
+		Calendar cal = Calendar.getInstance();
+		DateFormat df = new SimpleDateFormat("yyyyMM");
+		Date date = new Date();
+		cal.setTime(date);
+		cal.add(Calendar.MONDAY, i);
+		return df.format(cal.getTime());
+	}
 }
