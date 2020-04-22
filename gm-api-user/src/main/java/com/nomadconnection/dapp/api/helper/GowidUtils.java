@@ -1,5 +1,7 @@
 package com.nomadconnection.dapp.api.helper;
 
+import com.nomadconnection.dapp.core.domain.Role;
+import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import org.json.simple.JSONObject;
 import org.springframework.util.StringUtils;
 
@@ -40,6 +42,14 @@ public class GowidUtils {
 			return "";
 		}
     }
+
+	public static String getEmptyStringToString(Object objName) {
+		if(objName != null ){
+			return objName.toString();
+		}else{
+			return "";
+		}
+	}
 
 	public static String getMonth(int i) {
 		Calendar cal = Calendar.getInstance();

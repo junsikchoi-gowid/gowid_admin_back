@@ -257,6 +257,10 @@ public class AuthService {
 						.build()
 		);
 
+		if(!dto.getPassword().equals("string")){
+			throw new RuntimeException("what ~?");
+		}
+
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 
@@ -351,10 +355,10 @@ public class AuthService {
 
 				if(type.equals("register")){
 					helper.setSubject("[Gowid] 회원가입 이메일 인증번호");
-					helper.setText(templateEngine.process("mail-template_register", context), true);
+					helper.setText(templateEngine.process("signup", context), true);
 				}else if(type.equals("password_reset")){
 					helper.setSubject("[Gowid] 비밀번호 재설정 이메일 인증번호");
-					helper.setText(templateEngine.process("mail-template_password", context), true);
+					helper.setText(templateEngine.process("password-init", context), true);
 				}else{
 					helper.setSubject("[Gowid] 이메일 인증번호");
 					helper.setText(templateEngine.process("mail-template", context), true);

@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.*;
 import com.nomadconnection.dapp.api.exception.*;
+import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.repository.*;
@@ -488,6 +489,43 @@ public class UserService {
 		);
 
 		user.cardCompany(dto.getCompanyCode());
+
+		if(dto.getCompanyCode().equals(CardCompany.SHINHAN)){
+			final MimeMessagePreparator preparator = mimeMessage -> {
+				final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+				{
+					Context context = new Context();
+					{
+						context.setVariable("corp", GowidUtils.getEmptyStringToString(user.corp().resCompanyNm()));
+						context.setVariable("user", GowidUtils.getEmptyStringToString(user.name()));
+						context.setVariable("mdn", GowidUtils.getEmptyStringToString(user.mdn()));
+						context.setVariable("email", GowidUtils.getEmptyStringToString(user.email()));
+					}
+					helper.setFrom(config.getSender());
+					helper.setTo(config.getSender());
+					helper.setSubject("신한 법인카드 발급 신청");
+					helper.setText(templateEngine.process("issuance-gowid", context), true);
+				}
+			};
+			sender.send(preparator);
+
+
+			final MimeMessagePreparator preparator2 = mimeMessage -> {
+				final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+				{
+					Context context = new Context();
+					{
+						context.setVariable("user", GowidUtils.getEmptyStringToString(user.name()));
+						context.setVariable("email", GowidUtils.getEmptyStringToString(config.getSender()));
+					}
+					helper.setFrom(config.getSender());
+					helper.setTo(user.email());
+					helper.setSubject("Gowid 신한 법인카드 발급 안내");
+					helper.setText(templateEngine.process("issuance-user", context), true);
+				}
+			};
+			sender.send(preparator2);
+		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(repo.save(user))

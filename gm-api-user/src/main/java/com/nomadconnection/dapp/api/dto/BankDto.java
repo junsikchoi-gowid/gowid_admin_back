@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @SuppressWarnings("unused")
@@ -234,10 +236,17 @@ public class BankDto {
 		private String resAccountInvestedCost  ; //투자원금
 		private String resEarningsRate         ; //수익률[%]
 		private String resAccountLoanExecNo    ; //대출실행번호
-		private String errCode    ; //대출실행번호
-		private String errMessage    ; //대출실행번호
+		private String errCode    ;
+		private String errMessage    ;
+		private LocalDateTime scrpaingUpdateTime    ;
+
 
 		public static ResAccountDto from(ResAccount resAccount){
+
+			if( !resAccount.resAccountName().isEmpty() ) resAccount.nickName(resAccount.resAccountName());
+			if( !resAccount.resAccountNickName().isEmpty() ) resAccount.nickName(resAccount.resAccountNickName());
+			if( !resAccount.nickName().isEmpty() ) resAccount.nickName(resAccount.nickName());
+
 			return ResAccountDto.builder()
 					.idx(resAccount.idx())
 					.nickName(resAccount.nickName())

@@ -1,46 +1,32 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
-import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
+import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
-import com.nomadconnection.dapp.codef.io.helper.HttpRequest;
-import com.nomadconnection.dapp.codef.io.sandbox.bk.*;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.PropertyAccessorFactory;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.net.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.Pattern;
@@ -200,14 +186,31 @@ public class BankService {
 
 	/**
 	 * 유저의 계좌정보
-	 * @param idx 엔터티(사용자)
+	 * @param idxUser 엔터티(사용자)
 	 */
 	@Transactional(readOnly = true)
-	public ResponseEntity accountList(Long idx) {
+	public ResponseEntity accountList(Long idxUser, Long idxCorp) {
 
-		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(idx).stream()
+		//todo auth
+		if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER))))
+		{
+			Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+					() -> new RuntimeException("Bad idxCorp request.")
+			);
+			idxUser = corp.user().idx();
+		}
+
+		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(idxUser).stream()
 				.map(BankDto.ResAccountDto::from)
 				.collect(Collectors.toList());
+
+		for( BankDto.ResAccountDto dto : resAccount )
+		{
+			ResBatchList historyData = repoResBatchList.findFirstByAccountOrderByUpdatedAtDesc(dto.getResAccount());
+			dto.setErrCode(historyData.errCode());
+			dto.setErrMessage(historyData.errMessage());
+			dto.setScrpaingUpdateTime(historyData.getUpdatedAt());
+		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.size(resAccount.size())
@@ -218,12 +221,20 @@ public class BankService {
 	 *
 	 * 거래내역
 	 * @param dto 보유정보
-	 * @param idx 엔터티(사용자)
+	 * @param idxUser 엔터티(사용자)
 	 */
 	@Transactional(readOnly = true)
-	public ResponseEntity transactionList(BankDto.TransactionList dto, Long idx, Integer page, Integer pageSize) {
-		String strDate = dto.getSearchDate();
+	public ResponseEntity transactionList(BankDto.TransactionList dto, Long idxUser, Integer page, Integer pageSize, Long idxCorp) {
+		//todo auth
+		if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER))))
+		{
+			Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+					() -> new RuntimeException("Bad idxCorp request.")
+			);
+			idxUser = corp.user().idx();
+		}
 
+		String strDate = dto.getSearchDate();
 		Integer intIn = 0, intOut = 0, booleanForeign = 0;
 		if (dto.getResInOut() != null) {
 			if (dto.getResInOut().toLowerCase().equals("in")) {
@@ -243,9 +254,9 @@ public class BankService {
 		List<ResAccountRepository.CaccountHistoryDto> transactionList ;
 
 		if(strDate != null && strDate.length() == 6){
-			transactionList = repoResAccount.findAccountHistory( strDate + "00" , strDate + "32", dto.getResAccount() , idx, pageSize, pageSize*(page-1), intIn, intOut, booleanForeign);
+			transactionList = repoResAccount.findAccountHistory( strDate + "00" , strDate + "32", dto.getResAccount() , idxUser, pageSize, pageSize*(page-1), intIn, intOut, booleanForeign);
 		}else{
-			transactionList = repoResAccount.findAccountHistory( strDate , strDate, dto.getResAccount(), idx, pageSize, pageSize*(page-1), intIn, intOut, booleanForeign);
+			transactionList = repoResAccount.findAccountHistory( strDate , strDate, dto.getResAccount(), idxUser, pageSize, pageSize*(page-1), intIn, intOut, booleanForeign);
 		}
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(transactionList).build());
 	}

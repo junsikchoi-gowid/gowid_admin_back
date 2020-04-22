@@ -18,9 +18,9 @@ public enum Role {
 		return ROLE_ADMIN.equals(role);
 	}
 
-	public static boolean isGowidAdmin(Role role) {
-		return GOWID_ADMIN.equals(role);
-	}
+	public static boolean isGowidAdmin(Role role) {		return GOWID_ADMIN.equals(role);	}
+
+	public static boolean isGowidUser(Role role) {		return GOWID_USER.equals(role);	}
 
 	public static boolean isUpdatableCreditLimit(Role role) {
 		return ROLE_MASTER.equals(role) || ROLE_ADMIN.equals(role);

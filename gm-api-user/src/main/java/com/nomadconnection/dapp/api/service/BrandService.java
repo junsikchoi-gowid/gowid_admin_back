@@ -36,7 +36,9 @@ public class BrandService {
     public ResponseEntity findAccount(String name, String mdn) {
         List<String> user = repoUser.findByNameAndMdn(name, mdn)
                 .map(User::email)
-                .map(email -> email.replaceAll("(^[^@]{3}|(?!^)\\G)[^@]", "$1*"))
+                .map(email -> {
+                    return email.replaceAll("(^[^@]{3}|(?!^)\\G)[^@]", "$1*");
+                })
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(BusinessResponse.builder().data(user).build());
     }

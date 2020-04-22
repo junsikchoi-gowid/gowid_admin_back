@@ -17,6 +17,12 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
     void deleteResAccountTrDate(@Param("resAccount") String resAccount, @Param("startDate") String startDate, @Param("endDate") String endDate );
 
 
+
+    public static interface CMonthInOutSumDto {
+        Long getSumResAccountIn();
+        Long getSumResAccountOut();
+    }
+
     @Query(value = "select sum(ifnull (resAccountIn,0)) sumResAccountIn , sum( ifnull (resAccountOut,0)) sumResAccountOut\n" +
             "\tfrom ResAccountHistory where resAccountTrDate between :start and :end  \n" +
             "\t\tand resAccount in " +
@@ -25,8 +31,5 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
             ,nativeQuery = true)
     CMonthInOutSumDto findMonthInOutSum(@Param("start") String start, @Param("end") String end, @Param("idxUser")Long idxUser);
 
-    public static interface CMonthInOutSumDto {
-        Long getSumResAccountIn();
-        Long getSumResAccountOut();
-    }
+
 }

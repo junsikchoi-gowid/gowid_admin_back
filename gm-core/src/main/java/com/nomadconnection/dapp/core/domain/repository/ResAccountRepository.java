@@ -1,8 +1,7 @@
 package com.nomadconnection.dapp.core.domain.repository;
 
 import com.nomadconnection.dapp.core.domain.ResAccount;
-import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
-import lombok.Data;
+import com.nomadconnection.dapp.core.domain.repository.querydsl.ResAccountCustomRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,56 +13,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
+public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, ResAccountCustomRepository {
 
     List<ResAccount> findByConnectedIdAndResAccountDepositIn(String connectedId, List<String> resAccountDeposit);
 
-    @Query(value = " select idx" +
-            ",ifnull ( nullif(nickName, ''), ifnull ( nullif(resAccountNickName,''), nullif(resAccountName,'') )) as nickName" +
-            ",resAccountNickName "+
-            ",connectedId" +
-            ",organization" +
-            ",type" +
-            ",resAccount " +
-            ",resAccountDisplay " +
-            ",resAccountBalance" +
-            ",resAccountRiskBalance" +
-            ",resAccountDeposit" +
-            ",resAccountCurrency" +
-            ",resAccountStartDate" +
-            ",resAccountEndDate" +
-            ",resLastTranDate" +
-            ",resAccountName" +
-            ",resOverdraftAcctYN" +
-            ",resLoanKind" +
-            ",resLoanBalance" +
-            ",resLoanStartDate" +
-            ",resLoanEndDate" +
-            ",resAccountInvestedCost" +
-            ",resEarningsRate" +
-            ",resAccountLoanExecNo" +
-            ",resAccountHolder" +
-            ",resManagementBranch" +
-            ",resAccountStatus" +
-            ",resWithdrawalAmt" +
-            ",commEndDate" +
-            ",commStartDate" +
-            ",resFinalRoundNo" +
-            ",resMonthlyPayment" +
-            ",resValidPeriod" +
-            ",resType" +
-            ",resRate" +
-            ",resContractAmount" +
-            ",resPaymentMethods" +
-            ",resBalanceNum" +
-            ",resPrincipal" +
-            ",resDatePayment" +
-            ",resState" +
-            ",createdAt" +
-            ",updatedAt" +
-            " from ResAccount " +
-            "   where connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser ) " +
-            "   order by field(resAccountDeposit , 10,11,12,13,14,30,20,40), resAccountNickName ASC, resAccountName ASC ", nativeQuery = true)
+    @Query(value = " select R " +
+            " from ResAccount R" +
+            " where connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser ) " +
+            " order by field(resAccountDeposit , 10,11,12,13,14,30,20,40), resAccountNickName ASC, resAccountName ASC ")
     List<ResAccount> findConnectedId(Long idxUser);
 
     @Query(value = " select      " +
@@ -85,11 +42,19 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             " and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser)     " +
             " where (A.resAccountTrDate between :startDate and :endDate or :endDate is null)      " +
             " and (R.resAccount = :resAccount or :resAccount is null)      " +
-            " and R.resAccountDeposit != if( :boolF = 1 , '00' , '20')  "+
+            " and R.resAccountDeposit != if( :boolF = 1 , '00' , '20')  " +
             " and cast(resAccountIn as signed) >= :resAccountIn and cast(resAccountOut as signed) >= :resAccountOut " +
             " order by resAccountTrDate desc, resAccountTrTime desc, A.idx  " +
             " LIMIT :limit OFFSET :offset  ", nativeQuery = true)
     List<CaccountHistoryDto> findAccountHistory(String startDate, String endDate, String resAccount, Long idxUser, Integer limit, Integer offset, Integer resAccountIn, Integer resAccountOut, Integer boolF);
+
+    public static interface CaccountCountDto {
+        String getSumDate();
+
+        Long getSumResAccountIn();
+
+        Long getSumResAccountOut();
+    }
 
     @Query(value = "select dm as sumDate, COALESCE(sumResAccountIn,0) sumResAccountIn,   " +
             "        COALESCE(sumResAccountOut,0) sumResAccountOut   " +
@@ -108,6 +73,16 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             "                on groupA.dm = groupB.resAccountTrDate  where groupA.dm between :startDate and  :endDate   " +
             "            order by groupA.dm desc", nativeQuery = true)
     List<CaccountCountDto> findDayHistory(String startDate, String endDate, Long idxUser);
+
+    public static interface CaccountMonthDto {
+        String getSumDate();
+
+        Long getSumResAccountIn();
+
+        Long getSumResAccountOut();
+
+        Long getLastResAfterTranBalance();
+    }
 
     @Query(value = "select ms sumDate, COALESCE(sumResAccountIn,0) sumResAccountIn, COALESCE(sumResAccountOut,0) sumResAccountOut, lastResAfterTranBalance     " +
             " from (     " +
@@ -169,6 +144,18 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
 
     Optional<ResAccount> findByResAccount(String resAccount);
 
+    public static interface CRisk {
+        Integer getDsc();
+
+        String getDs();
+
+        float getCurrentBalance();
+
+        String getErrCnt();
+
+        String getErrCode();
+    }
+
     @Query(value = "select DATEDIFF(:calcDate,ds) dsc " +
             " , ds" +
             " , sum(ifnull(ifnull(if(errCnt is null, value1,0),if(errCnt is null, value2,0)),if(errCnt is null, value3,0))) as currentBalance \n" +
@@ -209,45 +196,36 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
             ") z ", nativeQuery = true)
     Double findRecentBalance(Long idxUser);
 
-    @Query(value = "select sum(resAccountRiskBalance) from ResAccount "+
+    @Query(value = "select sum(resAccountRiskBalance) from ResAccount " +
             " where connectedId in (select connectedId from ConnectedMng where idxUser in (select idxUser from Corp where idx = :idxCorp))"
             , nativeQuery = true)
     Double findNowBalance(Long idxCorp);
 
-    public static interface CRisk {
-        Integer getDsc();
-        String getDs();
-        float getCurrentBalance();
-        String getErrCnt();
-        String getErrCode();
-    }
-
-    public static interface CaccountCountDto {
-        String getSumDate();
-        Long getSumResAccountIn();
-        Long getSumResAccountOut();
-    }
-
-    public static interface CaccountMonthDto {
-        String getSumDate();
-        Long getSumResAccountIn();
-        Long getSumResAccountOut();
-        Long getLastResAfterTranBalance();
-    }
-
     public static interface CaccountHistoryDto {
         String getResAccount();
+
         String getAccountName();
+
         String getResAccountBalance();
+
         String getResAccountTrDate();
+
         String getResAccountTrTime();
+
         String getResAccountInOut();
+
         String getResAccountDesc1();
+
         String getResAccountDesc2();
+
         String getResAccountDesc3();
+
         String getResAccountDesc4();
+
         String getResAfterTranBalance();
+
         String getResAccountDeposit();
+
         String getResAccountCurrency();
     }
 
@@ -261,21 +239,32 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long> {
 
     public static interface CashResultDto {
         Long getIdxUser();
+
         Long getIdxCorp();
+
         String getResCompanyNm();
+
         Double getResAccountIn();
+
         Double getResAccountOut();
+
         Double getResAccountInOut();
+
         Long getBurnRate();
+
         Integer getRunWay();
+
         Double getBefoBalance();
+
         LocalDateTime getCreatedAt();
+
         String getErrCode();
+
         String getErrStatus();
     }
 
     @Query(
-            value =  "select * from\n" +
+            value = "select * from\n" +
                     "(select idxUser, idxCorp, resCompanyNm, resAccountIn, resAccountOut, (resAccountIn - resAccountOut) as  resAccountInOut ,0 as burnRate, 0 as runWay,  befoBalance, createdAt, errCode, if(errCode is null ,0,1) errStatus  from \n" +
                     "(select distinct u.idx as idxUser, u.idxCorp,   c.resCompanyNm, \n" +
                     "ifnull((select sum(resAccountIn) from ResAccountHistory  \n" +

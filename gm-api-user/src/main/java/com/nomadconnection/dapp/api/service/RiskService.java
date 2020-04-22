@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.omg.CORBA.UserException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
@@ -61,11 +62,14 @@ public class RiskService {
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity saveRisk(Long idxUser, Long idxCorp, String calcDate) {
 
+		Corp corp;
 		User user = repoUser.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().id(idxUser).build()
 		);
 
-		Corp corp ;
+		if(idxCorp != null && user.authorities().stream().noneMatch(o-> o.role().equals(Role.GOWID_ADMIN))) {
+			throw new RuntimeException("DOES NOT HAVE GOWID-ADMIN");
+		}
 
 		if(idxCorp != null){
 			corp = repoCorp.findById(idxCorp).orElseThrow(
@@ -157,9 +161,9 @@ public class RiskService {
 
 		// 45DMA
 		List<Double> arrList = new ArrayList<>();
-		cRisk45daysTemp.forEach( cRisk -> { arrList.add((double) cRisk.getCurrentBalance()); });
+		cRisk45daysTemp.forEach( cRisk -> arrList.add((double) cRisk.getCurrentBalance()));
 
-		risk.dma45((Double)arrList.stream().mapToDouble(Double::doubleValue).average().orElse(0));
+		risk.dma45(arrList.stream().mapToDouble(Double::doubleValue).average().orElse(0));
 
 		// 45DMM
 		AtomicInteger i = new AtomicInteger(0);
@@ -182,7 +186,7 @@ public class RiskService {
 		}
 
 		// CashBalance
-		ArrayList<Double> cashBalance = new ArrayList<Double>();
+		ArrayList<Double> cashBalance = new ArrayList<>();
 		cashBalance.add(risk.dma45());
 		cashBalance.add(risk.dmm45());
 		cashBalance.add(risk.actualBalance());
@@ -199,7 +203,7 @@ public class RiskService {
 		risk.cardLimitCalculation( risk.cashBalance() * risk.gradeLimitPercentage()/100);
 
 		// RealtimeLimit
-		risk.realtimeLimit((Double) (Math.floor(risk.cardLimitCalculation() / 1000000) * 1000000));
+		risk.realtimeLimit(Math.floor(risk.cardLimitCalculation() / 1000000) * 1000000);
 
 		// CardLimit
 		risk.cardLimit(Math.max(risk.depositGuarantee(),risk.realtimeLimit()));

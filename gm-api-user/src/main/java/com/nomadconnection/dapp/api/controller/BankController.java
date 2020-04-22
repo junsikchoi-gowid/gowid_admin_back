@@ -59,21 +59,21 @@ public class BankController {
 
 	@ApiOperation(value = "계좌정보", notes = "" + "\n")
 	@GetMapping( URI.ACCOUNT_LIST )
-	public ResponseEntity AccountList(@ApiIgnore @CurrentUser CustomUser user ) {
+	public ResponseEntity AccountList(@ApiIgnore @CurrentUser CustomUser user, @RequestParam(required = false)  Long idxCorp) {
 		if (log.isDebugEnabled()) {
 			// log.debug("([TransactionList]) $dto='{}'", dto);
 		}
-		return service.accountList(user.idx());
+		return service.accountList(user.idx(), idxCorp);
 	}
 
 	@ApiOperation(value = "계좌별 거래내역", notes = "" + "\n")
 	@GetMapping( URI.TRANSACTION_LIST )
 	public ResponseEntity TransactionList(@ApiIgnore @CurrentUser CustomUser user, @ModelAttribute BankDto.TransactionList dto
-			,@RequestParam Integer page, @RequestParam Integer pageSize ) {
+			,@RequestParam Integer page, @RequestParam Integer pageSize , @RequestParam(required = false)  Long idxCorp) {
 		if (log.isDebugEnabled()) {
 			log.debug("([TransactionList]) $dto='{}'", dto);
 		}
-		return service.transactionList(dto, user.idx(), page, pageSize);
+		return service.transactionList(dto, user.idx(), page, pageSize, idxCorp);
 	}
 
 	@ApiOperation(value = "(기간별) 일별 입출금 잔고", notes = "" + "\n")
