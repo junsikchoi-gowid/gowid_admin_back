@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.time.LocalDate.now;
 
@@ -143,13 +144,14 @@ public class BankService {
 	 * BrunRate
 	 * @param idxUser 엔터티(사용자)
 	 */
+	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity burnRate(Long idxUser, Long idxCorp) {
 
 		if( idxCorp != null ){
 			Corp corp = repoCorp.findById(idxCorp).orElseThrow(
 					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
 			);
-			idxUser = corp.user().idx();
+			idxUser = repoCorp.findById(idxCorp).get().user().idx();
 		}
 
 		List<Long> firstBalance = repoResAccount.findBalance(idxUser);
@@ -192,12 +194,13 @@ public class BankService {
 	public ResponseEntity accountList(Long idxUser, Long idxCorp) {
 
 		//todo auth
-		if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER))))
-		{
-			Corp corp = repoCorp.findById(idxCorp).orElseThrow(
-					() -> new RuntimeException("Bad idxCorp request.")
-			);
-			idxUser = corp.user().idx();
+		if(idxCorp != null){
+			if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))){
+				Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+						() -> new RuntimeException("Bad idxCorp request.")
+				);
+				idxUser = corp.user().idx();
+			}
 		}
 
 		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(idxUser).stream()
@@ -288,7 +291,7 @@ public class BankService {
 							.value("Request again after 3 minutes").build()
 			).build());
 		}
-		serviceScraping.scrapingRegister1YearAll(idx);
+		serviceScraping.scrapingRegister1YearAll(idx , null);
 		Thread.sleep(1000);
 		return refresh(idx, null);
 	}

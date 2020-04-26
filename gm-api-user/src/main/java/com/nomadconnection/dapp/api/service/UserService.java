@@ -353,17 +353,6 @@ public class UserService {
 			);
 		}
 
-		repoRiskConfig.save(RiskConfig.builder()
-				.user(user)
-				.ceoGuarantee(false)
-				.cardIssuance(false)
-				.ventureCertification(false)
-				.vcInvestment(false)
-				.depositPayment(false)
-				.depositGuarantee(0F)
-				.enabled(true)
-				.build());
-
 		TokenDto.TokenSet tokenSet = issueTokenSet(AccountDto.builder()
 				.email(dto.getEmail())
 				.password(dto.getPassword())
@@ -396,6 +385,17 @@ public class UserService {
 		//	사용자 조회
 		User user = getUser(idxUser);
 
+		RiskConfig riskConfig = repoRiskConfig.save(RiskConfig.builder()
+				.user(user)
+				.ceoGuarantee(false)
+				.cardIssuance(false)
+				.ventureCertification(false)
+				.vcInvestment(false)
+				.depositPayment(false)
+				.depositGuarantee(0F)
+				.enabled(true)
+				.build());
+
 		//	법인정보 저장(상태: 대기)
 		Corp corp = repoCorp.save(
 				Corp.builder()
@@ -417,6 +417,7 @@ public class UserService {
 						.resUserNm(dto.getResUserNm())
 						.status(CorpStatus.PENDING)
 						.user(user)
+						.riskConfig(riskConfig)
 						.build()
 		);
 
@@ -439,7 +440,7 @@ public class UserService {
 	}
 
 
-	public TokenDto.TokenSet issueTokenSet(AccountDto dto) {
+	private TokenDto.TokenSet issueTokenSet(AccountDto dto) {
 		User user = repo.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(dto.getEmail())
@@ -534,7 +535,7 @@ public class UserService {
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity<?> deleteEmail(String email) {
-		User user = repo.findByAuthentication_EnabledAndEmail(true,email).get();
+		User user = repo.findByAuthentication_EnabledAndEmail(true,email).orElseThrow(() -> new RuntimeException("UserNotFound"));
 
 		user.authentication(Authentication.builder().enabled(false).build());
 		user.enabledDate(LocalDateTime.now());

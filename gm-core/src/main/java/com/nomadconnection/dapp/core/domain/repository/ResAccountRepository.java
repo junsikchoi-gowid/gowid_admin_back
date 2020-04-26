@@ -182,19 +182,19 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "from  \n" +
             "( select resAccount, errCnt \n" +
             "  , (select resAfterTranBalance from ResAccountHistory r\n" +
-            "     where resAccountTrDate <= Date_Format(now(),  '%Y%m%d')  and b.resAccount = r.resAccount \n" +
+            "     where resAccountTrDate <= :setDate  and b.resAccount = r.resAccount \n" +
             "     order by resAccountTrDate desc , resAccountTrDate desc, resAccountTrTime desc, idx limit 1) value1 \n" +
             "  , (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r       \n" +
-            "    where resAccountTrDate >= Date_Format(now(),  '%Y%m%d') and b.resAccount = r.resAccount\n" +
+            "    where resAccountTrDate >= :setDate and b.resAccount = r.resAccount\n" +
             "    order by resAccountTrDate asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1) value2   \n" +
-            "  , (select if( Date_Format(now(),  '%Y%m%d') >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance       \n" +
+            "  , (select if( :setDate >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance       \n" +
             "  from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3 \n" +
             "from ResAccount b     \n" +
             "\tleft join (select count(account) as errCnt, account from ResBatchList r where errCode != 'CF-00000' and resBatchType = 1  \n" +
             "      and idxResBatch = (SELECT idxResBatch FROM ResBatchList where idxUser = :idxUser order by idxResBatch desc limit 1) group by account) c on c.account = b.resAccount\n" +
             "where b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14') \n" +
             ") z ", nativeQuery = true)
-    Double findRecentBalance(Long idxUser);
+    Double findRecentBalance(Long idxUser, String setDate);
 
     @Query(value = "select sum(resAccountRiskBalance) from ResAccount " +
             " where connectedId in (select connectedId from ConnectedMng where idxUser in (select idxUser from Corp where idx = :idxCorp))"
@@ -278,8 +278,8 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
                     " (select max(errCode) from ResBatchList where errCode != 'CF-00000' and idxUser = u.idx and resBatchType = 1         \n" +
                     " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode \n" +
                     " from User u  join Corp c on c.idx = u.idxCorp \n" +
-                    " join ConnectedMng cm  on cm.idxUser = u.idx ) z\n" +
-                    ") z where (resCompanyNm like :searchCorpName or :searchCorpName is null ) and ( errStatus = :updateStatus or :updateStatus is null) ",
+                    " join ConnectedMng cm  on cm.idxUser = u.idx ) z \n" +
+                    ") d where (resCompanyNm like concat('%',:searchCorpName,'%') or :searchCorpName is null ) and ( errStatus = :updateStatus or :updateStatus is null) ",
             countQuery = "select count(*) from\n" +
                     "(select idx, idxCorp, resCompanyNm, resAccountIn, resAccountOut, (resAccountIn - resAccountOut) resAccountInOut, befoBalance, createdAt, errCode, if(errCode is null ,0,1) errStatus  from \n" +
                     "(select distinct u.idx,  u.idxCorp,   c.resCompanyNm, \n" +
@@ -295,9 +295,9 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
                     " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode \n" +
                     " from User u  join Corp c on c.idx = u.idxCorp \n" +
                     " join ConnectedMng cm  on cm.idxUser = u.idx ) z\n" +
-                    ") z where (resCompanyNm like :searchCorpName or :searchCorpName is null ) and ( errStatus = :updateStatus or :updateStatus is null) ",
+                    ") d where (resCompanyNm like concat('%',:searchCorpName,'%') or :searchCorpName is null ) and ( errStatus = :updateStatus or :updateStatus is null) ",
             nativeQuery = true
     )
-    Page<CashResultDto> cashList(String searchCorpName, String updateStatus, Pageable pageable);
+    Page<CashResultDto> cashList(String searchCorpName, Boolean updateStatus, Pageable pageable);
 
 }

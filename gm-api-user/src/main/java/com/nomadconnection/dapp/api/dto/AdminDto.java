@@ -41,6 +41,9 @@ public class AdminDto {
 		@ApiModelProperty("최신잔고")
 		public double balance;
 
+		@ApiModelProperty("기준잔고")
+		public double cashBalance;
+
 		@ApiModelProperty("현재잔고")
 		public double currentBalance;
 
@@ -52,6 +55,9 @@ public class AdminDto {
 
 		@ApiModelProperty("카드발급여부")
 		public Boolean cardIssuance;
+
+		@ApiModelProperty("카드발급여부")
+		public Boolean cardAvailable;
 
 		@ApiModelProperty("updatedAt")
 		public LocalDateTime updatedAt;
@@ -71,9 +77,11 @@ public class AdminDto {
 					.grade(searchRiskResultDto.getGrade())
 					.balance(searchRiskResultDto.getBalance())
 					.currentBalance(searchRiskResultDto.getCurrentBalance())
+					.cashBalance(searchRiskResultDto.getCashBalance())
 					.cardRestartCount(searchRiskResultDto.getCardRestartCount())
 					.emergencyStop(searchRiskResultDto.getEmergencyStop())
 					.cardIssuance(searchRiskResultDto.getCardIssuance())
+					.cardAvailable(searchRiskResultDto.getCardAvailable())
 					.updatedAt(searchRiskResultDto.getUpdatedAt())
 					.errCode(searchRiskResultDto.getErrCode())
 					.pause(searchRiskResultDto.getPause())

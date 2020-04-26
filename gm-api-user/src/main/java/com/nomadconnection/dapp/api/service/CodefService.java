@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
+import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.codef.io.helper.Account;
@@ -65,7 +66,8 @@ public class CodefService {
 		List<HashMap<String, Object>> list = new ArrayList<>();
 		HashMap<String, Object> accountMap1;
 		String createUrlPath = urlPath + CommonConstant.CREATE_ACCOUNT;
-		List<ResAccount> resAccount = null;
+		// List<ResAccount> resAccount = null;
+		List<BankDto.ResAccountDto> resAccount = null;
 
 		for( String s : CommonConstant.LISTBANK){
 			accountMap1 = new HashMap<>();
@@ -118,7 +120,9 @@ public class CodefService {
 			);
 
 			if(getScrapingAccount(idx)){
-				resAccount = repoResAccount.findConnectedId(idx).stream().collect(Collectors.toList());
+				resAccount = repoResAccount.findConnectedId(idx).stream()
+						.map(BankDto.ResAccountDto::from)
+						.collect(Collectors.toList());
 			}
 
 		}else if(code.equals("CF-04004")){
@@ -137,7 +141,10 @@ public class CodefService {
 				);
 
 				if(getScrapingAccount(idx)){
-					resAccount = repoResAccount.findConnectedId(idx).stream().collect(Collectors.toList());
+					// resAccount = repoResAccount.findConnectedId(idx).stream().collect(Collectors.toList());
+					resAccount = repoResAccount.findConnectedId(idx).stream()
+							.map(BankDto.ResAccountDto::from)
+							.collect(Collectors.toList());
 				}
 
 			}else{
@@ -155,6 +162,8 @@ public class CodefService {
 				.normal(normal)
 				.data(resAccount).build());
 	}
+
+
 
 
 	@Transactional(rollbackFor = Exception.class)

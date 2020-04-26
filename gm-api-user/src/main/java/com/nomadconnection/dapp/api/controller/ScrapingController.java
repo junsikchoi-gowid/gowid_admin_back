@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.parser.ParseException;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -32,6 +33,7 @@ public class ScrapingController {
         public static final String STOP = "/stop";    // 입출금 거래내역
         public static final String SCRAPING_ACCOUNT = "/account-all";    // 은행 기업 보유계좌 + 거래내역
         public static final String SCRAPING_ACCOUNT_HISTORY = "/account-history";    // 입출금 거래내역
+        public static final String SCRAPING_ACCOUNT_ID = "/account/id";    // 계좌별 조회
 
     }
 
@@ -39,26 +41,33 @@ public class ScrapingController {
     private final ScrapingService service;
 
     @ApiOperation(value = "최근 1년 거래내역 가져오기", notes = "" + "\n")
-    @PostMapping(URI.SCRAPING_ACCOUNT)
-    public boolean scrapingRegister(@RequestBody BankDto.AccountBatch dto) throws InterruptedException {
+    @GetMapping(URI.SCRAPING_ACCOUNT)
+    public boolean scrapingRegister(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxCorp) throws InterruptedException {
         if (log.isDebugEnabled()) {
-            log.debug("([AccountTransactionList ]) $dto='{}'", dto);
+            log.debug("([AccountTransactionList ]) $dto='{}'", idxCorp);
         }
-        return service.aWaitcrapingRegister1YearAll(dto.getUserIdx());
+        return service.aWaitcrapingRegister1YearAll(user.idx(), idxCorp);
     }
 
     @ApiOperation(value = "10년간 데이터 가져오기", notes = "" + "\n")
-    @PostMapping(URI.SCRAPING_ACCOUNT_HISTORY)
-    public boolean scrapingRegisterAll(@RequestParam Long idxUser) throws InterruptedException {
+    @GetMapping(URI.SCRAPING_ACCOUNT_HISTORY)
+    public boolean scrapingRegisterAll(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxUser) throws InterruptedException {
         if (log.isDebugEnabled()) {
             log.debug("([AccountTransactionList ]) $dto='{}'", idxUser);
         }
-        return service.aWaitScraping10Years(idxUser);
+        return service.aWaitScraping10Years(user.idx(), idxUser);
     }
 
     @ApiOperation(value = "스크래핑 중지", notes = "" + "\n")
     @GetMapping( URI.STOP )
     public ResponseEntity scrapingProcessKill(@RequestParam Long idxUser) {
         return service.scrapingProcessKill(idxUser);
+    }
+
+    @ApiOperation(value = "계좌별 스크래핑", notes = "" + "\n")
+    @GetMapping( URI.SCRAPING_ACCOUNT_ID )
+    public ResponseEntity scrapingAccount(@ApiIgnore @CurrentUser CustomUser user, @RequestParam String idxAccount
+            , @RequestParam String strStart, @RequestParam String strEnd) throws ParseException {
+        return service.scrapingAccount(user.idx(), idxAccount ,strStart , strEnd);
     }
 }

@@ -32,8 +32,8 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "    ifnull(b.errCode ,'') as errCode, \n" +
             "    ifnull(b.errMessage ,'') as errMessage, \n" +
             "    ifnull(b.resBatchType ,'') as resBatchType, \n" +
-            "    (select count(*) from ResAccount  \n" +
-            "  where resAccountDeposit != 99 and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser )) as total , \n" +
+            "    (select count(*) from ResAccount where resAccountDeposit = 99 and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser )) as errTypeCnt , \n" +
+            "    (select count(*) from ResAccount where resAccountDeposit != 99 and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser )) as total , \n" +
             "    (select count(distinct account) from ResBatchList where a.idx = idxResBatch and resBatchType = 1) as progressCnt, \n" +
             "    (select count(distinct account) from ResBatchList where a.idx = idxResBatch and errCode <> 'CF-00000' and resBatchType = 1 ) as errorCnt \n" +
             "from \n" +
@@ -47,7 +47,8 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "    ResBatchList b   \n" +
             "        on a.idx = b.idxResBatch  \n" +
             "        and b.errCode <> 'CF-00000'  \n" +
-            "        and resBatchType = 1",nativeQuery = true)
+            "        and resBatchType = 1\n" +
+            "limit 1 ",nativeQuery = true)
     List<ResBatchRepository.CResBatchDto> findRefresh(Long idxUser);
 
     @Query(value = "select comm.resAccountStartDate\n" +
@@ -193,6 +194,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
         String getTotal();
         String getProgressCnt();
         String getErrorCnt();
+        String getErrTypeCnt();
     }
 
     public static interface CResYears {

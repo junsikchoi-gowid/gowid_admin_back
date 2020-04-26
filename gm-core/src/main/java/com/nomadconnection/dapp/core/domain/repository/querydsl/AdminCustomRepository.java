@@ -63,6 +63,9 @@ public interface AdminCustomRepository {
         @ApiModelProperty("최신잔고")
         private double balance;
 
+        @ApiModelProperty("기준잔고")
+        private double cashBalance;
+
         @ApiModelProperty("현재잔고")
         private double currentBalance;
 
@@ -74,6 +77,9 @@ public interface AdminCustomRepository {
 
         @ApiModelProperty("카드발급여부")
         private Boolean cardIssuance;
+
+        @ApiModelProperty("카드발급여부")
+        private Boolean cardAvailable;
 
         @ApiModelProperty("updatedAt")
         private LocalDateTime updatedAt;

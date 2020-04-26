@@ -63,8 +63,9 @@ public class RiskService {
 	public ResponseEntity saveRisk(Long idxUser, Long idxCorp, String calcDate) {
 
 		Corp corp;
+		Long finalIdxUser = idxUser;
 		User user = repoUser.findById(idxUser).orElseThrow(
-				() -> UserNotFoundException.builder().id(idxUser).build()
+				() -> UserNotFoundException.builder().id(finalIdxUser).build()
 		);
 
 		if(idxCorp != null && user.authorities().stream().noneMatch(o-> o.role().equals(Role.GOWID_ADMIN))) {
@@ -75,6 +76,11 @@ public class RiskService {
 			corp = repoCorp.findById(idxCorp).orElseThrow(
 					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
 			);
+			user = repoUser.findById(corp.user().idx()).orElseThrow(
+					() -> UserNotFoundException.builder().id(corp.user().idx()).build()
+			);
+
+			idxUser = user.idx();
 		}else{
 			corp = user.corp();
 		}
@@ -82,6 +88,11 @@ public class RiskService {
 		if(calcDate == null || calcDate.isEmpty()){
 			calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 		}
+
+		String calcDatePlus = LocalDate.of(Integer.parseInt(calcDate.substring(0,4))
+				, Integer.parseInt(calcDate.substring(4,6))
+				, Integer.parseInt(calcDate.substring(6,8))
+		).plusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 
 		String calcDateMinus = LocalDate.of(Integer.parseInt(calcDate.substring(0,4))
 				, Integer.parseInt(calcDate.substring(4,6))
@@ -174,8 +185,8 @@ public class RiskService {
 			}
 		});
 
-		if(!repoResAccount.findRecentBalance(idxUser).isNaN()) {
-			risk.recentBalance(repoResAccount.findRecentBalance(idxUser));
+		if(repoResAccount.findRecentBalance(idxUser, calcDatePlus) != null ) {
+			risk.recentBalance(repoResAccount.findRecentBalance(idxUser, calcDatePlus));
 		}
 
 		// ActualBalance
@@ -216,12 +227,17 @@ public class RiskService {
 		}
 
 		// CardLimitNow
+		Double cardLimitNow = repoRisk.findCardLimitNow(idxUser,calcDate);
+		Double cardLimitNowFirst = repoRisk.findCardLimitNowFirst(idxUser,calcDate);
 		if(risk.emergencyStop()){
 			risk.cardLimitNow(risk.depositGuarantee());
 		}else {
-			Double cardLimitNow = repoRisk.findCardLimitNow(idxUser);
-			if(repoRisk.findCardLimitNow(idxUser) == null ){
-				risk.cardLimitNow(risk.realtimeLimit());
+			if(cardLimitNow == null ){
+				if(cardLimitNowFirst == null){
+					risk.cardLimitNow(risk.cardLimit());
+				}else{
+					risk.cardLimitNow(cardLimitNowFirst);
+				}
 			}else {
 				risk.cardLimitNow(cardLimitNow);
 			}
@@ -245,8 +261,6 @@ public class RiskService {
 		}else{
 			risk.cardRestart(false);
 		}
-
-
 
 		repoRisk.save(risk);
 

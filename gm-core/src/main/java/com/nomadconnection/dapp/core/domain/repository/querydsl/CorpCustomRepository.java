@@ -85,11 +85,11 @@ public interface CorpCustomRepository {
         @ApiModelProperty("성공계좌")
         public String successAccountCnt;
 
+        @ApiModelProperty("진행계좌")
+        public String processAccountCnt;
+
         @ApiModelProperty("총계좌개수")
         public String allAccountCnt;
-
-        @ApiModelProperty("성공률")
-        public Double successPercent;
 
         @ApiModelProperty("createdAt")
         public LocalDateTime createdAt;

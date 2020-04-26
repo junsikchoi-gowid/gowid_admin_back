@@ -22,8 +22,11 @@ public interface RiskRepository extends JpaRepository<Risk, Long>, AdminCustomRe
             " group by account) A on A.idx = R.idx",nativeQuery = true)
     Integer findErrCount(Long idxUser);
 
-    @Query(value = "SELECT cardLimit, date FROM Risk Where Date = date_format(date_add(now(), interval -1 day),'%Y%m%d') and date_format(now(),'%d') = 15 and  date_format(now(),'%H') < 5 ",nativeQuery = true)
-    Double findCardLimitNow(Long idxUser);
+    @Query(value = "SELECT cardLimit FROM Risk where date_format(date,'%d') = 15 and idxUser = :idxUser and date <= :setDate order by date desc limit 1 ",nativeQuery = true)
+    Double findCardLimitNow(Long idxUser, String setDate);
+
+    @Query(value = "SELECT cardLimitNow FROM Risk where idxUser = :idxUser and date < :setDate order by date desc limit 1 ",nativeQuery = true)
+    Double findCardLimitNowFirst(Long idxUser, String setDate);
 
     Optional<Risk> findByUserAndDate(User user, String Date);
 

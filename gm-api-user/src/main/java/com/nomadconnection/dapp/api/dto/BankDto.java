@@ -243,9 +243,9 @@ public class BankDto {
 
 		public static ResAccountDto from(ResAccount resAccount){
 
-			if( !resAccount.resAccountName().isEmpty() ) resAccount.nickName(resAccount.resAccountName());
-			if( !resAccount.resAccountNickName().isEmpty() ) resAccount.nickName(resAccount.resAccountNickName());
-			if( !resAccount.nickName().isEmpty() ) resAccount.nickName(resAccount.nickName());
+			if( resAccount.resAccountName() != null && !resAccount.resAccountName().isEmpty() ) resAccount.nickName(resAccount.resAccountName());
+			if( resAccount.resAccountNickName() != null && !resAccount.resAccountNickName().isEmpty() ) resAccount.nickName(resAccount.resAccountNickName());
+			if( resAccount.nickName() != null && !resAccount.nickName().isEmpty() ) resAccount.nickName(resAccount.nickName());
 
 			return ResAccountDto.builder()
 					.idx(resAccount.idx())
@@ -377,6 +377,9 @@ public class BankDto {
 
 		@ApiModelProperty("User Idx")
 		private Long userIdx;
+
+		@ApiModelProperty("Corp Idx")
+		private Long idxCorp;
 	}
 
 	@Data

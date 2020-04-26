@@ -50,6 +50,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
                         risk.user.corp.resCompanyNm.as("idxCorpName"),
                         risk.cardLimitNow.as("cardLimitNow"),
                         risk.cardLimit.as("cardLimit"),
+                        risk.cashBalance.as("cashBalance"),
                         risk.grade.as("grade"),
                         ExpressionUtils.as(
                                 JPAExpressions.select(resAccount1.resAccountRiskBalance.sum())
@@ -65,6 +66,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
                         risk.cardRestartCount.as("cardRestartCount"),
                         risk.emergencyStop.as("emergencyStop"),
                         risk.cardIssuance.as("cardIssuance"),
+                        risk.cardAvailable.as("cardAvailable"),
                         risk.pause.as("pause"),
                         risk.updatedAt.as("updatedAt"),
                         risk.errCode.as("errCode")

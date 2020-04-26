@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -208,8 +209,15 @@ public class AdminService {
 
         Boolean isMaster = isGowidMaster(idx);
         Page<AdminDto.CashListDto> returnData = null;
+
         if (isMaster) {
-            returnData = repoResAccount.cashList(corpName, updateStatus, pageable).map(AdminDto.CashListDto::from);
+            if(updateStatus != null ){
+                if(updateStatus.equals("true")) returnData = repoResAccount.cashList(corpName, true, pageable).map(AdminDto.CashListDto::from);
+                else if(updateStatus.equals("false")) returnData = repoResAccount.cashList(corpName, false, pageable).map(AdminDto.CashListDto::from);
+
+            }else {
+                returnData = repoResAccount.cashList(corpName, null, pageable).map(AdminDto.CashListDto::from);
+            }
 
             returnData.getContent().stream().filter(x -> x.getIdxUser() != null).forEach(this::accept);
         }
@@ -247,13 +255,7 @@ public class AdminService {
             resAccountPage = repoCorp.scrapingList(pageable);
 
             resAccountPage.getContent().forEach(
-                    x -> {
-                        List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(x.idxUser);
-                        x.setSuccessAccountCnt(returnData.get(0).getProgressCnt());
-                        x.setAllAccountCnt(returnData.get(0).getTotal());
-                        log.debug(" err " + Integer.parseInt(returnData.get(0).getErrorCnt()));
-                        x.setSuccessPercent(100.0 - (Double.parseDouble(returnData.get(0).getErrorCnt()) / Double.parseDouble(x.getAllAccountCnt()) * 100));
-                    }
+                    this::accept
             );
         }
 
@@ -268,7 +270,7 @@ public class AdminService {
             Corp corp = repoCorp.findById(idxCorp).orElseThrow(
                     () -> new RuntimeException("idxCopr Check")
             );
-            repoUser.findByCorp(corp);
+
             result = repoResBatch.endBatchUser(idxCorp);
         }
         return ResponseEntity.ok().body(BusinessResponse.builder().data(result).build());
@@ -295,5 +297,14 @@ public class AdminService {
         if (BurnRate > 0) intMonth = (int) Math.ceil((double) longEndBalance / BurnRate);
         x.setBurnRate(BurnRate);
         x.setRunWay(intMonth);
+    }
+
+    private void accept(CorpCustomRepository.ScrapingResultDto x) {
+        List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(x.idxUser);
+        x.setSuccessAccountCnt(
+                String.valueOf(Integer.parseInt(returnData.get(0).getTotal()) - Integer.parseInt(returnData.get(0).getErrorCnt()))
+        );
+        x.setAllAccountCnt(returnData.get(0).getTotal());
+        x.setProcessAccountCnt(returnData.get(0).getProgressCnt());
     }
 }
