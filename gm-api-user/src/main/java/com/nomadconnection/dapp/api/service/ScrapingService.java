@@ -18,6 +18,7 @@ import org.json.simple.parser.ParseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -396,6 +397,30 @@ public class ScrapingService {
         } finally {
             endBatchLog(idxLog.idx());
         }
+    }
+
+
+    @Async
+    public ResponseEntity scrapingRegister1YearAll2(Long idxUser, Long idxCorp) {
+        Thread currentThread = Thread.currentThread();
+
+        while (currentThread != null) {
+            System.out.println ("== DaemonListener is running. ==");
+
+            log.debug("scrapingRegister " + idxUser);
+            Long idxUserUpdate = repoCorp.searchIdxUser(idxCorp);
+            ResBatch idxLog = startBatchLog(idxUserUpdate);
+            try {
+                scrapingRegister1YearAll(idxUserUpdate, idxLog.idx(), idxCorp );
+            } finally {
+                currentThread = null;
+                endBatchLog(idxLog.idx());
+            }
+        }
+
+        System.out.println ("== DaemonListener end. ==");
+
+        return ResponseEntity.ok().body(BusinessResponse.builder().build());
     }
 
 

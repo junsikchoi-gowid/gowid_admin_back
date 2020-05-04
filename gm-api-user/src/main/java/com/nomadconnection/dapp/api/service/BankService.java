@@ -194,14 +194,7 @@ public class BankService {
 	public ResponseEntity accountList(Long idxUser, Long idxCorp) {
 
 		//todo auth
-		if(idxCorp != null){
-			if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))){
-				Corp corp = repoCorp.findById(idxCorp).orElseThrow(
-						() -> new RuntimeException("Bad idxCorp request.")
-				);
-				idxUser = corp.user().idx();
-			}
-		}
+		idxUser = getaLong(idxUser, idxCorp);
 
 		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(idxUser).stream()
 				.map(BankDto.ResAccountDto::from)
@@ -229,13 +222,7 @@ public class BankService {
 	@Transactional(readOnly = true)
 	public ResponseEntity transactionList(BankDto.TransactionList dto, Long idxUser, Integer page, Integer pageSize, Long idxCorp) {
 		//todo auth
-		if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER))))
-		{
-			Corp corp = repoCorp.findById(idxCorp).orElseThrow(
-					() -> new RuntimeException("Bad idxCorp request.")
-			);
-			idxUser = corp.user().idx();
-		}
+		idxUser = getaLong(idxUser, idxCorp);
 
 		String strDate = dto.getSearchDate();
 		Integer intIn = 0, intOut = 0, booleanForeign = 0;
@@ -313,15 +300,22 @@ public class BankService {
 
 	public ResponseEntity refresh(Long idxUser, Long idxCorp) {
 
-		if( idxCorp != null ){
-			Corp corp = repoCorp.findById(idxCorp).orElseThrow(
-					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
-			);
-			idxUser = corp.user().idx();
-		}
+		idxUser = getaLong(idxUser, idxCorp);
 
 		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idxUser);
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(returnData).build());
+	}
+
+	private Long getaLong(Long idxUser, Long idxCorp) {
+		if(idxCorp != null){
+			if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))){
+				Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+						() -> new RuntimeException("Bad idxCorp request.")
+				);
+				idxUser = corp.user().idx();
+			}
+		}
+		return idxUser;
 	}
 
 
@@ -389,7 +383,9 @@ public class BankService {
 		});
 	}
 
-	public ResponseEntity monthInOutSum(BankDto.MonthInOutSum dto, Long idx) {
+	public ResponseEntity monthInOutSum(BankDto.MonthInOutSum dto, Long idxUser, Long idxCorp) {
+
+		idxUser = getaLong(idxUser, idxCorp);
 
 		boolean b = Pattern.matches("\\d{6}", dto.getDate());
 
@@ -403,7 +399,7 @@ public class BankService {
 
 		}
 
-		ResAccountHistoryRepository.CMonthInOutSumDto CMonthInOutSumDto = repoResAccountHistory.findMonthInOutSum(start, end ,idx);
+		ResAccountHistoryRepository.CMonthInOutSumDto CMonthInOutSumDto = repoResAccountHistory.findMonthInOutSum(start, end ,idxUser);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(CMonthInOutSumDto).build());

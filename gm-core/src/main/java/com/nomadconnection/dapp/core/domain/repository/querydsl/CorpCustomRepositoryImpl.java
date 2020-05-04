@@ -1,7 +1,10 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
 import com.nomadconnection.dapp.core.domain.*;
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,9 +36,11 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
         final List<SearchCorpResultDto> riskList;
         final JPQLQuery<SearchCorpResultDto> query = from(corp)
                 .select(Projections.bean(SearchCorpResultDto.class,
-                        corp.resCompanyNm.as("cardLimitNow"),
+                        corp.idx.as("idx"),
+                        corp.resCompanyNm.as("resCompanyNm"),
                         corp.resCompanyIdentityNo.as("resCompanyIdentityNo"),
                         corp.resUserNm.as("resUserNm"),
+                        corp.createdAt.as("createdAt"),
                         corp.resBusinessItems.as("resBusinessItems"),
                         corp.resBusinessTypes.as("resBusinessTypes"),
                         corp.riskConfig.ceoGuarantee.as("ceoGuarantee"),
@@ -43,7 +48,25 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
                         corp.riskConfig.depositPayment.as("depositPayment"),
                         corp.riskConfig.cardIssuance.as("cardIssuance"),
                         corp.riskConfig.ventureCertification.as("ventureCertification"),
-                        corp.riskConfig.vcInvestment.as("vcInvestment")
+                        corp.riskConfig.vcInvestment.as("vcInvestment"),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(resBatchList.count().eq((long) 0))
+                                        .from(resBatchList)
+                                        .where(resBatchList.errCode.notEqualsIgnoreCase("CF-00000"))
+                                        .where(resBatchList.resBatchType.eq(ResBatchType.BANK))
+                                        .where(resBatchList.idxResBatch.eq(
+                                                JPAExpressions.select(resBatch.idx.max())
+                                                        .from(resBatch)
+                                                        .where(resBatch.idxUser.eq(corp.user.idx))))
+                                , "boolError"),
+                        ExpressionUtils.as(
+                                JPAExpressions.select((risk.emergencyStop.castToNum(Long.class).add(risk.emergencyStop.castToNum(Long.class))).eq((long)0))
+                                        .from(risk)
+                                        .where(risk.idx.eq(
+                                                JPAExpressions.select(risk.idx.max())
+                                                        .from(risk)
+                                                        .where(risk.corp.idx.eq(corp.idx))))
+                                , "boolPauseStop")
                 ));
 
         query.where(corp.riskConfig.enabled.isTrue());
@@ -67,30 +90,5 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
         riskList = getQuerydsl().applyPagination(pageable, query).fetch();
 
         return new PageImpl(riskList, pageable, query.fetchCount());
-    }
-
-    @Override
-    public Page<CorpCustomRepository.ScrapingResultDto> scrapingList(Pageable pageable){
-
-        final List<CorpCustomRepository.ScrapingResultDto> list;
-
-        final JPQLQuery<CorpCustomRepository.ScrapingResultDto> query = from(corp)
-                .join(resBatch).on(corp.user.idx.eq(resBatch.idxUser))
-                .select(Projections.bean(CorpCustomRepository.ScrapingResultDto.class,
-                        corp.idx.as("idxCorp"),
-                        corp.resCompanyNm.as("idxCorpName"),
-                        resBatch.createdAt.max().as("createdAt"),
-                        resBatch.updatedAt.max().as("updatedAt"),
-                        resBatch.endFlag.as("endFlag"),
-                        resBatch.idxUser.as("idxUser")
-                ))
-                .groupBy(corp.idx)
-                ;
-
-        if( pageable.getSort().isEmpty()) query.orderBy(corp.idx.asc());
-
-        list = getQuerydsl().applyPagination(pageable, query).fetch();
-
-        return new PageImpl(list, pageable, query.fetchCount());
     }
 }

@@ -42,16 +42,16 @@ public class ScrapingController {
 
     @ApiOperation(value = "최근 1년 거래내역 가져오기", notes = "" + "\n")
     @GetMapping(URI.SCRAPING_ACCOUNT)
-    public boolean scrapingRegister(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxCorp) throws InterruptedException {
+    public ResponseEntity scrapingRegister(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxCorp) {
         if (log.isDebugEnabled()) {
             log.debug("([AccountTransactionList ]) $dto='{}'", idxCorp);
         }
-        return service.aWaitcrapingRegister1YearAll(user.idx(), idxCorp);
+        return service.scrapingRegister1YearAll2(user.idx(), idxCorp);
     }
 
     @ApiOperation(value = "10년간 데이터 가져오기", notes = "" + "\n")
     @GetMapping(URI.SCRAPING_ACCOUNT_HISTORY)
-    public boolean scrapingRegisterAll(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxUser) throws InterruptedException {
+    public boolean scrapingRegisterAll(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxUser) {
         if (log.isDebugEnabled()) {
             log.debug("([AccountTransactionList ]) $dto='{}'", idxUser);
         }

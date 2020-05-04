@@ -96,11 +96,11 @@ public class BankController {
 
 	@ApiOperation(value = "입출금 합계", notes = "" + "\n")
 	@GetMapping( URI.MONTH_INOUTSUM )
-	public ResponseEntity MonthInOutSum(@ApiIgnore @CurrentUser CustomUser user,@ModelAttribute BankDto.MonthInOutSum dto) {
+	public ResponseEntity MonthInOutSum(@ApiIgnore @CurrentUser CustomUser user,@ModelAttribute BankDto.MonthInOutSum dto, @RequestParam(required = false) Long idxCorp) {
 		if (log.isDebugEnabled()) {
 			log.debug("([MonthInOutSum]) $dto='{}'", dto);
 		}
-		return service.monthInOutSum(dto, user.idx());
+		return service.monthInOutSum(dto, user.idx(), idxCorp);
 	}
 
 	@ApiOperation(value = "Burn Rate", notes = "" + "\n")

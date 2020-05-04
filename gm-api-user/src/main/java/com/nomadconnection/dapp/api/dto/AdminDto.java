@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.ResBatchList;
 import com.nomadconnection.dapp.core.domain.Risk;
+import com.nomadconnection.dapp.core.domain.repository.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.ResAccountRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.ResBatchListCustomRepository;
@@ -239,6 +240,53 @@ public class AdminDto {
 		}
 	}
 
-	public class SearchRiskResultDto {
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ScrapingListDto {
+		@ApiModelProperty("법인ID")
+		public Long idxCorp;
+
+		@ApiModelProperty("법인명 ")
+		public String idxCorpName;
+
+		@ApiModelProperty("성공계좌")
+		public String successAccountCnt;
+
+		@ApiModelProperty("진행계좌")
+		public String processAccountCnt;
+
+		@ApiModelProperty("총계좌개수")
+		public String allAccountCnt;
+
+		@ApiModelProperty("createdAt")
+		public LocalDateTime createdAt;
+
+		@ApiModelProperty("updatedAt")
+		public LocalDateTime updatedAt;
+
+		@ApiModelProperty("endFlag")
+		public boolean endFlag;
+
+		@ApiModelProperty("user")
+		public Long idxUser;
+
+		public static ScrapingListDto from (CorpRepository.ScrapingResultDto dto){
+
+			ScrapingListDto scrapingListDto = ScrapingListDto.builder()
+					.createdAt(dto.getCreatedAt())
+					.updatedAt(dto.getUpdatedAt())
+					.idxCorp(dto.getIdxCorp())
+					.idxCorpName(dto.getIdxCorpName())
+					.successAccountCnt(dto.getSuccessAccountCnt()==null?"":dto.getSuccessAccountCnt())
+					.processAccountCnt(dto.getProcessAccountCnt()==null?"":dto.getProcessAccountCnt())
+					.allAccountCnt(dto.getAllAccountCnt()==null?"":dto.getAllAccountCnt())
+					.endFlag(dto.getEndFlag())
+					.idxUser(dto.getIdxUser())
+					.build();
+
+			return scrapingListDto;
+		}
 	}
 }

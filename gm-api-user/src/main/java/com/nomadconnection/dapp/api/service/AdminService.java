@@ -250,12 +250,17 @@ public class AdminService {
 
     public ResponseEntity scrapingList(Long idx, Pageable pageable) {
         Boolean isMaster = isGowidMaster(idx);
-        Page<CorpCustomRepository.ScrapingResultDto> resAccountPage = null;
+        Page<AdminDto.ScrapingListDto> resAccountPage = null;
         if (isMaster) {
-            resAccountPage = repoCorp.scrapingList(pageable);
+            resAccountPage = repoCorp.scrapingList(pageable).map(AdminDto.ScrapingListDto::from);
 
             resAccountPage.getContent().forEach(
-                    this::accept
+                    o -> {
+                        List<ResBatchRepository.CResBatchDto> data = repoResBatch.findRefresh(o.idxUser);
+                        o.setSuccessAccountCnt(String.valueOf(Integer.parseInt(data.get(0).getTotal()) - Integer.parseInt(data.get(0).getErrorCnt())));
+                        o.setAllAccountCnt(data.get(0).getTotal());
+                        o.setProcessAccountCnt(data.get(0).getProgressCnt());
+                    }
             );
         }
 
@@ -297,14 +302,5 @@ public class AdminService {
         if (BurnRate > 0) intMonth = (int) Math.ceil((double) longEndBalance / BurnRate);
         x.setBurnRate(BurnRate);
         x.setRunWay(intMonth);
-    }
-
-    private void accept(CorpCustomRepository.ScrapingResultDto x) {
-        List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(x.idxUser);
-        x.setSuccessAccountCnt(
-                String.valueOf(Integer.parseInt(returnData.get(0).getTotal()) - Integer.parseInt(returnData.get(0).getErrorCnt()))
-        );
-        x.setAllAccountCnt(returnData.get(0).getTotal());
-        x.setProcessAccountCnt(returnData.get(0).getProgressCnt());
-    }
+    } 
 }

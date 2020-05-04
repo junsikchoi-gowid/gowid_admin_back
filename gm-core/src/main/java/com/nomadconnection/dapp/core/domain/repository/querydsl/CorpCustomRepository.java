@@ -34,11 +34,14 @@ public interface CorpCustomRepository {
     @NoArgsConstructor
     @AllArgsConstructor
     class SearchCorpResultDto {
+        @ApiModelProperty("idx ")
+        public Long idx;
+
         @ApiModelProperty("법인명 ")
         public String resCompanyNm;
 
         @ApiModelProperty("사업자등록번호")
-        public String resConpanyIdentityNo;
+        public String resCompanyIdentityNo;
 
         @ApiModelProperty("대표자")
         public String resUserNm;
@@ -66,43 +69,13 @@ public interface CorpCustomRepository {
 
         @ApiModelProperty("투자유치")
         public Boolean vcInvestment;
+
+        @ApiModelProperty("에러건수")
+        public Boolean boolError;
+
+        @ApiModelProperty("에러건수")
+        public Boolean boolPauseStop;
     }
 
     Page<SearchCorpResultDto> corpList(SearchCorpDto dto, Long idxUser, Pageable pageable);
-
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    class ScrapingResultDto {
-        @ApiModelProperty("법인ID")
-        public Long idxCorp;
-
-        @ApiModelProperty("법인명 ")
-        public String idxCorpName;
-
-        @ApiModelProperty("성공계좌")
-        public String successAccountCnt;
-
-        @ApiModelProperty("진행계좌")
-        public String processAccountCnt;
-
-        @ApiModelProperty("총계좌개수")
-        public String allAccountCnt;
-
-        @ApiModelProperty("createdAt")
-        public LocalDateTime createdAt;
-
-        @ApiModelProperty("updatedAt")
-        public LocalDateTime updatedAt;
-
-        @ApiModelProperty("endFlag")
-        public boolean endFlag;
-
-        @ApiModelProperty("user")
-        public Long idxUser;
-    }
-
-    Page<ScrapingResultDto> scrapingList(Pageable pageable);
 }
