@@ -38,7 +38,7 @@ public interface ResBatchListRepository extends JpaRepository<ResBatchList, Long
                     "                commoncode2_.code= 'bank_1'\n" +
                     "                and commoncode2_.code1=d.bank \n" +
                     "            )" +
-                    ") d where (resCompanyNm like concat('%',:searchCorpName,'%') or :searchCorpName is null ) " +
+                    ") d where (corpName like concat('%',:searchCorpName,'%') or :searchCorpName is null ) " +
                     " and ( errCode = :errCode or :errCode is null) " +
                     " and ( updatedAt > date_format( now(), '%Y%m%d') or :boolToday is null) " +
                     " and ( transactionId = :transactionId or :transactionId is null) ",
