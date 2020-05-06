@@ -22,8 +22,8 @@ public interface ResBatchListCustomRepository {
         @ApiModelProperty("법인명 ")
         private String corpName;
 
-        @ApiModelProperty("에러메세지")
-        private String errorMessage;
+        @ApiModelProperty("transactionId")
+        private String transactionId;
 
         @ApiModelProperty("에러코드 true/false")
         private String errorCode;

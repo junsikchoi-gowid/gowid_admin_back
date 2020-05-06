@@ -284,7 +284,7 @@ public class AdminService {
     public ResponseEntity errorList(Long idx, Pageable pageable, ResBatchListCustomRepository.ErrorSearchDto dto) {
         Boolean isMaster = isGowidMaster(idx);
 
-        Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto, pageable).map(AdminDto.ErrorResultDto::from);
+        Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto.getCorpName(), dto.getErrorCode(),dto.getTransactionId(),  dto.getBoolToday(), pageable).map(AdminDto.ErrorResultDto::from);
 
         if (!isMaster)
             for (AdminDto.ErrorResultDto errorResultDto : list)

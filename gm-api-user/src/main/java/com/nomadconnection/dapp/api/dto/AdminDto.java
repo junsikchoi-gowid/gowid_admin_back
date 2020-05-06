@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.core.domain.ResBatchList;
 import com.nomadconnection.dapp.core.domain.Risk;
 import com.nomadconnection.dapp.core.domain.repository.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.ResAccountRepository;
+import com.nomadconnection.dapp.core.domain.repository.ResBatchListRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.ResBatchListCustomRepository;
 import io.swagger.annotations.ApiModelProperty;
@@ -224,7 +225,7 @@ public class AdminDto {
 		@ApiModelProperty("transactionId")
 		public String transactionId;
 
-		public static ErrorResultDto from (ResBatchListCustomRepository.ErrorResultDto dto){
+		public static ErrorResultDto from (ResBatchListRepository.ErrorResultDto dto){
 
 			ErrorResultDto errorResultDto = ErrorResultDto.builder()
 					.updatedAt(dto.getUpdatedAt())
