@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -284,7 +285,14 @@ public class AdminService {
     public ResponseEntity errorList(Long idx, Pageable pageable, ResBatchListCustomRepository.ErrorSearchDto dto) {
         Boolean isMaster = isGowidMaster(idx);
 
-        Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto.getCorpName(), dto.getErrorCode(),dto.getTransactionId(),  dto.getBoolToday(), pageable).map(AdminDto.ErrorResultDto::from);
+        String toDay = dto.getBoolToday();
+        if(toDay != null && toDay.equals("true")){
+            toDay = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        }else{
+            toDay = "20170000";
+        }
+
+        Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto.getCorpName(), dto.getErrorCode(),dto.getTransactionId(), toDay, pageable).map(AdminDto.ErrorResultDto::from);
 
         if (!isMaster)
             for (AdminDto.ErrorResultDto errorResultDto : list)

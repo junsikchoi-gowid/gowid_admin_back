@@ -205,7 +205,8 @@ public class AdminController {
 			+ "벤처인증 : ventureCertification " + "\n "
 			+ "투자유치 : vcInvestment " + "\n "
 			+ "에러건수가 있을경우 true : boolError " + "\n "
-			+ "\n\n 정렬 \n "
+			+ "pause or emergencyStop 있을경우 true : boolPauseStop " + "\n "
+			+ "\n\n\n\n 정렬 \n "
 			+ " resCompanyNm " + " \n "
 			+ " resCompanyIdentityNo " + " \n "
 			+ " resUserNm " + " \n "
@@ -217,7 +218,7 @@ public class AdminController {
 			+ " riskConfig.cardIssuance " + " \n "
 			+ " riskConfig.ventureCertification " + " \n "
 			+ " riskConfig.vcInvestment " + " \n "
-			+ " -- boolError 는 안됨 " + " \n "
+			+ " -- boolError, boolPauseStop 는 안됨 " + " \n "
 	)
 	@GetMapping( URI.CORP )
 	@ApiPageable
