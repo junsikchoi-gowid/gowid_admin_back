@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
+import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import com.nomadconnection.dapp.codef.io.sandbox.bk.*;
@@ -420,7 +421,8 @@ public class ScrapingService {
 
         System.out.println ("== DaemonListener end. ==");
 
-        return ResponseEntity.ok().body(BusinessResponse.builder().build());
+        return ResponseEntity.ok().body(
+                BusinessResponse.builder().normal(BusinessResponse.Normal.builder().status(true).build()).build());
     }
 
 
@@ -447,7 +449,6 @@ public class ScrapingService {
 
         //todo auth
         if( idxCorp != null ){
-            log.debug("1");
             if(repoUser.findById(idx).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN)))){
                 Corp corp = repoCorp.findById(idxCorp).orElseThrow(
                         () -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
@@ -1860,8 +1861,51 @@ public class ScrapingService {
         repoResAccount.save(resAccount);
     }
 
-    public ResponseEntity scrapingProcessKill(Long idx) {
-        return ResponseEntity.ok().body(BusinessResponse.builder().data(repoResBatch.updateProcessIdx(idx)).build());
+    public ResponseEntity scrapingProcessKill(Long idxUser, Long idx, String strType) {
+
+        boolean isMaster = isGowidMaster(idxUser);
+        int returnInt = 0;
+        BusinessResponse.Normal responseStatus = BusinessResponse.Normal.builder().status(false).build();
+
+        //todo auth master
+        if( strType.equals("corp") && isMaster ){
+            if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN)))){
+                Corp corp = repoCorp.findById(idx).orElseThrow(
+                        () -> CorpNotRegisteredException.builder().account(idx.toString()).build()
+                );
+                returnInt = repoResBatch.updateProcessIdx(repoCorp.searchIdxUser(idx));
+                responseStatus = BusinessResponse.Normal.builder().status(true).build();
+            }
+        }else if( strType.equals("user") && idxUser.equals(idx)){
+            returnInt = repoResBatch.updateProcessIdx(idxUser);
+            responseStatus = BusinessResponse.Normal.builder().status(true).build();
+        }else{
+            responseStatus = BusinessResponse.Normal.builder()
+                    .value("DOES NOT HAVE GOWID-ADMIN")
+                    .status(false).build();
+        }
+
+        return ResponseEntity.ok().body(BusinessResponse.builder()
+                .data(returnInt)
+                .normal(responseStatus)
+                .build());
+    }
+
+    private Boolean isGowidMaster(Long idxUser) {
+
+        boolean boolV = false;
+
+        User user = repoUser.findById(idxUser).orElseThrow(
+                () -> UserNotFoundException.builder().build()
+        );
+
+        if (user.authorities().stream().noneMatch(o ->
+                (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER))))
+            throw UserNotFoundException.builder().build();
+
+        if (user.authorities().stream().anyMatch(o -> o.role().equals(Role.GOWID_ADMIN))) boolV = true;
+
+        return boolV;
     }
 
     public ResponseEntity scrapingAccount(Long idxUser,String resAccount,String strStart, String strEnd) throws ParseException {

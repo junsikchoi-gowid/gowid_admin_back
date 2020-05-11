@@ -70,6 +70,23 @@ public class AdminService {
         return boolV;
     }
 
+    private Boolean isGowidAdmin(Long idxUser) {
+
+        boolean boolV = false;
+
+        User user = repoUser.findById(idxUser).orElseThrow(
+                () -> UserNotFoundException.builder().build()
+        );
+
+        if (user.authorities().stream().noneMatch(o ->
+                (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER))))
+            throw UserNotFoundException.builder().build();
+
+        if (user.authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))) boolV = true;
+
+        return boolV;
+    }
+
     /**
      * admin page 의 risk 리스트
      *
@@ -209,6 +226,7 @@ public class AdminService {
     public ResponseEntity cashList(Long idx, String corpName, String updateStatus, Pageable pageable) {
 
         Boolean isMaster = isGowidMaster(idx);
+        BusinessResponse.Normal normal = null;
         Page<AdminDto.CashListDto> returnData = null;
 
         if (isMaster) {
@@ -221,9 +239,13 @@ public class AdminService {
             }
 
             returnData.getContent().stream().filter(x -> x.getIdxUser() != null).forEach(this::accept);
+        }else {
+            normal= BusinessResponse.Normal.builder().value("DOES NOT HAVE GOWID-ADMIN").build();
         }
 
-        return ResponseEntity.ok().body(BusinessResponse.builder().data(returnData).build());
+        return ResponseEntity.ok().body(BusinessResponse.builder()
+                .normal(normal)
+                .data(returnData).build());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -295,8 +317,11 @@ public class AdminService {
         Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto.getCorpName(), dto.getErrorCode(),dto.getTransactionId(), toDay, pageable).map(AdminDto.ErrorResultDto::from);
 
         if (!isMaster)
-            for (AdminDto.ErrorResultDto errorResultDto : list)
+            for (AdminDto.ErrorResultDto errorResultDto : list){
                 errorResultDto.setCorpName("#" + errorResultDto.idxCorp);
+                errorResultDto.setAccount("#");
+            }
+
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(list).build());
     }

@@ -31,6 +31,7 @@ public class ScrapingController {
     public static class URI {
         public static final String BASE = "/batch/v1";
         public static final String STOP = "/stop";    // 입출금 거래내역
+        public static final String STOP_CORP = "/stopcorp";    // 입출금 거래내역
         public static final String SCRAPING_ACCOUNT = "/account-all";    // 은행 기업 보유계좌 + 거래내역
         public static final String SCRAPING_ACCOUNT_HISTORY = "/account-history";    // 입출금 거래내역
         public static final String SCRAPING_ACCOUNT_ID = "/account/id";    // 계좌별 조회
@@ -58,10 +59,18 @@ public class ScrapingController {
         return service.aWaitScraping10Years(user.idx(), idxUser);
     }
 
-    @ApiOperation(value = "스크래핑 중지", notes = "" + "\n")
+    @ApiOperation(value = "스크래핑 중지(유저)", notes = "" + "\n")
     @GetMapping( URI.STOP )
-    public ResponseEntity scrapingProcessKill(@RequestParam Long idxUser) {
-        return service.scrapingProcessKill(idxUser);
+    public ResponseEntity scrapingProcessKillUser(@ApiIgnore @CurrentUser CustomUser user,
+                                              @RequestParam(required = false) Long idxUser) {
+        return service.scrapingProcessKill(user.idx(), idxUser, "user");
+    }
+
+    @ApiOperation(value = "스크래핑 중지(법인)", notes = "" + "\n")
+    @GetMapping( URI.STOP_CORP )
+    public ResponseEntity scrapingProcessKillCorp(@ApiIgnore @CurrentUser CustomUser user,
+                                              @RequestParam(required = false) Long idxCorp) {
+        return service.scrapingProcessKill(user.idx(), idxCorp, "corp");
     }
 
     @ApiOperation(value = "계좌별 스크래핑", notes = "" + "\n")
