@@ -22,6 +22,7 @@ public interface ResBatchListRepository extends JpaRepository<ResBatchList, Long
                     "        corp1_.resCompanyNm as corpName,\n" +
                     "        commoncode2_.value1 as bankName,\n" +
                     "        d.account as account,\n" +
+                    "        r.resAccountDisplay as resAccountDisplay, \n" +
                     "        d.errMessage as errMessage,\n" +
                     "        d.errCode as errCode,\n" +
                     "        d.transactionId as transactionId \n" +
@@ -32,6 +33,7 @@ public interface ResBatchListRepository extends JpaRepository<ResBatchList, Long
                     "            on (\n" +
                     "                corp1_.idxUser=d.idxUser\n" +
                     "            ) \n" +
+                    "    inner join ResAccount r on d.account= r.resAccount \n" +
                     "    left outer join\n" +
                     "        CommonCodeDetail commoncode2_ \n" +
                     "            on (\n" +
@@ -39,8 +41,9 @@ public interface ResBatchListRepository extends JpaRepository<ResBatchList, Long
                     "                and commoncode2_.code1=d.bank \n" +
                     "            )" +
                     ") d where (corpName like concat('%',:searchCorpName,'%') or :searchCorpName is null ) " +
-                    " and ( errCode = :errCode or :errCode is null) " +
+                    " and ( errCode like concat ('%',:errCode,'%') or :errCode is null ) " +
                     " and ( updatedAt > date_format( :strDate,  '%Y%m%d')) " +
+                    " and ( idxCorp = :idxCorp or :idxCorp is null)" +
                     " and ( transactionId = :transactionId or :transactionId is null) ",
             countQuery = "select count(*) from (select  \n" +
                     "        corp1_.idx as idxCorp,\n" +
@@ -58,6 +61,7 @@ public interface ResBatchListRepository extends JpaRepository<ResBatchList, Long
                     "            on (\n" +
                     "                corp1_.idxUser=d.idxUser\n" +
                     "            ) \n" +
+                    "    inner join ResAccount r on d.account= r.resAccount \n" +
                     "    left outer join\n" +
                     "        CommonCodeDetail commoncode2_ \n" +
                     "            on (\n" +
@@ -65,19 +69,21 @@ public interface ResBatchListRepository extends JpaRepository<ResBatchList, Long
                     "                and commoncode2_.code1=d.bank \n" +
                     "            )" +
                     ") d where (corpName like concat('%',:searchCorpName,'%') or :searchCorpName is null ) " +
-                    " and ( errCode like concat('%',:errCode,'%') or :errCode is null) " +
+                    " and ( errCode like concat ('%',:errCode,'%') or :errCode is null ) " +
                     " and ( updatedAt > date_format( :strDate,  '%Y%m%d')) " +
+                    " and ( idxCorp = :idxCorp or :idxCorp is null)" +
                     " and ( transactionId = :transactionId or :transactionId is null) ",
             nativeQuery = true
     )
-    Page<ErrorResultDto> errorList(String searchCorpName, String errCode, String transactionId,String strDate, Pageable pageable);
+    Page<ErrorResultDto> errorList(String searchCorpName, String errCode, String transactionId, String strDate, Long idxCorp, Pageable pageable);
 
-    public static interface ErrorResultDto {
+    interface ErrorResultDto {
         Long getIdxCorp();
         LocalDateTime getUpdatedAt();
         String getCorpName();
         String getBankName();
         String getAccount();
+        String getResAccountDisplay();
         String getErrMessage();
         String getErrCode();
         String getTransactionId();

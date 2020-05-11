@@ -300,13 +300,15 @@ public class AdminController {
 	@ApiOperation(value = "에러내역"
 			, notes = "" + "\n"
 			+ "Sort 방식 " + "\n"
-			+ "발생시간 : updatedAt  " + "\n"
-			+ "법인명 : corp.resCompanyNm  " + "\n"
-			+ "은행 : commonCodeDetail.value1  " + "\n"
-			+ "계좌번호 : account  " + "\n"
-			+ "에러메시지 : errMessage  " + "\n"
-			+ "에러코드 : errCode  " + "\n"
-			+ "transactionId : transactionId  " + "\n"
+            + "idxCorp  " + "\n"
+            + "updatedAt  " + "\n"
+            + "corpName  " + "\n"
+            + "bankName  " + "\n"
+            + "account  " + "\n"
+            + "accountDisplay  " + "\n"
+            + "errorMessage  " + "\n"
+            + "errorCode  " + "\n"
+            + "transactionId  " + "\n"
 	)
 	@GetMapping( URI.ERROR )
 	@ApiPageable
@@ -319,3 +321,7 @@ public class AdminController {
 		return service.errorList(user.idx(), pageable, dto);
 	}
 }
+
+
+
+

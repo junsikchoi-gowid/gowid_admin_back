@@ -37,6 +37,9 @@ public class AdminDto {
 		@ApiModelProperty("부여 한도")
 		public double cardLimit;
 
+		@ApiModelProperty("승인한도")
+		public double confirmedLimit;
+
 		@ApiModelProperty("법인 등급")
 		public String grade;
 
@@ -75,6 +78,7 @@ public class AdminDto {
 					.idxCorp(searchRiskResultDto.getIdxCorp())
 					.idxCorpName(searchRiskResultDto.getIdxCorpName())
 					.cardLimitNow(searchRiskResultDto.getCardLimitNow())
+					.confirmedLimit(searchRiskResultDto.getConfirmedLimit())
 					.cardLimit(searchRiskResultDto.getCardLimit())
 					.grade(searchRiskResultDto.getGrade())
 					.balance(searchRiskResultDto.getBalance())
@@ -216,6 +220,9 @@ public class AdminDto {
 		@ApiModelProperty("계좌번호")
 		public String account;
 
+		@ApiModelProperty("계좌번호")
+		public String accountDisplay;
+
 		@ApiModelProperty("에러메세지")
 		public String errorMessage;
 
@@ -229,9 +236,11 @@ public class AdminDto {
 
 			ErrorResultDto errorResultDto = ErrorResultDto.builder()
 					.updatedAt(dto.getUpdatedAt())
+					.idxCorp(dto.getIdxCorp())
 					.corpName(dto.getCorpName()==null?"":dto.getCorpName())
 					.bankName(dto.getBankName()==null?"":dto.getBankName())
 					.account(dto.getAccount()==null?"":dto.getAccount())
+					.accountDisplay(dto.getResAccountDisplay()==null?"":dto.getResAccountDisplay())
 					.errorMessage(dto.getErrMessage()==null?"":dto.getErrMessage())
 					.errorCode(dto.getErrCode()==null?"":dto.getErrCode())
 					.transactionId(dto.getTransactionId()==null?"":dto.getTransactionId())

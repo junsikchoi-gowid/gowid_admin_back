@@ -403,6 +403,14 @@ public class ScrapingService {
 
     @Async
     public ResponseEntity scrapingRegister1YearAll2(Long idxUser, Long idxCorp) {
+
+        //todo 권한이 있는 사람만 처리가능
+        if(idxCorp != null){
+            if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN)))){
+                idxUser = repoCorp.searchIdxUser(idxCorp);
+            }
+        }
+
         Thread currentThread = Thread.currentThread();
 
         while (currentThread != null) {
@@ -1379,9 +1387,9 @@ public class ScrapingService {
         for (int i = 0; i < 2; i++) {
             saveAccountProcessBatchRetry(idx, idxResBatchParent);
         }
+
         // 리스크 데이터 저장
         serviceRisk.saveRisk(idx, null,"");
-
     }
 
     private void saveAccountProcessBatchRetry(Long idx, Long idxResBatchParent) {

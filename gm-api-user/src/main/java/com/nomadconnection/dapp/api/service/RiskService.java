@@ -64,24 +64,33 @@ public class RiskService {
 
 		Corp corp;
 		Long finalIdxUser = idxUser;
-		User user = repoUser.findById(idxUser).orElseThrow(
+		User userAuth = repoUser.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().id(finalIdxUser).build()
 		);
+		User user;
 
-		if(idxCorp != null && user.authorities().stream().noneMatch(o-> o.role().equals(Role.GOWID_ADMIN))) {
+		if(idxCorp != null && userAuth.authorities().stream().noneMatch(o-> o.role().equals(Role.GOWID_ADMIN))) {
 			throw new RuntimeException("DOES NOT HAVE GOWID-ADMIN");
-		}
-
-		if(idxCorp != null){
+		}else if(idxCorp != null && userAuth.authorities().stream().anyMatch(o-> o.role().equals(Role.GOWID_ADMIN))){
 			corp = repoCorp.findById(idxCorp).orElseThrow(
 					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
 			);
-			user = repoUser.findById(corp.user().idx()).orElseThrow(
-					() -> UserNotFoundException.builder().id(corp.user().idx()).build()
+			Corp finalCorp = corp;
+			user = repoUser.findById(repoCorp.searchIdxUser(idxCorp)).orElseThrow(
+					() -> UserNotFoundException.builder().id(finalCorp.user().idx()).build()
 			);
 
-			idxUser = user.idx();
+			idxUser = repoCorp.searchIdxUser(idxCorp);
 		}else{
+			corp = repoCorp.findById(idxCorp).orElseThrow(
+					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
+			);
+
+			Corp finalCorp1 = corp;
+			user = repoUser.findById(repoCorp.searchIdxUser(idxCorp)).orElseThrow(
+					() -> UserNotFoundException.builder().id(finalCorp1.user().idx()).build()
+			);
+
 			corp = user.corp();
 		}
 
@@ -108,11 +117,16 @@ public class RiskService {
 						.cardIssuance(false)
 						.ceoGuarantee(false)
 						.user(user)
-						.corp(user.corp())
+						.corp(corp)
 						.build()
 		);
 
-
+		// 최초가입시 가입후 회사정보 변경으로 인한 자동 적용
+		if(riskconfig.user() == null || riskconfig.corp() == null ){
+			riskconfig.user(user);
+			riskconfig.corp(corp);
+			repoRiskConfig.save(riskconfig);
+		}
 
 		Risk risk = repoRisk.findByUserAndDate(User.builder().idx(idxUser).build(), calcDate).orElse(
 				Risk.builder()
@@ -128,6 +142,15 @@ public class RiskService {
 						.recentBalance(0)
 						.build()
 		);
+
+		Corp finalCorp2 = corp;
+		Corp corpConfig = repoCorp.findById(user.corp().idx()).orElseThrow(
+				() -> UserNotFoundException.builder().id(finalCorp2.user().idx()).build()
+		);
+		corpConfig.riskConfig(riskconfig);
+		corpConfig.user(user);
+		repoCorp.save(corpConfig);
+
 
 		risk.user(user);
 		risk.corp(corp);
@@ -204,7 +227,7 @@ public class RiskService {
 		risk.cashBalance(Collections.min(cashBalance));
 
 		// CardAvailable
-		if(risk.cashBalance() >= risk.minStartCash()){
+		if(risk.cashBalance() >= risk.minCashNeed()){
 			risk.cardAvailable(true);
 		}else{
 			risk.cardAvailable(false);
@@ -246,7 +269,9 @@ public class RiskService {
 		// CardRestartCount
 		AtomicInteger iCardRestartCount = new AtomicInteger();
 		Risk risk1 =repoRisk.findByUserAndDate(User.builder().idx(idxUser).build(),calcDateMinus).orElse(
-				Risk.builder().cardRestartCount(0).build()
+				Risk.builder()
+						.cardRestartCount(0)
+						.confirmedLimit(0).build()
 		);
 
 		if(risk.currentBalance()>  risk.minCashNeed()){
@@ -254,6 +279,10 @@ public class RiskService {
 		}else{
 			risk.cardRestartCount(0);
 		}
+
+		Double confirmedLimit = risk1.confirmedLimit();
+		if( confirmedLimit != null)	risk.confirmedLimit(risk1.confirmedLimit());
+		else risk.confirmedLimit(0);
 
 		// CardRestart
 		if(risk.cardRestartCount() >= 45){

@@ -62,6 +62,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
                                                         .where(connectedMng.idxUser.eq(risk.user.idx))
                                                 ))
                                 ,"balance"),
+                        risk.confirmedLimit.as("confirmedLimit"),
                         risk.currentBalance.as("currentBalance"),
                         risk.cardRestartCount.as("cardRestartCount"),
                         risk.emergencyStop.as("emergencyStop"),

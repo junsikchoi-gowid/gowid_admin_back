@@ -10,11 +10,9 @@ import com.nomadconnection.dapp.codef.io.helper.RSAUtil;
 import com.nomadconnection.dapp.codef.io.sandbox.bk.KR_BK_1_B_001;
 import com.nomadconnection.dapp.core.domain.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.ResAccount;
+import com.nomadconnection.dapp.core.domain.Role;
 import com.nomadconnection.dapp.core.domain.User;
-import com.nomadconnection.dapp.core.domain.repository.ConnectedMngRepository;
-import com.nomadconnection.dapp.core.domain.repository.ResAccountRepository;
-import com.nomadconnection.dapp.core.domain.repository.UserRepository;
-import com.nomadconnection.dapp.core.domain.repository.VerificationCodeRepository;
+import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +45,7 @@ public class CodefService {
 	private final UserRepository repoUser;
 	private final ResAccountRepository repoResAccount;
 	private final ConnectedMngRepository repoConnectedMng;
+	private final CorpRepository repoCorp;
 
 	private final String urlPath = CommonConstant.getRequestDomain();
 
@@ -55,6 +54,20 @@ public class CodefService {
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(
 				repoConnectedMng.findIdxUser(idx)
+		).build());
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity findConnectedIdListCorp(Long idxUser, Long idxCorp) {
+
+		if(idxCorp != null){
+			if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))){
+				idxUser = repoCorp.searchIdxUser(idxCorp);
+			}
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().data(
+				repoConnectedMng.findIdxUser(idxUser)
 		).build());
 	}
 

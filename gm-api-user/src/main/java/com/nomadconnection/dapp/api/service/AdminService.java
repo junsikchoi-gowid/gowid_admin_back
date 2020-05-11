@@ -70,21 +70,20 @@ public class AdminService {
         return boolV;
     }
 
-    private Boolean isGowidAdmin(Long idxUser) {
+    private Integer intGowidMaster(Long idxUser) {
 
-        boolean boolV = false;
+        int iReturn = 0;
 
         User user = repoUser.findById(idxUser).orElseThrow(
                 () -> UserNotFoundException.builder().build()
         );
 
         if (user.authorities().stream().noneMatch(o ->
-                (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER))))
-            throw UserNotFoundException.builder().build();
+                (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))) iReturn = 1;
 
-        if (user.authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))) boolV = true;
+        if (user.authorities().stream().anyMatch(o -> o.role().equals(Role.GOWID_ADMIN))) iReturn = 2;
 
-        return boolV;
+        return iReturn;
     }
 
     /**
@@ -125,6 +124,9 @@ public class AdminService {
         Boolean isMaster = isGowidMaster(idxUser);
 
         Page<CorpCustomRepository.SearchCorpResultDto> page = repoCorp.corpList(corpDto, idxUser, pageable);
+
+        if (!isMaster)
+            for (CorpCustomRepository.SearchCorpResultDto x : page.getContent()) x.setResCompanyNm("#" + x.idx);
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(page).build());
     }
@@ -216,6 +218,19 @@ public class AdminService {
                 () -> CorpNotRegisteredException.builder().build()
         );
 
+        //todo 권한별 데이터 변경
+        System.out.println( intGowidMaster(idx) );
+        System.out.println( intGowidMaster(idx) < 2 );
+        System.out.println( idxCorp != null );
+        if (intGowidMaster(idx) < 2 && idxCorp != null) {
+            corp.setResCompanyNm(null);
+            corp.setResCompanyIdentityNo(null);
+            corp.setResUserNm(null);
+            //todo 공동사업자 1 , 주민(사업자) 등록번호
+            //todo 공동사업자 2 , 주민(사업자) 등록번호
+            //todo 발급번호
+        }
+
         return ResponseEntity.ok().body(BusinessResponse.builder().data(corp).build());
     }
 
@@ -226,7 +241,6 @@ public class AdminService {
     public ResponseEntity cashList(Long idx, String corpName, String updateStatus, Pageable pageable) {
 
         Boolean isMaster = isGowidMaster(idx);
-        BusinessResponse.Normal normal = null;
         Page<AdminDto.CashListDto> returnData = null;
 
         if (isMaster) {
@@ -239,13 +253,9 @@ public class AdminService {
             }
 
             returnData.getContent().stream().filter(x -> x.getIdxUser() != null).forEach(this::accept);
-        }else {
-            normal= BusinessResponse.Normal.builder().value("DOES NOT HAVE GOWID-ADMIN").build();
         }
 
-        return ResponseEntity.ok().body(BusinessResponse.builder()
-                .normal(normal)
-                .data(returnData).build());
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(returnData).build());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -272,9 +282,9 @@ public class AdminService {
     }
 
     public ResponseEntity scrapingList(Long idx, Pageable pageable) {
-        Boolean isMaster = isGowidMaster(idx);
+        int intMaster = intGowidMaster(idx);
         Page<AdminDto.ScrapingListDto> resAccountPage = null;
-        if (isMaster) {
+        if (intMaster > 0) {
             resAccountPage = repoCorp.scrapingList(pageable).map(AdminDto.ScrapingListDto::from);
 
             resAccountPage.getContent().forEach(
@@ -285,6 +295,9 @@ public class AdminService {
                         o.setProcessAccountCnt(data.get(0).getProgressCnt());
                     }
             );
+
+            if ( intMaster < 2 )
+                for (AdminDto.ScrapingListDto x : resAccountPage.getContent()) x.setIdxCorpName("#" + x.idxCorp);
         }
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(resAccountPage).build());
@@ -311,19 +324,16 @@ public class AdminService {
         if(toDay != null && toDay.equals("true")){
             toDay = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         }else{
-            toDay = "20170000";
+            toDay = "20100000";
         }
 
-        Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto.getCorpName(), dto.getErrorCode(),dto.getTransactionId(), toDay, pageable).map(AdminDto.ErrorResultDto::from);
+        Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto.getCorpName(), dto.getErrorCode() ,dto.getTransactionId(), toDay, dto.getIdxCorp(), pageable).map(AdminDto.ErrorResultDto::from);
 
         if (!isMaster)
-            for (AdminDto.ErrorResultDto errorResultDto : list){
+            for (AdminDto.ErrorResultDto errorResultDto : list)
                 errorResultDto.setCorpName("#" + errorResultDto.idxCorp);
-                errorResultDto.setAccount("#");
-            }
 
-
-        return ResponseEntity.ok().body(BusinessResponse.builder().data(list).build());
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(list).normal(BusinessResponse.Normal.builder().status(true).build()).build());
     }
 
     private void accept(AdminDto.CashListDto x) {
@@ -335,5 +345,5 @@ public class AdminService {
         if (BurnRate > 0) intMonth = (int) Math.ceil((double) longEndBalance / BurnRate);
         x.setBurnRate(BurnRate);
         x.setRunWay(intMonth);
-    } 
+    }
 }

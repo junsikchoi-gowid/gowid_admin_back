@@ -43,6 +43,7 @@ public class Risk extends BaseTime {
     private double realtimeLimit;    //실시간 한도
     private double cardLimit;    //부여 한도
     private double cardLimitNow;    //변경 잔고
+    private double confirmedLimit;    //승인 한도
     private boolean emergencyStop;    // 긴급중지
     private int cardRestartCount;    //숫자
     private boolean cardRestart;    // 카드재시작?

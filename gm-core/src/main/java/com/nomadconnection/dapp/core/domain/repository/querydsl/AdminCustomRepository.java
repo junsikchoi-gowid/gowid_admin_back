@@ -54,6 +54,9 @@ public interface AdminCustomRepository {
         @ApiModelProperty("변경 잔고 ")
         private double cardLimitNow;
 
+        @ApiModelProperty("승인 한도 ")
+        private double confirmedLimit;
+
         @ApiModelProperty("부여 한도")
         private double cardLimit;
 
