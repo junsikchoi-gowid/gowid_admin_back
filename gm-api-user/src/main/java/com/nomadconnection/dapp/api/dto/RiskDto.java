@@ -40,6 +40,7 @@ public class RiskDto {
     public double realtimeLimit;
     public double cardLimit;
     public double cardLimitNow;
+    public double confirmedLimit;
     public boolean emergencyStop;
     public Integer cardRestartCount;
     public boolean cardRestart;
@@ -75,6 +76,7 @@ public class RiskDto {
                 .cardAvailable(risk.cardAvailable())
                 .cardLimitCalculation(risk.cardLimitCalculation())
                 .realtimeLimit(risk.realtimeLimit())
+                .confirmedLimit(risk.confirmedLimit())
                 .cardLimit(risk.cardLimit())
                 .cardLimitNow(risk.cardLimitNow())
                 .emergencyStop(risk.emergencyStop())

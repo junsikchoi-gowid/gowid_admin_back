@@ -105,18 +105,34 @@ public class RiskService {
 				, Integer.parseInt(calcDate.substring(6,8))
 		).minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 
-		RiskConfig riskconfig = repoRiskConfig.findByUserAndEnabled(user,true).orElse(
-				RiskConfig.builder()
-						.depositGuarantee(0F)
-						.depositPayment(false)
-						.vcInvestment(false)
-						.ventureCertification(false)
-						.cardIssuance(false)
-						.ceoGuarantee(false)
-						.user(user)
-						.corp(corp)
-						.build()
-		);
+		Optional<RiskConfig> riskConfigOptional = repoRiskConfig.findByUserAndEnabled(user, true);
+		RiskConfig riskconfig ;
+
+		if(riskConfigOptional.isPresent()){
+			// riskconfig = riskConfigOptional.get();
+			log.debug("113 " + riskConfigOptional.get().ventureCertification());
+			riskconfig = RiskConfig.builder()
+					.depositGuarantee(riskConfigOptional.get().depositGuarantee())
+					.depositPayment(riskConfigOptional.get().depositPayment())
+					.vcInvestment(riskConfigOptional.get().vcInvestment())
+					.ventureCertification(riskConfigOptional.get().ventureCertification())
+					.cardIssuance(riskConfigOptional.get().cardIssuance())
+					.ceoGuarantee(riskConfigOptional.get().ceoGuarantee())
+					.user(user)
+					.corp(corp)
+					.build();
+		}else{
+			riskconfig = RiskConfig.builder()
+					.depositGuarantee(0F)
+					.depositPayment(false)
+					.vcInvestment(false)
+					.ventureCertification(false)
+					.cardIssuance(false)
+					.ceoGuarantee(false)
+					.user(user)
+					.corp(corp)
+					.build();
+		}
 
 		// 최초가입시 가입후 회사정보 변경으로 인한 자동 적용
 		if(riskconfig.user() == null || riskconfig.corp() == null ){
@@ -125,20 +141,24 @@ public class RiskService {
 			repoRiskConfig.save(riskconfig);
 		}
 
-		Risk risk = repoRisk.findByUserAndDate(User.builder().idx(idxUser).build(), calcDate).orElse(
-				Risk.builder()
-						.user(user)
-						.corp(user.corp())
-						.date(calcDate)
-						.ceoGuarantee(riskconfig.ceoGuarantee())
-						.depositGuarantee(riskconfig.depositGuarantee())
-						.depositPayment(riskconfig.depositPayment())
-						.cardIssuance(riskconfig.cardIssuance())
-						.ventureCertification(riskconfig.ventureCertification())
-						.vcInvestment(riskconfig.vcInvestment())
-						.recentBalance(0)
-						.build()
-		);
+		Optional<Risk> riskOptional = repoRisk.findByUserAndDate(User.builder().idx(idxUser).build(), calcDate);
+		Risk risk ;
+		if(riskOptional.isPresent()){
+			risk = riskOptional.get();
+		}else{
+			risk = Risk.builder()
+					.user(user)
+					.corp(user.corp())
+					.date(calcDate)
+					.ceoGuarantee(riskconfig.ceoGuarantee())
+					.depositGuarantee(riskconfig.depositGuarantee())
+					.depositPayment(riskconfig.depositPayment())
+					.cardIssuance(riskconfig.cardIssuance())
+					.ventureCertification(riskconfig.ventureCertification())
+					.vcInvestment(riskconfig.vcInvestment())
+					.recentBalance(0)
+					.build();
+		}
 
 		Corp finalCorp2 = corp;
 		Corp corpConfig = repoCorp.findById(user.corp().idx()).orElseThrow(

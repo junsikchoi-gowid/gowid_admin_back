@@ -119,6 +119,9 @@ public interface AdminCustomRepository {
         @ApiModelProperty("전일잔고 ")
         private Double befoBalance;
 
+        @ApiModelProperty("승인한도 ")
+        private Double confirmedLimit;
+
         @ApiModelProperty("Burn Rate ")
         private String BurnRate;
 
