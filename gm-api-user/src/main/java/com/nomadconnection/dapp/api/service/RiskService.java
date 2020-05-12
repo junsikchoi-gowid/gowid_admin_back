@@ -82,13 +82,10 @@ public class RiskService {
 
 			idxUser = repoCorp.searchIdxUser(idxCorp);
 		}else{
-			corp = repoCorp.findById(idxCorp).orElseThrow(
-					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
-			);
 
-			Corp finalCorp1 = corp;
-			user = repoUser.findById(repoCorp.searchIdxUser(idxCorp)).orElseThrow(
-					() -> UserNotFoundException.builder().id(finalCorp1.user().idx()).build()
+			Long finalIdxUser1 = idxUser;
+			user = repoUser.findById(finalIdxUser1).orElseThrow(
+					() -> UserNotFoundException.builder().id(finalIdxUser1).build()
 			);
 
 			corp = user.corp();
