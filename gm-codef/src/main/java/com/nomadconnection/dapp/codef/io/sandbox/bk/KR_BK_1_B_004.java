@@ -10,7 +10,7 @@ import java.util.HashMap;
 public class KR_BK_1_B_004 {
 
     public static String krbk1b004(
-            String connectedId, String organization, String account, String startDate, String endDate, String orderBy, String inquiryType
+            String connectedId, String organization, String account, String startDate, String endDate, String orderBy, String accountLoanExecNo
     ) throws IOException, InterruptedException, ParseException {
         // 요청 URL 설정
         String urlPath = CommonConstant.getRequestDomain() + CommonConstant.KR_BK_1_B_004;
@@ -23,7 +23,7 @@ public class KR_BK_1_B_004 {
         bodyMap.put("startDate",	startDate);
         bodyMap.put("endDate",		endDate);
         bodyMap.put("orderBy",		orderBy);
-        bodyMap.put("inquiryType",	inquiryType);
+        bodyMap.put("accountLoanExecNo",	accountLoanExecNo);
         // 요청 파라미터 설정 종료
 
         // API 요청

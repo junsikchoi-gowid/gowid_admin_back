@@ -17,6 +17,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.io.IOException;
+
 
 @Slf4j
 @RestController
@@ -76,7 +78,7 @@ public class ScrapingController {
     @ApiOperation(value = "계좌별 스크래핑", notes = "" + "\n")
     @GetMapping( URI.SCRAPING_ACCOUNT_ID )
     public ResponseEntity scrapingAccount(@ApiIgnore @CurrentUser CustomUser user, @RequestParam String idxAccount
-            , @RequestParam String strStart, @RequestParam String strEnd) throws ParseException {
+            , @RequestParam String strStart, @RequestParam String strEnd) throws ParseException, IOException, InterruptedException {
         return service.scrapingAccount(user.idx(), idxAccount ,strStart , strEnd);
     }
 }

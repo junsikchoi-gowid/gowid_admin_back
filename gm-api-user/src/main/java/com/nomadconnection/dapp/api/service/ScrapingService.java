@@ -689,7 +689,7 @@ public class ScrapingService {
                             , strStart
                             , strEnd
                             , "0"
-                            , ""));
+                            , resData.getResAccountLoanExecNo()));
                 } else if (strType.equals("30")) {
                     strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
                             , resData.getOrganization()
@@ -838,7 +838,7 @@ public class ScrapingService {
                                 , strStart
                                 , strEnd
                                 , "0"
-                                , ""));
+                                , resData.getResAccountLoanExecNo()));
                         break;
                     case "30":
                         strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
@@ -1188,7 +1188,7 @@ public class ScrapingService {
                                     , strStart
                                     , strEnd
                                     , "0"
-                                    , ""));
+                                    , resData.getResAccountLoanExecNo()));
                             break;
                         case "30":
                             strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
@@ -1325,7 +1325,7 @@ public class ScrapingService {
                                     , strStart
                                     , strEnd
                                     , "0"
-                                    , ""));
+                                    , resData.getResAccountLoanExecNo()));
                             break;
                         case "30":
                             strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
@@ -1475,7 +1475,7 @@ public class ScrapingService {
                                     , strStart
                                     , strEnd
                                     , "0"
-                                    , ""));
+                                    , resData.getResAccountLoanExecNo()));
                             break;
                         case "30":
                             strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
@@ -1802,7 +1802,7 @@ public class ScrapingService {
                                 , strStart
                                 , strEnd
                                 , "0"
-                                , ""));
+                                , resData.getResAccountLoanExecNo()));
                         break;
                     case "30":
                         strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()

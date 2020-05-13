@@ -123,6 +123,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", comm.organization as  organization\n" +
             ", comm.resAccountDeposit as resAccountDeposit\n" +
             ", comm.resAccountCurrency as resAccountCurrency\n" +
+            ", comm.resAccountLoanExecNo as resAccountLoanExecNo\n" +
             ", comm.nowMonth as nowMonth " +
             ", comm.nowMonthFirst as nowMonthFirst " +
             ", comm.errCode as errCode " +
@@ -144,6 +145,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", A.organization       \n" +
             ", A.resAccountDeposit \n" +
             ", A.resAccountCurrency \n" +
+            ", A.ResAccountLoanExecNo \n" +
             ", A.nowMonth\n" +
             ", A.nowMonthFirst \n" +
             ", A.errCode\n" +
@@ -161,6 +163,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", R.organization       \n" +
             ", R.resAccountDeposit \n" +
             ", R.resAccountCurrency \n" +
+            ", R.ResAccountLoanExecNo \n" +
             "from (\n" +
             "select y from\n" +
             "(\n" +
@@ -205,6 +208,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
         String getOrganization();
         String getResAccountDeposit();
         String getResAccountCurrency();
+        String getResAccountLoanExecNo();
         String getNowMonth();
     }
 }
