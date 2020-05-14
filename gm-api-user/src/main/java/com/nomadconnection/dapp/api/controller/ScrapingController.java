@@ -37,6 +37,7 @@ public class ScrapingController {
         public static final String SCRAPING_ACCOUNT = "/account-all";    // 은행 기업 보유계좌 + 거래내역
         public static final String SCRAPING_ACCOUNT_HISTORY = "/account-history";    // 입출금 거래내역
         public static final String SCRAPING_ACCOUNT_ID = "/account/id";    // 계좌별 조회
+        public static final String SCRAPING_BANK_ID = "/bank/id";    // 계좌별 조회
 
     }
 
@@ -80,5 +81,13 @@ public class ScrapingController {
     public ResponseEntity scrapingAccount(@ApiIgnore @CurrentUser CustomUser user, @RequestParam String idxAccount
             , @RequestParam String strStart, @RequestParam String strEnd) throws ParseException, IOException, InterruptedException {
         return service.scrapingAccount(user.idx(), idxAccount ,strStart , strEnd);
+    }
+
+    @ApiOperation(value = "은행 스크래핑", notes = "" + "\n")
+    @GetMapping( URI.SCRAPING_BANK_ID )
+    public ResponseEntity scrapingBank(@ApiIgnore @CurrentUser CustomUser user
+            ,@RequestParam String strConnetedId, @RequestParam String strBankCode
+                ) throws ParseException{
+        return service.scrapingBank(user.idx(), strConnetedId,strBankCode);
     }
 }
