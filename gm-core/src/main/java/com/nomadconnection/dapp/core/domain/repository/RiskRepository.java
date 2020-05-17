@@ -4,6 +4,8 @@ import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.Risk;
 import com.nomadconnection.dapp.core.domain.User;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +17,8 @@ import java.util.Optional;
 @Repository
 public interface RiskRepository extends JpaRepository<Risk, Long>, AdminCustomRepository {
 
+
+    @Cascade(CascadeType.ALL)
     @Query(value = "select ifnull(sum(if( R.errCode = 'CF-00000', 0, 1 )), 0)  " +
             " from ResBatchList R  " +
             " join (select account, max(idx) idx  from ResBatchList r where resBatchType = 1 " +

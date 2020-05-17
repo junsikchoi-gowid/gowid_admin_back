@@ -51,11 +51,11 @@ public class Risk extends BaseTime {
     private double recentBalance;    // 최근 잔고
     private String errCode; // 에러코드 일부값
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "FK_Corp_Risk"))
     private Corp corp; // 법인
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_Risk"))
     private User user; // 유저
 }

@@ -26,11 +26,11 @@ public class Corp extends BaseTime {
 	@EqualsAndHashCode.Include
 	private Long idx;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_Corp"))
 	private User user; // 법인을 등록한 사용자
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "idxRiskConfig", foreignKey = @ForeignKey(name = "FK_Corp_RiskConfig"))
 	private RiskConfig riskConfig; // 법인 리스크 정보
 

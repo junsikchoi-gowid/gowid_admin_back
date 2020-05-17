@@ -21,11 +21,11 @@ public class RiskConfig extends BaseTime {
 	@EqualsAndHashCode.Include
 	private Long idx;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "FK_RiskConfig_Corp"))
 	private Corp corp; // 소속법인
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_RiskConfig_User"))
 	private User user; // 유저정보
 
