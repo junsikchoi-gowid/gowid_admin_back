@@ -34,24 +34,24 @@ public class Corp extends BaseTime {
 	@JoinColumn(name = "idxRiskConfig", foreignKey = @ForeignKey(name = "FK_Corp_RiskConfig"))
 	private RiskConfig riskConfig; // 법인 리스크 정보
 
-	private String resBusinessItems;
-	private String resBusinessTypes;
-	private String resBusinessmanType;
+	private String resBusinessItems; // 종목
+	private String resBusinessTypes; // 업태
+	private String resBusinessmanType; // 사업자종류
 
 	@EqualsAndHashCode.Include
-	private String resCompanyIdentityNo;
+	private String resCompanyIdentityNo; // 사업자등록번호
 
 	private String resCompanyNm; // 법인명
-	private String resIssueNo;
-	private String resIssueOgzNm;
-	private String resJointIdentityNo;
-	private String resJointRepresentativeNm;
-	private String resOpenDate;
-	private String resOriGinalData;
-	private String resRegisterDate;
-	private String resUserAddr;
-	private String resUserIdentiyNo;
-	private String resUserNm;
+	private String resIssueNo; // 발급(승인)번호
+	private String resIssueOgzNm; // 발급기관
+	private String resJointIdentityNo; //공동사업자 주민번호
+	private String resJointRepresentativeNm; // 공동사업자 성명(법인명)
+	private String resOpenDate; // 개업일
+	private String resOriGinalData; // 원문 DATA
+	private String resRegisterDate; // 사업자등록일
+	private String resUserAddr; // 사업장소재지(주소)
+	private String resUserIdentiyNo; // 주민(법인)등록번호
+	private String resUserNm; // 성명(대표자)
 
 	@Enumerated(EnumType.STRING)
 	private CorpStatus status; // pending/denied/approvedv

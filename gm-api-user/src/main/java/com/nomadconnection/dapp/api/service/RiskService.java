@@ -109,8 +109,6 @@ public class RiskService {
 		RiskConfig riskconfig ;
 
 		if(riskConfigOptional.isPresent()){
-			// riskconfig = riskConfigOptional.get();
-			log.debug("113 " + riskConfigOptional.get().ventureCertification());
 			riskconfig = RiskConfig.builder()
 					.depositGuarantee(riskConfigOptional.get().depositGuarantee())
 					.depositPayment(riskConfigOptional.get().depositPayment())
@@ -136,9 +134,7 @@ public class RiskService {
 
 		// 최초가입시 가입후 회사정보 변경으로 인한 자동 적용
 		if(riskconfig.user() == null || riskconfig.corp() == null ){
-			riskconfig.user(user);
-			riskconfig.corp(corp);
-			repoRiskConfig.save(riskconfig);
+			repoRiskConfig.modifyRiskConfig(riskconfig.idx(), user.idx(), corp.idx());
 		}
 
 		Optional<Risk> riskOptional = repoRisk.findByUserAndDate(User.builder().idx(idxUser).build(), calcDate);
@@ -160,13 +156,12 @@ public class RiskService {
 					.build();
 		}
 
-		Corp finalCorp2 = corp;
-		Corp corpConfig = repoCorp.findById(user.corp().idx()).orElseThrow(
-				() -> UserNotFoundException.builder().id(finalCorp2.user().idx()).build()
-		);
-		corpConfig.riskConfig(riskconfig);
-		corpConfig.user(user);
-		repoCorp.save(corpConfig);
+//		Corp finalCorp2 = corp;
+//		Corp corpConfig = repoCorp.findById(user.corp().idx()).orElseThrow(
+//				() -> UserNotFoundException.builder().id(finalCorp2.user().idx()).build()
+//		);
+//		corpConfig.riskConfig(riskconfig);
+//		corpConfig.user(user);
 
 
 		risk.user(user);

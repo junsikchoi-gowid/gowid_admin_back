@@ -104,7 +104,9 @@ public class AdminService {
         if (!isMaster)
             for (AdminDto.RiskDto x : resAccountPage.getContent()) x.setIdxCorpName("#" + x.idxCorp);
 
-        return ResponseEntity.ok().body(BusinessResponse.builder().data(resAccountPage).build());
+        return ResponseEntity.ok().body(
+                BusinessResponse.builder().data(resAccountPage).build()
+        );
     }
 
     public ResponseEntity riskIdNowbalance(Long idxUser, Long idxCorp) {

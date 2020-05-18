@@ -55,6 +55,11 @@ public class CommonConstant {
 	public static final String KR_IS_0001_004	= "/v1/kr/insurance/0001/credit4u/change-pwd";     	  		// 보험다보여-비밀번호변경
 	public static final String KR_IS_0001_005	= "/v1/kr/insurance/0001/credit4u/unregister";     	  		// 보험다보여-회원탈퇴신청
 
+	public static final String CORP_1510	= "/v1/kr/public/ck/corp-register/issue"; 						// 개별상품 빕인등기부등본
+	public static final String CORP_1520	= "v1/kr/public/nt/proof-issue/standard-financial-statements"; 	// 개별상품 빕인등기부등본
+	public static final String CORP_1530	= "/v1/kr/public/nt/proof-issue/corporate-registration"; 		// 개별상품 빕인등기부등본
+
+
 
 	public static final String GET_CONNECTED_IDS = "/v1/account/connectedId-list";       					// 커넥티드아이디 목록 조회
 	public static final String GET_ACCOUNTS = "/v1/account/list";            								// 계정 목록 조회
