@@ -56,7 +56,7 @@ public class CommonConstant {
 	public static final String KR_IS_0001_005	= "/v1/kr/insurance/0001/credit4u/unregister";     	  		// 보험다보여-회원탈퇴신청
 
 	public static final String CORP_1510	= "/v1/kr/public/ck/corp-register/issue"; 						// 개별상품 빕인등기부등본
-	public static final String CORP_1520	= "v1/kr/public/nt/proof-issue/standard-financial-statements"; 	// 개별상품 빕인등기부등본
+	public static final String CORP_1520	= "/v1/kr/public/nt/proof-issue/standard-financial-statements"; 	// 개별상품 국세청 증명발급 표준재무제표
 	public static final String CORP_1530	= "/v1/kr/public/nt/proof-issue/corporate-registration"; 		// 개별상품 빕인등기부등본
 
 
