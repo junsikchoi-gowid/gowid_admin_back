@@ -1,43 +1,35 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
-import com.nomadconnection.dapp.core.domain.repository.ResAccountHistoryRepository;
-import com.nomadconnection.dapp.core.domain.repository.RiskConfigRepository;
-import com.nomadconnection.dapp.core.domain.repository.RiskRepository;
+import com.nomadconnection.dapp.api.dto.AdminDto;
+import com.nomadconnection.dapp.api.dto.CorpDto;
+import com.nomadconnection.dapp.api.dto.RiskDto;
+import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
+import com.nomadconnection.dapp.api.exception.UserNotFoundException;
+import com.nomadconnection.dapp.api.helper.GowidUtils;
+import com.nomadconnection.dapp.core.domain.*;
+import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
+import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepository;
+import com.nomadconnection.dapp.core.domain.repository.querydsl.ResBatchListCustomRepository;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.codec.binary.Base64;
-import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.util.io.pem.PemObject;
-import org.bouncycastle.util.io.pem.PemReader;
-import org.springframework.core.convert.ConversionException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
 
-import org.bouncycastle.openssl.PEMReader;
-import org.bouncycastle.openssl.PEMWriter;
-import sun.misc.BASE64Encoder;
-import sun.security.provider.X509Factory;
-
-import java.io.*;
-import java.security.*;
-import java.security.cert.Certificate;
-import javax.security.cert.X509Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import javax.crypto.SecretKey;
-import javax.security.auth.callback.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -45,116 +37,315 @@ import javax.security.auth.callback.*;
 @SuppressWarnings("unused")
 public class AdminService {
 
-	private final EmailConfig config;
-	private final ITemplateEngine templateEngine;
-
-	private final JwtService jwt;
-	private final JavaMailSenderImpl sender;
-
-	private final UserService serviceUser;
-	private final RiskRepository repoRisk;
-	private final ResAccountHistoryRepository resAccountHistoryRepository;
-	private final RiskConfigRepository repoRiskConfig;
-
-
-	public ResponseEntity riskList(AdminCustomRepository.SearchRiskDto riskDto, Long idx, Pageable pageable) {
-
-		Page<AdminCustomRepository.RiskCustomDto> resAccountPage = repoRisk.riskList(riskDto, idx, pageable);
-
-		return ResponseEntity.ok().body(BusinessResponse.builder().data(resAccountPage).build());
-	}
+    private final EmailConfig config;
+    private final ITemplateEngine templateEngine;
+    private final JwtService jwt;
+    private final JavaMailSenderImpl sender;
+    private final UserService serviceUser;
+    private final UserRepository repoUser;
+    private final RiskRepository repoRisk;
+    private final CorpRepository repoCorp;
+    private final AuthorityRepository repoAuthority;
+    private final ResAccountRepository repoResAccount;
+    private final ResBatchRepository repoResBatch;
+    private final ResBatchListRepository repoResBatchList;
+    private final ResAccountHistoryRepository resAccountHistoryRepository;
+    private final RiskConfigRepository repoRiskConfig;
 
 
+    private Boolean isGowidMaster(Long idxUser) {
+
+        boolean boolV = false;
+
+        User user = repoUser.findById(idxUser).orElseThrow(
+                () -> UserNotFoundException.builder().build()
+        );
+
+        if (user.authorities().stream().noneMatch(o ->
+                (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER))))
+            throw UserNotFoundException.builder().build();
+
+        if (user.authorities().stream().anyMatch(o -> o.role().equals(Role.GOWID_ADMIN))) boolV = true;
+
+        return boolV;
+    }
+
+    private Integer intGowidMaster(Long idxUser) {
+
+        int iReturn = 0;
+
+        User user = repoUser.findById(idxUser).orElseThrow(
+                () -> UserNotFoundException.builder().build()
+        );
+
+        if (user.authorities().stream().noneMatch(o ->
+                (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))) iReturn = 1;
+
+        if (user.authorities().stream().anyMatch(o -> o.role().equals(Role.GOWID_ADMIN))) iReturn = 2;
+
+        return iReturn;
+    }
+
+    /**
+     * admin page 의 risk 리스트
+     *
+     * @param riskDto  .
+     * @param idxUser  .
+     * @param pageable .
+     * @return .
+     */
+    public ResponseEntity riskList(AdminCustomRepository.SearchRiskDto riskDto, Long idxUser, Pageable pageable) {
+        Boolean isMaster = isGowidMaster(idxUser);
+
+        if (!isMaster) riskDto.setIdxCorpName("");
+
+        Page<AdminDto.RiskDto> resAccountPage = repoRisk.riskList(riskDto, idxUser, pageable).map(AdminDto.RiskDto::from);
+
+        if (!isMaster)
+            for (AdminDto.RiskDto x : resAccountPage.getContent()) x.setIdxCorpName("#" + x.idxCorp);
+
+        return ResponseEntity.ok().body(
+                BusinessResponse.builder().data(resAccountPage).build()
+        );
+    }
+
+    public ResponseEntity riskIdNowbalance(Long idxUser, Long idxCorp) {
+
+        Boolean isMaster = isGowidMaster(idxUser);
+
+        Double doubleBalance = repoResAccount.findNowBalance(idxCorp);
+
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(
+                AdminDto.RiskBalanceDto.builder().riskBalance(doubleBalance).build()
+        ).build());
+    }
 
 
+    public ResponseEntity corpList(CorpCustomRepository.SearchCorpDto corpDto, Long idxUser, Pageable pageable) {
 
+        Boolean isMaster = isGowidMaster(idxUser);
 
+        Page<CorpCustomRepository.SearchCorpResultDto> page = repoCorp.corpList(corpDto, idxUser, pageable);
 
+        if (!isMaster)
+            for (CorpCustomRepository.SearchCorpResultDto x : page.getContent()) x.setResCompanyNm("#" + x.idx);
 
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(page).build());
+    }
 
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity riskIdLevelChange(Long idxUser, RiskDto.RiskConfigDto dto) {
 
+        Boolean isMaster = isGowidMaster(idxUser);
 
+        RiskConfig riskConfig = repoRiskConfig.findByCorpAndEnabled(Corp.builder().idx(dto.idxCorp).build(), true)
+                .orElseThrow(
+                        () -> CorpNotRegisteredException.builder().account(dto.idxCorp.toString()).build()
+                );
 
+        riskConfig.enabled(true);
+        riskConfig.ceoGuarantee(dto.isCeoGuarantee());
+        riskConfig.ventureCertification(dto.isVentureCertification());
+        riskConfig.vcInvestment(dto.isVcInvestment());
+        riskConfig.depositPayment(dto.isDepositPayment());
+        riskConfig.depositGuarantee(dto.getDepositGuarantee());
 
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(repoRiskConfig.save(riskConfig)).build());
+    }
 
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity saveEmergencyStop(Long idxUser, Long idxCorp, String booleanValue) {
 
+        Boolean isMaster = isGowidMaster(idxUser);
 
-	final static String BEGIN = "-----BEGIN CERTIFICATE-----\n";
-	final static String PEMS = "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";
-	final static String END = "\n-----END CERTIFICATE-----";
+        String calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 
-	static {
-		Security.addProvider(new BouncyCastleProvider());
-	}
+        Risk risk = repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), calcDate).orElseThrow(
+                () -> new RuntimeException("Empty Data")
+        );
 
-	public boolean getVid(){
+        if (booleanValue != null) {
+            if (booleanValue.toLowerCase().equals("true")) {
+                risk.emergencyStop(true);
+            } else {
+                risk.emergencyStop(false);
+            }
+        }
 
-		BASE64Encoder encoder = new BASE64Encoder();
+        repoRisk.save(risk);
 
-		try {
-			// String leafPublicCertificatePem = BEGIN + PEMS + END;
+        return ResponseEntity.ok().body(BusinessResponse.builder().build());
+    }
 
-			String pem = BEGIN+ "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"+END;
-			byte[] encoded = Base64.decodeBase64(pem);
-			PKCS8EncodedKeySpec spec = new  PKCS8EncodedKeySpec(encoded);
-			ByteArrayInputStream bis = new ByteArrayInputStream(encoded);
-			Reader reader = new InputStreamReader(bis);
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity savePause(Long idxUser, Long idxCorp, String booleanValue) {
 
-			try {
-				final StringReader stringReader = new StringReader(pem);
-				final PemReader pemReader = new PemReader(stringReader);
-				final byte[] x509Data = pemReader.readPemObject().getContent();
-				final CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
-				final Certificate certificate = certificateFactory.generateCertificate(
-						new ByteArrayInputStream(x509Data));
-				log.debug(Base64.encodeBase64String(certificate.getEncoded()));
-			} catch (final Exception e) {
-				e.printStackTrace();
-			}
+        Boolean isMaster = isGowidMaster(idxUser);
 
-			KeyStore ks=KeyStore.getInstance("PKCS12");
-			ks.load(bis,"ymp29088mp!".toCharArray());
-			Certificate cert=ks.getCertificate("alias");
+        String calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 
-			log.debug(cert.getPublicKey().getFormat());
+        Risk risk = repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), calcDate).orElseThrow(
+                () -> new RuntimeException("Empty Data")
+        );
 
-			X509Certificate x509Cert = X509Certificate.getInstance(encoded);
+        if (booleanValue != null) {
+            if (booleanValue.toLowerCase().equals("true")) {
+                risk.pause(true);
+            } else {
+                risk.pause(false);
+            }
+        }
 
-			KeyFactory kf = KeyFactory.getInstance("RSA");
-			String caPassword = "ymp29088mp!";
-			System.out.println(x509Cert.getIssuerDN());
-			System.out.println(x509Cert.getNotAfter());
-			System.out.println(x509Cert.getSubjectDN());
+        repoRisk.save(risk);
 
+        return ResponseEntity.ok().body(BusinessResponse.builder().build());
+    }
 
-			log.debug(spec.getFormat());
+    public ResponseEntity riskListSelected(AdminCustomRepository.SearchRiskDto riskDto, Long idx, Long idxCorp, Pageable pageable) {
 
-			log.debug(kf.getAlgorithm());
-			RSAPublicKey pubKey = (RSAPublicKey) kf.generatePublic(new X509EncodedKeySpec(encoded));
+        Boolean isMaster = isGowidMaster(idx);
 
+        Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+                () -> new RuntimeException("Bad idxCorp request.")
+        );
 
+        Page<RiskDto> result = repoRisk.findByCorp(corp, pageable).map(RiskDto::from);
 
-//			KeyStore ks=KeyStore.getInstance("PKCS12");
-			ks.load(new ByteArrayInputStream(pem.getBytes()),"password".toCharArray());
-			//Certificate cert=ks.getCertificate("alias");
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(result).build());
+    }
 
+    public ResponseEntity corpId(Long idx, Long idxCorp) {
 
+        CorpDto corp = repoCorp.findById(idxCorp).map(CorpDto::from).orElseThrow(
+                () -> CorpNotRegisteredException.builder().build()
+        );
 
+        //todo 권한별 데이터 변경
+        System.out.println( intGowidMaster(idx) );
+        System.out.println( intGowidMaster(idx) < 2 );
+        System.out.println( idxCorp != null );
+        if (intGowidMaster(idx) < 2 && idxCorp != null) {
+            corp.setResCompanyNm(null);
+            corp.setResCompanyIdentityNo(null);
+            corp.setResUserNm(null);
+            //todo 공동사업자 1 , 주민(사업자) 등록번호
+            //todo 공동사업자 2 , 주민(사업자) 등록번호
+            //todo 발급번호
+        }
 
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		//String certVID = getVitualIdFromCert(cert);
-		String genVID = null;
-		//String idRandumNum = getIdRandomNumber(privateKeySpec);
-		//byte[] result = CertificateUtil.generateVID(idNum, ByteUtil.hexToByteArray(idRandumNum), hashAlg);
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(corp).build());
+    }
 
-		//genVID = ByteUtil.byteArrayToHex(result);
+    /**
+     * 현금흐름 리스트
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity cashList(Long idx, String corpName, String updateStatus, Pageable pageable) {
 
-//		if(!certVID.equals(genVID)){
-//			return false;
-//		}
+        Boolean isMaster = isGowidMaster(idx);
+        Page<AdminDto.CashListDto> returnData = null;
 
-		return true;
-	}
+        if (isMaster) {
+            if(updateStatus != null ){
+                if(updateStatus.equals("true")) returnData = repoResAccount.cashList(corpName, true, pageable).map(AdminDto.CashListDto::from);
+                else if(updateStatus.equals("false")) returnData = repoResAccount.cashList(corpName, false, pageable).map(AdminDto.CashListDto::from);
+
+            }else {
+                returnData = repoResAccount.cashList(corpName, null, pageable).map(AdminDto.CashListDto::from);
+            }
+
+            returnData.getContent().stream().filter(x -> x.getIdxUser() != null).forEach(this::accept);
+        }
+
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(returnData).build());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity cashIdList(Long idxUser, Long idxCorp) {
+
+        Boolean isMaster = isGowidMaster(idxUser);
+
+        List<AdminDto.CashListDetailDto> transactionList = null;
+
+        if (idxCorp != null && isMaster) {
+            Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+                    () -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
+            );
+
+            log.debug(" user idx " + corp.user().idx());
+            String startDate = GowidUtils.getMonth(-11);
+            String endDate = GowidUtils.getMonth(0);
+
+            transactionList = repoResAccount.findMonthHistory(startDate, endDate, corp.user().idx()).stream().map(AdminDto.CashListDetailDto::from).collect(Collectors.toList());
+
+        }
+
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(transactionList).build());
+    }
+
+    public ResponseEntity scrapingList(Long idx, Pageable pageable) {
+        int intMaster = intGowidMaster(idx);
+        Page<AdminDto.ScrapingListDto> resAccountPage = null;
+        if (intMaster > 0) {
+            resAccountPage = repoCorp.scrapingList(pageable).map(AdminDto.ScrapingListDto::from);
+
+            resAccountPage.getContent().forEach(
+                    o -> {
+                        List<ResBatchRepository.CResBatchDto> data = repoResBatch.findRefresh(o.idxUser);
+                        o.setSuccessAccountCnt(String.valueOf(Integer.parseInt(data.get(0).getTotal()) - Integer.parseInt(data.get(0).getErrorCnt())));
+                        o.setAllAccountCnt(data.get(0).getTotal());
+                        o.setProcessAccountCnt(data.get(0).getProgressCnt());
+                    }
+            );
+
+            if ( intMaster < 2 )
+                for (AdminDto.ScrapingListDto x : resAccountPage.getContent()) x.setIdxCorpName("#" + x.idxCorp);
+        }
+
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(resAccountPage).build());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity scrapingUpdate(Long idx, Long idxCorp) {
+        Boolean isMaster = isGowidMaster(idx);
+        int result = 0;
+        if (isMaster) {
+            Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+                    () -> new RuntimeException("idxCopr Check")
+            );
+
+            result = repoResBatch.endBatchUser(idxCorp);
+        }
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(result).build());
+    }
+
+    public ResponseEntity errorList(Long idx, Pageable pageable, ResBatchListCustomRepository.ErrorSearchDto dto) {
+        Boolean isMaster = isGowidMaster(idx);
+
+        String toDay = dto.getBoolToday();
+        if(toDay != null && toDay.equals("true")){
+            toDay = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        }else{
+            toDay = "20100000";
+        }
+
+        Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto.getCorpName(), dto.getErrorCode() ,dto.getTransactionId(), toDay, dto.getIdxCorp(), pageable).map(AdminDto.ErrorResultDto::from);
+
+        if (!isMaster)
+            for (AdminDto.ErrorResultDto errorResultDto : list)
+                errorResultDto.setCorpName("#" + errorResultDto.idxCorp);
+
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(list).normal(BusinessResponse.Normal.builder().status(true).build()).build());
+    }
+
+    private void accept(AdminDto.CashListDto x) {
+        List<Long> firstBalance = repoResAccount.findBalance(x.getIdxUser());
+        Long longFirstBalance = firstBalance.get(0);
+        Long longEndBalance = firstBalance.get(3);
+        Long BurnRate = (longFirstBalance - longEndBalance) / 3;
+        int intMonth = 1;
+        if (BurnRate > 0) intMonth = (int) Math.ceil((double) longEndBalance / BurnRate);
+        x.setBurnRate(BurnRate);
+        x.setRunWay(intMonth);
+    }
 }

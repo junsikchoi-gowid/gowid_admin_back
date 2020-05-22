@@ -20,6 +20,11 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
     @Query("update ResBatch set endFlag = true , updatedAt = now() where createdAt > date_format( now(), '%Y%m%d') and endFlag = false ")
     int endBatch();
 
+    @Transactional
+    @Modifying
+    @Query("update ResBatch set endFlag = true where idxUser = :idxUser and endFlag = false ")
+    int endBatchUser(Long idxUser);
+
     @Query(value = "select \n" +
             "    a.idx as idx, \n" +
             "    a.min as min, \n" +
@@ -27,8 +32,8 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "    ifnull(b.errCode ,'') as errCode, \n" +
             "    ifnull(b.errMessage ,'') as errMessage, \n" +
             "    ifnull(b.resBatchType ,'') as resBatchType, \n" +
-            "    (select count(*) from ResAccount  \n" +
-            "  where connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser )) as total , \n" +
+            "    (select count(*) from ResAccount where resAccountDeposit = 99 and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser )) as errTypeCnt , \n" +
+            "    (select count(*) from ResAccount where resAccountDeposit != 99 and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser )) as total , \n" +
             "    (select count(distinct account) from ResBatchList where a.idx = idxResBatch and resBatchType = 1) as progressCnt, \n" +
             "    (select count(distinct account) from ResBatchList where a.idx = idxResBatch and errCode <> 'CF-00000' and resBatchType = 1 ) as errorCnt \n" +
             "from \n" +
@@ -42,7 +47,8 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "    ResBatchList b   \n" +
             "        on a.idx = b.idxResBatch  \n" +
             "        and b.errCode <> 'CF-00000'  \n" +
-            "        and resBatchType = 1",nativeQuery = true)
+            "        and resBatchType = 1\n" +
+            "limit 1 ",nativeQuery = true)
     List<ResBatchRepository.CResBatchDto> findRefresh(Long idxUser);
 
     @Query(value = "select comm.resAccountStartDate\n" +
@@ -117,6 +123,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", comm.organization as  organization\n" +
             ", comm.resAccountDeposit as resAccountDeposit\n" +
             ", comm.resAccountCurrency as resAccountCurrency\n" +
+            ", comm.resAccountLoanExecNo as resAccountLoanExecNo\n" +
             ", comm.nowMonth as nowMonth " +
             ", comm.nowMonthFirst as nowMonthFirst " +
             ", comm.errCode as errCode " +
@@ -138,6 +145,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", A.organization       \n" +
             ", A.resAccountDeposit \n" +
             ", A.resAccountCurrency \n" +
+            ", A.ResAccountLoanExecNo \n" +
             ", A.nowMonth\n" +
             ", A.nowMonthFirst \n" +
             ", A.errCode\n" +
@@ -155,6 +163,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", R.organization       \n" +
             ", R.resAccountDeposit \n" +
             ", R.resAccountCurrency \n" +
+            ", R.ResAccountLoanExecNo \n" +
             "from (\n" +
             "select y from\n" +
             "(\n" +
@@ -188,6 +197,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
         String getTotal();
         String getProgressCnt();
         String getErrorCnt();
+        String getErrTypeCnt();
     }
 
     public static interface CResYears {
@@ -198,6 +208,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
         String getOrganization();
         String getResAccountDeposit();
         String getResAccountCurrency();
+        String getResAccountLoanExecNo();
         String getNowMonth();
     }
 }

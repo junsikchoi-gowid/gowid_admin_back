@@ -5,4 +5,5 @@ public enum CardCompany {
 
 	HYUNDAI,
 	SAMSUNG,
+	SHINHAN
 }

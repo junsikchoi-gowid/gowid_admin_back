@@ -1,49 +1,37 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
-import com.nomadconnection.dapp.api.dto.UserDto;
+import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
+import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
-import com.nomadconnection.dapp.codef.io.helper.HttpRequest;
-import com.nomadconnection.dapp.codef.io.sandbox.bk.*;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.PropertyAccessorFactory;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.net.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.time.LocalDate.now;
 
@@ -65,6 +53,7 @@ public class BankService {
 
 
 	private final UserRepository repoUser;
+	private final CorpRepository repoCorp;
 	private final ResBatchListRepository repoResBatchList;
 
 	private final ResAccountRepository repoResAccount;
@@ -152,12 +141,20 @@ public class BankService {
 	}
 
 	/**
-	 * (기간별) 일별 입출금 잔고
-	 * @param idx 엔터티(사용자)
+	 * BrunRate
+	 * @param idxUser 엔터티(사용자)
 	 */
-	public ResponseEntity burnRate(Long idx) {
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity burnRate(Long idxUser, Long idxCorp) {
 
-		List<Long> firstBalance = repoResAccount.findBalance(idx);
+		if( idxCorp != null ){
+			Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
+			);
+			idxUser = repoCorp.findById(idxCorp).get().user().idx();
+		}
+
+		List<Long> firstBalance = repoResAccount.findBalance(idxUser);
 
 		Long longFirstBalance = 0L;
 		Long longEndBalance = 0L;
@@ -191,14 +188,25 @@ public class BankService {
 
 	/**
 	 * 유저의 계좌정보
-	 * @param idx 엔터티(사용자)
+	 * @param idxUser 엔터티(사용자)
 	 */
 	@Transactional(readOnly = true)
-	public ResponseEntity accountList(Long idx) {
+	public ResponseEntity accountList(Long idxUser, Long idxCorp) {
 
-		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(idx).stream()
+		//todo auth
+		idxUser = getaLong(idxUser, idxCorp);
+
+		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(idxUser).stream()
 				.map(BankDto.ResAccountDto::from)
 				.collect(Collectors.toList());
+
+		for( BankDto.ResAccountDto dto : resAccount )
+		{
+			ResBatchList historyData = repoResBatchList.findFirstByAccountOrderByUpdatedAtDesc(dto.getResAccount());
+			dto.setErrCode(historyData.errCode());
+			dto.setErrMessage(historyData.errMessage());
+			dto.setScrpaingUpdateTime(historyData.getUpdatedAt());
+		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.size(resAccount.size())
@@ -209,12 +217,14 @@ public class BankService {
 	 *
 	 * 거래내역
 	 * @param dto 보유정보
-	 * @param idx 엔터티(사용자)
+	 * @param idxUser 엔터티(사용자)
 	 */
 	@Transactional(readOnly = true)
-	public ResponseEntity transactionList(BankDto.TransactionList dto, Long idx, Integer page, Integer pageSize) {
-		String strDate = dto.getSearchDate();
+	public ResponseEntity transactionList(BankDto.TransactionList dto, Long idxUser, Integer page, Integer pageSize, Long idxCorp) {
+		//todo auth
+		idxUser = getaLong(idxUser, idxCorp);
 
+		String strDate = dto.getSearchDate();
 		Integer intIn = 0, intOut = 0, booleanForeign = 0;
 		if (dto.getResInOut() != null) {
 			if (dto.getResInOut().toLowerCase().equals("in")) {
@@ -234,9 +244,9 @@ public class BankService {
 		List<ResAccountRepository.CaccountHistoryDto> transactionList ;
 
 		if(strDate != null && strDate.length() == 6){
-			transactionList = repoResAccount.findAccountHistory( strDate + "00" , strDate + "32", dto.getResAccount() , idx, pageSize, pageSize*(page-1), intIn, intOut, booleanForeign);
+			transactionList = repoResAccount.findAccountHistory( strDate + "00" , strDate + "32", dto.getResAccount() , idxUser, pageSize, pageSize*(page-1), intIn, intOut, booleanForeign);
 		}else{
-			transactionList = repoResAccount.findAccountHistory( strDate , strDate, dto.getResAccount(), idx, pageSize, pageSize*(page-1), intIn, intOut, booleanForeign);
+			transactionList = repoResAccount.findAccountHistory( strDate , strDate, dto.getResAccount(), idxUser, pageSize, pageSize*(page-1), intIn, intOut, booleanForeign);
 		}
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(transactionList).build());
 	}
@@ -268,9 +278,9 @@ public class BankService {
 							.value("Request again after 3 minutes").build()
 			).build());
 		}
-		serviceScraping.scrapingRegister1YearAll(idx);
+		serviceScraping.scrapingRegister1YearAll(idx , null);
 		Thread.sleep(1000);
-		return refresh(idx);
+		return refresh(idx, null);
 	}
 
 	public ResponseEntity checkAccountList(Long idx) throws IOException, InterruptedException {
@@ -285,12 +295,25 @@ public class BankService {
 		}
 		serviceScraping.scrapingRegister1YearList(idx);
 		Thread.sleep(1000);
-		return refresh(idx);
+		return refresh(idx,null);
 	}
 
-	public ResponseEntity refresh(Long idx) {
-		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idx);
+	public ResponseEntity refresh(Long idxUser, Long idxCorp) {
+
+		idxUser = getaLong(idxUser, idxCorp);
+
+		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idxUser);
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(returnData).build());
+	}
+
+	private Long getaLong(Long idxUser, Long idxCorp) {
+		if(idxCorp != null){
+			if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))){
+				idxUser = repoCorp.searchIdxUser(idxCorp)
+				;
+			}
+		}
+		return idxUser;
 	}
 
 
@@ -358,7 +381,9 @@ public class BankService {
 		});
 	}
 
-	public ResponseEntity monthInOutSum(BankDto.MonthInOutSum dto, Long idx) {
+	public ResponseEntity monthInOutSum(BankDto.MonthInOutSum dto, Long idxUser, Long idxCorp) {
+
+		idxUser = getaLong(idxUser, idxCorp);
 
 		boolean b = Pattern.matches("\\d{6}", dto.getDate());
 
@@ -372,7 +397,7 @@ public class BankService {
 
 		}
 
-		ResAccountHistoryRepository.CMonthInOutSumDto CMonthInOutSumDto = repoResAccountHistory.findMonthInOutSum(start, end ,idx);
+		ResAccountHistoryRepository.CMonthInOutSumDto CMonthInOutSumDto = repoResAccountHistory.findMonthInOutSum(start, end ,idxUser);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(CMonthInOutSumDto).build());

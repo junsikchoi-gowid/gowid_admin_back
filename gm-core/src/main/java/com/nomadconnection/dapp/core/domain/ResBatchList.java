@@ -23,6 +23,7 @@ public class ResBatchList extends BaseTime {
     private Long idx;
     private String errCode;
     private String errMessage;
+    private String bank;
     private String account;
     private String connectedId;
     private Long idxUser;

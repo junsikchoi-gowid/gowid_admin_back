@@ -26,10 +26,11 @@ public class ResAccount extends BaseTime {
     private String connectedId; // 커넥트드 아이디
     private String organization; // 기관코드
     private String type; // 종류
+    private Double resAccountRiskBalance; //현재잔액
 
     private String resAccount; //계좌번호
     private String resAccountDisplay; //계좌번호_표시용
-    private String resAccountBalance; //현재잔액
+    private Double resAccountBalance; //현재잔액
     private String resAccountDeposit; //예금구분
     private String resAccountNickName; //계좌별칭
     private String resAccountCurrency; //통화코드

@@ -30,7 +30,6 @@ public class ExternalController {
 	@SuppressWarnings("WeakerAccess")
 	public static class URI {
 		public static final String BASE = "/external/v1";
-
 		public static final String DATA = "/data";			// 리스크
 	}
 

@@ -1,9 +1,7 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.service.AuthService;
-import com.nomadconnection.dapp.api.service.BankService;
 import com.nomadconnection.dapp.api.service.RiskService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
@@ -16,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
-
-import java.io.IOException;
 
 
 @Slf4j
@@ -34,6 +30,7 @@ public class RiskController {
 		public static final String BASE = "/risk/v1";
 
 		public static final String RISK = "/risk";			// 리스크
+		public static final String RISKCORP = "/riskCorp";			// 리스크
 		public static final String RISKCONFIG = "/riskconfig";			// 리스크
 	}
 
@@ -42,10 +39,18 @@ public class RiskController {
 	private final AuthService serviceAuth;
 	private final UserService serviceUser;
 
-	@ApiOperation(value = "리스크", notes = "" + "\n")
+	@ApiOperation(value = "리스크 저장", notes = "" + "\n")
 	@GetMapping( URI.RISK )
-	public ResponseEntity saveRisk(@RequestParam Long idxUser,@RequestParam(required = false) String calcDate) {
-		return service.saveRisk(idxUser, calcDate);
+	public ResponseEntity saveRisk(@ApiIgnore @CurrentUser CustomUser user
+			, @RequestParam(required = false) String calcDate) {
+		return service.saveRisk(user.idx(), null ,calcDate);
+	}
+
+	@ApiOperation(value = "리스크 저장 (idxCorp) ", notes = "" + "\n")
+	@GetMapping( URI.RISKCORP )
+	public ResponseEntity saveRiskCorp(@ApiIgnore @CurrentUser CustomUser user
+			, @RequestParam(required = false) Long idxCorp, @RequestParam(required = false) String calcDate) {
+		return service.saveRisk(user.idx(), idxCorp ,calcDate);
 	}
 
 	@ApiOperation(value = "리스크 설정 저장", notes = "" + "\n")
@@ -54,4 +59,6 @@ public class RiskController {
 									  @ModelAttribute RiskDto.RiskConfigDto riskConfigDto) {
 		return service.saveRiskConfig(riskConfigDto);
 	}
+
+
 }

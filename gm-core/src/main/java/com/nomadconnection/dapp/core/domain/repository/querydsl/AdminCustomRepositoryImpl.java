@@ -1,103 +1,111 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
 import com.nomadconnection.dapp.core.domain.*;
-import com.querydsl.core.types.ConstructorExpression;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.persistence.TypedQuery;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
-public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport implements AdminCustomRepository{
+public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport implements AdminCustomRepository {
 
-	private final QRisk risk = QRisk.risk;
-	private final QUser user = QUser.user;
-	private final QCorp corp = QCorp.corp;
-	private final QResAccount resAccount1 = QResAccount.resAccount1;
-	private final QConnectedMng connectedMng = QConnectedMng.connectedMng;
+    private final QRisk risk = QRisk.risk;
+    private final QUser user = QUser.user;
+    private final QCorp corp = QCorp.corp;
+    private final QCommonCodeDetail commonCodeDetail = QCommonCodeDetail.commonCodeDetail;
+    private final QResAccount resAccount1 = QResAccount.resAccount1;
+    private final QResAccountHistory resAccountHistory = QResAccountHistory.resAccountHistory;
+    private final QConnectedMng connectedMng = QConnectedMng.connectedMng;
+    private final QResBatch resBatch = QResBatch.resBatch;
+    private final QResBatchList resBatchList = QResBatchList.resBatchList;
 
+    /**
+     * Creates a new {@link QuerydslRepositorySupport} instance for the given domain type.
+     */
+    public AdminCustomRepositoryImpl() {
+        super(Risk.class);
+    }
 
-	/**
-	 * Creates a new {@link QuerydslRepositorySupport} instance for the given domain type.
-	 */
-	public AdminCustomRepositoryImpl() {
-		super(Risk.class);
-	}
+    @Override
+    public Page<SearchRiskResultDto> riskList(SearchRiskDto dto, Long idxUser, Pageable pageable) {
 
-	@Override
-	public Page<RiskCustomDto> riskList(SearchRiskDto dto, Long idx, Pageable pageable) {
+        final List<SearchRiskResultDto> riskList;
 
-		final JPQLQuery<RiskCustomDto> query = from(risk)
-				.join(user).on(user.idx.eq(risk.idxUser))
-				.join(corp).on(corp.idx.eq(user.corp.idx))
-				.join(connectedMng).on(connectedMng.idxUser.eq(risk.idxUser))
-				.join(resAccount1).on(connectedMng.connectedId.eq(resAccount1.connectedId))
-				.select(Projections.bean(RiskCustomDto.class,
-						corp.resCompanyNm.as("idxCorpName"),
-						risk.cardLimitNow.as("cardLimitNow"),
-						risk.cardLimit.as("cardLimit"),
-						risk.grade.as("grade"),
-						resAccount1.resAccountBalance.castToNum(Float.class).sum().as("Balance"),
-						risk.currentBalance.as("currentBalance"),
-						risk.cardRestartCount.as("cardRestartCount"),
-						risk.emergencyStop.as("emergencyStop"),
-						risk.cardIssuance.as("cardIssuance"),
-						risk.updatedAt.as("updatedAt")
-				))
-				.groupBy(
-						corp.resCompanyNm,
-						risk.cardLimitNow,
-						risk.cardLimit,
-						risk.grade,
-						risk.currentBalance,
-						risk.cardRestartCount,
-						risk.emergencyStop,
-						risk.cardIssuance,
-						risk.updatedAt
-						)
-				;
+        final JPQLQuery<SearchRiskResultDto> query = from(risk)
+                .select(Projections.bean(SearchRiskResultDto.class,
+                        risk.user.corp.idx.as("idxCorp"),
+                        risk.user.corp.resCompanyNm.as("idxCorpName"),
+                        risk.cardLimitNow.as("cardLimitNow"),
+                        risk.cardLimit.as("cardLimit"),
+                        risk.cashBalance.as("cashBalance"),
+                        risk.grade.as("grade"),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(resAccount1.resAccountRiskBalance.sum())
+                                        .from(resAccount1)
+                                        .where(resAccount1.resAccountDeposit.in("10","11","12","13","14"))
+                                        .where(resAccount1.connectedId.in(
+                                                        JPAExpressions.select(connectedMng.connectedId)
+                                                        .from(connectedMng)
+                                                        .where(connectedMng.idxUser.eq(risk.user.idx))
+                                                ))
+                                ,"balance"),
+                        risk.confirmedLimit.as("confirmedLimit"),
+                        risk.currentBalance.as("currentBalance"),
+                        risk.cardRestartCount.as("cardRestartCount"),
+                        risk.emergencyStop.as("emergencyStop"),
+                        risk.cardIssuance.as("cardIssuance"),
+                        risk.cardAvailable.as("cardAvailable"),
+                        risk.pause.as("pause"),
+                        risk.updatedAt.as("updatedAt"),
+                        risk.errCode.as("errCode")
+                ))
+                ;
 
-		/*
-		if(dto.idxCorpName != null ){
-			// query.where( risk.irType.eq(dto.irType()));
-		}
+        query.where(risk.date.eq(LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE)));
 
-		if ( dto.getGrade() != null ) {
-			query.where(risk.grade.eq(dto.getGrade()));
-		}
+        if (dto.idxCorpName != null) {
+            query.where(corp.resCompanyNm.contains(dto.getIdxCorpName()));
+        }
 
-		if ( dto.getEmergencyStop() != null ) {
-			query.where(risk.emergencyStop.eq(dto.getEmergencyStop().equals("true")));
-		}
+        if (dto.getGrade() != null) {
+            query.where(risk.grade.toLowerCase().eq(dto.getGrade().toLowerCase()));
+        }
 
-		if ( dto.getCardIssuance() != null ) {
-			query.where(risk.cardIssuance.eq(dto.getCardIssuance().equals("true")));
-		}
+        if (dto.getEmergencyStop() != null) {
+            query.where(risk.emergencyStop.eq(dto.getEmergencyStop().equals("true")));
+        }
 
-		if ( dto.getUpdatedAt() != null ) {
-			// query.(risk.updatedAt( ))
-		}
-		*/
+        if (dto.getPause() != null) {
+            query.where(risk.pause.eq(dto.getPause().equals("true")));
+        }
 
-		/*
-		if(sortBy != null) {
-			if (sortBy.toLowerCase().equals("asc")) {
-				query.orderBy(QRisk.risk.createdAt.asc());
-			} else if (sortBy.toLowerCase().equals("desc")) {
-				query.orderBy(QRisk.risk.createdAt.desc());
+        if (dto.getCardIssuance() != null) {
+            query.where(risk.cardIssuance.eq(dto.getCardIssuance().equals("true")));
+        }
+
+		if ( dto.getUpdatedStatus() != null ) {
+			if (dto.getUpdatedStatus().toLowerCase().equals("true")){
+                query.where(risk.errCode.isNull());
+			}else{
+                query.where(risk.errCode.isNotNull());
 			}
 		}
-		*/
 
-		final List<RiskCustomDto> riskList = getQuerydsl().applyPagination(pageable, query).fetch();
+        riskList = getQuerydsl().applyPagination(pageable, query).fetch();
 
-		return new PageImpl(riskList, pageable, riskList.size());
-	}
+        return new PageImpl(riskList, pageable, query.fetchCount());
+    }
 }

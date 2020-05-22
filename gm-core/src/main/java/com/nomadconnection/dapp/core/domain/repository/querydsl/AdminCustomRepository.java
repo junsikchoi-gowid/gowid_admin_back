@@ -8,135 +8,133 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public interface AdminCustomRepository {
 
-	@Data
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	class SearchRiskDto {
-		@ApiModelProperty("법인명")
-		public String idxCorpName;
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class SearchRiskDto {
+        @ApiModelProperty("법인 idx")
+        public String idxCorp;
 
-		@ApiModelProperty("법인 등급")
-		private String grade;
+        @ApiModelProperty("법인명 order : user.corp.resCompanyNm")
+        public String idxCorpName;
 
-		@ApiModelProperty("긴급중지")
-		private String emergencyStop;
+        @ApiModelProperty("법인 등급")
+        private String grade;
 
-		@ApiModelProperty("카드발급여부")
-		private String cardIssuance;
+        @ApiModelProperty("긴급중지")
+        private String emergencyStop;
 
-		@ApiModelProperty("updatedAt")
-		private LocalDateTime updatedAt;
-	}
+        @ApiModelProperty("카드발급여부")
+        private String cardIssuance;
 
-	@Data
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	class RiskCustomDto {
+        @ApiModelProperty("updatedStatus")
+        private String updatedStatus;
 
-		@ApiModelProperty("법인명")
-		private String idxCorpName;
+        @ApiModelProperty("일시정지")
+        private String pause;
+    }
 
-		@ApiModelProperty("변경 잔고 ")
-		private float cardLimitNow;
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class SearchRiskResultDto {
+        @ApiModelProperty("법인ID")
+        private Long idxCorp;
 
-		@ApiModelProperty("부여 한도")
-		private float cardLimit;
+        @ApiModelProperty("법인명 ")
+        private String idxCorpName;
 
-		@ApiModelProperty("법인 등급")
-		private String grade;
+        @ApiModelProperty("변경 잔고 ")
+        private double cardLimitNow;
 
-		@ApiModelProperty("최신잔고")
-		private Float balance;
+        @ApiModelProperty("승인 한도 ")
+        private double confirmedLimit;
 
-		@ApiModelProperty("현재잔고")
-		private float currentBalance;
+        @ApiModelProperty("부여 한도")
+        private double cardLimit;
 
-		@ApiModelProperty("cardRestartCount")
-		private Integer cardRestartCount;
+        @ApiModelProperty("법인 등급")
+        private String grade;
 
-		@ApiModelProperty("긴급중지")
-		private Boolean emergencyStop;
+        @ApiModelProperty("최신잔고")
+        private double balance;
 
-		@ApiModelProperty("카드발급여부")
-		private Boolean cardIssuance;
+        @ApiModelProperty("기준잔고")
+        private double cashBalance;
 
-		@ApiModelProperty("updatedAt")
-		private LocalDateTime updatedAt;
+        @ApiModelProperty("현재잔고")
+        private double currentBalance;
 
-		/*
-		@ApiModelProperty("법인명(식별자)")
-		public Long idxCorp;
+        @ApiModelProperty("cardRestartCount")
+        private Integer cardRestartCount;
 
-		@ApiModelProperty("이용약관(식별자)")
-		public Long idx;
+        @ApiModelProperty("긴급중지")
+        private Boolean emergencyStop;
 
-		@ApiModelProperty("사용자")
-		public Long idxUser;
+        @ApiModelProperty("카드발급여부")
+        private Boolean cardIssuance;
 
-		@ApiModelProperty("일정")
-		private String date;
+        @ApiModelProperty("카드발급여부")
+        private Boolean cardAvailable;
 
-		@ApiModelProperty("대표이사 연대보증 여부")
-		private String ceoGuarantee;
+        @ApiModelProperty("updatedAt")
+        private LocalDateTime updatedAt;
 
-		@ApiModelProperty("요구 보증금")
-		private float depositGuarantee;
+        @ApiModelProperty("errCode")
+        private String errCode;
 
-		@ApiModelProperty("보증금 납입 여부")
-		private String depositPayment;
+        @ApiModelProperty("pause")
+        private Boolean pause;
+    }
 
+    Page<SearchRiskResultDto> riskList(SearchRiskDto risk, Long idxUser, Pageable pageable);
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class CashResultDto {
+        @ApiModelProperty("법인ID")
+        private String idxCorp;
 
-		@ApiModelProperty("벤처인증여부")
-		private String ventureCertification;
+        @ApiModelProperty("법인명 ")
+        private String resCompanyNm;
 
-		@ApiModelProperty("투자여부")
-		private String vcInvestment;
+        @ApiModelProperty("입금 ")
+        private Double resAccountIn;
 
+        @ApiModelProperty("출금 ")
+        private Double resAccountOut;
 
+        @ApiModelProperty("순입출 ")
+        private Double resAccountInOut;
 
-		@ApiModelProperty("등급별 한도율")
-		private Integer gradeLimitPercentage;
+        @ApiModelProperty("전일잔고 ")
+        private Double befoBalance;
 
-		@ApiModelProperty("최소 잔고")
-		private float minStartCash;
+        @ApiModelProperty("승인한도 ")
+        private Double confirmedLimit;
 
-		@ApiModelProperty("최소 유지 잔고")
-		private float minCashNeed;
+        @ApiModelProperty("Burn Rate ")
+        private String BurnRate;
 
+        @ApiModelProperty("RunWay ")
+        private String RunWay;
 
+        @ApiModelProperty("createdAt ")
+        private LocalDateTime createdAt;
 
-		@ApiModelProperty("계좌 스크래핑 오류발생 여부")
-		private Integer error;
+        @ApiModelProperty("errorCode ")
+        private String errorCode;
 
-		@ApiModelProperty("잔고의 45일 평균값")
-		private float dma45;
-
-		@ApiModelProperty("잔고의 45일 중간값")
-		private float dmm45;
-
-		@ApiModelProperty("보증금제외 현재잔고")
-		private Float actualBalance;
-
-		@ApiModelProperty("한도기준잔고")
-		private float cashBalance;
-
-		@ApiModelProperty("발급가능여부")
-		private String cardAvailable;
-
-		@ApiModelProperty("한도계산값")
-		private float cardLimitCalculation;
-
-		@ApiModelProperty("실시간 한도")
-		private float realtimeLimit;
-		*/
-	}
-
-	Page<RiskCustomDto> riskList(SearchRiskDto risk, Long idx, Pageable pageable);
+        @ApiModelProperty("errStatus ")
+        private String errStatus;
+    }
 }

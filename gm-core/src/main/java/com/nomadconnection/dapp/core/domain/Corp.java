@@ -26,62 +26,34 @@ public class Corp extends BaseTime {
 	@EqualsAndHashCode.Include
 	private Long idx;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_Corp"))
 	private User user; // 법인을 등록한 사용자
 
-	private String resBusinessItems;
-	private String resBusinessTypes;
-	private String resBusinessmanType;
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "idxRiskConfig", foreignKey = @ForeignKey(name = "FK_Corp_RiskConfig"))
+	private RiskConfig riskConfig; // 법인 리스크 정보
+
+	private String resBusinessItems; // 종목
+	private String resBusinessTypes; // 업태
+	private String resBusinessmanType; // 사업자종류
 
 	@EqualsAndHashCode.Include
-	private String resCompanyIdentityNo;
+	private String resCompanyIdentityNo; // 사업자등록번호
 
-	private String resCompanyNm;
-	private String resIssueNo;
-	private String resIssueOgzNm;
-	private String resJointIdentityNo;
-	private String resJointRepresentativeNm;
-	private String resOpenDate;
-	private String resOriGinalData;
-	private String resRegisterDate;
-	private String resUserAddr;
-	private String resUserIdentiyNo;
-	private String resUserNm;
+	private String resCompanyNm; // 법인명
+	private String resIssueNo; // 발급(승인)번호
+	private String resIssueOgzNm; // 발급기관
+	private String resJointIdentityNo; //공동사업자 주민번호
+	private String resJointRepresentativeNm; // 공동사업자 성명(법인명)
+	private String resOpenDate; // 개업일
+	private String resOriGinalData; // 원문 DATA
+	private String resRegisterDate; // 사업자등록일
+	private String resUserAddr; // 사업장소재지(주소)
+	private String resUserIdentiyNo; // 주민(법인)등록번호
+	private String resUserNm; // 성명(대표자)
 
 	@Enumerated(EnumType.STRING)
-	private CorpStatus status; // pending/denied/approved
-
-//	private String name; // 법인명
-
-//	@Column(length = 10)
-//	@EqualsAndHashCode.Include
-//	private String bizRegNo; // 사업자등록번호(10 Digits)
-
-//	@Embedded
-//	private CorpStockholdersListResx resxStockholdersList;
-
-//	@Embedded
-//	private Address recipientAddress; // 수령지
-
-//	private Integer staffs; // 직원수
-
-//	@OneToMany(mappedBy = "corp")
-//	private List<Resx> resxList; // 법인인감증명서, 주주명부
-
-//	@OneToOne
-//	@JoinColumn(name = "idxResxCorpRegSeal")
-//	private Resx resxCorpRegSeal; // 법인인감증명서 정보
-
-//	@OneToOne
-//	@JoinColumn(name = "idxResxCorpShareholderList")
-//	private Resx resxCorpShareholderList; // 주주명부 정보
-
-//	private Long reqCreditLimit; // 희망법인총한도
-//	private Long creditLimit; // 법인총한도
-
-//	@Embedded
-//	private BankAccount bankAccount; // 결제계좌
-
+	private CorpStatus status; // pending/denied/approvedv
 
 }

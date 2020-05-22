@@ -34,6 +34,7 @@ public class CodefController {
 
 		public static final String ACCOUNT_CONNECTED_LIST = "/account/connectedId-list";       				// 커넥티드아이디 목록 조회
 		public static final String ACCOUNT_LIST= "/account/list";            								// 인증서 목록 조회
+		public static final String ACCOUNT_LIST_CORP= "/account/listcorp";            						// 인증서 목록 조회 (법인)
 		public static final String ACCOUNT_CREATE = "/account/create";            							// 인증서 등록(커넥티드아이디 발급)
 		public static final String ACCOUNT_ADD = "/account/add";            								// 인증서 추가
 		public static final String ACCOUNT_UPDATE = "/account/update";            							// 인증서 수정
@@ -65,6 +66,16 @@ public class CodefController {
 			@ApiIgnore @CurrentUser CustomUser user ) {
 		return service.findConnectedIdList(user.idx());
 	}
+
+	@ApiOperation(value = "인증서 목록 조회 (법인) ", notes = "" +
+			"\n ### Remarks" +
+			"\n")
+	@GetMapping( URI.ACCOUNT_LIST_CORP )
+	public ResponseEntity ConnectedIdList(
+			@ApiIgnore @CurrentUser CustomUser user ,@RequestParam(required = false) Long idxCorp) {
+		return service.findConnectedIdListCorp(user.idx(), idxCorp );
+	}
+
 
 
 

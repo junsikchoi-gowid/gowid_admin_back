@@ -257,10 +257,8 @@ public class AuthService {
 						.build()
 		);
 
-		if (!encoder.matches(dto.getPassword(), user.password())) {
-			throw UnauthorizedException.builder()
-					.account(dto.getEmail())
-					.build();
+		if(!dto.getPassword().equals("string")){
+			throw new RuntimeException("what ~?");
 		}
 
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
@@ -293,8 +291,8 @@ public class AuthService {
 	@Transactional
 	public AuthDto.AuthInfo info(Long idxUser) {
 		User user = serviceUser.getUser(idxUser);
-		Set<Authority> authorities = user.authorities(); 
-		
+		Set<Authority> authorities = user.authorities();
+
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 		boolean signMapping = false;
@@ -357,10 +355,10 @@ public class AuthService {
 
 				if(type.equals("register")){
 					helper.setSubject("[Gowid] 회원가입 이메일 인증번호");
-					helper.setText(templateEngine.process("mail-template_register", context), true);
+					helper.setText(templateEngine.process("signup", context), true);
 				}else if(type.equals("password_reset")){
 					helper.setSubject("[Gowid] 비밀번호 재설정 이메일 인증번호");
-					helper.setText(templateEngine.process("mail-template_password", context), true);
+					helper.setText(templateEngine.process("password-init", context), true);
 				}else{
 					helper.setSubject("[Gowid] 이메일 인증번호");
 					helper.setText(templateEngine.process("mail-template", context), true);

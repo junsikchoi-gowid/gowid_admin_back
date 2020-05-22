@@ -283,11 +283,9 @@ public class Account {
 
         byte[] fileContent = FileUtils.readFileToByteArray(certFile);
         String encodedString = Base64.getEncoder().encodeToString(fileContent);
-        System.out.println(encodedString);
 
         fileContent = FileUtils.readFileToByteArray(keyFile);
         encodedString = Base64.getEncoder().encodeToString(fileContent);
-        System.out.println(encodedString);
     }
 
     public static String getBase64FromCertFile(String strPath) throws IOException {

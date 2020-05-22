@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.*;
 import com.nomadconnection.dapp.api.exception.*;
+import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.repository.*;
@@ -348,19 +349,9 @@ public class UserService {
 							.idxConsent(regDto.idxConsent)
 							.idxUser(user.idx())
 							.status(regDto.status)
-					.build()
+							.build()
 			);
 		}
-
-		repoRiskConfig.save(RiskConfig.builder()
-				.idxUser(user.idx())
-				.ceoGuarantee(false)
-				.cardIssuance(false)
-				.ventureCertification(false)
-				.vcInvestment(false)
-				.depositPayment(false)
-				.depositGuarantee(0F)
-				.build());
 
 		TokenDto.TokenSet tokenSet = issueTokenSet(AccountDto.builder()
 				.email(dto.getEmail())
@@ -394,6 +385,17 @@ public class UserService {
 		//	사용자 조회
 		User user = getUser(idxUser);
 
+		RiskConfig riskConfig = repoRiskConfig.save(RiskConfig.builder()
+				.user(user)
+				.ceoGuarantee(false)
+				.cardIssuance(false)
+				.ventureCertification(false)
+				.vcInvestment(false)
+				.depositPayment(false)
+				.depositGuarantee(0F)
+				.enabled(true)
+				.build());
+
 		//	법인정보 저장(상태: 대기)
 		Corp corp = repoCorp.save(
 				Corp.builder()
@@ -415,6 +417,7 @@ public class UserService {
 						.resUserNm(dto.getResUserNm())
 						.status(CorpStatus.PENDING)
 						.user(user)
+						.riskConfig(riskConfig)
 						.build()
 		);
 
@@ -437,7 +440,7 @@ public class UserService {
 	}
 
 
-	public TokenDto.TokenSet issueTokenSet(AccountDto dto) {
+	private TokenDto.TokenSet issueTokenSet(AccountDto dto) {
 		User user = repo.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(dto.getEmail())
@@ -488,6 +491,43 @@ public class UserService {
 
 		user.cardCompany(dto.getCompanyCode());
 
+		if(dto.getCompanyCode().equals(CardCompany.SHINHAN)){
+			final MimeMessagePreparator preparator = mimeMessage -> {
+				final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+				{
+					Context context = new Context();
+					{
+						context.setVariable("corp", GowidUtils.getEmptyStringToString(user.corp().resCompanyNm()));
+						context.setVariable("user", GowidUtils.getEmptyStringToString(user.name()));
+						context.setVariable("mdn", GowidUtils.getEmptyStringToString(user.mdn()));
+						context.setVariable("email", GowidUtils.getEmptyStringToString(user.email()));
+					}
+					helper.setFrom(config.getSender());
+					helper.setTo(config.getSender());
+					helper.setSubject("신한 법인카드 발급 신청");
+					helper.setText(templateEngine.process("issuance-gowid", context), true);
+				}
+			};
+			sender.send(preparator);
+
+
+			final MimeMessagePreparator preparator2 = mimeMessage -> {
+				final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+				{
+					Context context = new Context();
+					{
+						context.setVariable("user", GowidUtils.getEmptyStringToString(user.name()));
+						context.setVariable("email", GowidUtils.getEmptyStringToString(config.getSender()));
+					}
+					helper.setFrom(config.getSender());
+					helper.setTo(user.email());
+					helper.setSubject("Gowid 신한 법인카드 발급 안내");
+					helper.setText(templateEngine.process("issuance-user", context), true);
+				}
+			};
+			sender.send(preparator2);
+		}
+
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(repo.save(user))
 				.build());
@@ -495,7 +535,7 @@ public class UserService {
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity<?> deleteEmail(String email) {
-		User user = repo.findByAuthentication_EnabledAndEmail(true,email).get();
+		User user = repo.findByAuthentication_EnabledAndEmail(true,email).orElseThrow(() -> new RuntimeException("UserNotFound"));
 
 		user.authentication(Authentication.builder().enabled(false).build());
 		user.enabledDate(LocalDateTime.now());
@@ -575,7 +615,7 @@ public class UserService {
 				Reception.builder()
 						.receiver(key)
 						.status(true)
-				.build()
+						.build()
 		);
 		return ResponseEntity.ok().body(BusinessResponse.builder().build());
 	}
