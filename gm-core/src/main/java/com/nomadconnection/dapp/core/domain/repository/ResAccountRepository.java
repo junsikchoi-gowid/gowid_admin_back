@@ -118,6 +118,40 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             " ) groupTableB  on groupTableA.ms = groupTableB.resAccountTrMonth order by sumDate", nativeQuery = true)
     List<CaccountMonthDto> findMonthHistory(String startMonth, String endMonth, Long idxUser);
 
+    @Query(value = "select ms sumDate, COALESCE(sumResAccountIn,0) sumResAccountIn, COALESCE(sumResAccountOut,0) sumResAccountOut, lastResAfterTranBalance     \n" +
+            " from (     \n" +
+            "     select ms, sum(     \n" +
+            "   ifnull(     \n" +
+            "    ifnull(     \n" +
+            "     (select resAfterTranBalance from ResAccountHistory r      \n" +
+            "      where Date_Format(resAccountTrDate,  '%Y%m') <= ms and b.resAccount = r.resAccount      \n" +
+            "      order by Date_Format(resAccountTrDate,  '%Y%m') desc , resAccountTrDate desc, resAccountTrTime desc, idx limit 1)     \n" +
+            "      ,     \n" +
+            "           (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r      \n" +
+            "       where Date_Format(resAccountTrDate,  '%Y%m') >= ms and b.resAccount = r.resAccount      \n" +
+            "       order by Date_Format(resAccountTrDate,  '%Y%m') asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1)     \n" +
+            "     ),     \n" +
+            "           (select if(ms >= left(resAccountStartDate,6) ,resAccountBalance,0 ) resAccountBalance      \n" +
+            "      from ResAccount r where b.resAccount = r.resAccount limit 1 )      \n" +
+            "           )     \n" +
+            "   ) lastResAfterTranBalance     \n" +
+            "  from (select ms from date_t c where ds >= :startMonth and ds <= :endMonth group by ms) groupA     \n" +
+            "    join ResAccount b on b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser order by resAccount desc ) and resAccountDeposit in ('10','11','12','13','14','30')    \n" +
+            "  group by ms     \n" +
+            " ) groupTableA     \n" +
+            "  left join (\n" +
+            "        select      \n" +
+            "  Date_Format(resAccountTrDate,  '%Y%m') resAccountTrMonth ,      \n" +
+            "  sum(resAccountIn) sumResAccountIn ,     \n" +
+            "  sum(resAccountOut) sumResAccountOut      \n" +
+            "  from ResAccountHistory a1                       \n" +
+            "   join ResAccount b on b.resAccount = a1.resAccount and resAccountDeposit in ('10','11','12','13','14')     \n" +
+            "   join ConnectedMng c  on c.connectedId = b.connectedId and c.idxUser = :idxUser     \n" +
+            "  where Date_Format(resAccountTrDate,  '%Y%m%d') >= :startMonth and  Date_Format(resAccountTrDate,  '%Y%m%d') <= :endMonth     \n" +
+            "  group by Date_Format(resAccountTrDate,  '%Y%m')     \n" +
+            " ) groupTableB  on groupTableA.ms = groupTableB.resAccountTrMonth order by sumDate", nativeQuery = true)
+    List<CaccountMonthDto> findMonthHistory_External(String startMonth, String endMonth, Long idxUser);
+
     @Query(value = "select  " +
             "  sum(  " +
             "   ifnull(  " +

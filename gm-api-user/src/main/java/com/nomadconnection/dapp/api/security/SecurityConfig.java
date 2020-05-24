@@ -136,6 +136,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(ScrapingController.URI.BASE + ScrapingController.URI.SCRAPING_ACCOUNT).permitAll()
 				.antMatchers(IrDashBoardController.URI.BASE + IrDashBoardController.URI.IRDASHBOARD).permitAll()
 				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_PW+2).permitAll()
+				.antMatchers(BankController.URI.BASE + BankController.URI.MONTH_BALANCE_EXT).permitAll()
+
 				.anyRequest().authenticated();
 	}
 }

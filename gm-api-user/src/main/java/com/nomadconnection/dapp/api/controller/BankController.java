@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.api.service.BankService;
@@ -43,6 +44,7 @@ public class BankController {
 
 		public static final String DAY_BALANCE	 	= "/balance/day";	// (기간별) 일별 입출금 잔고
 		public static final String MONTH_BALANCE 	= "/balance/month";	// (기간별) 월별 입출금 잔고
+		public static final String MONTH_BALANCE_EXT 	= "/balance/month_ext";	// (기간별) 월별 입출금 잔고
 		public static final String MONTH_INOUTSUM 	= "/monthinoutsum";	// 월 총 입출금
 
 		public static final String BURN_RATE 	 	= "/burn-rate";		// Burn Rate
@@ -92,6 +94,19 @@ public class BankController {
 			log.debug("([MonthBalance]) $dto='{}'", dto);
 		}
 		return service.monthBalance(dto, user.idx());
+	}
+
+	@ApiOperation(value = "(기간별) 월별 입출금 잔고 외부", notes = "" + "\n")
+	@GetMapping( URI.MONTH_BALANCE_EXT )
+	public ResponseEntity MonthBalance(@RequestParam String id,
+									   @RequestParam String pw,
+									   @RequestParam String startDate,
+									   @RequestParam String endDate,
+									   @RequestParam String companyId) {
+		if (log.isDebugEnabled()) {
+			log.debug("([MonthBalance]) $dto='{}'", id);
+		}
+		return service.findMonthHistory_External(id , pw, startDate , endDate , companyId);
 	}
 
 	@ApiOperation(value = "입출금 합계", notes = "" + "\n")

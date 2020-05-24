@@ -7,7 +7,8 @@ public enum Role {
 	ROLE_ADMIN,
 	ROLE_MEMBER,
 	GOWID_ADMIN,
-	GOWID_USER
+	GOWID_USER,
+	GOWID_EXTERNAL
 	;
 
 	public static boolean isMaster(Role role) {
