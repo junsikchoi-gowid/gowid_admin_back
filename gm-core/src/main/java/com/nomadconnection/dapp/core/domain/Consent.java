@@ -36,4 +36,5 @@ public class Consent extends BaseTime {
 	private boolean enabled; // 현재 사용 여부
 	private LocalDateTime usedAt; // 승인(사용)일시
 	private Long consentOrder; // 순서
+	private String typeCode; // 타입별 코드 공통코드값 확인
 }
