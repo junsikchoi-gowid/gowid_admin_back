@@ -2,7 +2,9 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
+import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.User;
+import com.nomadconnection.dapp.core.domain.repository.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,17 +18,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserCorporationService {
 
     private final UserRepository repoUser;
+    private final CorpRepository repoCorp;
 
     /**
      * 법인정보 등록
      *
      * @param idx_user  등록하는 User idx
-     * @param code      전문 식별자
+     * @param idx_corp  법인회사 식별자
      * @param dto       등록정보
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public Object registerCorporation(Long idx_user, Long code, UserCorporationDto.registerCorporation dto) {
+    public Object registerCorporation(Long idx_user, Long idx_corp, UserCorporationDto.registerCorporation dto) {
         User user = findUser(idx_user);
 
         // TODO : 법인정보 저장
@@ -37,12 +40,12 @@ public class UserCorporationService {
      * 벤처기업정보 등록
      *
      * @param idx_user  등록하는 User idx
-     * @param code      전문 식별자
+     * @param idx_corp  법인회사 식별자
      * @param dto       등록정보
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public Object registerVenture(Long idx_user, Long code, UserCorporationDto.registerVenture dto) {
+    public Object registerVenture(Long idx_user, Long idx_corp, UserCorporationDto.registerVenture dto) {
         User user = findUser(idx_user);
 
         // TODO : 벤처기업정보 저장
@@ -54,6 +57,15 @@ public class UserCorporationService {
                 () -> EntityNotFoundException.builder()
                         .entity("User")
                         .idx(idx_user)
+                        .build()
+        );
+    }
+
+    private Corp findCorp(Long idx_corp) {
+        return repoCorp.findById(idx_corp).orElseThrow(
+                () -> EntityNotFoundException.builder()
+                        .entity("Corp")
+                        .idx(idx_corp)
                         .build()
         );
     }

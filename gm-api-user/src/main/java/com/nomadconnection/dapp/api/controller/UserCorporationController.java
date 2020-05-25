@@ -27,41 +27,41 @@ public class UserCorporationController {
     @SuppressWarnings("WeakerAccess")
     public static class URI {
         public static final String BASE = "/corp/v1";
-        public static final String CORPORATION = "/corporation/{code}";
-        public static final String VENTURE = "/venture/{code}";
+        public static final String CORPORATION = "/corporation/{corpIdx}";
+        public static final String VENTURE = "/venture/{corpIdx}";
     }
 
     private final UserCorporationService service;
 
     @ApiOperation("법인정보 등록")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "code", value = "전문 식별자", dataType = "Long")
+            @ApiImplicitParam(name = "corpIdx", value = "법인회사 식별자", dataType = "Long")
     })
     @PostMapping(URI.CORPORATION)
     public ResponseEntity registerCorporation(
             @ApiIgnore @CurrentUser CustomUser user,
-            @PathVariable Long code,
+            @PathVariable Long corpIdx,
             @RequestBody UserCorporationDto.registerCorporation dto) {
         if (log.isInfoEnabled()) {
-            log.debug("([ registerCorporation ]) $user='{}', $code='{}', $dto='{}'", user, code, dto);
+            log.debug("([ registerCorporation ]) $user='{}', $code='{}', $dto='{}'", user, corpIdx, dto);
         }
 
-        return ResponseEntity.ok().body(service.registerCorporation(user.idx(), code, dto));
+        return ResponseEntity.ok().body(service.registerCorporation(user.idx(), corpIdx, dto));
     }
 
     @ApiOperation("벤처기업정보 등록")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "code", value = "전문 식별자", dataType = "Long")
+            @ApiImplicitParam(name = "corpIdx", value = "법인회사 식별자", dataType = "Long")
     })
     @PostMapping(URI.VENTURE)
     public ResponseEntity registerVenture(
             @ApiIgnore @CurrentUser CustomUser user,
-            @PathVariable Long code,
+            @PathVariable Long corpIdx,
             @RequestBody UserCorporationDto.registerVenture dto) {
         if (log.isInfoEnabled()) {
-            log.debug("([ registerVenture ]) $user='{}', $code='{}', $dto='{}'", user, code, dto);
+            log.debug("([ registerVenture ]) $user='{}', $code='{}', $dto='{}'", user, corpIdx, dto);
         }
 
-        return ResponseEntity.ok().body(service.registerVenture(user.idx(), code, dto));
+        return ResponseEntity.ok().body(service.registerVenture(user.idx(), corpIdx, dto));
     }
 }
