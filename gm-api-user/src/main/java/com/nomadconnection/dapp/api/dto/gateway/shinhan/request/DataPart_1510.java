@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.api.dto.gateway.shinhan.request;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.*;
 
 /**
@@ -15,40 +14,28 @@ import lombok.*;
 @Getter
 public class DataPart_1510 extends CommonPart {
 
-    @JsonAlias("D001")
-    private String issueNo; // 발급번호
+    private String d001;    // 발급번호
 
-    @JsonAlias("D002")
-    private String companyName; // 법인명(상호)
+    private String d002;    // 법인명(상호)
 
-    @JsonAlias("D003")
-    private String businessLicenseNo;    // 사업자등록번호
+    private String d003;    // 사업자등록번호
 
-    @JsonAlias("D004")
-    private String companyType; // 사업자종류
+    private String d004;    // 사업자종류
 
-    @JsonAlias("D005")
-    private String ceoName; // 성명(대표자)
+    private String d005;    // 성명(대표자)
 
-    @JsonAlias("D006")
-    private String address; //사업장소재지(주소)
+    private String d006;    // 사업장소재지(주소)
 
-    @JsonAlias("D007")
-    private String registerNo;  // 주민등록번호(법인등록번호)
+    private String d007;  // 주민등록번호(법인등록번호)
 
-    @JsonAlias("D008")
-    private String openDate;    // 개업일
+    private String d008;    // 개업일
 
-    @JsonAlias("D009")
-    private String registerDate; // 사업자등록일
+    private String d009; // 사업자등록일
 
-    @JsonAlias("D010")
-    private String issuingAgency; // 발급기관
+    private String d010; // 발급기관
 
-    @JsonAlias("D011")
-    private String industry;    // 업태
+    private String d011;    // 업태
 
-    @JsonAlias("D011")
-    private String category;    // 종목
+    private String d012;    // 종목
 
 }
