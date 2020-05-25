@@ -40,6 +40,12 @@ public class User extends BaseTime {
 
 	private Boolean consent; // 선택약관동의여부
 
+	@Builder.Default
+	private Boolean isSendSms = false; // sms 수신 동의여부
+
+	@Builder.Default
+	private Boolean isSendEmail = false; // Email 수신 동의여부
+
 	@Column(columnDefinition = "DATETIME default 99991231010101")
 	private LocalDateTime enabledDate; // 삭제된 날짜
 

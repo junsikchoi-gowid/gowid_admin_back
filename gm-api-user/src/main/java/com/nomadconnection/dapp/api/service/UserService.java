@@ -21,8 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.thymeleaf.context.Context;
 import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -325,8 +325,6 @@ public class UserService {
 					.build();
 		}
 
-		List<Long> listIdx = getConsentIdxList(dto.getConsents());
-
 		//	마스터 등록 (권한 설정 필요)
 		User user = repo.save(User.builder()
 				.consent(true)
@@ -334,6 +332,8 @@ public class UserService {
 				.password(encoder.encode(userDto.getPassword()))
 				.name(userDto.getName())
 				.mdn(userDto.getMdn())
+				.isSendEmail(dto.getEmailReception())
+				.isSendSms(dto.getSmsReception())
 				.authentication(new Authentication())
 				.authorities(Collections.singleton(
 						repoAuthority.findByRole(Role.ROLE_MASTER).orElseThrow(
