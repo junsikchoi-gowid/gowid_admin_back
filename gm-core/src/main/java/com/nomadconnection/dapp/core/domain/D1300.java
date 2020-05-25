@@ -24,11 +24,11 @@ public class D1300 extends BaseTime {
 
     @Column(nullable = false)
     private String c007;
-    @Column(columnDefinition = "varchar(50) comment '조회업종코드명\n'")
+    @Column(columnDefinition = "varchar(50) comment DEFAULT '' '조회업종코드명'")
     private String d001; // 조회업종코드명
-    @Column(columnDefinition = "varchar(6) comment '업종코드'")
+    @Column(columnDefinition = "varchar(6) comment DEFAULT '' '업종코드'")
     private String d002; // 업종코드
-    @Column(columnDefinition = "varchar(50) comment '업종코드명'")
+    @Column(columnDefinition = "varchar(50) comment DEFAULT '' '업종코드명'")
     private String d003; // 업종코드명
 
 }
