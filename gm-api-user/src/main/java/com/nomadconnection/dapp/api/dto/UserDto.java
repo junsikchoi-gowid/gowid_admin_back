@@ -7,9 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -109,6 +107,12 @@ public class UserDto {
 
 		@ApiModelProperty("연락처(폰)")
 		private String mdn;
+
+		@ApiModelProperty("sms 수신여부")
+		private Boolean smsReception;
+
+		@ApiModelProperty("email 수신여부")
+		private Boolean emailReception;
 
 		@ApiModelProperty("이용약관 정보")
 		private List<ConsentDto.RegDto> consents;
