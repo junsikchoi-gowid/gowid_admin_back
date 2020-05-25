@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.api.dto.gateway.shinhan.request;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.*;
 
 /**
@@ -15,58 +14,40 @@ import lombok.*;
 @Getter
 public class DataPart_1520 extends CommonPart {
 
-    @JsonAlias("D001")
-    private String businessLicenseNo;    // 사업자등록번호
+    private String d001;    // 사업자등록번호
 
-    @JsonAlias("D002")
-    private String approvalNo;    // 발급(승인)번호
+    private String d002;    // 발급(승인)번호
 
-    @JsonAlias("D003")
-    private String registerNo;  // 주민번호
+    private String d003;  // 주민번호
 
-    @JsonAlias("D004")
-    private String companyName; // 상호(사업장명)
+    private String d004; // 상호(사업장명)
 
-    @JsonAlias("D005")
-    private String availableIssueYn;    // 발급가능여부
+    private String d005;    // 발급가능여부
 
-    @JsonAlias("D006")
-    private String startDate;   // 시작일자
+    private String d006;   // 시작일자
 
-    @JsonAlias("D007")
-    private String endDate; // 종료일자
+    private String d007; // 종료일자
 
-    @JsonAlias("D008")
-    private String name;    // 성명
+    private String d008;    // 성명
 
-    @JsonAlias("D009")
-    private String address; // 주소
+    private String d009; // 주소
 
-    @JsonAlias("D010")
-    private String category;    // 종목
+    private String d010;    // 종목
 
-    @JsonAlias("D011")
-    private String industry;    // 업태
+    private String d011;    // 업태
 
-    @JsonAlias("D012")
-    private String createDate;  // 작성일자
+    private String d012;  // 작성일자
 
-    @JsonAlias("D013")
-    private String yearOfAttribution;   // 귀속연도
+    private String d013;   // 귀속연도
 
-    @JsonAlias("D014")
-    private String totalAsset;  // 총자산
+    private String d014;  // 총자산
 
-    @JsonAlias("D015")
-    private String sales;   // 매출
+    private String d015;   // 매출
 
-    @JsonAlias("D016")
-    private String paidCapital;   // 납입자본금
+    private String d016;   // 납입자본금
 
-    @JsonAlias("D017")
-    private String equityCapital;   // 자기자본금
+    private String d017;   // 자기자본금
 
-    @JsonAlias("D018")
-    private String financialSurveyDate; // 재무조사일
+    private String d018; // 재무조사일
 
 }
