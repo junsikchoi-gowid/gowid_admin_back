@@ -30,6 +30,7 @@ public class UserCorporationController {
         public static final String VENTURE = "/venture";
         public static final String STOCKHOLDER = "/stockholder";
         public static final String ACCOUNT = "/account";
+        public static final String CARD = "/card";
     }
 
     private final UserCorporationService service;
@@ -71,6 +72,19 @@ public class UserCorporationController {
         }
 
         return ResponseEntity.ok().body(service.registerStockholder(user.idx(), dto, idxCardInfo));
+    }
+
+    @ApiOperation("주주명부 등록")
+    @PostMapping(URI.CARD)
+    public ResponseEntity registerCard(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestParam Long idxCardInfo,
+            @RequestBody @Valid UserCorporationDto.RegisterCard dto) {
+        if (log.isInfoEnabled()) {
+            log.debug("([ registerStockholder ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+        }
+
+        return ResponseEntity.ok().body(service.registerCard(user.idx(), dto, idxCardInfo));
     }
 
     @ApiOperation("결제계좌 등록")
