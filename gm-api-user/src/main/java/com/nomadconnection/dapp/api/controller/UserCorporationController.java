@@ -5,15 +5,18 @@ import com.nomadconnection.dapp.api.service.UserCorporationService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
+
+import javax.validation.Valid;
 
 @Slf4j
 @RestController
@@ -27,41 +30,33 @@ public class UserCorporationController {
     @SuppressWarnings("WeakerAccess")
     public static class URI {
         public static final String BASE = "/corp/v1";
-        public static final String CORPORATION = "/corporation/{corpIdx}";
-        public static final String VENTURE = "/venture/{corpIdx}";
+        public static final String CORPORATION = "/corporation";
+        public static final String VENTURE = "/venture";
     }
 
     private final UserCorporationService service;
 
     @ApiOperation("법인정보 등록")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "corpIdx", value = "법인회사 식별자", dataType = "Long")
-    })
     @PostMapping(URI.CORPORATION)
     public ResponseEntity registerCorporation(
             @ApiIgnore @CurrentUser CustomUser user,
-            @PathVariable Long corpIdx,
-            @RequestBody UserCorporationDto.registerCorporation dto) {
+            @RequestBody @Valid UserCorporationDto.RegisterCorporation dto) {
         if (log.isInfoEnabled()) {
-            log.debug("([ registerCorporation ]) $user='{}', $code='{}', $dto='{}'", user, corpIdx, dto);
+            log.debug("([ registerCorporation ]) $user='{}',  $dto='{}'", user, dto);
         }
 
-        return ResponseEntity.ok().body(service.registerCorporation(user.idx(), corpIdx, dto));
+        return ResponseEntity.ok().body(service.registerCorporation(user.idx(), dto));
     }
 
     @ApiOperation("벤처기업정보 등록")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "corpIdx", value = "법인회사 식별자", dataType = "Long")
-    })
     @PostMapping(URI.VENTURE)
     public ResponseEntity registerVenture(
             @ApiIgnore @CurrentUser CustomUser user,
-            @PathVariable Long corpIdx,
-            @RequestBody UserCorporationDto.registerVenture dto) {
+            @RequestBody @Valid UserCorporationDto.RegisterVenture dto) {
         if (log.isInfoEnabled()) {
-            log.debug("([ registerVenture ]) $user='{}', $code='{}', $dto='{}'", user, corpIdx, dto);
+            log.debug("([ registerVenture ]) $user='{}', $dto='{}'", user, dto);
         }
 
-        return ResponseEntity.ok().body(service.registerVenture(user.idx(), corpIdx, dto));
+        return ResponseEntity.ok().body(service.registerVenture(user.idx(), dto));
     }
 }
