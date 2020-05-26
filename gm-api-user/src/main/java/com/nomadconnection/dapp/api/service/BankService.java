@@ -5,6 +5,7 @@ import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
+import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import com.nomadconnection.dapp.core.domain.*;
@@ -139,6 +140,35 @@ public class BankService {
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(transactionList).build());
 	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity findMonthHistory_External(String id, String pw, String startDate, String endDate, String companyId) {
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true, id).orElseThrow(
+				() -> UserNotFoundException.builder()
+						.email(id)
+						.build()
+		);
+
+		if (!encoder.matches(pw, user.password())) {
+			throw UnauthorizedException.builder()
+					.account(id)
+					.build();
+		}
+		List<ResAccountRepository.CaccountMonthDto> transactionList = null;
+
+		Stream<Authority> authStream = repoUser.findById(user.idx()).get().authorities().stream();
+
+
+		if(authStream.anyMatch(o -> (o.role().equals(Role.GOWID_EXTERNAL)))){
+			Long idxCorpUser = repoCorp.searchResCompanyIdentityNo(companyId);
+			transactionList = repoResAccount.findMonthHistory_External(startDate, endDate, idxCorpUser);
+		}else{
+			throw new RuntimeException("DOES NOT HAVE GOWID-EXTERNAL");
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().data(transactionList).build());
+	}
+
 
 	/**
 	 * BrunRate
@@ -402,4 +432,6 @@ public class BankService {
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(CMonthInOutSumDto).build());
 	}
+
+
 }

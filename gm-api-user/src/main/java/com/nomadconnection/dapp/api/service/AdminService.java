@@ -150,7 +150,10 @@ public class AdminService {
         riskConfig.depositPayment(dto.isDepositPayment());
         riskConfig.depositGuarantee(dto.getDepositGuarantee());
 
-        return ResponseEntity.ok().body(BusinessResponse.builder().data(repoRiskConfig.save(riskConfig)).build());
+        return ResponseEntity.ok().body(
+                BusinessResponse.builder()
+                        .data(repoRiskConfig.save(riskConfig)
+                ).build());
     }
 
     @Transactional(rollbackFor = Exception.class)

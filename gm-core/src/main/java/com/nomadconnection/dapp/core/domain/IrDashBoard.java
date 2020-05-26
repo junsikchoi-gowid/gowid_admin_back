@@ -39,7 +39,7 @@ public class IrDashBoard extends BaseTime {
 	@Column
 	private Long idxUser;
 
-	@Column(columnDefinition = "BIT(1) NOT NULL comment '사용유무'")
+	@Column(columnDefinition = "BIT(1) NOT NULL COMMENT '사용유무'")
 	private Boolean enable;
 
 }

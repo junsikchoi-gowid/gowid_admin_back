@@ -4,7 +4,6 @@ package com.nomadconnection.dapp.core.domain;
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
