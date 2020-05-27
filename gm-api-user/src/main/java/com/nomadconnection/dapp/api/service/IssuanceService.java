@@ -1,7 +1,18 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.CommonPart;
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart_1200;
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
+import com.nomadconnection.dapp.api.dto.shinhan.ui.UiResponse;
+import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
+import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.core.domain.D1200;
+import com.nomadconnection.dapp.core.domain.GatewayTransactionIdx;
+import com.nomadconnection.dapp.core.domain.repository.D1200Repository;
+import com.nomadconnection.dapp.core.domain.repository.GatewayTransactionIdxRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,6 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class IssuanceService {
+
+    private GatewayTransactionIdxRepository gatewayTransactionIdxRepository;
+
+    private D1200Repository d1200Repository;
+
+    private ShinhanGwRpc shinhanGwRpc;
 
     /**
      * 카드 신청
@@ -21,9 +38,10 @@ public class IssuanceService {
      * 3) 프론트 리턴 데이터 생성
      */
     @Transactional(rollbackFor = Exception.class)
-    public void application() {
+    public UiResponse application(String businessLicenseNo) {
 
         // 1200(법인회원신규여부검증)
+        proc1200(businessLicenseNo);
 
         // 1510(사업자등록증스크래핑)
 
@@ -32,8 +50,57 @@ public class IssuanceService {
         // 1530(등기부등본스크래핑)
 
         // 1400(기존-법인조건변경신청) or 1000(신규-법인회원신규심사요청)
+        // 보류 및 재요청 처리
 
         // 1100(법인카드신청)
 
+        // todo : Response Type 정의
+        return UiResponse.builder()
+                .code("")
+                .desc("")
+                .build();
+    }
+
+    private void proc1200(String businessLicenseNo) {
+        // 공통부
+        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1200);
+
+        // 데이터부 - db 추출, 세팅
+        D1200 d1200 = d1200Repository.findFirstByD001OrderByCreatedAtDesc(businessLicenseNo);
+
+        // 연동
+        DataPart_1200 requestRpc = new DataPart_1200();
+        BeanUtils.copyProperties(d1200, requestRpc);
+        BeanUtils.copyProperties(commonPart, d1200);
+
+        shinhanGwRpc.request_1200(requestRpc);
+    }
+
+    private CommonPart getCommonPart(ShinhanGwApiType apiType) {
+        // common part 세팅.
+        // optional : 응답 코드, 대외 기관 코드, 응답 메시지
+        return CommonPart.builder()
+                .c001(apiType.getTransactionCode())
+                .c002(apiType.getInitialText())
+                .c003(apiType.getFullTextLength())
+                .c004(apiType.getCode())
+                .c005(apiType.getTransferFlag())
+                .c006(getTransactionId(Integer.parseInt(apiType.getCode())))
+                .c007(CommonUtil.getNowYYYYMMDD())
+                .c008(CommonUtil.getNowHHMMSS())
+                .c010(apiType.getMemberNo())
+                .c011(apiType.getMemberCode())
+                .c012(apiType.getSearchMemberNo())
+                .build();
+    }
+
+    private String getTransactionId(Integer interfaceId) {
+        GatewayTransactionIdx gatewayTransactionIdx = GatewayTransactionIdx.builder()
+                .interfaceId(interfaceId).build();
+        gatewayTransactionIdxRepository.save(gatewayTransactionIdx);
+        gatewayTransactionIdxRepository.flush();
+
+        long tmpTranId = 10000000000L + gatewayTransactionIdx.getIdx();
+        return "0" + tmpTranId;     // 010000000001
     }
 }

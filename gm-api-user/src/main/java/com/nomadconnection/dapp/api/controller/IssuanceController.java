@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.nomadconnection.dapp.api.dto.gateway.shinhan.request.DataPart_1200;
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart_1200;
 import com.nomadconnection.dapp.api.service.IssuanceService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -46,7 +46,8 @@ public class IssuanceController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody DataPart_1200 request) {
 
-        issuanceService.application();
+        // todo : 법인등록번호 세팅
+        issuanceService.application("");
 
         return null;
     }

@@ -1,17 +1,19 @@
-package com.nomadconnection.dapp.api.dto.gateway.shinhan.request;
+package com.nomadconnection.dapp.api.dto.shinhan.gateway;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * @interfaceID : 1400
  * @description : 법인회원조건변경신청
  */
 
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@Getter
+@EqualsAndHashCode(callSuper = true)
 public class DataPart_1400 extends CommonPart {
 
     private String d001;   // 거래구분코드

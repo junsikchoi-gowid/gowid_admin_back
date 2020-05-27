@@ -1,17 +1,19 @@
-package com.nomadconnection.dapp.api.dto.gateway.shinhan.request;
+package com.nomadconnection.dapp.api.dto.shinhan.gateway;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * @interfaceID : 1530
  * @description : 등기부등본스크래핑
  */
 
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@Getter
+@EqualsAndHashCode(callSuper = true)
 public class DataPart_1530 extends CommonPart {
 
     private String d001;    // 문서제목

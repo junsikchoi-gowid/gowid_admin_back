@@ -1,17 +1,18 @@
-package com.nomadconnection.dapp.api.dto.gateway.shinhan.request;
+package com.nomadconnection.dapp.api.dto.shinhan.gateway;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * @interfaceID : 1200
  * @description : 법인회원신규여부검증
  */
-
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@Getter
+@EqualsAndHashCode(callSuper = true)
 public class DataPart_1200 extends CommonPart {
 
     private String d001;    // 사업자등록번호
@@ -25,6 +26,4 @@ public class DataPart_1200 extends CommonPart {
     private Long d005;  // 특화한도금액
 
     private Long d006;    // 제휴약정한도금액
-
-
 }
