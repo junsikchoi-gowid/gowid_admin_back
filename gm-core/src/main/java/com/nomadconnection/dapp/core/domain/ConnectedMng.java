@@ -35,4 +35,7 @@ public class ConnectedMng extends BaseTime {
 	private String endDate;
 	private String desc1;
 	private String desc2;
+
+	@Column(columnDefinition = "varchar(2)    DEFAULT '' COMMENT '업무구분'")
+	private String type;
 }

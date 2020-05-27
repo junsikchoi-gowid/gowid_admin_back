@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
+import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
@@ -752,6 +753,17 @@ public class ScrapingService {
 
     @Async
     public void scrapingRegister1YearList(Long idxUser) {
+        log.debug("scrapingRegister");
+        ResBatch idxLog = startBatchLog(idxUser);
+        try {
+            scrapingRegisterAccount(idxUser, idxLog.idx());
+        } finally {
+            endBatchLog(idxLog.idx());
+        }
+    }
+
+    @Async
+    public void scrapingBankN45DayDataList(ConnectedMngDto.AccountNt dto, Long idxUser) {
         log.debug("scrapingRegister");
         ResBatch idxLog = startBatchLog(idxUser);
         try {

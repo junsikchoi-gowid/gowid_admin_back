@@ -126,7 +126,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.ACCOUNT).permitAll()
 				.antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.USERDELETE).permitAll()
 				.antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.USERPASSWORDCHANGE_PRE).permitAll()
-				.antMatchers(CorpController.URI.BASE + CorpController.URI.REGISTRABLE).permitAll()
 				.antMatchers(ConsentController.URI.BASE + ConsentController.URI.CONSENT).permitAll()
 				.antMatchers(FaqController.URI.BASE + FaqController.URI.FAQ_SAVE).permitAll()
 				.antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.RECEPTION).permitAll()

@@ -28,10 +28,6 @@ public class KR_BK_1_B_005 {
 
         // API 요청
         String result = ApiRequest.request(urlPath, bodyMap);
-
-        // 응답결과 확인
-        System.out.println(result);
-
         return result;
     }
 }
