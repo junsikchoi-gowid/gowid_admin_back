@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class DataPart_1100 extends CommonPart {
+public class DataPart1100 extends CommonPart {
 
     private String d001;  // 법인고객번호
 

@@ -1,7 +1,7 @@
 package com.nomadconnection.dapp.api.service.rpc;
 
 import com.nomadconnection.dapp.api.common.Const;
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart_1200;
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1200;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +20,7 @@ public class ShinhanGwRpc extends BaseRpc {
     @Value("${gateway.shinhan.uri.1200: /shinhan/1200}")
     private String GATEWAY_SHINHAN_URI_1200;
 
-    public void request_1200(DataPart_1200 requestRpc) {
+    public void request_1200(DataPart1200 requestRpc) {
 
         ApiResponse<?> responseRpc = null;
         try {
@@ -41,7 +41,7 @@ public class ShinhanGwRpc extends BaseRpc {
             // todo : 실패 처리
         }
 
-        DataPart_1200 response1200 = (DataPart_1200) responseRpc.getData();
+        DataPart1200 response1200 = (DataPart1200) responseRpc.getData();
         if (!response1200.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             // todo : 실패 처리
         }

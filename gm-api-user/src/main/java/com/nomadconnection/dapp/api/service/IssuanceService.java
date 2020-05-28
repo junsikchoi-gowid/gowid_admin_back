@@ -1,15 +1,15 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.CommonPart;
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart_1200;
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1200;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.dto.shinhan.ui.UiResponse;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.D1200;
 import com.nomadconnection.dapp.core.domain.GatewayTransactionIdx;
-import com.nomadconnection.dapp.core.domain.repository.D1200Repository;
-import com.nomadconnection.dapp.core.domain.repository.GatewayTransactionIdxRepository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1200Repository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.GatewayTransactionIdxRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -69,9 +69,9 @@ public class IssuanceService {
         D1200 d1200 = d1200Repository.findFirstByD001OrderByCreatedAtDesc(businessLicenseNo);
 
         // 연동
-        DataPart_1200 requestRpc = new DataPart_1200();
+        DataPart1200 requestRpc = new DataPart1200();
         BeanUtils.copyProperties(d1200, requestRpc);
-        BeanUtils.copyProperties(commonPart, d1200);
+        BeanUtils.copyProperties(commonPart, requestRpc);
 
         shinhanGwRpc.request_1200(requestRpc);
     }

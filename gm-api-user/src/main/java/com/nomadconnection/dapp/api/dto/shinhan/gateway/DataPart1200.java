@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class DataPart_1200 extends CommonPart {
+public class DataPart1200 extends CommonPart {
 
     private String d001;    // 사업자등록번호
 

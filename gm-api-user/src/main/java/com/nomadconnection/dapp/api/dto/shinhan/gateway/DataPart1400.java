@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class DataPart_1400 extends CommonPart {
+public class DataPart1400 extends CommonPart {
 
     private String d001;   // 거래구분코드
 

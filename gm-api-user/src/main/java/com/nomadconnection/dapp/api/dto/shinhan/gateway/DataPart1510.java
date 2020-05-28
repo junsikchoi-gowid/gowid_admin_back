@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class DataPart_1510 extends CommonPart {
+public class DataPart1510 extends CommonPart {
 
     private String d001;    // 발급번호
 
