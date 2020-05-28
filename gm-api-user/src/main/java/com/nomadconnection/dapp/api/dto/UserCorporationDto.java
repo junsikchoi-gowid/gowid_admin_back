@@ -1,7 +1,7 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.Corp;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.ReceiveType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -166,8 +166,7 @@ public class UserCorporationDto {
         public enum IDType {
             RESIDENT,
             DRIVER,
-            FOREIGN
-            ;
+            FOREIGN;
         }
     }
 
