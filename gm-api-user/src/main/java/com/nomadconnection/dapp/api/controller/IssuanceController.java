@@ -1,7 +1,8 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1200;
-import com.nomadconnection.dapp.api.service.IssuanceService;
+import com.nomadconnection.dapp.api.dto.shinhan.ui.IssuanceDto;
+import com.nomadconnection.dapp.api.dto.shinhan.ui.UiResponse;
+import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
@@ -9,7 +10,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,13 +42,11 @@ public class IssuanceController {
             "\n ### Remarks" +
             "\n")
     @PostMapping
-    public ResponseEntity application(
+    public UiResponse application(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody DataPart1200 request) {
+            @RequestBody IssuanceDto request) {
 
-        // todo : 법인등록번호 세팅
-        issuanceService.application("");
+        return issuanceService.application(request.getBusinessLicenseNo());
 
-        return null;
     }
 }
