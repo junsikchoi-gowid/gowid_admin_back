@@ -1,18 +1,21 @@
-package com.nomadconnection.dapp.api.dto.gateway.shinhan.request;
+package com.nomadconnection.dapp.api.dto.shinhan.gateway;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 
 /**
  * @interfaceID : 1100
  * @description : 법인카드신청
  */
 
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@Getter
-public class DataPart_1100 extends CommonPart {
+@EqualsAndHashCode(callSuper = true)
+public class DataPart1100 extends CommonPart {
 
     private String d001;  // 법인고객번호
 

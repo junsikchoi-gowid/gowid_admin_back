@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.api.dto.gateway.shinhan.enums;
+package com.nomadconnection.dapp.api.dto.shinhan.gateway.enums;
 
 public enum ShinhanInterfaceId {
 
