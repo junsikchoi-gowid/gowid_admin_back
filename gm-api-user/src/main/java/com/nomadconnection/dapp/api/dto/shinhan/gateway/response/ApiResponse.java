@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.api.dto.gateway.shinhan.response;
+package com.nomadconnection.dapp.api.dto.shinhan.gateway.response;
 
 import lombok.ToString;
 import org.springframework.http.HttpStatus;

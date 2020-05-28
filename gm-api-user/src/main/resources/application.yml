@@ -24,9 +24,14 @@ logging:
     org.springframework.jdbc.core.JdbcTemplate: debug
     org.springframework.jdbc.core.StatementCreatorUtils: trace
   config: classpath:application-logback.xml
+
+# todo : gateway api url이 정해지면 수정예정
 gateway:
-  domain: 1
-  shinhan.uri.1200: 2
+  domain: http://loclhost:8090
+  shinhan:
+    uri:
+      1200: /shinhan/1200
+
 ---
 
 spring:
