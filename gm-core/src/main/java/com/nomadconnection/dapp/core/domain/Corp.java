@@ -1,15 +1,10 @@
 package com.nomadconnection.dapp.core.domain;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
-import com.nomadconnection.dapp.core.domain.embed.Address;
-import com.nomadconnection.dapp.core.domain.embed.BankAccount;
-import com.nomadconnection.dapp.core.domain.embed.CorpStockholdersListResx;
-import com.querydsl.core.types.dsl.DateTimePath;
 import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Data
 @Accessors(fluent = true)
@@ -37,11 +32,14 @@ public class Corp extends BaseTime {
 	private String resBusinessItems; // 종목
 	private String resBusinessTypes; // 업태
 	private String resBusinessmanType; // 사업자종류
+	private String resBusinessCode; // 업종코드
 
 	@EqualsAndHashCode.Include
 	private String resCompanyIdentityNo; // 사업자등록번호
 
-	private String resCompanyNm; // 법인명
+	private String resCompanyNm; // 법인명드
+	private String resCompanyEngNm; // 법인명(영문)
+	private String resCompanyNumber; // 사업장번호
 	private String resIssueNo; // 발급(승인)번호
 	private String resIssueOgzNm; // 발급기관
 	private String resJointIdentityNo; //공동사업자 주민번호
@@ -52,8 +50,9 @@ public class Corp extends BaseTime {
 	private String resUserAddr; // 사업장소재지(주소)
 	private String resUserIdentiyNo; // 주민(법인)등록번호
 	private String resUserNm; // 성명(대표자)
+	private String resUserType; // 대표자 종류
 
 	@Enumerated(EnumType.STRING)
-	private CorpStatus status; // pending/denied/approvedv
+	private CorpStatus status; // pending/denied/approved
 
 }

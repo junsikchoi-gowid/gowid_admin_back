@@ -11,10 +11,10 @@ import java.io.IOException;
 @Component
 public class GwForShinhanRpc extends BaseRpc {
 
-    @Value("${gateway.domain}")
+    @Value("${gateway.domain:none}")
     private String GATEWAY_DOMAIN;
 
-    @Value("${gateway.shinhan.uri.1200}")
+    @Value("${gateway.shinhan.uri.1200:none}")
     private String GATEWAY_SHINHAN_URI_1200;
 
     public ApiResponse<DataPart_1200> request_1200(DataPart_1200 request) throws IOException {
