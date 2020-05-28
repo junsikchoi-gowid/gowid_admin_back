@@ -40,10 +40,11 @@ public class UserCorporationService {
     public UserCorporationDto.CorporationRes registerCorporation(Long idx_user, UserCorporationDto.RegisterCorporation dto, Long idx_CardInfo) {
         User user = findUser(idx_user);
 
+        D1000 d1000 = findD100(user.corp().idx());
         Corp corp = repoCorp.save(user.corp().resCompanyEngNm(dto.getEngCorName())
                 .resCompanyNumber(dto.getCorNumber())
                 .resBusinessCode(dto.getBusinessCode())
-                .resUserType(findD100(user.corp().idx()).d009())
+                .resUserType(d1000.d009())
         );
 
         CardIssuanceInfo cardInfo;
@@ -55,6 +56,7 @@ public class UserCorporationService {
 
         } catch (EntityNotFoundException e) {
             cardInfo = repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
+            repoD1000.save(d1000.d006(dto.getEngCorName()).d008(dto.getBusinessCode()));
         }
         return UserCorporationDto.CorporationRes.from(corp, cardInfo.idx());
     }
@@ -162,6 +164,18 @@ public class UserCorporationService {
                 .build());
 
         return UserCorporationDto.AccountRes.from(repoCardIssuance.save(cardInfo));
+    }
+
+    /**
+     * 대표자 정보
+     *
+     * @param idx_user 조회하는 User idx
+     * @return 등록 정보
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public String getCeoType(Long idx_user) {
+        User user = findUser(idx_user);
+        return findD100(user.corp().idx()).d009();
     }
 
     /**
