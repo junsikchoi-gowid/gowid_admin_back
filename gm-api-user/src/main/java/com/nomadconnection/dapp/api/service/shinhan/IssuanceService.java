@@ -48,6 +48,7 @@ public class IssuanceService {
         proc1200(businessLicenseNo);
 
         // 1510(사업자등록증스크래핑)
+        proc1510(businessLicenseNo);
 
         // 1520(재무제표스크래핑)
 

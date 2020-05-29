@@ -1,7 +1,10 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
+import com.nomadconnection.dapp.api.dto.shinhan.ui.IssuanceDto;
+import com.nomadconnection.dapp.api.dto.shinhan.ui.UiResponse;
 import com.nomadconnection.dapp.api.service.UserCorporationService;
+import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
@@ -17,10 +20,10 @@ import javax.validation.Valid;
 
 @Slf4j
 @RestController
-@RequestMapping(UserController.URI.BASE)
+@RequestMapping(UserCorporationController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "법인카드 발급", description = UserController.URI.BASE)
+@Api(tags = "법인카드 발급", description = UserCorporationController.URI.BASE)
 public class UserCorporationController {
 
     @SuppressWarnings("WeakerAccess")
@@ -30,6 +33,7 @@ public class UserCorporationController {
         public static final String VENTURE = "/venture";
         public static final String STOCKHOLDER = "/stockholder";
         public static final String ACCOUNT = "/account";
+        public static final String SHAREHOLDER = "/shareholder";
         public static final String CARD = "/card";
     }
 
@@ -75,7 +79,7 @@ public class UserCorporationController {
     }
 
     @ApiOperation("주주명부 등록")
-    @PostMapping(URI.CARD)
+    @PostMapping(URI.SHAREHOLDER)
     public ResponseEntity registerCard(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
@@ -98,6 +102,25 @@ public class UserCorporationController {
         }
 
         return ResponseEntity.ok().body(service.registerAccount(user.idx(), dto, idxCardInfo));
+    }
+
+
+    private final IssuanceService issuanceService;
+
+    /**
+     * todo :
+     * 1) request, response 정의
+     * 2) 예외 처리
+     * 3) 제네릭 타입 적용
+     */
+    @ApiOperation(value = "법인카드 발급 신청")
+    @PostMapping(URI.CARD)
+    public UiResponse application(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestBody @Valid IssuanceDto request) {
+
+        return issuanceService.application(request.getBusinessLicenseNo());
+
     }
 
 }
