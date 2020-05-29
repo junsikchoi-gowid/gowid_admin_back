@@ -31,11 +31,13 @@ public class UserCorporationController {
         public static final String VENTURE = "/venture";
         public static final String STOCKHOLDER = "/stockholder";
         public static final String ACCOUNT = "/account";
-        public static final String SHAREHOLDER = "/shareholder";
+        public static final String ISSUANCE = "/issuance";
         public static final String CARD = "/card";
+        public static final String CEO = "/ceo";
     }
 
     private final UserCorporationService service;
+    private final IssuanceService issuanceService;
 
     @ApiOperation("법인정보 등록")
     @PostMapping(URI.CORPORATION)
@@ -44,7 +46,7 @@ public class UserCorporationController {
             @RequestParam(required = false) Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterCorporation dto) {
         if (log.isInfoEnabled()) {
-            log.debug("([ registerCorporation ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+            log.info("([ registerCorporation ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.registerCorporation(user.idx(), dto, idxCardInfo));
@@ -57,7 +59,7 @@ public class UserCorporationController {
             @RequestParam Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterVenture dto) {
         if (log.isInfoEnabled()) {
-            log.debug("([ registerVenture ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+            log.info("([ registerVenture ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.registerVenture(user.idx(), dto, idxCardInfo));
@@ -70,20 +72,20 @@ public class UserCorporationController {
             @RequestParam Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterStockholder dto) {
         if (log.isInfoEnabled()) {
-            log.debug("([ registerStockholder ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+            log.info("([ registerStockholder ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.registerStockholder(user.idx(), dto, idxCardInfo));
     }
 
-    @ApiOperation("주주명부 등록")
-    @PostMapping(URI.SHAREHOLDER)
+    @ApiOperation("카드발급정보 등록")
+    @PostMapping(URI.ISSUANCE)
     public ResponseEntity registerCard(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterCard dto) {
         if (log.isInfoEnabled()) {
-            log.debug("([ registerStockholder ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+            log.info("([ registerStockholder ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.registerCard(user.idx(), dto, idxCardInfo));
@@ -96,14 +98,35 @@ public class UserCorporationController {
             @RequestParam Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterAccount dto) {
         if (log.isInfoEnabled()) {
-            log.debug("([ registerAccount ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+            log.info("([ registerAccount ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.registerAccount(user.idx(), dto, idxCardInfo));
     }
 
+    @ApiOperation("대표자 종류")
+    @GetMapping(URI.CEO)
+    public ResponseEntity getCeo(
+            @ApiIgnore @CurrentUser CustomUser user) {
+        if (log.isInfoEnabled()) {
+            log.info("([ getCeo ]) $user='{}'", user);
+        }
 
-    private final IssuanceService issuanceService;
+        return ResponseEntity.ok().body(service.getCeoType(user.idx()));
+    }
+
+    @ApiOperation("대표자 등록(인증)")
+    @PostMapping(URI.CEO)
+    public ResponseEntity registerCEO(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestParam Long idxCardInfo,
+            @RequestBody @Valid UserCorporationDto.RegisterCeo dto) {
+        if (log.isInfoEnabled()) {
+            log.info("([ registerCEO ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+        }
+
+        return ResponseEntity.ok().body(service.registerCeo(user.idx(), dto, idxCardInfo));
+    }
 
     /**
      * todo :
@@ -120,7 +143,6 @@ public class UserCorporationController {
         return ResponseEntity.ok().body(
                 issuanceService.issuance(user.idx(), request)
         );
-
     }
 
 }

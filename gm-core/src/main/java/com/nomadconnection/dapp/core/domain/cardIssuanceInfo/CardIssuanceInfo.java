@@ -9,6 +9,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 
 @Data
@@ -45,4 +46,8 @@ public class CardIssuanceInfo extends BaseTime {
 
     @Embedded
     private BankAccount bankAccount; // 결제계좌정보
+
+    @OneToMany(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private Collection<CeoInfo> ceoInfos;
 }

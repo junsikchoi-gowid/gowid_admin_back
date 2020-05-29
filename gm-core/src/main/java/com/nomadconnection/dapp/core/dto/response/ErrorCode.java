@@ -65,7 +65,7 @@ public class ErrorCode {
 	@AllArgsConstructor
 	@Getter
 	public enum External implements ErrorCodeDescriptor {
-		EXTERNAL_ERROR_GW("EXTERNAL_ERROR_GW", "external request failed(shinhan) - 1200"),
+		EXTERNAL_ERROR_GW("EXTERNAL_ERROR_GW", "external request failed(shinhan) - GW"),
 		EXTERNAL_ERROR_SHINHAN_1200("EXTERNAL_ERROR_SHINHAN_1200", "external request failed(shinhan) - 1200"),
 		EXTERNAL_ERROR_SHINHAN_1510("EXTERNAL_ERROR_SHINHAN_1510", "external request failed(shinhan) - 1510"),
 		EXTERNAL_ERROR_SHINHAN_1520("EXTERNAL_ERROR_SHINHAN_1520", "external request failed(shinhan) - 1520"),
