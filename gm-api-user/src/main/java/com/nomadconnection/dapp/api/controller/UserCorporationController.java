@@ -1,8 +1,6 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
-import com.nomadconnection.dapp.api.dto.shinhan.ui.IssuanceDto;
-import com.nomadconnection.dapp.api.dto.shinhan.ui.UiResponse;
 import com.nomadconnection.dapp.api.service.UserCorporationService;
 import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
@@ -115,11 +113,13 @@ public class UserCorporationController {
      */
     @ApiOperation(value = "법인카드 발급 신청")
     @PostMapping(URI.CARD)
-    public UiResponse application(
+    public ResponseEntity<UserCorporationDto.IssuanceRes> application(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody @Valid IssuanceDto request) {
+            @RequestBody @Valid UserCorporationDto.IssuanceReq request) {
 
-        return issuanceService.application(request.getBusinessLicenseNo());
+        return ResponseEntity.ok().body(
+                issuanceService.issuance(user.idx(), request)
+        );
 
     }
 

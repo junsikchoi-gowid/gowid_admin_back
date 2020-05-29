@@ -1,5 +1,8 @@
 package com.nomadconnection.dapp.core.dto.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 @SuppressWarnings("unused")
 public class ErrorCode {
 
@@ -57,5 +60,23 @@ public class ErrorCode {
 
 	public enum Business implements ErrorCodeDescriptor {
 		BUSINESS,
+	}
+
+	@AllArgsConstructor
+	@Getter
+	public enum External implements ErrorCodeDescriptor {
+		EXTERNAL_ERROR_GW("EXTERNAL_ERROR_GW", "external request failed(shinhan) - 1200"),
+		EXTERNAL_ERROR_SHINHAN_1200("EXTERNAL_ERROR_SHINHAN_1200", "external request failed(shinhan) - 1200"),
+		EXTERNAL_ERROR_SHINHAN_1510("EXTERNAL_ERROR_SHINHAN_1510", "external request failed(shinhan) - 1510"),
+		EXTERNAL_ERROR_SHINHAN_1520("EXTERNAL_ERROR_SHINHAN_1520", "external request failed(shinhan) - 1520"),
+		EXTERNAL_ERROR_SHINHAN_1530("EXTERNAL_ERROR_SHINHAN_1530", "external request failed(shinhan) - 1530"),
+		EXTERNAL_ERROR_SHINHAN_1400("EXTERNAL_ERROR_SHINHAN_1400", "external request failed(shinhan) - 1400"),
+		EXTERNAL_ERROR_SHINHAN_1401("EXTERNAL_ERROR_SHINHAN_1401", "external request returned holding(shinhan) - 1400"),
+		EXTERNAL_ERROR_SHINHAN_1000("EXTERNAL_ERROR_SHINHAN_1000", "external request failed(shinhan) - 1000"),
+		EXTERNAL_ERROR_SHINHAN_1001("EXTERNAL_ERROR_SHINHAN_1001", "external request returned holding(shinhan) - 1000"),
+		EXTERNAL_ERROR_SHINHAN_1100("EXTERNAL_ERROR_SHINHAN_1100", "external request failed(shinhan) - 1100");
+
+		private final String code;
+		private final String desc;
 	}
 }
