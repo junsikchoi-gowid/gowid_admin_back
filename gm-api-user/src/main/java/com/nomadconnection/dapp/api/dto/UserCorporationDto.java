@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -430,6 +431,7 @@ public class UserCorporationDto {
 
     @Data
     @Builder
+    @Accessors(chain = true)
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CeoRes {
@@ -460,6 +462,9 @@ public class UserCorporationDto {
 
         @ApiModelProperty("대표종류(1:단일, 2:개별, 3:공동)")
         private String ceoType;
+
+        @ApiModelProperty("휴대폰인증 고유아이디")
+        private String deviceId;
 
         public static CeoRes from(CeoInfo ceoInfo) {
             if (ceoInfo != null) {

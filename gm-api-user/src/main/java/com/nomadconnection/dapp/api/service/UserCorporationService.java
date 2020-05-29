@@ -293,7 +293,7 @@ public class UserCorporationService {
 
         // TODO: kcbService.authenticationSms(KcbDto.Authentication.builder().build());
 
-        return UserCorporationDto.CeoRes.from(repoCeo.save(ceoInfo));
+        return UserCorporationDto.CeoRes.from(repoCeo.save(ceoInfo)).setDeviceId("");
     }
 
     /**

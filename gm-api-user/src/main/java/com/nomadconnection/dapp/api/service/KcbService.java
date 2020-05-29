@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -28,6 +29,11 @@ public class KcbService {
                 .build()
                 .toUriString();
 
+        String deviceId = dto.getDeviceId();
+        if (deviceId == null) {
+            deviceId = UUID.randomUUID().toString();
+            dto.setDeviceId(deviceId);
+        }
         log.info("[authenticationSms] $url({}), $dto({})", url, dto);
 
         ClientResponse clientResponse = this.kcbClient.post()
@@ -43,7 +49,7 @@ public class KcbService {
             throw ServerError.builder().category(ServerError.Category.KCB_SERVER_ERROR).data(response).build();
         }
 
-        return response;
+        return response.setDeviceId(deviceId);
     }
 
     public KcbDto.Response certSms(KcbDto.Cert dto) throws IOException {
@@ -62,6 +68,10 @@ public class KcbService {
 
         KcbDto.Response response = this.responseDataResolver(clientResponse, KcbDto.Response.class);
         log.info("[certSms] $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
+
+        if (response.getData().getCode().equals("B000")) {
+            throw ServerError.builder().category(ServerError.Category.KCB_SERVER_ERROR).data(response).build();
+        }
 
         return response;
     }
