@@ -24,7 +24,7 @@ import java.io.IOException;
 @RequestMapping(KcbController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "법인카드 발급", description = KcbController.URI.BASE)
+@Api(tags = "kcb 휴대폰 인증", description = KcbController.URI.BASE)
 public class KcbController {
 
     @SuppressWarnings("WeakerAccess")
@@ -35,7 +35,7 @@ public class KcbController {
 
     private final KcbService service;
 
-    @ApiOperation("법인정보 등록")
+    @ApiOperation("본인인증 확인")
     @PostMapping(URI.CERT)
     public ResponseEntity cert(
             @ApiIgnore @CurrentUser CustomUser user,
