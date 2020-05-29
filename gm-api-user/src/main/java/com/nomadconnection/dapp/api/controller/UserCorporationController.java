@@ -20,7 +20,7 @@ import javax.validation.Valid;
 @RequestMapping(UserController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "법인카드 발급", description = UserController.URI.BASE)
+@Api(tags = "법인카드 발급", description = URI.BASE)
 public class UserCorporationController {
 
     @SuppressWarnings("WeakerAccess")
@@ -75,7 +75,7 @@ public class UserCorporationController {
         return ResponseEntity.ok().body(service.registerStockholder(user.idx(), dto, idxCardInfo));
     }
 
-    @ApiOperation("주주명부 등록")
+    @ApiOperation("카드발급정보 등록")
     @PostMapping(URI.CARD)
     public ResponseEntity registerCard(
             @ApiIgnore @CurrentUser CustomUser user,

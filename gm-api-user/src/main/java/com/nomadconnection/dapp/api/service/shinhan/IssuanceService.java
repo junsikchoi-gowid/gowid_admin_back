@@ -1,14 +1,17 @@
-package com.nomadconnection.dapp.api.service;
+package com.nomadconnection.dapp.api.service.shinhan;
 
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.CommonPart;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1200;
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1510;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.dto.shinhan.ui.UiResponse;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.D1200;
+import com.nomadconnection.dapp.core.domain.D1510;
 import com.nomadconnection.dapp.core.domain.GatewayTransactionIdx;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1200Repository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1510Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.GatewayTransactionIdxRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class IssuanceService {
 
-    private GatewayTransactionIdxRepository gatewayTransactionIdxRepository;
+    private final GatewayTransactionIdxRepository gatewayTransactionIdxRepository;
 
-    private D1200Repository d1200Repository;
+    private final D1200Repository d1200Repository;
+    private final D1510Repository d1510Repository;
 
-    private ShinhanGwRpc shinhanGwRpc;
+    private final ShinhanGwRpc shinhanGwRpc;
 
     /**
      * 카드 신청
@@ -73,7 +77,22 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1200, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        shinhanGwRpc.request_1200(requestRpc);
+        shinhanGwRpc.request1200(requestRpc);
+    }
+
+    private void proc1510(String businessLicenseNo) {
+        // 공통부
+        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1510);
+
+        // 데이터부 - db 추출, 세팅
+        D1510 d1510 = d1510Repository.findFirstByD003OrderByCreatedAt(businessLicenseNo);
+
+        // 연동
+        DataPart1510 requestRpc = new DataPart1510();
+        BeanUtils.copyProperties(d1510, requestRpc);
+        BeanUtils.copyProperties(commonPart, requestRpc);
+
+        shinhanGwRpc.request1510(requestRpc);
     }
 
     private CommonPart getCommonPart(ShinhanGwApiType apiType) {
