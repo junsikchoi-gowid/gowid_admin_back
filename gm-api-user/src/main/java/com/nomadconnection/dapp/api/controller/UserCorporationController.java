@@ -1,15 +1,12 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
-import com.nomadconnection.dapp.api.dto.shinhan.ui.IssuanceDto;
-import com.nomadconnection.dapp.api.dto.shinhan.ui.UiResponse;
 import com.nomadconnection.dapp.api.service.UserCorporationService;
 import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -139,11 +136,13 @@ public class UserCorporationController {
      */
     @ApiOperation(value = "법인카드 발급 신청")
     @PostMapping(URI.CARD)
-    public UiResponse application(
+    public ResponseEntity<UserCorporationDto.IssuanceRes> application(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody @Valid IssuanceDto request) {
+            @RequestBody @Valid UserCorporationDto.IssuanceReq request) {
 
-        return issuanceService.application(request.getBusinessLicenseNo());
+        return ResponseEntity.ok().body(
+                issuanceService.issuance(user.idx(), request)
+        );
     }
 
 }
