@@ -9,6 +9,7 @@ import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import jdk.nashorn.internal.objects.annotations.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -107,7 +108,7 @@ public class UserCorporationController {
     }
 
     @ApiOperation("대표자 종류")
-    @PostMapping(URI.CEO)
+    @GetMapping(URI.CEO)
     public ResponseEntity getCeo(
             @ApiIgnore @CurrentUser CustomUser user) {
         if (log.isInfoEnabled()) {
@@ -115,6 +116,19 @@ public class UserCorporationController {
         }
 
         return ResponseEntity.ok().body(service.getCeoType(user.idx()));
+    }
+
+    @ApiOperation("대표자 등록(인증)")
+    @PostMapping(URI.CEO)
+    public ResponseEntity registerCEO(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestParam Long idxCardInfo,
+            @RequestBody @Valid UserCorporationDto.RegisterCeo dto) {
+        if (log.isInfoEnabled()) {
+            log.info("([ registerCEO ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+        }
+
+        return ResponseEntity.ok().body(service.registerCeo(user.idx(), dto, idxCardInfo));
     }
 
     /**

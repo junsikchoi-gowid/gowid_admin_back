@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CeoInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.ReceiveType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -161,13 +162,20 @@ public class UserCorporationDto {
         @NotEmpty
         private String phoneNumber;
 
+        @ApiModelProperty("생년월일(19930412)")
+        private String birth;
+
+        @ApiModelProperty("성별(1:남자, 2:여자)")
+        private Long genderCode;
+
         @ApiModelProperty("신분증 종류")
         private IDType identityType;
 
         public enum IDType {
             RESIDENT,
             DRIVER,
-            FOREIGN;
+            FOREIGN,
+            ;
         }
     }
 
@@ -414,5 +422,52 @@ public class UserCorporationDto {
 
         @ApiModelProperty("대표수")
         private Integer count;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CeoRes {
+
+        @ApiModelProperty("카드발급정보 식별자")
+        private Long idx;
+
+        @ApiModelProperty("국적(표준약어)")
+        private String nation;
+
+        @ApiModelProperty("대표자(한글)")
+        private String name;
+
+        @ApiModelProperty("대표자(영문)")
+        private String engName;
+
+        @ApiModelProperty("통신사")
+        private String agency;
+
+        @ApiModelProperty("휴대폰번호")
+        private String phoneNumber;
+
+        @ApiModelProperty("생년월일(19930412)")
+        private String birth;
+
+        @ApiModelProperty("성별(1:남자, 2:여자)")
+        private Long genderCode;
+
+        public static CeoRes from(CeoInfo ceoInfo) {
+            if (ceoInfo != null) {
+                return CeoRes.builder()
+                        .idx(ceoInfo.cardIssuanceInfo().idx())
+                        .nation(ceoInfo.nationality())
+                        .name(ceoInfo.name())
+                        .engName(ceoInfo.engName())
+                        .agency(ceoInfo.agencyCode())
+                        .phoneNumber(ceoInfo.phoneNumber())
+                        .birth(ceoInfo.birth())
+                        .genderCode(ceoInfo.genderCode())
+                        .build();
+            }
+            return null;
+        }
     }
 }

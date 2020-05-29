@@ -31,6 +31,8 @@ public class CeoInfo {
     private String nationality;
     private Boolean isForeign;
     private String birth;
+    private String agencyCode; // 통신사 코드
+    private Long genderCode; // 성별 1:남자 2:여자
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idxCardIssuanceInfo", foreignKey = @ForeignKey(name = "fk__ceoInfo_cardIssuanceInfo"))
