@@ -175,8 +175,7 @@ public class UserCorporationDto {
         public enum IDType {
             RESIDENT,
             DRIVER,
-            FOREIGN,
-            ;
+            FOREIGN
         }
     }
 
@@ -479,6 +478,38 @@ public class UserCorporationDto {
             return null;
         }
     }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class IssuanceReq {
+
+        @ApiModelProperty("카드발급정보 식별자")
+        @NotEmpty
+        private Long cardIssuanceInfoIdx;
+
+        @ApiModelProperty("카드비빌번호")
+        @NotEmpty
+        private Long password;
+
+        @ApiModelProperty("대표자주민등록번호1")
+        @NotEmpty
+        private String ceoRegisterNo1;
+
+        @ApiModelProperty("대표자주민등록번호2")
+        private String ceoRegisterNo2;
+
+        @ApiModelProperty("대표자주민등록번호3")
+        private String ceoRegisterNo3;
+
+    }
+
+    @NoArgsConstructor
+    public static class IssuanceRes {
+
+    }
+
+
 
     @Data
     @Builder

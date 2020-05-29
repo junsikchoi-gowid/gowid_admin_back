@@ -1,15 +1,18 @@
 package com.nomadconnection.dapp.api.service.shinhan;
 
+import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.CommonPart;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1200;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1510;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
-import com.nomadconnection.dapp.api.dto.shinhan.ui.UiResponse;
+import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.D1200;
 import com.nomadconnection.dapp.core.domain.D1510;
 import com.nomadconnection.dapp.core.domain.GatewayTransactionIdx;
+import com.nomadconnection.dapp.core.domain.User;
+import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1200Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1510Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.GatewayTransactionIdxRepository;
@@ -25,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class IssuanceService {
 
     private final GatewayTransactionIdxRepository gatewayTransactionIdxRepository;
-
+    private final UserRepository userRepository;
     private final D1200Repository d1200Repository;
     private final D1510Repository d1510Repository;
 
@@ -42,7 +45,10 @@ public class IssuanceService {
      * 3) 프론트 리턴 데이터 생성
      */
     @Transactional(rollbackFor = Exception.class)
-    public UiResponse application(String businessLicenseNo) {
+    public UserCorporationDto.IssuanceRes issuance(Long userIdx, UserCorporationDto.IssuanceReq request) {
+
+        User user = findUser(userIdx);
+        String businessLicenseNo = user.corp().resUserIdentiyNo();
 
         // 1200(법인회원신규여부검증)
         proc1200(businessLicenseNo);
@@ -59,11 +65,8 @@ public class IssuanceService {
 
         // 1100(법인카드신청)
 
-        // todo : Response Type 정의
-        return UiResponse.builder()
-                .code("")
-                .desc("")
-                .build();
+        // 성공시 Body 는 공백으로.
+        return new UserCorporationDto.IssuanceRes();
     }
 
     private void proc1200(String businessLicenseNo) {
@@ -123,4 +126,14 @@ public class IssuanceService {
         long tmpTranId = 10000000000L + gatewayTransactionIdx.getIdx();
         return "0" + tmpTranId;     // 010000000001
     }
+
+    private User findUser(Long idx_user) {
+        return userRepository.findById(idx_user).orElseThrow(
+                () -> EntityNotFoundException.builder()
+                        .entity("User")
+                        .idx(idx_user)
+                        .build()
+        );
+    }
+
 }

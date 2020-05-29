@@ -14,7 +14,7 @@ import javax.persistence.Embeddable;
 @AllArgsConstructor
 public class BankAccount {
 
-	private String bankAccount; // 계좌번호
-	private String bankAccountHolder; // 예금주
-	private String bankCode; // 은행코드
+    private String bankAccount; // 계좌번호
+    private String bankAccountHolder; // 예금주
+    private String bankCode; // 은행코드
 }
