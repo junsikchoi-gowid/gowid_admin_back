@@ -163,4 +163,16 @@ public class CustomExceptionHandler {
 	protected ErrorResponse onBusinessException(BusinessException e) {
 		return ErrorResponse.from(e.getError(), e.getDescription());
 	}
+
+	//==================================================================================================================
+	//
+	//	SERVER
+	//
+	//==================================================================================================================
+
+	@ExceptionHandler(ServerError.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	protected ErrorResponse onServerError(ServerError e) {
+		return ErrorResponse.builder().category(e.category().name()).data(e.data()).build();
+	}
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -35,6 +36,7 @@ public class UserCorporationController {
         public static final String STOCKHOLDER = "/stockholder";
         public static final String ACCOUNT = "/account";
         public static final String ISSUANCE = "/issuance";
+        public static final String ISSUANCE_IDX = "/issuance/{idxCardInfo}";
         public static final String CARD = "/card";
         public static final String CEO = "/ceo";
     }
@@ -123,12 +125,35 @@ public class UserCorporationController {
     public ResponseEntity registerCEO(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
-            @RequestBody @Valid UserCorporationDto.RegisterCeo dto) {
+            @RequestBody @Valid UserCorporationDto.RegisterCeo dto) throws IOException {
         if (log.isInfoEnabled()) {
             log.info("([ registerCEO ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.registerCeo(user.idx(), dto, idxCardInfo));
+    }
+
+    @ApiOperation("카드발급정보 전체조회")
+    @GetMapping(URI.ISSUANCE)
+    public ResponseEntity getCardIssuanceByUser(
+            @ApiIgnore @CurrentUser CustomUser user) {
+        if (log.isInfoEnabled()) {
+            log.info("([ getCardIssuanceByUser ]) $user='{}'", user);
+        }
+
+        return ResponseEntity.ok().body(service.getCardIssuanceInfoByUser(user.idx()));
+    }
+
+    @ApiOperation("카드발급정보 전체조회")
+    @GetMapping(URI.ISSUANCE_IDX)
+    public ResponseEntity getCardIssuanceByUser(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @PathVariable Long idxCardInfo) {
+        if (log.isInfoEnabled()) {
+            log.info("([ getCardIssuanceByUser ]) $user='{}', $idx_cardInfo='{}'", user, idxCardInfo);
+        }
+
+        return ResponseEntity.ok().body(service.getCardIssuanceInfo(idxCardInfo));
     }
 
     /**
