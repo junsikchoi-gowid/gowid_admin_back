@@ -16,4 +16,5 @@ public class BankAccount {
 
 	private String bankAccount; // 계좌번호
 	private String bankAccountHolder; // 예금주
+	private String bankName; // 은행명
 }
