@@ -124,7 +124,7 @@ public class UserCorporationDto {
     @AllArgsConstructor
     public static class RegisterAccount {
 
-        @ApiModelProperty("은행명")
+        @ApiModelProperty("은행코드")
         @NotEmpty
         private String bank;
 
@@ -133,6 +133,7 @@ public class UserCorporationDto {
         private String accountNumber;
 
         @ApiModelProperty("예금주")
+        @NotEmpty
         private String accountHolder;
     }
 
@@ -393,12 +394,25 @@ public class UserCorporationDto {
             if (cardInfo != null && cardInfo.bankAccount() != null) {
                 return AccountRes.builder()
                         .idx(cardInfo.idx())
-                        .bank(cardInfo.bankAccount().getBankName())
+                        .bank(cardInfo.bankAccount().getBankCode())
                         .accountNumber(cardInfo.bankAccount().getBankAccount())
                         .accountHolder(cardInfo.bankAccount().getBankAccountHolder())
                         .build();
             }
             return null;
         }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CeoTypeRes {
+
+        @ApiModelProperty("대표종류(1:단일, 2:개별, 3:공동)")
+        private String type;
+
+        @ApiModelProperty("대표수")
+        private Integer count;
     }
 }
