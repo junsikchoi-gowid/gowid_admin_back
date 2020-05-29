@@ -20,4 +20,5 @@ public class Venture {
     private Boolean isVC; // 10억이상 VC투자 여부
     private String investAmount; // 투자금액
     private String investor;
+    private Boolean isExist; // VentureBusiness 존재여부
 }
