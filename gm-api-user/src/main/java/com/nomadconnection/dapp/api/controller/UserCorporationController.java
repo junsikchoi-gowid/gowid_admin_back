@@ -141,6 +141,17 @@ public class UserCorporationController {
         return ResponseEntity.ok().body(service.getCardIssuanceInfoByUser(user.idx()));
     }
 
+    @ApiOperation("벤처기업사 조회")
+    @GetMapping(URI.VENTURE)
+    public ResponseEntity getVenture(
+            @ApiIgnore @CurrentUser CustomUser user) {
+        if (log.isInfoEnabled()) {
+            log.info("([ getCardIssuanceByUser ]) $user='{}'", user);
+        }
+
+        return ResponseEntity.ok().body(service.getVentureBusiness());
+    }
+
     @ApiOperation("카드발급정보 전체조회")
     @GetMapping(URI.ISSUANCE_IDX)
     public ResponseEntity getCardIssuanceByUser(

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,7 @@ public class UserCorporationService {
     private final D1100Repository repoD1100;
     private final CommonCodeDetailRepository repoCodeDetail;
     private final CeoInfoRepository repoCeo;
+    private final VentureBusinessRepository repoVenture;
 
     private final KcbService kcbService;
 
@@ -91,6 +93,7 @@ public class UserCorporationService {
                 .isVC(dto.getIsVC())
                 .isVerifiedVenture(dto.getIsVerifiedVenture())
                 .investor(dto.getInvestor())
+                .isExist(repoVenture.existsByName(dto.getInvestor()) ? true : false)
                 .build()
         );
         Optional<RiskConfig> riskConfig = repoRisk.findByCorpAndEnabled(user.corp(), true);
@@ -335,6 +338,16 @@ public class UserCorporationService {
                 .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
                 .ceoRes(cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()))
                 .build();
+    }
+
+    /**
+     * 벤처기업사 조회
+     *
+     * @return 벤처기업사 목록
+     */
+    @Transactional(readOnly = true)
+    public List<String> getVentureBusiness() {
+        return repoVenture.findAllByOrderByNameAsc().stream().map(ventureBusiness -> ventureBusiness.name()).collect(Collectors.toList());
     }
 
     private User findUser(Long idx_user) {

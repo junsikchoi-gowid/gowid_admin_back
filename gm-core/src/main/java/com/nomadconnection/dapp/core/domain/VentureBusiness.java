@@ -18,5 +18,6 @@ public class VentureBusiness {
     @Column(nullable = false, updatable = false)
     private Long idx;
 
+    @Column(unique = true)
     private String name;
 }
