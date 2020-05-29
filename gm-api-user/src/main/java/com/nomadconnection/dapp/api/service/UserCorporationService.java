@@ -49,7 +49,7 @@ public class UserCorporationService {
     public UserCorporationDto.CorporationRes registerCorporation(Long idx_user, UserCorporationDto.RegisterCorporation dto, Long idx_CardInfo) {
         User user = findUser(idx_user);
 
-        D1000 d1000 = findD1000(user.corp().idx());
+        D1000 d1000 = getD1000(user.corp().idx());
         Corp corp = repoCorp.save(user.corp()
                 .resCompanyEngNm(dto.getEngCorName())
                 .resCompanyNumber(dto.getCorNumber())
@@ -188,7 +188,7 @@ public class UserCorporationService {
                 .requestCount(dto.getCount())
                 .build());
 
-        D1100 d1100 = findD1100(user.corp().idx());
+        D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
             repoD1100.save(d1100.d029(dto.getReceiveType().getCode())
                     .d033(dto.getAddressBasic())
@@ -226,7 +226,7 @@ public class UserCorporationService {
                 .bankAccountHolder(dto.getAccountHolder())
                 .build());
 
-        D1100 d1100 = findD1100(user.corp().idx());
+        D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
             repoD1100.save(d1100.d024(bankCode)
                     .d025(dto.getAccountNumber())
@@ -245,7 +245,7 @@ public class UserCorporationService {
     @Transactional(readOnly = true)
     public UserCorporationDto.CeoTypeRes getCeoType(Long idx_user) {
         User user = findUser(idx_user);
-        D1000 d1000 = findD1000(user.corp().idx());
+        D1000 d1000 = getD1000(user.corp().idx());
         Integer count = 1;
         String ceoType = "1";
         if (d1000 != null) {
@@ -367,12 +367,12 @@ public class UserCorporationService {
         );
     }
 
-    private D1000 findD1000(Long idx_corp) {
-        return repoD1000.findTopByIdxCorpOrderByIdxDesc(idx_corp).orElse(null);
+    private D1000 getD1000(Long idx_corp) {
+        return repoD1000.getTopByIdxCorpOrderByIdxDesc(idx_corp);
     }
 
-    private D1100 findD1100(Long idx_corp) {
-        return repoD1100.findTopByIdxCorpOrderByIdxDesc(idx_corp).orElse(null);
+    private D1100 getD1100(Long idx_corp) {
+        return repoD1100.getTopByIdxCorpOrderByIdxDesc(idx_corp);
     }
 
     private CommonCodeDetail findCommonCodeDetail(Long idx_codeDetail) {
