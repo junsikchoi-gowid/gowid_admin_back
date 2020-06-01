@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,7 +34,7 @@ public class AwsS3Service {
 
     public String s3FileUpload(MultipartFile file, String key) {
         AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("AKIAXD7XVDFHOICQV3XW", "QkQtrBy/+9B3PNyt1+mR5SlkXAU3L/R38eGuu78T")))
+                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.accessKey(), config.secretKey())))
                 //.withCredentials(new InstanceProfileCredentialsProvider(false))
                 .withRegion(Regions.AP_NORTHEAST_2)
                 .build();
@@ -65,7 +64,7 @@ public class AwsS3Service {
     public String s3FileDownload(String key) {
         try {
             AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("AKIAXD7XVDFHOICQV3XW", "QkQtrBy/+9B3PNyt1+mR5SlkXAU3L/R38eGuu78T")))
+                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.accessKey(), config.secretKey())))
                     //.withCredentials(new InstanceProfileCredentialsProvider(false))
                     .withRegion(Regions.AP_NORTHEAST_2)
                     .build();
@@ -84,7 +83,7 @@ public class AwsS3Service {
     public void s3FileDelete(String key) {
         try {
             AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("AKIAXD7XVDFHOICQV3XW", "QkQtrBy/+9B3PNyt1+mR5SlkXAU3L/R38eGuu78T")))
+                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.accessKey(), config.secretKey())))
                     //.withCredentials(new InstanceProfileCredentialsProvider(false))
                     .withRegion(Regions.AP_NORTHEAST_2)
                     .build();
