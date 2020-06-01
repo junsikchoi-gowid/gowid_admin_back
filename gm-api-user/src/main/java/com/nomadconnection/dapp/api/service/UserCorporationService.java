@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.nomadconnection.dapp.api.dto.KcbDto;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
@@ -199,7 +198,7 @@ public class UserCorporationService {
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
             repoD1000.save(d1000
-                    .d022(!StringUtils.hasText(d1000.d022()) ? dto.getZipCode().substring(0,3) : d1000.d022())
+                    .d022(!StringUtils.hasText(d1000.d022()) ? dto.getZipCode().substring(0, 3) : d1000.d022())
                     .d023(!StringUtils.hasText(d1000.d023()) ? dto.getZipCode().substring(3) : d1000.d023())
                     .d024(!StringUtils.hasText(d1000.d024()) ? dto.getAddressBasic() : d1000.d024())
                     .d025(!StringUtils.hasText(d1000.d025()) ? dto.getAddressDetail() : d1000.d025())

@@ -6,7 +6,6 @@ import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import com.nomadconnection.dapp.jwt.exception.AccessTokenNotFoundException;
 import com.nomadconnection.dapp.jwt.exception.JwtSubjectMismatchedException;
 import com.nomadconnection.dapp.jwt.exception.UnacceptableJwtException;
-import com.nomadconnection.dapp.api.exception.EmptyResxException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -517,7 +517,6 @@ public class UserCorporationDto {
     }
 
 
-
     @Data
     @Builder
     @NoArgsConstructor

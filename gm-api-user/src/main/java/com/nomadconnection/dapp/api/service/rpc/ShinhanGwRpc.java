@@ -1,8 +1,7 @@
 package com.nomadconnection.dapp.api.service.rpc;
 
 import com.nomadconnection.dapp.api.common.Const;
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1200;
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1510;
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.response.ApiResponse;
 import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -10,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.io.IOException;
 
@@ -20,11 +20,59 @@ public class ShinhanGwRpc extends BaseRpc {
     @Value("${gateway.domain: http://loclhost:8090}")
     private String GATEWAY_DOMAIN;
 
-    @Value("${gateway.shinhan.uri.1510: /shinhan/1510}")
+    @Value("${gateway.shinhan.uri.1200: /shinhan/1200}")
     private String GATEWAY_SHINHAN_URI_1200;
 
     @Value("${gateway.shinhan.uri.1510: /shinhan/1510}")
     private String GATEWAY_SHINHAN_URI_1510;
+
+    @Value("${gateway.shinhan.uri.1520: /shinhan/1520}")
+    private String GATEWAY_SHINHAN_URI_1520;
+
+    @Value("${gateway.shinhan.uri.1530: /shinhan/1530}")
+    private String GATEWAY_SHINHAN_URI_1530;
+
+    @Value("${gateway.shinhan.uri.1000: /shinhan/1000}")
+    private String GATEWAY_SHINHAN_URI_1000;
+
+    @Value("${gateway.shinhan.uri.1400: /shinhan/1400}")
+    private String GATEWAY_SHINHAN_URI_1400;
+
+    @Value("${gateway.shinhan.uri.1100: /shinhan/1100}")
+    private String GATEWAY_SHINHAN_URI_1100;
+
+    // todo : properties 적용
+    public DataPart1200 request1200(DataPart1200 requestRpc) {
+
+        ApiResponse<?> responseRpc;
+        try {
+            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1200,
+                    HttpMethod.POST,
+                    null,
+                    requestRpc,
+                    ApiResponse.class);
+
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, e.getMessage());
+
+        } catch (RestClientResponseException e) {
+            log.error("## Response ==> {}", e.getResponseBodyAsString());
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, e.getMessage());
+        }
+
+        if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200);
+        }
+
+        DataPart1200 response1200 = (DataPart1200) responseRpc.getData();
+        if (!response1200.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1200, response1200.getC009() + "/" + response1200.getC013());
+        }
+
+        return response1200;
+
+    }
 
     public void request1510(DataPart1510 requestRpc) {
 
@@ -37,7 +85,10 @@ public class ShinhanGwRpc extends BaseRpc {
                     ApiResponse.class);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1510);
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1510, e.getMessage());
+        } catch (RestClientResponseException e) {
+            log.error("## Response ==> {}", e.getResponseBodyAsString());
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1510, e.getMessage());
         }
 
         if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
@@ -46,33 +97,147 @@ public class ShinhanGwRpc extends BaseRpc {
 
         DataPart1510 response1510 = (DataPart1510) responseRpc.getData();
         if (!response1510.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1510);
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1510, response1510.getC009() + "/" + response1510.getC013());
         }
 
     }
 
-    public void request1200(DataPart1200 requestRpc) {
+    public void request1520(DataPart1520 requestRpc) {
 
-        ApiResponse<?> responseRpc = null;
+        ApiResponse<?> responseRpc;
         try {
-            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1200,
+            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1520,
                     HttpMethod.POST,
                     null,
                     requestRpc,
                     ApiResponse.class);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1520, e.getMessage());
+        } catch (RestClientResponseException e) {
+            log.error("## Response ==> {}", e.getResponseBodyAsString());
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1520, e.getMessage());
         }
 
         if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200);
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1520);
         }
 
-        DataPart1200 response1200 = (DataPart1200) responseRpc.getData();
-        if (!response1200.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200);
+        DataPart1520 response1520 = (DataPart1520) responseRpc.getData();
+        if (!response1520.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1520, response1520.getC009() + "/" + response1520.getC013());
         }
 
+    }
+
+    public void request1530(DataPart1530 requestRpc) {
+
+        ApiResponse<?> responseRpc;
+        try {
+            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1530,
+                    HttpMethod.POST,
+                    null,
+                    requestRpc,
+                    ApiResponse.class);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1530, e.getMessage());
+        } catch (RestClientResponseException e) {
+            log.error("## Response ==> {}", e.getResponseBodyAsString());
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1530, e.getMessage());
+        }
+
+        if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1530);
+        }
+
+        DataPart1530 response1530 = (DataPart1530) responseRpc.getData();
+        if (!response1530.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1530, response1530.getC009() + "/" + response1530.getC013());
+        }
+    }
+
+    // todo : 보류처리 추가
+    public void request1000(DataPart1000 requestRpc) {
+
+        ApiResponse<?> responseRpc;
+        try {
+            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1000,
+                    HttpMethod.POST,
+                    null,
+                    requestRpc,
+                    ApiResponse.class);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1000, e.getMessage());
+        } catch (RestClientResponseException e) {
+            log.error("## Response ==> {}", e.getResponseBodyAsString());
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1000, e.getMessage());
+        }
+
+        if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1000);
+        }
+
+        DataPart1000 response1000 = (DataPart1000) responseRpc.getData();
+        if (!response1000.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1000, response1000.getC009() + "/" + response1000.getC013());
+        }
+    }
+
+    // todo : 보류처리 추가
+    public void request1400(DataPart1400 requestRpc) {
+
+        ApiResponse<?> responseRpc;
+        try {
+            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1400,
+                    HttpMethod.POST,
+                    null,
+                    requestRpc,
+                    ApiResponse.class);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1400, e.getMessage());
+        } catch (RestClientResponseException e) {
+            log.error("## Response ==> {}", e.getResponseBodyAsString());
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1400, e.getMessage());
+        }
+
+        if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1400);
+        }
+
+        DataPart1400 response1400 = (DataPart1400) responseRpc.getData();
+        if (!response1400.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1400, response1400.getC009() + "/" + response1400.getC013());
+        }
+    }
+
+    public void request1100(DataPart1100 requestRpc) {
+
+        ApiResponse<?> responseRpc;
+        try {
+            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1100,
+                    HttpMethod.POST,
+                    null,
+                    requestRpc,
+                    ApiResponse.class);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1100, e.getMessage());
+        } catch (RestClientResponseException e) {
+            log.error("## Response ==> {}", e.getResponseBodyAsString());
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1100, e.getMessage());
+        }
+
+        if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1100);
+        }
+
+        DataPart1100 response1100 = (DataPart1100) responseRpc.getData();
+        if (!response1100.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1100, response1100.getC009() + "/" + response1100.getC013());
+        }
     }
 
 
