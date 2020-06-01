@@ -36,6 +36,11 @@ public class StockholderFile extends BaseTime {
 
     private String s3Link; // s3주소
 
+    private String s3Key; // s3key
+
+    @Enumerated(EnumType.STRING)
+    private StockholderFileType type;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "fk__stockholder_file__corp"))
     private Corp corp;

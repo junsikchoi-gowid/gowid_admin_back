@@ -47,6 +47,7 @@ public class KcbService {
         log.info("[authenticationSms] $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
 
         if (!response.getData().getCode().equals("B000")) {
+            log.error("([ authenticationSms ]) $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
             throw ServerError.builder().category(ServerError.Category.KCB_SERVER_ERROR).data(response).build();
         }
 
@@ -71,6 +72,7 @@ public class KcbService {
         log.info("[certSms] $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
 
         if (!response.getData().getCode().equals("B000")) {
+            log.error("([ certSms ]) $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
             throw ServerError.builder().category(ServerError.Category.KCB_SERVER_ERROR).data(response).build();
         }
 

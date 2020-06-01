@@ -6,12 +6,15 @@ import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
@@ -31,6 +34,8 @@ public class UserCorporationController {
         public static final String CORPORATION = "/corporation";
         public static final String VENTURE = "/venture";
         public static final String STOCKHOLDER = "/stockholder";
+        public static final String STOCKHOLDER_FILE = "/stockholder/file";
+        public static final String STOCKHOLDER_FILE_IDX = "/stockholder/file/{idxFile}";
         public static final String ACCOUNT = "/account";
         public static final String ISSUANCE = "/issuance";
         public static final String ISSUANCE_IDX = "/issuance/{idxCardInfo}";
@@ -78,6 +83,37 @@ public class UserCorporationController {
         }
 
         return ResponseEntity.ok().body(service.registerStockholder(user.idx(), dto, idxCardInfo));
+    }
+
+    @ApiOperation("주주명부 파일 등록")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "fileType", value = "BASIC:주주명부, MAJOR:1대주주명부", dataType = "String")
+    })
+    @PostMapping(URI.STOCKHOLDER_FILE)
+    public ResponseEntity uploadStockholderFile(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestParam Long idxCardInfo,
+            @RequestParam String fileType,
+            @RequestPart MultipartFile file) {
+        if (log.isInfoEnabled()) {
+            log.info("([ uploadStockholderFile ]) $user='{}', $file='{}', $idx_cardInfo='{}'", user, file, idxCardInfo);
+        }
+
+        return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), file, fileType, idxCardInfo));
+    }
+
+    @ApiOperation("주주명부 파일 등록")
+    @PostMapping(URI.STOCKHOLDER_FILE_IDX)
+    public ResponseEntity deleteStockholderFile(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestParam Long idxCardInfo,
+            @PathVariable Long idxFile) {
+        if (log.isInfoEnabled()) {
+            log.info("([ deleteStockholderFile ]) $user='{}', $idx_file='{}', $idx_cardInfo='{}'", user, idxFile, idxCardInfo);
+        }
+
+        service.deleteStockholderFile(user.idx(), idxFile, idxCardInfo);
+        return ResponseEntity.ok().build();
     }
 
     @ApiOperation("카드발급정보 등록")
