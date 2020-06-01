@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface D1100Repository extends JpaRepository<D1100, Long> {
     Optional<D1100> findTopByIdxCorpOrderByIdxDesc(Long idxCorp);
+
+    D1100 findFirstByIdxCorpOrderByUpdatedAtDesc(long idxCorp);
 }

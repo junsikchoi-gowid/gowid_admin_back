@@ -16,4 +16,9 @@ public class BusinessException extends RuntimeException {
 		this.error = externalError.getCode();
 		this.description = externalError.getDesc();
 	}
+
+	public BusinessException(ErrorCode.External externalError, String addString) {
+		this.error = externalError.getCode();
+		this.description = externalError.getDesc() + " - " + addString;
+	}
 }
