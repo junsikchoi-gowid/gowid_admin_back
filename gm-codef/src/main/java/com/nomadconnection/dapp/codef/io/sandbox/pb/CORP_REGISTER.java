@@ -44,6 +44,8 @@ public class CORP_REGISTER {
         // API 요청
         String result = ApiRequest.request(urlPath, bodyMap);
 
+        // 응답결과 확인
+        System.out.println(result);
 
         return result;
     }

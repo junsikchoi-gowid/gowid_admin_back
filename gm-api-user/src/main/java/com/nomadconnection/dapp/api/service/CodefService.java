@@ -55,6 +55,7 @@ public class CodefService {
 	private final CorpRepository repoCorp;
 	private final ResBatchRepository repoResBatch;
 	private final ScrapingService serviceScraping;
+
 	private final ResRegisterEntriesListRepository repoResRegisterEntriesList;
 	private final ResCompanyNmListRepository repoResCompanyNmList;
 	private final ResUserAddrListRepository repoResUserAddrList;
@@ -86,7 +87,12 @@ public class CodefService {
 	private final ResTypeStockContentItemListRepository repoResTypeStockContentItemList;
 	private final ResCCCapitalStockItemListRepository repoResCCCapitalStockItemList;
 
-
+	private final ResStandardFinancialListRepository repoResStandardFinancialList;
+	private final ResBalanceSheetRepository repoResBalanceSheet;
+	private final ResIncomeStatementRepository repoResIncomeStatement;
+	private final ResCostSpecificationListRepository repoResCostSpecificationList;
+	private final ResFinancialStatementListRepository repoResFinancialStatementList;
+	private final ResCostSpecificationRepository repoResCostSpecification;
 
 	private final String urlPath = CommonConstant.getRequestDomain();
 
@@ -624,6 +630,47 @@ public class CodefService {
 		return ResponseEntity.ok().body(BusinessResponse.builder().normal(normal).build());
 	}
 
+	@SneakyThrows
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity deleteAccount2(String connectedId, Long idx){
+
+		HashMap<String, Object> bodyMap = new HashMap<>();
+		List<HashMap<String, Object>> list = new ArrayList<>();
+		HashMap<String, Object> accountMap1;
+		String createUrlPath = urlPath + CommonConstant.DELETE_ACCOUNT;
+		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
+
+
+		for( String s : CommonConstant.LISTBANK){
+			accountMap1 = new HashMap<>();
+			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
+			accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("organization",	s);// 기관코드
+			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+			list.add(accountMap1);
+		}
+
+		accountMap1 = new HashMap<>();
+		accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+		accountMap1.put("businessType",	CommonConstant.REVENUETYPE);  // 업무구분코드
+		accountMap1.put("clientType",  	"A");   // "고객구분(P: 개인, B: 기업)
+		accountMap1.put("organization",	"0002");// 기관코드
+		accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+		list.add(accountMap1);
+
+
+		bodyMap.put("accountList", list);
+		bodyMap.put(CommonConstant.CONNECTED_ID, connectedId );
+		String strObject = ApiRequest.request(createUrlPath, bodyMap);
+		JSONParser jsonParse = new JSONParser();
+		JSONObject jsonObject = (JSONObject)jsonParse.parse(strObject);
+		String strResultCode = jsonObject.get("result").toString();
+		String code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().normal(normal).build());
+	}
+
 
 	/**
 	 * 계정 목록조회
@@ -691,7 +738,7 @@ public class CodefService {
 		accountMap1.put("loginType",  	"0");   	// 로그인타입 (0: 인증서, 1: ID/PW)
 		accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
 		accountMap1.put("certType",     CommonConstant.CERTTYPE);
-		accountMap1.put("certFile",     dto.getCertFile());
+		accountMap1.put("certFile",     dto.getCertFile()); // dto.getCertFile()
 		list.add(accountMap1);
 
 		bodyMap.put("accountList", list);
@@ -699,9 +746,8 @@ public class CodefService {
 		JSONObject jsonObject = (JSONObject)jsonParse.parse(ApiRequest.request(createUrlPath, bodyMap));
 
 		String code = ((JSONObject)(jsonObject.get("result"))).get("code").toString();
-		String connectedId = "7S8fv4cNQauaRk-22.l5kD";
+		String connectedId ;
 
-		/*
 		if(code.equals("CF-00000") || code.equals("CF-04012")) {
 			connectedId = ((JSONObject)(jsonObject.get("data"))).get("connectedId").toString();
 
@@ -734,7 +780,6 @@ public class CodefService {
 		}else{
 			throw new RuntimeException(code);
 		}
-		*/
 
 		// 국세청 - 증명발급 사업자등록
 		JSONObject[] jsonObjectProofIssue = getApiResult(PROOF_ISSUE.proof_issue(
@@ -744,8 +789,9 @@ public class CodefService {
 				"01",
 				"1",
 				"0",
-				"01",
-				dto.getIdentity()
+				"",
+				"" // 사업자번호
+
 		));
 
 		String jsonObjectProofIssueCode = jsonObjectProofIssue[0].get("code").toString();
@@ -756,35 +802,35 @@ public class CodefService {
 
 			// todo 이미 가입된 회사의 경우 처리 필요 - 안되게 막음
 			//	중복체크
-//			if (repoCorp.findByResCompanyIdentityNo(dto.getIdentity()).isPresent()) {
-//				if (log.isDebugEnabled()) {
-//					log.debug("([ registerBrandCorp ]) registerBrandCorp ALREADY EXIST, $idxUser='{}', $resCompanyIdentityNo='{}'", idxUser, dto.getIdentity());
-//				}
-//				throw AlreadyExistException.builder()
-//						.resource(dto.getIdentity())
-//						.build();
-//			}
+			if (repoCorp.findByResCompanyIdentityNo(dto.getIdentity()).isPresent()) {
+				if (log.isDebugEnabled()) {
+					log.debug("([ registerBrandCorp ]) registerBrandCorp ALREADY EXIST, $idxUser='{}', $resCompanyIdentityNo='{}'", idxUser, dto.getIdentity());
+				}
+				throw AlreadyExistException.builder()
+						.resource(dto.getIdentity())
+						.build();
+			}
 
 			//	사용자 조회
 			Optional<User> user = repoUser.findById(idxUser);
 
-			repoCorp.save(
+			Corp corp = repoCorp.save(
 					Corp.builder()
-							.resJointRepresentativeNm(GowidUtils.getEmptyStringToString(jsonData,"resJointRepresentativeNm"))
-							.resIssueOgzNm(GowidUtils.getEmptyStringToString(jsonData,"resIssueOgzNm"))
-							.resCompanyNm(GowidUtils.getEmptyStringToString(jsonData,"resCompanyNm"))
-							.resBusinessTypes(GowidUtils.getEmptyStringToString(jsonData,"resBusinessTypes"))
-							.resBusinessItems(GowidUtils.getEmptyStringToString(jsonData,"resBusinessItems"))
-							.resBusinessmanType(GowidUtils.getEmptyStringToString(jsonData,"resBusinessmanType"))
-							.resCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData,"resCompanyIdentityNo"))
-							.resIssueNo(GowidUtils.getEmptyStringToString(jsonData,"resIssueNo"))
-							.resJointIdentityNo(GowidUtils.getEmptyStringToString(jsonData,"resJointIdentityNo"))
-							.resOpenDate(GowidUtils.getEmptyStringToString(jsonData,"resOpenDate"))
-							.resOriGinalData(GowidUtils.getEmptyStringToString(jsonData,"resOriGinalData"))
-							.resRegisterDate(GowidUtils.getEmptyStringToString(jsonData,"resRegisterDate"))
-							.resUserAddr(GowidUtils.getEmptyStringToString(jsonData,"resUserAddr"))
-							.resUserIdentiyNo(GowidUtils.getEmptyStringToString(jsonData,"resUserIdentiyNo"))
-							.resUserNm(GowidUtils.getEmptyStringToString(jsonData,"resUserNm"))
+							.resJointRepresentativeNm(GowidUtils.getEmptyStringToString(jsonData, "resJointRepresentativeNm"))
+							.resIssueOgzNm(GowidUtils.getEmptyStringToString(jsonData, "resIssueOgzNm"))
+							.resCompanyNm(GowidUtils.getEmptyStringToString(jsonData, "resCompanyNm"))
+							.resBusinessTypes(GowidUtils.getEmptyStringToString(jsonData, "resBusinessTypes"))
+							.resBusinessItems(GowidUtils.getEmptyStringToString(jsonData, "resBusinessItems"))
+							.resBusinessmanType(GowidUtils.getEmptyStringToString(jsonData, "resBusinessmanType"))
+							.resCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo"))
+							.resIssueNo(GowidUtils.getEmptyStringToString(jsonData, "resIssueNo"))
+							.resJointIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resJointIdentityNo"))
+							.resOpenDate(GowidUtils.getEmptyStringToString(jsonData, "resOpenDate"))
+							.resOriGinalData(GowidUtils.getEmptyStringToString(jsonData, "resOriGinalData"))
+							.resRegisterDate(GowidUtils.getEmptyStringToString(jsonData, "resRegisterDate"))
+							.resUserAddr(GowidUtils.getEmptyStringToString(jsonData, "resUserAddr"))
+							.resUserIdentiyNo(GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo"))
+							.resUserNm(GowidUtils.getEmptyStringToString(jsonData, "resUserNm"))
 							.status(CorpStatus.PENDING)
 							.user(user.get())
 							.build()
@@ -795,30 +841,30 @@ public class CodefService {
 			JSONObject[] jsonObjectCorpRegister = getApiResult(CORP_REGISTER.corp_register(
 					"0002",
 					"01000000000",
-					"YZUWGj6ZYnK",
-					"0",
-					"주식회사 데일리금융그룹(DAYLI Financial Group Inc)", // GowidUtils.getEmptyStringToString(jsonData,"resCompanyNm"),
+					RSAUtil.encryptRSA("YZUWGj6ZYnK", CommonConstant.PUBLIC_KEY),
+					"1",
+					GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").trim().replaceAll("-", ""),
 					"1",
 					"T34029396293",
 					"gowid99!",
-					"",
-					"",
-					"",
-					"",
+					"0",
+					"0",
+					"0",
+					"0",
+					"0",
 					"0",
 					"",
-					"",
-					"",
-					""
+					"0",
+					"N"
 			));
 
 			String jsonObjectCorpRegisterCode = jsonObjectCorpRegister[0].get("code").toString();
-			if (jsonObjectCorpRegisterCode.equals("CF-00000") ) {
+			if (jsonObjectCorpRegisterCode.equals("CF-00000")) {
 				JSONObject jsonDataCorpRegister = jsonObjectCorpRegister[1];
 
-			if(!jsonDataCorpRegister.get("resIssueYN").toString().equals("1")){
-				throw new RuntimeException("발행실패");
-			}
+				if (!jsonDataCorpRegister.get("resIssueYN").toString().equals("1")) {
+					throw new RuntimeException("발행실패");
+				}
 
 				JSONObject jsonData2 = (JSONObject) jsonDataCorpRegister.get("resRegisterEntriesList");
 
@@ -846,6 +892,7 @@ public class CodefService {
 
 				ResRegisterEntriesList parent = repoResRegisterEntriesList.save(
 						ResRegisterEntriesList.builder()
+								.idx(corp.idx())
 								.resDocTitle(GowidUtils.getEmptyStringToString(jsonData2, "resAccountDisplay"))
 								.resRegistrationNumber(GowidUtils.getEmptyStringToString(jsonData2, "resRegistrationNumber"))
 								.resRegNumber(GowidUtils.getEmptyStringToString(jsonData2, "resRegNumber"))
@@ -884,14 +931,76 @@ public class CodefService {
 			JSONObject[] jsonObjectStandardFinancial = getApiResult(STANDARD_FINANCIAL.standard_financial(
 					"0001",
 					connectedId,
-					"2000",
+					"200001",
 					"0",
 					"04",
 					"01",
 					"40",
 					"",
-					dto.getIdentity() // GowidUtils.getEmptyStringToString(jsonData,"resUserIdentiyNo")
-					));
+					GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo").trim().replaceAll("-", "") // 사업자번호
+			));
+
+			String jsonObjectStandardFinancialCode = jsonObjectStandardFinancial[0].get("code").toString();
+			if (jsonObjectStandardFinancialCode.equals("CF-00000") ) {
+				JSONObject jsonData2 = jsonObjectStandardFinancial[1];
+
+				JSONArray resBalanceSheet = (JSONArray) jsonData2.get("resBalanceSheet");
+				JSONArray resIncomeStatement = (JSONArray) jsonData2.get("resIncomeStatement");
+				JSONArray resCostSpecificationList = (JSONArray) jsonData2.get("resCostSpecificationList");
+				JSONArray resFinancialStatementList = (JSONArray) jsonData2.get("resFinancialStatementList");
+
+				ResStandardFinancialList parentStandardFinancial = repoResStandardFinancialList.save(
+						ResStandardFinancialList.builder()
+								.idxCorp(corp.idx())
+								.commStartDate(GowidUtils.getEmptyStringToString(jsonData2, "commStartDate"))
+								.commEndDate(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate"))
+								.resUserNm(GowidUtils.getEmptyStringToString(jsonData2, "resUserNm"))
+								.resIssueNo(GowidUtils.getEmptyStringToString(jsonData2, "resIssueNo"))
+								.resUserAddr(GowidUtils.getEmptyStringToString(jsonData2, "resUserAddr"))
+								.resUserIdentiyNo(GowidUtils.getEmptyStringToString(jsonData2, "resUserIdentiyNo"))
+								.resCompanyNm(GowidUtils.getEmptyStringToString(jsonData2, "resCompanyNm"))
+								.resCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData2, "resCompanyIdentityNo"))
+								.resBusinessItems(GowidUtils.getEmptyStringToString(jsonData2, "resBusinessItems"))
+								.resBusinessTypes(GowidUtils.getEmptyStringToString(jsonData2, "resBusinessTypes"))
+								.resAttachDocument(GowidUtils.getEmptyStringToString(jsonData2, "resAttachDocument"))
+								.resReportingDate(GowidUtils.getEmptyStringToString(jsonData2, "resReportingDate"))
+								.resAttrYear(GowidUtils.getEmptyStringToString(jsonData2, "resAttrYear"))
+								.build()
+				);
+
+				saveJSONArrayResBalanceSheet(resBalanceSheet, parentStandardFinancial.idx());
+				saveJSONArrayResIncomeStatement(resIncomeStatement, parentStandardFinancial.idx());
+				saveJSONArrayResCostSpecificationList(resCostSpecificationList, parentStandardFinancial.idx());
+				saveJSONArrayResFinancialStatementList(resFinancialStatementList, parentStandardFinancial.idx());
+			}else{
+				normal.setStatus(false);
+				normal.setKey("STANDARD_FINANCIAL");
+			}
+		}else{
+			normal.setStatus(false);
+			normal.setKey("CORP_REGISTER");
+		}
+
+		if(!normal.isStatus()){
+			accountMap1 = new HashMap<>();
+			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+			accountMap1.put("businessType",	CommonConstant.REVENUETYPE);  // 업무구분코드
+			accountMap1.put("clientType",  	"A");   // "고객구분(P: 개인, B: 기업)
+			accountMap1.put("organization",	"0002");// 기관코드
+			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+			list.add(accountMap1);
+
+			bodyMap.put("accountList", list);
+			bodyMap.put(CommonConstant.CONNECTED_ID, connectedId );
+			String deleteUrlPath = urlPath + CommonConstant.DELETE_ACCOUNT;
+			JSONParser jsonParse1 = new JSONParser();
+			JSONObject jsonObject1 = (JSONObject)jsonParse1.parse(ApiRequest.request(deleteUrlPath, bodyMap));
+			String strResultCode1 = jsonObject1.get("result").toString();
+			String code1 = (((JSONObject)jsonParse.parse(strResultCode1)).get("code")).toString();
+
+			if(code1.equals("CF-00000")){
+				repoConnectedMng.deleteConnectedQuery(connectedId);
+			}
 		}
 
 		// 은행정보가 있는지 체크
@@ -1258,22 +1367,6 @@ public class CodefService {
 			);
 		});
 	}
-
-	private void saveJSONArray22(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-
-			ResCEOList parent = repoResCEOList.save(ResCEOList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resUserNm(GowidUtils.getEmptyStringToString(obj, "resUserNm"))
-					.resUserIdentiyNo(GowidUtils.getEmptyStringToString(obj, "resUserIdentiyNo"))
-					.resUserAddr(GowidUtils.getEmptyStringToString(obj, "resUserAddr"))
-					.build()
-			);
-		});
-	}
-
 	private void saveResRegistrationDateList(JSONArray jsonArrayResRegistrationDateList, Long idx) {
 		jsonArrayResRegistrationDateList.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
@@ -1301,12 +1394,84 @@ public class CodefService {
 		});
 	}
 
-	public ResponseEntity refresh(Long idxUser, Long idxCorp) {
+	private void saveJSONArrayResBalanceSheet(JSONArray jsonArray, Long idx ) {
+		jsonArray.forEach(item -> {
+			JSONObject obj = (JSONObject) item;
 
-		idxUser = getaLong(idxUser, idxCorp);
+			repoResBalanceSheet.save(ResBalanceSheet.builder()
+					.idxParent(idx)
+					.title(GowidUtils.getEmptyStringToString(obj, "title"))
+					.amt(GowidUtils.getEmptyStringToString(obj, "amt"))
+					.code(GowidUtils.getEmptyStringToString(obj, "code"))
+					.number(GowidUtils.getEmptyStringToString(obj, "number"))
+					.build()
+			);
+		});
+	}
 
-		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idxUser);
-		return ResponseEntity.ok().body(BusinessResponse.builder().data(returnData).build());
+	private void saveJSONArrayResIncomeStatement(JSONArray jsonArray, Long idx ) {
+		jsonArray.forEach(item -> {
+			JSONObject obj = (JSONObject) item;
+
+			repoResIncomeStatement.save(ResIncomeStatement.builder()
+					.idxParent(idx)
+					.title(GowidUtils.getEmptyStringToString(obj, "title"))
+					.amt(GowidUtils.getEmptyStringToString(obj, "amt"))
+					.code(GowidUtils.getEmptyStringToString(obj, "code"))
+					.number(GowidUtils.getEmptyStringToString(obj, "number"))
+					.build()
+			);
+		});
+	}
+
+	private void saveJSONArrayResCostSpecificationList(JSONArray jsonArray, Long idx ) {
+		jsonArray.forEach(item -> {
+			JSONObject obj = (JSONObject) item;
+			JSONArray jsonArrayItem = (JSONArray) obj.get("resCostSpecification");
+
+			ResCostSpecificationList parent = repoResCostSpecificationList.save(
+					ResCostSpecificationList.builder()
+							.idxParent(idx)
+							.resDocTitle(GowidUtils.getEmptyStringToString(obj, "resDocTitle"))
+							.build()
+			);
+
+			jsonArrayItem.forEach( item2 -> {
+				repoResCostSpecification.save(ResCostSpecification.builder()
+						.idxParent(parent.idx())
+						.title(GowidUtils.getEmptyStringToString(obj, "title"))
+						.amt(GowidUtils.getEmptyStringToString(obj, "amt"))
+						.code(GowidUtils.getEmptyStringToString(obj, "code"))
+						.number(GowidUtils.getEmptyStringToString(obj, "number"))
+						.build()
+				);
+			});
+		});
+	}
+
+	private void saveJSONArrayResFinancialStatementList(JSONArray jsonArray, Long idx ) {
+		jsonArray.forEach(item -> {
+			JSONObject obj = (JSONObject) item;
+			JSONArray jsonArrayItem = (JSONArray) obj.get("resCostSpecification");
+
+			ResFinancialStatementList parent = repoResFinancialStatementList.save(
+					ResFinancialStatementList.builder()
+							.idxParent(idx)
+							.resDocTitle(GowidUtils.getEmptyStringToString(obj, "resDocTitle"))
+							.build()
+			);
+
+			jsonArrayItem.forEach( item2 -> {
+				repoResCostSpecification.save(ResCostSpecification.builder()
+						.idxParent(parent.idx())
+						.title(GowidUtils.getEmptyStringToString(obj, "title"))
+						.amt(GowidUtils.getEmptyStringToString(obj, "amt"))
+						.code(GowidUtils.getEmptyStringToString(obj, "code"))
+						.number(GowidUtils.getEmptyStringToString(obj, "number"))
+						.build()
+				);
+			});
+		});
 	}
 
 	private Long getaLong(Long idxUser, Long idxCorp) {
