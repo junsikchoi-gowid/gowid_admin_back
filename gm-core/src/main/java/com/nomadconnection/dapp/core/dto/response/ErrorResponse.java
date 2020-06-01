@@ -23,14 +23,16 @@ public class ErrorResponse {
 	private String description;
 	private List<FieldError> fieldErrors;
 	private LocalDateTime current;
+	private Object data;
 
 	@Builder
-	public ErrorResponse(String category, String error, String description, List<FieldError> fieldErrors) {
+	public ErrorResponse(String category, String error, String description, List<FieldError> fieldErrors, Object data) {
 		this.category = category;
 		this.error = error;
 		this.description = description;
 		this.fieldErrors = fieldErrors;
 		this.current = LocalDateTime.now();
+		this.data = data;
 	}
 
 	public static ErrorResponse from(ErrorCodeDescriptor descriptor) {

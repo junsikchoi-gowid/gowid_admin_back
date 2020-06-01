@@ -9,9 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public class UserCorporationDto {
 
@@ -48,8 +50,8 @@ public class UserCorporationDto {
         @NotNull
         private Boolean isVC;
 
-        @ApiModelProperty("투자사")
-        private Long investor;
+        @ApiModelProperty("투자사명")
+        private String investorName;
 
         @ApiModelProperty("누적투자금액")
         private String amount;
@@ -162,7 +164,7 @@ public class UserCorporationDto {
         @NotEmpty
         private String phoneNumber;
 
-        @ApiModelProperty("생년월일(19930412)")
+        @ApiModelProperty("생년월일(yyMMdd)")
         private String birth;
 
         @ApiModelProperty("성별(1:남자, 2:여자)")
@@ -202,6 +204,9 @@ public class UserCorporationDto {
         @ApiModelProperty("업종")
         private String businessType;
 
+        @ApiModelProperty("업종코드")
+        private String businessCode;
+
         @ApiModelProperty("사업장전화번호")
         private String companyNumber;
 
@@ -222,7 +227,8 @@ public class UserCorporationDto {
                         .engCorName(corp.resCompanyEngNm())
                         .companyIdentityNo(corp.resCompanyIdentityNo())
                         .corporationNo(corp.resUserIdentiyNo())
-                        .businessType(corp.resBusinessItems()) //TODO: delete
+                        .businessType(corp.resBusinessItems())
+                        .businessCode(corp.resBusinessCode())
                         .companyNumber(corp.resCompanyNumber())
                         .address(corp.resUserAddr())
                         .ceo(corp.resUserNm())
@@ -261,7 +267,7 @@ public class UserCorporationDto {
                         .isVerifiedVenture(cardInfo.venture().isVerifiedVenture())
                         .isVC(cardInfo.venture().isVC())
                         .amount(cardInfo.venture().investAmount())
-                        // TODO: investor 정보
+                        .investor(cardInfo.venture().investor())
                         .build();
             }
             return null;
@@ -425,6 +431,7 @@ public class UserCorporationDto {
 
     @Data
     @Builder
+    @Accessors(chain = true)
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CeoRes {
@@ -447,11 +454,17 @@ public class UserCorporationDto {
         @ApiModelProperty("휴대폰번호")
         private String phoneNumber;
 
-        @ApiModelProperty("생년월일(19930412)")
+        @ApiModelProperty("생년월일(yyMMdd)")
         private String birth;
 
         @ApiModelProperty("성별(1:남자, 2:여자)")
         private Long genderCode;
+
+        @ApiModelProperty("대표종류(1:단일, 2:개별, 3:공동)")
+        private String ceoType;
+
+        @ApiModelProperty("휴대폰인증 고유아이디")
+        private String deviceId;
 
         public static CeoRes from(CeoInfo ceoInfo) {
             if (ceoInfo != null) {
@@ -464,6 +477,7 @@ public class UserCorporationDto {
                         .phoneNumber(ceoInfo.phoneNumber())
                         .birth(ceoInfo.birth())
                         .genderCode(ceoInfo.genderCode())
+                        .ceoType(ceoInfo.type().getCode())
                         .build();
             }
             return null;
@@ -501,4 +515,17 @@ public class UserCorporationDto {
     }
 
 
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CardIssuanceInfoRes {
+        private CorporationRes corporationRes;
+        private VentureRes ventureRes;
+        private StockholderRes stockholderRes;
+        private CardRes cardRes;
+        private AccountRes accountRes;
+        private List<CeoRes> ceoRes;
+    }
 }

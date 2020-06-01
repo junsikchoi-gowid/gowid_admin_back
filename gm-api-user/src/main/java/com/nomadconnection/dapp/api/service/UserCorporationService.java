@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.dto.KcbDto;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
@@ -16,7 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,6 +35,9 @@ public class UserCorporationService {
     private final D1100Repository repoD1100;
     private final CommonCodeDetailRepository repoCodeDetail;
     private final CeoInfoRepository repoCeo;
+    private final VentureBusinessRepository repoVenture;
+
+    private final KcbService kcbService;
 
     /**
      * 법인정보 등록
@@ -42,7 +49,7 @@ public class UserCorporationService {
     public UserCorporationDto.CorporationRes registerCorporation(Long idx_user, UserCorporationDto.RegisterCorporation dto, Long idx_CardInfo) {
         User user = findUser(idx_user);
 
-        D1000 d1000 = findD1000(user.corp().idx());
+        D1000 d1000 = getD1000(user.corp().idx());
         Corp corp = repoCorp.save(user.corp()
                 .resCompanyEngNm(dto.getEngCorName())
                 .resCompanyNumber(dto.getCorNumber())
@@ -85,7 +92,8 @@ public class UserCorporationService {
                 .investAmount(dto.getAmount())
                 .isVC(dto.getIsVC())
                 .isVerifiedVenture(dto.getIsVerifiedVenture())
-                .commonCodeDetail(findCommonCodeDetail(dto.getInvestor()))
+                .investor(dto.getInvestorName())
+                .isExist(repoVenture.existsByName(dto.getInvestorName()) ? true : false)
                 .build()
         );
         Optional<RiskConfig> riskConfig = repoRisk.findByCorpAndEnabled(user.corp(), true);
@@ -180,7 +188,7 @@ public class UserCorporationService {
                 .requestCount(dto.getCount())
                 .build());
 
-        D1100 d1100 = findD1100(user.corp().idx());
+        D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
             repoD1100.save(d1100.d029(dto.getReceiveType().getCode())
                     .d033(dto.getAddressBasic())
@@ -218,7 +226,7 @@ public class UserCorporationService {
                 .bankAccountHolder(dto.getAccountHolder())
                 .build());
 
-        D1100 d1100 = findD1100(user.corp().idx());
+        D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
             repoD1100.save(d1100.d024(bankCode)
                     .d025(dto.getAccountNumber())
@@ -237,7 +245,7 @@ public class UserCorporationService {
     @Transactional(readOnly = true)
     public UserCorporationDto.CeoTypeRes getCeoType(Long idx_user) {
         User user = findUser(idx_user);
-        D1000 d1000 = findD1000(user.corp().idx());
+        D1000 d1000 = getD1000(user.corp().idx());
         Integer count = 1;
         String ceoType = "1";
         if (d1000 != null) {
@@ -262,7 +270,7 @@ public class UserCorporationService {
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserCorporationDto.CeoRes registerCeo(Long idx_user, UserCorporationDto.RegisterCeo dto, Long idx_CardInfo) {
+    public UserCorporationDto.CeoRes registerCeo(Long idx_user, UserCorporationDto.RegisterCeo dto, Long idx_CardInfo) throws IOException {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -277,12 +285,69 @@ public class UserCorporationService {
                 .isForeign("KR".equalsIgnoreCase(dto.getNation()) ? false : true)
                 .phoneNumber(dto.getPhoneNumber())
                 .agencyCode(dto.getAgency())
+                .genderCode(dto.getGenderCode())
+                .birth(dto.getBirth())
                 .build();
 
-        // TODO: 전문에 저장, sms 인증
+        // TODO: 전문에 저장
 
+        // TODO: kcbService.authenticationSms(KcbDto.Authentication.builder().build());
 
-        return UserCorporationDto.CeoRes.from(repoCeo.save(ceoInfo));
+        return UserCorporationDto.CeoRes.from(repoCeo.save(ceoInfo)).setDeviceId("");
+    }
+
+    /**
+     * 카드발급정보 전체 조회
+     *
+     * @param idx_cardIssuanceInfo 조회하는 CardIssuanceInfo idx
+     * @return 카드발급정보
+     */
+    @Transactional(readOnly = true)
+    public UserCorporationDto.CardIssuanceInfoRes getCardIssuanceInfo(Long idx_cardIssuanceInfo) {
+        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findById(idx_cardIssuanceInfo).orElseThrow(
+                () -> EntityNotFoundException.builder()
+                        .idx(idx_cardIssuanceInfo)
+                        .entity("CardIssuanceInfo")
+                        .build()
+        );
+        return UserCorporationDto.CardIssuanceInfoRes.builder()
+                .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), idx_cardIssuanceInfo))
+                .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
+                .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
+                .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
+                .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
+                .ceoRes(cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()))
+                .build();
+    }
+
+    /**
+     * 카드발급정보 전체 조회
+     *
+     * @param idx_user 조회하는 User idx
+     * @return 카드발급정보
+     */
+    @Transactional(readOnly = true)
+    public UserCorporationDto.CardIssuanceInfoRes getCardIssuanceInfoByUser(Long idx_user) {
+        User user = findUser(idx_user);
+        CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(user.corp());
+        return UserCorporationDto.CardIssuanceInfoRes.builder()
+                .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx()))
+                .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
+                .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
+                .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
+                .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
+                .ceoRes(cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()))
+                .build();
+    }
+
+    /**
+     * 벤처기업사 조회
+     *
+     * @return 벤처기업사 목록
+     */
+    @Transactional(readOnly = true)
+    public List<String> getVentureBusiness() {
+        return repoVenture.findAllByOrderByNameAsc().stream().map(ventureBusiness -> ventureBusiness.name()).collect(Collectors.toList());
     }
 
     private User findUser(Long idx_user) {
@@ -295,19 +360,19 @@ public class UserCorporationService {
     }
 
     private CardIssuanceInfo findCardIssuanceInfo(Corp corp) {
-        return repoCardIssuance.findByCorpAndDisabledTrue(corp).orElseThrow(
+        return repoCardIssuance.findTopByCorpAndDisabledTrueOrderByIdxDesc(corp).orElseThrow(
                 () -> EntityNotFoundException.builder()
                         .entity("CardIssuanceInfo")
                         .build()
         );
     }
 
-    private D1000 findD1000(Long idx_corp) {
-        return repoD1000.findTopByIdxCorpOrderByIdxDesc(idx_corp).orElse(null);
+    private D1000 getD1000(Long idx_corp) {
+        return repoD1000.getTopByIdxCorpOrderByIdxDesc(idx_corp);
     }
 
-    private D1100 findD1100(Long idx_corp) {
-        return repoD1100.findTopByIdxCorpOrderByIdxDesc(idx_corp).orElse(null);
+    private D1100 getD1100(Long idx_corp) {
+        return repoD1100.getTopByIdxCorpOrderByIdxDesc(idx_corp);
     }
 
     private CommonCodeDetail findCommonCodeDetail(Long idx_codeDetail) {
@@ -318,4 +383,5 @@ public class UserCorporationService {
                         .build()
         );
     }
+
 }
