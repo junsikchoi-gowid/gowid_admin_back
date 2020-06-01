@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -31,7 +32,7 @@ public class UserCorporationDto {
         @NotNull
         private String businessCode;
 
-        @ApiModelProperty("사업장 전화번호")
+        @ApiModelProperty("사업장 전화번호 (ex. 00-000-0000)")
         @NotEmpty
         private String corNumber;
     }
@@ -118,6 +119,7 @@ public class UserCorporationDto {
         private String addressDetail;
 
         @ApiModelProperty("우편번호")
+        @Length(max = 5)
         private String zipCode;
     }
 

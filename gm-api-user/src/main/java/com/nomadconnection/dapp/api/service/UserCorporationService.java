@@ -67,7 +67,14 @@ public class UserCorporationService {
         } catch (EntityNotFoundException e) {
             cardInfo = repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
             if (d1000 != null) {
-                repoD1000.save(d1000.d006(dto.getEngCorName()).d008(dto.getBusinessCode())); // TODO: 사업장번호 등록
+                String[] corNumber = dto.getCorNumber().split("-");
+                repoD1000.save(d1000
+                        .d006(!StringUtils.hasText(d1000.d006()) ? dto.getEngCorName() : d1000.d006())
+                        .d008(!StringUtils.hasText(d1000.d008()) ? dto.getBusinessCode() : d1000.d008())
+                        .d026(!StringUtils.hasText(d1000.d026()) ? corNumber[0] : d1000.d026())
+                        .d027(!StringUtils.hasText(d1000.d027()) ? corNumber[1] : d1000.d027())
+                        .d028(!StringUtils.hasText(d1000.d028()) ? corNumber[2] : d1000.d028())
+                );
             }
         }
         return UserCorporationDto.CorporationRes.from(corp, cardInfo.idx());
@@ -189,12 +196,23 @@ public class UserCorporationService {
                 .requestCount(dto.getCount())
                 .build());
 
+        D1000 d1000 = getD1000(user.corp().idx());
+        if (d1000 != null) {
+            repoD1000.save(d1000
+                    .d022(!StringUtils.hasText(d1000.d022()) ? dto.getZipCode().substring(0,3) : d1000.d022())
+                    .d023(!StringUtils.hasText(d1000.d023()) ? dto.getZipCode().substring(3) : d1000.d023())
+                    .d024(!StringUtils.hasText(d1000.d024()) ? dto.getAddressBasic() : d1000.d024())
+                    .d025(!StringUtils.hasText(d1000.d025()) ? dto.getAddressDetail() : d1000.d025())
+            );
+        }
+
         D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
-            repoD1100.save(d1100.d029(dto.getReceiveType().getCode())
-                    .d033(dto.getAddressBasic())
-                    .d034(dto.getAddressDetail())
-                    .d039(dto.getCount() + "") //TODO: 전문테이블에 저장
+            repoD1100.save(d1100
+                    .d029(!StringUtils.hasText(d1100.d029()) ? dto.getReceiveType().getCode() : d1100.d029())
+                    .d033(!StringUtils.hasText(d1100.d033()) ? dto.getAddressBasic() : d1100.d033())
+                    .d034(!StringUtils.hasText(d1100.d034()) ? dto.getAddressDetail() : d1100.d034())
+                    .d039(!StringUtils.hasText(d1100.d039()) ? dto.getCount() + "" : d1100.d039()) //TODO: 전문테이블에 저장
             );
         }
 
@@ -229,9 +247,10 @@ public class UserCorporationService {
 
         D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
-            repoD1100.save(d1100.d024(bankCode)
-                    .d025(dto.getAccountNumber())
-                    .d026(dto.getAccountHolder()) //TODO: 전문테이블 저장
+            repoD1100.save(d1100
+                    .d024(!StringUtils.hasText(d1100.d024()) ? bankCode : d1100.d024())
+                    .d025(!StringUtils.hasText(d1100.d025()) ? dto.getAccountNumber() : d1100.d025())
+                    .d026(!StringUtils.hasText(d1100.d026()) ? dto.getAccountHolder() : d1100.d026()) //TODO: 전문테이블 저장
             );
         }
         return UserCorporationDto.AccountRes.from(repoCardIssuance.save(cardInfo));
