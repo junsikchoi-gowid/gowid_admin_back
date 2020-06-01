@@ -88,12 +88,13 @@ public class UserCorporationService {
             throw MismatchedException.builder().build();
         }
 
+        String investorName = repoVenture.findEqualsName(dto.getInvestorName());
         cardInfo.venture(Venture.builder()
                 .investAmount(dto.getAmount())
                 .isVC(dto.getIsVC())
                 .isVerifiedVenture(dto.getIsVerifiedVenture())
-                .investor(dto.getInvestorName())
-                .isExist(repoVenture.existsByName(dto.getInvestorName()) ? true : false)
+                .investor(investorName != null ? investorName : dto.getInvestorName())
+                .isExist(investorName != null ? true : false)
                 .build()
         );
         Optional<RiskConfig> riskConfig = repoRisk.findByCorpAndEnabled(user.corp(), true);
@@ -338,6 +339,7 @@ public class UserCorporationService {
                 .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
                 .ceoRes(cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()))
                 .build();
+        // TODO: 전문 저장 정보로 업데이트
     }
 
     /**
