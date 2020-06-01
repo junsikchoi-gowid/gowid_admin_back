@@ -16,7 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,6 +34,9 @@ public class UserCorporationService {
     private final D1100Repository repoD1100;
     private final CommonCodeDetailRepository repoCodeDetail;
     private final CeoInfoRepository repoCeo;
+    private final VentureBusinessRepository repoVenture;
+
+    private final KcbService kcbService;
 
     /**
      * 법인정보 등록
@@ -42,7 +48,7 @@ public class UserCorporationService {
     public UserCorporationDto.CorporationRes registerCorporation(Long idx_user, UserCorporationDto.RegisterCorporation dto, Long idx_CardInfo) {
         User user = findUser(idx_user);
 
-        D1000 d1000 = findD1000(user.corp().idx());
+        D1000 d1000 = getD1000(user.corp().idx());
         Corp corp = repoCorp.save(user.corp()
                 .resCompanyEngNm(dto.getEngCorName())
                 .resCompanyNumber(dto.getCorNumber())
@@ -60,7 +66,14 @@ public class UserCorporationService {
         } catch (EntityNotFoundException e) {
             cardInfo = repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
             if (d1000 != null) {
-                repoD1000.save(d1000.d006(dto.getEngCorName()).d008(dto.getBusinessCode())); // TODO: 사업장번호 등록
+                String[] corNumber = dto.getCorNumber().split("-");
+                repoD1000.save(d1000
+                        .d006(!StringUtils.hasText(d1000.d006()) ? dto.getEngCorName() : d1000.d006())
+                        .d008(!StringUtils.hasText(d1000.d008()) ? dto.getBusinessCode() : d1000.d008())
+                        .d026(!StringUtils.hasText(d1000.d026()) ? corNumber[0] : d1000.d026())
+                        .d027(!StringUtils.hasText(d1000.d027()) ? corNumber[1] : d1000.d027())
+                        .d028(!StringUtils.hasText(d1000.d028()) ? corNumber[2] : d1000.d028())
+                );
             }
         }
         return UserCorporationDto.CorporationRes.from(corp, cardInfo.idx());
@@ -81,11 +94,13 @@ public class UserCorporationService {
             throw MismatchedException.builder().build();
         }
 
+        String investorName = repoVenture.findEqualsName(dto.getInvestorName());
         cardInfo.venture(Venture.builder()
                 .investAmount(dto.getAmount())
                 .isVC(dto.getIsVC())
                 .isVerifiedVenture(dto.getIsVerifiedVenture())
-                .commonCodeDetail(findCommonCodeDetail(dto.getInvestor()))
+                .investor(investorName != null ? investorName : dto.getInvestorName())
+                .isExist(investorName != null ? true : false)
                 .build()
         );
         Optional<RiskConfig> riskConfig = repoRisk.findByCorpAndEnabled(user.corp(), true);
@@ -180,12 +195,23 @@ public class UserCorporationService {
                 .requestCount(dto.getCount())
                 .build());
 
-        D1100 d1100 = findD1100(user.corp().idx());
+        D1000 d1000 = getD1000(user.corp().idx());
+        if (d1000 != null) {
+            repoD1000.save(d1000
+                    .d022(!StringUtils.hasText(d1000.d022()) ? dto.getZipCode().substring(0, 3) : d1000.d022())
+                    .d023(!StringUtils.hasText(d1000.d023()) ? dto.getZipCode().substring(3) : d1000.d023())
+                    .d024(!StringUtils.hasText(d1000.d024()) ? dto.getAddressBasic() : d1000.d024())
+                    .d025(!StringUtils.hasText(d1000.d025()) ? dto.getAddressDetail() : d1000.d025())
+            );
+        }
+
+        D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
-            repoD1100.save(d1100.d029(dto.getReceiveType().getCode())
-                    .d033(dto.getAddressBasic())
-                    .d034(dto.getAddressDetail())
-                    .d039(dto.getCount() + "") //TODO: 전문테이블에 저장
+            repoD1100.save(d1100
+                    .d029(!StringUtils.hasText(d1100.d029()) ? dto.getReceiveType().getCode() : d1100.d029())
+                    .d033(!StringUtils.hasText(d1100.d033()) ? dto.getAddressBasic() : d1100.d033())
+                    .d034(!StringUtils.hasText(d1100.d034()) ? dto.getAddressDetail() : d1100.d034())
+                    .d039(!StringUtils.hasText(d1100.d039()) ? dto.getCount() + "" : d1100.d039()) //TODO: 전문테이블에 저장
             );
         }
 
@@ -218,11 +244,12 @@ public class UserCorporationService {
                 .bankAccountHolder(dto.getAccountHolder())
                 .build());
 
-        D1100 d1100 = findD1100(user.corp().idx());
+        D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
-            repoD1100.save(d1100.d024(bankCode)
-                    .d025(dto.getAccountNumber())
-                    .d026(dto.getAccountHolder()) //TODO: 전문테이블 저장
+            repoD1100.save(d1100
+                    .d024(!StringUtils.hasText(d1100.d024()) ? bankCode : d1100.d024())
+                    .d025(!StringUtils.hasText(d1100.d025()) ? dto.getAccountNumber() : d1100.d025())
+                    .d026(!StringUtils.hasText(d1100.d026()) ? dto.getAccountHolder() : d1100.d026()) //TODO: 전문테이블 저장
             );
         }
         return UserCorporationDto.AccountRes.from(repoCardIssuance.save(cardInfo));
@@ -237,7 +264,7 @@ public class UserCorporationService {
     @Transactional(readOnly = true)
     public UserCorporationDto.CeoTypeRes getCeoType(Long idx_user) {
         User user = findUser(idx_user);
-        D1000 d1000 = findD1000(user.corp().idx());
+        D1000 d1000 = getD1000(user.corp().idx());
         Integer count = 1;
         String ceoType = "1";
         if (d1000 != null) {
@@ -262,7 +289,7 @@ public class UserCorporationService {
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserCorporationDto.CeoRes registerCeo(Long idx_user, UserCorporationDto.RegisterCeo dto, Long idx_CardInfo) {
+    public UserCorporationDto.CeoRes registerCeo(Long idx_user, UserCorporationDto.RegisterCeo dto, Long idx_CardInfo) throws IOException {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -277,12 +304,70 @@ public class UserCorporationService {
                 .isForeign("KR".equalsIgnoreCase(dto.getNation()) ? false : true)
                 .phoneNumber(dto.getPhoneNumber())
                 .agencyCode(dto.getAgency())
+                .genderCode(dto.getGenderCode())
+                .birth(dto.getBirth())
                 .build();
 
-        // TODO: 전문에 저장, sms 인증
+        // TODO: 전문에 저장
 
+        // TODO: kcbService.authenticationSms(KcbDto.Authentication.builder().build());
 
-        return UserCorporationDto.CeoRes.from(repoCeo.save(ceoInfo));
+        return UserCorporationDto.CeoRes.from(repoCeo.save(ceoInfo)).setDeviceId("");
+    }
+
+    /**
+     * 카드발급정보 전체 조회
+     *
+     * @param idx_cardIssuanceInfo 조회하는 CardIssuanceInfo idx
+     * @return 카드발급정보
+     */
+    @Transactional(readOnly = true)
+    public UserCorporationDto.CardIssuanceInfoRes getCardIssuanceInfo(Long idx_cardIssuanceInfo) {
+        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findById(idx_cardIssuanceInfo).orElseThrow(
+                () -> EntityNotFoundException.builder()
+                        .idx(idx_cardIssuanceInfo)
+                        .entity("CardIssuanceInfo")
+                        .build()
+        );
+        return UserCorporationDto.CardIssuanceInfoRes.builder()
+                .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), idx_cardIssuanceInfo))
+                .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
+                .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
+                .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
+                .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
+                .ceoRes(cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()))
+                .build();
+    }
+
+    /**
+     * 카드발급정보 전체 조회
+     *
+     * @param idx_user 조회하는 User idx
+     * @return 카드발급정보
+     */
+    @Transactional(readOnly = true)
+    public UserCorporationDto.CardIssuanceInfoRes getCardIssuanceInfoByUser(Long idx_user) {
+        User user = findUser(idx_user);
+        CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(user.corp());
+        return UserCorporationDto.CardIssuanceInfoRes.builder()
+                .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx()))
+                .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
+                .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
+                .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
+                .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
+                .ceoRes(cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()))
+                .build();
+        // TODO: 전문 저장 정보로 업데이트
+    }
+
+    /**
+     * 벤처기업사 조회
+     *
+     * @return 벤처기업사 목록
+     */
+    @Transactional(readOnly = true)
+    public List<String> getVentureBusiness() {
+        return repoVenture.findAllByOrderByNameAsc().stream().map(ventureBusiness -> ventureBusiness.name()).collect(Collectors.toList());
     }
 
     private User findUser(Long idx_user) {
@@ -295,19 +380,19 @@ public class UserCorporationService {
     }
 
     private CardIssuanceInfo findCardIssuanceInfo(Corp corp) {
-        return repoCardIssuance.findByCorpAndDisabledTrue(corp).orElseThrow(
+        return repoCardIssuance.findTopByCorpAndDisabledTrueOrderByIdxDesc(corp).orElseThrow(
                 () -> EntityNotFoundException.builder()
                         .entity("CardIssuanceInfo")
                         .build()
         );
     }
 
-    private D1000 findD1000(Long idx_corp) {
-        return repoD1000.findTopByIdxCorpOrderByIdxDesc(idx_corp).orElse(null);
+    private D1000 getD1000(Long idx_corp) {
+        return repoD1000.getTopByIdxCorpOrderByIdxDesc(idx_corp);
     }
 
-    private D1100 findD1100(Long idx_corp) {
-        return repoD1100.findTopByIdxCorpOrderByIdxDesc(idx_corp).orElse(null);
+    private D1100 getD1100(Long idx_corp) {
+        return repoD1100.getTopByIdxCorpOrderByIdxDesc(idx_corp);
     }
 
     private CommonCodeDetail findCommonCodeDetail(Long idx_codeDetail) {
@@ -318,4 +403,5 @@ public class UserCorporationService {
                         .build()
         );
     }
+
 }

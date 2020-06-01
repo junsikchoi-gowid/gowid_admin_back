@@ -6,7 +6,6 @@ import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import com.nomadconnection.dapp.jwt.exception.AccessTokenNotFoundException;
 import com.nomadconnection.dapp.jwt.exception.JwtSubjectMismatchedException;
 import com.nomadconnection.dapp.jwt.exception.UnacceptableJwtException;
-import com.nomadconnection.dapp.api.exception.EmptyResxException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -162,5 +161,17 @@ public class CustomExceptionHandler {
 	@ResponseStatus(HttpStatus.OK)
 	protected ErrorResponse onBusinessException(BusinessException e) {
 		return ErrorResponse.from(e.getError(), e.getDescription());
+	}
+
+	//==================================================================================================================
+	//
+	//	SERVER
+	//
+	//==================================================================================================================
+
+	@ExceptionHandler(ServerError.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	protected ErrorResponse onServerError(ServerError e) {
+		return ErrorResponse.builder().category(e.category().name()).data(e.data()).build();
 	}
 }
