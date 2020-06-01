@@ -88,10 +88,12 @@ public class CommonConstant {
 
 
 	/**	CODEF로부터 발급받은 클라이언트 아이디	*/
-	public static final String CLIENT_ID 	= "3b9fdab9-f3e6-400e-967e-9b3cf9e53583";
+	public static final String CLIENT_ID 	= "3b9fdab9-f3e6-400e-967e-9b3cf9e53583";//live
+//	public static final String CLIENT_ID 	= "639c0535-bb80-4c4a-acdb-d9f06db7dce4";//dev
 
 	/**	CODEF로부터 발급받은 시크릿 키	*/
-	public static final String SECERET_KEY 	= "48c4a43a-f6a4-4e8a-892e-9ee1393f9907";
+	public static final String SECERET_KEY 	= "48c4a43a-f6a4-4e8a-892e-9ee1393f9907";//live
+//	public static final String SECERET_KEY 	= "92d50459-aa57-462d-a3d4-9647c1b4a20d";//dev
 
 	/**	CODEF로부터 발급받은 퍼블릭 키	*/
 	public static final String PUBLIC_KEY 	= "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAouzCsPKacIrhRGu/5rq5LDE0SbZaEVSDcPKgqmk277N2esdhJVD19hpIy8HgWYgXY/j3DQ9I6By0uflPuI4CSF33jq/o36G/oIccB3coPhMDGYr3mEGauqt2ZSB8Aa4QUAISOeEIyp8ow3M7TtOFGvGoykvOiVK071nQmgcqTcWkZM/Bz5gW0THRozViuTe+gUG6FTQbJ/XGzTMS/UGE6yi7DixDonugLC3kBKNy4N3/rWhvptJ7F6l3SOF2slhxq0gFIjif4Q9kHxAuQTp2wkI9fBIJo07e/R2i1+jvXIQQesNF+QefE+QCqJYkM2O+kB1XHGBBxVpcBggZJGXwnwIDAQAB";

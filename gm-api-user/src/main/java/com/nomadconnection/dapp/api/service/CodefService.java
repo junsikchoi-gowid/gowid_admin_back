@@ -112,7 +112,7 @@ public class CodefService {
 		accountMap1 = new HashMap<>();
 		accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 		accountMap1.put("businessType",	CommonConstant.REVENUETYPE);  // 업무구분코드
-		accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+		accountMap1.put("clientType",  	"A");   // 고객구분(P: 개인, B: 기업)
 		accountMap1.put("organization",	CommonConstant.REVENUE);// 기관코드
 		accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
 		accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
@@ -566,6 +566,23 @@ public class CodefService {
 			list.add(accountMap1);
 		}
 
+		for( String s : CommonConstant.LISTCARD){
+			accountMap1 = new HashMap<>();
+			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+			accountMap1.put("businessType",	CommonConstant.CARDTYPE);  // 업무구분코드
+			accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("organization",	s);// 기관코드
+			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+			list.add(accountMap1);
+		}
+
+		accountMap1 = new HashMap<>();
+		accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+		accountMap1.put("businessType",	CommonConstant.REVENUETYPE);  // 업무구분코드
+		accountMap1.put("clientType",  	"A");   // 고객구분(P: 개인, B: 기업)
+		accountMap1.put("organization",	CommonConstant.REVENUE);// 기관코드
+		accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+
 		bodyMap.put("accountList", list);
 		bodyMap.put(CommonConstant.CONNECTED_ID, connectedMng.connectedId());
 		String strObject = ApiRequest.request(createUrlPath, bodyMap);
@@ -573,6 +590,9 @@ public class CodefService {
 		JSONObject jsonObject = (JSONObject)jsonParse.parse(strObject);
 		String strResultCode = jsonObject.get("result").toString();
 		String code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
+
+		log.error("Connected Delete ====>>");
+		log.error(strResultCode);
 
 		if(code.equals("CF-00000")){
 			repoConnectedMng.deleteConnectedQuery(connectedMng.connectedId());
