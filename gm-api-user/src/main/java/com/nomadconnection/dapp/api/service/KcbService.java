@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -30,7 +31,7 @@ public class KcbService {
                 .toUriString();
 
         String deviceId = dto.getDeviceId();
-        if (deviceId == null) {
+        if (!StringUtils.hasText(deviceId)) {
             deviceId = UUID.randomUUID().toString();
             dto.setDeviceId(deviceId);
         }
@@ -45,7 +46,7 @@ public class KcbService {
         KcbDto.Response response = this.responseDataResolver(clientResponse, KcbDto.Response.class);
         log.info("[authenticationSms] $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
 
-        if (response.getData().getCode().equals("B000")) {
+        if (!response.getData().getCode().equals("B000")) {
             throw ServerError.builder().category(ServerError.Category.KCB_SERVER_ERROR).data(response).build();
         }
 
@@ -69,7 +70,7 @@ public class KcbService {
         KcbDto.Response response = this.responseDataResolver(clientResponse, KcbDto.Response.class);
         log.info("[certSms] $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
 
-        if (response.getData().getCode().equals("B000")) {
+        if (!response.getData().getCode().equals("B000")) {
             throw ServerError.builder().category(ServerError.Category.KCB_SERVER_ERROR).data(response).build();
         }
 

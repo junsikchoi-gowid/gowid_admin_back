@@ -92,8 +92,8 @@ public class UserCorporationService {
                 .investAmount(dto.getAmount())
                 .isVC(dto.getIsVC())
                 .isVerifiedVenture(dto.getIsVerifiedVenture())
-                .investor(dto.getInvestor())
-                .isExist(repoVenture.existsByName(dto.getInvestor()) ? true : false)
+                .investor(dto.getInvestorName())
+                .isExist(repoVenture.existsByName(dto.getInvestorName()) ? true : false)
                 .build()
         );
         Optional<RiskConfig> riskConfig = repoRisk.findByCorpAndEnabled(user.corp(), true);

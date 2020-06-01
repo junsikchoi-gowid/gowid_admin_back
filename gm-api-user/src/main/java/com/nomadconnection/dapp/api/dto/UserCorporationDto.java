@@ -51,7 +51,7 @@ public class UserCorporationDto {
         private Boolean isVC;
 
         @ApiModelProperty("투자사")
-        private String investor;
+        private String investorName;
 
         @ApiModelProperty("누적투자금액")
         private String amount;
