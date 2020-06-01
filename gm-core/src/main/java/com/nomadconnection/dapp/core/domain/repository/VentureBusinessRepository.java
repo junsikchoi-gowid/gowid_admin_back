@@ -14,8 +14,8 @@ public interface VentureBusinessRepository extends JpaRepository<VentureBusiness
     /**
      * 벤처기업이름 찾기
      *
-     * @param investorName 벤처기업사명 (공백제거)
-     * @return 마지막 접속시각 이후의 누적 공부시간
+     * @param investorName 벤처기업사명
+     * @return 동일한 벤처이름
      */
     @Query(nativeQuery = true, value = "" +
             "SELECT name " +
