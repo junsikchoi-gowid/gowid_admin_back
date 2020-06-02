@@ -746,7 +746,7 @@ public class CodefService {
 		JSONObject jsonObject = (JSONObject)jsonParse.parse(ApiRequest.request(createUrlPath, bodyMap));
 
 		String code = ((JSONObject)(jsonObject.get("result"))).get("code").toString();
-		String connectedId ;
+		String connectedId = null;
 
 		if(code.equals("CF-00000") || code.equals("CF-04012")) {
 			connectedId = ((JSONObject)(jsonObject.get("data"))).get("connectedId").toString();
@@ -763,20 +763,12 @@ public class CodefService {
 					.build()
 			);
 		}else if(code.equals("CF-04000")){
-				connectedId = ((JSONObject)(jsonObject.get("data"))).get("connectedId").toString();
+			JSONObject JSONObjectData = ((JSONObject)(jsonObject.get("data")));
+			JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
 
-				if(!repoConnectedMng.findByConnectedIdAndIdxUser(connectedId,idxUser).isPresent()) {
-					repoConnectedMng.save(ConnectedMng.builder()
-							.connectedId(connectedId)
-							.idxUser(idxUser)
-							.name(dto.getName())
-							.startDate(dto.getStartDate())
-							.endDate(dto.getEndDate())
-							.desc1(dto.getDesc1())
-							.desc2(dto.getDesc2())
-							.build()
-					);
-				}
+			connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
+
+			// extraMessage -> 4ZI1i9Iwk6fblqzhAA44FL
 		}else{
 			throw new RuntimeException(code);
 		}
@@ -842,19 +834,19 @@ public class CodefService {
 					"0002",
 					"01000000000",
 					RSAUtil.encryptRSA("YZUWGj6ZYnK", CommonConstant.PUBLIC_KEY),
-					"1",
-					GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").trim().replaceAll("-", ""),
+					"2",
+					GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").trim(),
 					"1",
 					"T34029396293",
 					"gowid99!",
-					"0",
-					"0",
-					"0",
-					"0",
-					"0",
-					"0",
+					"",
+					"",
+					"",
 					"",
 					"0",
+					"",
+					"",
+					"",
 					"N"
 			));
 
@@ -931,13 +923,13 @@ public class CodefService {
 			JSONObject[] jsonObjectStandardFinancial = getApiResult(STANDARD_FINANCIAL.standard_financial(
 					"0001",
 					connectedId,
-					"200001",
+					"201912",
 					"0",
 					"04",
 					"01",
 					"40",
 					"",
-					GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo").trim().replaceAll("-", "") // 사업자번호
+					GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").trim() // 사업자번호
 			));
 
 			String jsonObjectStandardFinancialCode = jsonObjectStandardFinancial[0].get("code").toString();
@@ -1452,7 +1444,7 @@ public class CodefService {
 	private void saveJSONArrayResFinancialStatementList(JSONArray jsonArray, Long idx ) {
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
-			JSONArray jsonArrayItem = (JSONArray) obj.get("resCostSpecification");
+			JSONArray jsonArrayItem = (JSONArray) obj.get("resFinancialStatement");
 
 			ResFinancialStatementList parent = repoResFinancialStatementList.save(
 					ResFinancialStatementList.builder()
