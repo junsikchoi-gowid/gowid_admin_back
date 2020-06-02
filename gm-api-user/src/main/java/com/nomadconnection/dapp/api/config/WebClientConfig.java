@@ -12,9 +12,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class WebClientConfig {
 
     @Bean
-    public WebClient kcbClient() {
+    public WebClient gwClient() {
         return WebClient.builder()
-                .baseUrl(this.getUrl("http", "gowid-gw.com/kcb/sms"))
+                .baseUrl(this.getUrl("http", "10.10.40.171"))
                 .build();
     }
 

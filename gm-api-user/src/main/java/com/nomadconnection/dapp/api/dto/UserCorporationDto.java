@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CeoInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.ReceiveType;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFile;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -159,7 +160,7 @@ public class UserCorporationDto {
         @NotEmpty
         private String engName;
 
-        @ApiModelProperty("통신사")
+        @ApiModelProperty("통신사(SKT:01, KT:02, LG U+:03, SKT알뜰폰:04, KT알뜰폰:05, LG알뜰폰:06)")
         private String agency;
 
         @ApiModelProperty("휴대폰번호")
@@ -395,11 +396,9 @@ public class UserCorporationDto {
         private Long idx;
 
         @ApiModelProperty("은행명")
-        @NotEmpty
         private String bank;
 
         @ApiModelProperty("계좌번호")
-        @NotEmpty
         private String accountNumber;
 
         @ApiModelProperty("예금주")
@@ -516,7 +515,6 @@ public class UserCorporationDto {
 
     }
 
-
     @Data
     @Builder
     @NoArgsConstructor
@@ -528,5 +526,49 @@ public class UserCorporationDto {
         private CardRes cardRes;
         private AccountRes accountRes;
         private List<CeoRes> ceoRes;
+        private List<StockholderFileRes> stockholderFileRes;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class StockholderFileRes {
+
+        @ApiModelProperty("카드발급정보 식별자")
+        private Long idx;
+
+        @ApiModelProperty("파일 식별자")
+        private Long fileIdx;
+
+        @ApiModelProperty("파일명")
+        private String name;
+
+        @ApiModelProperty("파일명(원본)")
+        private String orgName;
+
+        @ApiModelProperty("파일크기")
+        private Long size;
+
+        @ApiModelProperty("s3링크")
+        private String s3Link;
+
+        @ApiModelProperty("파일타입")
+        private String type;
+
+        public static StockholderFileRes from(StockholderFile file, Long cardIssuanceInfoIdx) {
+            if (file != null) {
+                return StockholderFileRes.builder()
+                        .idx(cardIssuanceInfoIdx)
+                        .fileIdx(file.idx())
+                        .name(file.fname())
+                        .orgName(file.orgfname())
+                        .size(file.size())
+                        .s3Link(file.s3Link())
+                        .type(file.type().name())
+                        .build();
+            }
+            return null;
+        }
     }
 }
