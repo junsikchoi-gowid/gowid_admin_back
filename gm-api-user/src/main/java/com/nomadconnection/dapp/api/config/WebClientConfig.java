@@ -14,7 +14,7 @@ public class WebClientConfig {
     @Bean
     public WebClient gwClient() {
         return WebClient.builder()
-                .baseUrl(this.getUrl("https", "gowid-gw.com"))
+                .baseUrl(this.getUrl("http", "10.10.40.171"))
                 .build();
     }
 
