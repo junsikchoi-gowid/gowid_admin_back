@@ -21,7 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class KcbService {
 
-    private final WebClient kcbClient;
+    private final WebClient gwClient;
     private final ObjectMapper objectMapper;
 
     public KcbDto.Response authenticationSms(KcbDto.Authentication dto) throws IOException {
@@ -37,7 +37,7 @@ public class KcbService {
         }
         log.info("[authenticationSms] $url({}), $dto({})", url, dto);
 
-        ClientResponse clientResponse = this.kcbClient.post()
+        ClientResponse clientResponse = this.gwClient.post()
                 .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromObject(dto))
@@ -62,7 +62,7 @@ public class KcbService {
 
         log.info("[certSms] $url({}), $dto({})", url, dto);
 
-        ClientResponse clientResponse = this.kcbClient.post()
+        ClientResponse clientResponse = this.gwClient.post()
                 .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromObject(dto))

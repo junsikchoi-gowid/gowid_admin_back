@@ -34,8 +34,8 @@ public class UserCorporationController {
         public static final String CORPORATION = "/corporation";
         public static final String VENTURE = "/venture";
         public static final String STOCKHOLDER = "/stockholder";
-        public static final String STOCKHOLDER_FILE = "/stockholder/file";
-        public static final String STOCKHOLDER_FILE_IDX = "/stockholder/file/{idxFile}";
+        public static final String STOCKHOLDER_FILES = "/stockholder/files";
+        public static final String STOCKHOLDER_FILES_IDX = "/stockholder/files/{idxFile}";
         public static final String ACCOUNT = "/account";
         public static final String ISSUANCE = "/issuance";
         public static final String ISSUANCE_IDX = "/issuance/{idxCardInfo}";
@@ -89,7 +89,7 @@ public class UserCorporationController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "fileType", value = "BASIC:주주명부, MAJOR:1대주주명부", dataType = "String")
     })
-    @PostMapping(URI.STOCKHOLDER_FILE)
+    @PostMapping(URI.STOCKHOLDER_FILES)
     public ResponseEntity uploadStockholderFile(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
@@ -102,8 +102,8 @@ public class UserCorporationController {
         return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), file, fileType, idxCardInfo));
     }
 
-    @ApiOperation("주주명부 파일 등록")
-    @PostMapping(URI.STOCKHOLDER_FILE_IDX)
+    @ApiOperation("주주명부 파일 삭제")
+    @DeleteMapping(URI.STOCKHOLDER_FILES_IDX)
     public ResponseEntity deleteStockholderFile(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
