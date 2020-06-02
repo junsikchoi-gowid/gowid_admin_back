@@ -160,7 +160,7 @@ public class UserCorporationDto {
         @NotEmpty
         private String engName;
 
-        @ApiModelProperty("통신사")
+        @ApiModelProperty("통신사(SKT:01, KT:02, LG U+:03, SKT알뜰폰:04, KT알뜰폰:05, LG알뜰폰:06)")
         private String agency;
 
         @ApiModelProperty("휴대폰번호")

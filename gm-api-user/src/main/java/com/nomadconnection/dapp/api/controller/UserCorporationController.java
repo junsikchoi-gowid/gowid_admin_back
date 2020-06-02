@@ -153,7 +153,7 @@ public class UserCorporationController {
         return ResponseEntity.ok().body(service.getCeoType(user.idx()));
     }
 
-    @ApiOperation("대표자 등록(인증)")
+    @ApiOperation("대표자 등록")
     @PostMapping(URI.CEO)
     public ResponseEntity<UserCorporationDto.CeoRes> registerCEO(
             @ApiIgnore @CurrentUser CustomUser user,

@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -29,10 +31,14 @@ public class GwUploadService {
                 .build()
                 .toUriString();
 
+        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
+        params.add("files", file);
+        params.add("companyCode", cardCode);
+
         ClientResponse clientResponse = this.gwClient.post()
                 .uri(url)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(BodyInserters.fromMultipartData("files", file)) // TODO: cardCode
+                .body(BodyInserters.fromMultipartData(params))
                 .exchange().block();
 
         GwUploadDto.Response response = this.responseDataResolver(clientResponse, GwUploadDto.Response.class);
