@@ -40,7 +40,6 @@ public class UserCorporationService {
     private final VentureBusinessRepository repoVenture;
     private final StockholderFileRepository repoFile;
 
-    private final KcbService kcbService;
     private final AwsS3Service s3Service;
 
     /**
@@ -183,7 +182,7 @@ public class UserCorporationService {
      * 주주명부 파일 등록
      *
      * @param idx_user      등록하는 User idx
-     * @param file          등록정보
+     * @param file          파일
      * @param type          file type
      * @param idx_CardInfo  CardIssuanceInfo idx
      * @return 등록 정보
@@ -420,7 +419,7 @@ public class UserCorporationService {
                 .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx()))
                 .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
                 .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
-                .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo)) // TODO: 주소 전문에서 가져오기
+                .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
                 .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
                 .ceoRes(cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()))
                 .stockholderFileRes(cardIssuanceInfo.stockholderFiles().stream().map(file -> UserCorporationDto.StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()))
