@@ -48,7 +48,7 @@ public class UserCorporationController {
 
     @ApiOperation("법인정보 등록")
     @PostMapping(URI.CORPORATION)
-    public ResponseEntity registerCorporation(
+    public ResponseEntity<UserCorporationDto.CorporationRes> registerCorporation(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam(required = false) Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterCorporation dto) {
@@ -61,7 +61,7 @@ public class UserCorporationController {
 
     @ApiOperation("벤처기업정보 등록")
     @PostMapping(URI.VENTURE)
-    public ResponseEntity registerVenture(
+    public ResponseEntity<UserCorporationDto.VentureRes> registerVenture(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterVenture dto) {
@@ -74,7 +74,7 @@ public class UserCorporationController {
 
     @ApiOperation("주주명부 등록")
     @PostMapping(URI.STOCKHOLDER)
-    public ResponseEntity registerStockholder(
+    public ResponseEntity<UserCorporationDto.VentureRes> registerStockholder(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterStockholder dto) {
@@ -118,7 +118,7 @@ public class UserCorporationController {
 
     @ApiOperation("카드발급정보 등록")
     @PostMapping(URI.ISSUANCE)
-    public ResponseEntity registerCard(
+    public ResponseEntity<UserCorporationDto.CardRes> registerCard(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterCard dto) {
@@ -131,7 +131,7 @@ public class UserCorporationController {
 
     @ApiOperation("결제계좌 등록")
     @PostMapping(URI.ACCOUNT)
-    public ResponseEntity registerAccount(
+    public ResponseEntity<UserCorporationDto.AccountRes> registerAccount(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterAccount dto) {
@@ -144,7 +144,7 @@ public class UserCorporationController {
 
     @ApiOperation("대표자 종류")
     @GetMapping(URI.CEO)
-    public ResponseEntity getCeo(
+    public ResponseEntity<UserCorporationDto.CeoTypeRes> getCeo(
             @ApiIgnore @CurrentUser CustomUser user) {
         if (log.isInfoEnabled()) {
             log.info("([ getCeo ]) $user='{}'", user);
@@ -155,7 +155,7 @@ public class UserCorporationController {
 
     @ApiOperation("대표자 등록(인증)")
     @PostMapping(URI.CEO)
-    public ResponseEntity registerCEO(
+    public ResponseEntity<UserCorporationDto.CeoRes> registerCEO(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterCeo dto) throws IOException {
@@ -202,9 +202,8 @@ public class UserCorporationController {
 
     /**
      * todo :
-     * 1) request, response 정의
-     * 2) 예외 처리
-     * 3) 제네릭 타입 적용
+     * - 예외 처리
+     * - 제네릭 타입 적용
      */
     @ApiOperation(value = "법인카드 발급 신청")
     @PostMapping(URI.CARD)
