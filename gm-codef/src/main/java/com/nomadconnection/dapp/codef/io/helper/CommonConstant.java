@@ -63,7 +63,7 @@ public class CommonConstant {
 	public static final String CASH_SALES			= "/v1/kr/public/nt/cash-receipt/a-sales-details"; 					// 국세청 - 전자세금계산서 목록
 	public static final String PROOF_ISSUE			= "/v1/kr/public/nt/proof-issue/a-corporate-registration"; 			// 국세청 - 증명발급 사업자등록
 	public static final String REPORT_WITHHOLDING	= "/v1/kr/public/nt/report/a-withholding-tax"; 						// 국세청 - 신고서 원천징수 이행상황 신고서
-	public static final String STANDARD_FINANCIAL	= "/v1/kr/public/nt/proof-issue/standard-financial-statements"; 	// 국세청 - 증명발급 표준재무재표
+	public static final String STANDARD_FINANCIAL	= "/v1/kr/public/nt/proof-issue/a-standard-financial-statements"; 	// 국세청 - 증명발급 표준재무제표
 	public static final String CORP_REGISTER		= "/v1/kr/public/ck/corp-register/issue"; 							// 대법원 - 법인등기부등본
 
 	public static final String GET_CONNECTED_IDS = "/v1/account/connectedId-list";       					// 커넥티드아이디 목록 조회
@@ -86,18 +86,15 @@ public class CommonConstant {
 	 * @return
 	 */
 	public static String getRequestDomain() {
-		// return CommonConstant.API_DOMAIN;
-		return CommonConstant.SANDBOX_DOMAIN;
+		return CommonConstant.API_DOMAIN;
 	}
 
 
 	/**	CODEF로부터 발급받은 클라이언트 아이디	*/
-	//public static final String CLIENT_ID 	= "3b9fdab9-f3e6-400e-967e-9b3cf9e53583";
-	public static final String CLIENT_ID 	= "ef27cfaa-10c1-4470-adac-60ba476273f9"; // CODEF 샌드박스 클라이언트 아이디
+	public static final String CLIENT_ID 	= "3b9fdab9-f3e6-400e-967e-9b3cf9e53583";
 
 	/**	CODEF로부터 발급받은 시크릿 키	*/
-	//public static final String SECERET_KEY 	= "48c4a43a-f6a4-4e8a-892e-9ee1393f9907";
-	public static final String SECERET_KEY 	= "83160c33-9045-4915-86d8-809473cdf5c3"; // CODEF 샌드박스 클라이언트 시크릿
+	public static final String SECERET_KEY 	= "48c4a43a-f6a4-4e8a-892e-9ee1393f9907";
 
 	/**	CODEF로부터 발급받은 퍼블릭 키	*/
 	public static final String PUBLIC_KEY 	= "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAouzCsPKacIrhRGu/5rq5LDE0SbZaEVSDcPKgqmk277N2esdhJVD19hpIy8HgWYgXY/j3DQ9I6By0uflPuI4CSF33jq/o36G/oIccB3coPhMDGYr3mEGauqt2ZSB8Aa4QUAISOeEIyp8ow3M7TtOFGvGoykvOiVK071nQmgcqTcWkZM/Bz5gW0THRozViuTe+gUG6FTQbJ/XGzTMS/UGE6yi7DixDonugLC3kBKNy4N3/rWhvptJ7F6l3SOF2slhxq0gFIjif4Q9kHxAuQTp2wkI9fBIJo07e/R2i1+jvXIQQesNF+QefE+QCqJYkM2O+kB1XHGBBxVpcBggZJGXwnwIDAQAB";

@@ -22,7 +22,7 @@ public class STANDARD_FINANCIAL {
         bodyMap.put("organization",organization);
         bodyMap.put("connectedId",connectedId);
         bodyMap.put("startDate",startDate);
-        bodyMap.put("isIdentityViewYn",isIdentityViewYn);
+        bodyMap.put("isIdentityViewYN",isIdentityViewYn);
         bodyMap.put("usePurposes",usePurposes);
         bodyMap.put("submitTargets",submitTargets);
         bodyMap.put("proofType",proofType);
@@ -33,6 +33,8 @@ public class STANDARD_FINANCIAL {
 
         // API 요청
         String result = ApiRequest.request(urlPath, bodyMap);
+
+        System.out.println(result);
 
         return result;
     }

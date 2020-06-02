@@ -37,7 +37,7 @@ public class CodefController {
 		public static final String ACCOUNT_LIST_CORP= "/account/listcorp";            						// 인증서 목록 조회 (법인)
 		public static final String ACCOUNT_CREATE = "/account/create";            							// 인증서 등록(커넥티드아이디 발급)
 		public static final String ACCOUNT_ADD = "/account/add";            								// 인증서 추가
-		public static final String ACCOUNT_CREATE_NT = "/account/create/nt";         							// 인증서 추가 국세청 추가로 인한 수정
+		public static final String ACCOUNT_CREATE_NT = "/account/create/nt";         						// 인증서 추가 국세청 추가로 인한 수정
 		public static final String ACCOUNT_UPDATE = "/account/update";            							// 인증서 수정
 		public static final String ACCOUNT_DELETE = "/account/delete";            							// 인증서 삭제
 
@@ -146,4 +146,13 @@ public class CodefController {
 		return service.deleteAccount(dto, user.idx());
 	}
 
+	@ApiOperation(value = "인증서 삭제2", notes = "" +
+			"\n ### Remarks" +
+			"\n")
+	@PostMapping(URI.ACCOUNT_DELETE +2 )
+	public ResponseEntity DeleteAccount2(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestParam String connectedId) {
+		return service.deleteAccount2(connectedId, user.idx());
+	}
 }

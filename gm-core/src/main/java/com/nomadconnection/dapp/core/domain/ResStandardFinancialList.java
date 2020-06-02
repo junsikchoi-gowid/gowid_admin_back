@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class resStandardFinancial extends BaseTime {
+public class ResStandardFinancialList extends BaseTime {
 
 	// 재무제표 
 
@@ -22,6 +22,7 @@ public class resStandardFinancial extends BaseTime {
 	@Column(nullable = false, updatable = false)
 	@EqualsAndHashCode.Include
 	private Long idx;
+	private Long idxCorp;
 
 	private String commStartDate; //시작일자	String	△	[사업연도_시작일자] 법인인 경우 필수, yyyyMMdd
 	private String commEndDate; //종료일자	String	△	[사업연도_종료일자] 법인인 경우 필수, yyyyMMdd
