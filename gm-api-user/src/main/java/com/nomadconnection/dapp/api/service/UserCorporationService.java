@@ -378,8 +378,6 @@ public class UserCorporationService {
 
         // TODO: 전문에 저장
 
-        // TODO: kcbService.authenticationSms(KcbDto.Authentication.builder().build());
-
         return UserCorporationDto.CeoRes.from(repoCeo.save(ceoInfo)).setDeviceId("");
     }
 

@@ -44,12 +44,29 @@ public class KcbDto {
     @AllArgsConstructor
     @Builder
     public static class Authentication {
+
+        @ApiModelProperty("성명")
+        @NotEmpty
         private String userName;
+
+        @ApiModelProperty("생년월일(yyMMdd)")
+        @NotEmpty
         private String dateOfBirth;
+
+        @ApiModelProperty("성별(1:남자, 2:여자)")
+        @NotEmpty
         private String genderCode;
+
+        @ApiModelProperty("통신사(SKT:01, KT:02, LG U+:03, SKT알뜰폰:04, KT알뜰폰:05, LG알뜰폰:06)")
+        @NotEmpty
         private String phoneKind;
+
+        @ApiModelProperty("휴대폰번호")
+        @NotEmpty
         private String phoneNo;
-        private String deviceId;
+
+        @Builder.Default
+        private String deviceId = null;
 
         @Builder.Default
         private String rqstCausCd = "00";

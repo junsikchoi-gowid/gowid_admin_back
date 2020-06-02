@@ -514,7 +514,7 @@ public class UserCorporationDto {
     public static class IssuanceRes {
 
     }
-    
+
     @Data
     @Builder
     @NoArgsConstructor
