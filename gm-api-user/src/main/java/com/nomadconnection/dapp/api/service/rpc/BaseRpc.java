@@ -4,7 +4,6 @@ import com.nomadconnection.dapp.api.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -24,16 +23,17 @@ public class BaseRpc {
         HttpHeaders headers = this.makeHeader(headerParams);
         headers.setContentType(MediaType.APPLICATION_JSON);
         RestTemplate restTemplate = new RestTemplate();
-        try {
-            ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, new HttpEntity<>(bodyParams, headers), responseType);
-            log.info("## Response ==> {}", JsonUtil.generateClassToJson(response));
-            return response.getBody();
-        } catch (RestClientResponseException e) {
-            log.error("## Response ==> {}", JsonUtil.generateClassToJson(e.getResponseBodyAsString()));
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-        return null;
+//        try {
+        ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, new HttpEntity<>(bodyParams, headers), responseType);
+        log.info("## Response ==> {}", JsonUtil.generateClassToJson(response));
+        return response.getBody();
+//        } catch (RestClientResponseException e) {
+//            log.error("## Response ==> {}", JsonUtil.generateClassToJson(e.getResponseBodyAsString()));
+//            throw e;
+//        } catch (Exception e) {
+//            log.error(e.getMessage(), e);
+//            throw e;
+//        }
     }
 
     private HttpHeaders makeHeader(Map<String, String> headerParams) {

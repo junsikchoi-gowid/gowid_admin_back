@@ -1,5 +1,8 @@
 package com.nomadconnection.dapp.core.dto.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 @SuppressWarnings("unused")
 public class ErrorCode {
 
@@ -57,5 +60,37 @@ public class ErrorCode {
 
 	public enum Business implements ErrorCodeDescriptor {
 		BUSINESS,
+	}
+
+	@AllArgsConstructor
+	@Getter
+	public enum External implements ErrorCodeDescriptor {
+		EXTERNAL_ERROR_GW("EXTERNAL_ERROR_GW", "external error(shinhan - GW)"),
+
+		EXTERNAL_ERROR_SHINHAN_1200("EXTERNAL_ERROR_SHINHAN_1200", "external error(shinhan - 1200)"),
+		REJECTED_SHINHAN_1200("EXTERNAL_ERROR_SHINHAN_1200", "rejected(shinhan - 1200) "),
+
+		EXTERNAL_ERROR_SHINHAN_1510("EXTERNAL_ERROR_SHINHAN_1510", "external error(shinhan - 1510)"),
+		REJECTED_SHINHAN_1510("REJECTED_SHINHAN_1510", "rejected(shinhan - 1510) "),
+
+		EXTERNAL_ERROR_SHINHAN_1520("EXTERNAL_ERROR_SHINHAN_1520", "external error(shinhan - 1520)"),
+		REJECTED_SHINHAN_1520("REJECTED_SHINHAN_1520", "rejected(shinhan - 1520) "),
+
+		EXTERNAL_ERROR_SHINHAN_1530("EXTERNAL_ERROR_SHINHAN_1530", "external error(shinhan - 1530)"),
+		REJECTED_SHINHAN_1530("EXTERNAL_ERROR_SHINHAN_1530", "rejected(shinhan - 1530) "),
+
+		EXTERNAL_ERROR_SHINHAN_1400("EXTERNAL_ERROR_SHINHAN_1400", "external error(shinhan - 1400)"),
+		REJECTED_SHINHAN_1400("REJECTED_SHINHAN_1400", "rejected(shinhan - 1400) "),
+		HOLD_SHINHAN_1400("HOLDING_SHINHAN_1400", "holding(shinhan - 1400)"),
+
+		EXTERNAL_ERROR_SHINHAN_1000("EXTERNAL_ERROR_SHINHAN_1000", "external error(shinhan - 1000)"),
+		REJECTED_SHINHAN_1000("EXTERNAL_ERROR_SHINHAN_1000", "rejected(shinhan - 1000) "),
+		HOLD_SHINHAN_1000("EXTERNAL_ERROR_SHINHAN_1000", "holding(shinhan - 1000)"),
+
+		EXTERNAL_ERROR_SHINHAN_1100("EXTERNAL_ERROR_SHINHAN_1100", "external error(shinhan - 1100)"),
+		REJECTED_SHINHAN_1100("EXTERNAL_ERROR_SHINHAN_1100", "rejected(shinhan - 1100) ");
+
+		private final String code;
+		private final String desc;
 	}
 }
