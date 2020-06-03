@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.GwUploadDto;
 import com.nomadconnection.dapp.api.exception.ServerError;
 import lombok.RequiredArgsConstructor;
@@ -35,16 +36,16 @@ public class GwUploadService {
         params.add("files", file);
         params.add("companyCode", cardCode);
 
-        ClientResponse clientResponse = this.gwClient.post()
+        ClientResponse clientResponse = gwClient.post()
                 .uri(url)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(BodyInserters.fromMultipartData(params))
                 .exchange().block();
 
-        GwUploadDto.Response response = this.responseDataResolver(clientResponse, GwUploadDto.Response.class);
+        GwUploadDto.Response response = responseDataResolver(clientResponse, GwUploadDto.Response.class);
         log.info("[upload] $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
 
-        if (!response.getData().getCode().equals("200")) {
+        if (!response.getData().getCode().equals(Const.API_GW_RESULT_SUCCESS)) {
             log.error("([ upload ]) $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
             throw ServerError.builder().category(ServerError.Category.GW_UPLOAD_SERVER_ERROR).data(response).build();
         }

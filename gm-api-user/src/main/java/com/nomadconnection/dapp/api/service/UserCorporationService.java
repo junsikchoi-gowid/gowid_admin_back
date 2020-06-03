@@ -49,7 +49,7 @@ public class UserCorporationService {
      */
     @Transactional(readOnly = true)
     public List<UserCorporationDto.BusinessType> getBusinessType() {
-        return repoCodeDetail.findAllByCode("business_1").stream().map(UserCorporationDto.BusinessType::from).collect(Collectors.toList());
+        return repoCodeDetail.findAllByCode(CommonCodeType.BUSINESS_1).stream().map(UserCorporationDto.BusinessType::from).collect(Collectors.toList());
     }
 
     /**
