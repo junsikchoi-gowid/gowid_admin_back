@@ -116,7 +116,7 @@ public class UserCorporationController {
 
     @ApiOperation("주주명부 파일 삭제")
     @DeleteMapping(URI.STOCKHOLDER_FILES_IDX)
-    public ResponseEntity deleteStockholderFile(
+    public ResponseEntity<ResponseEntity.BodyBuilder> deleteStockholderFile(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @PathVariable Long idxFile) {
@@ -212,11 +212,6 @@ public class UserCorporationController {
         return ResponseEntity.ok().body(service.getCardIssuanceInfo(idxCardInfo));
     }
 
-    /**
-     * todo :
-     * - 예외 처리
-     * - 제네릭 타입 적용
-     */
     @ApiOperation(value = "법인카드 발급 신청")
     @PostMapping(URI.CARD)
     public ResponseEntity<UserCorporationDto.IssuanceRes> application(
