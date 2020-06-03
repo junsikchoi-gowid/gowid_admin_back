@@ -73,12 +73,15 @@ public class IssuanceService {
         return new UserCorporationDto.IssuanceRes();
     }
 
-    private DataPart1200 proc1200(Corp userCrop) {
+    private DataPart1200 proc1200(Corp userCorp) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1200);
 
         // 데이터부 - db 추출, 세팅
-        D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCrop.idx());
+        D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
+        if (d1200 == null) {
+            throw new EntityNotFoundException("not found corporation idx", "d1200", userCorp.idx());
+        }
 
         // 연동
         DataPart1200 requestRpc = new DataPart1200();
@@ -88,12 +91,15 @@ public class IssuanceService {
         return shinhanGwRpc.request1200(requestRpc);
     }
 
-    private void proc1510(Corp userCrop) {
+    private void proc1510(Corp userCorp) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1510);
 
         // 데이터부 - db 추출, 세팅
-        D1510 d1510 = d1510Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCrop.idx());
+        D1510 d1510 = d1510Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
+        if (d1510 == null) {
+            throw new EntityNotFoundException("not found corporation idx", "d1510", userCorp.idx());
+        }
 
         // 연동
         DataPart1510 requestRpc = new DataPart1510();
@@ -103,12 +109,15 @@ public class IssuanceService {
         shinhanGwRpc.request1510(requestRpc);
     }
 
-    private void proc1520(Corp userCrop) {
+    private void proc1520(Corp userCorp) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1520);
 
         // 데이터부 - db 추출, 세팅
-        D1520 d1520 = d1520Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCrop.idx());
+        D1520 d1520 = d1520Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
+        if (d1520 == null) {
+            throw new EntityNotFoundException("not found corporation idx", "d1520", userCorp.idx());
+        }
 
         // 연동
         DataPart1520 requestRpc = new DataPart1520();
@@ -118,12 +127,15 @@ public class IssuanceService {
         shinhanGwRpc.request1520(requestRpc);
     }
 
-    private void proc1530(Corp userCrop) {
+    private void proc1530(Corp userCorp) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1530);
 
         // 데이터부 - db 추출, 세팅
-        D1530 d1530 = d1530Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCrop.idx());
+        D1530 d1530 = d1530Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
+        if (d1530 == null) {
+            throw new EntityNotFoundException("not found corporation idx", "d1530", userCorp.idx());
+        }
 
         // 연동
         DataPart1530 requestRpc = new DataPart1530();
@@ -133,12 +145,15 @@ public class IssuanceService {
         shinhanGwRpc.request1530(requestRpc);
     }
 
-    private void proc1000(Corp userCrop) {
+    private void proc1000(Corp userCorp) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1000);
 
         // 데이터부 - db 추출, 세팅
-        D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCrop.idx());
+        D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
+        if (d1000 == null) {
+            throw new EntityNotFoundException("not found corporation idx", "d1000", userCorp.idx());
+        }
 
         // 연동
         DataPart1000 requestRpc = new DataPart1000();
@@ -148,12 +163,15 @@ public class IssuanceService {
         shinhanGwRpc.request1000(requestRpc);
     }
 
-    private void proc1400(Corp userCrop) {
+    private void proc1400(Corp userCorp) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1400);
 
         // 데이터부 - db 추출, 세팅
-        D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCrop.idx());
+        D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
+        if (d1400 == null) {
+            throw new EntityNotFoundException("not found corporation idx", "d1400", userCorp.idx());
+        }
 
         // 연동
         DataPart1400 requestRpc = new DataPart1400();
@@ -163,12 +181,15 @@ public class IssuanceService {
         shinhanGwRpc.request1400(requestRpc);
     }
 
-    private void proc1100(Corp userCrop) {
+    private void proc1100(Corp userCorp) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1100);
 
         // 데이터부 - db 추출, 세팅
-        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCrop.idx());
+        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
+        if (d1100 == null) {
+            throw new EntityNotFoundException("not found corporation idx", "d1100", userCorp.idx());
+        }
 
         // 연동
         DataPart1100 requestRpc = new DataPart1100();
