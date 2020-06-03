@@ -1,5 +1,8 @@
 package com.nomadconnection.dapp.core.encryption;
 
+import com.nomadconnection.dapp.core.encryption.core.KISA_SEED_CBC;
+import com.nomadconnection.dapp.core.encryption.core.KISA_SEED_ECB;
+
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -8,7 +11,7 @@ import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 import java.util.Objects;
 
-public class SeedMain {
+public class Seed128 {
     static String charset = StandardCharsets.UTF_8.toString();
 
     // 사용자가 지정하는 입력 키(16bytes), 암호화 대칭키
@@ -30,7 +33,7 @@ public class SeedMain {
      * SEED 128 Encryption
      *
      * @param str 암호화 할 문자열
-     * @return 암화화된 문자열
+     * @return 암화화 된 문자열
      */
     public static String encryptEcb(String str) {
         try {
@@ -41,20 +44,31 @@ public class SeedMain {
         return null;
     }
 
-
-    public static byte[] encryptEcbGetBytes(String str) {
-        return encryptEcb(str, pbUserKey2);
+    /**
+     * SEED-128 Decryption
+     *
+     * @param encryptedText 암호화 된 문자열
+     * @return 복호화 된 문자열
+     */
+    public static String decryptEcb(String encryptedText) {
+        try {
+            return decryptEcb(Objects.requireNonNull(encryptedText).getBytes(charset));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
-     * SEED 128 Decryption
+     * SEED-128 Decryption
      *
-     * @param bytes 복호화 할 바이트 배
-     * @return 복호화 된 문자열열
+     * @param bytes 암호화 된 바이트 배열
+     * @return 복호화 된 문자열
      */
     public static String decryptEcb(byte[] bytes) {
         return decryptEcb(bytes, pbUserKey2);
     }
+
 
     public static byte[] encryptEcb(String str, byte[] paramPbUserKey) {
         byte[] enc = null;
@@ -194,7 +208,6 @@ public class SeedMain {
         System.out.println(Arrays.toString(pbUserKey2));
 
         System.out.println("============ ECB 암복호화 =================");
-//        byte[] encryptData = encryptEcb("1234", bytes);
         byte[] encryptData = encryptEcb("1234", pbUserKey2);
         decryptEcb(encryptData, pbUserKey2);
 
@@ -215,21 +228,18 @@ public class SeedMain {
         System.out.println("encryptedBytes = " + Arrays.toString(encryptedBytes));
         System.out.println("encryptedText = " + encryptedText);
         System.out.println("decryptedText = " + decryptedText);
-
-//        byte[] encryptData = encryptEcb(text, pbUserKey);
-//        decryptEcb(encryptData, pbUserKey);
     }
 
-    public static void main(String[] args) throws UnsupportedEncodingException {
+    public static void main(String[] args) {
         System.out.println("============ KEY =================");
         String text = "01012345678";
-        String encryptedText2 = encryptEcb(text);
-        String decryptedText2 = decryptEcb(Objects.requireNonNull(encryptedText2).getBytes(charset));
+        String encryptedText = encryptEcb(text);
+        String decryptedText = decryptEcb(encryptedText);
 
         System.out.println("============ ECB 암복호화 =================");
         System.out.println("text = " + text);
-        System.out.println("encryptedText2 = " + encryptedText2);
-        System.out.println("decryptedText2 = " + decryptedText2);
+        System.out.println("encryptedText = " + encryptedText);
+        System.out.println("decryptedText = " + decryptedText);
     }
 
 }

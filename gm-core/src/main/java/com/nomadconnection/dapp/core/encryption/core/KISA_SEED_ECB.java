@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.core.encryption;
+package com.nomadconnection.dapp.core.encryption.core;
 
 /**
  * @author Copyright (c) 2013 by KISA
