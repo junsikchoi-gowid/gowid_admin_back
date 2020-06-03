@@ -31,9 +31,22 @@ public class KcbController {
     public static class URI {
         public static final String BASE = "/kcb/v1";
         public static final String CERT = "/cert";
+        public static final String SMS = "/sms";
     }
 
     private final KcbService service;
+
+    @ApiOperation("본인인증 요청")
+    @PostMapping(URI.SMS)
+    public ResponseEntity authenticationSms(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestBody @Valid KcbDto.Authentication dto) throws IOException {
+        if (log.isInfoEnabled()) {
+            log.info("([ authenticationSms ]) $user='{}', $dto='{}'", user, dto);
+        }
+
+        return ResponseEntity.ok().body(service.authenticationSms(dto));
+    }
 
     @ApiOperation("본인인증 확인")
     @PostMapping(URI.CERT)
@@ -41,7 +54,7 @@ public class KcbController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid KcbDto.Cert dto) throws IOException {
         if (log.isInfoEnabled()) {
-            log.info("([ registerCorporation ]) $user='{}', $dto='{}'", user, dto);
+            log.info("([ cert ]) $user='{}', $dto='{}'", user, dto);
         }
 
         return ResponseEntity.ok().body(service.certSms(dto));

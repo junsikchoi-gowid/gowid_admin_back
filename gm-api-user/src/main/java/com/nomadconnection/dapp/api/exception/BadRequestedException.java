@@ -9,16 +9,11 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 @Builder
 @RequiredArgsConstructor
-public class ServerError extends RuntimeException {
+public class BadRequestedException extends RuntimeException {
 
-    @SuppressWarnings("SpellCheckingInspection")
     public enum Category {
-        KCB_SERVER_ERROR,
-        S3_SERVER_ERROR,
-        GW_UPLOAD_SERVER_ERROR,
-        ;
+        EXCESS_UPLOAD_FILE_COUNT,
     }
 
     private final Category category;
-    private final Object data;
 }

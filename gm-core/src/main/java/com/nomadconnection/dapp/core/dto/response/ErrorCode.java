@@ -41,6 +41,7 @@ public class ErrorCode {
 		FAILED_TO_SAVE,
 		USER_NOT_FOUND,
 		DEPT_NOT_FOUND,
+		EXCESS_RESOURCE,
 	}
 
 	public enum Mismatched implements ErrorCodeDescriptor {
@@ -50,6 +51,8 @@ public class ErrorCode {
 		MISMATCHED_VERIFICATION_CODE,
 		MISMATCHED_VALID_THRU,
 		MISMATCHED_CORP,
+		MISMATCHED_CARD_ISSUANCE_INFO,
+		MISMATCHED_STOCKHOLDER_FILE,
 	}
 
 	public enum Unverified implements ErrorCodeDescriptor {

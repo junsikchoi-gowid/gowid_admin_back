@@ -50,4 +50,8 @@ public class CardIssuanceInfo extends BaseTime {
     @OneToMany(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     private Collection<CeoInfo> ceoInfos;
+
+    @OneToMany(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private Collection<StockholderFile> stockholderFiles;
 }
