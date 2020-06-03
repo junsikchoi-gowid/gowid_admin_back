@@ -30,7 +30,7 @@ public class Seed128 {
 
 
     /**
-     * SEED 128 Encryption
+     * SEED-128 Encryption
      *
      * @param str 암호화 할 문자열
      * @return 암화화 된 문자열
