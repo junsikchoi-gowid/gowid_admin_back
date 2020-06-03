@@ -19,6 +19,8 @@ import javax.persistence.Enumerated;
 public class Card {
 
     private String hopeLimit; // 희망한도
+    private String calculatedLimit; // 계산한도
+    private String grantLimit; // 최종한도
     private Long requestCount; // 신청수량
     private String addressBasic; // 기본주소
     private String addressDetail; // 상세주소

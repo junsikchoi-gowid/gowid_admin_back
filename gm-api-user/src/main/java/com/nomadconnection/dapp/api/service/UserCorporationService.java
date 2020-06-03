@@ -43,6 +43,16 @@ public class UserCorporationService {
     private final AwsS3Service s3Service;
 
     /**
+     * 법인정보 업종종류 조회
+     *
+     * @return 벤처기업사 목록
+     */
+    @Transactional(readOnly = true)
+    public List<UserCorporationDto.BusinessType> getBusinessType() {
+        return repoCodeDetail.findAllByCode("business_1").stream().map(UserCorporationDto.BusinessType::from).collect(Collectors.toList());
+    }
+
+    /**
      * 법인정보 등록
      *
      * @param idx_user 등록하는 User idx
@@ -256,6 +266,8 @@ public class UserCorporationService {
                 .addressDetail(dto.getAddressDetail())
                 .zipCode(dto.getZipCode())
                 .hopeLimit(dto.getAmount())
+                .calculatedLimit(dto.getCalAmount())
+                .grantLimit(dto.getGrantAmount())
                 .receiveType(dto.getReceiveType())
                 .requestCount(dto.getCount())
                 .build());
@@ -273,10 +285,13 @@ public class UserCorporationService {
         D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
             repoD1100.save(d1100
-                    .d029(!StringUtils.hasText(d1100.d029()) ? dto.getReceiveType().getCode() : d1100.d029())
+                    .d029(dto.getReceiveType().getCode())
+                    .d031(dto.getZipCode().substring(0, 3))
+                    .d032(dto.getZipCode().substring(3))
                     .d033(dto.getAddressBasic())
                     .d034(dto.getAddressDetail())
-                    .d039(dto.getCount() + "") //TODO: 전문테이블에 저장
+                    .d020(dto.getGrantAmount())
+                    .d039(dto.getCount() + "")
             );
         }
 
@@ -437,6 +452,7 @@ public class UserCorporationService {
         return repoVenture.findAllByOrderByNameAsc().stream().map(ventureBusiness -> ventureBusiness.name()).collect(Collectors.toList());
     }
 
+
     private User findUser(Long idx_user) {
         return repoUser.findById(idx_user).orElseThrow(
                 () -> EntityNotFoundException.builder()
@@ -460,15 +476,6 @@ public class UserCorporationService {
 
     private D1100 getD1100(Long idx_corp) {
         return repoD1100.getTopByIdxCorpOrderByIdxDesc(idx_corp);
-    }
-
-    private CommonCodeDetail findCommonCodeDetail(Long idx_codeDetail) {
-        return repoCodeDetail.findById(idx_codeDetail).orElseThrow(
-                () -> EntityNotFoundException.builder()
-                        .idx(idx_codeDetail)
-                        .entity("CommonCodeDetail")
-                        .build()
-        );
     }
 
     private StockholderFile findStockholderFile(Long idx_file) {

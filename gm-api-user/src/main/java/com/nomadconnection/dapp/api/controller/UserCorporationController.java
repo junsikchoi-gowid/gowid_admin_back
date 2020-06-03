@@ -28,10 +28,10 @@ import java.io.IOException;
 @Api(tags = "법인카드 발급", description = UserCorporationController.URI.BASE)
 public class UserCorporationController {
 
-    @SuppressWarnings("WeakerAccess")
     public static class URI {
         public static final String BASE = "/corp/v1";
         public static final String CORPORATION = "/corporation";
+        public static final String CORPORATION_TYPE = "/corporation/type";
         public static final String VENTURE = "/venture";
         public static final String STOCKHOLDER = "/stockholder";
         public static final String STOCKHOLDER_FILES = "/stockholder/files";
@@ -45,6 +45,17 @@ public class UserCorporationController {
 
     private final UserCorporationService service;
     private final IssuanceService issuanceService;
+
+    @ApiOperation("법인정보 업종종류 조회")
+    @GetMapping(URI.CORPORATION_TYPE)
+    public ResponseEntity getBusinessType(
+            @ApiIgnore @CurrentUser CustomUser user) {
+        if (log.isInfoEnabled()) {
+            log.info("([ getBusinessType ]) $user='{}'", user);
+        }
+
+        return ResponseEntity.ok().body(service.getBusinessType());
+    }
 
     @ApiOperation("법인정보 등록")
     @PostMapping(URI.CORPORATION)

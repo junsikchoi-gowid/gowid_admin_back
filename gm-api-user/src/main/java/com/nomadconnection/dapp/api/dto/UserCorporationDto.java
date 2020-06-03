@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.core.domain.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CeoInfo;
@@ -103,8 +104,16 @@ public class UserCorporationDto {
     public static class RegisterCard {
 
         @ApiModelProperty("희망한도")
-        @NotNull
+        @NotEmpty
         private String amount;
+
+        @ApiModelProperty("계산한도")
+        @NotEmpty
+        private String calAmount;
+
+        @ApiModelProperty("부여한도")
+        @NotEmpty
+        private String grantAmount;
 
         @ApiModelProperty("신청수량")
         @NotNull
@@ -114,12 +123,15 @@ public class UserCorporationDto {
         private ReceiveType receiveType;
 
         @ApiModelProperty("기본주소")
+        @NotEmpty
         private String addressBasic;
 
         @ApiModelProperty("상세주소")
+        @NotEmpty
         private String addressDetail;
 
         @ApiModelProperty("우편번호")
+        @NotEmpty
         @Length(max = 5)
         private String zipCode;
     }
@@ -338,7 +350,13 @@ public class UserCorporationDto {
         private Long idx;
 
         @ApiModelProperty("희망한도")
-        private String amount;
+        private String hopeAmount;
+
+        @ApiModelProperty("계산한도")
+        private String calAmount;
+
+        @ApiModelProperty("부여한도")
+        private String grantAmount;
 
         @ApiModelProperty("신청수량")
         private Long count;
@@ -371,7 +389,9 @@ public class UserCorporationDto {
             if (cardInfo != null && cardInfo.card() != null) {
                 return CardRes.builder()
                         .idx(cardInfo.idx())
-                        .amount(cardInfo.card().hopeLimit())
+                        .hopeAmount(cardInfo.card().hopeLimit())
+                        .calAmount(cardInfo.card().calculatedLimit())
+                        .grantAmount(cardInfo.card().grantLimit())
                         .count(cardInfo.card().requestCount())
                         .addressBasic(cardInfo.card().addressBasic())
                         .addressDetail(cardInfo.card().addressDetail())
@@ -566,6 +586,29 @@ public class UserCorporationDto {
                         .size(file.size())
                         .s3Link(file.s3Link())
                         .type(file.type().name())
+                        .build();
+            }
+            return null;
+        }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BusinessType {
+
+        @ApiModelProperty("업종코드")
+        private String code;
+
+        @ApiModelProperty("업종명")
+        private String name;
+
+        public static BusinessType from(CommonCodeDetail code) {
+            if (code != null) {
+                return BusinessType.builder()
+                        .code(code.code1() + code.code5())
+                        .name(code.value1())
                         .build();
             }
             return null;
