@@ -19,6 +19,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -48,7 +49,7 @@ public class UserCorporationController {
 
     @ApiOperation("법인정보 업종종류 조회")
     @GetMapping(URI.CORPORATION_TYPE)
-    public ResponseEntity getBusinessType(
+    public ResponseEntity<List<UserCorporationDto.BusinessType>> getBusinessType(
             @ApiIgnore @CurrentUser CustomUser user) {
         if (log.isInfoEnabled()) {
             log.info("([ getBusinessType ]) $user='{}'", user);
@@ -101,7 +102,7 @@ public class UserCorporationController {
             @ApiImplicitParam(name = "fileType", value = "BASIC:주주명부, MAJOR:1대주주명부", dataType = "String")
     })
     @PostMapping(URI.STOCKHOLDER_FILES)
-    public ResponseEntity uploadStockholderFile(
+    public ResponseEntity<UserCorporationDto.StockholderFileRes> uploadStockholderFile(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestParam String fileType,
@@ -179,7 +180,7 @@ public class UserCorporationController {
 
     @ApiOperation("카드발급정보 전체조회")
     @GetMapping(URI.ISSUANCE)
-    public ResponseEntity getCardIssuanceByUser(
+    public ResponseEntity<UserCorporationDto.CardIssuanceInfoRes> getCardIssuanceByUser(
             @ApiIgnore @CurrentUser CustomUser user) {
         if (log.isInfoEnabled()) {
             log.info("([ getCardIssuanceByUser ]) $user='{}'", user);
@@ -190,7 +191,7 @@ public class UserCorporationController {
 
     @ApiOperation("벤처기업사 조회")
     @GetMapping(URI.VENTURE)
-    public ResponseEntity getVenture(
+    public ResponseEntity<List<String>> getVenture(
             @ApiIgnore @CurrentUser CustomUser user) {
         if (log.isInfoEnabled()) {
             log.info("([ getCardIssuanceByUser ]) $user='{}'", user);
@@ -201,7 +202,7 @@ public class UserCorporationController {
 
     @ApiOperation("카드발급정보 전체조회")
     @GetMapping(URI.ISSUANCE_IDX)
-    public ResponseEntity getCardIssuanceByUser(
+    public ResponseEntity<UserCorporationDto.CardIssuanceInfoRes> getCardIssuanceByUser(
             @ApiIgnore @CurrentUser CustomUser user,
             @PathVariable Long idxCardInfo) {
         if (log.isInfoEnabled()) {
