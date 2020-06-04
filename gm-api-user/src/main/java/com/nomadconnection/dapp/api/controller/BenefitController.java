@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.controller;
 
+import com.nomadconnection.dapp.api.dto.BenefitDto;
 import com.nomadconnection.dapp.api.service.BenefitService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -34,7 +37,7 @@ public class BenefitController {
 
 	@ApiOperation("베네핏 목록 조회")
 	@GetMapping(URI.BENEFITS)
-	public ResponseEntity getBenefits(
+	public ResponseEntity<List<BenefitDto.BenefitRes>> getBenefits(
 			@ApiIgnore @CurrentUser CustomUser user) {
 		if (log.isInfoEnabled()) {
 			log.info("([ getBenefits ]) $user='{}'", user);
@@ -45,7 +48,7 @@ public class BenefitController {
 
 	@ApiOperation("베네핏 상세 조회")
 	@GetMapping(URI.BENEFIT)
-	public ResponseEntity getBenefit(
+	public ResponseEntity<BenefitDto.BenefitRes> getBenefit(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@PathVariable Long idxBenefit) {
 		if (log.isInfoEnabled()) {

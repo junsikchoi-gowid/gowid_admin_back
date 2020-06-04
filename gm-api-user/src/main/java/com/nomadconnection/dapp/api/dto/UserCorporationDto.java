@@ -2,10 +2,7 @@ package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.Corp;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CeoInfo;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.ReceiveType;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFile;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -92,9 +89,9 @@ public class UserCorporationDto {
         @NotEmpty
         private String nation;
 
-        @ApiModelProperty("지분율")
+        @ApiModelProperty("지분율(앞자리 3 : 뒷자리 2)")
         @NotNull
-        private Long rate;
+        private String rate;
     }
 
     @Data
@@ -134,6 +131,10 @@ public class UserCorporationDto {
         @NotEmpty
         @Length(max = 5)
         private String zipCode;
+
+        @ApiModelProperty("도로명 참조키캆")
+        @NotEmpty
+        private String addressKey;
     }
 
     @Data
@@ -185,14 +186,20 @@ public class UserCorporationDto {
         @ApiModelProperty("성별(1:남자, 2:여자)")
         private Long genderCode;
 
-        @ApiModelProperty("신분증 종류")
-        private IDType identityType;
+        @ApiModelProperty("신분증 종류 (RESIDENT, DRIVER, FOREIGN")
+        private CertificationType identityType;
 
-        public enum IDType {
-            RESIDENT,
-            DRIVER,
-            FOREIGN
-        }
+        @ApiModelProperty("발급일")
+        private String issueDate;
+
+        @ApiModelProperty("운전면허지역코드")
+        private String driverLocal;
+
+        @ApiModelProperty("운전면허번호")
+        private String driverNumber;
+
+        @ApiModelProperty("일련번호")
+        private String driverCode;
     }
 
     @Data
@@ -320,7 +327,7 @@ public class UserCorporationDto {
         private String nation;
 
         @ApiModelProperty("지분율")
-        private Long rate;
+        private String rate;
 
         public static StockholderRes from(CardIssuanceInfo cardInfo) {
             if (cardInfo != null && cardInfo.stockholder() != null) {
