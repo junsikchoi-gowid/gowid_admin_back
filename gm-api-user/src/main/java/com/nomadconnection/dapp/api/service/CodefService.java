@@ -1,9 +1,10 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
-import com.nomadconnection.dapp.api.exception.AlreadyExistException;
+import com.nomadconnection.dapp.api.dto.UserCorporationDto;
+import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
+import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.codef.io.helper.Account;
 import com.nomadconnection.dapp.codef.io.helper.ApiRequest;
@@ -13,9 +14,10 @@ import com.nomadconnection.dapp.codef.io.sandbox.pb.CORP_REGISTER;
 import com.nomadconnection.dapp.codef.io.sandbox.pb.PROOF_ISSUE;
 import com.nomadconnection.dapp.codef.io.sandbox.pb.STANDARD_FINANCIAL;
 import com.nomadconnection.dapp.core.domain.*;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.repository.*;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
-import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -25,23 +27,18 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.ITemplateEngine;
+import org.springframework.util.StringUtils;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -94,6 +91,15 @@ public class CodefService {
 	private final ResFinancialStatementListRepository repoResFinancialStatementList;
 	private final ResCostSpecificationRepository repoResCostSpecification;
 
+	private final D1000Repository repoD1000;
+	private final D1100Repository repoD1100;
+	private final D1200Repository repoD1200;
+	private final D1300Repository repoD1300;
+	private final D1400Repository repoD1400;
+	private final D1510Repository repoD1510;
+
+	private final CardIssuanceInfoRepository repoCardIssuance;
+
 	private final String urlPath = CommonConstant.getRequestDomain();
 
 	@Transactional(rollbackFor = Exception.class)
@@ -126,7 +132,6 @@ public class CodefService {
 		List<HashMap<String, Object>> list = new ArrayList<>();
 		HashMap<String, Object> accountMap1;
 		String createUrlPath = urlPath + CommonConstant.CREATE_ACCOUNT;
-		// List<ResAccount> resAccount = null;
 		List<BankDto.ResAccountDto> resAccount = null;
 
 		for( String s : CommonConstant.LISTBANK){
@@ -730,15 +735,41 @@ public class CodefService {
 		HashMap<String, Object> accountMap1;
 		String createUrlPath = urlPath + CommonConstant.CREATE_ACCOUNT;
 
+		for( String s : CommonConstant.LISTBANK){
+			accountMap1 = new HashMap<>();
+			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
+			accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("organization",	s);// 기관코드
+			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
+			accountMap1.put("certType",     CommonConstant.CERTTYPE);
+			accountMap1.put("certFile",     dto.getCertFile());
+			list.add(accountMap1);
+		}
+
+		for( String s : CommonConstant.LISTCARD){
+			accountMap1 = new HashMap<>();
+			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+			accountMap1.put("businessType",	CommonConstant.CARDTYPE);  // 업무구분코드
+			accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("organization",	s);// 기관코드
+			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
+			accountMap1.put("certType",     CommonConstant.CERTTYPE);
+			accountMap1.put("certFile",     dto.getCertFile());
+			list.add(accountMap1);
+		}
+
 		accountMap1 = new HashMap<>();
 		accountMap1.put("countryCode",	"KR");  	// 국가코드
 		accountMap1.put("businessType",	"NT");  	// 공공 국세청 업무구분
-		accountMap1.put("clientType",  	"A");   	// 통합 고객구분 A
+		accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   	// 통합 고객구분 A
 		accountMap1.put("organization",	"0002");	// 국세청 기관코드
 		accountMap1.put("loginType",  	"0");   	// 로그인타입 (0: 인증서, 1: ID/PW)
 		accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
 		accountMap1.put("certType",     CommonConstant.CERTTYPE);
-		accountMap1.put("certFile",     dto.getCertFile()); // dto.getCertFile()
+		accountMap1.put("certFile",     dto.getCertFile());
 		list.add(accountMap1);
 
 		bodyMap.put("accountList", list);
@@ -765,10 +796,8 @@ public class CodefService {
 		}else if(code.equals("CF-04000")){
 			JSONObject JSONObjectData = ((JSONObject)(jsonObject.get("data")));
 			JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
-
 			connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
-
-			// extraMessage -> 4ZI1i9Iwk6fblqzhAA44FL
+			log.debug( "cf-04000 connectedId = {} ", connectedId );
 		}else{
 			throw new RuntimeException(code);
 		}
@@ -783,7 +812,6 @@ public class CodefService {
 				"0",
 				"",
 				"" // 사업자번호
-
 		));
 
 		String jsonObjectProofIssueCode = jsonObjectProofIssue[0].get("code").toString();
@@ -792,50 +820,47 @@ public class CodefService {
 
 			// JSONObject jsonData = (JSONObject) jsonDataYn.get("resRegisterEntriesList");
 
-			// todo 이미 가입된 회사의 경우 처리 필요 - 안되게 막음
-			//	중복체크
-			if (repoCorp.findByResCompanyIdentityNo(dto.getIdentity()).isPresent()) {
-				if (log.isDebugEnabled()) {
-					log.debug("([ registerBrandCorp ]) registerBrandCorp ALREADY EXIST, $idxUser='{}', $resCompanyIdentityNo='{}'", idxUser, dto.getIdentity());
-				}
-				throw AlreadyExistException.builder()
-						.resource(dto.getIdentity())
-						.build();
+			// todo 이미 가입된 회사의 경우 처리 필요
+			//	중복체크 테스트 후엔 적용
+			Corp corp = null;
+
+			if (repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).isPresent()) {
+				corp = repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).get();
+			} else {
+				//	사용자 조회
+				Optional<User> user = repoUser.findById(idxUser);
+				corp = repoCorp.save(
+						Corp.builder()
+								.resJointRepresentativeNm(GowidUtils.getEmptyStringToString(jsonData, "resJointRepresentativeNm"))
+								.resIssueOgzNm(GowidUtils.getEmptyStringToString(jsonData, "resIssueOgzNm"))
+								.resCompanyNm(GowidUtils.getEmptyStringToString(jsonData, "resCompanyNm"))
+								.resBusinessTypes(GowidUtils.getEmptyStringToString(jsonData, "resBusinessTypes"))
+								.resBusinessItems(GowidUtils.getEmptyStringToString(jsonData, "resBusinessItems"))
+								.resBusinessmanType(GowidUtils.getEmptyStringToString(jsonData, "resBusinessmanType"))
+								.resCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo"))
+								.resIssueNo(GowidUtils.getEmptyStringToString(jsonData, "resIssueNo"))
+								.resJointIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resJointIdentityNo"))
+								.resOpenDate(GowidUtils.getEmptyStringToString(jsonData, "resOpenDate"))
+								.resOriGinalData(GowidUtils.getEmptyStringToString(jsonData, "resOriGinalData"))
+								.resRegisterDate(GowidUtils.getEmptyStringToString(jsonData, "resRegisterDate"))
+								.resUserAddr(GowidUtils.getEmptyStringToString(jsonData, "resUserAddr"))
+								.resUserIdentiyNo(GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo"))
+								.resUserNm(GowidUtils.getEmptyStringToString(jsonData, "resUserNm"))
+								.status(CorpStatus.PENDING)
+								.user(user.get())
+								.build()
+				);
 			}
 
-			//	사용자 조회
-			Optional<User> user = repoUser.findById(idxUser);
-
-			Corp corp = repoCorp.save(
-					Corp.builder()
-							.resJointRepresentativeNm(GowidUtils.getEmptyStringToString(jsonData, "resJointRepresentativeNm"))
-							.resIssueOgzNm(GowidUtils.getEmptyStringToString(jsonData, "resIssueOgzNm"))
-							.resCompanyNm(GowidUtils.getEmptyStringToString(jsonData, "resCompanyNm"))
-							.resBusinessTypes(GowidUtils.getEmptyStringToString(jsonData, "resBusinessTypes"))
-							.resBusinessItems(GowidUtils.getEmptyStringToString(jsonData, "resBusinessItems"))
-							.resBusinessmanType(GowidUtils.getEmptyStringToString(jsonData, "resBusinessmanType"))
-							.resCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo"))
-							.resIssueNo(GowidUtils.getEmptyStringToString(jsonData, "resIssueNo"))
-							.resJointIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resJointIdentityNo"))
-							.resOpenDate(GowidUtils.getEmptyStringToString(jsonData, "resOpenDate"))
-							.resOriGinalData(GowidUtils.getEmptyStringToString(jsonData, "resOriGinalData"))
-							.resRegisterDate(GowidUtils.getEmptyStringToString(jsonData, "resRegisterDate"))
-							.resUserAddr(GowidUtils.getEmptyStringToString(jsonData, "resUserAddr"))
-							.resUserIdentiyNo(GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo"))
-							.resUserNm(GowidUtils.getEmptyStringToString(jsonData, "resUserNm"))
-							.status(CorpStatus.PENDING)
-							.user(user.get())
-							.build()
-			);
-
+			log.debug("corp.idx() = {} ", corp.idx());
 
 			// 국세청 - 법인등기부등본
 			JSONObject[] jsonObjectCorpRegister = getApiResult(CORP_REGISTER.corp_register(
 					"0002",
-					"01000000000",
-					RSAUtil.encryptRSA("YZUWGj6ZYnK", CommonConstant.PUBLIC_KEY),
+					"01050619746",
+					RSAUtil.encryptRSA("1234", CommonConstant.PUBLIC_KEY),
 					"2",
-					GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").trim(),
+					GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").replaceAll("-","").trim(),
 					"1",
 					"T34029396293",
 					"gowid99!",
@@ -858,7 +883,8 @@ public class CodefService {
 					throw new RuntimeException("발행실패");
 				}
 
-				JSONObject jsonData2 = (JSONObject) jsonDataCorpRegister.get("resRegisterEntriesList");
+				JSONArray jsonDataArrayList = (JSONArray) jsonDataCorpRegister.get("resRegisterEntriesList");
+				JSONObject jsonData2 = (JSONObject) jsonDataArrayList.get(0);
 
 				JSONArray jsonArrayResCompanyNmList = (JSONArray) jsonData2.get("resCompanyNmList");
 				JSONArray jsonArrayResUserAddrList = (JSONArray) jsonData2.get("resUserAddrList");
@@ -881,10 +907,12 @@ public class CodefService {
 				JSONArray jsonArrayResEtcList = (JSONArray) jsonData2.get("resEtcList");
 				JSONArray jsonArrayResCorpEstablishDateList = (JSONArray) jsonData2.get("resCorpEstablishDateList");
 				JSONArray jsonArrayResRegistrationRecReasonList = (JSONArray) jsonData2.get("resRegistrationRecReasonList");
+				JSONArray jsonArrayResCEOList = (JSONArray) jsonData2.get("resCEOList");
+
 
 				ResRegisterEntriesList parent = repoResRegisterEntriesList.save(
 						ResRegisterEntriesList.builder()
-								.idx(corp.idx())
+								.idxCorp(corp.idx())
 								.resDocTitle(GowidUtils.getEmptyStringToString(jsonData2, "resAccountDisplay"))
 								.resRegistrationNumber(GowidUtils.getEmptyStringToString(jsonData2, "resRegistrationNumber"))
 								.resRegNumber(GowidUtils.getEmptyStringToString(jsonData2, "resRegNumber"))
@@ -916,21 +944,141 @@ public class CodefService {
 				saveJSONArray19(jsonArrayResEtcList, parent.idx());
 				saveJSONArray20(jsonArrayResCorpEstablishDateList, parent.idx());
 				saveJSONArray21(jsonArrayResRegistrationRecReasonList, parent.idx());
+				String d009 = saveJSONArray22(jsonArrayResCEOList, parent.idx());
 
+
+				repoD1000.save(D1000.builder()
+						.idxCorp(corp.idx())
+						.d001(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo"))
+						.d002(GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo"))
+						.d003(GowidUtils.getEmptyStringToString(jsonData, "resCompanyNm"))
+						.d004("400")
+						.d005("06")
+						.d007(GowidUtils.getEmptyStringToString(jsonData, "resRegisterDate"))
+						.d009(d009) // 1: 단일대표 2: 개별대표 3: 공동대표
+						.d029(null)
+						.d030(null)
+						.d031(null)
+						.d032("대표이사")
+						.d033("대표이사")
+						.d044(null)
+						.d045("5")
+						.d046("Y")
+						.d047("Y")
+						.d048("09")
+						.d049("DAAC6F")
+						.d051("10")
+						.d052("N")
+						.d053("고위드제휴카드신규입회")
+						.d054("1")
+						.d056("N")
+						.d057("N")
+						.d058(null)
+						.d063(null)
+						.d067(null)
+						.d068(null)
+						.d069(null)
+						.d070(null)
+						.build());
+
+			}else{
+				normal.setStatus(false);
+				normal.setKey(jsonObjectCorpRegisterCode);
+				normal.setValue(jsonObjectCorpRegister[0].get("message").toString());
+			}
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(normal)
+				.data(null).build());
+	}
+
+	/**
+	 * 법인정보 등록
+	 *
+	 * @param idx_user 등록하는 User idx
+	 * @param dto      등록정보
+	 * @param idx_CardInfo CardIssuanceInfo idx
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	UserCorporationDto.CorporationRes codeRegisterCorporation(Long idx_user, UserCorporationDto.RegisterCorporation dto, Long idx_CardInfo) {
+		User user = findUser(idx_user);
+
+		D1000 d1000 = repoD1000.getTopByIdxCorpOrderByIdxDesc(user.corp().idx());
+		Corp corp = repoCorp.save(user.corp()
+				.resCompanyEngNm(dto.getEngCorName())
+				.resCompanyNumber(dto.getCorNumber())
+				.resBusinessCode(dto.getBusinessCode())
+				.resUserType(d1000 != null ? d1000.d009() : null)
+		);
+
+		CardIssuanceInfo cardInfo;
+		try {
+			cardInfo = findCardIssuanceInfo(user.corp());
+			if (!cardInfo.idx().equals(idx_CardInfo)) {
+				throw MismatchedException.builder().build();
 			}
 
-			// 국세청 - 증명발급 표준재무재표
-			JSONObject[] jsonObjectStandardFinancial = getApiResult(STANDARD_FINANCIAL.standard_financial(
-					"0001",
-					connectedId,
-					"201912",
-					"0",
-					"04",
-					"01",
-					"40",
-					"",
-					GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").trim() // 사업자번호
-			));
+		} catch (EntityNotFoundException e) {
+			cardInfo = repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
+			if (d1000 != null) {
+				String[] corNumber = dto.getCorNumber().split("-");
+				repoD1000.save(d1000
+						.d006(!StringUtils.hasText(d1000.d006()) ? dto.getEngCorName() : d1000.d006())
+						.d008(!StringUtils.hasText(d1000.d008()) ? dto.getBusinessCode() : d1000.d008())
+						.d026(!StringUtils.hasText(d1000.d026()) ? corNumber[0] : d1000.d026())
+						.d027(!StringUtils.hasText(d1000.d027()) ? corNumber[1] : d1000.d027())
+						.d028(!StringUtils.hasText(d1000.d028()) ? corNumber[2] : d1000.d028())
+				);
+			}
+		}
+		return UserCorporationDto.CorporationRes.from(corp, cardInfo.idx());
+	}
+
+	private CardIssuanceInfo findCardIssuanceInfo(Corp corp) {
+		return repoCardIssuance.findTopByCorpAndDisabledTrueOrderByIdxDesc(corp).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.entity("CardIssuanceInfo")
+						.build()
+		);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity RegisterCorpInfo(ConnectedMngDto.CorpInfo dto, Long idxUser,Long idx_CardInfo){
+
+		Optional<User> user = repoUser.findById(idxUser);
+
+		String resCompanyIdentityNo = user.get().corp().resCompanyIdentityNo();
+
+		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
+		String connectedId = null;
+
+		List<ConnectedMng> connectedMng = repoConnectedMng.findByIdxUser(idxUser);
+		if(connectedMng.size() < 1) throw new RuntimeException("CONNECTED ID");
+		else connectedId = connectedMng.get(0).connectedId();
+
+		List<String> listYyyyMm = getFindClosingStandards(dto.getResClosingStandards().trim());
+
+		// 국세청 - 증명발급 표준재무재표
+		String finalConnectedId = connectedId;
+
+		listYyyyMm.forEach(yyyyMm ->{
+			JSONObject[] jsonObjectStandardFinancial = new JSONObject[0];
+			try {
+				jsonObjectStandardFinancial = getApiResult(STANDARD_FINANCIAL.standard_financial(
+						"0001",
+						finalConnectedId,
+						yyyyMm,
+						"0",
+						"04",
+						"01",
+						"40",
+						"",
+						resCompanyIdentityNo.replaceAll("-","").trim() // 사업자번호
+				));
+			} catch (Exception e) {
+				log.debug(e.toString());
+			}
 
 			String jsonObjectStandardFinancialCode = jsonObjectStandardFinancial[0].get("code").toString();
 			if (jsonObjectStandardFinancialCode.equals("CF-00000") ) {
@@ -943,7 +1091,7 @@ public class CodefService {
 
 				ResStandardFinancialList parentStandardFinancial = repoResStandardFinancialList.save(
 						ResStandardFinancialList.builder()
-								.idxCorp(corp.idx())
+								.idxCorp(user.get().corp().idx())
 								.commStartDate(GowidUtils.getEmptyStringToString(jsonData2, "commStartDate"))
 								.commEndDate(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate"))
 								.resUserNm(GowidUtils.getEmptyStringToString(jsonData2, "resUserNm"))
@@ -964,45 +1112,90 @@ public class CodefService {
 				saveJSONArrayResIncomeStatement(resIncomeStatement, parentStandardFinancial.idx());
 				saveJSONArrayResCostSpecificationList(resCostSpecificationList, parentStandardFinancial.idx());
 				saveJSONArrayResFinancialStatementList(resFinancialStatementList, parentStandardFinancial.idx());
+
+				repoD1100.save(D1100.builder()
+						.idxCorp(user.get().corp().idx())
+						.d001(user.get().corp().resCompanyIdentityNo())
+						.d002("01")
+						.d003("3")
+						.d004("NULL")
+						.d005("DAAC6F")
+						.d006("G1")
+						.d007("1")
+						.d008("00")
+						.d009("A")
+						.d010("3")
+						.d011("0")
+						.d012("0")
+						.d013("0")
+						.d014("1")
+						.d015("N")
+						.d016("고위드 스타트업 T&E")
+						.d017("10")
+						.d018("01")
+						.d019("Y")
+						.d020("")
+						.d021("")
+						.d022("2")
+						.d023("15일")
+						.d024("하단 코드표 참조")
+						.d025("")
+						.d026("")
+						.d027("사업자번호")
+						.d028("901")
+						.d029("")
+						.d030("1")
+						.d031("")
+						.d032("")
+						.d033("")
+						.d034("")
+						.d035("")
+						.d036("")
+						.d037("")
+						.d038("N")
+						.d039("")
+						.d040(null)
+						.d041(null)
+						.d042("Y")
+						.d043("Y")
+						.d044("")
+						.d045("")
+						.d046("")
+						.d047("")
+						.d048("Y")
+						.d049(null)
+						.build());
+
 			}else{
-				normal.setStatus(false);
-				normal.setKey("STANDARD_FINANCIAL");
+				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
+				log.debug("jsonObjectStandardFinancial message = {} ", jsonObjectStandardFinancial[0].get("message").toString());
 			}
-		}else{
-			normal.setStatus(false);
-			normal.setKey("CORP_REGISTER");
-		}
+		});
 
-		if(!normal.isStatus()){
-			accountMap1 = new HashMap<>();
-			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
-			accountMap1.put("businessType",	CommonConstant.REVENUETYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	"A");   // "고객구분(P: 개인, B: 기업)
-			accountMap1.put("organization",	"0002");// 기관코드
-			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
-			list.add(accountMap1);
-
-			bodyMap.put("accountList", list);
-			bodyMap.put(CommonConstant.CONNECTED_ID, connectedId );
-			String deleteUrlPath = urlPath + CommonConstant.DELETE_ACCOUNT;
-			JSONParser jsonParse1 = new JSONParser();
-			JSONObject jsonObject1 = (JSONObject)jsonParse1.parse(ApiRequest.request(deleteUrlPath, bodyMap));
-			String strResultCode1 = jsonObject1.get("result").toString();
-			String code1 = (((JSONObject)jsonParse.parse(strResultCode1)).get("code")).toString();
-
-			if(code1.equals("CF-00000")){
-				repoConnectedMng.deleteConnectedQuery(connectedId);
-			}
-		}
-
-		// 은행정보가 있는지 체크
-		// serviceScraping.scrapingBankN45DayDataList(dto, idxUser);
-		// Thread.sleep(1000);
-		// return refresh(idxUser,null);
+		repoCorp.save(user.get().corp()
+				.resCompanyEngNm(dto.getResCompanyEngNm())
+				.resCompanyNumber(dto.getResCompanyPhoneNumber())
+				.resBusinessCode(dto.getResBusinessCode())
+		);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(normal)
 				.data(null).build());
+	}
+
+	private List<String> getFindClosingStandards(String Mm) {
+
+		List<String> returnYyyyMm = new ArrayList<String>();
+		Calendar cal = Calendar.getInstance();
+		DateFormat df = new SimpleDateFormat("yyyy");
+		Date date = new Date();
+		cal.setTime(date);
+		cal.add(Calendar.YEAR, -1);
+		returnYyyyMm.add(df.format(cal.getTime()) + Mm);
+		cal.add(Calendar.YEAR, -1);
+		returnYyyyMm.add(df.format(cal.getTime()) + Mm);
+
+		return returnYyyyMm;
 	}
 
 	private void saveJSONArray1(JSONArray jsonArray, Long idx ) {
@@ -1359,6 +1552,27 @@ public class CodefService {
 			);
 		});
 	}
+
+	private String saveJSONArray22(JSONArray jsonArray, Long idx ) {
+		AtomicReference<String> returnStr = null;
+
+		jsonArray.forEach(item -> {
+			JSONObject obj = (JSONObject) item;
+
+			returnStr.set(GowidUtils.getEmptyStringToString(obj, "resPosition"));
+
+			repoResCEOList.save(ResCEOList.builder()
+					.idxParent(idx)
+					.resPosition(GowidUtils.getEmptyStringToString(obj, "resPosition"))
+					.resUserNm(GowidUtils.getEmptyStringToString(obj, "resUserNm"))
+					.resUserIdentiyNo(GowidUtils.getEmptyStringToString(obj, "resUserIdentiyNo"))
+					.resUserAddr(GowidUtils.getEmptyStringToString(obj, "resUserAddr"))
+					.build()
+			);
+		});
+		return returnStr.get();
+	}
+
 	private void saveResRegistrationDateList(JSONArray jsonArrayResRegistrationDateList, Long idx) {
 		jsonArrayResRegistrationDateList.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
@@ -1474,5 +1688,14 @@ public class CodefService {
 			}
 		}
 		return idxUser;
+	}
+
+	private User findUser(Long idx_user) {
+		return repoUser.findById(idx_user).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.entity("User")
+						.idx(idx_user)
+						.build()
+		);
 	}
 }

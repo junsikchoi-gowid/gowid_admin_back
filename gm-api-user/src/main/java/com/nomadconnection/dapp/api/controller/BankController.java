@@ -40,6 +40,7 @@ public class BankController {
 
 		public static final String CHECK_ACCOUNT 		= "/check/account";			// 계좌 + 계좌리스트 스크래핑
 		public static final String CHECK_ACCOUNTLIST	= "/check/accountlist";         // 계좌리스트 스크래핑
+		public static final String CHECK_ACCOUNTLIST45	= "/check/accountlist45";         // 계좌리스트 스크래핑 45일간
 		public static final String CHECK_REFRESH		= "/check/refresh";             // 새로고침
 
 		public static final String DAY_BALANCE	 	= "/balance/day";	// (기간별) 일별 입출금 잔고
@@ -144,6 +145,12 @@ public class BankController {
 	@GetMapping( URI.CHECK_ACCOUNTLIST )
 	public ResponseEntity CheckAccountList(@ApiIgnore @CurrentUser CustomUser user) throws IOException, InterruptedException {
 		return service.checkAccountList(user.idx());
+	}
+
+	@ApiOperation(value = "계좌 + 거래내역 스크래핑 45일간만", notes = "" + "\n")
+	@GetMapping( URI.CHECK_ACCOUNTLIST45 )
+	public ResponseEntity checkAccountList45(@ApiIgnore @CurrentUser CustomUser user) throws IOException, InterruptedException {
+		return service.checkAccountList45(user.idx());
 	}
 
 	@ApiOperation(value = "새로고침", notes = "" + "\n")

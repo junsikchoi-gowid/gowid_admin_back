@@ -77,7 +77,7 @@ public class CommonConstant {
 	public static final String BUSINESSTYPE = "BK"; // 업무구분코드 BK
 	public static final String CARDTYPE = "CD"; // 업무구분코드 CD
 	public static final String REVENUETYPE = "NT"; // 업무구분코드 NT
-	public static final String CLIENTTYPE = "B"; // 고객구분(P: 개인, B: 기업)
+	public static final String CLIENTTYPE = "A"; // 고객구분(P: 개인, B: 기업) 통합 A
 	public static final String CERTTYPE = "pfx";
 
 

@@ -24,7 +24,7 @@ public class ResCEOList extends BaseTime {
 	private Long idx;
 	private Long idxParent;
 
-	private String resNumber; //호수(매수)
+	private String resPosition; //호수(매수)
 	private String resUserNm; //성명
 	private String resUserIdentiyNo; //주민등록번호
 	private String resUserAddr; //주소

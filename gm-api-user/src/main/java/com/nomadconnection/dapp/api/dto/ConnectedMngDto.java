@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -223,4 +226,25 @@ public class ConnectedMngDto {
 		@ApiModelProperty("idxConnectedId")
 		private Long idxConnectedId;
 	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class CorpInfo {
+		@ApiModelProperty("업종")
+		@NotNull
+		private String resBusinessCode;
+
+		@ApiModelProperty("법인명(영문)")
+		private String resCompanyEngNm;
+
+		@ApiModelProperty("결산기준(월)")
+		private String resClosingStandards;
+
+		@ApiModelProperty("사업장 전화번호 (ex. 00-000-0000)")
+		@NotEmpty
+		private String resCompanyPhoneNumber;
+	}
 }
+
