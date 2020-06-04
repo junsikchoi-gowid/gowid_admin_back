@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
@@ -55,8 +56,8 @@ public class UserCorporationService {
     /**
      * 법인정보 등록
      *
-     * @param idx_user 등록하는 User idx
-     * @param dto      등록정보
+     * @param idx_user     등록하는 User idx
+     * @param dto          등록정보
      * @param idx_CardInfo CardIssuanceInfo idx
      */
     @Transactional(rollbackFor = Exception.class)
@@ -97,8 +98,8 @@ public class UserCorporationService {
     /**
      * 벤처기업정보 등록
      *
-     * @param idx_user 등록하는 User idx
-     * @param dto      등록정보
+     * @param idx_user     등록하는 User idx
+     * @param dto          등록정보
      * @param idx_CardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
@@ -142,8 +143,8 @@ public class UserCorporationService {
     /**
      * 주주정보 등록
      *
-     * @param idx_user 등록하는 User idx
-     * @param dto      등록정보
+     * @param idx_user     등록하는 User idx
+     * @param dto          등록정보
      * @param idx_CardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
@@ -183,7 +184,17 @@ public class UserCorporationService {
                     .build()
             );
         }
-        // TODO: 전문테이블에 저장
+
+        D1000 d1000 = getD1000(user.corp().idx());
+        if (d1000 != null) {
+            repoD1000.save(d1000.d059(dto.getName())
+                    .d060(dto.getEngName())
+                    .d061(dto.getBirth())
+                    .d062(dto.getNation())
+                    .d065(dto.getRate())
+                    .d066("KR".equalsIgnoreCase(dto.getNation()) ? "N" : "Y")
+            );
+        }
 
         return UserCorporationDto.VentureRes.from(repoCardIssuance.save(cardInfo));
     }
@@ -191,14 +202,14 @@ public class UserCorporationService {
     /**
      * 주주명부 파일 등록
      *
-     * @param idx_user      등록하는 User idx
-     * @param file          파일
-     * @param type          file type
-     * @param idx_CardInfo  CardIssuanceInfo idx
+     * @param idx_user     등록하는 User idx
+     * @param file         파일
+     * @param type         file type
+     * @param idx_CardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserCorporationDto.StockholderFileRes uploadStockholderFile (Long idx_user, MultipartFile file, String type, Long idx_CardInfo) {
+    public UserCorporationDto.StockholderFileRes uploadStockholderFile(Long idx_user, MultipartFile file, String type, Long idx_CardInfo) {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -209,7 +220,7 @@ public class UserCorporationService {
             throw BadRequestedException.builder().category(BadRequestedException.Category.EXCESS_UPLOAD_FILE_COUNT).build();
         }
         String fileName = UUID.randomUUID().toString();
-        String s3Key = "stockholder/"+idx_CardInfo+"/"+fileName;
+        String s3Key = "stockholder/" + idx_CardInfo + "/" + fileName;
         String s3Link = s3Service.s3FileUpload(file, s3Key);
 
         return UserCorporationDto.StockholderFileRes.from(repoFile.save(StockholderFile.builder()
@@ -226,11 +237,11 @@ public class UserCorporationService {
     /**
      * 주주명부 파일 삭제
      *
-     * @param idx_user      등록하는 User idx
-     * @param idx_file      삭제대상 StockholderFile 식별자
+     * @param idx_user 등록하는 User idx
+     * @param idx_file 삭제대상 StockholderFile 식별자
      */
     @Transactional(rollbackFor = Exception.class)
-    public void deleteStockholderFile (Long idx_user, Long idx_file, Long idx_CardInfo) {
+    public void deleteStockholderFile(Long idx_user, Long idx_file, Long idx_CardInfo) {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -248,8 +259,8 @@ public class UserCorporationService {
     /**
      * 카드발급정보 등록
      *
-     * @param idx_user 등록하는 User idx
-     * @param dto      등록정보
+     * @param idx_user     등록하는 User idx
+     * @param dto          등록정보
      * @param idx_CardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
@@ -265,6 +276,7 @@ public class UserCorporationService {
                 .addressBasic(dto.getAddressBasic())
                 .addressDetail(dto.getAddressDetail())
                 .zipCode(dto.getZipCode())
+                .addressKey(dto.getAddressKey())
                 .hopeLimit(dto.getAmount())
                 .calculatedLimit(dto.getCalAmount())
                 .grantLimit(dto.getGrantAmount())
@@ -279,6 +291,7 @@ public class UserCorporationService {
                     .d023(dto.getZipCode().substring(3))
                     .d024(dto.getAddressBasic())
                     .d025(dto.getAddressDetail())
+                    .d055(dto.getAddressKey())
             );
         }
 
@@ -292,6 +305,8 @@ public class UserCorporationService {
                     .d034(dto.getAddressDetail())
                     .d020(dto.getGrantAmount())
                     .d039(dto.getCount() + "")
+                    .d046(Const.CARD_RECEIVE_ADDRESS_CODE)
+                    .d047(dto.getAddressKey())
             );
         }
 
@@ -301,8 +316,8 @@ public class UserCorporationService {
     /**
      * 결제 계좌정보 등록
      *
-     * @param idx_user 등록하는 User idx
-     * @param dto      등록정보
+     * @param idx_user     등록하는 User idx
+     * @param dto          등록정보
      * @param idx_CardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
@@ -330,7 +345,7 @@ public class UserCorporationService {
             repoD1100.save(d1100
                     .d024(bankCode)
                     .d025(dto.getAccountNumber())
-                    .d026(dto.getAccountHolder()) //TODO: 전문테이블 저장
+                    .d026(dto.getAccountHolder())
             );
         }
         return UserCorporationDto.AccountRes.from(repoCardIssuance.save(cardInfo));
@@ -365,8 +380,8 @@ public class UserCorporationService {
     /**
      * 대표자 등록
      *
-     * @param idx_user 등록하는 User idx
-     * @param dto      등록정보
+     * @param idx_user     등록하는 User idx
+     * @param dto          등록정보
      * @param idx_CardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
@@ -388,9 +403,49 @@ public class UserCorporationService {
                 .agencyCode(dto.getAgency())
                 .genderCode(dto.getGenderCode())
                 .birth(dto.getBirth())
+                .certificationType(dto.getIdentityType())
                 .build();
 
-        // TODO: 전문에 저장
+        D1000 d1000 = getD1000(user.corp().idx());
+        if (d1000 != null) {
+            if (!StringUtils.hasText(d1000.d012())) {
+                repoD1000.save(d1000
+                        .d010(dto.getName())
+                        .d012(dto.getEngName())
+                        .d013(dto.getNation())
+                        .d035(dto.getName())
+                        .d036(dto.getPhoneNumber().substring(0, 3))
+                        .d037(dto.getPhoneNumber().substring(3, 6))
+                        .d038(dto.getPhoneNumber().substring(6))
+                        .d040(dto.getPhoneNumber().substring(0, 3))
+                        .d041(dto.getPhoneNumber().substring(3, 6))
+                        .d042(dto.getPhoneNumber().substring(6))
+                );
+            }
+            if (!StringUtils.hasText(d1000.d016())) {
+                repoD1000.save(d1000
+                        .d014(dto.getName())
+                        .d016(dto.getEngName())
+                        .d017(dto.getNation())
+                );
+            }
+            if (!StringUtils.hasText(d1000.d020())) {
+                repoD1000.save(d1000
+                        .d018(dto.getName())
+                        .d020(dto.getEngName())
+                        .d021(dto.getNation())
+                );
+            }
+        }
+
+        D1100 d1100 = getD1100(user.corp().idx());
+        if (d1100 != null && !StringUtils.hasText(d1100.d035())) {
+            repoD1100.save(d1100
+                    .d035(dto.getPhoneNumber().substring(0, 3))
+                    .d036(dto.getPhoneNumber().substring(3, 6))
+                    .d037(dto.getPhoneNumber().substring(6))
+            );
+        }
 
         return UserCorporationDto.CeoRes.from(repoCeo.save(ceoInfo)).setDeviceId("");
     }

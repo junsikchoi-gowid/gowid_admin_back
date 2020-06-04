@@ -23,5 +23,5 @@ public class Stockholder {
     private String stockholderEngName; // 주주이름(영문)
     private String stockholderBirth; // 생년월일 6자리
     private String stockholderNation; // 국적
-    private Long stockRate; // 지분율
+    private String stockRate; // 지분율
 }
