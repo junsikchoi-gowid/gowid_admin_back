@@ -21,7 +21,9 @@ public class CommonCodeDetail extends BaseTime {
 	@EqualsAndHashCode.Include
 	private Long idx;
 
-	private String code;
+	@Enumerated(EnumType.STRING)
+	private CommonCodeType code;
+
 	private String codeDesc;
 	private String code1;
 	private String code2;
