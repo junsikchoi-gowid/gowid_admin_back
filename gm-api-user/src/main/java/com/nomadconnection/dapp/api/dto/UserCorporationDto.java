@@ -518,11 +518,9 @@ public class UserCorporationDto {
     public static class IssuanceReq {
 
         @ApiModelProperty("카드발급정보 식별자")
-        @NotEmpty
         private Long cardIssuanceInfoIdx;
 
         @ApiModelProperty("카드비빌번호")
-        @NotEmpty
         private Long password;
 
         @ApiModelProperty("대표자주민등록번호1")
