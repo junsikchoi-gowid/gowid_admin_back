@@ -56,7 +56,7 @@ public class GowidUtils {
 		DateFormat df = new SimpleDateFormat("yyyyMM");
 		Date date = new Date();
 		cal.setTime(date);
-		cal.add(Calendar.MONDAY, i);
+		cal.add(Calendar.MONTH, i);
 		return df.format(cal.getTime());
 	}
 }

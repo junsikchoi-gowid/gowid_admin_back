@@ -328,6 +328,22 @@ public class BankService {
 		return refresh(idx,null);
 	}
 
+	public ResponseEntity checkAccountList45(Long idx) throws IOException, InterruptedException {
+		ObjectMapper mapper = new ObjectMapper();
+
+		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idx);
+		if(returnData.size()>0 && Integer.valueOf(returnData.get(0).getMin()) < 3){
+			return ResponseEntity.ok().body(BusinessResponse.builder().normal(
+					BusinessResponse.Normal.builder()
+							.value("Request again after 3 minutes").build()
+			).build());
+		}
+		serviceScraping.scrapingBankN45DayDataList(idx);
+		Thread.sleep(1000);
+		return refresh(idx,null);
+	}
+
+
 	public ResponseEntity refresh(Long idxUser, Long idxCorp) {
 
 		idxUser = getaLong(idxUser, idxCorp);
