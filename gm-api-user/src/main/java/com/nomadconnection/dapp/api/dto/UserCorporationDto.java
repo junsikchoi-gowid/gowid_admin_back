@@ -1,10 +1,8 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.core.domain.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.Corp;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CeoInfo;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.ReceiveType;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFile;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -91,9 +89,9 @@ public class UserCorporationDto {
         @NotEmpty
         private String nation;
 
-        @ApiModelProperty("지분율")
+        @ApiModelProperty("지분율(앞자리 3 : 뒷자리 2)")
         @NotNull
-        private Long rate;
+        private String rate;
     }
 
     @Data
@@ -103,8 +101,16 @@ public class UserCorporationDto {
     public static class RegisterCard {
 
         @ApiModelProperty("희망한도")
-        @NotNull
+        @NotEmpty
         private String amount;
+
+        @ApiModelProperty("계산한도")
+        @NotEmpty
+        private String calAmount;
+
+        @ApiModelProperty("부여한도")
+        @NotEmpty
+        private String grantAmount;
 
         @ApiModelProperty("신청수량")
         @NotNull
@@ -114,14 +120,21 @@ public class UserCorporationDto {
         private ReceiveType receiveType;
 
         @ApiModelProperty("기본주소")
+        @NotEmpty
         private String addressBasic;
 
         @ApiModelProperty("상세주소")
+        @NotEmpty
         private String addressDetail;
 
         @ApiModelProperty("우편번호")
+        @NotEmpty
         @Length(max = 5)
         private String zipCode;
+
+        @ApiModelProperty("도로명 참조키캆")
+        @NotEmpty
+        private String addressKey;
     }
 
     @Data
@@ -173,14 +186,20 @@ public class UserCorporationDto {
         @ApiModelProperty("성별(1:남자, 2:여자)")
         private Long genderCode;
 
-        @ApiModelProperty("신분증 종류")
-        private IDType identityType;
+        @ApiModelProperty("신분증 종류 (RESIDENT, DRIVER, FOREIGN")
+        private CertificationType identityType;
 
-        public enum IDType {
-            RESIDENT,
-            DRIVER,
-            FOREIGN
-        }
+        @ApiModelProperty("발급일")
+        private String issueDate;
+
+        @ApiModelProperty("운전면허지역코드")
+        private String driverLocal;
+
+        @ApiModelProperty("운전면허번호")
+        private String driverNumber;
+
+        @ApiModelProperty("일련번호")
+        private String driverCode;
     }
 
     @Data
@@ -308,7 +327,7 @@ public class UserCorporationDto {
         private String nation;
 
         @ApiModelProperty("지분율")
-        private Long rate;
+        private String rate;
 
         public static StockholderRes from(CardIssuanceInfo cardInfo) {
             if (cardInfo != null && cardInfo.stockholder() != null) {
@@ -338,7 +357,13 @@ public class UserCorporationDto {
         private Long idx;
 
         @ApiModelProperty("희망한도")
-        private String amount;
+        private String hopeAmount;
+
+        @ApiModelProperty("계산한도")
+        private String calAmount;
+
+        @ApiModelProperty("부여한도")
+        private String grantAmount;
 
         @ApiModelProperty("신청수량")
         private Long count;
@@ -371,7 +396,9 @@ public class UserCorporationDto {
             if (cardInfo != null && cardInfo.card() != null) {
                 return CardRes.builder()
                         .idx(cardInfo.idx())
-                        .amount(cardInfo.card().hopeLimit())
+                        .hopeAmount(cardInfo.card().hopeLimit())
+                        .calAmount(cardInfo.card().calculatedLimit())
+                        .grantAmount(cardInfo.card().grantLimit())
                         .count(cardInfo.card().requestCount())
                         .addressBasic(cardInfo.card().addressBasic())
                         .addressDetail(cardInfo.card().addressDetail())
@@ -491,11 +518,9 @@ public class UserCorporationDto {
     public static class IssuanceReq {
 
         @ApiModelProperty("카드발급정보 식별자")
-        @NotEmpty
         private Long cardIssuanceInfoIdx;
 
         @ApiModelProperty("카드비빌번호")
-        @NotEmpty
         private Long password;
 
         @ApiModelProperty("대표자주민등록번호1")
@@ -566,6 +591,29 @@ public class UserCorporationDto {
                         .size(file.size())
                         .s3Link(file.s3Link())
                         .type(file.type().name())
+                        .build();
+            }
+            return null;
+        }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BusinessType {
+
+        @ApiModelProperty("업종코드")
+        private String code;
+
+        @ApiModelProperty("업종명")
+        private String name;
+
+        public static BusinessType from(CommonCodeDetail code) {
+            if (code != null) {
+                return BusinessType.builder()
+                        .code(code.code1() + code.code5())
+                        .name(code.value1())
                         .build();
             }
             return null;

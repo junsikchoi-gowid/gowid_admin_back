@@ -27,7 +27,6 @@ import java.io.IOException;
 @Api(tags = "kcb 휴대폰 인증", description = KcbController.URI.BASE)
 public class KcbController {
 
-    @SuppressWarnings("WeakerAccess")
     public static class URI {
         public static final String BASE = "/kcb/v1";
         public static final String CERT = "/cert";
@@ -38,7 +37,7 @@ public class KcbController {
 
     @ApiOperation("본인인증 요청")
     @PostMapping(URI.SMS)
-    public ResponseEntity authenticationSms(
+    public ResponseEntity<KcbDto.Response> authenticationSms(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid KcbDto.Authentication dto) throws IOException {
         if (log.isInfoEnabled()) {
@@ -50,7 +49,7 @@ public class KcbController {
 
     @ApiOperation("본인인증 확인")
     @PostMapping(URI.CERT)
-    public ResponseEntity cert(
+    public ResponseEntity<KcbDto.Response> cert(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid KcbDto.Cert dto) throws IOException {
         if (log.isInfoEnabled()) {

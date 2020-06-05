@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.KcbDto;
 import com.nomadconnection.dapp.api.exception.ServerError;
 import lombok.RequiredArgsConstructor;
@@ -37,16 +38,16 @@ public class KcbService {
         }
         log.info("[authenticationSms] $url({}), $dto({})", url, dto);
 
-        ClientResponse clientResponse = this.gwClient.post()
+        ClientResponse clientResponse = gwClient.post()
                 .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromObject(dto))
                 .exchange().block();
 
-        KcbDto.Response response = this.responseDataResolver(clientResponse, KcbDto.Response.class);
+        KcbDto.Response response = responseDataResolver(clientResponse, KcbDto.Response.class);
         log.info("[authenticationSms] $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
 
-        if (!response.getData().getCode().equals("B000")) {
+        if (!response.getData().getCode().equals(Const.API_GW_OKNAME_SUCCESS)) {
             log.error("([ authenticationSms ]) $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
             throw ServerError.builder().category(ServerError.Category.KCB_SERVER_ERROR).data(response).build();
         }
@@ -62,16 +63,16 @@ public class KcbService {
 
         log.info("[certSms] $url({}), $dto({})", url, dto);
 
-        ClientResponse clientResponse = this.gwClient.post()
+        ClientResponse clientResponse = gwClient.post()
                 .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromObject(dto))
                 .exchange().block();
 
-        KcbDto.Response response = this.responseDataResolver(clientResponse, KcbDto.Response.class);
+        KcbDto.Response response = responseDataResolver(clientResponse, KcbDto.Response.class);
         log.info("[certSms] $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
 
-        if (!response.getData().getCode().equals("B000")) {
+        if (!response.getData().getCode().equals(Const.API_GW_OKNAME_SUCCESS)) {
             log.error("([ certSms ]) $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
             throw ServerError.builder().category(ServerError.Category.KCB_SERVER_ERROR).data(response).build();
         }

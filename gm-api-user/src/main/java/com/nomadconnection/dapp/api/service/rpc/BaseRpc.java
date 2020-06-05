@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.service.rpc;
 
 import com.nomadconnection.dapp.api.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -14,14 +15,19 @@ import java.util.Map;
 @Component
 public class BaseRpc {
 
+    @Value("${gateway.idc.domain}")
+    private String GATEWAY_IDC_DOMAIN;
+
     protected <T> T requestGateway(String url,
                                    HttpMethod httpMethod,
                                    Map<String, String> headerParams,
                                    Object bodyParams,
                                    Class<T> responseType) throws IOException {
 
+        headerParams.put("x-host", GATEWAY_IDC_DOMAIN);
         HttpHeaders headers = this.makeHeader(headerParams);
         headers.setContentType(MediaType.APPLICATION_JSON);
+
         RestTemplate restTemplate = new RestTemplate();
 //        try {
         ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, new HttpEntity<>(bodyParams, headers), responseType);

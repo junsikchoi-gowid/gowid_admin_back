@@ -19,10 +19,13 @@ import javax.persistence.Enumerated;
 public class Card {
 
     private String hopeLimit; // 희망한도
+    private String calculatedLimit; // 계산한도
+    private String grantLimit; // 최종한도
     private Long requestCount; // 신청수량
     private String addressBasic; // 기본주소
     private String addressDetail; // 상세주소
     private String zipCode; // 우편번호
+    private String addressKey; // 도로명 key값
 
     @Enumerated(EnumType.STRING)
     private ReceiveType receiveType; // 명세서 수령방법
