@@ -40,6 +40,8 @@ public class KcbService {
 
         ClientResponse clientResponse = gwClient.post()
                 .uri(url)
+                .header("x-host", "")
+                .header("x-protocol", "")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromObject(dto))
                 .exchange().block();
