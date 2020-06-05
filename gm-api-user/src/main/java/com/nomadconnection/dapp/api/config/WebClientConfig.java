@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.config;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,10 +12,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
+    @Value("${gateway.aws.domain}")
+    private String GATEWAY_AWS_DOMAIN;
+
     @Bean
     public WebClient gwClient() {
         return WebClient.builder()
-                .baseUrl(this.getUrl("http", "10.10.40.171"))
+                .baseUrl(GATEWAY_AWS_DOMAIN)
                 .build();
     }
 

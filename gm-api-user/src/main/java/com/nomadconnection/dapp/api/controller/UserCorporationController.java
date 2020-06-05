@@ -102,16 +102,16 @@ public class UserCorporationController {
             @ApiImplicitParam(name = "fileType", value = "BASIC:주주명부, MAJOR:1대주주명부", dataType = "String")
     })
     @PostMapping(URI.STOCKHOLDER_FILES)
-    public ResponseEntity<UserCorporationDto.StockholderFileRes> uploadStockholderFile(
+    public ResponseEntity<List<UserCorporationDto.StockholderFileRes>> uploadStockholderFile(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestParam String fileType,
-            @RequestPart MultipartFile file) {
+            @RequestPart MultipartFile[] files) {
         if (log.isInfoEnabled()) {
-            log.info("([ uploadStockholderFile ]) $user='{}', $file='{}', $idx_cardInfo='{}'", user, file, idxCardInfo);
+            log.info("([ uploadStockholderFile ]) $user='{}', $files='{}', $idx_cardInfo='{}'", user, files, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), file, fileType, idxCardInfo));
+        return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), files, fileType, idxCardInfo));
     }
 
     @ApiOperation("주주명부 파일 삭제")
