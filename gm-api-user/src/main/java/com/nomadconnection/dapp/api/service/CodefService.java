@@ -77,6 +77,7 @@ public class CodefService {
 	private final ResRegistrationRecReasonListRepository repoResRegistrationRecReasonList;
 	private final ResCEOListRepository repoResCEOList;
 	private final ResChangeDateListRepository repoResChangeDateList;
+	private final ResStockItemListRepository repoResStockItemList;
 	private final ResRegistrationDateListRepository repoResRegistrationDateList;
 	private final ResConvertibleBondItemListRepository repoResConvertibleBondItemList;
 	private final ResWarrantBondItemListRepository repoResWarrantBondItemList;
@@ -949,13 +950,14 @@ public class CodefService {
 
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
-						.d001(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo"))
-						.d002(GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo"))
+						.c007("")
+						.d001(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo").replaceAll("-",""))
+						.d002(GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").replaceAll("-",""))
 						.d003(GowidUtils.getEmptyStringToString(jsonData, "resCompanyNm"))
 						.d004("400")
 						.d005("06")
 						.d007(GowidUtils.getEmptyStringToString(jsonData, "resRegisterDate"))
-						.d009(d009) // 1: 단일대표 2: 개별대표 3: 공동대표
+						.d009("1") // 1: 단일대표 2: 개별대표 3: 공동대표
 						.d029(null)
 						.d030(null)
 						.d031(null)
@@ -1036,7 +1038,7 @@ public class CodefService {
 	}
 
 	private CardIssuanceInfo findCardIssuanceInfo(Corp corp) {
-		return repoCardIssuance.findTopByCorpAndDisabledTrueOrderByIdxDesc(corp).orElseThrow(
+		return repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(corp).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("CardIssuanceInfo")
 						.build()
@@ -1115,10 +1117,11 @@ public class CodefService {
 
 				repoD1100.save(D1100.builder()
 						.idxCorp(user.get().corp().idx())
-						.d001(user.get().corp().resCompanyIdentityNo())
+						.c007("")
+						.d001(user.get().corp().resCompanyIdentityNo().replaceAll("-",""))
 						.d002("01")
 						.d003("3")
-						.d004("NULL")
+						.d004(null)
 						.d005("DAAC6F")
 						.d006("G1")
 						.d007("1")
@@ -1137,11 +1140,11 @@ public class CodefService {
 						.d020("")
 						.d021("")
 						.d022("2")
-						.d023("15일")
-						.d024("하단 코드표 참조")
+						.d023("15")
+						.d024("")// 사업장 번호
 						.d025("")
 						.d026("")
-						.d027("사업자번호")
+						.d027(user.get().corp().resCompanyIdentityNo().replaceAll("-",""))
 						.d028("901")
 						.d029("")
 						.d030("1")
@@ -1165,7 +1168,6 @@ public class CodefService {
 						.d048("Y")
 						.d049(null)
 						.build());
-
 			}else{
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
 				log.debug("jsonObjectStandardFinancial message = {} ", jsonObjectStandardFinancial[0].get("message").toString());
@@ -1176,11 +1178,22 @@ public class CodefService {
 				.resCompanyEngNm(dto.getResCompanyEngNm())
 				.resCompanyNumber(dto.getResCompanyPhoneNumber())
 				.resBusinessCode(dto.getResBusinessCode())
+				.resUserType("1") // 공동대표
 		);
+
+		CardIssuanceInfo cardInfo;
+		try {
+			cardInfo = findCardIssuanceInfo(user.get().corp());
+			if (!cardInfo.idx().equals(idx_CardInfo)) {
+				throw MismatchedException.builder().build();
+			}
+		} catch (EntityNotFoundException e) {
+			cardInfo = repoCardIssuance.save(CardIssuanceInfo.builder().corp(user.get().corp()).build());
+		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(normal)
-				.data(null).build());
+				.data(UserCorporationDto.CorporationRes.from(user.get().corp(), cardInfo.idx())).build());
 	}
 
 	private List<String> getFindClosingStandards(String Mm) {
@@ -1297,18 +1310,21 @@ public class CodefService {
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 
+			JSONArray jsonArrayResStockItemList = (JSONArray) obj.get("resStockItemList");
 			JSONArray jsonArrayResChangeDateList = (JSONArray) obj.get("resChangeDateList");
 			JSONArray jsonArrayResRegistrationDateList = (JSONArray) obj.get("resRegistrationDateList");
+
 
 			ResStockList parent = repoResStockList.save(ResStockList.builder()
 					.idxParent(idx)
 					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resStockItemList(GowidUtils.getEmptyStringToString(obj, "resStockItemList"))
 					.build()
 			);
 
+			saveResStockItemList(jsonArrayResStockItemList, parent.idx() );
 			saveResChangeDateList(jsonArrayResChangeDateList, parent.idx() );
 			saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx());
+
 		});
 	}
 
@@ -1554,12 +1570,13 @@ public class CodefService {
 	}
 
 	private String saveJSONArray22(JSONArray jsonArray, Long idx ) {
-		AtomicReference<String> returnStr = null;
+		String returnStr = null;
+		returnStr = "사내이사";
 
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 
-			returnStr.set(GowidUtils.getEmptyStringToString(obj, "resPosition"));
+			log.debug(GowidUtils.getEmptyStringToString(obj, "resPosition"));
 
 			repoResCEOList.save(ResCEOList.builder()
 					.idxParent(idx)
@@ -1570,7 +1587,7 @@ public class CodefService {
 					.build()
 			);
 		});
-		return returnStr.get();
+		return returnStr;
 	}
 
 	private void saveResRegistrationDateList(JSONArray jsonArrayResRegistrationDateList, Long idx) {
@@ -1595,6 +1612,22 @@ public class CodefService {
 					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
 					.resChangeDate(GowidUtils.getEmptyStringToString(obj, "resChangeDate"))
 					.resNote(GowidUtils.getEmptyStringToString(obj, "resNote"))
+					.build()
+			);
+		});
+	}
+
+	private void saveResStockItemList(JSONArray jsonArrayResStockItemList, Long idx) {
+		jsonArrayResStockItemList.forEach(item -> {
+			JSONObject obj = (JSONObject) item;
+
+			repoResStockItemList.save(ResStockItemList.builder()
+					.idxParent(idx)
+					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
+					.resStockType(GowidUtils.getEmptyStringToString(obj, "resStockType"))
+					.resStockCnt(GowidUtils.getEmptyStringToString(obj, "resStockCnt"))
+					.resTCntIssuedStock(GowidUtils.getEmptyStringToString(obj, "resTCntIssuedStock"))
+					.resCapital(GowidUtils.getEmptyStringToString(obj, "resStockCnt"))
 					.build()
 			);
 		});

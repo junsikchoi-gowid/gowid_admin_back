@@ -448,7 +448,7 @@ public class UserCorporationService {
     }
 
     private CardIssuanceInfo findCardIssuanceInfo(Corp corp) {
-        return repoCardIssuance.findTopByCorpAndDisabledTrueOrderByIdxDesc(corp).orElseThrow(
+        return repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(corp).orElseThrow(
                 () -> EntityNotFoundException.builder()
                         .entity("CardIssuanceInfo")
                         .build()
