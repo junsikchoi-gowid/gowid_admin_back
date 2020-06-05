@@ -17,28 +17,28 @@ import java.io.IOException;
 @Slf4j
 public class ShinhanGwRpc extends BaseRpc {
 
-    @Value("${gateway.domain: http://loclhost:8090}")
-    private String GATEWAY_DOMAIN;
+    @Value("${gateway.aws.domain}")
+    private String GATEWAY_AWS_DOMAIN;
 
-    @Value("${gateway.shinhan.uri.1200: /shinhan/1200}")
+    @Value("${gateway.shinhan.uri.1200}")
     private String GATEWAY_SHINHAN_URI_1200;
 
-    @Value("${gateway.shinhan.uri.1510: /shinhan/1510}")
+    @Value("${gateway.shinhan.uri.1510}")
     private String GATEWAY_SHINHAN_URI_1510;
 
-    @Value("${gateway.shinhan.uri.1520: /shinhan/1520}")
+    @Value("${gateway.shinhan.uri.1520}")
     private String GATEWAY_SHINHAN_URI_1520;
 
-    @Value("${gateway.shinhan.uri.1530: /shinhan/1530}")
+    @Value("${gateway.shinhan.uri.1530}")
     private String GATEWAY_SHINHAN_URI_1530;
 
-    @Value("${gateway.shinhan.uri.1000: /shinhan/1000}")
+    @Value("${gateway.shinhan.uri.1000}")
     private String GATEWAY_SHINHAN_URI_1000;
 
-    @Value("${gateway.shinhan.uri.1400: /shinhan/1400}")
+    @Value("${gateway.shinhan.uri.1400}")
     private String GATEWAY_SHINHAN_URI_1400;
 
-    @Value("${gateway.shinhan.uri.1100: /shinhan/1100}")
+    @Value("${gateway.shinhan.uri.1100}")
     private String GATEWAY_SHINHAN_URI_1100;
 
     // todo : properties 적용
@@ -46,7 +46,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ApiResponse<?> responseRpc;
         try {
-            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1200,
+            responseRpc = requestGateway(GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1200,
                     HttpMethod.POST,
                     null,
                     requestRpc,
@@ -78,7 +78,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ApiResponse<?> responseRpc;
         try {
-            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1510,
+            responseRpc = requestGateway(GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1510,
                     HttpMethod.POST,
                     null,
                     requestRpc,
@@ -106,7 +106,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ApiResponse<?> responseRpc;
         try {
-            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1520,
+            responseRpc = requestGateway(GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1520,
                     HttpMethod.POST,
                     null,
                     requestRpc,
@@ -134,7 +134,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ApiResponse<?> responseRpc;
         try {
-            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1530,
+            responseRpc = requestGateway(GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1530,
                     HttpMethod.POST,
                     null,
                     requestRpc,
@@ -162,7 +162,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ApiResponse<?> responseRpc;
         try {
-            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1000,
+            responseRpc = requestGateway(GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1000,
                     HttpMethod.POST,
                     null,
                     requestRpc,
@@ -190,7 +190,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ApiResponse<?> responseRpc;
         try {
-            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1400,
+            responseRpc = requestGateway(GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1400,
                     HttpMethod.POST,
                     null,
                     requestRpc,
@@ -217,7 +217,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ApiResponse<?> responseRpc;
         try {
-            responseRpc = requestGateway(GATEWAY_DOMAIN + GATEWAY_SHINHAN_URI_1100,
+            responseRpc = requestGateway(GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1100,
                     HttpMethod.POST,
                     null,
                     requestRpc,
