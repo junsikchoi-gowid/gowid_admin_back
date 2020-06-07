@@ -41,6 +41,7 @@ public class UserCorporationController {
         public static final String ISSUANCE = "/issuance";
         public static final String ISSUANCE_IDX = "/issuance/{idxCardInfo}";
         public static final String CARD = "/card";
+        public static final String RESUME = "/resume";
         public static final String CEO = "/ceo";
     }
 
@@ -227,7 +228,7 @@ public class UserCorporationController {
     //  - 게이트웨이에서 수신 되므로, 인증 우회방안 처리 필요.
     //  - request/response 전문에 맞게 수정
     @ApiOperation(value = "법인카드 발급 재개")
-    @PostMapping(URI.CARD)
+    @PostMapping(URI.RESUME)
     public ResponseEntity<UserCorporationDto.IssuanceRes> resumeApplication(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid UserCorporationDto.IssuanceReq request) {
