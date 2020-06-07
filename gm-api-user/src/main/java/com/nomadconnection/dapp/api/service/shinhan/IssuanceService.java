@@ -12,8 +12,11 @@ import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -39,6 +42,12 @@ public class IssuanceService {
 
     /**
      * 카드 신청
+     *
+     * 1200
+     * -> 1000/1400 : 여기서 ui에 결과리턴 and 성공시 다음 계속 연동 진행
+     * -> 1510
+     * -> 1520(재무제표 보유시: 2년치 2회연동 / 미보유시(신설업체 등): 최근 데이터 1회연동, 발급가능여부=N)
+     * -> 1530
      */
     @Transactional(rollbackFor = Exception.class)
     public UserCorporationDto.IssuanceRes issuance(Long userIdx, UserCorporationDto.IssuanceReq request) {
@@ -49,28 +58,27 @@ public class IssuanceService {
         // 1200(법인회원신규여부검증)
         DataPart1200 resultOfD1200 = proc1200(userCorp);
 
-        // 1510(사업자등록증스크래핑)
-        proc1510(userCorp);
-
-        // 1520(재무제표스크래핑)
-        proc1520(userCorp);
-
-        // 1530(등기부등본스크래핑)
-        proc1530(userCorp);
-
         if (resultOfD1200.getD003().equals("Y")) {
-            // 1400(기존-법인조건변경신청)
-            proc1400(userCorp);
-        } else {
             // 1000(신규-법인회원신규심사요청)
             proc1000(userCorp);
+        } else {
+            // 1400(기존-법인조건변경신청)
+            proc1400(userCorp);
         }
 
-        // 1100(법인카드신청)
-        proc1100(userCorp);
+        // 성공 후, 서류제출 비동기 진행
+        proc15xx(userCorp);
 
         // 성공시 Body 는 공백으로.
         return new UserCorporationDto.IssuanceRes();
+    }
+
+    // todo :
+    //  - 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행 구현.
+    //  - 1600 응답에 1100 결과를 반영해서 줄지 확인 필요.
+    public void resumeApplication(Corp userCorp) {
+        // 1100(법인카드신청)
+        proc1100(userCorp);
     }
 
     private DataPart1200 proc1200(Corp userCorp) {
@@ -89,6 +97,18 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         return shinhanGwRpc.request1200(requestRpc);
+    }
+
+    @Async
+    void proc15xx(Corp userCorp) {
+        // 1510(사업자등록증스크래핑)
+        proc1510(userCorp);
+
+        // 1520(재무제표스크래핑)
+        proc1520(userCorp);
+
+        // 1530(등기부등본스크래핑)
+        proc1530(userCorp);
     }
 
     private void proc1510(Corp userCorp) {
@@ -114,17 +134,19 @@ public class IssuanceService {
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1520);
 
         // 데이터부 - db 추출, 세팅
-        D1520 d1520 = d1520Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
-        if (d1520 == null) {
+        List<D1520> d1520s = d1520Repository.findTop2ByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
+        if (d1520s == null || d1520s.isEmpty()) {
             throw new EntityNotFoundException("not found corporation idx", "d1520", userCorp.idx());
         }
 
         // 연동
-        DataPart1520 requestRpc = new DataPart1520();
-        BeanUtils.copyProperties(d1520, requestRpc);
-        BeanUtils.copyProperties(commonPart, requestRpc);
+        for (D1520 d1520 : d1520s) {
+            DataPart1520 requestRpc = new DataPart1520();
+            BeanUtils.copyProperties(d1520, requestRpc);
+            BeanUtils.copyProperties(commonPart, requestRpc);
 
-        shinhanGwRpc.request1520(requestRpc);
+            shinhanGwRpc.request1520(requestRpc);
+        }
     }
 
     private void proc1530(Corp userCorp) {
@@ -179,6 +201,7 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         shinhanGwRpc.request1400(requestRpc);
+
     }
 
     private void proc1100(Corp userCorp) {
