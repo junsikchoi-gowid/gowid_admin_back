@@ -76,9 +76,15 @@ public class IssuanceService {
     // todo :
     //  - 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행 구현.
     //  - 1600 응답에 1100 결과를 반영해서 줄지 확인 필요.
-    public void resumeApplication(Corp userCorp) {
+    //  - request/response 전문에 맞게 수정
+    public UserCorporationDto.IssuanceRes resumeApplication(Long userIdx) {
+        User user = findUser(userIdx);
+        Corp userCorp = user.corp();
+
         // 1100(법인카드신청)
         proc1100(userCorp);
+
+        return new UserCorporationDto.IssuanceRes();
     }
 
     private DataPart1200 proc1200(Corp userCorp) {

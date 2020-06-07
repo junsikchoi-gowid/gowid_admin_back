@@ -223,7 +223,9 @@ public class UserCorporationController {
         );
     }
 
-    // todo : 게이트웨이에서 수신 되므로, 인증 우회방안 처리 필요.
+    // todo
+    //  - 게이트웨이에서 수신 되므로, 인증 우회방안 처리 필요.
+    //  - request/response 전문에 맞게 수정
     @ApiOperation(value = "법인카드 발급 재개")
     @PostMapping(URI.CARD)
     public ResponseEntity<UserCorporationDto.IssuanceRes> resumeApplication(
@@ -231,7 +233,7 @@ public class UserCorporationController {
             @RequestBody @Valid UserCorporationDto.IssuanceReq request) {
 
         return ResponseEntity.ok().body(
-                issuanceService.issuance(user.idx(), request)
+                issuanceService.resumeApplication(user.idx())
         );
     }
 
