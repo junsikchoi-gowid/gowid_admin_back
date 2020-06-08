@@ -24,7 +24,7 @@ import java.io.IOException;
 @RequestMapping(CodefController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "인증서 관리", description = CodefController.URI.BASE)
+@Api(tags = "CodeF 스크래핑", description = CodefController.URI.BASE)
 @SuppressWarnings({"unused", "deprecation"})
 public class CodefController {
 
@@ -37,8 +37,11 @@ public class CodefController {
 		public static final String ACCOUNT_LIST_CORP= "/account/listcorp";            						// 인증서 목록 조회 (법인)
 		public static final String ACCOUNT_CREATE = "/account/create";            							// 인증서 등록(커넥티드아이디 발급)
 		public static final String ACCOUNT_ADD = "/account/add";            								// 인증서 추가
+		public static final String ACCOUNT_CREATE_NT = "/account/create/nt";         						// 인증서 추가 국세청 추가로 인한 수정
 		public static final String ACCOUNT_UPDATE = "/account/update";            							// 인증서 수정
 		public static final String ACCOUNT_DELETE = "/account/delete";            							// 인증서 삭제
+		public static final String ACCOUNT_REGISTER_CORP = "/account/register/corp";         				// 법인 정보 등록 및 등기부등본 스크래핑
+
 
 		public static final String SCRAPING ="/scraping"; 													// 스크래핑
 
@@ -92,6 +95,33 @@ public class CodefController {
 		return service.registerAccount(dto, user.idx());
 	}
 
+	@ApiOperation(value = "인증서 등록(커넥티드아이디 발급) 국세청 관련 등록 ", notes = " type 을 강제로 nt 로 저장함 " +
+			"\n ### Remarks" +
+			"\n")
+	@PostMapping(URI.ACCOUNT_CREATE_NT)
+	public ResponseEntity RegisterAccountNt(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody ConnectedMngDto.AccountNt dto) {
+		if (log.isDebugEnabled()) {
+			log.debug("([Codef RegisterAccount ]) $dto='{}'", dto);
+		}
+		return service.RegisterAccountNt(dto, user.idx());
+	}
+
+	@ApiOperation(value = "법인 정보 최초 수정 등록 및 등기부등본 스크래핑", notes = "  " +
+			"\n ### Remarks" +
+			"\n")
+	@PostMapping(URI.ACCOUNT_REGISTER_CORP)
+	public ResponseEntity RegisterCorpInfo(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody ConnectedMngDto.CorpInfo dto,
+			@RequestParam(required = false) Long idxCardInfo) {
+		if (log.isDebugEnabled()) {
+			log.debug("([ RegisterCorpInfo ]) $dto='{}'", dto);
+		}
+		return service.RegisterCorpInfo(dto, user.idx(), idxCardInfo);
+	}
+
 	@ApiOperation(value = "인증서 등록(커넥티드아이디 발급) test", notes = "" +
 			"\n ### Remarks" +
 			"\n")
@@ -132,4 +162,13 @@ public class CodefController {
 		return service.deleteAccount(dto, user.idx());
 	}
 
+	@ApiOperation(value = "인증서 삭제2", notes = "" +
+			"\n ### Remarks" +
+			"\n")
+	@PostMapping(URI.ACCOUNT_DELETE +2 )
+	public ResponseEntity DeleteAccount2(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestParam String connectedId) {
+		return service.deleteAccount2(connectedId, user.idx());
+	}
 }

@@ -31,38 +31,29 @@ public class CorpController {
 	@SuppressWarnings("WeakerAccess")
 	public static class URI {
 		public static final String BASE = "/corp/v1";
-		public static final String REGISTRABLE = "/registrable";
-		public static final String REGISTER = "/register";
-		public static final String MEMBERS = "/members";
+		public static final String REGISTER_CORP = "/register/corp";
+		public static final String REGISTER_CORP_ID = "/register/corp/id";
 	}
 
 	private final CorpService service;
 
 	//==================================================================================================================
 	//
-	//	사업자등록번호 등록가능여부 체크
+	//	홈택스 인증서 등록
 	//
 	//==================================================================================================================
-/*
-
-	@ApiOperation(value = "등록가능여부 확인 - 사업자등록번호", notes = "" +
-			"\n ### Remarks" +
-			"\n" +
-			"\n - <mark>인증토큰(액세스) 불필요</mark>" +
-			"\n")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "no", value = "사업자등록번호(10 Digits)")
-	})
-	@GetMapping(URI.REGISTRABLE)
-	public ResponseEntity<?> getCorpRegistrable(@RequestParam("no") String bizRegNo) {
-		if (service.isPresent(bizRegNo)) {
-			throw AlreadyExistException.builder()
-					.resource(bizRegNo)
-					.build();
-		}
-		return ResponseEntity.ok().build();
-	}
-*/
+//
+//	@ApiOperation(value = "홈택스 인증서 등록  ", notes = "" )
+//	@ApiImplicitParams({
+//			@ApiImplicitParam(name = "pfx", value = "pfx파일"),
+//			@ApiImplicitParam(name = "pw", value = "패스워드")
+//	})
+//	@PostMapping(URI.REGISTER_CORP)
+//	public ResponseEntity<?> getCorpRegistrable(@ApiIgnore @CurrentUser CustomUser user
+//												,@ModelAttribute
+//	) {
+//		return ResponseEntity.ok().build();
+//	}
 
 	//==================================================================================================================
 	//

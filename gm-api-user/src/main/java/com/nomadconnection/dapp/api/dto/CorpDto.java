@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class CorpDto {
 
+
+
 	@ApiModelProperty("식별자(법인)")
 	private Long idx;
 	private String resBusinessItems;
