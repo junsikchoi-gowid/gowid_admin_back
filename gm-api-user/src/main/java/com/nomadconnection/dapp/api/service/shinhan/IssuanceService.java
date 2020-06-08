@@ -42,6 +42,15 @@ public class IssuanceService {
 
     /**
      * 카드 신청
+     * <p>
+     * 1700 신분증 위조확인
+     */
+    public Object verifyCeoIdentification(Long userIdx, UserCorporationDto.IdentificationReq request) {
+        return null;
+    }
+
+    /**
+     * 카드 신청
      *
      * 1200
      * -> 1000/1400 : 여기서 ui에 결과리턴 and 성공시 다음 계속 연동 진행
@@ -226,6 +235,19 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         shinhanGwRpc.request1100(requestRpc);
+    }
+
+    private void proc1700(UserCorporationDto.D1700Req request) {
+        // 공통부
+        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1700);
+
+        // 연동
+        DataPart1700 requestRpc = new DataPart1700();
+        BeanUtils.copyProperties(request, requestRpc);
+        BeanUtils.copyProperties(commonPart, requestRpc);
+
+        shinhanGwRpc.request1700(requestRpc);
+
     }
 
 

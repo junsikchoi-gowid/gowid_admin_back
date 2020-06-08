@@ -218,7 +218,7 @@ public class UserCorporationController {
     @PostMapping(URI.CEO_ID)
     public ResponseEntity<Object> verifyIdentification(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody @Valid UserCorporationDto.Identification dto) {
+            @RequestBody @Valid UserCorporationDto.IdentificationReq dto) {
 
         if (log.isInfoEnabled()) {
             log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);

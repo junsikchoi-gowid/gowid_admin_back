@@ -41,6 +41,9 @@ public class ShinhanGwRpc extends BaseRpc {
     @Value("${gateway.shinhan.uri.1100}")
     private String GATEWAY_SHINHAN_URI_1100;
 
+    @Value("${gateway.shinhan.uri.1700}")
+    private String GATEWAY_SHINHAN_URI_1700;
+
     // todo : properties 적용
     public DataPart1200 request1200(DataPart1200 requestRpc) {
 
@@ -240,5 +243,31 @@ public class ShinhanGwRpc extends BaseRpc {
         }
     }
 
+    public void request1700(DataPart1700 requestRpc) {
+
+        ApiResponse<?> responseRpc;
+        try {
+            responseRpc = requestGateway(GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1700,
+                    HttpMethod.POST,
+                    null,
+                    requestRpc,
+                    ApiResponse.class);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1700, e.getMessage());
+        } catch (RestClientResponseException e) {
+            log.error("## Response ==> {}", e.getResponseBodyAsString());
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1700, e.getMessage());
+        }
+
+        if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1700);
+        }
+
+        DataPart1700 response1700 = (DataPart1700) responseRpc.getData();
+        if (!response1700.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1700, response1700.getC009() + "/" + response1700.getC013());
+        }
+    }
 
 }

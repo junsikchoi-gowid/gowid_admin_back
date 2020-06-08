@@ -526,10 +526,6 @@ public class UserCorporationService {
         return repoVenture.findAllByOrderByNameAsc().stream().map(ventureBusiness -> ventureBusiness.name()).collect(Collectors.toList());
     }
 
-    public Object verifyIdentification(Long idx_user, UserCorporationDto.Identification dto) {
-        return null;
-    }
-
 
     private User findUser(Long idx_user) {
         return repoUser.findById(idx_user).orElseThrow(
