@@ -499,17 +499,21 @@ public class UserCorporationService {
     @Transactional(readOnly = true)
     public UserCorporationDto.CardIssuanceInfoRes getCardIssuanceInfoByUser(Long idx_user) {
         User user = findUser(idx_user);
-        CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(user.corp());
-        return UserCorporationDto.CardIssuanceInfoRes.builder()
-                .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx()))
-                .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
-                .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
-                .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
-                .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
-                .ceoRes(cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()))
-                .stockholderFileRes(cardIssuanceInfo.stockholderFiles().stream().map(file -> UserCorporationDto.StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()))
-                .build();
-        // TODO: 전문 저장 정보로 업데이트
+        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByCorpAndDisabledTrueOrderByIdxDesc(user.corp()).orElse(null);
+        if (cardIssuanceInfo != null) {
+            return UserCorporationDto.CardIssuanceInfoRes.builder()
+                    .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx()))
+                    .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
+                    .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
+                    .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
+                    .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
+                    .ceoRes(cardIssuanceInfo.ceoInfos() != null ? cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()) : null)
+                    .stockholderFileRes(cardIssuanceInfo.stockholderFiles() != null ? cardIssuanceInfo.stockholderFiles().stream().map(file -> UserCorporationDto.StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()) : null)
+                    .build();
+        } else {
+            return UserCorporationDto.CardIssuanceInfoRes.builder()
+                    .corporationRes(UserCorporationDto.CorporationRes.from(user.corp(), null)).build();
+        }
     }
 
     /**
@@ -520,6 +524,10 @@ public class UserCorporationService {
     @Transactional(readOnly = true)
     public List<String> getVentureBusiness() {
         return repoVenture.findAllByOrderByNameAsc().stream().map(ventureBusiness -> ventureBusiness.name()).collect(Collectors.toList());
+    }
+
+    public Object verifyIdentification(Long idx_user, UserCorporationDto.Identification dto) {
+        return null;
     }
 
 

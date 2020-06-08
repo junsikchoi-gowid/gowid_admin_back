@@ -42,6 +42,7 @@ public class UserCorporationController {
         public static final String ISSUANCE_IDX = "/issuance/{idxCardInfo}";
         public static final String CARD = "/card";
         public static final String CEO = "/ceo";
+        public static final String CEO_ID = "/ceo/identification";
     }
 
     private final UserCorporationService service;
@@ -210,6 +211,19 @@ public class UserCorporationController {
         }
 
         return ResponseEntity.ok().body(service.getCardIssuanceInfo(idxCardInfo));
+    }
+
+    @ApiOperation(value = "신분증 본인 확인")
+    @PostMapping(URI.CEO_ID)
+    public ResponseEntity<Object> verifyIdentification(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestBody @Valid UserCorporationDto.Identification dto) {
+
+        if (log.isInfoEnabled()) {
+            log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
+        }
+
+        return ResponseEntity.ok().body(service.verifyIdentification(user.idx(), dto));
     }
 
     @ApiOperation(value = "법인카드 발급 신청")
