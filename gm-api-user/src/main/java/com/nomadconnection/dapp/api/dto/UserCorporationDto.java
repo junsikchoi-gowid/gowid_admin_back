@@ -160,11 +160,11 @@ public class UserCorporationDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Identification {
+    public static class IdentificationReq {
 
         @ApiModelProperty("신분증검증방법코드")
         @NotEmpty
-        private String bank;
+        private String idCode;
 
         @ApiModelProperty("고객한글명")
         @NotEmpty
@@ -172,7 +172,7 @@ public class UserCorporationDto {
 
         @ApiModelProperty("주민등록번호")
         @NotEmpty
-        private String accountNumber;
+        private String identificationNumber;
 
         @ApiModelProperty("발급일")
         private String issueDate;
@@ -632,7 +632,7 @@ public class UserCorporationDto {
             if (code != null) {
                 return BusinessType.builder()
                         .code(code.code1() + code.code5())
-                        .name(code.value1())
+                        .name(code.value5())
                         .build();
             }
             return null;

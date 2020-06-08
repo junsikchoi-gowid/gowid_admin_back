@@ -216,7 +216,7 @@ public class UserCorporationController {
 
     @ApiOperation(value = "신분증 본인 확인")
     @PostMapping(URI.CEO_ID)
-    public ResponseEntity<Object> verifyIdentification(
+    public ResponseEntity<String> verifyIdentification(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid UserCorporationDto.IdentificationReq dto) {
 
@@ -224,7 +224,8 @@ public class UserCorporationController {
             log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
         }
 
-        return ResponseEntity.ok().body(service.verifyIdentification(user.idx(), dto));
+        issuanceService.verifyCeoIdentification(dto);
+        return ResponseEntity.ok().build();
     }
 
     @ApiOperation(value = "법인카드 발급 신청")

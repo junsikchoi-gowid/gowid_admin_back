@@ -243,7 +243,7 @@ public class ShinhanGwRpc extends BaseRpc {
         }
     }
 
-    public void request1700(DataPart1700 requestRpc) {
+    public DataPart1700 request1700(DataPart1700 requestRpc) {
 
         ApiResponse<?> responseRpc;
         try {
@@ -268,6 +268,8 @@ public class ShinhanGwRpc extends BaseRpc {
         if (!response1700.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1700, response1700.getC009() + "/" + response1700.getC013());
         }
+
+        return response1700;
     }
 
 }

@@ -23,4 +23,8 @@ public class DataPart1700 extends CommonPart {
 	private String d006;   // 운전면허지역코드
 
 	private String d007;    // 운전면허위조방지번호
+
+	private String d008;   // 신분증검증결과코드
+
+	private String d009;    // 신분증검증결과내용
 }
