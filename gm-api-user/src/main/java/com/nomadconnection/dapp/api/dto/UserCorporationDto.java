@@ -1,13 +1,11 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1600;
 import com.nomadconnection.dapp.core.domain.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Length;
 
@@ -618,5 +616,17 @@ public class UserCorporationDto {
             }
             return null;
         }
+    }
+
+    // 1600
+    @EqualsAndHashCode(callSuper = true)
+    @NoArgsConstructor
+    public static class ResumeReq extends DataPart1600 {
+
+    }
+
+    @NoArgsConstructor
+    public static class ResumeRes {
+
     }
 }
