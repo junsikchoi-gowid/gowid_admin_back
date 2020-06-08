@@ -499,7 +499,7 @@ public class UserCorporationService {
     @Transactional(readOnly = true)
     public UserCorporationDto.CardIssuanceInfoRes getCardIssuanceInfoByUser(Long idx_user) {
         User user = findUser(idx_user);
-        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByCorpAndDisabledTrueOrderByIdxDesc(user.corp()).orElse(null);
+        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(user.corp()).orElse(null);
         if (cardIssuanceInfo != null) {
             return UserCorporationDto.CardIssuanceInfoRes.builder()
                     .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx()))
