@@ -41,7 +41,6 @@ public class ShinhanGwRpc extends BaseRpc {
     @Value("${gateway.shinhan.uri.1100}")
     private String GATEWAY_SHINHAN_URI_1100;
 
-    // todo : properties 적용
     public DataPart1200 request1200(DataPart1200 requestRpc) {
 
         ApiResponse<?> responseRpc;
@@ -157,7 +156,6 @@ public class ShinhanGwRpc extends BaseRpc {
         }
     }
 
-    // todo : 보류처리 추가
     public void request1000(DataPart1000 requestRpc) {
 
         ApiResponse<?> responseRpc;
@@ -185,7 +183,6 @@ public class ShinhanGwRpc extends BaseRpc {
         }
     }
 
-    // todo : 보류처리 추가
     public void request1400(DataPart1400 requestRpc) {
 
         ApiResponse<?> responseRpc;

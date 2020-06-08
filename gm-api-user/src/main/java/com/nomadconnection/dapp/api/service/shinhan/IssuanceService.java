@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.service.shinhan;
 
+import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
@@ -15,6 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -25,8 +27,6 @@ public class IssuanceService {
 
     private final GatewayTransactionIdxRepository gatewayTransactionIdxRepository;
     private final UserRepository userRepository;
-
-    private final D1200Repository d1200Repository;
 
     private final D1510Repository d1510Repository;
     private final D1520Repository d1520Repository;
@@ -73,29 +73,51 @@ public class IssuanceService {
         return new UserCorporationDto.IssuanceRes();
     }
 
-    // todo :
-    //  - 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행 구현.
-    //  - 1600 응답에 1100 결과를 반영해서 줄지 확인 필요.
-    //  - request/response 전문에 맞게 수정
-    public UserCorporationDto.IssuanceRes resumeApplication(Long userIdx) {
-        User user = findUser(userIdx);
-        Corp userCorp = user.corp();
+    // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
+    // todo : 에러 및 실패처리
+    public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
+
+        // corpIdx 추출
+        Long corpIdx = getCorpIdxFromLastRequest(request);
 
         // 1100(법인카드신청)
-        proc1100(userCorp);
+        proc1100(corpIdx);
 
-        return new UserCorporationDto.IssuanceRes();
+        return new UserCorporationDto.ResumeRes();
+    }
+
+    // 기존 1400/1000 연동으로 부터 법인 식별자 추출
+    private Long getCorpIdxFromLastRequest(UserCorporationDto.ResumeReq request) {
+        Long corpIdx;
+        String entity;
+
+        D1400 d1400 = d1400Repository.findFirstByD033AndD034OrderByUpdatedAtDesc(request.getD001(), request.getD002());
+        if (d1400 == null) {
+            D1000 d1000 = d1000Repository.findFirstByD079AndD080OrderByUpdatedAtDesc(request.getD001(), request.getD002());
+            corpIdx = d1000.idxCorp();
+            entity = "d1000";
+        } else {
+            corpIdx = d1400.idxCorp();
+            entity = "d1400";
+        }
+
+        // todo : 게이트웨이로 에러리턴 수정
+        if (StringUtils.isEmpty(corpIdx)) {
+            log.error("not fount applyNo[[{}], applyDate[{}] in {}", request.getD001(), request.getD002(), entity);
+            throw new EntityNotFoundException("not found corporation idx", entity, corpIdx);
+        }
+
+        return corpIdx;
     }
 
     private DataPart1200 proc1200(Corp userCorp) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1200);
 
-        // 데이터부 - db 추출, 세팅
-        D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
-        if (d1200 == null) {
-            throw new EntityNotFoundException("not found corporation idx", "d1200", userCorp.idx());
-        }
+        // 데이터부
+        D1200 d1200 = D1200.builder()
+                .d001(userCorp.resCompanyIdentityNo())
+                .d002(Const.D1200_MEMBER_TYPE_CODE).build();
 
         // 연동
         DataPart1200 requestRpc = new DataPart1200();
@@ -183,11 +205,16 @@ public class IssuanceService {
             throw new EntityNotFoundException("not found corporation idx", "d1000", userCorp.idx());
         }
 
+        // 접수일 저장, 접수순번 증가 저장
+        int applyNo= StringUtils.isEmpty(d1000.d080())? 0: Integer.parseInt(d1000.d080());
+        applyNo++;
+        d1000.d080(String.valueOf(applyNo));
+        d1000.d079(CommonUtil.getNowYYYYMMDD());
+
         // 연동
         DataPart1000 requestRpc = new DataPart1000();
         BeanUtils.copyProperties(d1000, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
-
         shinhanGwRpc.request1000(requestRpc);
     }
 
@@ -201,23 +228,27 @@ public class IssuanceService {
             throw new EntityNotFoundException("not found corporation idx", "d1400", userCorp.idx());
         }
 
+        // 접수일 저장, 접수순번 증가 저장
+        int applyNo= StringUtils.isEmpty(d1400.d034())? 0: Integer.parseInt(d1400.d034());
+        applyNo++;
+        d1400.d034(String.valueOf(applyNo));
+        d1400.d033(CommonUtil.getNowYYYYMMDD());
+
         // 연동
         DataPart1400 requestRpc = new DataPart1400();
         BeanUtils.copyProperties(d1400, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
-
         shinhanGwRpc.request1400(requestRpc);
-
     }
 
-    private void proc1100(Corp userCorp) {
+    private void proc1100(Long idxCorp) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1100);
 
         // 데이터부 - db 추출, 세팅
-        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
+        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(idxCorp);
         if (d1100 == null) {
-            throw new EntityNotFoundException("not found corporation idx", "d1100", userCorp.idx());
+            throw new EntityNotFoundException("not found corporation idx", "d1100", idxCorp);
         }
 
         // 연동

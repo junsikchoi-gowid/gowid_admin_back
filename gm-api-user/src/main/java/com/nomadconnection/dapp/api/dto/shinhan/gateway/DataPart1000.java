@@ -33,9 +33,9 @@ public class DataPart1000 extends CommonPart {
 
     private String d008;    //업종코드
 
-    private String d010; // 대표자코드
+    private String d009; // 대표자코드
 
-    private String d009; // 대표자명1
+    private String d010; // 대표자명1
 
     private String d011; // 대표자주민등록번호1
 
@@ -83,7 +83,7 @@ public class DataPart1000 extends CommonPart {
 
     private String d033; // 신청관리자직위명
 
-    private String d034;  // 신청관리자주민등록번호
+    private String d034;   // 신청관리자주민등록번호
 
     private String d035; // 신청관리자명
 
@@ -115,7 +115,7 @@ public class DataPart1000 extends CommonPart {
 
     private String d049; // 카드상품번호
 
-    private Long d050; // 제휴약정한도코드
+    private String d050; // 제휴약정한도코드
 
     private String d051;   // 신청구분코드
 
@@ -156,5 +156,25 @@ public class DataPart1000 extends CommonPart {
     private String d069; // 법인신청대리인부서명
 
     private String d070;   // 법인신청대리인직위명
+
+    private String d071;   // 고위드기업등급
+
+    private String d072; // 벤처확인서보유여부
+
+    private String d073; // VC투자유치여부
+
+    private String d074;  // 고위드계산한도
+
+    private String d075; // 기준잔고
+
+    private String d076;  // 45일 평균잔고
+
+    private String d077;  // 45일 중간잔고
+
+    private String d078;  // 현재잔고
+
+    private String d079;  // 접수일자
+
+    private String d080;  // 접수순번
 
 }

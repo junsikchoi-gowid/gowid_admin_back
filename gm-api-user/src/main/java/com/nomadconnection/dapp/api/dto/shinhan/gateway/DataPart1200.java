@@ -26,4 +26,8 @@ public class DataPart1200 extends CommonPart {
     private Long d005;  // 특화한도금액
 
     private Long d006;    // 제휴약정한도금액
+
+    private String d007;    // 신청접수일자
+
+    private String d008;    // 신청접수순번
 }
