@@ -41,6 +41,7 @@ public class ErrorCode {
 		USER_NOT_FOUND,
 		DEPT_NOT_FOUND,
 		EXCESS_RESOURCE,
+		ENTITY_NOT_FOUND,
 	}
 
 	public enum Mismatched implements ErrorCodeDescriptor {
