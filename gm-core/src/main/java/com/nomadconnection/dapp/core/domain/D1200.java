@@ -40,4 +40,10 @@ public class D1200 extends BaseTime {
     private String d005;    //특화한도금액
     @Column(columnDefinition = "varchar(15)    DEFAULT '' COMMENT '제휴약정한도금액'")
     private String d006;    //제휴약정한도금액
+
+    @Column(columnDefinition = "varchar(8)    DEFAULT '' COMMENT '신청접수일자'")
+    private String d007;    //특화한도금액
+
+    @Column(columnDefinition = "varchar(5)    DEFAULT '' COMMENT '신청접수순번'")
+    private String d008;    //제휴약정한도금액
 }

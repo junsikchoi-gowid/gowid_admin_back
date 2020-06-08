@@ -245,12 +245,11 @@ public class UserCorporationController {
     //  - request/response 전문에 맞게 수정
     @ApiOperation(value = "법인카드 발급 재개")
     @PostMapping(URI.RESUME)
-    public ResponseEntity<UserCorporationDto.IssuanceRes> resumeApplication(
-            @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody @Valid UserCorporationDto.IssuanceReq request) {
+    public ResponseEntity<UserCorporationDto.ResumeRes> resumeApplication(
+            @RequestBody @Valid UserCorporationDto.ResumeReq request) {
 
         return ResponseEntity.ok().body(
-                issuanceService.resumeApplication(user.idx())
+                issuanceService.resumeApplication(request)
         );
     }
 
