@@ -28,8 +28,6 @@ public class IssuanceService {
     private final GatewayTransactionIdxRepository gatewayTransactionIdxRepository;
     private final UserRepository userRepository;
 
-    private final D1200Repository d1200Repository;
-
     private final D1510Repository d1510Repository;
     private final D1520Repository d1520Repository;
     private final D1530Repository d1530Repository;
@@ -103,6 +101,7 @@ public class IssuanceService {
             entity = "d1400";
         }
 
+        // todo : 게이트웨이로 에러리턴 수정
         if (StringUtils.isEmpty(corpIdx)) {
             log.error("not fount applyNo[[{}], applyDate[{}] in {}", request.getD001(), request.getD002(), entity);
             throw new EntityNotFoundException("not found corporation idx", entity, corpIdx);
