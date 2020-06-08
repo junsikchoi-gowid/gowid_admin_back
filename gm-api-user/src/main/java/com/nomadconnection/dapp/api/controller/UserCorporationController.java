@@ -43,6 +43,7 @@ public class UserCorporationController {
         public static final String CARD = "/card";
         public static final String RESUME = "/resume";
         public static final String CEO = "/ceo";
+        public static final String CEO_ID = "/ceo/identification";
     }
 
     private final UserCorporationService service;
@@ -103,16 +104,16 @@ public class UserCorporationController {
             @ApiImplicitParam(name = "fileType", value = "BASIC:주주명부, MAJOR:1대주주명부", dataType = "String")
     })
     @PostMapping(URI.STOCKHOLDER_FILES)
-    public ResponseEntity<UserCorporationDto.StockholderFileRes> uploadStockholderFile(
+    public ResponseEntity<List<UserCorporationDto.StockholderFileRes>> uploadStockholderFile(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestParam String fileType,
-            @RequestPart MultipartFile file) {
+            @RequestPart MultipartFile[] files) {
         if (log.isInfoEnabled()) {
-            log.info("([ uploadStockholderFile ]) $user='{}', $file='{}', $idx_cardInfo='{}'", user, file, idxCardInfo);
+            log.info("([ uploadStockholderFile ]) $user='{}', $files='{}', $idx_cardInfo='{}'", user, files, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), file, fileType, idxCardInfo));
+        return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), files, fileType, idxCardInfo));
     }
 
     @ApiOperation("주주명부 파일 삭제")
@@ -211,6 +212,19 @@ public class UserCorporationController {
         }
 
         return ResponseEntity.ok().body(service.getCardIssuanceInfo(idxCardInfo));
+    }
+
+    @ApiOperation(value = "신분증 본인 확인")
+    @PostMapping(URI.CEO_ID)
+    public ResponseEntity<Object> verifyIdentification(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestBody @Valid UserCorporationDto.Identification dto) {
+
+        if (log.isInfoEnabled()) {
+            log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
+        }
+
+        return ResponseEntity.ok().body(service.verifyIdentification(user.idx(), dto));
     }
 
     @ApiOperation(value = "법인카드 발급 신청")

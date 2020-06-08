@@ -16,10 +16,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -203,13 +205,13 @@ public class UserCorporationService {
      * 주주명부 파일 등록
      *
      * @param idx_user     등록하는 User idx
-     * @param file         파일
+     * @param files         파일
      * @param type         file type
      * @param idx_CardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserCorporationDto.StockholderFileRes uploadStockholderFile(Long idx_user, MultipartFile file, String type, Long idx_CardInfo) {
+    public List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(Long idx_user, MultipartFile[] files, String type, Long idx_CardInfo) {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -219,19 +221,32 @@ public class UserCorporationService {
         if (fileList != null && fileList.size() > 2) {
             throw BadRequestedException.builder().category(BadRequestedException.Category.EXCESS_UPLOAD_FILE_COUNT).build();
         }
-        String fileName = UUID.randomUUID().toString();
-        String s3Key = "stockholder/" + idx_CardInfo + "/" + fileName;
-        String s3Link = s3Service.s3FileUpload(file, s3Key);
 
-        return UserCorporationDto.StockholderFileRes.from(repoFile.save(StockholderFile.builder()
-                .cardIssuanceInfo(cardInfo)
-                .corp(user.corp())
-                .fname(fileName)
-                .type(StockholderFileType.valueOf(type))
-                .s3Link(s3Link)
-                .s3Key(s3Key)
-                .size(file.getSize())
-                .orgfname(file.getOriginalFilename()).build()), cardInfo.idx());
+        if (!ObjectUtils.isEmpty(fileList)) {
+            for (StockholderFile file : fileList) {
+                repoFile.delete(file);
+                s3Service.s3FileDelete(file.s3Key());
+            }
+        }
+
+        List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
+        for (MultipartFile file : files) {
+            String fileName = UUID.randomUUID().toString();
+            String s3Key = "stockholder/" + idx_CardInfo + "/" + fileName;
+            String s3Link = s3Service.s3FileUpload(file, s3Key);
+
+            resultList.add(UserCorporationDto.StockholderFileRes.from(repoFile.save(StockholderFile.builder()
+                    .cardIssuanceInfo(cardInfo)
+                    .corp(user.corp())
+                    .fname(fileName)
+                    .type(StockholderFileType.valueOf(type))
+                    .s3Link(s3Link)
+                    .s3Key(s3Key)
+                    .size(file.getSize())
+                    .orgfname(file.getOriginalFilename()).build()), cardInfo.idx()));
+        }
+
+        return resultList;
     }
 
     /**
@@ -484,17 +499,21 @@ public class UserCorporationService {
     @Transactional(readOnly = true)
     public UserCorporationDto.CardIssuanceInfoRes getCardIssuanceInfoByUser(Long idx_user) {
         User user = findUser(idx_user);
-        CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(user.corp());
-        return UserCorporationDto.CardIssuanceInfoRes.builder()
-                .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx()))
-                .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
-                .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
-                .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
-                .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
-                .ceoRes(cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()))
-                .stockholderFileRes(cardIssuanceInfo.stockholderFiles().stream().map(file -> UserCorporationDto.StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()))
-                .build();
-        // TODO: 전문 저장 정보로 업데이트
+        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(user.corp()).orElse(null);
+        if (cardIssuanceInfo != null) {
+            return UserCorporationDto.CardIssuanceInfoRes.builder()
+                    .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx()))
+                    .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
+                    .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
+                    .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
+                    .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
+                    .ceoRes(cardIssuanceInfo.ceoInfos() != null ? cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()) : null)
+                    .stockholderFileRes(cardIssuanceInfo.stockholderFiles() != null ? cardIssuanceInfo.stockholderFiles().stream().map(file -> UserCorporationDto.StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()) : null)
+                    .build();
+        } else {
+            return UserCorporationDto.CardIssuanceInfoRes.builder()
+                    .corporationRes(UserCorporationDto.CorporationRes.from(user.corp(), null)).build();
+        }
     }
 
     /**
@@ -505,6 +524,10 @@ public class UserCorporationService {
     @Transactional(readOnly = true)
     public List<String> getVentureBusiness() {
         return repoVenture.findAllByOrderByNameAsc().stream().map(ventureBusiness -> ventureBusiness.name()).collect(Collectors.toList());
+    }
+
+    public Object verifyIdentification(Long idx_user, UserCorporationDto.Identification dto) {
+        return null;
     }
 
 
