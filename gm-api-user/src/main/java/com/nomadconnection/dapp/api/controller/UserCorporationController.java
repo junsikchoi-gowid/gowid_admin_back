@@ -217,7 +217,7 @@ public class UserCorporationController {
 
     @ApiOperation(value = "신분증 본인 확인")
     @PostMapping(URI.CEO_ID)
-    public ResponseEntity<String> verifyIdentification(
+    public ResponseEntity verifyIdentification(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid UserCorporationDto.IdentificationReq dto) {
 
