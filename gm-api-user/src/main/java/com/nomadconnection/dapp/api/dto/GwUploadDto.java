@@ -21,7 +21,7 @@ public class GwUploadDto {
         @NoArgsConstructor
         @AllArgsConstructor
         public static class Result {
-            private String code;
+            private int code;
             private String desc;
         }
 
