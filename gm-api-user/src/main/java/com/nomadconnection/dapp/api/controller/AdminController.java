@@ -4,7 +4,6 @@ import com.nomadconnection.dapp.api.dto.AdminDto;
 import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.service.AdminService;
 import com.nomadconnection.dapp.api.service.AuthService;
-import com.nomadconnection.dapp.api.service.RiskService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.ApiPageable;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
@@ -23,10 +22,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.security.cert.X509Certificate;
-import java.io.ByteArrayInputStream;
-import java.security.cert.CertificateFactory;
-
 
 @Slf4j
 @RestController
@@ -34,10 +29,8 @@ import java.security.cert.CertificateFactory;
 @RequiredArgsConstructor
 @Validated
 @Api(tags = "Admin", description = AdminController.URI.BASE)
-@SuppressWarnings({"unused", "deprecation"})
 public class AdminController {
 
-	@SuppressWarnings("WeakerAccess")
 	public static class URI {
 		public static final String BASE = "/admin/v1";
 

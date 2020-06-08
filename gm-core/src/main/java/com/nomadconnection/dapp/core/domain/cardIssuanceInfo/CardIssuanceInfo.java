@@ -9,6 +9,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 
 @Data
@@ -28,7 +29,7 @@ public class CardIssuanceInfo extends BaseTime {
     private Long idx;
 
     @Builder.Default
-    private Boolean disabled = true; // 해당정보가 유효한 정보인지 아닌지 확인 (false 이면 폐기된 정보)
+    private Boolean disabled = false; // 해당정보가 유효한 정보인지 아닌지 확인 (false 이면 폐기된 정보)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "FK_Corp_cardIssuance"))
@@ -45,4 +46,12 @@ public class CardIssuanceInfo extends BaseTime {
 
     @Embedded
     private BankAccount bankAccount; // 결제계좌정보
+
+    @OneToMany(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private Collection<CeoInfo> ceoInfos;
+
+    @OneToMany(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private Collection<StockholderFile> stockholderFiles;
 }

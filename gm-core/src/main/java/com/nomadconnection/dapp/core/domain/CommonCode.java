@@ -1,8 +1,10 @@
 package com.nomadconnection.dapp.core.domain;
-        import com.nomadconnection.dapp.core.domain.audit.BaseTime;
-        import lombok.*;
-        import lombok.experimental.Accessors;
-        import javax.persistence.*;
+
+import com.nomadconnection.dapp.core.domain.audit.BaseTime;
+import lombok.*;
+import lombok.experimental.Accessors;
+
+import javax.persistence.*;
 
 @Data
 @Accessors(fluent = true)
@@ -18,6 +20,9 @@ public class CommonCode extends BaseTime {
     @Column(nullable = false, updatable = false)
     @EqualsAndHashCode.Include
     private Long idx;
-    private String code;
+
+    @Enumerated(EnumType.STRING)
+    private CommonCodeType code;
+
     private String codeDesc;
 }

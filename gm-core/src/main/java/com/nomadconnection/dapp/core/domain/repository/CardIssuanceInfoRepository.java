@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface CardIssuanceInfoRepository extends JpaRepository<CardIssuanceInfo, Long> {
-    Optional<CardIssuanceInfo> findByCorpAndDisabledTrue(Corp corp);
+    Optional<CardIssuanceInfo> findTopByCorpAndDisabledFalseOrderByIdxDesc(Corp corp);
 }

@@ -1,16 +1,19 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.core.domain.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.Corp;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.ReceiveType;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public class UserCorporationDto {
 
@@ -28,7 +31,7 @@ public class UserCorporationDto {
         @NotNull
         private String businessCode;
 
-        @ApiModelProperty("사업장 전화번호")
+        @ApiModelProperty("사업장 전화번호 (ex. 00-000-0000)")
         @NotEmpty
         private String corNumber;
     }
@@ -47,8 +50,8 @@ public class UserCorporationDto {
         @NotNull
         private Boolean isVC;
 
-        @ApiModelProperty("투자사")
-        private Long investor;
+        @ApiModelProperty("투자사명")
+        private String investorName;
 
         @ApiModelProperty("누적투자금액")
         private String amount;
@@ -86,9 +89,9 @@ public class UserCorporationDto {
         @NotEmpty
         private String nation;
 
-        @ApiModelProperty("지분율")
+        @ApiModelProperty("지분율(앞자리 3 : 뒷자리 2)")
         @NotNull
-        private Long rate;
+        private String rate;
     }
 
     @Data
@@ -98,8 +101,16 @@ public class UserCorporationDto {
     public static class RegisterCard {
 
         @ApiModelProperty("희망한도")
-        @NotNull
+        @NotEmpty
         private String amount;
+
+        @ApiModelProperty("계산한도")
+        @NotEmpty
+        private String calAmount;
+
+        @ApiModelProperty("부여한도")
+        @NotEmpty
+        private String grantAmount;
 
         @ApiModelProperty("신청수량")
         @NotNull
@@ -109,13 +120,21 @@ public class UserCorporationDto {
         private ReceiveType receiveType;
 
         @ApiModelProperty("기본주소")
+        @NotEmpty
         private String addressBasic;
 
         @ApiModelProperty("상세주소")
+        @NotEmpty
         private String addressDetail;
 
         @ApiModelProperty("우편번호")
+        @NotEmpty
+        @Length(max = 5)
         private String zipCode;
+
+        @ApiModelProperty("도로명 참조키캆")
+        @NotEmpty
+        private String addressKey;
     }
 
     @Data
@@ -124,7 +143,7 @@ public class UserCorporationDto {
     @AllArgsConstructor
     public static class RegisterAccount {
 
-        @ApiModelProperty("은행명")
+        @ApiModelProperty("은행코드")
         @NotEmpty
         private String bank;
 
@@ -133,7 +152,39 @@ public class UserCorporationDto {
         private String accountNumber;
 
         @ApiModelProperty("예금주")
+        @NotEmpty
         private String accountHolder;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Identification {
+
+        @ApiModelProperty("신분증검증방법코드")
+        @NotEmpty
+        private String bank;
+
+        @ApiModelProperty("고객한글명")
+        @NotEmpty
+        private String korName;
+
+        @ApiModelProperty("주민등록번호")
+        @NotEmpty
+        private String accountNumber;
+
+        @ApiModelProperty("발급일")
+        private String issueDate;
+
+        @ApiModelProperty("운전면허지역코드")
+        private String driverLocal;
+
+        @ApiModelProperty("운전면허번호")
+        private String driverNumber;
+
+        @ApiModelProperty("일련번호 : 본인신분증위조방지코드")
+        private String driverCode;
     }
 
     @Data
@@ -153,21 +204,21 @@ public class UserCorporationDto {
         @NotEmpty
         private String engName;
 
-        @ApiModelProperty("통신사")
+        @ApiModelProperty("통신사(SKT:01, KT:02, LG U+:03, SKT알뜰폰:04, KT알뜰폰:05, LG알뜰폰:06)")
         private String agency;
 
         @ApiModelProperty("휴대폰번호")
         @NotEmpty
         private String phoneNumber;
 
-        @ApiModelProperty("신분증 종류")
-        private IDType identityType;
+        @ApiModelProperty("생년월일(yyMMdd)")
+        private String birth;
 
-        public enum IDType {
-            RESIDENT,
-            DRIVER,
-            FOREIGN;
-        }
+        @ApiModelProperty("성별(1:남자, 2:여자)")
+        private Long genderCode;
+
+        @ApiModelProperty("신분증 종류 (RESIDENT, DRIVER, FOREIGN")
+        private CertificationType identityType;
     }
 
     @Data
@@ -194,6 +245,9 @@ public class UserCorporationDto {
         @ApiModelProperty("업종")
         private String businessType;
 
+        @ApiModelProperty("업종코드")
+        private String businessCode;
+
         @ApiModelProperty("사업장전화번호")
         private String companyNumber;
 
@@ -214,7 +268,8 @@ public class UserCorporationDto {
                         .engCorName(corp.resCompanyEngNm())
                         .companyIdentityNo(corp.resCompanyIdentityNo())
                         .corporationNo(corp.resUserIdentiyNo())
-                        .businessType(corp.resBusinessItems()) //TODO: delete
+                        .businessType(corp.resBusinessItems())
+                        .businessCode(corp.resBusinessCode())
                         .companyNumber(corp.resCompanyNumber())
                         .address(corp.resUserAddr())
                         .ceo(corp.resUserNm())
@@ -253,7 +308,7 @@ public class UserCorporationDto {
                         .isVerifiedVenture(cardInfo.venture().isVerifiedVenture())
                         .isVC(cardInfo.venture().isVC())
                         .amount(cardInfo.venture().investAmount())
-                        // TODO: investor 정보
+                        .investor(cardInfo.venture().investor())
                         .build();
             }
             return null;
@@ -291,7 +346,7 @@ public class UserCorporationDto {
         private String nation;
 
         @ApiModelProperty("지분율")
-        private Long rate;
+        private String rate;
 
         public static StockholderRes from(CardIssuanceInfo cardInfo) {
             if (cardInfo != null && cardInfo.stockholder() != null) {
@@ -321,7 +376,13 @@ public class UserCorporationDto {
         private Long idx;
 
         @ApiModelProperty("희망한도")
-        private String amount;
+        private String hopeAmount;
+
+        @ApiModelProperty("계산한도")
+        private String calAmount;
+
+        @ApiModelProperty("부여한도")
+        private String grantAmount;
 
         @ApiModelProperty("신청수량")
         private Long count;
@@ -354,7 +415,9 @@ public class UserCorporationDto {
             if (cardInfo != null && cardInfo.card() != null) {
                 return CardRes.builder()
                         .idx(cardInfo.idx())
-                        .amount(cardInfo.card().hopeLimit())
+                        .hopeAmount(cardInfo.card().hopeLimit())
+                        .calAmount(cardInfo.card().calculatedLimit())
+                        .grantAmount(cardInfo.card().grantLimit())
                         .count(cardInfo.card().requestCount())
                         .addressBasic(cardInfo.card().addressBasic())
                         .addressDetail(cardInfo.card().addressDetail())
@@ -379,11 +442,9 @@ public class UserCorporationDto {
         private Long idx;
 
         @ApiModelProperty("은행명")
-        @NotEmpty
         private String bank;
 
         @ApiModelProperty("계좌번호")
-        @NotEmpty
         private String accountNumber;
 
         @ApiModelProperty("예금주")
@@ -393,9 +454,185 @@ public class UserCorporationDto {
             if (cardInfo != null && cardInfo.bankAccount() != null) {
                 return AccountRes.builder()
                         .idx(cardInfo.idx())
-                        .bank(cardInfo.bankAccount().getBankName())
+                        .bank(cardInfo.bankAccount().getBankCode())
                         .accountNumber(cardInfo.bankAccount().getBankAccount())
                         .accountHolder(cardInfo.bankAccount().getBankAccountHolder())
+                        .build();
+            }
+            return null;
+        }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CeoTypeRes {
+
+        @ApiModelProperty("대표종류(1:단일, 2:개별, 3:공동)")
+        private String type;
+
+        @ApiModelProperty("대표수")
+        private Integer count;
+    }
+
+    @Data
+    @Builder
+    @Accessors(chain = true)
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CeoRes {
+
+        @ApiModelProperty("카드발급정보 식별자")
+        private Long idx;
+
+        @ApiModelProperty("국적(표준약어)")
+        private String nation;
+
+        @ApiModelProperty("대표자(한글)")
+        private String name;
+
+        @ApiModelProperty("대표자(영문)")
+        private String engName;
+
+        @ApiModelProperty("통신사")
+        private String agency;
+
+        @ApiModelProperty("휴대폰번호")
+        private String phoneNumber;
+
+        @ApiModelProperty("생년월일(yyMMdd)")
+        private String birth;
+
+        @ApiModelProperty("성별(1:남자, 2:여자)")
+        private Long genderCode;
+
+        @ApiModelProperty("대표종류(1:단일, 2:개별, 3:공동)")
+        private String ceoType;
+
+        @ApiModelProperty("휴대폰인증 고유아이디")
+        private String deviceId;
+
+        public static CeoRes from(CeoInfo ceoInfo) {
+            if (ceoInfo != null) {
+                return CeoRes.builder()
+                        .idx(ceoInfo.cardIssuanceInfo().idx())
+                        .nation(ceoInfo.nationality())
+                        .name(ceoInfo.name())
+                        .engName(ceoInfo.engName())
+                        .agency(ceoInfo.agencyCode())
+                        .phoneNumber(ceoInfo.phoneNumber())
+                        .birth(ceoInfo.birth())
+                        .genderCode(ceoInfo.genderCode())
+                        .ceoType(ceoInfo.type().getCode())
+                        .build();
+            }
+            return null;
+        }
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class IssuanceReq {
+
+        @ApiModelProperty("카드발급정보 식별자")
+        private Long cardIssuanceInfoIdx;
+
+        @ApiModelProperty("카드비빌번호")
+        private Long password;
+
+        @ApiModelProperty("대표자주민등록번호1")
+        @NotEmpty
+        private String ceoRegisterNo1;
+
+        @ApiModelProperty("대표자주민등록번호2")
+        private String ceoRegisterNo2;
+
+        @ApiModelProperty("대표자주민등록번호3")
+        private String ceoRegisterNo3;
+
+    }
+
+    @NoArgsConstructor
+    public static class IssuanceRes {
+
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CardIssuanceInfoRes {
+        private CorporationRes corporationRes;
+        private VentureRes ventureRes;
+        private StockholderRes stockholderRes;
+        private CardRes cardRes;
+        private AccountRes accountRes;
+        private List<CeoRes> ceoRes;
+        private List<StockholderFileRes> stockholderFileRes;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class StockholderFileRes {
+
+        @ApiModelProperty("카드발급정보 식별자")
+        private Long idx;
+
+        @ApiModelProperty("파일 식별자")
+        private Long fileIdx;
+
+        @ApiModelProperty("파일명")
+        private String name;
+
+        @ApiModelProperty("파일명(원본)")
+        private String orgName;
+
+        @ApiModelProperty("파일크기")
+        private Long size;
+
+        @ApiModelProperty("s3링크")
+        private String s3Link;
+
+        @ApiModelProperty("파일타입")
+        private String type;
+
+        public static StockholderFileRes from(StockholderFile file, Long cardIssuanceInfoIdx) {
+            if (file != null) {
+                return StockholderFileRes.builder()
+                        .idx(cardIssuanceInfoIdx)
+                        .fileIdx(file.idx())
+                        .name(file.fname())
+                        .orgName(file.orgfname())
+                        .size(file.size())
+                        .s3Link(file.s3Link())
+                        .type(file.type().name())
+                        .build();
+            }
+            return null;
+        }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BusinessType {
+
+        @ApiModelProperty("업종코드")
+        private String code;
+
+        @ApiModelProperty("업종명")
+        private String name;
+
+        public static BusinessType from(CommonCodeDetail code) {
+            if (code != null) {
+                return BusinessType.builder()
+                        .code(code.code1() + code.code5())
+                        .name(code.value1())
                         .build();
             }
             return null;

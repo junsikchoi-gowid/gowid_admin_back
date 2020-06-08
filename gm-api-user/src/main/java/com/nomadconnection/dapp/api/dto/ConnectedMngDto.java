@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -154,6 +157,40 @@ public class ConnectedMngDto {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
+	public static class AccountNt {
+		@ApiModelProperty("패스워드")
+		private String password1;
+
+		@ApiModelProperty("인증서이름")
+		private String name;
+
+		@ApiModelProperty("발급일")
+		private String startDate;
+
+		@ApiModelProperty("만료일")
+		private String endDate;
+
+		@ApiModelProperty("설명1")
+		private String desc1;
+
+		@ApiModelProperty("설명2")
+		private String desc2;
+
+		@ApiModelProperty("certFile")
+		private String certFile;
+
+		@ApiModelProperty("type ex) 은행:bk, 국세청:nt")
+		private String type;
+
+		@ApiModelProperty("사업자번호")
+		private String identity;
+
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class Account2 {
 
 		@ApiModelProperty("패스워드")
@@ -189,4 +226,25 @@ public class ConnectedMngDto {
 		@ApiModelProperty("idxConnectedId")
 		private Long idxConnectedId;
 	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class CorpInfo {
+		@ApiModelProperty("업종")
+		@NotNull
+		private String resBusinessCode;
+
+		@ApiModelProperty("법인명(영문)")
+		private String resCompanyEngNm;
+
+		@ApiModelProperty("결산기준(월)")
+		private String resClosingStandards;
+
+		@ApiModelProperty("사업장 전화번호 (ex. 00-000-0000)")
+		@NotEmpty
+		private String resCompanyPhoneNumber;
+	}
 }
+
