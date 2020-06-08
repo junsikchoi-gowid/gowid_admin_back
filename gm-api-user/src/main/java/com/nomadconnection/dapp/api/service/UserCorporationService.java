@@ -20,6 +20,8 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +46,7 @@ public class UserCorporationService {
     private final StockholderFileRepository repoFile;
 
     private final AwsS3Service s3Service;
+    private final GwUploadService gwUploadService;
 
     /**
      * 법인정보 업종종류 조회
@@ -232,18 +235,31 @@ public class UserCorporationService {
         List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
         for (MultipartFile file : files) {
             String fileName = UUID.randomUUID().toString();
-            String s3Key = "stockholder/" + idx_CardInfo + "/" + fileName;
-            String s3Link = s3Service.s3FileUpload(file, s3Key);
+            File uploadFile = new File(fileName);
+            try {
+                uploadFile.createNewFile();
+                FileOutputStream fos = new FileOutputStream(uploadFile);
+                fos.write(file.getBytes());
+                fos.close();
+                gwUploadService.upload(uploadFile, "0311");
+                String s3Key = "stockholder/" + idx_CardInfo + "/" + fileName;
+                String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
+                uploadFile.delete();
 
-            resultList.add(UserCorporationDto.StockholderFileRes.from(repoFile.save(StockholderFile.builder()
-                    .cardIssuanceInfo(cardInfo)
-                    .corp(user.corp())
-                    .fname(fileName)
-                    .type(StockholderFileType.valueOf(type))
-                    .s3Link(s3Link)
-                    .s3Key(s3Key)
-                    .size(file.getSize())
-                    .orgfname(file.getOriginalFilename()).build()), cardInfo.idx()));
+                resultList.add(UserCorporationDto.StockholderFileRes.from(repoFile.save(StockholderFile.builder()
+                        .cardIssuanceInfo(cardInfo)
+                        .corp(user.corp())
+                        .fname(fileName)
+                        .type(StockholderFileType.valueOf(type))
+                        .s3Link(s3Link)
+                        .s3Key(s3Key)
+                        .size(file.getSize())
+                        .orgfname(file.getOriginalFilename()).build()), cardInfo.idx()));
+
+            } catch (IOException e) {
+                uploadFile.delete();
+                e.printStackTrace();
+            }
         }
 
         return resultList;

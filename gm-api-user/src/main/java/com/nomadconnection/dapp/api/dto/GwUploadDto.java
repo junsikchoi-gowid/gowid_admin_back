@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 public class GwUploadDto {
 
     @Data
@@ -12,8 +14,8 @@ public class GwUploadDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Response {
-        private KcbDto.Response.DataInfo data;
-        private KcbDto.Response.Result result;
+        private List<DataInfo> data;
+        private Result result;
 
         @Data
         @NoArgsConstructor
@@ -29,7 +31,7 @@ public class GwUploadDto {
         public static class DataInfo {
             private String uploadedPath;
             private String fileName;
-            private String size;
+            private Long size;
         }
     }
 }

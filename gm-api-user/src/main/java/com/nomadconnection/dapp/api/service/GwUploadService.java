@@ -11,12 +11,12 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.File;
 import java.io.IOException;
 
 @Slf4j
@@ -33,7 +33,7 @@ public class GwUploadService {
     private final WebClient gwClient;
     private final ObjectMapper objectMapper;
 
-    public GwUploadDto.Response upload(MultipartFile file, String cardCode) throws IOException {
+    public GwUploadDto.Response upload(File file, String cardCode) throws IOException {
         String url = UriComponentsBuilder.newInstance()
                 .path("/upload")
                 .build()
@@ -41,10 +41,9 @@ public class GwUploadService {
 
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("files", file);
-        params.add("companyCode", cardCode);
 
         ClientResponse clientResponse = gwClient.post()
-                .uri(url)
+                .uri(url + "/" + cardCode)
                 .header("x-host", GATEWAY_IDC_HOST)
                 .header("x-protocol", GATEWAY_IDC_PROTOCOL)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -52,10 +51,10 @@ public class GwUploadService {
                 .exchange().block();
 
         GwUploadDto.Response response = responseDataResolver(clientResponse, GwUploadDto.Response.class);
-        log.info("[upload] $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
+        log.info("[upload] $response.status({}), $response.result({})", response.getResult().getCode(), response.getResult().getDesc());
 
-        if (!response.getData().getCode().equals(Const.API_GW_RESULT_SUCCESS)) {
-            log.error("([ upload ]) $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
+        if (!response.getResult().getCode().equals(Const.API_GW_RESULT_SUCCESS)) {
+            log.error("([ upload ]) $response.status({}), $response.result({})", response.getResult().getCode(), response.getResult().getDesc());
             throw ServerError.builder().category(ServerError.Category.GW_UPLOAD_SERVER_ERROR).data(response).build();
         }
 
