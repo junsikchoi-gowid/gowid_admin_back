@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
+import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.*;
@@ -28,7 +29,6 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings("unused")
 public class RiskService {
 
 	private final EmailConfig config;
@@ -65,9 +65,7 @@ public class RiskService {
 
 		Corp corp;
 		Long finalIdxUser = idxUser;
-		User userAuth = repoUser.findById(idxUser).orElseThrow(
-				() -> UserNotFoundException.builder().id(finalIdxUser).build()
-		);
+		User userAuth = findUser(finalIdxUser);
 		User user;
 
 		if(idxCorp != null && userAuth.authorities().stream().noneMatch(o-> o.role().equals(Role.GOWID_ADMIN))) {
@@ -85,9 +83,7 @@ public class RiskService {
 		}else{
 
 			Long finalIdxUser1 = idxUser;
-			user = repoUser.findById(finalIdxUser1).orElseThrow(
-					() -> UserNotFoundException.builder().id(finalIdxUser1).build()
-			);
+			user = findUser(finalIdxUser1);
 
 			corp = user.corp();
 		}
@@ -294,8 +290,11 @@ public class RiskService {
 		}
 
 		Double confirmedLimit = risk1.confirmedLimit();
-		if( confirmedLimit != null)	risk.confirmedLimit(risk1.confirmedLimit());
-		else risk.confirmedLimit(0);
+		if (confirmedLimit != null) {
+			risk.confirmedLimit(risk1.confirmedLimit());
+		} else {
+			risk.confirmedLimit(0);
+		}
 
 		// CardRestart
 		if(risk.cardRestartCount() >= 45){
@@ -307,6 +306,25 @@ public class RiskService {
 		repoRisk.save(risk);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().build());
+	}
+
+	public String getCardLimit(Long idx_user) {
+		User user = findUser(idx_user);
+		String yesterday = LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+		Risk risk = repoRisk.findByCorpAndDate(user.corp(), yesterday).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.entity("Risk")
+						.build()
+		);
+		return risk.cardLimit() + "";
+	}
+
+	private User findUser(Long idx_user) {
+		return repoUser.findById(idx_user).orElseThrow(
+				() -> UserNotFoundException.builder()
+						.id(idx_user)
+						.build()
+		);
 	}
 }
 
