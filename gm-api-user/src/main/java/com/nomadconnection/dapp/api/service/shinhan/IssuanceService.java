@@ -13,6 +13,7 @@ import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,7 +125,7 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1200, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        return shinhanGwRpc.request1200(requestRpc);
+        return shinhanGwRpc.request1200(requestRpc, HttpMethod.POST);
     }
 
     @Async

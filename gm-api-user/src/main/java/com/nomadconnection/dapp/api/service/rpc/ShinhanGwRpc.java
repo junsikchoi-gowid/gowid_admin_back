@@ -1,10 +1,11 @@
 package com.nomadconnection.dapp.api.service.rpc;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.response.ApiResponse;
-import com.nomadconnection.dapp.api.util.JsonUtil;
+import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.api.util.LoggingUtils;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -15,13 +16,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
 @Slf4j
-public class ShinhanGwRpc extends BaseRpc {
+public class ShinhanGwRpc {
 
     @Value("${gateway.aws.domain}")
     private String GATEWAY_AWS_DOMAIN;
@@ -84,9 +84,9 @@ public class ShinhanGwRpc extends BaseRpc {
 //
 //    }
 
-    // todo : 예
+    // todo : 예외처리
     public DataPart1200 request1200(DataPart1200 requestRpc, HttpMethod httpMethod) {
-        ApiResponse responseRpc = null;
+        ApiResponse responseRpc;
         String url = GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1200;
         HttpHeaders headers = makeHeader();
         log.debug("Request [{}}] {}", httpMethod.name(), url);
@@ -99,35 +99,27 @@ public class ShinhanGwRpc extends BaseRpc {
             responseRpc = restTemplate.postForObject(url, new HttpEntity<>(requestRpc, headers), ApiResponse.class);
             log.debug("## Response ==> {}", LoggingUtils.getPrettyJsonString(responseRpc));
         } catch (RestClientResponseException e) {
-            log.error("## Fail to request user auth code!");
             log.error("## Response ==> {}", e.getResponseBodyAsString());
-            responseRpc = getApiErrorResponse(responseRpc, e);
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, e.getMessage());
         } catch (Exception e) {
-            log.error("## Fail to request user auth code!");
             log.error(e.getMessage(), e);
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, e.getMessage());
         }
 
-        if (responseRpc == null) {
-            return null;
+        if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, "gateway error");
         }
 
-        return (DataPart1200)(responseRpc.getData());
-    }
-
-    private ApiResponse getApiErrorResponse(ApiResponse responseRpc, RestClientResponseException e) {
-        try {
-            responseRpc = JsonUtil.generateJsonToClass(e.getResponseBodyAsString(), new TypeReference<ApiResponse>() {
-            });
-        } catch (IOException ioe) {
-            log.error("## Fail to request user auth code!");
-            log.error(ioe.getMessage(), ioe);
-            ioe.printStackTrace();
+        DataPart1200 response1200 = (DataPart1200) responseRpc.getData();
+        if (!response1200.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1200, response1200.getC009() + "/" + response1200.getC013());
         }
-        return responseRpc;
+
+        return response1200;
     }
 
     private HttpHeaders makeHeader() {
-        return makeHeader();
+        return makeHeader(null);
     }
     private HttpHeaders makeHeader(Map<String, String> headerParams) {
         HttpHeaders headers = new HttpHeaders();
