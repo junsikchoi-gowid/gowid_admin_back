@@ -108,6 +108,9 @@ public class TokenDto {
 
 			@ApiModelProperty("새로고침 매핑")
 			private boolean refreshMapping;
+
+			@ApiModelProperty("카드발급정보 idx")
+			private Long idxCardIssuance;
 		}
 
 		@ApiModelProperty("인증토큰(액세스)")

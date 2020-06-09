@@ -27,4 +27,5 @@ public class ResRegistrationDateList extends BaseTime {
 	private String resNumber; //호수(매수)
 	private String resRegistrationDate; //등기일자
 	private String resNote; //비고
+	private String type; //객체타입
 }

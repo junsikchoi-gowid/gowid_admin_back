@@ -7,6 +7,7 @@ import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.*;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,13 @@ public class RiskService {
 	private final UserRepository repoUser;
 	private final RiskConfigRepository repoRiskConfig;
 	private final ResAccountRepository repoResAccount;
+
+	private final D1000Repository repoD1000;
+	private final D1100Repository repoD1100;
+	private final D1400Repository repoD1400;
+	private final D1510Repository repoD1510;
+	private final D1520Repository repoD1520;
+	private final D1530Repository repoD1530;
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity saveRiskConfig(RiskDto.RiskConfigDto riskConfig){
@@ -325,6 +333,47 @@ public class RiskService {
 						.id(idx_user)
 						.build()
 		);
+	}
+
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity saveRisk45(Long idxUser, Long idxCorp, String calcDate) {
+
+		this.saveRisk( idxUser,  idxCorp,  calcDate);
+		Risk risk = repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), calcDate).orElseThrow(
+				() -> new RuntimeException("Empty Data")
+		);
+
+		RiskConfig riskConfig = repoRiskConfig.findByCorpAndEnabled(Corp.builder().idx(idxCorp).build(), true)
+				.orElseThrow(
+						() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
+				);
+
+		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(idxCorp);
+		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(idxCorp);
+
+		d1000.d071(risk.grade());//고위드 기업 등급
+		d1000.d072(riskConfig.ventureCertification()?"1":"0");//벤처확인서보유여부
+		d1000.d073(riskConfig.vcInvestment()?"1":"0");//VC투자유치여부
+		d1000.d074(String.valueOf(risk.cardLimit()));//고위드계산한도
+		d1000.d075(String.valueOf(risk.cashBalance()));//기준잔고
+		d1000.d076(String.valueOf(risk.dma45()));//45일평균잔고
+		d1000.d077(String.valueOf(risk.dmm45()));//45일중간잔고
+		d1000.d078(String.valueOf(risk.currentBalance()));//현재잔고
+
+		d1400.d025(risk.grade());//고위드 기업 등급
+		d1400.d026(riskConfig.ventureCertification()?"1":"0");//벤처확인서보유여부
+		d1400.d027(riskConfig.vcInvestment()?"1":"0");//VC투자유치여부
+		d1400.d028(String.valueOf(risk.cardLimit()));//고위드계산한도
+		d1400.d029(String.valueOf(risk.cashBalance()));//기준잔고
+		d1400.d030(String.valueOf(risk.dma45()));//45일평균잔고
+		d1400.d031(String.valueOf(risk.dmm45()));//45일중간잔고
+		d1400.d032(String.valueOf(risk.currentBalance()));//현재잔고
+
+		repoD1000.save(d1000);
+		repoD1400.save(d1400);
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().build());
 	}
 }
 

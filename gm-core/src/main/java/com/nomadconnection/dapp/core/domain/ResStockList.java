@@ -25,5 +25,6 @@ public class ResStockList extends BaseTime {
 	private Long idxParent;
 
 	private String resNumber; //호수(매수)
-	private String resStockItemList; // 주식 리스트
+	private String resTCntIssuedStock; // 발행주식의 총수
+	private String resCapital; // 자본금의 액
 }
