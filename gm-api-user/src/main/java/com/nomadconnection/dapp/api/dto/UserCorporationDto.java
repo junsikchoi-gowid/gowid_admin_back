@@ -1,13 +1,11 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1600;
 import com.nomadconnection.dapp.core.domain.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Length;
 
@@ -160,11 +158,11 @@ public class UserCorporationDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Identification {
+    public static class IdentificationReq {
 
         @ApiModelProperty("신분증검증방법코드")
         @NotEmpty
-        private String bank;
+        private String idCode;
 
         @ApiModelProperty("고객한글명")
         @NotEmpty
@@ -172,7 +170,7 @@ public class UserCorporationDto {
 
         @ApiModelProperty("주민등록번호")
         @NotEmpty
-        private String accountNumber;
+        private String identificationNumber;
 
         @ApiModelProperty("발급일")
         private String issueDate;
@@ -632,10 +630,22 @@ public class UserCorporationDto {
             if (code != null) {
                 return BusinessType.builder()
                         .code(code.code1() + code.code5())
-                        .name(code.value1())
+                        .name(code.value5())
                         .build();
             }
             return null;
         }
+    }
+
+    // 1600
+    @EqualsAndHashCode(callSuper = true)
+    @NoArgsConstructor
+    public static class ResumeReq extends DataPart1600 {
+
+    }
+
+    @NoArgsConstructor
+    public static class ResumeRes {
+
     }
 }

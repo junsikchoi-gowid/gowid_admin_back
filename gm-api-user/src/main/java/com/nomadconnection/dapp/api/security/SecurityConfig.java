@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.api.security;
 
 import com.nomadconnection.dapp.api.controller.*;
-import com.nomadconnection.dapp.core.domain.Faq;
 import com.nomadconnection.dapp.core.security.CustomUserDetailsService;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationEntryPoint;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationFilter;
@@ -136,6 +135,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(IrDashBoardController.URI.BASE + IrDashBoardController.URI.IRDASHBOARD).permitAll()
 				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_PW+2).permitAll()
 				.antMatchers(BankController.URI.BASE + BankController.URI.MONTH_BALANCE_EXT).permitAll()
+				.antMatchers(UserCorporationController.URI.BASE + UserCorporationController.URI.RESUME).permitAll()
 
 				.anyRequest().authenticated();
 	}
