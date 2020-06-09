@@ -1255,10 +1255,7 @@ public class CodefService {
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
 				log.debug("jsonObjectStandardFinancial message = {} ", jsonObjectStandardFinancial[0].get("message").toString());
 
-				Optional<ResRegisterEntriesList> optResRegisterEntriesList = repoResRegisterEntriesList.findTopByIdxCorpOrOrderByIdxDesc(user.get().corp().idx());
-
-
-
+				Optional<ResRegisterEntriesList> optResRegisterEntriesList = repoResRegisterEntriesList.findTopByIdxCorpOrderByIdxDesc(user.get().corp().idx());
 				Optional<ResStockList> otpRepoResStockList = repoResStockList.findTopByIdxParentOrderByIdxDesc(optResRegisterEntriesList.get().idx());
 				Optional<ResCorpEstablishDateList> otpResCorpEstablishDateList = repoResCorpEstablishDateList.findTopByIdxParentOrderByIdxDesc(optResRegisterEntriesList.get().idx());
 

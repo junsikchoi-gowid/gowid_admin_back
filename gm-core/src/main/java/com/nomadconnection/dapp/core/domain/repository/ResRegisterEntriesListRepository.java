@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface ResRegisterEntriesListRepository extends JpaRepository<ResRegisterEntriesList, Long> {
-    Optional<ResRegisterEntriesList> findTopByIdxCorpOrOrderByIdxDesc(Long idxCorp);
+    Optional<ResRegisterEntriesList> findTopByIdxCorpOrderByIdxDesc(Long idxCorp);
 }
