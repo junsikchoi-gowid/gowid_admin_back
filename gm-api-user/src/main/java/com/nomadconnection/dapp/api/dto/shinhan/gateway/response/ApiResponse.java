@@ -4,30 +4,30 @@ import lombok.ToString;
 import org.springframework.http.HttpStatus;
 
 @ToString
-public class ApiResponse<T> {
+public class ApiResponse {
 
-    private final T data;
+    private final Object data;
 
     private final ApiResult result;
 
-    private ApiResponse(T data, ApiResult result) {
+    private ApiResponse(Object data, ApiResult result) {
         this.data = data;
         this.result = result;
     }
 
-    public static <T> ApiResponse<T> OK(T data) {
-        return new ApiResponse<>(data, null);
+    public static  ApiResponse OK(Object data) {
+        return new ApiResponse(data, null);
     }
 
-    public static <T> ApiResponse<T> ERROR(Throwable throwable, HttpStatus status) {
-        return new ApiResponse<>(null, new ApiResult(throwable, status));
+    public static  ApiResponse ERROR(Throwable throwable, HttpStatus status) {
+        return new ApiResponse(null, new ApiResult(throwable, status));
     }
 
-    public static <T> ApiResponse<T> ERROR(String errorMessage, HttpStatus status) {
-        return new ApiResponse<>(null, new ApiResult(errorMessage, status));
+    public static  ApiResponse ERROR(String errorMessage, HttpStatus status) {
+        return new ApiResponse(null, new ApiResult(errorMessage, status));
     }
 
-    public T getData() {
+    public Object getData() {
         return data;
     }
 
