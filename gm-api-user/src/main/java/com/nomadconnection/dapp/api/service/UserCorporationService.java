@@ -325,6 +325,24 @@ public class UserCorporationService {
                 .requestCount(dto.getCount())
                 .build());
 
+        Optional<RiskConfig> riskConfig = repoRisk.findByCorpAndEnabled(user.corp(), true);
+        if (riskConfig.isPresent()) {
+            repoRisk.save(riskConfig.get()
+                    .calculatedLimit(dto.getCalAmount())
+                    .hopeLimit(dto.getAmount())
+                    .grantLimit(dto.getGrantAmount())
+            );
+        } else {
+            repoRisk.save(RiskConfig.builder()
+                    .user(user)
+                    .corp(user.corp())
+                    .calculatedLimit(dto.getCalAmount())
+                    .hopeLimit(dto.getAmount())
+                    .grantLimit(dto.getGrantAmount())
+                    .build()
+            );
+        }
+
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
             repoD1000.save(d1000
