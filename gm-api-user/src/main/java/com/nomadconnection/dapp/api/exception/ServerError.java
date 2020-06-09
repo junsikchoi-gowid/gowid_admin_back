@@ -11,11 +11,11 @@ import lombok.experimental.Accessors;
 @RequiredArgsConstructor
 public class ServerError extends RuntimeException {
 
-    @SuppressWarnings("SpellCheckingInspection")
     public enum Category {
         KCB_SERVER_ERROR,
         S3_SERVER_ERROR,
         GW_UPLOAD_SERVER_ERROR,
+        GW_DELETE_SERVER_ERROR,
         ;
     }
 

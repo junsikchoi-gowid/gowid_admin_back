@@ -4,12 +4,14 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
+import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -39,6 +41,21 @@ public class IssuanceService {
 
 
     private final ShinhanGwRpc shinhanGwRpc;
+
+    /**
+     * 카드 신청
+     *
+     * 1700 신분증 위조확인
+     */
+    public void verifyCeoIdentification(UserCorporationDto.IdentificationReq request) {
+
+        // 1700(신분증검증)
+        DataPart1700 resultOfD1700 = proc1700(request);
+
+        if (!resultOfD1700.getD008().equals("")) { // TODO : 결과값 확인
+            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1700, resultOfD1700.getD009());
+        }
+    }
 
     /**
      * 카드 신청
@@ -257,6 +274,24 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         shinhanGwRpc.request1100(requestRpc);
+    }
+
+    private DataPart1700 proc1700(UserCorporationDto.IdentificationReq request) {
+        // 공통부
+        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1700);
+
+        // 연동
+        DataPart1700 requestRpc = new DataPart1700();
+        BeanUtils.copyProperties(commonPart, requestRpc);
+        requestRpc.setD001(request.getIdCode());
+        requestRpc.setD002(request.getKorName());
+        requestRpc.setD003(request.getIdentificationNumber());
+        requestRpc.setD004(request.getIssueDate());
+        requestRpc.setD005(request.getDriverNumber());
+        requestRpc.setD006(request.getDriverLocal());
+        requestRpc.setD007(request.getDriverCode());
+
+        return shinhanGwRpc.request1700(requestRpc);
     }
 
 

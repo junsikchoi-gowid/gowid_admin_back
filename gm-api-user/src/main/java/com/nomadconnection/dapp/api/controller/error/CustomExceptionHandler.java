@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 @ResponseBody
-@SuppressWarnings("unused")
 public class CustomExceptionHandler {
 
     //==================================================================================================================
@@ -158,6 +157,12 @@ public class CustomExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     protected ErrorResponse onUserNotFoundException(UserNotFoundException e) {
         return ErrorResponse.from(ErrorCode.Resource.USER_NOT_FOUND);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    protected ErrorResponse onEntityNotFoundException(EntityNotFoundException e) {
+        return ErrorResponse.from(ErrorCode.Resource.ENTITY_NOT_FOUND);
     }
 
 

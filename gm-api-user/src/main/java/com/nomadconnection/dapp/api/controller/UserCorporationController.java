@@ -108,12 +108,13 @@ public class UserCorporationController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestParam String fileType,
-            @RequestPart MultipartFile[] files) {
+            @RequestParam String cardCode,
+            @RequestPart MultipartFile[] files) throws IOException {
         if (log.isInfoEnabled()) {
             log.info("([ uploadStockholderFile ]) $user='{}', $files='{}', $idx_cardInfo='{}'", user, files, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), files, fileType, idxCardInfo));
+        return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), files, fileType, idxCardInfo, cardCode));
     }
 
     @ApiOperation("주주명부 파일 삭제")
@@ -216,15 +217,16 @@ public class UserCorporationController {
 
     @ApiOperation(value = "신분증 본인 확인")
     @PostMapping(URI.CEO_ID)
-    public ResponseEntity<Object> verifyIdentification(
+    public ResponseEntity verifyIdentification(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody @Valid UserCorporationDto.Identification dto) {
+            @RequestBody @Valid UserCorporationDto.IdentificationReq dto) {
 
         if (log.isInfoEnabled()) {
             log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
         }
 
-        return ResponseEntity.ok().body(service.verifyIdentification(user.idx(), dto));
+        issuanceService.verifyCeoIdentification(dto);
+        return ResponseEntity.ok().build();
     }
 
     @ApiOperation(value = "법인카드 발급 신청")

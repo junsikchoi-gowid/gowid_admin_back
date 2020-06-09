@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.BadRequestedException;
+import com.nomadconnection.dapp.api.exception.EmptyResxException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.core.domain.*;
@@ -14,12 +15,15 @@ import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1100Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +48,7 @@ public class UserCorporationService {
     private final StockholderFileRepository repoFile;
 
     private final AwsS3Service s3Service;
+    private final GwUploadService gwUploadService;
 
     /**
      * 법인정보 업종종류 조회
@@ -205,13 +210,14 @@ public class UserCorporationService {
      * 주주명부 파일 등록
      *
      * @param idx_user     등록하는 User idx
-     * @param files         파일
+     * @param files        파일
      * @param type         file type
      * @param idx_CardInfo CardIssuanceInfo idx
+     * @param cardCode     카드코드
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(Long idx_user, MultipartFile[] files, String type, Long idx_CardInfo) {
+    public List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(Long idx_user, MultipartFile[] files, String type, Long idx_CardInfo, String cardCode) throws IOException {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -222,28 +228,48 @@ public class UserCorporationService {
             throw BadRequestedException.builder().category(BadRequestedException.Category.EXCESS_UPLOAD_FILE_COUNT).build();
         }
 
+        if (files == null || ObjectUtils.isEmpty(files)) {
+            throw EmptyResxException.builder().build();
+        }
+
         if (!ObjectUtils.isEmpty(fileList)) {
             for (StockholderFile file : fileList) {
                 repoFile.delete(file);
+                gwUploadService.delete(file.fname(), cardCode);
                 s3Service.s3FileDelete(file.s3Key());
             }
         }
-
         List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
         for (MultipartFile file : files) {
-            String fileName = UUID.randomUUID().toString();
-            String s3Key = "stockholder/" + idx_CardInfo + "/" + fileName;
-            String s3Link = s3Service.s3FileUpload(file, s3Key);
+            String fileName = UUID.randomUUID().toString() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+            File uploadFile = new File(fileName);
+            try {
+                uploadFile.createNewFile();
+                FileOutputStream fos = new FileOutputStream(uploadFile);
+                fos.write(file.getBytes());
+                fos.close();
 
-            resultList.add(UserCorporationDto.StockholderFileRes.from(repoFile.save(StockholderFile.builder()
-                    .cardIssuanceInfo(cardInfo)
-                    .corp(user.corp())
-                    .fname(fileName)
-                    .type(StockholderFileType.valueOf(type))
-                    .s3Link(s3Link)
-                    .s3Key(s3Key)
-                    .size(file.getSize())
-                    .orgfname(file.getOriginalFilename()).build()), cardInfo.idx()));
+                gwUploadService.upload(uploadFile, cardCode);
+
+                String s3Key = "stockholder/" + idx_CardInfo + "/" + fileName;
+                String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
+
+                uploadFile.delete();
+
+                resultList.add(UserCorporationDto.StockholderFileRes.from(repoFile.save(StockholderFile.builder()
+                        .cardIssuanceInfo(cardInfo)
+                        .corp(user.corp())
+                        .fname(fileName)
+                        .type(StockholderFileType.valueOf(type))
+                        .s3Link(s3Link)
+                        .s3Key(s3Key)
+                        .size(file.getSize())
+                        .orgfname(file.getOriginalFilename()).build()), cardInfo.idx()));
+
+            } catch (Exception e) {
+                uploadFile.delete();
+                throw e;
+            }
         }
 
         return resultList;
@@ -524,10 +550,6 @@ public class UserCorporationService {
     @Transactional(readOnly = true)
     public List<String> getVentureBusiness() {
         return repoVenture.findAllByOrderByNameAsc().stream().map(ventureBusiness -> ventureBusiness.name()).collect(Collectors.toList());
-    }
-
-    public Object verifyIdentification(Long idx_user, UserCorporationDto.Identification dto) {
-        return null;
     }
 
 
