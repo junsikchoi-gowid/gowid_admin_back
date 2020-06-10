@@ -737,6 +737,11 @@ public class CodefService {
 		HashMap<String, Object> accountMap1;
 		String createUrlPath = urlPath + CommonConstant.CREATE_ACCOUNT;
 
+		//	사용자 조회
+		User user = repoUser.findById(idxUser).orElseThrow(
+				() -> new RuntimeException("UserNotFound")
+		);
+
 		for( String s : CommonConstant.LISTBANK){
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
@@ -829,8 +834,6 @@ public class CodefService {
 			if (repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).isPresent()) {
 				corp = repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).get();
 			} else {
-				//	사용자 조회
-				Optional<User> user = repoUser.findById(idxUser);
 				corp = repoCorp.save(
 						Corp.builder()
 								.resJointRepresentativeNm(GowidUtils.getEmptyStringToString(jsonData, "resJointRepresentativeNm"))
@@ -849,12 +852,13 @@ public class CodefService {
 								.resUserIdentiyNo(GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo"))
 								.resUserNm(GowidUtils.getEmptyStringToString(jsonData, "resUserNm"))
 								.status(CorpStatus.PENDING)
-								.user(user.get())
+								.user(user)
 								.build()
 				);
 			}
 
-			log.debug("corp.idx() = {} ", corp.idx());
+			user.corp(corp);
+			repoUser.save(user);
 
 			// 대법원 - 법인등기부등본
 			JSONObject[] jsonObjectCorpRegister = getApiResult(CORP_REGISTER.corp_register(
@@ -1071,12 +1075,31 @@ public class CodefService {
 						// 대표이사_주소3
 						.d057(ResCorpEstablishDate)// 법인성립연월일
 						.build());
+
+				repoD1400.save(D1400.builder()
+						.idxCorp(corp.idx())
+						.c007(CommonUtil.getNowYYYYMMDD())
+						.d001("2")
+						.d002(corp.resCompanyIdentityNo().replaceAll("-",""))
+						.d003("01")
+						.d004(corp.resCompanyNm().replaceAll("-",""))
+						.d005("06")
+						.d008("261-81-25793")
+						.d009("고위드")
+						.d011("")
+						.d012("DAAC6F")
+						.d013("12")
+						.build());
+
+				repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
 			}else{
 				normal.setStatus(false);
 				normal.setKey(jsonObjectCorpRegisterCode);
 				normal.setValue(jsonObjectCorpRegister[0].get("message").toString());
 			}
-		}
+		}else{
+		normal.setStatus(false);
+	}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(normal)
@@ -1339,20 +1362,9 @@ public class CodefService {
 				.d049(null)
 				.build());
 
-		repoD1400.save(D1400.builder()
-				.idxCorp(user.get().corp().idx())
-				.c007(CommonUtil.getNowYYYYMMDD())
-				.d001("2")
-				.d002(user.get().corp().resCompanyIdentityNo().replaceAll("-",""))
-				.d003("01")
-				.d004(user.get().corp().resCompanyNm().replaceAll("-",""))
-				.d005("06")
-				.d008("261-81-25793")
-				.d009("고위드")
-				.d011(dto.getResBusinessCode())
-				.d012("DAAC6F")
-				.d013("12")
-				.build());
+		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(user.get().corp().idx());
+		d1400.d011(dto.getResBusinessCode());
+		repoD1400.save(d1400);
 
 		repoCorp.save(user.get().corp()
 				.resCompanyEngNm(dto.getResCompanyEngNm())
@@ -1363,9 +1375,6 @@ public class CodefService {
 		CardIssuanceInfo cardInfo;
 		try {
 			cardInfo = findCardIssuanceInfo(user.get().corp());
-			if (!cardInfo.idx().equals(idx_CardInfo)) {
-				throw MismatchedException.builder().build();
-			}
 		} catch (EntityNotFoundException e) {
 			cardInfo = repoCardIssuance.save(CardIssuanceInfo.builder().corp(user.get().corp()).build());
 		}
