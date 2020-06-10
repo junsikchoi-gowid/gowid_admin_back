@@ -14,7 +14,6 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
 public class D1100 extends BaseTime {
 
     @Id
@@ -84,7 +83,7 @@ public class D1100 extends BaseTime {
     private String d027; //예금주주민번호
     @Column(columnDefinition = "varchar(3)    DEFAULT '' COMMENT '예금주관계코드'")
     private String d028; //예금주관계코드
-    @Column(columnDefinition = "varchar(1)    DEFAULT '' COMMENT '명세서수령방법코드'")
+    @Column(columnDefinition = "varchar(3)    DEFAULT '' COMMENT '명세서수령방법코드'")
     private String d029; //명세서수령방법코드
     @Column(columnDefinition = "varchar(1)    DEFAULT '' COMMENT '법인카드수령인구분코드'")
     private String d030; //법인카드수령인구분코드

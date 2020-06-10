@@ -15,12 +15,15 @@ spring:
     open-in-view: false
   datasource:
     initialization-mode: always
-#    url: jdbc:mysql://gowid-mysql.clb82ylu4eie.ap-northeast-2.rds.amazonaws.com:3306/gowid?useSSL=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&sslMode=VERIFY_IDENTITY&trustCertificateKeyStoreUrl=classpath:cacerts&trustCertificateKeyStorePassword=Gowid@0115
-#    username: gowid
-#    password: Gowid%0203
+#    url: jdbc:mysql://14.37.191.160:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+#    username: card
+#    password: card2019
     url: jdbc:mysql://gowid-mysql-stg.clb82ylu4eie.ap-northeast-2.rds.amazonaws.com:3306/gowid?useSSL=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&sslMode=VERIFY_IDENTITY&trustCertificateKeyStoreUrl=classpath:cacerts&trustCertificateKeyStorePassword=Gowid@0115
     username: gowid
     password: Gowid%0115
+#    url: jdbc:mysql://gowid-mysql.clb82ylu4eie.ap-northeast-2.rds.amazonaws.com:3306/gowid?useSSL=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&sslMode=VERIFY_IDENTITY&trustCertificateKeyStoreUrl=classpath:cacerts&trustCertificateKeyStorePassword=Gowid@0115
+#    username: gowid
+#    password: Gowid%0203
 
 ---
 
@@ -29,7 +32,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
       use-new-id-generator-mappings: true
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -41,9 +44,9 @@ spring:
     open-in-view: false
   datasource:
     initialization-mode: always
-    url: jdbc:mysql://gowid-mysql.clb82ylu4eie.ap-northeast-2.rds.amazonaws.com:3306/gowid?useSSL=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&sslMode=VERIFY_IDENTITY&trustCertificateKeyStoreUrl=classpath:cacerts&trustCertificateKeyStorePassword=Gowid@0115
+    url: jdbc:mysql://gowid-mysql-stg.clb82ylu4eie.ap-northeast-2.rds.amazonaws.com:3306/gowid?useSSL=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&sslMode=VERIFY_IDENTITY&trustCertificateKeyStoreUrl=classpath:cacerts&trustCertificateKeyStorePassword=Gowid@0115
     username: gowid
-    password: Gowid%0203
+    password: Gowid%0115
 #    url: jdbc:mysql://gowid-mysql.clb82ylu4eie.ap-northeast-2.rds.amazonaws.com:3306/gowid?useSSL=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&sslMode=VERIFY_IDENTITY&trustCertificateKeyStoreUrl=classpath:cacerts&trustCertificateKeyStorePassword=Gowid@0115
 #    username: gowid
 #    password: Gowid%0203

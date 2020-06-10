@@ -39,4 +39,8 @@ public class RiskConfig extends BaseTime {
     private Boolean isStockHold25; // 25%이상의 지분을 보유한 개인여부
     private Boolean isStockholderPersonal; // 1대주주 개인여부
     private Boolean isStockholderList; // 1대주주 법인의 주주명부 보유여부
+
+	private String hopeLimit; // 희망한도
+	private String calculatedLimit; // 계산한도
+	private String grantLimit; // 부여한도
 }

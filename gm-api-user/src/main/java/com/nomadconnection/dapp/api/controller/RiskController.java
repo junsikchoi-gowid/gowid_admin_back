@@ -22,16 +22,15 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequiredArgsConstructor
 @Validated
 @Api(tags = "리스크", description = RiskController.URI.BASE)
-@SuppressWarnings({"unused", "deprecation"})
 public class RiskController {
 
-	@SuppressWarnings("WeakerAccess")
 	public static class URI {
 		public static final String BASE = "/risk/v1";
 
 		public static final String RISK = "/risk";			// 리스크
 		public static final String RISKCORP = "/riskCorp";			// 리스크
 		public static final String RISKCONFIG = "/riskconfig";			// 리스크
+		public static final String CARD_LIMIT = "/cardLimit";
 	}
 
 	private final Boolean boolDebug = true;
@@ -60,5 +59,14 @@ public class RiskController {
 		return service.saveRiskConfig(riskConfigDto);
 	}
 
+	@ApiOperation(value = "리스크 한도 금액 조회")
+	@GetMapping(URI.CARD_LIMIT)
+	public ResponseEntity<String> getCardLimit(
+			@ApiIgnore @CurrentUser CustomUser user) {
+		if (log.isInfoEnabled()) {
+			log.info("([ getCardLimit ]) $user='{}''", user);
+		}
 
+		return ResponseEntity.ok().body(service.getCardLimit(user.idx()));
+	}
 }

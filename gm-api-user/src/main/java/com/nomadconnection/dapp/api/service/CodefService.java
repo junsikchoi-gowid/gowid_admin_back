@@ -6,8 +6,10 @@ import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
+import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.codef.io.helper.Account;
 import com.nomadconnection.dapp.codef.io.helper.ApiRequest;
+import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import com.nomadconnection.dapp.codef.io.helper.RSAUtil;
 import com.nomadconnection.dapp.codef.io.sandbox.bk.KR_BK_1_B_001;
 import com.nomadconnection.dapp.codef.io.sandbox.pb.CORP_REGISTER;
@@ -21,7 +23,6 @@ import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -30,7 +31,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -94,10 +94,10 @@ public class CodefService {
 
 	private final D1000Repository repoD1000;
 	private final D1100Repository repoD1100;
-	private final D1200Repository repoD1200;
-	private final D1300Repository repoD1300;
 	private final D1400Repository repoD1400;
 	private final D1510Repository repoD1510;
+	private final D1520Repository repoD1520;
+	private final D1530Repository repoD1530;
 
 	private final CardIssuanceInfoRepository repoCardIssuance;
 
@@ -164,7 +164,7 @@ public class CodefService {
 		accountMap1 = new HashMap<>();
 		accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 		accountMap1.put("businessType",	CommonConstant.REVENUETYPE);  // 업무구분코드
-		accountMap1.put("clientType",  	"A");   // 고객구분(P: 개인, B: 기업)
+		accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
 		accountMap1.put("organization",	CommonConstant.REVENUE);// 기관코드
 		accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
 		accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
@@ -617,23 +617,6 @@ public class CodefService {
 			list.add(accountMap1);
 		}
 
-		for( String s : CommonConstant.LISTCARD){
-			accountMap1 = new HashMap<>();
-			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
-			accountMap1.put("businessType",	CommonConstant.CARDTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
-			accountMap1.put("organization",	s);// 기관코드
-			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
-			list.add(accountMap1);
-		}
-
-		accountMap1 = new HashMap<>();
-		accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
-		accountMap1.put("businessType",	CommonConstant.REVENUETYPE);  // 업무구분코드
-		accountMap1.put("clientType",  	"A");   // 고객구분(P: 개인, B: 기업)
-		accountMap1.put("organization",	CommonConstant.REVENUE);// 기관코드
-		accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
-
 		bodyMap.put("accountList", list);
 		bodyMap.put(CommonConstant.CONNECTED_ID, connectedMng.connectedId());
 		String strObject = ApiRequest.request(createUrlPath, bodyMap);
@@ -641,9 +624,6 @@ public class CodefService {
 		JSONObject jsonObject = (JSONObject)jsonParse.parse(strObject);
 		String strResultCode = jsonObject.get("result").toString();
 		String code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
-
-		log.error("Connected Delete ====>>");
-		log.error(strResultCode);
 
 		if(code.equals("CF-00000")){
 			repoConnectedMng.deleteConnectedQuery(connectedMng.connectedId());
@@ -875,11 +855,11 @@ public class CodefService {
 
 			log.debug("corp.idx() = {} ", corp.idx());
 
-			// 국세청 - 법인등기부등본
+			// 대법원 - 법인등기부등본
 			JSONObject[] jsonObjectCorpRegister = getApiResult(CORP_REGISTER.corp_register(
 					"0002",
-					"01050619746",
-					RSAUtil.encryptRSA("1234", CommonConstant.PUBLIC_KEY),
+					"0261057000",
+					RSAUtil.encryptRSA("6821", CommonConstant.PUBLIC_KEY),
 					"2",
 					GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").replaceAll("-","").trim(),
 					"1",
@@ -889,7 +869,7 @@ public class CodefService {
 					"",
 					"",
 					"",
-					"0",
+					"1",
 					"",
 					"",
 					"",
@@ -944,12 +924,12 @@ public class CodefService {
 								.build()
 				);
 
-				saveJSONArray1(jsonArrayResCompanyNmList, parent.idx());
-				saveJSONArray2(jsonArrayResUserAddrList, parent.idx());
-				saveJSONArray3(jsonArrayResNoticeMethodList, parent.idx());
-				saveJSONArray4(jsonArrayResOneStocAmtList, parent.idx());
-				saveJSONArray5(jsonArrayResTCntStockIssueList, parent.idx());
-				saveJSONArray6(jsonArrayResStockList, parent.idx());
+				List<String> listResCompanyNmList = saveJSONArray1(jsonArrayResCompanyNmList, parent.idx());
+				List<String> listResUserAddrList = saveJSONArray2(jsonArrayResUserAddrList, parent.idx());
+				List<String> listResNoticeMethodList = saveJSONArray3(jsonArrayResNoticeMethodList, parent.idx());
+				List<String> listResOneStocAmtList = saveJSONArray4(jsonArrayResOneStocAmtList, parent.idx());
+				List<String> listResTCntStockIssueList = saveJSONArray5(jsonArrayResTCntStockIssueList, parent.idx());
+				List<Object> listResStockList = saveJSONArray6(jsonArrayResStockList, parent.idx());
 				saveJSONArray7(jsonArrayResPurposeList, parent.idx());
 				saveJSONArray8(jsonArrayResRegistrationHisList, parent.idx());
 				saveJSONArray9(jsonArrayResBranchList, parent.idx());
@@ -963,27 +943,29 @@ public class CodefService {
 				saveJSONArray17(jsonArrayResTypeStockContentList, parent.idx());
 				saveJSONArray18(jsonArrayResCCCapitalStockList, parent.idx());
 				saveJSONArray19(jsonArrayResEtcList, parent.idx());
-				saveJSONArray20(jsonArrayResCorpEstablishDateList, parent.idx());
+				String ResCorpEstablishDate = saveJSONArray20(jsonArrayResCorpEstablishDateList, parent.idx());
 				saveJSONArray21(jsonArrayResRegistrationRecReasonList, parent.idx());
 				String d009 = saveJSONArray22(jsonArrayResCEOList, parent.idx());
+
+				corp.resUserType(d009);
 
 
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
-						.c007("")
+						.c007(CommonUtil.getNowYYYYMMDD())
 						.d001(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo").replaceAll("-",""))
 						.d002(GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").replaceAll("-",""))
 						.d003(GowidUtils.getEmptyStringToString(jsonData, "resCompanyNm"))
 						.d004("400")
 						.d005("06")
 						.d007(GowidUtils.getEmptyStringToString(jsonData, "resRegisterDate"))
-						.d009("1") // 1: 단일대표 2: 개별대표 3: 공동대표
+						.d009(d009) // 1: 단일대표 2: 개별대표 3: 공동대표
 						.d029(null)
 						.d030(null)
 						.d031(null)
 						.d032("대표이사")
 						.d033("대표이사")
-						.d044(null)
+						.d044("0113")
 						.d045("5")
 						.d046("Y")
 						.d047("Y")
@@ -995,7 +977,7 @@ public class CodefService {
 						.d054("1")
 						.d056("N")
 						.d057("N")
-						.d058(null)
+						.d058(null) // 001 IFRS, 002 외감, 003 비외감, 004 비일반공공
 						.d063(null)
 						.d067(null)
 						.d068(null)
@@ -1003,6 +985,91 @@ public class CodefService {
 						.d070(null)
 						.build());
 
+				repoD1510.save(D1510.builder()
+						.idxCorp(corp.idx())
+						.c007(CommonUtil.getNowYYYYMMDD())
+						.d003(corp.resIssueNo().replaceAll("-","")) // 발급번호
+						.d004(corp.resCompanyNm()) // 법인명(상호)
+						.d005(corp.resCompanyIdentityNo().replaceAll("-","")) // 사업자등록번호
+						.d006(corp.resBusinessmanType()) // 사업자종류
+						.d007(corp.resUserNm()) // 성명(대표자)
+						.d008(corp.resUserAddr()) // 사업장소재지(주소)
+						.d009(corp.resUserIdentiyNo().replaceAll("-","")) // 주민등록번호
+						.d010(corp.resOpenDate()) // 개업일
+						.d011(corp.resRegisterDate()) // 사업자등록일
+						.d012(corp.resIssueOgzNm()) // 발급기관
+						.d013(corp.resBusinessTypes()) // 업태
+						.d014(corp.resBusinessItems()) // 종목
+						.build());
+
+
+				JSONArray jsonArrayResStockItemList = (JSONArray)listResStockList.get(2);
+				List<String> listD = new ArrayList<>(20);
+				jsonArrayResStockItemList.forEach(item -> {
+					JSONObject obj = (JSONObject) item;
+					listD.add(GowidUtils.getEmptyStringToString(obj, "resStockType"));
+					listD.add(GowidUtils.getEmptyStringToString(obj, "resStockCnt"));
+				});
+
+				repoD1530.save(D1530.builder()
+						.idxCorp(corp.idx())
+						.c007(CommonUtil.getNowYYYYMMDD())
+						.d003("등기사항전부증명서")// 문서제목
+						.d004(GowidUtils.getEmptyStringToString(jsonData2, "resRegistrationNumber").replaceAll("-",""))// 등기번호
+						.d005(GowidUtils.getEmptyStringToString(jsonData2, "resRegNumber").replaceAll("-",""))// 등록번호
+						.d006(GowidUtils.getEmptyStringToString(jsonData2, "commCompetentRegistryOffice"))// 관할등기소
+						.d007(GowidUtils.getEmptyStringToString(jsonData2, "resPublishRegistryOffice"))// 발행등기소
+						.d008(GowidUtils.getEmptyStringToString(jsonData2, "resPublishDate"))// 발행일자
+						.d009(listResCompanyNmList.get(0))// 상호
+						.d010(listResCompanyNmList.get(1))// 상호_변경일자
+						.d011(listResCompanyNmList.get(2))// 상호_등기일자
+						.d012(listResUserAddrList.get(0))// 본점주소
+						.d013(listResUserAddrList.get(1))// 본점주소_변경일자
+						.d014(listResUserAddrList.get(2))// 본점주소_등기일자
+						.d015(listResOneStocAmtList.get(0))// 1주의금액
+						.d016(listResOneStocAmtList.get(1))// 1주의금액_변경일자
+						.d017(listResOneStocAmtList.get(2))// 1주의금액_등기일자
+						.d018(listResTCntStockIssueList.get(0))// 발행할주식의총수
+						.d019(listResTCntStockIssueList.get(1))// 발행할주식의총수_변경일자
+						.d020(listResTCntStockIssueList.get(2))// 발행할주식의총수_등기일자
+						.d021(listResStockList.get(0).toString())// 발행주식현황_총수
+						.d022(listD.size()>1?listD.get(0):"")// 발행주식현황_종류1
+						.d023(listD.size()>2?listD.get(1):"")// 발행주식현황_종류1_수량
+						.d024(listD.size()>3?listD.get(2):"")// 발행주식현황_종류2
+						.d025(listD.size()>4?listD.get(3):"")// 발행주식현황_종류2_수량
+						.d026(listD.size()>5?listD.get(4):"")// 발행주식현황_종류3
+						.d027(listD.size()>6?listD.get(5):"")// 발행주식현황_종류3_수량
+						.d028(listD.size()>7?listD.get(6):"")// 발행주식현황_종류4
+						.d029(listD.size()>8?listD.get(7):"")// 발행주식현황_종류4_수량
+						.d030(listD.size()>9?listD.get(8):"")// 발행주식현황_종류5
+						.d031(listD.size()>10?listD.get(9):"")// 발행주식현황_종류5_수량
+						.d032(listD.size()>11?listD.get(10):"")// 발행주식현황_종류6
+						.d033(listD.size()>12?listD.get(11):"")// 발행주식현황_종류6_수량
+						.d034(listD.size()>13?listD.get(12):"")// 발행주식현황_종류7
+						.d035(listD.size()>14?listD.get(13):"")// 발행주식현황_종류7_수량
+						.d036(listD.size()>15?listD.get(14):"")// 발행주식현황_종류8
+						.d037(listD.size()>16?listD.get(15):"")// 발행주식현황_종류8_수량
+						.d038(listD.size()>17?listD.get(16):"")// 발행주식현황_종류9
+						.d039(listD.size()>18?listD.get(17):"")// 발행주식현황_종류9_수량
+						.d040(listD.size()>19?listD.get(18):"")// 발행주식현황_종류10
+						.d041(listD.size()>20?listD.get(19):"")// 발행주식현황_종류10_수량
+						.d042(listResStockList.get(1).toString())// 발행주식현황_자본금의액
+						.d043(listResStockList.get(3).toString())// 발행주식현황_변경일자
+						.d044(listResStockList.get(4).toString())// 발행주식현황_등기일자
+						// 대표이사_직위1
+						// 대표이사_성명1
+						// 대표이사_주민번호1
+						// 대표이사_주소1
+						// 대표이사_직위2
+						// 대표이사_성명2
+						// 대표이사_주민번호2
+						// 대표이사_주소2
+						// 대표이사_직위3
+						// 대표이사_성명3
+						// 대표이사_주민번호3
+						// 대표이사_주소3
+						.d057(ResCorpEstablishDate)// 법인성립연월일
+						.build());
 			}else{
 				normal.setStatus(false);
 				normal.setKey(jsonObjectCorpRegisterCode);
@@ -1130,75 +1197,166 @@ public class CodefService {
 								.build()
 				);
 
-				saveJSONArrayResBalanceSheet(resBalanceSheet, parentStandardFinancial.idx());
-				saveJSONArrayResIncomeStatement(resIncomeStatement, parentStandardFinancial.idx());
-				saveJSONArrayResCostSpecificationList(resCostSpecificationList, parentStandardFinancial.idx());
-				saveJSONArrayResFinancialStatementList(resFinancialStatementList, parentStandardFinancial.idx());
+				saveJSONArrayResBalanceSheet(resBalanceSheet, parentStandardFinancial.idx()); // 표준대차대조표
+				saveJSONArrayResIncomeStatement(resIncomeStatement, parentStandardFinancial.idx()); // 표준손익계산서
+				saveJSONArrayResCostSpecificationList(resCostSpecificationList, parentStandardFinancial.idx()); // 표준원가명세서
+				saveJSONArrayResFinancialStatementList(resFinancialStatementList, parentStandardFinancial.idx()); // 제조원가명세서, 공사원가명세서, 임대원가명세서, 분양원가명세서, 운송원가명세서, 기타원가명세서
 
-				repoD1100.save(D1100.builder()
+				AtomicReference<String> strCode228 = new AtomicReference<>();
+				AtomicReference<String> strCode001 = new AtomicReference<>();
+				AtomicReference<String> strCode334 = new AtomicReference<>();
+				AtomicReference<String> strCode382 = new AtomicReference<>();
+
+				resBalanceSheet.forEach(item -> {
+					JSONObject obj = (JSONObject) item;
+					if(GowidUtils.getEmptyStringToString(obj, "code").equals("228")){
+						strCode228.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
+					}
+					if(GowidUtils.getEmptyStringToString(obj, "code").equals("334")){
+						strCode334.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
+					}
+					if(GowidUtils.getEmptyStringToString(obj, "code").equals("382")){
+						strCode382.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
+					}
+				});
+
+				resIncomeStatement.forEach(item -> {
+					JSONObject obj = (JSONObject) item;
+					if(GowidUtils.getEmptyStringToString(obj, "code").equals("001")){
+						strCode001.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
+					}
+				});
+
+				repoD1520.save(D1520.builder()
 						.idxCorp(user.get().corp().idx())
-						.c007("")
-						.d001(user.get().corp().resCompanyIdentityNo().replaceAll("-",""))
-						.d002("01")
-						.d003("3")
-						.d004(null)
-						.d005("DAAC6F")
-						.d006("G1")
-						.d007("1")
-						.d008("00")
-						.d009("A")
-						.d010("3")
-						.d011("0")
-						.d012("0")
-						.d013("0")
-						.d014("1")
-						.d015("N")
-						.d016("고위드 스타트업 T&E")
-						.d017("10")
-						.d018("01")
-						.d019("Y")
-						.d020("")
-						.d021("")
-						.d022("2")
-						.d023("15")
-						.d024("")// 사업장 번호
-						.d025("")
-						.d026("")
-						.d027(user.get().corp().resCompanyIdentityNo().replaceAll("-",""))
-						.d028("901")
-						.d029("")
-						.d030("1")
-						.d031("")
-						.d032("")
-						.d033("")
-						.d034("")
-						.d035("")
-						.d036("")
-						.d037("")
-						.d038("N")
-						.d039("")
-						.d040(null)
-						.d041(null)
-						.d042("Y")
-						.d043("Y")
-						.d044("")
-						.d045("")
-						.d046("")
-						.d047("")
-						.d048("Y")
-						.d049(null)
+						.c007(CommonUtil.getNowYYYYMMDD())
+						.d003(user.get().corp().resCompanyIdentityNo().replaceAll("-","")) // 사업자등록번호
+						.d004(user.get().corp().resIssueNo().replaceAll("-","")) // 발급(승인)번호
+						.d005(user.get().corp().resUserIdentiyNo().replaceAll("-","")) // 주민번호
+						.d006(user.get().corp().resCompanyNm()) // 상호(사업장명)
+						.d007("Y") // 발급가능여부
+						.d008(GowidUtils.getEmptyStringToString(jsonData2, "commStartDate")) // 시작일자
+						.d009(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate")) // 종료일자
+						.d010(GowidUtils.getEmptyStringToString(jsonData2, "resUserNm")) // 성명
+						.d011(GowidUtils.getEmptyStringToString(jsonData2, "resUserAddr")) // 주소
+						.d012(GowidUtils.getEmptyStringToString(jsonData2, "resBusinessItems")) // 종목
+						.d013(GowidUtils.getEmptyStringToString(jsonData2, "resBusinessTypes")) // 업태
+						.d014(GowidUtils.getEmptyStringToString(jsonData2, "resReportingDate")) // 작성일자
+						.d015(GowidUtils.getEmptyStringToString(jsonData2, "resAttrYear")) // 귀속연도
+						.d016(strCode228.get()) // 총자산   대차대조표 상의 자본총계(없으면 등기부등본상의 자본금의 액)
+						.d017(strCode001.get()) // 매출   손익계산서 상의 매출액
+						.d018(strCode334.get()) // 납입자본금   대차대조표 상의 자본금
+						.d019(strCode382.get()) // 자기자본금   대차대조표 상의 자본 총계
+						.d020(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate")) // 재무조사일   종료일자 (없으면 등기부등본상의 회사성립연월일)
 						.build());
+
 			}else{
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
 				log.debug("jsonObjectStandardFinancial message = {} ", jsonObjectStandardFinancial[0].get("message").toString());
+
+				Optional<ResRegisterEntriesList> optResRegisterEntriesList = repoResRegisterEntriesList.findTopByIdxCorpOrderByIdxDesc(user.get().corp().idx());
+				Optional<ResStockList> otpRepoResStockList = repoResStockList.findTopByIdxParentOrderByIdxDesc(optResRegisterEntriesList.get().idx());
+				Optional<ResCorpEstablishDateList> otpResCorpEstablishDateList = repoResCorpEstablishDateList.findTopByIdxParentOrderByIdxDesc(optResRegisterEntriesList.get().idx());
+
+				repoD1520.save(D1520.builder()
+						.idxCorp(user.get().corp().idx())
+						.c007(CommonUtil.getNowYYYYMMDD())
+						.d003(user.get().corp().resCompanyIdentityNo().replaceAll("-","")) // 사업자등록번호
+						.d004(user.get().corp().resIssueNo().replaceAll("-","")) // 발급(승인)번호
+						.d005(user.get().corp().resUserIdentiyNo().replaceAll("-","")) // 주민번호
+						.d006(user.get().corp().resCompanyNm()) // 상호(사업장명)
+						.d007("Y") // 발급가능여부
+						.d008("") // 시작일자
+						.d009("") // 종료일자
+						.d010(user.get().corp().resUserNm()) // 성명
+						.d011(user.get().corp().resUserAddr()) // 주소
+						.d012(user.get().corp().resBusinessItems()) // 종목
+						.d013(user.get().corp().resBusinessTypes()) // 업태
+						.d014(CommonUtil.getNowYYYYMMDD()) // 작성일자
+						.d015("") // 귀속연도
+						.d016(otpRepoResStockList.get().resCapital()) // 총자산   대차대조표 상의 자본총계(없으면 등기부등본상의 자본금의 액) 희남 버그중
+						.d017("0") // 매출   손익계산서 상의 매출액
+						.d018("0") // 납입자본금   대차대조표 상의 자본금
+						.d019("0") // 자기자본금   대차대조표 상의 자본 총계
+						.d020(otpResCorpEstablishDateList.get().resCorpEstablishDate()) // 재무조사일   종료일자 (없으면 등기부등본상의 회사성립연월일)
+						.build());
 			}
 		});
+
+		repoD1100.save(D1100.builder()
+				.idxCorp(user.get().corp().idx())
+				.c007(CommonUtil.getNowYYYYMMDD())
+				.c007("")
+				.d001(user.get().corp().resCompanyIdentityNo().replaceAll("-",""))
+				.d002("01")
+				.d003("3")
+				.d004(null)
+				.d005("DAAC6F")
+				.d006("G1")
+				.d007("1")
+				.d008("00")
+				.d009("A")
+				.d010("3")
+				.d011("0")
+				.d012("0")
+				.d013("0")
+				.d014("1")
+				.d015("N")
+				.d016("고위드 스타트업 T&E")
+				.d017("10")
+				.d018("01")
+				.d019("Y")
+				.d020("")
+				.d021("")
+				.d022("2")
+				.d023("15")
+				.d024("")
+				.d025("")
+				.d026("")
+				.d027(user.get().corp().resCompanyIdentityNo().replaceAll("-",""))
+				.d028("901")
+				.d029("")
+				.d030("1")
+				.d031("")
+				.d032("")
+				.d033("")
+				.d034("")
+				.d035("")
+				.d036("")
+				.d037("")
+				.d038("N")
+				.d039("")
+				.d040(null)
+				.d041(null)
+				.d042("Y")
+				.d043("Y")
+				.d044("")
+				.d045("")
+				.d046("")
+				.d047("")
+				.d048("Y")
+				.d049(null)
+				.build());
+
+		repoD1400.save(D1400.builder()
+				.idxCorp(user.get().corp().idx())
+				.c007(CommonUtil.getNowYYYYMMDD())
+				.d001("2")
+				.d002(user.get().corp().resCompanyIdentityNo().replaceAll("-",""))
+				.d003("01")
+				.d004(user.get().corp().resCompanyNm().replaceAll("-",""))
+				.d005("06")
+				.d008("261-81-25793")
+				.d009("고위드")
+				.d011(dto.getResBusinessCode())
+				.d012("DAAC6F")
+				.d013("12")
+				.build());
 
 		repoCorp.save(user.get().corp()
 				.resCompanyEngNm(dto.getResCompanyEngNm())
 				.resCompanyNumber(dto.getResCompanyPhoneNumber())
 				.resBusinessCode(dto.getResBusinessCode())
-				.resUserType("1") // 공동대표
 		);
 
 		CardIssuanceInfo cardInfo;
@@ -1231,7 +1389,8 @@ public class CodefService {
 		return returnYyyyMm;
 	}
 
-	private void saveJSONArray1(JSONArray jsonArray, Long idx ) {
+	private List saveJSONArray1(JSONArray jsonArray, Long idx ) {
+		List<String> str = new ArrayList<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 
@@ -1245,12 +1404,15 @@ public class CodefService {
 					.build()
 			);
 
-			saveResChangeDateList(jsonArrayResChangeDateList, parent.idx() );
-			saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx());
+			str.add(GowidUtils.getEmptyStringToString(obj, "resCompanyNm"));
+			str.add(saveResChangeDateList(jsonArrayResChangeDateList, parent.idx(), "ResCompanyNmList"));
+			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx(), "ResCompanyNmList"));
 		});
+		return str;
 	}
 
-	private void saveJSONArray2(JSONArray jsonArray, Long idx ) {
+	private List saveJSONArray2(JSONArray jsonArray, Long idx ) {
+		List<String> str = new ArrayList<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 
@@ -1264,12 +1426,15 @@ public class CodefService {
 					.build()
 			);
 
-			saveResChangeDateList(jsonArrayResChangeDateList, parent.idx() );
-			saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx());
+			str.add(GowidUtils.getEmptyStringToString(obj, "resUserAddr"));
+			str.add(saveResChangeDateList(jsonArrayResChangeDateList, parent.idx(),"ResUserAddrList"));
+			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx(),"ResUserAddrList"));
 		});
+		return str;
 	}
 
-	private void saveJSONArray3(JSONArray jsonArray, Long idx ) {
+	private List saveJSONArray3(JSONArray jsonArray, Long idx ) {
+		List<String> str = new ArrayList<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 
@@ -1283,12 +1448,14 @@ public class CodefService {
 					.build()
 			);
 
-			saveResChangeDateList(jsonArrayResChangeDateList, parent.idx() );
-			saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx());
+			str.add(saveResChangeDateList(jsonArrayResChangeDateList, parent.idx(), "ResNoticeMethodList" ));
+			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx(), "ResNoticeMethodList"));
 		});
+		return str;
 	}
 
-	private void saveJSONArray4(JSONArray jsonArray, Long idx ) {
+	private List saveJSONArray4(JSONArray jsonArray, Long idx ) {
+		List<String> str = new ArrayList<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 
@@ -1302,12 +1469,15 @@ public class CodefService {
 					.build()
 			);
 
-			saveResChangeDateList(jsonArrayResChangeDateList, parent.idx() );
-			saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx());
+			str.add(GowidUtils.getEmptyStringToString(obj, "resOneStockAmt"));
+			str.add(saveResChangeDateList(jsonArrayResChangeDateList, parent.idx(), "ResOneStocAmtList"));
+			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx(), "ResOneStocAmtList"));
 		});
+		return str;
 	}
 
-	private void saveJSONArray5(JSONArray jsonArray, Long idx ) {
+	private List saveJSONArray5(JSONArray jsonArray, Long idx ) {
+		List<String> str = new ArrayList<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 
@@ -1321,12 +1491,15 @@ public class CodefService {
 					.build()
 			);
 
-			saveResChangeDateList(jsonArrayResChangeDateList, parent.idx() );
-			saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx());
+			str.add(GowidUtils.getEmptyStringToString(obj, "resTCntStockIssue"));
+			str.add(saveResChangeDateList(jsonArrayResChangeDateList, parent.idx(), "ResTCntStockIssueList"));
+			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx(), "ResTCntStockIssueList"));
 		});
+		return str;
 	}
 
-	private void saveJSONArray6(JSONArray jsonArray, Long idx ) {
+	private List<Object> saveJSONArray6(JSONArray jsonArray, Long idx ) {
+		List<Object> returnObj = new ArrayList<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 
@@ -1341,11 +1514,15 @@ public class CodefService {
 					.build()
 			);
 
-			saveResStockItemList(jsonArrayResStockItemList, parent.idx() );
-			saveResChangeDateList(jsonArrayResChangeDateList, parent.idx() );
-			saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx());
+			saveResStockItemList(jsonArrayResStockItemList, parent.idx());
 
+			returnObj.add(GowidUtils.getEmptyStringToString(obj, "resTCntIssuedStock")); // 발행주식의 총수
+			returnObj.add(GowidUtils.getEmptyStringToString(obj, "resCapital")); // 총액정보
+			returnObj.add(jsonArrayResStockItemList); //주식 리스트
+			returnObj.add(saveResChangeDateList(jsonArrayResChangeDateList, parent.idx(),"ResStockList")); // 변경일자
+			returnObj.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx(),"ResStockList")); //등기일자
 		});
+		return returnObj;
 	}
 
 	private void saveJSONArray7(JSONArray jsonArray, Long idx ) {
@@ -1562,9 +1739,12 @@ public class CodefService {
 		});
 	}
 
-	private void saveJSONArray20(JSONArray jsonArray, Long idx ) {
+	private String saveJSONArray20(JSONArray jsonArray, Long idx ) {
+		AtomicReference<String> str = new AtomicReference<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
+
+			str.set(GowidUtils.getEmptyStringToString(obj, "resCorpEstablishDate"));
 
 			repoResCorpEstablishDateList.save(ResCorpEstablishDateList.builder()
 					.idxParent(idx)
@@ -1573,6 +1753,7 @@ public class CodefService {
 					.build()
 			);
 		});
+		return str.get();
 	}
 
 	private void saveJSONArray21(JSONArray jsonArray, Long idx ) {
@@ -1590,13 +1771,18 @@ public class CodefService {
 	}
 
 	private String saveJSONArray22(JSONArray jsonArray, Long idx ) {
-		String returnStr = null;
-		returnStr = "사내이사";
+		AtomicReference<String> returnStr =  new AtomicReference<String>("");
 
+		// 1: 단일대표 2: 개별대표 3: 공동대표
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
-
-			log.debug(GowidUtils.getEmptyStringToString(obj, "resPosition"));
+			if(GowidUtils.getEmptyStringToString(obj, "resPosition").equals("공동대표이사")) {
+				returnStr.set("3");
+			}else if(jsonArray.size() < 2 && GowidUtils.getEmptyStringToString(obj, "resPosition").equals("대표이사")){
+				returnStr.set("1");
+			}else {
+				returnStr.set("2");
+			}
 
 			repoResCEOList.save(ResCEOList.builder()
 					.idxParent(idx)
@@ -1607,39 +1793,56 @@ public class CodefService {
 					.build()
 			);
 		});
-		return returnStr;
+		return returnStr.get();
 	}
 
-	private void saveResRegistrationDateList(JSONArray jsonArrayResRegistrationDateList, Long idx) {
+	private String saveResRegistrationDateList(JSONArray jsonArrayResRegistrationDateList, Long idx,String Type) {
+		AtomicReference<String> str = new AtomicReference<>();
+
 		jsonArrayResRegistrationDateList.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
+
+			str.set(GowidUtils.getEmptyStringToString(obj, "resRegistrationDate"));
+
 			repoResRegistrationDateList.save(ResRegistrationDateList.builder()
 					.idxParent(idx)
 					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
 					.resRegistrationDate(GowidUtils.getEmptyStringToString(obj, "resRegistrationDate"))
 					.resNote(GowidUtils.getEmptyStringToString(obj, "resNote"))
+					.type(Type)
 					.build()
 			);
 		});
+		return str.get();
 	}
 
-	private void saveResChangeDateList(JSONArray jsonArrayResChangeDateList, Long idx) {
+	private String saveResChangeDateList(JSONArray jsonArrayResChangeDateList, Long idx, String Type) {
+		AtomicReference<String> str = new AtomicReference<>();
 		jsonArrayResChangeDateList.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
+
+			str.set(GowidUtils.getEmptyStringToString(obj, "resChangeDate"));
 
 			repoResChangeDateList.save(ResChangeDateList.builder()
 					.idxParent(idx)
 					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
 					.resChangeDate(GowidUtils.getEmptyStringToString(obj, "resChangeDate"))
 					.resNote(GowidUtils.getEmptyStringToString(obj, "resNote"))
+					.type(Type)
 					.build()
 			);
 		});
+		return str.get();
 	}
 
-	private void saveResStockItemList(JSONArray jsonArrayResStockItemList, Long idx) {
+	private List<String> saveResStockItemList(JSONArray jsonArrayResStockItemList, Long idx) {
+		List<String> returnStr =  new ArrayList<>();
+
 		jsonArrayResStockItemList.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
+
+			returnStr.add(GowidUtils.getEmptyStringToString(obj, "resTCntIssuedStock"));
+			returnStr.add(GowidUtils.getEmptyStringToString(obj, "resCapital"));
 
 			repoResStockItemList.save(ResStockItemList.builder()
 					.idxParent(idx)
@@ -1647,10 +1850,12 @@ public class CodefService {
 					.resStockType(GowidUtils.getEmptyStringToString(obj, "resStockType"))
 					.resStockCnt(GowidUtils.getEmptyStringToString(obj, "resStockCnt"))
 					.resTCntIssuedStock(GowidUtils.getEmptyStringToString(obj, "resTCntIssuedStock"))
-					.resCapital(GowidUtils.getEmptyStringToString(obj, "resStockCnt"))
+					.resCapital(GowidUtils.getEmptyStringToString(obj, "resCapital"))
 					.build()
 			);
 		});
+
+		return returnStr;
 	}
 
 	private void saveJSONArrayResBalanceSheet(JSONArray jsonArray, Long idx ) {

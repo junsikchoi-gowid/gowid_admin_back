@@ -3,7 +3,6 @@ package com.nomadconnection.dapp.core.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@SuppressWarnings("unused")
 public class ErrorCode {
 
 	public enum Regular implements ErrorCodeDescriptor {
@@ -42,6 +41,7 @@ public class ErrorCode {
 		USER_NOT_FOUND,
 		DEPT_NOT_FOUND,
 		EXCESS_RESOURCE,
+		ENTITY_NOT_FOUND,
 	}
 
 	public enum Mismatched implements ErrorCodeDescriptor {
@@ -99,7 +99,11 @@ public class ErrorCode {
 
 		EXTERNAL_ERROR_SHINHAN_1100("EXTERNAL_ERROR_SHINHAN_1100", "external error(shinhan - 1100)"),
 		REJECTED_SHINHAN_1100("EXTERNAL_ERROR_SHINHAN_1100", "rejected(shinhan - 1100) "),
-		INTERNAL_ERROR_SHINHAN_1100("INTERNAL_ERROR_SHINHAN_1100", "internal error(shinhan - 1100)");
+		INTERNAL_ERROR_SHINHAN_1100("INTERNAL_ERROR_SHINHAN_1100", "internal error(shinhan - 1100)"),
+
+		EXTERNAL_ERROR_SHINHAN_1700("EXTERNAL_ERROR_SHINHAN_1700", "external error(shinhan - 1700)"),
+		REJECTED_SHINHAN_1700("EXTERNAL_ERROR_SHINHAN_1700", "rejected(shinhan - 1700) "),
+		INTERNAL_ERROR_SHINHAN_1700("INTERNAL_ERROR_SHINHAN_1700", "internal error(shinhan - 1700)");
 
 		private final String code;
 		private final String desc;

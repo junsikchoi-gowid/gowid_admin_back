@@ -2,7 +2,6 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
-import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
@@ -20,7 +19,6 @@ import org.json.simple.parser.ParseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +27,9 @@ import org.thymeleaf.ITemplateEngine;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -1079,7 +1079,10 @@ public class ScrapingService {
                 }
             }
         }
-        serviceRisk.saveRisk(idx, null,"");
+        serviceRisk.saveRisk45(idx, null,"");
+
+        // 전문테이블 데이터 저장
+
     }
 
     @Async

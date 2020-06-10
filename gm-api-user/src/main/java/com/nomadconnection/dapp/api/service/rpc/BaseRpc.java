@@ -119,6 +119,9 @@ public class BaseRpc {
         if (ShinhanGwApiType.SH1530.getName().equals(shinhanGwApiType.getCode())) {
             throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1530, e.getMessage());
         }
+        if (ShinhanGwApiType.SH1700.getName().equals(shinhanGwApiType.getCode())) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1700, e.getMessage());
+        }
 
         throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_GW, "["+shinhanGwApiType.getName()+"] "+e.getMessage());
     }
@@ -146,6 +149,9 @@ public class BaseRpc {
         }
         if (ShinhanGwApiType.SH1530.getName().equals(shinhanGwApiType.getCode())) {
             throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1530, e.getMessage());
+        }
+        if (ShinhanGwApiType.SH1700.getName().equals(shinhanGwApiType.getCode())) {
+            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1700, e.getMessage());
         }
 
         throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_GW, "["+shinhanGwApiType.getName()+"] "+e.getMessage());

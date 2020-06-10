@@ -24,17 +24,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.time.LocalDate.now;
 
 @Slf4j
 @Service
@@ -355,8 +357,7 @@ public class BankService {
 	private Long getaLong(Long idxUser, Long idxCorp) {
 		if(idxCorp != null){
 			if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))){
-				idxUser = repoCorp.searchIdxUser(idxCorp)
-				;
+				idxUser = repoCorp.searchIdxUser(idxCorp);
 			}
 		}
 		return idxUser;
