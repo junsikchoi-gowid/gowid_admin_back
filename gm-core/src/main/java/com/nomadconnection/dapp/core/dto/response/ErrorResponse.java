@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@SuppressWarnings({"unused"})
 public class ErrorResponse {
 
 	@Getter
@@ -31,12 +30,24 @@ public class ErrorResponse {
 		this.error = error;
 		this.description = description;
 		this.fieldErrors = fieldErrors;
-		this.current = LocalDateTime.now();
+		current = LocalDateTime.now();
 		this.data = data;
 	}
 
 	public static ErrorResponse from(ErrorCodeDescriptor descriptor) {
-		return ErrorResponse.from(descriptor, null);
+		return ErrorResponse.builder()
+				.category(descriptor.category())
+				.error(descriptor.error())
+				.description(descriptor.description())
+				.build();
+	}
+
+	public static ErrorResponse from(ErrorCodeDescriptor descriptor, String reason) {
+		return ErrorResponse.builder()
+				.category(descriptor.category())
+				.error(descriptor.error())
+				.description(reason)
+				.build();
 	}
 
 	public static ErrorResponse from(ErrorCodeDescriptor descriptor, List<FieldError> errors) {
