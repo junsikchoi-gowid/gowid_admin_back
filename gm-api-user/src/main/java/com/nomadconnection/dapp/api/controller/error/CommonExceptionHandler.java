@@ -1,8 +1,6 @@
 package com.nomadconnection.dapp.api.controller.error;
 
-import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
-import com.nomadconnection.dapp.core.dto.response.ErrorCodeDescriptor;
 import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
@@ -22,7 +20,6 @@ import java.util.stream.Stream;
 
 @ControllerAdvice
 @ResponseBody
-@SuppressWarnings("unused")
 public class CommonExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
@@ -69,6 +66,6 @@ public class CommonExceptionHandler {
     @ExceptionHandler(IOException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ErrorResponse onIOException(IOException e) {
-        return ErrorResponse.from(ErrorCode.Regular.IO_EXCEPTION);
+        return ErrorResponse.from(ErrorCode.Regular.IO_EXCEPTION, e.getMessage());
     }
 }
