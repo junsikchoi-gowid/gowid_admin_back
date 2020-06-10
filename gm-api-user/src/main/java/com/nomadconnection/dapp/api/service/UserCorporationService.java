@@ -268,6 +268,7 @@ public class UserCorporationService {
 
             } catch (Exception e) {
                 uploadFile.delete();
+                log.error("[uploadStockholderFile] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
                 throw e;
             }
         }
