@@ -1079,7 +1079,10 @@ public class ScrapingService {
                 }
             }
         }
-        serviceRisk.saveRisk(idx, null,"");
+        serviceRisk.saveRisk45(idx, null,"");
+
+        // 전문테이블 데이터 저장
+
     }
 
     @Async

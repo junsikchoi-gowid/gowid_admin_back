@@ -355,8 +355,7 @@ public class BankService {
 	private Long getaLong(Long idxUser, Long idxCorp) {
 		if(idxCorp != null){
 			if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))){
-				idxUser = repoCorp.searchIdxUser(idxCorp)
-				;
+				idxUser = repoCorp.searchIdxUser(idxCorp);
 			}
 		}
 		return idxUser;

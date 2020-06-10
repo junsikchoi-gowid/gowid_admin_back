@@ -9,6 +9,7 @@ import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.core.domain.Authority;
 import com.nomadconnection.dapp.core.domain.User;
 import com.nomadconnection.dapp.core.domain.VerificationCode;
+import com.nomadconnection.dapp.core.domain.repository.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.VerificationCodeRepository;
@@ -34,6 +35,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -53,6 +55,7 @@ public class AuthService {
 	private final ConnectedMngRepository repoConnectedMng;
 	private final PasswordEncoder encoder;
 	private final VerificationCodeRepository repoVerificationCode;
+	private final CardIssuanceInfoRepository repoCardIssuance;
 
 	/**
 	 * 아이디(이메일) 존재여부 확인
@@ -305,6 +308,15 @@ public class AuthService {
 			refreshMapping = false;
 		}
 
+		AtomicReference<Long> idxCardIssuance = new AtomicReference<>(0L);
+
+
+		repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(user.corp()).ifPresent(
+				cardIssuanceInfo -> { idxCardIssuance.set(cardIssuanceInfo.idx()); }
+		);
+
+
+
 		return AuthDto.AuthInfo.builder()
 				.idx(user.idx())
 				.idxCorp(user.corp() != null ? user.corp().idx() : null)
@@ -318,6 +330,7 @@ public class AuthService {
 						.corpMapping(corpMapping)
 						.signMapping(signMapping)
 						.refreshMapping(refreshMapping)
+						.idxCardIssuance(idxCardIssuance.get())
 						.build())
 				.build();
 	}
