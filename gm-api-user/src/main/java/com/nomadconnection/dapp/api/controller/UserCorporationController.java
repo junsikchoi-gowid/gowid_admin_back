@@ -108,13 +108,12 @@ public class UserCorporationController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestParam String fileType,
-            @RequestParam String cardCode,
             @RequestPart MultipartFile[] files) throws IOException {
         if (log.isInfoEnabled()) {
             log.info("([ uploadStockholderFile ]) $user='{}', $files='{}', $idx_cardInfo='{}'", user, files, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), files, fileType, idxCardInfo, cardCode));
+        return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), files, fileType, idxCardInfo));
     }
 
     @ApiOperation("주주명부 파일 삭제")
@@ -122,7 +121,7 @@ public class UserCorporationController {
     public ResponseEntity<ResponseEntity.BodyBuilder> deleteStockholderFile(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
-            @PathVariable Long idxFile) {
+            @PathVariable Long idxFile) throws IOException {
         if (log.isInfoEnabled()) {
             log.info("([ deleteStockholderFile ]) $user='{}', $idx_file='{}', $idx_cardInfo='{}'", user, idxFile, idxCardInfo);
         }
