@@ -243,12 +243,11 @@ public class UserCorporationService {
         for (MultipartFile file : files) {
             String fileName = UUID.randomUUID().toString() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
             File uploadFile = new File(fileName);
+            uploadFile.createNewFile();
+            FileOutputStream fos = new FileOutputStream(uploadFile);
+            fos.write(file.getBytes());
+            fos.close();
             try {
-                uploadFile.createNewFile();
-                FileOutputStream fos = new FileOutputStream(uploadFile);
-                fos.write(file.getBytes());
-                fos.close();
-
                 gwUploadService.upload(uploadFile, cardCode);
 
                 String s3Key = "stockholder/" + idx_CardInfo + "/" + fileName;
@@ -268,6 +267,7 @@ public class UserCorporationService {
 
             } catch (Exception e) {
                 uploadFile.delete();
+                log.error("[uploadStockholderFile] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
                 throw e;
             }
         }

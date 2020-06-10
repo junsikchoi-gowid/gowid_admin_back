@@ -316,6 +316,7 @@ public class RiskService {
 		return ResponseEntity.ok().body(BusinessResponse.builder().build());
 	}
 
+	@Transactional(readOnly = true)
 	public String getCardLimit(Long idx_user) {
 		User user = findUser(idx_user);
 		String yesterday = LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -339,7 +340,7 @@ public class RiskService {
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity saveRisk45(Long idxUser, Long idxCorp, String calcDate) {
 
-		this.saveRisk( idxUser,  idxCorp,  calcDate);
+		saveRisk( idxUser,  idxCorp,  calcDate);
 		Risk risk = repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), calcDate).orElseThrow(
 				() -> new RuntimeException("Empty Data")
 		);
