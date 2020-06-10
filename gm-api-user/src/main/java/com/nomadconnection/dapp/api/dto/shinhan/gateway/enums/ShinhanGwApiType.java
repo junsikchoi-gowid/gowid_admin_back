@@ -2,10 +2,12 @@ package com.nomadconnection.dapp.api.dto.shinhan.gateway.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Arrays;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 public enum ShinhanGwApiType {
     SH1000("1000", "GOSHC", "EVL", "1972", "1", "01", "GWD", "01", "법인회원신규심사요청"),
@@ -20,15 +22,15 @@ public enum ShinhanGwApiType {
     SH1800("1800", "GOSHC", "SGN", "797", "1", "01", "GWD", "01", "카드신청 전자서명값 전송"),
     SH1900("1900", "GOSHC", "LMT", "797", "1", "01", "GWD", "01", "실시간 한도 감액 요청");
 
-    private final String code;                // 전문종별코드
-    private final String transactionCode;     // TRANSACTION CODE
-    private final String initialText;         // TEXT개시문자
-    private final String fullTextLength;      // 전문길이
-    private final String transferFlag;        // 송수신flag, 1:요청, 2:응답
-    private final String memberNo;            // 회원사번호, 01 : GOWID
-    private final String memberCode;          // 대외기관코드, GOWID 코드(3자리)
-    private final String searchMemberNo;      // 조회제휴사번호, 01 : GOWID
-    private final String name;
+    private String code;                // 전문종별코드
+    private String transactionCode;     // TRANSACTION CODE
+    private String initialText;         // TEXT개시문자
+    private String fullTextLength;      // 전문길이
+    private String transferFlag;        // 송수신flag, 1:요청, 2:응답
+    private String memberNo;            // 회원사번호, 01 : GOWID
+    private String memberCode;          // 대외기관코드, GOWID 코드(3자리)
+    private String searchMemberNo;      // 조회제휴사번호, 01 : GOWID
+    private String name;
 
     public static ShinhanGwApiType getShinhanGwApiType(String paramCode) {
         return Arrays.stream(ShinhanGwApiType.values())

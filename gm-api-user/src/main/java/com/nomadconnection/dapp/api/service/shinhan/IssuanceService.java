@@ -13,7 +13,6 @@ import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +54,9 @@ public class IssuanceService {
 
         User user = findUser(userIdx);
         Corp userCorp = user.corp();
+        if (userCorp == null) {
+            throw new EntityNotFoundException("not found userIdx", "corp", userIdx);
+        }
 
         // 1200(법인회원신규여부검증)
         DataPart1200 resultOfD1200 = proc1200(userCorp);
@@ -125,7 +127,11 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1200, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        return shinhanGwRpc.request1200(requestRpc, HttpMethod.POST);
+        // todo : 테스트 데이터(삭제예정)
+        requestRpc.setC009("00");
+        requestRpc.setD003("Y");
+
+        return shinhanGwRpc.request1200(requestRpc);
     }
 
     @Async

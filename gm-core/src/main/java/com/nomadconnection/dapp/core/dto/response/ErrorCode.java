@@ -69,10 +69,11 @@ public class ErrorCode {
 	@Getter
 	public enum External implements ErrorCodeDescriptor {
 		EXTERNAL_ERROR_GW("EXTERNAL_ERROR_GW", "external error(shinhan - GW)"),
+		INTERNAL_ERROR_GW("INTERNAL_ERROR_GW", "external error(shinhan - GW)"),
 
 		EXTERNAL_ERROR_SHINHAN_1200("EXTERNAL_ERROR_SHINHAN_1200", "external error(shinhan - 1200)"),
 		REJECTED_SHINHAN_1200("EXTERNAL_ERROR_SHINHAN_1200", "rejected(shinhan - 1200)"),
-		INTERNAL_SHINHAN_1200("INTERNAL_ERROR_SHINHAN_1200", "internal error(shinhan - 1200)"),
+		INTERNAL_ERROR_SHINHAN_1200("INTERNAL_ERROR_SHINHAN_1200", "internal error(shinhan - 1200)"),
 
 		EXTERNAL_ERROR_SHINHAN_1510("EXTERNAL_ERROR_SHINHAN_1510", "external error(shinhan - 1510)"),
 		REJECTED_SHINHAN_1510("REJECTED_SHINHAN_1510", "rejected(shinhan - 1510) "),

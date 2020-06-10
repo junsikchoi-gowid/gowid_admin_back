@@ -1,38 +1,56 @@
 package com.nomadconnection.dapp.api.dto.shinhan.gateway.response;
 
-import lombok.ToString;
+import lombok.*;
 import org.springframework.http.HttpStatus;
 
 @ToString
-public class ApiResponse {
+@Setter
+@Getter
+@NoArgsConstructor
+public class ApiResponse<T> {
 
-    private final Object data;
+    private T data;
 
-    private final ApiResult result;
+    private ApiResult result;
 
-    private ApiResponse(Object data, ApiResult result) {
+    public ApiResponse(T data, ApiResult result) {
         this.data = data;
         this.result = result;
     }
 
-    public static  ApiResponse OK(Object data) {
-        return new ApiResponse(data, null);
+    public static <T> ApiResponse<T> OK(T data) {
+        return new ApiResponse<>(data, null);
     }
 
-    public static  ApiResponse ERROR(Throwable throwable, HttpStatus status) {
-        return new ApiResponse(null, new ApiResult(throwable, status));
+    public static <T> ApiResponse<T> ERROR(Throwable throwable, HttpStatus status) {
+        return new ApiResponse<>(null, new ApiResult(throwable, status));
     }
 
-    public static  ApiResponse ERROR(String errorMessage, HttpStatus status) {
-        return new ApiResponse(null, new ApiResult(errorMessage, status));
-    }
-
-    public Object getData() {
-        return data;
+    public static <T> ApiResponse<T> ERROR(String errorMessage, HttpStatus status) {
+        return new ApiResponse<>(null, new ApiResult(errorMessage, status));
     }
 
     public ApiResult getResult() {
         return result;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ApiResult {
+
+        private String code;
+        private String desc;
+
+        ApiResult(Throwable throwable, HttpStatus status) {
+            this(throwable.getMessage(), status);
+        }
+
+        ApiResult(String desc, HttpStatus status) {
+            this.code = String.valueOf(status.value());
+            this.desc = desc;
+        }
+
     }
 
 }

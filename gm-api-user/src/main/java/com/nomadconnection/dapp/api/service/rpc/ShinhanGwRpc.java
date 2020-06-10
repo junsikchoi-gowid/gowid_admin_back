@@ -1,30 +1,23 @@
 package com.nomadconnection.dapp.api.service.rpc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.response.ApiResponse;
 import com.nomadconnection.dapp.api.exception.BusinessException;
-import com.nomadconnection.dapp.api.util.LoggingUtils;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientResponseException;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @Slf4j
-public class ShinhanGwRpc {
+public class ShinhanGwRpc extends BaseRpc {
 
     @Value("${gateway.aws.domain}")
-    private String GATEWAY_AWS_DOMAIN;
+    private String GATEWAY_AWS_URL;
 
     @Value("${gateway.shinhan.uri.1200}")
     private String GATEWAY_SHINHAN_URI_1200;
@@ -53,89 +46,24 @@ public class ShinhanGwRpc {
     @Value("${gateway.idc.protocol}")
     private String GATEWAY_IDC_PROTOCOL;
 
-//    public DataPart1200 request1200(DataPart1200 requestRpc) {
-//
-//        ApiResponse<DataPart1200> responseRpc;
-//        try {
-//            responseRpc = requestGateway(GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1200,
-//                    HttpMethod.POST,
-//                    null,
-//                    requestRpc,
-//                    ApiResponse<DataPart1200>);
-//        } catch (IOException e) {
-//            log.error(e.getMessage(), e);
-//            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, e.getMessage());
-//
-//        } catch (RestClientResponseException e) {
-//            log.error("## Response ==> {}", e.getResponseBodyAsString());
-//            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, e.getMessage());
-//        }
-//
-//        if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
-//            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200);
-//        }
-//
-//        DataPart1200 response1200 = responseRpc.getData();
-//        if (!response1200.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-//            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1200, response1200.getC009() + "/" + response1200.getC013());
-//        }
-//
-//        return response1200;
-//
-//    }
+    public DataPart1200 request1200(DataPart1200 request) {
 
-    // todo : 예외처리
-    public DataPart1200 request1200(DataPart1200 requestRpc, HttpMethod httpMethod) {
-        ApiResponse responseRpc;
-        String url = GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1200;
-        HttpHeaders headers = makeHeader();
-        log.debug("Request [{}}] {}", httpMethod.name(), url);
-        log.info("## Request header ==> {}", LoggingUtils.getPrettyJsonString(headers));
-        log.info("## Request body ==> {}", LoggingUtils.getPrettyJsonString(requestRpc));
+        ApiResponse<DataPart1200> responseRpc = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_1200, HttpMethod.POST,
+                null, request, ApiResponse.class, ShinhanGwApiType.SH1200);
 
-        RestTemplate restTemplate = new RestTemplate();
-
-        try {
-            responseRpc = restTemplate.postForObject(url, new HttpEntity<>(requestRpc, headers), ApiResponse.class);
-            log.debug("## Response ==> {}", LoggingUtils.getPrettyJsonString(responseRpc));
-        } catch (RestClientResponseException e) {
-            log.error("## Response ==> {}", e.getResponseBodyAsString());
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, e.getMessage());
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, e.getMessage());
-        }
-
-        if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
+        if (!Const.API_GW_RESULT_SUCCESS.equals(responseRpc.getResult().getCode())) {
             throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, "gateway error");
         }
 
-        DataPart1200 response1200 = (DataPart1200) responseRpc.getData();
+        ObjectMapper mapper = new ObjectMapper();
+        DataPart1200 response1200 = mapper.convertValue(responseRpc.getData(), DataPart1200.class);
+
         if (!response1200.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1200, response1200.getC009() + "/" + response1200.getC013());
         }
 
         return response1200;
-    }
 
-    private HttpHeaders makeHeader() {
-        return makeHeader(null);
-    }
-    private HttpHeaders makeHeader(Map<String, String> headerParams) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        if (headerParams == null) {
-            headerParams = new HashMap<>();
-        }
-        headerParams.put("x-host", GATEWAY_IDC_HOST);
-        headerParams.put("x-protocol", GATEWAY_IDC_PROTOCOL);
-
-        for (String key : headerParams.keySet()) {
-            headers.add(key, headerParams.get(key));
-        }
-
-        return headers;
     }
 
     public void request1510(DataPart1510 requestRpc) {
@@ -301,6 +229,90 @@ public class ShinhanGwRpc {
 //            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1100, response1100.getC009() + "/" + response1100.getC013());
 //        }
     }
+
+    //    public DataPart1200 request1200(DataPart1200 requestRpc) {
+//
+//        ApiResponse<DataPart1200> responseRpc;
+//        try {
+//            responseRpc = requestGateway(GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1200,
+//                    HttpMethod.POST,
+//                    null,
+//                    requestRpc,
+//                    ApiResponse<DataPart1200>);
+//        } catch (IOException e) {
+//            log.error(e.getMessage(), e);
+//            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, e.getMessage());
+//
+//        } catch (RestClientResponseException e) {
+//            log.error("## Response ==> {}", e.getResponseBodyAsString());
+//            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, e.getMessage());
+//        }
+//
+//        if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
+//            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200);
+//        }
+//
+//        DataPart1200 response1200 = responseRpc.getData();
+//        if (!response1200.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+//            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1200, response1200.getC009() + "/" + response1200.getC013());
+//        }
+//
+//        return response1200;
+//
+//    }
+
+//    public DataPart1200 request1200(DataPart1200 requestRpc, HttpMethod httpMethod) {
+//        ApiResponse<DataPart1200> responseRpc;
+//        String url = GATEWAY_AWS_DOMAIN + GATEWAY_SHINHAN_URI_1200;
+//        HttpHeaders headers = makeHeader();
+//                                    log.debug("Request [{}}] {}", httpMethod.name(), url);
+//        log.info("## Request header ==> {}", LoggingUtils.getPrettyJsonString(headers));
+//        log.info("## Request body ==> {}", LoggingUtils.getPrettyJsonString(requestRpc));
+//
+//        RestTemplate restTemplate = new RestTemplate();
+//
+//        try {
+//            responseRpc = (ApiResponse<DataPart1200>)restTemplate.postForObject(url, new HttpEntity<>(requestRpc, headers), ApiResponse.class);
+//            log.debug("## Response ==> {}", LoggingUtils.getPrettyJsonString(responseRpc));
+//        } catch (RestClientResponseException e) {
+//            log.error("## Response ==> {}", e.getResponseBodyAsString());
+//            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, e.getMessage());
+//        } catch (Exception e) {
+//            log.error(e.getMessage(), e);
+//            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, e.getMessage());
+//        }
+//
+//        if (responseRpc == null || responseRpc.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
+//            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, "gateway error");
+//        }
+//
+//        DataPart1200 response1200 = (DataPart1200) responseRpc.getData();
+//        if (!response1200.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+//            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1200, response1200.getC009() + "/" + response1200.getC013());
+//        }
+//
+//        return response1200;
+//    }
+
+//    private HttpHeaders makeHeader() {
+//        return makeHeader(null);
+//    }
+//    private HttpHeaders makeHeader(Map<String, String> headerParams) {
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//
+//        if (headerParams == null) {
+//            headerParams = new HashMap<>();
+//        }
+//        headerParams.put("x-host", GATEWAY_IDC_HOST);
+//        headerParams.put("x-protocol", GATEWAY_IDC_PROTOCOL);
+//
+//        for (String key : headerParams.keySet()) {
+//            headers.add(key, headerParams.get(key));
+//        }
+//
+//        return headers;
+//    }
 
 
 }
