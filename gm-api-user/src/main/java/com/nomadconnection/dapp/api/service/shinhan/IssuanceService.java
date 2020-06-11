@@ -29,6 +29,7 @@ public class IssuanceService {
     private final GatewayTransactionIdxRepository gatewayTransactionIdxRepository;
     private final UserRepository userRepository;
 
+    private final D1200Repository d1200Repository;
     private final D1510Repository d1510Repository;
     private final D1520Repository d1520Repository;
     private final D1530Repository d1530Repository;
@@ -99,19 +100,29 @@ public class IssuanceService {
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1200);
 
         // 데이터부
-        D1200 d1200 = D1200.builder()
-                .d001(userCorp.resCompanyIdentityNo())
-                .d002(Const.D1200_MEMBER_TYPE_CODE).build();
+        D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
+        if (d1200 == null) {
+            d1200 = new D1200();
+        }
+        d1200.d001(userCorp.resCompanyIdentityNo().replaceAll("-", ""));
+        d1200.d002(Const.D1200_MEMBER_TYPE_CODE);
+        d1200.idxCorp(userCorp.idx());
 
         // 연동
         DataPart1200 requestRpc = new DataPart1200();
-        BeanUtils.copyProperties(d1200, requestRpc);
-        BeanUtils.copyProperties(commonPart, requestRpc);
+        requestRpc.assignDataFrom(d1200);
+        requestRpc.assignDataFrom(commonPart);
 
         // todo : 테스트 데이터(삭제예정)
         requestRpc.setC009("00");
 //        requestRpc.setD003("Y");
         requestRpc.setD003("N");
+        requestRpc.setD007(CommonUtil.getNowYYYYMMDD());
+        requestRpc.setD008(CommonUtil.getRandom5Num());
+
+        DataPart1200 resultOfD1200 = shinhanGwRpc.request1200(requestRpc);
+        resultOfD1200.assignDataTo(d1200);
+        d1200Repository.save(d1200);
 
         return shinhanGwRpc.request1200(requestRpc);
     }
