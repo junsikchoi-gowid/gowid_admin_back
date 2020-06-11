@@ -1,16 +1,19 @@
 package com.nomadconnection.dapp.api.dto.shinhan.gateway.response;
 
-import lombok.ToString;
+import lombok.*;
 import org.springframework.http.HttpStatus;
 
 @ToString
+@Setter
+@Getter
+@NoArgsConstructor
 public class ApiResponse<T> {
 
-    private final T data;
+    private T data;
 
-    private final ApiResult result;
+    private ApiResult result;
 
-    private ApiResponse(T data, ApiResult result) {
+    public ApiResponse(T data, ApiResult result) {
         this.data = data;
         this.result = result;
     }
@@ -27,12 +30,27 @@ public class ApiResponse<T> {
         return new ApiResponse<>(null, new ApiResult(errorMessage, status));
     }
 
-    public T getData() {
-        return data;
-    }
-
     public ApiResult getResult() {
         return result;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ApiResult {
+
+        private String code;
+        private String desc;
+
+        ApiResult(Throwable throwable, HttpStatus status) {
+            this(throwable.getMessage(), status);
+        }
+
+        ApiResult(String desc, HttpStatus status) {
+            this.code = String.valueOf(status.value());
+            this.desc = desc;
+        }
+
     }
 
 }

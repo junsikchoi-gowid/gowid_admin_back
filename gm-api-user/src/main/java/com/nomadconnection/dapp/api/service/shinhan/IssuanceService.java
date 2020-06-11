@@ -71,6 +71,9 @@ public class IssuanceService {
 
         User user = findUser(userIdx);
         Corp userCorp = user.corp();
+        if (userCorp == null) {
+            throw new EntityNotFoundException("not found userIdx", "corp", userIdx);
+        }
 
         // 1200(법인회원신규여부검증)
         DataPart1200 resultOfD1200 = proc1200(userCorp);
@@ -140,6 +143,10 @@ public class IssuanceService {
         DataPart1200 requestRpc = new DataPart1200();
         BeanUtils.copyProperties(d1200, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
+
+        // todo : 테스트 데이터(삭제예정)
+        requestRpc.setC009("00");
+        requestRpc.setD003("Y");
 
         return shinhanGwRpc.request1200(requestRpc);
     }

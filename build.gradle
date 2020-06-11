@@ -54,6 +54,7 @@ subprojects {
                 "io.springfox:springfox-swagger-ui:$springfox_version",
                 "io.swagger:swagger-annotations:$swagger_version",
                 "io.swagger:swagger-models:$swagger_version",
+                "com.google.code.gson:gson:2.8.5"
         )
         runtimeOnly(
                 "org.springframework.boot:spring-boot-devtools",

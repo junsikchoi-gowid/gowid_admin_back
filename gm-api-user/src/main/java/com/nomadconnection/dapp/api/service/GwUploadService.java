@@ -54,7 +54,7 @@ public class GwUploadService {
         GwUploadDto.Response response = responseDataResolver(clientResponse, GwUploadDto.Response.class);
         log.info("[GwUpload] $response.status({}), $response.result({}), $response.data({})", response.getResult().getCode(), response.getResult().getDesc(), response.getData());
 
-        if (response.getResult().getCode() != Const.API_GW_RESULT_SUCCESS) {
+        if (Integer.parseInt(Const.API_GW_RESULT_SUCCESS) != response.getResult().getCode()) {
             log.error("([ GwUpload ]) $response.status({}), $response.result({})", response.getResult().getCode(), response.getResult().getDesc());
             throw ServerError.builder().category(ServerError.Category.GW_UPLOAD_SERVER_ERROR).data(response).build();
         }
@@ -77,7 +77,7 @@ public class GwUploadService {
         GwUploadDto.Response response = responseDataResolver(clientResponse, GwUploadDto.Response.class);
         log.info("[GwDelete] $response.status({}), $response.result({}), $response.data({})", response.getResult().getCode(), response.getResult().getDesc(), response.getData());
 
-        if (response.getResult().getCode() != Const.API_GW_RESULT_SUCCESS && response.getResult().getCode() != Const.API_GW_IMAGE_DELETE_ERROR_CODE) {
+        if (response.getResult().getCode() != Integer.parseInt(Const.API_GW_RESULT_SUCCESS) && response.getResult().getCode() != Const.API_GW_IMAGE_DELETE_ERROR_CODE) {
             log.error("([ GwDelete ]) $response.status({}), $response.result({})", response.getResult().getCode(), response.getResult().getDesc());
             throw ServerError.builder().category(ServerError.Category.GW_DELETE_SERVER_ERROR).data(response).build();
         }
