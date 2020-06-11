@@ -1,15 +1,13 @@
 package com.nomadconnection.dapp.api.dto.shinhan.gateway;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * @interfaceID : 1200
  * @description : 법인회원신규여부검증
  */
 @Data
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
