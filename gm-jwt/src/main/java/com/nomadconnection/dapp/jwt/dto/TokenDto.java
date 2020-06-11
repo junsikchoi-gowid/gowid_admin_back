@@ -1,7 +1,5 @@
 package com.nomadconnection.dapp.jwt.dto;
 
-import com.nomadconnection.dapp.core.domain.Authority;
-import com.nomadconnection.dapp.core.domain.MemberAuthority;
 import com.nomadconnection.dapp.core.domain.Role;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.ApiModelProperty;
@@ -13,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Builder
