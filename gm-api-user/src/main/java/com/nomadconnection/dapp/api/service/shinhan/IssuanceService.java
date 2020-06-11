@@ -110,7 +110,8 @@ public class IssuanceService {
 
         // todo : 테스트 데이터(삭제예정)
         requestRpc.setC009("00");
-        requestRpc.setD003("Y");
+//        requestRpc.setD003("Y");
+        requestRpc.setD003("N");
 
         return shinhanGwRpc.request1200(requestRpc);
     }
@@ -133,7 +134,8 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         D1510 d1510 = d1510Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1510 == null) {
-            throw new EntityNotFoundException("not found corporation idx", "d1510", userCorp.idx());
+            log.error("data of d1510 is not exist(corpIdx="+userCorp.idx()+")");
+            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1510, "data of d1510 is not exist("+userCorp.idx()+")");
         }
 
         // 접수일자, 순번
@@ -158,7 +160,8 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         List<D1520> d1520s = d1520Repository.findTop2ByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1520s == null || d1520s.isEmpty()) {
-            throw new EntityNotFoundException("not found corporation idx", "d1520", userCorp.idx());
+            log.error("data of d1520 is not exist(corpIdx="+userCorp.idx()+")");
+            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1520, "data of d1520 is not exist("+userCorp.idx()+")");
         }
 
         // 연동
@@ -185,7 +188,8 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         D1530 d1530 = d1530Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1530 == null) {
-            throw new EntityNotFoundException("not found corporation idx", "d1530", userCorp.idx());
+            log.error("data of d1530 is not exist(corpIdx="+userCorp.idx()+")");
+            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1530, "data of d1530 is not exist("+userCorp.idx()+")");
         }
 
         // 접수일자, 순번
@@ -210,7 +214,8 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1000 == null) {
-            throw new EntityNotFoundException("not found corporation idx", "d1000", userCorp.idx());
+            log.error("data of d1000 is not exist(corpIdx="+userCorp.idx()+")");
+            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1000, "data of d1000 is not exist("+userCorp.idx()+")");
         }
 
         // 접수일자, 순번
@@ -221,6 +226,10 @@ public class IssuanceService {
         DataPart1000 requestRpc = new DataPart1000();
         BeanUtils.copyProperties(d1000, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
+
+        // todo : 테스트 데이터(삭제예정)
+        requestRpc.setC009("00");
+
         shinhanGwRpc.request1000(requestRpc);
     }
 
@@ -231,7 +240,8 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1400 == null) {
-            throw new EntityNotFoundException("not found corporation idx", "d1400", userCorp.idx());
+            log.error("data of d1400 is not exist(corpIdx="+userCorp.idx()+")");
+            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1400, "data of d1000 is not exist("+userCorp.idx()+")");
         }
 
         // 접수일자, 순번
@@ -242,6 +252,10 @@ public class IssuanceService {
         DataPart1400 requestRpc = new DataPart1400();
         BeanUtils.copyProperties(d1400, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
+
+        // todo : 테스트 데이터(삭제예정)
+        requestRpc.setC009("00");
+
         shinhanGwRpc.request1400(requestRpc);
     }
 
@@ -252,7 +266,8 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(idxCorp);
         if (d1100 == null) {
-            throw new EntityNotFoundException("not found corporation idx", "d1100", idxCorp);
+            log.error("data of d1100 is not exist(corpIdx="+idxCorp+")");
+            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100, "data of d1100 is not exist("+idxCorp+")");
         }
 
         // 연동
