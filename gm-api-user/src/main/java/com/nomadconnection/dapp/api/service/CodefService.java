@@ -139,7 +139,7 @@ public class CodefService {
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
 			accountMap1.put("organization",	s);// 기관코드
 			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
 			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
@@ -152,7 +152,7 @@ public class CodefService {
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 			accountMap1.put("businessType",	CommonConstant.CARDTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
 			accountMap1.put("organization",	s);// 기관코드
 			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
 			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
@@ -164,8 +164,8 @@ public class CodefService {
 		accountMap1 = new HashMap<>();
 		accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 		accountMap1.put("businessType",	CommonConstant.REVENUETYPE);  // 업무구분코드
-		accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
-		accountMap1.put("organization",	CommonConstant.REVENUE);// 기관코드
+		accountMap1.put("clientType",  	"A");   // 고객구분(P: 개인, B: 기업)
+		accountMap1.put("organization",	"0002");// 기관코드
 		accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
 		accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
 		accountMap1.put("certType",     CommonConstant.CERTTYPE);
@@ -450,7 +450,7 @@ public class CodefService {
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
 			accountMap1.put("organization",	s);// 기관코드
 			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
 			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
@@ -549,7 +549,7 @@ public class CodefService {
 				accountMap1 = new HashMap<>();
 				accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 				accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
-				accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+				accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
 				accountMap1.put("organization",	s);// 기관코드
 				accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
 
@@ -611,11 +611,30 @@ public class CodefService {
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
 			accountMap1.put("organization",	s);// 기관코드
 			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
 			list.add(accountMap1);
 		}
+
+		for( String s : CommonConstant.LISTCARD){
+			accountMap1 = new HashMap<>();
+			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+			accountMap1.put("businessType",	CommonConstant.CARDTYPE);  // 업무구분코드
+			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("organization",	s);// 기관코드
+			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+			accountMap1.put("certType",     CommonConstant.CERTTYPE);
+			list.add(accountMap1);
+		}
+
+		accountMap1 = new HashMap<>();
+		accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+		accountMap1.put("businessType",	CommonConstant.REVENUETYPE);  // 업무구분코드
+		accountMap1.put("clientType",  	"A");   // "고객구분(P: 개인, B: 기업)
+		accountMap1.put("organization",	"0002");// 기관코드
+		accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+		list.add(accountMap1);
 
 		bodyMap.put("accountList", list);
 		bodyMap.put(CommonConstant.CONNECTED_ID, connectedMng.connectedId());
@@ -651,9 +670,20 @@ public class CodefService {
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
 			accountMap1.put("organization",	s);// 기관코드
 			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+			list.add(accountMap1);
+		}
+
+		for( String s : CommonConstant.LISTCARD){
+			accountMap1 = new HashMap<>();
+			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+			accountMap1.put("businessType",	CommonConstant.CARDTYPE);  // 업무구분코드
+			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("organization",	s);// 기관코드
+			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+			accountMap1.put("certType",     CommonConstant.CERTTYPE);
 			list.add(accountMap1);
 		}
 
@@ -685,7 +715,7 @@ public class CodefService {
 	 * @throws InterruptedException
 	 * @throws ParseException
 	 */
-	public void list(String connectedId) throws IOException, InterruptedException, ParseException {
+	public String list(String connectedId) throws IOException, InterruptedException, ParseException {
 		// 요청 URL 설정
 		String urlPath = CommonConstant.getRequestDomain() + CommonConstant.GET_ACCOUNTS;
 
@@ -701,7 +731,10 @@ public class CodefService {
 
 		// 응답결과 확인
 		System.out.println(result);
+
+		return result;
 	}
+
 
 	/**
 	 * connectedId 목록조회
@@ -745,7 +778,7 @@ public class CodefService {
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
 			accountMap1.put("organization",	s);// 기관코드
 			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
 			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
@@ -758,7 +791,7 @@ public class CodefService {
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 			accountMap1.put("businessType",	CommonConstant.CARDTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
 			accountMap1.put("organization",	s);// 기관코드
 			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
 			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
@@ -770,7 +803,7 @@ public class CodefService {
 		accountMap1 = new HashMap<>();
 		accountMap1.put("countryCode",	"KR");  	// 국가코드
 		accountMap1.put("businessType",	"NT");  	// 공공 국세청 업무구분
-		accountMap1.put("clientType",  	CommonConstant.CLIENTTYPE);   	// 통합 고객구분 A
+		accountMap1.put("clientType",  	"A");   	// 통합 고객구분 A
 		accountMap1.put("organization",	"0002");	// 국세청 기관코드
 		accountMap1.put("loginType",  	"0");   	// 로그인타입 (0: 인증서, 1: ID/PW)
 		accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
