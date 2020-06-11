@@ -40,12 +40,6 @@ public class ShinhanGwRpc extends BaseRpc {
     @Value("${gateway.shinhan.uri.1100}")
     private String GATEWAY_SHINHAN_URI_1100;
 
-    @Value("${gateway.idc.host}")
-    private String GATEWAY_IDC_HOST;
-
-    @Value("${gateway.idc.protocol}")
-    private String GATEWAY_IDC_PROTOCOL;
-
     @Value("${gateway.shinhan.uri.1700}")
     private String GATEWAY_SHINHAN_URI_1700;
 
