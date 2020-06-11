@@ -177,7 +177,6 @@ public class RiskService {
 
 		// 45일
 		Stream<ResAccountRepository.CRisk> cRisk45daysTemp = cRisk45days.stream();
-		Stream<ResAccountRepository.CRisk> cRisk45daysTemp2 = cRisk45days.stream();
 
 		if(risk.ventureCertification() && risk.vcInvestment()){
 			risk.grade("A");
@@ -244,11 +243,14 @@ public class RiskService {
 		risk.cashBalance(Collections.min(cashBalance));
 
 		// CardAvailable
-		if(risk.cashBalance() >= risk.minCashNeed()){
-			risk.cardAvailable(true);
-		}else{
-			risk.cardAvailable(false);
-		}
+//		if(risk.cashBalance() >= risk.minCashNeed()){
+//			risk.cardAvailable(true);
+//		}else{
+//			risk.cardAvailable(false);
+//		}
+
+		boolean isEnoughBalance = risk.cashBalance() >= risk.minCashNeed();
+		risk.cardAvailable(isEnoughBalance);
 
 		// CardLimitCalculation
 		risk.cardLimitCalculation( risk.cashBalance() * risk.gradeLimitPercentage()/100);
@@ -260,11 +262,14 @@ public class RiskService {
 		risk.cardLimit(Math.max(risk.depositGuarantee(),risk.realtimeLimit()));
 
 		// EmergencyStop
-		if(risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow()){
-			risk.emergencyStop(true);
-		}else{
-			risk.emergencyStop(false);
-		}
+//		if(risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow()){
+//			risk.emergencyStop(true);
+//		}else{
+//			risk.emergencyStop(false);
+//		}
+
+		boolean needToStop = risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow();
+		risk.emergencyStop(needToStop);
 
 		// CardLimitNow
 		Double cardLimitNow = repoRisk.findCardLimitNow(idxUser,calcDate);
@@ -446,7 +451,6 @@ public class RiskService {
 
 		// 45일
 		Stream<ResAccountRepository.CRisk> cRisk45daysTemp = cRisk45days.stream();
-		Stream<ResAccountRepository.CRisk> cRisk45daysTemp2 = cRisk45days.stream();
 
 		if(risk.ventureCertification() && risk.vcInvestment()){
 			risk.grade("A");
@@ -513,11 +517,14 @@ public class RiskService {
 		risk.cashBalance(Collections.min(cashBalance));
 
 		// CardAvailable
-		if(risk.cashBalance() >= risk.minCashNeed()){
-			risk.cardAvailable(true);
-		}else{
-			risk.cardAvailable(false);
-		}
+//		if(risk.cashBalance() >= risk.minCashNeed()){
+//			risk.cardAvailable(true);
+//		}else{
+//			risk.cardAvailable(false);
+//		}
+
+		boolean isEnoughBalance = risk.cashBalance() >= risk.minCashNeed();
+		risk.cardAvailable(isEnoughBalance);
 
 		// CardLimitCalculation
 		risk.cardLimitCalculation( risk.cashBalance() * risk.gradeLimitPercentage()/100);
@@ -529,11 +536,14 @@ public class RiskService {
 		risk.cardLimit(Math.max(risk.depositGuarantee(),risk.realtimeLimit()));
 
 		// EmergencyStop
-		if(risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow()){
-			risk.emergencyStop(true);
-		}else{
-			risk.emergencyStop(false);
-		}
+//		if(risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow()){
+//			risk.emergencyStop(true);
+//		}else{
+//			risk.emergencyStop(false);
+//		}
+
+		boolean needToStop = risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow();
+		risk.emergencyStop(needToStop);
 
 		// CardLimitNow
 		Double cardLimitNow = repoRisk.findCardLimitNow(idxUser,calcDate);
@@ -589,11 +599,17 @@ public class RiskService {
 		String strVentureCertification;
 		String strVcInvestment;
 		String strGrade;
-		if(riskconfig.ventureCertification()) strVentureCertification = "1";
-		else strVentureCertification = "0";
+		if(riskconfig.ventureCertification()) {
+			strVentureCertification = "1";
+		}else{
+			strVentureCertification = "0";
+		}
 
-		if(riskconfig.vcInvestment()) strVcInvestment = "1";
-		else strVcInvestment = "0";
+		if(riskconfig.vcInvestment()){
+			strVcInvestment = "1";
+		}else{
+			strVcInvestment = "0";
+		}
 
 		strGrade = risk.grade();
 
