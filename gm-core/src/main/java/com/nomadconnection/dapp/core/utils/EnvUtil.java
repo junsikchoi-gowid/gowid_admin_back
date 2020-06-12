@@ -12,8 +12,8 @@ import java.util.Arrays;
 public class EnvUtil implements EnvironmentAware {
 	private static Environment environment;
 
-	private static final String STAGE = "stage";
-	private static final String PROD = "prod";
+	private final String STAGE = "stage";
+	private final String PROD = "prod";
 
 	@Override
 	public void setEnvironment(final Environment environment) {
