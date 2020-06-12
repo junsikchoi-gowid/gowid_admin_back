@@ -353,23 +353,23 @@ public class RiskService {
 		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(idxCorp);
 		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(idxCorp);
 
-		d1000.d071(risk.grade());//고위드 기업 등급
-		d1000.d072(riskConfig.ventureCertification()?"1":"0");//벤처확인서보유여부
-		d1000.d073(riskConfig.vcInvestment()?"1":"0");//VC투자유치여부
-		d1000.d074(String.valueOf(risk.cardLimit()));//고위드계산한도
-		d1000.d075(String.valueOf(risk.cashBalance()));//기준잔고
-		d1000.d076(String.valueOf(risk.dma45()));//45일평균잔고
-		d1000.d077(String.valueOf(risk.dmm45()));//45일중간잔고
-		d1000.d078(String.valueOf(risk.currentBalance()));//현재잔고
+		d1000.setD071(risk.grade());//고위드 기업 등급
+		d1000.setD072(riskConfig.ventureCertification()?"1":"0");//벤처확인서보유여부
+		d1000.setD073(riskConfig.vcInvestment()?"1":"0");//VC투자유치여부
+		d1000.setD074(String.valueOf(risk.cardLimit()));//고위드계산한도
+		d1000.setD075(String.valueOf(risk.cashBalance()));//기준잔고
+		d1000.setD076(String.valueOf(risk.dma45()));//45일평균잔고
+		d1000.setD077(String.valueOf(risk.dmm45()));//45일중간잔고
+		d1000.setD078(String.valueOf(risk.currentBalance()));//현재잔고
 
-		d1400.d025(risk.grade());//고위드 기업 등급
-		d1400.d026(riskConfig.ventureCertification()?"1":"0");//벤처확인서보유여부
-		d1400.d027(riskConfig.vcInvestment()?"1":"0");//VC투자유치여부
-		d1400.d028(String.valueOf(risk.cardLimit()));//고위드계산한도
-		d1400.d029(String.valueOf(risk.cashBalance()));//기준잔고
-		d1400.d030(String.valueOf(risk.dma45()));//45일평균잔고
-		d1400.d031(String.valueOf(risk.dmm45()));//45일중간잔고
-		d1400.d032(String.valueOf(risk.currentBalance()));//현재잔고
+		d1400.setD025(risk.grade());//고위드 기업 등급
+		d1400.setD026(riskConfig.ventureCertification()?"1":"0");//벤처확인서보유여부
+		d1400.setD027(riskConfig.vcInvestment()?"1":"0");//VC투자유치여부
+		d1400.setD028(String.valueOf(risk.cardLimit()));//고위드계산한도
+		d1400.setD029(String.valueOf(risk.cashBalance()));//기준잔고
+		d1400.setD030(String.valueOf(risk.dma45()));//45일평균잔고
+		d1400.setD031(String.valueOf(risk.dmm45()));//45일중간잔고
+		d1400.setD032(String.valueOf(risk.currentBalance()));//현재잔고
 
 		repoD1000.save(d1000);
 		repoD1400.save(d1400);

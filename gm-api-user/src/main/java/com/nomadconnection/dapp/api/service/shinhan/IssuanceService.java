@@ -40,7 +40,6 @@ public class IssuanceService {
 
     private final D1100Repository d1100Repository;
 
-
     private final ShinhanGwRpc shinhanGwRpc;
 
     /**
@@ -110,14 +109,14 @@ public class IssuanceService {
         if (d1200 == null) {
             d1200 = new D1200();
         }
-        d1200.d001(userCorp.resCompanyIdentityNo().replaceAll("-", ""));
-        d1200.d002(Const.D1200_MEMBER_TYPE_CODE);
-        d1200.idxCorp(userCorp.idx());
+        d1200.setD001(userCorp.resCompanyIdentityNo().replaceAll("-", ""));
+        d1200.setD002(Const.D1200_MEMBER_TYPE_CODE);
+        d1200.setIdxCorp(userCorp.idx());
 
         // 연동
         DataPart1200 requestRpc = new DataPart1200();
-        requestRpc.assignDataFrom(d1200);
-        requestRpc.assignDataFrom(commonPart);
+        BeanUtils.copyProperties(d1200, requestRpc);
+        BeanUtils.copyProperties(commonPart, requestRpc);
 
         // todo : 테스트 데이터(삭제예정)
         requestRpc.setC009("00");
@@ -127,7 +126,8 @@ public class IssuanceService {
         requestRpc.setD008(CommonUtil.getRandom5Num());
 
         DataPart1200 resultOfD1200 = shinhanGwRpc.request1200(requestRpc);
-        resultOfD1200.assignDataTo(d1200);
+        BeanUtils.copyProperties(resultOfD1200, d1200);
+        //resultOfD1200.assignDataTo(d1200);
         d1200Repository.save(d1200);
 
         return shinhanGwRpc.request1200(requestRpc);
@@ -156,8 +156,8 @@ public class IssuanceService {
         }
 
         // 접수일자, 순번
-        d1510.d001(applyDate);
-        d1510.d002(applyNo);
+        d1510.setD001(applyDate);
+        d1510.setD002(applyNo);
 
         // 연동
         DataPart1510 requestRpc = new DataPart1510();
@@ -184,8 +184,8 @@ public class IssuanceService {
         // 연동
         for (D1520 d1520 : d1520s) {
             // 접수일자, 순번
-            d1520.d001(applyDate);
-            d1520.d002(applyNo);
+            d1520.setD001(applyDate);
+            d1520.setD002(applyNo);
 
             DataPart1520 requestRpc = new DataPart1520();
             BeanUtils.copyProperties(d1520, requestRpc);
@@ -210,8 +210,8 @@ public class IssuanceService {
         }
 
         // 접수일자, 순번
-        d1530.d001(applyDate);
-        d1530.d002(applyNo);
+        d1530.setD001(applyDate);
+        d1530.setD002(applyNo);
 
         // 연동
         DataPart1530 requestRpc = new DataPart1530();
@@ -236,8 +236,8 @@ public class IssuanceService {
         }
 
         // 접수일자, 순번
-        d1000.d079(applyDate);
-        d1000.d080(applyNo);
+        d1000.setD079(applyDate);
+        d1000.setD080(applyNo);
 
         // 연동
         DataPart1000 requestRpc = new DataPart1000();
@@ -262,8 +262,8 @@ public class IssuanceService {
         }
 
         // 접수일자, 순번
-        d1400.d033(applyDate);
-        d1400.d034(applyNo);
+        d1400.setD033(applyDate);
+        d1400.setD034(applyNo);
 
         // 연동
         DataPart1400 requestRpc = new DataPart1400();
@@ -276,6 +276,7 @@ public class IssuanceService {
         shinhanGwRpc.request1400(requestRpc);
     }
 
+    // Todo ui에서 받아온 파라미터 세팅 : 비번, 대표자주민등록번호1,2,3(d1000)
     private void proc1100(Long idxCorp) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1100);
@@ -316,10 +317,10 @@ public class IssuanceService {
         D1400 d1400 = d1400Repository.findFirstByD033AndD034OrderByUpdatedAtDesc(request.getD001(), request.getD002());
         if (d1400 == null) {
             D1000 d1000 = d1000Repository.findFirstByD079AndD080OrderByUpdatedAtDesc(request.getD001(), request.getD002());
-            corpIdx = d1000.idxCorp();
+            corpIdx = d1000.getIdxCorp();
             entity = "d1000";
         } else {
-            corpIdx = d1400.idxCorp();
+            corpIdx = d1400.getIdxCorp();
             entity = "d1400";
         }
 

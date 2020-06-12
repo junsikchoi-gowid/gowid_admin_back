@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
 import javax.persistence.*;
 
 @Data
-@Accessors(fluent = true)
+@Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Builder
@@ -125,5 +125,4 @@ public class D1100 extends BaseTime {
     private String d048; //실물카드여부
     @Column(columnDefinition = "varchar(30)    DEFAULT '' COMMENT '제휴정보'")
     private String d049; //제휴정보
-
 }
