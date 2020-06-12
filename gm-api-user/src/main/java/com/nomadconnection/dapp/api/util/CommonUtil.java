@@ -1,5 +1,7 @@
 package com.nomadconnection.dapp.api.util;
 
+import com.nomadconnection.dapp.api.exception.BusinessException;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -29,5 +31,11 @@ public class CommonUtil {
             }
         }
         return randomNum;
+    }
+
+    // 카드발급 백엔드 연동 관련 예외처
+    public static void throwBusinessException(ErrorCode.External externalErrorType, String msg) {
+        log.error(msg);
+        throw new BusinessException(externalErrorType, msg);
     }
 }

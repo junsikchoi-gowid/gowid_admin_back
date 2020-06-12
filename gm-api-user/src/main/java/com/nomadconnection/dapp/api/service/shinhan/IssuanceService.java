@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -83,17 +84,22 @@ public class IssuanceService {
         // 15X0(서류제출)
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
 
-        if (resultOfD1200.getD003().equals("Y")) {
+        if ("Y".equals(resultOfD1200.getD003())) {
             // 1000(신규-법인회원신규심사요청)
             proc1000(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
-        } else {
+        } else if ("N".equals(resultOfD1200.getD003())) {
             // 1400(기존-법인조건변경신청)
             proc1400(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
+        } else {
+            String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
+            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
         }
 
         // 성공시 Body 는 공백으로.
         return new UserCorporationDto.IssuanceRes();
     }
+
+
 
     private DataPart1200 proc1200(Corp userCorp) {
         // 공통부
@@ -145,8 +151,8 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         D1510 d1510 = d1510Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1510 == null) {
-            log.error("data of d1510 is not exist(corpIdx="+userCorp.idx()+")");
-            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1510, "data of d1510 is not exist("+userCorp.idx()+")");
+            String msg="data of d1510 is not exist(corpIdx="+userCorp.idx()+")";
+            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1510, msg);
         }
 
         // 접수일자, 순번
@@ -170,9 +176,9 @@ public class IssuanceService {
 
         // 데이터부 - db 추출, 세팅
         List<D1520> d1520s = d1520Repository.findTop2ByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
-        if (d1520s == null || d1520s.isEmpty()) {
-            log.error("data of d1520 is not exist(corpIdx="+userCorp.idx()+")");
-            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1520, "data of d1520 is not exist("+userCorp.idx()+")");
+        if (CollectionUtils.isEmpty(d1520s)) {
+            String msg="data of d1520 is not exist(corpIdx="+userCorp.idx()+")";
+            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1520, msg);
         }
 
         // 연동
@@ -199,8 +205,8 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         D1530 d1530 = d1530Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1530 == null) {
-            log.error("data of d1530 is not exist(corpIdx="+userCorp.idx()+")");
-            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1530, "data of d1530 is not exist("+userCorp.idx()+")");
+            String msg="data of d1530 is not exist(corpIdx="+userCorp.idx()+")";
+            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1530, msg);
         }
 
         // 접수일자, 순번
@@ -225,8 +231,8 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1000 == null) {
-            log.error("data of d1000 is not exist(corpIdx="+userCorp.idx()+")");
-            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1000, "data of d1000 is not exist("+userCorp.idx()+")");
+            String msg="data of d1000 is not exist(corpIdx="+userCorp.idx()+")";
+            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1000, msg);
         }
 
         // 접수일자, 순번
@@ -251,8 +257,8 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1400 == null) {
-            log.error("data of d1400 is not exist(corpIdx="+userCorp.idx()+")");
-            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1400, "data of d1000 is not exist("+userCorp.idx()+")");
+            String msg="data of d1400 is not exist(corpIdx="+userCorp.idx()+")";
+            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1400, msg);
         }
 
         // 접수일자, 순번
@@ -277,8 +283,8 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(idxCorp);
         if (d1100 == null) {
-            log.error("data of d1100 is not exist(corpIdx="+idxCorp+")");
-            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100, "data of d1100 is not exist("+idxCorp+")");
+            String msg="data of d1100 is not exist(corpIdx="+idxCorp+")";
+            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100, msg);
         }
 
         // 연동
