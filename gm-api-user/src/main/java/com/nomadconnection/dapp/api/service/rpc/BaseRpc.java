@@ -25,42 +25,18 @@ public class BaseRpc {
     @Value("${gateway.idc.protocol}")
     private String GATEWAY_IDC_PROTOCOL;
 
-//    protected <T> ApiResponse<T> requestGateway(String url,
-//                                             HttpMethod httpMethod,
-//                                             Map<String, String> headerParams,
-//                                             Object bodyParams,
-//                                             Class<T> responseType) throws IOException {
-//
-//        HttpHeaders headers = makeHeader(headerParams);
-//        RestTemplate restTemplate = new RestTemplate();
-//        try {
-//            log.debug("Request [POST] {}", url);
-//            log.info("## Request header ==> {}", JsonUtil.generateClassToJson(headers));
-//            log.info("## Request body ==> {}", JsonUtil.generateClassToJson(bodyParams));
-//            ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, new HttpEntity<>(bodyParams, headers), responseType);
-//            log.info("## Response ==> {}", JsonUtil.generateClassToJson(response));
-//            return (ApiResponse<T>) response.getBody();
-//        } catch (RestClientResponseException e) {
-//            log.error("## Response ==> {}", JsonUtil.generateClassToJson(e.getResponseBodyAsString()));
-//            throw e;
-//        } catch (Exception e) {
-//            log.error(e.getMessage(), e);
-//            throw e;
-//        }
-//    }
-
-    // 오픈뱅킹 토큰 요청 API 외 모든 연동 - Gateway 외부연동
     protected <T> T requestGateWayByJson(String gatewayUrl, HttpMethod httpMethod,
                                          Map<String, String> headerParams, Object bodyParams,
                                          Class<T> responseType,
                                          ShinhanGwApiType shinhanGwApiType) {
         HttpHeaders headers = makeHeader(headerParams);
         RestTemplate restTemplate = new RestTemplate();
+
         try {
+            log.debug("Request [POST] {}", gatewayUrl);
+            log.debug("## Request header ==> {}", JsonUtil.generateClassToJson(headers));
+            log.debug("## Request body ==> {}", JsonUtil.generateClassToJson(bodyParams));
             ResponseEntity<T> response = restTemplate.exchange(gatewayUrl, httpMethod, new HttpEntity<>(bodyParams, headers), responseType);
-//            ResponseEntity<T> response = restTemplate.exchange(gatewayUrl, httpMethod, new HttpEntity<>(bodyParams, headers), new ParameterizedTypeReference<T>() {});
-//            ObjectMapper mapper = new ObjectMapper();
-//            response = mapper.convertValue(response, new TypeReference<ResponseEntity<T>>(){});
             log.info("## Response ==> {}", JsonUtil.generateClassToJson(response));
 
             return response.getBody();
