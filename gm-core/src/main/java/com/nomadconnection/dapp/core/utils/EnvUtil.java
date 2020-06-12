@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.core.utils;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 @Component
-@RequiredArgsConstructor
 public class EnvUtil implements EnvironmentAware {
 	private static Environment environment;
 
