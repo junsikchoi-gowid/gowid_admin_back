@@ -49,9 +49,9 @@ public class ImageConverter {
 	private void setURI() throws URISyntaxException {
 		URI uri;
 		if(envUtil.isProd()){
-			uri = new URIBuilder(crownixConfig.prodUrl()).setScheme(crownixConfig.protocol()).setPort(crownixConfig.port()).setPath(crownixConfig.endPoint()).build();
+			uri = new URIBuilder(crownixConfig.getProdUrl()).setScheme(crownixConfig.getProtocol()).setPort(crownixConfig.getPort()).setPath(crownixConfig.getEndPoint()).build();
 		} else if(envUtil.isStg()){
-			uri = new URIBuilder(crownixConfig.stgUrl()).setScheme(crownixConfig.protocol()).setPort(crownixConfig.port()).setPath(crownixConfig.endPoint()).build();
+			uri = new URIBuilder(crownixConfig.getStgUrl()).setScheme(crownixConfig.getProtocol()).setPort(crownixConfig.getPort()).setPath(crownixConfig.getEndPoint()).build();
 		} else {
 			return;
 		}
