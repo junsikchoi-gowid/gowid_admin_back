@@ -14,7 +14,6 @@ import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ImageConverter {
