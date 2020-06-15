@@ -181,4 +181,6 @@ public class CodefController {
 			@RequestParam String connectedId) {
 		return service.deleteAccount2(connectedId, user.idx());
 	}
+
+
 }

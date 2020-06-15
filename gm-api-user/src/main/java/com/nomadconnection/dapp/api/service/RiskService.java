@@ -132,6 +132,7 @@ public class RiskService {
 					.ventureCertification(false)
 					.cardIssuance(false)
 					.ceoGuarantee(false)
+					.enabled(true)
 					.user(user)
 					.corp(corp)
 					.build();
@@ -146,6 +147,8 @@ public class RiskService {
 		Risk risk ;
 		if(riskOptional.isPresent()){
 			risk = riskOptional.get();
+			risk.ventureCertification(riskconfig.ventureCertification());
+			risk.vcInvestment(riskconfig.vcInvestment());
 		}else{
 			risk = Risk.builder()
 					.user(user)
@@ -159,6 +162,9 @@ public class RiskService {
 					.vcInvestment(riskconfig.vcInvestment())
 					.recentBalance(0)
 					.build();
+
+			risk.ventureCertification(riskconfig.ventureCertification());
+			risk.vcInvestment(riskconfig.vcInvestment());
 		}
 
 //		Corp finalCorp2 = corp;
@@ -178,12 +184,12 @@ public class RiskService {
 		// 45일
 		Stream<ResAccountRepository.CRisk> cRisk45daysTemp = cRisk45days.stream();
 
-		if(risk.ventureCertification() && risk.vcInvestment()){
+		if(riskconfig.ventureCertification() && riskconfig.vcInvestment()){
 			risk.grade("A");
 			risk.gradeLimitPercentage(10);
 			risk.minStartCash(100000000);
 			risk.minCashNeed(50000000);
-		}else if(risk.ventureCertification() && !risk.vcInvestment()){
+		}else if(riskconfig.ventureCertification() && !riskconfig.vcInvestment()){
 			risk.grade("B");
 			risk.gradeLimitPercentage(5);
 			risk.minStartCash(100000000);
@@ -406,6 +412,7 @@ public class RiskService {
 					.ventureCertification(false)
 					.cardIssuance(false)
 					.ceoGuarantee(false)
+					.enabled(true)
 					.user(user)
 					.corp(corp)
 					.build();
@@ -420,6 +427,8 @@ public class RiskService {
 		Risk risk ;
 		if(riskOptional.isPresent()){
 			risk = riskOptional.get();
+			risk.ventureCertification(riskconfig.ventureCertification());
+			risk.vcInvestment(riskconfig.vcInvestment());
 		}else{
 			risk = Risk.builder()
 					.user(user)
@@ -433,6 +442,10 @@ public class RiskService {
 					.vcInvestment(riskconfig.vcInvestment())
 					.recentBalance(0)
 					.build();
+
+			risk.ventureCertification(riskconfig.ventureCertification());
+			risk.vcInvestment(riskconfig.vcInvestment());
+
 		}
 
 //		Corp finalCorp2 = corp;
@@ -452,12 +465,12 @@ public class RiskService {
 		// 45일
 		Stream<ResAccountRepository.CRisk> cRisk45daysTemp = cRisk45days.stream();
 
-		if(risk.ventureCertification() && risk.vcInvestment()){
+		if(riskconfig.ventureCertification() && riskconfig.vcInvestment()){
 			risk.grade("A");
 			risk.gradeLimitPercentage(10);
 			risk.minStartCash(100000000);
 			risk.minCashNeed(50000000);
-		}else if(risk.ventureCertification() && !risk.vcInvestment()){
+		}else if(riskconfig.ventureCertification() && !riskconfig.vcInvestment()){
 			risk.grade("B");
 			risk.gradeLimitPercentage(5);
 			risk.minStartCash(100000000);
@@ -618,8 +631,8 @@ public class RiskService {
 		d1000.d073(strVcInvestment);//VC투자유치여부
 		d1000.d074(String.valueOf(risk.cardLimit()));//고위드계산한도
 		d1000.d075(String.valueOf(risk.cashBalance()));//기준잔고
-		d1000.d076(String.valueOf(risk.dma45()));//45일평균잔고
-		d1000.d077(String.valueOf(risk.dmm45()));//45일중간잔고
+		d1000.d076(String.valueOf(Math.floor(risk.dma45())));//45일평균잔고
+		d1000.d077(String.valueOf(Math.floor(risk.dmm45())));//45일중간잔고
 		d1000.d078(String.valueOf(risk.currentBalance()));//현재잔고
 		repoD1000.save(d1000);
 
@@ -628,8 +641,8 @@ public class RiskService {
 		d1400.d027(strVcInvestment);//VC투자유치여부
 		d1400.d028(String.valueOf(risk.cardLimit()));//고위드계산한도
 		d1400.d029(String.valueOf(risk.cashBalance()));//기준잔고
-		d1400.d030(String.valueOf(risk.dma45()));//45일평균잔고
-		d1400.d031(String.valueOf(risk.dmm45()));//45일중간잔고
+		d1400.d030(String.valueOf(Math.floor(risk.dma45())));//45일평균잔고
+		d1400.d031(String.valueOf(Math.floor(risk.dmm45())));//45일중간잔고
 		d1400.d032(String.valueOf(risk.currentBalance()));//현재잔고
 
 		repoD1400.save(d1400);
