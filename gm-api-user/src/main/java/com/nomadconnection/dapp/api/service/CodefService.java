@@ -1098,7 +1098,7 @@ public class CodefService {
 				.resCompanyEngNm(dto.getEngCorName())
 				.resCompanyNumber(dto.getCorNumber())
 				.resBusinessCode(dto.getBusinessCode())
-				.resUserType(d1000 != null ? d1000.d009() : null)
+				.resUserType(d1000 != null ? d1000.getD009() : null)
 		);
 
 		CardIssuanceInfo cardInfo;
@@ -1113,11 +1113,11 @@ public class CodefService {
 			if (d1000 != null) {
 				String[] corNumber = dto.getCorNumber().split("-");
 				repoD1000.save(d1000
-						.d006(!StringUtils.hasText(d1000.d006()) ? dto.getEngCorName() : d1000.d006())
-						.d008(!StringUtils.hasText(d1000.d008()) ? dto.getBusinessCode() : d1000.d008())
-						.d026(!StringUtils.hasText(d1000.d026()) ? corNumber[0] : d1000.d026())
-						.d027(!StringUtils.hasText(d1000.d027()) ? corNumber[1] : d1000.d027())
-						.d028(!StringUtils.hasText(d1000.d028()) ? corNumber[2] : d1000.d028())
+						.setD006(!StringUtils.hasText(d1000.getD006()) ? dto.getEngCorName() : d1000.getD006())
+						.setD008(!StringUtils.hasText(d1000.getD008()) ? dto.getBusinessCode() : d1000.getD008())
+						.setD026(!StringUtils.hasText(d1000.getD026()) ? corNumber[0] : d1000.getD026())
+						.setD027(!StringUtils.hasText(d1000.getD027()) ? corNumber[1] : d1000.getD027())
+						.setD028(!StringUtils.hasText(d1000.getD028()) ? corNumber[2] : d1000.getD028())
 				);
 			}
 		}

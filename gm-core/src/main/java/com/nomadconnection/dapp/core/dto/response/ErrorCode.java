@@ -71,6 +71,8 @@ public class ErrorCode {
 		EXTERNAL_ERROR_GW("EXTERNAL_ERROR_GW", "external error(shinhan - GW)"),
 		INTERNAL_ERROR_GW("INTERNAL_ERROR_GW", "external error(shinhan - GW)"),
 
+		INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "internal server error"),
+
 		EXTERNAL_ERROR_SHINHAN_1200("EXTERNAL_ERROR_SHINHAN_1200", "external error(shinhan - 1200)"),
 		REJECTED_SHINHAN_1200("EXTERNAL_ERROR_SHINHAN_1200", "rejected(shinhan - 1200)"),
 		INTERNAL_ERROR_SHINHAN_1200("INTERNAL_ERROR_SHINHAN_1200", "internal error(shinhan - 1200)"),

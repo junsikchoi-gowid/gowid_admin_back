@@ -646,7 +646,7 @@ public class UserCorporationDto {
     }
 
     @NoArgsConstructor
-    public static class ResumeRes {
+    public static class ResumeRes extends DataPart1600 {
 
     }
 }
