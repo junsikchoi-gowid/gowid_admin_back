@@ -552,6 +552,7 @@ public class UserCorporationDto {
 
     }
 
+    @Data
     @NoArgsConstructor
     public static class IssuanceRes {
 

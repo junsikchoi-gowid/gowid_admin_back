@@ -235,9 +235,9 @@ public class UserCorporationController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid UserCorporationDto.IssuanceReq request) {
 
-        return ResponseEntity.ok().body(
-                issuanceService.issuance(user.idx(), request)
-        );
+        issuanceService.issuance(user.idx(), request);
+
+        return ResponseEntity.ok().build();
     }
 
     // todo : 에러처리
