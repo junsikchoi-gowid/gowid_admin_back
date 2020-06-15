@@ -279,6 +279,16 @@ public class IssuanceService {
         shinhanGwRpc.request1400(requestRpc);
     }
 
+    // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
+    // todo : 에러 및 실패처리
+    public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
+
+        // 1100(법인카드신청), 비동기 처리
+        proc1100(request);
+
+        return new UserCorporationDto.ResumeRes();
+    }
+
     // Todo ui에서 받아야 하는 아래 필드들을 어떻게 처리해야 할지 논의 필요(저장은 보안이슈가 있고, 저장하지 않으면 획득이 어려움)
     //  - 비번, 대표자주민등록번호1,2,3(d1000)
     @Async
@@ -291,7 +301,7 @@ public class IssuanceService {
 
         // 데이터부 - db 추출, 세팅
         D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
-                () -> new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100,
+                () -> new InternalErrorException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
 
@@ -301,19 +311,6 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         shinhanGwRpc.request1100(requestRpc);
-    }
-
-    // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
-    // todo : 에러 및 실패처리
-    public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
-
-        // corpIdx 추출
-//        Long corpIdx = getCorpIdxFromLastRequest(request);
-
-        // 1100(법인카드신청), 비동기 처리
-        proc1100(request);
-
-        return new UserCorporationDto.ResumeRes();
     }
 
     // 기존 1400/1000 연동으로 부터 법인 식별자 추출
