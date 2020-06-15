@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
+import com.nomadconnection.dapp.api.exception.gateway.InternalErrorException;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.*;
@@ -15,9 +16,11 @@ import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -276,17 +279,21 @@ public class IssuanceService {
         shinhanGwRpc.request1400(requestRpc);
     }
 
-    // Todo ui에서 받아온 파라미터 세팅 : 비번, 대표자주민등록번호1,2,3(d1000)
-    private void proc1100(Long idxCorp) {
+    // Todo ui에서 받아야 하는 아래 필드들을 어떻게 처리해야 할지 논의 필요(저장은 보안이슈가 있고, 저장하지 않으면 획득이 어려움)
+    //  - 비번, 대표자주민등록번호1,2,3(d1000)
+    @Async
+    public void proc1100(UserCorporationDto.ResumeReq request) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1100);
 
+        // corpIdx 추출
+        Long corpIdx = getCorpIdxFromLastRequest(request);
+
         // 데이터부 - db 추출, 세팅
-        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(idxCorp);
-        if (d1100 == null) {
-            String msg="data of d1100 is not exist(corpIdx="+idxCorp+")";
-            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100, msg);
-        }
+        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
+                () -> new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100,
+                        "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
+        );
 
         // 연동
         DataPart1100 requestRpc = new DataPart1100();
@@ -301,10 +308,10 @@ public class IssuanceService {
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
 
         // corpIdx 추출
-        Long corpIdx = getCorpIdxFromLastRequest(request);
+//        Long corpIdx = getCorpIdxFromLastRequest(request);
 
-        // 1100(법인카드신청)
-        proc1100(corpIdx);
+        // 1100(법인카드신청), 비동기 처리
+        proc1100(request);
 
         return new UserCorporationDto.ResumeRes();
     }
@@ -312,22 +319,19 @@ public class IssuanceService {
     // 기존 1400/1000 연동으로 부터 법인 식별자 추출
     private Long getCorpIdxFromLastRequest(UserCorporationDto.ResumeReq request) {
         Long corpIdx;
-        String entity;
 
         D1400 d1400 = d1400Repository.findFirstByD033AndD034OrderByUpdatedAtDesc(request.getD001(), request.getD002());
-        if (d1400 == null) {
+        if (ObjectUtils.isEmpty(d1400)) {
             D1000 d1000 = d1000Repository.findFirstByD079AndD080OrderByUpdatedAtDesc(request.getD001(), request.getD002());
             corpIdx = d1000.getIdxCorp();
-            entity = "d1000";
         } else {
             corpIdx = d1400.getIdxCorp();
-            entity = "d1400";
         }
 
         // todo : 게이트웨이로 에러리턴 수정
         if (StringUtils.isEmpty(corpIdx)) {
-            log.error("not fount applyNo[[{}], applyDate[{}] in {}", request.getD001(), request.getD002(), entity);
-            throw new EntityNotFoundException("not found corporation idx", entity, corpIdx);
+            String msg = "not fount applyNo[" + request.getD001() + "], applyDate[" + request.getD002() + "]";
+            throw new InternalErrorException(ErrorCode.External.INTERNAL_SERVER_ERROR, msg);
         }
 
         return corpIdx;

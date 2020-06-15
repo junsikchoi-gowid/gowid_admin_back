@@ -13,12 +13,12 @@ public class BusinessException extends RuntimeException {
 	private final String description;
 
 	public BusinessException(ErrorCode.External externalError) {
-		this.error = externalError.getCode();
-		this.description = externalError.getDesc();
+		error = externalError.getCode();
+		description = externalError.getDesc();
 	}
 
 	public BusinessException(ErrorCode.External externalError, String addString) {
-		this.error = externalError.getCode();
-		this.description = externalError.getDesc() + " - " + addString;
+		error = externalError.getCode();
+		description = externalError.getDesc() + " - " + addString;
 	}
 }
