@@ -62,14 +62,15 @@ public class IssuanceService {
 
     /**
      * 카드 신청
-     *
+     * <p>
      * 1200
      * 1510
      * 1520
-     *  - 재무제표 보유시: 최대 2년치 2회연동
-     *  - 미보유시(신설업체 등): 최근 데이터 1회연동, 발급가능여부=N, 실설업체는 재무제표 이미지 없음
+     * - 재무제표 보유시: 최대 2년치 2회연동
+     * - 미보유시(신설업체 등): 최근 데이터 1회연동, 발급가능여부=N, 실설업체는 재무제표 이미지 없음
      * 1530
      * 1000/1400 : 여기서 ui에 결과리턴 and 성공시 다음 계속 연동 진행
+     * - todo 1000/1400 : 대표자 주민번호 세팅
      */
     @Transactional(rollbackFor = Exception.class)
     public UserCorporationDto.IssuanceRes issuance(Long userIdx, UserCorporationDto.IssuanceReq request) {
@@ -87,11 +88,9 @@ public class IssuanceService {
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
 
         if ("Y".equals(resultOfD1200.getD003())) {
-            // 1000(신규-법인회원신규심사요청)
-            proc1000(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
+            proc1000(userCorp, resultOfD1200, request);         // 1000(신규-법인회원신규심사요청)
         } else if ("N".equals(resultOfD1200.getD003())) {
-            // 1400(기존-법인조건변경신청)
-            proc1400(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
+            proc1400(userCorp, resultOfD1200, request);         // 1400(기존-법인조건변경신청)
         } else {
             String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
@@ -156,6 +155,7 @@ public class IssuanceService {
         if (d1510 == null) {
             String msg="data of d1510 is not exist(corpIdx="+userCorp.idx()+")";
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1510, msg);
+            return;
         }
 
         // 접수일자, 순번
@@ -210,6 +210,7 @@ public class IssuanceService {
         if (d1530 == null) {
             String msg="data of d1530 is not exist(corpIdx="+userCorp.idx()+")";
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1530, msg);
+            return;
         }
 
         // 접수일자, 순번
@@ -227,51 +228,57 @@ public class IssuanceService {
         shinhanGwRpc.request1530(requestRpc);
     }
 
-    private void proc1000(Corp userCorp, String applyDate, String applyNo) {
+    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200, UserCorporationDto.IssuanceReq request) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1000);
 
         // 데이터부 - db 추출, 세팅
         D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1000 == null) {
-            String msg="data of d1000 is not exist(corpIdx="+userCorp.idx()+")";
+            String msg = "data of d1000 is not exist(corpIdx=" + userCorp.idx() + ")";
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1000, msg);
+            return;
         }
 
         // 접수일자, 순번
-        d1000.setD079(applyDate);
-        d1000.setD080(applyNo);
+        d1000.setD079(resultOfD1200.getD007());
+        d1000.setD080(resultOfD1200.getD008());
 
         // 연동
         DataPart1000 requestRpc = new DataPart1000();
         BeanUtils.copyProperties(d1000, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
+        requestRpc.setD011(request.getCeoRegisterNo1());
+        requestRpc.setD015(request.getCeoRegisterNo2());
+        requestRpc.setD019(request.getCeoRegisterNo3());
 
-        // todo : 테스트 데이터(삭제예정)
-        requestRpc.setC009("00");
+        requestRpc.setC009("00"); // todo : 테스트 데이터(삭제예정). 응답코드 성공
 
         shinhanGwRpc.request1000(requestRpc);
     }
 
-    private void proc1400(Corp userCorp, String applyDate, String applyNo) {
+    //    private void proc1400(Corp userCorp, String applyDate, String applyNo) {
+    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, UserCorporationDto.IssuanceReq request) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1400);
 
         // 데이터부 - db 추출, 세팅
         D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1400 == null) {
-            String msg="data of d1400 is not exist(corpIdx="+userCorp.idx()+")";
+            String msg = "data of d1400 is not exist(corpIdx=" + userCorp.idx() + ")";
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1400, msg);
+            return;
         }
 
         // 접수일자, 순번
-        d1400.setD033(applyDate);
-        d1400.setD034(applyNo);
+        d1400.setD033(resultOfD1200.getD007());
+        d1400.setD034(resultOfD1200.getD008());
 
         // 연동
         DataPart1400 requestRpc = new DataPart1400();
         BeanUtils.copyProperties(d1400, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
+        requestRpc.setD006(request.getCeoRegisterNo1());
 
         // todo : 테스트 데이터(삭제예정)
         requestRpc.setC009("00");
