@@ -221,7 +221,8 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         // todo : 테스트 데이터(삭제예정)
-        requestRpc.setC009("00");
+        requestRpc.setC009("00");       // 성공리턴
+        requestRpc.setD007(requestRpc.getD007().substring(0, 5));  // 게이트웨이 길이 버그로인해 임시조치
 
         shinhanGwRpc.request1530(requestRpc);
     }
@@ -286,15 +287,19 @@ public class IssuanceService {
     // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
     // todo : 에러 및 실패처리
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
+        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1600);
+        UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
+        BeanUtils.copyProperties(commonPart, response);
 
         // 1100(법인카드신청), 비동기 처리
         proc1100(request);
 
-        return new UserCorporationDto.ResumeRes();
+        return response;
     }
 
-    // Todo ui에서 받아야 하는 아래 필드들을 어떻게 처리해야 할지 논의 필요(저장은 보안이슈가 있고, 저장하지 않으면 획득이 어려움)
-    //  - 비번, 대표자주민등록번호1,2,3(d1000)
+    // todo :
+    //  - 비번, 결제계좌번호 취득 방안 확인
+    //  - 비동기 안되는 문제 해결
     @Async
     public void proc1100(UserCorporationDto.ResumeReq request) {
         // 공통부
@@ -313,6 +318,10 @@ public class IssuanceService {
         DataPart1100 requestRpc = new DataPart1100();
         BeanUtils.copyProperties(d1100, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
+
+        // todo 테스트 데이터 : 비번, 결제계좌번호
+        requestRpc.setD021("0000");
+        requestRpc.setD025("12312123456");
 
         shinhanGwRpc.request1100(requestRpc);
     }
@@ -381,8 +390,8 @@ public class IssuanceService {
         gatewayTransactionIdxRepository.save(gatewayTransactionIdx);
         gatewayTransactionIdxRepository.flush();
 
-        long tmpTranId = 10000000000L + gatewayTransactionIdx.getIdx();
-        return "0" + tmpTranId;     // 010000000001
+        long tmpTranId = 20000000000L + gatewayTransactionIdx.getIdx();
+        return "0" + tmpTranId;     // 020000000001
     }
 
     private User findUser(Long idx_user) {
