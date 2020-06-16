@@ -62,15 +62,13 @@ public class IssuanceService {
 
     /**
      * 카드 신청
-     * <p>
      * 1200
      * 1510
      * 1520
      * - 재무제표 보유시: 최대 2년치 2회연동
      * - 미보유시(신설업체 등): 최근 데이터 1회연동, 발급가능여부=N, 실설업체는 재무제표 이미지 없음
      * 1530
-     * 1000/1400 : 여기서 ui에 결과리턴 and 성공시 다음 계속 연동 진행
-     * - todo 1000/1400 : 대표자 주민번호 세팅
+     * 1000/1400
      */
     @Transactional(rollbackFor = Exception.class)
     public UserCorporationDto.IssuanceRes issuance(Long userIdx, UserCorporationDto.IssuanceReq request) {
