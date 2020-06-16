@@ -237,9 +237,11 @@ public class BankService {
 		for( BankDto.ResAccountDto dto : resAccount )
 		{
 			ResBatchList historyData = repoResBatchList.findFirstByAccountOrderByUpdatedAtDesc(dto.getResAccount());
-			dto.setErrCode(historyData.errCode());
-			dto.setErrMessage(historyData.errMessage());
-			dto.setScrpaingUpdateTime(historyData.getUpdatedAt());
+			if(historyData != null ) {
+				dto.setErrCode(historyData.errCode());
+				dto.setErrMessage(historyData.errMessage());
+				dto.setScrpaingUpdateTime(historyData.getUpdatedAt());
+			}
 		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
