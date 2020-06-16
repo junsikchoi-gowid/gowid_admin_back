@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.service.shinhan;
 
+import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
@@ -37,17 +38,16 @@ public class IssuanceService {
     private final D1510Repository d1510Repository;
     private final D1520Repository d1520Repository;
     private final D1530Repository d1530Repository;
-
     private final D1000Repository d1000Repository;
     private final D1400Repository d1400Repository;
-
     private final D1100Repository d1100Repository;
-
     private final ShinhanGwRpc shinhanGwRpc;
+    private final AsyncService asyncService;
+
 
     /**
      * 카드 신청
-     *
+     * <p>
      * 1700 신분증 위조확인
      */
     public void verifyCeoIdentification(UserCorporationDto.IdentificationReq request) {
@@ -290,7 +290,7 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, response);
 
         // 1100(법인카드신청), 비동기 처리
-        proc1100(request);
+        asyncService.run(() -> proc1100(request));
 
         return response;
     }
@@ -317,9 +317,10 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1100, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        // todo 테스트 데이터 : 비번, 결제계좌번호
-        requestRpc.setD021("0000");
-        requestRpc.setD025("12312123456");
+        // todo 내부 테스트 데이터 삭제예정
+        requestRpc.setD021("0000");             // 비번
+        requestRpc.setD025("12312123456");      // 결제계좌번호
+        requestRpc.setD016(requestRpc.getD016().substring(0, 5));    // 게이트웨이 길이 버그로 인해 조치
 
         shinhanGwRpc.request1100(requestRpc);
     }
