@@ -340,6 +340,7 @@ public class UserCorporationService {
                     .calculatedLimit(dto.getCalAmount())
                     .hopeLimit(dto.getAmount())
                     .grantLimit(dto.getGrantAmount())
+                    .enabled(true)
                     .build()
             );
         }
