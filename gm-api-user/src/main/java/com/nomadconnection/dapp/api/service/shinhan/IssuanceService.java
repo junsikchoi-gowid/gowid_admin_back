@@ -129,7 +129,6 @@ public class IssuanceService {
 
         DataPart1200 resultOfD1200 = shinhanGwRpc.request1200(requestRpc);
         BeanUtils.copyProperties(resultOfD1200, d1200);
-        //resultOfD1200.assignDataTo(d1200);
         d1200Repository.save(d1200);
 
         return shinhanGwRpc.request1200(requestRpc);
@@ -257,7 +256,6 @@ public class IssuanceService {
         shinhanGwRpc.request1000(requestRpc);
     }
 
-    //    private void proc1400(Corp userCorp, String applyDate, String applyNo) {
     private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, UserCorporationDto.IssuanceReq request) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1400);
