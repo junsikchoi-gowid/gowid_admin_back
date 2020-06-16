@@ -129,7 +129,6 @@ public class IssuanceService {
 
         DataPart1200 resultOfD1200 = shinhanGwRpc.request1200(requestRpc);
         BeanUtils.copyProperties(resultOfD1200, d1200);
-        d1200Repository.save(d1200);
 
         return shinhanGwRpc.request1200(requestRpc);
     }
