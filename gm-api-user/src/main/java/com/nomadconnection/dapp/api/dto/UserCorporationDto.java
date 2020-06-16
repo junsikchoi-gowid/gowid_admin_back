@@ -550,6 +550,9 @@ public class UserCorporationDto {
         @ApiModelProperty("대표자주민등록번호3")
         private String ceoRegisterNo3;
 
+        @ApiModelProperty("결제계좌번호")
+        private String payAccount;
+
     }
 
     @Data
