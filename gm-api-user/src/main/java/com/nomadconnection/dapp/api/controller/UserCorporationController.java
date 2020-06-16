@@ -217,7 +217,7 @@ public class UserCorporationController {
 
     @ApiOperation(value = "신분증 본인 확인")
     @PostMapping(URI.CEO_ID)
-    public ResponseEntity verifyIdentification(
+    public ResponseEntity<?> verifyIdentification(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid UserCorporationDto.IdentificationReq dto) {
 
@@ -240,7 +240,6 @@ public class UserCorporationController {
         return ResponseEntity.ok().build();
     }
 
-    // todo : 에러처리
     @ApiOperation(value = "법인카드 발급 재개")
     @PostMapping(URI.RESUME)
     public ResponseEntity<UserCorporationDto.ResumeRes> resumeApplication(

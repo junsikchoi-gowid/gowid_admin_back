@@ -48,9 +48,7 @@ public class ScrapingService {
     private final ResBatchListRepository repoResBatchList;
     private final ResBatchRepository repoResBatch;
     private final ConnectedMngRepository repoConnectedMng;
-
     private final RiskService serviceRisk;
-
     private final PasswordEncoder encoder;
     private final VerificationCodeRepository repoVerificationCode;
 
@@ -89,6 +87,7 @@ public class ScrapingService {
                 resAccount.resAccountRiskBalance(balance);
 
                 resAccount.resAccountHolder(GowidUtils.getEmptyStringToString(jsonData, "resAccountHolder"));
+                resAccount.enabled(true);
                 repoResAccount.save(resAccount);
             }
 
@@ -123,6 +122,7 @@ public class ScrapingService {
                 resAccount.resAccountBalance(balance);
                 resAccount.resAccountRiskBalance(balance);
                 resAccount.resAccountHolder(GowidUtils.getEmptyStringToString(jsonData, "resAccountHolder"));
+                resAccount.enabled(true);
                 repoResAccount.save(resAccount);
             }
 
@@ -151,6 +151,7 @@ public class ScrapingService {
                 if (!jsonData.get("resAccountStartDate").toString().isEmpty()) {
                     resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
                     resAccount.resAccountHolder(GowidUtils.getEmptyStringToString(jsonData, "resAccountHolder"));
+                    resAccount.enabled(true);
                     repoResAccount.save(resAccount);
                 }
             }
@@ -197,6 +198,7 @@ public class ScrapingService {
                 resAccount.resAccountBalance(balance);
                 resAccount.resAccountRiskBalance(balance);
                 resAccount.resAccountHolder(GowidUtils.getEmptyStringToString(jsonData, "resAccountHolder"));
+                resAccount.enabled(true);
                 repoResAccount.save(resAccount);
             }
 
@@ -233,6 +235,7 @@ public class ScrapingService {
                 resAccount.resAccountBalance(balance);
                 resAccount.resAccountRiskBalance(balance);
                 resAccount.resAccountHolder(GowidUtils.getEmptyStringToString(jsonData, "resAccountHolder"));
+                resAccount.enabled(true);
                 repoResAccount.save(resAccount);
             }
 
@@ -1334,6 +1337,7 @@ public class ScrapingService {
                                 .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
                                 .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate").toString())
                                 .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
+                                .enabled(true)
                                 .build()
                         );
                     });
@@ -1365,6 +1369,7 @@ public class ScrapingService {
                                 .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
                                 .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
                                 .resAccountLoanExecNo( GowidUtils.getEmptyStringToString(obj, "resAccountLoanExecNo").toString())
+                                .enabled(true)
                                 .build()
                         );
                     });
@@ -1396,6 +1401,7 @@ public class ScrapingService {
                                 .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
                                 .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate").toString())
                                 .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
+                                .enabled(true)
                                 .build()
                         );
                     });
@@ -1427,6 +1433,7 @@ public class ScrapingService {
                                 .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
                                 .resAccountInvestedCost( GowidUtils.getEmptyStringToString(obj, "resAccountInvestedCost").toString())
                                 .resEarningsRate( GowidUtils.getEmptyStringToString(obj, "resEarningsRate").toString())
+                                .enabled(true)
                                 .build()
                         );
                     });

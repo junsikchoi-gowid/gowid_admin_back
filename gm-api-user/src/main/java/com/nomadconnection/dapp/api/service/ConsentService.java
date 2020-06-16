@@ -27,9 +27,12 @@ public class ConsentService {
      * 이용약관 목록
      */
     @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity consents() {
+    public ResponseEntity consents(String typeCode) {
 
-        List<BrandConsentDto> consents = repoConsent.findAllByEnabledOrderByConsentOrderAsc(true)
+        //todo 하드코딩 형태 수정 필요
+        if(typeCode == null ) typeCode = "GOWID-A";
+        // List<BrandConsentDto> consents = repoConsent.findAllByEnabledOrderByConsentOrderAsc(true)
+        List<BrandConsentDto> consents = repoConsent.findByEnabledAndTypeCodeOrderByConsentOrderAsc(true, typeCode)
                 .map(BrandConsentDto::from)
                 .collect(Collectors.toList());
 
