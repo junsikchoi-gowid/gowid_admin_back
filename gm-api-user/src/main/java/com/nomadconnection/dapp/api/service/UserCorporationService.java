@@ -76,7 +76,7 @@ public class UserCorporationService {
                 .resCompanyEngNm(dto.getEngCorName())
                 .resCompanyNumber(dto.getCorNumber())
                 .resBusinessCode(dto.getBusinessCode())
-                .resUserType(d1000 != null ? d1000.d009() : null)
+                .resUserType(d1000 != null ? d1000.getD009() : null)
         );
 
         CardIssuanceInfo cardInfo;
@@ -91,11 +91,11 @@ public class UserCorporationService {
             if (d1000 != null) {
                 String[] corNumber = dto.getCorNumber().split("-");
                 repoD1000.save(d1000
-                        .d006(!StringUtils.hasText(d1000.d006()) ? dto.getEngCorName() : d1000.d006())
-                        .d008(!StringUtils.hasText(d1000.d008()) ? dto.getBusinessCode() : d1000.d008())
-                        .d026(!StringUtils.hasText(d1000.d026()) ? corNumber[0] : d1000.d026())
-                        .d027(!StringUtils.hasText(d1000.d027()) ? corNumber[1] : d1000.d027())
-                        .d028(!StringUtils.hasText(d1000.d028()) ? corNumber[2] : d1000.d028())
+                        .setD006(!StringUtils.hasText(d1000.getD006()) ? dto.getEngCorName() : d1000.getD006())
+                        .setD008(!StringUtils.hasText(d1000.getD008()) ? dto.getBusinessCode() : d1000.getD008())
+                        .setD026(!StringUtils.hasText(d1000.getD026()) ? corNumber[0] : d1000.getD026())
+                        .setD027(!StringUtils.hasText(d1000.getD027()) ? corNumber[1] : d1000.getD027())
+                        .setD028(!StringUtils.hasText(d1000.getD028()) ? corNumber[2] : d1000.getD028())
                 );
             }
         }
@@ -194,12 +194,12 @@ public class UserCorporationService {
 
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
-            repoD1000.save(d1000.d059(dto.getName())
-                    .d060(dto.getEngName())
-                    .d061(dto.getBirth())
-                    .d062(dto.getNation())
-                    .d065(dto.getRate())
-                    .d066("KR".equalsIgnoreCase(dto.getNation()) ? "N" : "Y")
+            repoD1000.save(d1000.setD059(dto.getName())
+                    .setD060(dto.getEngName())
+                    .setD061(dto.getBirth())
+                    .setD062(dto.getNation())
+                    .setD065(dto.getRate())
+                    .setD066("KR".equalsIgnoreCase(dto.getNation()) ? "N" : "Y")
             );
         }
 
@@ -346,26 +346,27 @@ public class UserCorporationService {
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
             repoD1000.save(d1000
-                    .d022(dto.getZipCode().substring(0, 3))
-                    .d023(dto.getZipCode().substring(3))
-                    .d024(dto.getAddressBasic())
-                    .d025(dto.getAddressDetail())
-                    .d055(dto.getAddressKey())
+                    .setD022(dto.getZipCode().substring(0, 3))
+                    .setD022(dto.getZipCode().substring(0, 3))
+                    .setD023(dto.getZipCode().substring(3))
+                    .setD024(dto.getAddressBasic())
+                    .setD025(dto.getAddressDetail())
+                    .setD055(dto.getAddressKey())
             );
         }
 
         D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
             repoD1100.save(d1100
-                    .d029(dto.getReceiveType().getCode())
-                    .d031(dto.getZipCode().substring(0, 3))
-                    .d032(dto.getZipCode().substring(3))
-                    .d033(dto.getAddressBasic())
-                    .d034(dto.getAddressDetail())
-                    .d020(dto.getGrantAmount())
-                    .d039(dto.getCount() + "")
-                    .d046(Const.CARD_RECEIVE_ADDRESS_CODE)
-                    .d047(dto.getAddressKey())
+                    .setD029(dto.getReceiveType().getCode())
+                    .setD031(dto.getZipCode().substring(0, 3))
+                    .setD032(dto.getZipCode().substring(3))
+                    .setD033(dto.getAddressBasic())
+                    .setD034(dto.getAddressDetail())
+                    .setD020(dto.getGrantAmount())
+                    .setD039(dto.getCount() + "")
+                    .setD046(Const.CARD_RECEIVE_ADDRESS_CODE)
+                    .setD047(dto.getAddressKey())
             );
         }
 
@@ -402,9 +403,9 @@ public class UserCorporationService {
         D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
             repoD1100.save(d1100
-                    .d024(bankCode)
-                    .d025(dto.getAccountNumber())
-                    .d026(dto.getAccountHolder())
+                    .setD024(bankCode)
+                    .setD025(dto.getAccountNumber())
+                    .setD026(dto.getAccountHolder())
             );
         }
         return UserCorporationDto.AccountRes.from(repoCardIssuance.save(cardInfo));
@@ -423,10 +424,10 @@ public class UserCorporationService {
         Integer count = 1;
         String ceoType = "1";
         if (d1000 != null) {
-            ceoType = d1000.d009();
-            if (StringUtils.hasText(d1000.d010()) && StringUtils.hasText(d1000.d014()) && StringUtils.hasText(d1000.d018())) {
+            ceoType = d1000.getD009();
+            if (StringUtils.hasText(d1000.getD010()) && StringUtils.hasText(d1000.getD014()) && StringUtils.hasText(d1000.getD018())) {
                 count = 3;
-            } else if (StringUtils.hasText(d1000.d010()) && StringUtils.hasText(d1000.d014()) && !StringUtils.hasText(d1000.d018())) {
+            } else if (StringUtils.hasText(d1000.getD010()) && StringUtils.hasText(d1000.getD014()) && !StringUtils.hasText(d1000.getD018())) {
                 count = 2;
             }
         }
@@ -467,42 +468,42 @@ public class UserCorporationService {
 
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
-            if (!StringUtils.hasText(d1000.d012())) {
+            if (!StringUtils.hasText(d1000.getD012())) {
                 repoD1000.save(d1000
-                        .d010(dto.getName())
-                        .d012(dto.getEngName())
-                        .d013(dto.getNation())
-                        .d035(dto.getName())
-                        .d036(dto.getPhoneNumber().substring(0, 3))
-                        .d037(dto.getPhoneNumber().substring(3, 6))
-                        .d038(dto.getPhoneNumber().substring(6))
-                        .d040(dto.getPhoneNumber().substring(0, 3))
-                        .d041(dto.getPhoneNumber().substring(3, 6))
-                        .d042(dto.getPhoneNumber().substring(6))
+                        .setD010(dto.getName())
+                        .setD012(dto.getEngName())
+                        .setD013(dto.getNation())
+                        .setD035(dto.getName())
+                        .setD036(dto.getPhoneNumber().substring(0, 3))
+                        .setD037(dto.getPhoneNumber().substring(3, 6))
+                        .setD038(dto.getPhoneNumber().substring(6))
+                        .setD040(dto.getPhoneNumber().substring(0, 3))
+                        .setD041(dto.getPhoneNumber().substring(3, 6))
+                        .setD042(dto.getPhoneNumber().substring(6))
                 );
             }
-            if (!StringUtils.hasText(d1000.d016())) {
+            if (!StringUtils.hasText(d1000.getD016())) {
                 repoD1000.save(d1000
-                        .d014(dto.getName())
-                        .d016(dto.getEngName())
-                        .d017(dto.getNation())
+                        .setD014(dto.getName())
+                        .setD016(dto.getEngName())
+                        .setD017(dto.getNation())
                 );
             }
-            if (!StringUtils.hasText(d1000.d020())) {
+            if (!StringUtils.hasText(d1000.getD020())) {
                 repoD1000.save(d1000
-                        .d018(dto.getName())
-                        .d020(dto.getEngName())
-                        .d021(dto.getNation())
+                        .setD018(dto.getName())
+                        .setD020(dto.getEngName())
+                        .setD021(dto.getNation())
                 );
             }
         }
 
         D1100 d1100 = getD1100(user.corp().idx());
-        if (d1100 != null && !StringUtils.hasText(d1100.d035())) {
+        if (d1100 != null && !StringUtils.hasText(d1100.getD035())) {
             repoD1100.save(d1100
-                    .d035(dto.getPhoneNumber().substring(0, 3))
-                    .d036(dto.getPhoneNumber().substring(3, 6))
-                    .d037(dto.getPhoneNumber().substring(6))
+                    .setD035(dto.getPhoneNumber().substring(0, 3))
+                    .setD036(dto.getPhoneNumber().substring(3, 6))
+                    .setD037(dto.getPhoneNumber().substring(6))
             );
         }
 
@@ -567,7 +568,7 @@ public class UserCorporationService {
      */
     @Transactional(readOnly = true)
     public List<String> getVentureBusiness() {
-        return repoVenture.findAllByOrderByNameAsc().stream().map(ventureBusiness -> ventureBusiness.name()).collect(Collectors.toList());
+        return repoVenture.findAllByOrderByNameAsc().stream().map(VentureBusiness::name).collect(Collectors.toList());
     }
 
 

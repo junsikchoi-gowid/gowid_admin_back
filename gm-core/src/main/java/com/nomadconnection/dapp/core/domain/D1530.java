@@ -3,12 +3,10 @@ package com.nomadconnection.dapp.core.domain;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import lombok.*;
-import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 
 @Data
-@Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Builder
@@ -142,4 +140,6 @@ public class D1530 extends BaseTime {
     private String d056;    //대표이사_주소3
     @Column(columnDefinition = "varchar(8)    DEFAULT '' COMMENT '법인성립연월일'")
     private String d057;    //법인성립연월일
+
+
 }

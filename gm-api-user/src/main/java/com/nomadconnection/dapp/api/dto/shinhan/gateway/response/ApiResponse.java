@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 @ToString
 @Setter
 @Getter
+@Builder
 @NoArgsConstructor
 public class ApiResponse<T> {
 
@@ -35,6 +36,7 @@ public class ApiResponse<T> {
     }
 
     @Data
+    @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ApiResult {
@@ -47,7 +49,7 @@ public class ApiResponse<T> {
         }
 
         ApiResult(String desc, HttpStatus status) {
-            this.code = String.valueOf(status.value());
+            code = String.valueOf(status.value());
             this.desc = desc;
         }
 
