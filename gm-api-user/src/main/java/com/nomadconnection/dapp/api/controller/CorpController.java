@@ -32,10 +32,10 @@ public class CorpController {
 	public static class URI {
 		public static final String BASE = "/corp/v1";
 		public static final String REGISTER_CORP = "/register/corp";
-		public static final String REGISTER_CORP_ID = "/register/corp/id";
 	}
 
 	private final CorpService service;
+
 
 	//==================================================================================================================
 	//
