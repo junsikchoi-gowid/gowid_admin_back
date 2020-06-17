@@ -5,26 +5,24 @@ import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.asm.Advice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping(UserEtcController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
 @Api(tags = "회원관리", description = UserEtcController.URI.BASE)
-@SuppressWarnings({"unused", "deprecation"})
 public class UserEtcController {
 
-    @SuppressWarnings("WeakerAccess")
     public static class URI {
         public static final String BASE = "/brand/v1";
         public static final String ACCOUNT = "/account";

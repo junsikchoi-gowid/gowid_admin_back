@@ -24,6 +24,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@CrossOrigin
 @RequestMapping(UserCorporationController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
@@ -226,7 +227,8 @@ public class UserCorporationController {
         if (log.isInfoEnabled()) {
             log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
         }
-
+        System.out.println(request.getSession().getAttribute("JSESSIONID"));
+        request.getSession(true);
         issuanceService.verifyCeoIdentification(request, dto);
         return ResponseEntity.ok().build();
     }

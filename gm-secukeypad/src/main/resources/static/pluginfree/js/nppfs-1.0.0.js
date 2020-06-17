@@ -304,6 +304,7 @@ w.npConsole = {
 };
 
 
+
 /*
  ***************************************************************************
  * nProtect Online Security, User Information
@@ -313,15 +314,12 @@ w.npConsole = {
 w.npDefine = new function () {
     var nav = navigator.appName;
     var plt = navigator.platform.toLowerCase();
-
     function npos(txt) {
         return nua.indexOf(txt);
     }
-
     function nin(txt) {
         return nua.indexOf(txt) >= 0;
     }
-
     function lnin(txt) {
         return nua.toLowerCase().indexOf(txt) >= 0;
     }
@@ -1041,7 +1039,6 @@ w.npCommon = new function () {
         }
         return r;
     };
-
     function toString(array) {
         var char2, char3;
         var out = "";
@@ -1303,6 +1300,10 @@ w.npCommon = new function () {
                 async: o.async,
                 type: "post",
                 global: false,
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
                 data: query
                 , error: function (xhr, textStatus, errorThrown) {
                     return o.callback(xhr);
@@ -1413,7 +1414,6 @@ w.npCommon = new function () {
         }
 
         var isreturn = false;
-
         function docallback(data) {
             if (isreturn == false) {
                 callback(data);
@@ -1660,6 +1660,7 @@ w.npCommon = new function () {
                 callback({readyState: 4, status: 999, responseText: ""});
             });
         }
+
 
 
         npConsole.log("REQ : " + command);
@@ -2385,7 +2386,6 @@ w.npBaseCtrl = new function () {
     var isRequiredReinstall = false;		// 모듈 재설치가 필요한 경우
 
     this.Options = {FW: true, SK: true, FD: true, KV: true};
-
     function parseOptions(options) {
         var o = {
             Firewall: true,
@@ -2883,7 +2883,6 @@ w.npBaseCtrl = new function () {
                     setTimeout(wwait, npPfsPolicy.Common.WaitTimeout);
                 }
             }
-
             wwait();
         } else {
             callback();
@@ -4512,7 +4511,6 @@ w.npKCtrl = new function () {
 
     this.rescanField = function () {
         var timeoutid = null;
-
         function wwait() {
             if (isCompleteStartup == true) {
                 clearTimeout(timeoutid);
@@ -4525,7 +4523,6 @@ w.npKCtrl = new function () {
                 timeoutid = setTimeout(wwait, npPfsPolicy.Common.WaitTimeout);
             }
         }
-
         wwait();
     }
 
@@ -5541,7 +5538,6 @@ w.npKCtrl = new function () {
 
     this.addDynamicField = function (form, field) {
         var timeoutid = null;
-
         function wwait() {
             if (npKCtrl.isComplete() == true) {
                 if (!npCommon.isBlank(form)) {
@@ -5576,7 +5572,6 @@ w.npKCtrl = new function () {
                 timeoutid = setTimeout(wwait, npPfsPolicy.Common.WaitTimeout);
             }
         }
-
         wwait();
     };
 
@@ -6059,7 +6054,6 @@ w.npFCtrl = new function () {
 
     var additionalDataErrorCount = 0;
     var processingTask = [];
-
     function callProcessingFunction(key, param, plain) {
         var taskName = "task_" + key;
         processingTask.push(taskName);
@@ -6489,8 +6483,20 @@ var npKeyPadMaker = function (element, opt) {
 
         var $divkeypad = npQuery("#" + this._uuid);
 
-        npQuery("div.kpd-group img.kpd-image-button", $divkeypad).attr("src", info.src);
-        npQuery(".kpd-preview .preview", $divkeypad).css({"background-image": "url('" + info.src + "')"});
+
+        var currentURL = info.src;
+        window.console.log("info.src", info.src);
+        var actualURL;
+        if (currentURL.split(";jsessionid=").length === 1) {
+            actualURL = currentURL;
+        } else {
+            var frontURL = currentURL.split(";jsessionid=")[0];
+            var backURL = currentURL.split(";jsessionid=")[1].split("?")[1];
+            var jsessionid = currentURL.split(";jsessionid=")[1].split("?")[0];
+            actualURL = frontURL + "?" + backURL;
+        }
+        npQuery("div.kpd-group img.kpd-image-button", $divkeypad).attr("src", actualURL);
+        npQuery(".kpd-preview .preview", $divkeypad).css({"background-image": "url('" + actualURL + "')"});
         //var $divkeypad = npCommon.selectorById(_this._uuid);
 
         $divkeypad.hide();
@@ -8033,7 +8039,6 @@ w.npVCtrl = new function () {
                     setTimeout(wwait, npPfsPolicy.Common.WaitTimeout);
                 }
             }
-
             wwait();
 
         } else {
@@ -8089,11 +8094,12 @@ w.npVCtrl = new function () {
                     if (xhr.status == 200) {
                         npVCtrl.seedkey = npCommon.hexEncode(npCommon.getRandomBytes(32));
                         parseKey(xhr.responseText, npVCtrl.seedkey, false);
+                        window.console.log("xhr.responseText", xhr.responseText)
+                        window.console.log("npVCtrl.seedkey", npVCtrl.seedkey)
                     } else {
                         npConsole.log(npMessage.m30);
                         npVCtrl.rsa = false;
                     }
-
                 }
             }
         });
@@ -8140,7 +8146,6 @@ w.npVCtrl = new function () {
 
     this.rescanField = function () {
         var timeoutid = null;
-
         function wwait() {
             if (npVCtrl.isComplete() == true) {
                 npQuery(npQuery("form")).each(function (index, value) {
@@ -8159,14 +8164,12 @@ w.npVCtrl = new function () {
                         setTimeout(load, npPfsPolicy.Common.WaitTimeout);
                     }
                 }
-
                 load();
 
             } else {
                 timeoutid = setTimeout(wwait, npPfsPolicy.Common.WaitTimeout);
             }
         }
-
         wwait();
     }
 
@@ -8544,7 +8547,6 @@ w.npVCtrl = new function () {
             }
             return src;
         }
-
         addOptions(p, "ip", makeimageurl());
 
         if (this.isAbsoluteUse()) {
@@ -8808,7 +8810,6 @@ w.npVCtrl = new function () {
 
     this.addDynamicField = function (form, field) {
         var timeoutid = null;
-
         function wwait() {
             if (npVCtrl.isComplete() == true) {
                 if (!npCommon.isBlank(form)) {
@@ -8835,7 +8836,6 @@ w.npVCtrl = new function () {
                 timeoutid = setTimeout(wwait, npPfsPolicy.Common.WaitTimeout);
             }
         }
-
         wwait();
     };
 
@@ -9487,15 +9487,12 @@ var AES = new function () {
     function B0(x) {
         return (x & 255);
     }
-
     function B1(x) {
         return ((x >> 8) & 255);
     }
-
     function B2(x) {
         return ((x >> 16) & 255);
     }
-
     function B3(x) {
         return ((x >> 24) & 255);
     }
@@ -10285,7 +10282,6 @@ for (vv = 10; vv < 36; ++vv)
 function int2char(n) {
     return BI_RM.charAt(n);
 }
-
 function intAt(s, i) {
     var c = BI_RC[s.charCodeAt(i)];
     return (c == null) ? -1 : c;
@@ -10685,27 +10681,22 @@ function bnMod(a) {
 function Classic(m) {
     this.m = m;
 }
-
 function cConvert(x) {
     if (x.s < 0 || x.compareTo(this.m) >= 0)
         return x.mod(this.m);
     else
         return x;
 }
-
 function cRevert(x) {
     return x;
 }
-
 function cReduce(x) {
     x.divRemTo(this.m, null, x);
 }
-
 function cMulTo(x, y, r) {
     x.multiplyTo(y, r);
     this.reduce(r);
 }
-
 function cSqrTo(x, r) {
     x.squareTo(r);
     this.reduce(r);
@@ -11073,7 +11064,6 @@ function RSAKey() {
     this.dmq1 = null;
     this.coeff = null;
 }
-
 RSAKey.prototype = {
     // Perform raw public operation on "x": return x^e (mod n)
     doPublic: function (x) {
@@ -11455,15 +11445,15 @@ function npPfsStartupV2(form, flags, e2eattr, e2eval) {
 */
 }
 
-
-// w.uV.dV.Gf = response.encodeURL("/pluginfree/jsp/nppfs.key.jsp");    // 키발급 경로
-// w.uV.dV.zf = response.encodeURL("/pluginfree/jsp/nppfs.remove.jsp"); // 키삭제 경로
-// w.uV.dV.zo = response.encodeURL("/pluginfree/jsp/nppfs.keypad.jsp");  // 마우스입력기 페이지
-// w.uV.dV.eP = response.encodeURL("/pluginfree/jsp/nppfs.ready.jsp");  // 초기화상태 확인경로
-// w.uV.dV.Fz = response.encodeURL("/pluginfree/jsp/nppfs.install.jsp"); // 설치안내 페이지
-// w.uV.dV.de = response.encodeURL("/pluginfree/jsp/nppfs.session.jsp"); // 세션유지 페이지
-// w.uV.dV.iB = response.encodeURL("/pluginfree/jsp/nppfs.submit.jsp"); // 구간암호화 페이지
-
+/*
+w.uV.dV.Gf = "/pluginfree/jsp/nppfs.key.jsp";    // 키발급 경로
+w.uV.dV.zf = "/pluginfree/jsp/nppfs.remove.jsp"; // 키삭제 경로
+w.uV.dV.zo = "/pluginfree/jsp/nppfs.keypad.jsp;  // 마우스입력기 페이지
+w.uV.dV.eP = "/pluginfree/jsp/nppfs.ready.jsp";  // 초기화상태 확인경로
+w.uV.dV.Fz = "/pluginfree/jsp/nppfs.install.jsp; // 설치안내 페이지
+w.uV.dV.de = "/pluginfree/jsp/nppfs.session.jsp; // 세션유지 페이지
+w.uV.dV.iB = "/pluginfree/jsp/nppfs.submit.jsp; // 구간암호화 페이지
+ */
 
 /*
 function checkInstallKeyCryptPlugin(){
@@ -11489,9 +11479,9 @@ npPfsCtrl.makeJson = function(original, formname, keyName){
 
 	if(typeof(ret) == "undefined" || ret == null) ret = {};
 	if(typeof(keyName) == "undefined" || keyName == null || keyName == "") keyName = "__nppfs_json_vo__";
-	
+
 	ret[keyName] = npPfsCtrl.toJson(formname);
-	
+
 	return original;
 }
 */
@@ -11515,7 +11505,7 @@ npPfsExtension = new function() {
 		if(key < 48 || key > 57) {
 			return false;
 		}
-		
+
 		return true;			// true : 입력가능문자, false : 정합성불가/입력불가문자
 	},
 	// 페이지 벗어나기 전의 경고메시지 추가
@@ -11537,7 +11527,7 @@ npPfsExtension = new function() {
 	},
 	// 마우스입력기 초기화 전 추가 옵션적용
 	this.keypadUiModifier = function(element) {
-		
+
 	},
 	// 단말정보수집 추가정보 데이터 반환
 	this.additionalData = function() {
@@ -11596,4 +11586,3 @@ $(document).ready(function(){
 */
 
 
-			

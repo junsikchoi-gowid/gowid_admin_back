@@ -54,7 +54,7 @@ public class IssuanceService {
      */
     public void verifyCeoIdentification(HttpServletRequest request, UserCorporationDto.IdentificationReq dto) {
 
-        SecuKeypad.decrypt(request, "identificationNumber");
+        SecuKeypad.decrypt(request, "identificationNumberBack");
 
         // 1700(신분증검증)
         DataPart1700 resultOfD1700 = proc1700(dto);
@@ -359,7 +359,7 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
         requestRpc.setD001(request.getIdCode());
         requestRpc.setD002(request.getKorName());
-        requestRpc.setD003(request.getIdentificationNumber());
+        requestRpc.setD003(request.getIdentificationNumberFront());
         requestRpc.setD004(request.getIssueDate());
         requestRpc.setD005(request.getDriverNumber());
         requestRpc.setD006(request.getDriverLocal());

@@ -168,9 +168,11 @@ public class UserCorporationDto {
         @NotEmpty
         private String korName;
 
-        @ApiModelProperty("주민등록번호")
-        @NotEmpty
-        private String identificationNumber;
+        @ApiModelProperty("주민등록번호-앞")
+        private String identificationNumberFront;
+
+        @ApiModelProperty("주민등록번호-뒤")
+        private String identificationNumberBack;
 
         @ApiModelProperty("발급일")
         private String issueDate;
