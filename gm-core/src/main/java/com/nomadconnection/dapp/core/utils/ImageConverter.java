@@ -3,7 +3,6 @@ package com.nomadconnection.dapp.core.utils;
 import com.nomadconnection.dapp.core.config.CrownixConfig;
 import com.nomadconnection.dapp.core.dto.ImageConvertDto;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import m2soft.ers.invoker.InvokerException;
 import m2soft.ers.invoker.http.ReportingServerInvoker;
 import org.apache.http.client.utils.URIBuilder;
@@ -65,18 +64,19 @@ public class ImageConverter {
 		invoker.setReadTimeout(180);
 	}
 
-	public boolean convertJsonToImage(ImageConvertDto params) throws Exception {
-		String targetData = (String) params.getData();
+	public String convertJsonToImage(ImageConvertDto params) throws Exception {
 
 		setParameters(params);
-		isNotNullData(targetData);
 		response = invoker.invoke();	// convert
 		isSuccess();
-		return true;
+		return response;
 	}
 
 	private void setParameters(ImageConvertDto params) {
-		String mrdParam = getMrdParam((String)params.getData());
+		String targetData = params.getData().toString();
+
+		isNotNullData(targetData);
+		String mrdParam = getMrdParam(targetData);
 
 		invoker.addParameter(ImageConvertParam.OPCODE, params.getOpCode());
 		invoker.addParameter(ImageConvertParam.MRD_NAME, getMrdPath(params.getMrdType()));
@@ -107,10 +107,16 @@ public class ImageConverter {
 		return  "/rdata [" + targetData + "]";
 	}
 
-	private void isSuccess() throws Exception {
+	public void isSuccess() throws Exception {
 		if(!response.startsWith("1")){
 			throw new InvokerException(response);
 		}
+	}
+
+	public String getFileName() throws Exception {
+		String name = response.split("|")[1];
+
+		return name;
 	}
 
 	private void isNotNullData(String targetData) {

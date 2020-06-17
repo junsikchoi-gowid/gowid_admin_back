@@ -4,13 +4,14 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 @Getter
 @NoArgsConstructor
 public class ImageConvertDto {
 
 	@Builder
-	public ImageConvertDto(Integer mrdType, Object data) {
+	public ImageConvertDto(Integer mrdType, JSONObject data) {
 		this.mrdType = mrdType;
 		this.data = data;
 	}
@@ -22,7 +23,7 @@ public class ImageConvertDto {
 	private Integer mrdType;
 
 	@ApiModelProperty("이미지 변환 대상 JSON 데이터")
-	private Object data;
+	private JSONObject data;
 
 	@ApiModelProperty("확장자")
 	private String exportType = "tif";
