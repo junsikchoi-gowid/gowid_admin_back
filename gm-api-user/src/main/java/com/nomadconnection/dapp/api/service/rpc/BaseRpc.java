@@ -60,7 +60,6 @@ public class BaseRpc {
 
     private HttpHeaders makeHeader(Map<String, String> headerParams) {
         HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.valueOf("application/json;charset=EUC-KR"));
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("x-host", GATEWAY_IDC_HOST);
         headers.add("x-protocol", GATEWAY_IDC_PROTOCOL);

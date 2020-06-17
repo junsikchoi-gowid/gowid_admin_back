@@ -67,7 +67,7 @@ public class ErrorCode {
 
 	@AllArgsConstructor
 	@Getter
-	public enum External implements ErrorCodeDescriptor {
+	public enum External {
 		EXTERNAL_ERROR_GW("EXTERNAL_ERROR_GW", "external error(shinhan - GW)"),
 		INTERNAL_ERROR_GW("INTERNAL_ERROR_GW", "external error(shinhan - GW)"),
 
@@ -113,7 +113,7 @@ public class ErrorCode {
 
 	@AllArgsConstructor
 	@Getter
-	public enum Api implements ErrorCodeDescriptor {
+	public enum Api {
 		VALIDATION_FAILED("VALIDATION_FAILED", "validation failed"),
 		NOT_FOUND("NOT_FOUND", "not found");
 
