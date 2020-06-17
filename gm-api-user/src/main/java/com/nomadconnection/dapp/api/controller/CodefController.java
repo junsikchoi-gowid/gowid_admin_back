@@ -55,11 +55,21 @@ public class CodefController {
 	@ApiOperation(value = "인증서 목록 조회", notes = "" +
 			"\n ### Remarks" +
 			"\n")
-	@GetMapping( URI.ACCOUNT_LIST + "test" )
-	public String ConnectedIdList2(
+	@GetMapping( URI.ACCOUNT_LIST + "test1" )
+	public String ConnectedIdList1(
 			@ApiIgnore @CurrentUser CustomUser user ) throws InterruptedException, ParseException, IOException {
 		return service.connectedIdList();
 	}
+
+	@ApiOperation(value = "인증서 목록 조회", notes = "" +
+			"\n ### Remarks" +
+			"\n")
+	@GetMapping( URI.ACCOUNT_LIST + "test2" )
+	public String ConnectedIdList2(
+			@ApiIgnore @CurrentUser CustomUser user, @RequestParam String connectedId) throws InterruptedException, ParseException, IOException {
+		return service.list(connectedId);
+	}
+
 
 	@ApiOperation(value = "인증서 목록 조회", notes = "" +
 			"\n ### Remarks" +
@@ -171,4 +181,6 @@ public class CodefController {
 			@RequestParam String connectedId) {
 		return service.deleteAccount2(connectedId, user.idx());
 	}
+
+
 }

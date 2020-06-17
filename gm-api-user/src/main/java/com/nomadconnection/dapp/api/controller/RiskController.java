@@ -29,6 +29,7 @@ public class RiskController {
 
 		public static final String RISK = "/risk";			// 리스크
 		public static final String RISKCORP = "/riskCorp";			// 리스크
+		public static final String SAVE45 = "/save45";			// 리스크
 		public static final String RISKCONFIG = "/riskconfig";			// 리스크
 		public static final String CARD_LIMIT = "/cardLimit";
 	}
@@ -50,6 +51,13 @@ public class RiskController {
 	public ResponseEntity saveRiskCorp(@ApiIgnore @CurrentUser CustomUser user
 			, @RequestParam(required = false) Long idxCorp, @RequestParam(required = false) String calcDate) {
 		return service.saveRisk(user.idx(), idxCorp ,calcDate);
+	}
+
+	@ApiOperation(value = "리스크 저장 45일 기준 전문테이블 저장", notes = "" + "\n")
+	@GetMapping( URI.SAVE45)
+	public ResponseEntity saveRisk45(@ApiIgnore @CurrentUser CustomUser user
+			, @RequestParam(required = false) String calcDate) {
+		return service.saveRisk45(user.idx(), null ,calcDate);
 	}
 
 	@ApiOperation(value = "리스크 설정 저장", notes = "" + "\n")

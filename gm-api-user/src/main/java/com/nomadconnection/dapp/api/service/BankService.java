@@ -7,6 +7,7 @@ import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
+import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.*;
@@ -57,6 +58,7 @@ public class BankService {
 
 	private final UserRepository repoUser;
 	private final CorpRepository repoCorp;
+	private final RiskRepository repoRisk;
 	private final ResBatchListRepository repoResBatchList;
 
 	private final ResAccountRepository repoResAccount;
@@ -235,9 +237,11 @@ public class BankService {
 		for( BankDto.ResAccountDto dto : resAccount )
 		{
 			ResBatchList historyData = repoResBatchList.findFirstByAccountOrderByUpdatedAtDesc(dto.getResAccount());
-			dto.setErrCode(historyData.errCode());
-			dto.setErrMessage(historyData.errMessage());
-			dto.setScrpaingUpdateTime(historyData.getUpdatedAt());
+			if(historyData != null ) {
+				dto.setErrCode(historyData.errCode());
+				dto.setErrMessage(historyData.errMessage());
+				dto.setScrpaingUpdateTime(historyData.getUpdatedAt());
+			}
 		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
@@ -451,4 +455,33 @@ public class BankService {
 	}
 
 
+	public ResponseEntity check_scraping_risk(Long idxUser, Long idxCorp) {
+		BusinessResponse.Normal normal = new BusinessResponse.Normal();
+
+		idxUser = getaLong(idxUser, idxCorp);
+		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idxUser);
+
+		Risk risk = repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), CommonUtil.getNowYYYYMMDD()).get();
+
+		if(returnData.size() > 0 && returnData.get(0).getEndFlag().equals("0") && risk.pause()){
+			// progress
+			normal.setKey("1");
+			normal.setValue("progress");
+
+		}else if(returnData.size() > 0
+				&& returnData.get(0).getEndFlag().equals("1")
+				&& returnData.get(0).getTotal().equals(returnData.get(0).getProgressCnt())){
+			// complete
+			normal.setKey("2");
+			normal.setValue("complete");
+		}else{
+			// stop
+			normal.setKey("3");
+			normal.setValue("stop");
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(normal)
+				.data(null).build());
+	}
 }

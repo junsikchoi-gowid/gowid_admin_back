@@ -27,6 +27,7 @@ public class ResAccount extends BaseTime {
     private String organization; // 기관코드
     private String type; // 종류
     private Double resAccountRiskBalance; //현재잔액
+    private Boolean enabled; // 유효성여부
 
     private String resAccount; //계좌번호
     private String resAccountDisplay; //계좌번호_표시용

@@ -42,6 +42,8 @@ public class BankController {
 		public static final String CHECK_ACCOUNTLIST	= "/check/accountlist";         // 계좌리스트 스크래핑
 		public static final String CHECK_ACCOUNTLIST45	= "/check/accountlist45";         // 계좌리스트 스크래핑 45일간
 		public static final String CHECK_REFRESH		= "/check/refresh";             // 새로고침
+		public static final String CHECK_S_R			= "/check/scraping_risk";             // 새로고침
+
 
 		public static final String DAY_BALANCE	 	= "/balance/day";	// (기간별) 일별 입출금 잔고
 		public static final String MONTH_BALANCE 	= "/balance/month";	// (기간별) 월별 입출금 잔고
@@ -155,8 +157,15 @@ public class BankController {
 
 	@ApiOperation(value = "새로고침", notes = "" + "\n")
 	@GetMapping( URI.CHECK_REFRESH )
-	public ResponseEntity CheckRefresh(@ApiIgnore @CurrentUser CustomUser user, @RequestParam(required = false) Long idxCorp) {
+	public ResponseEntity checkRefresh(@ApiIgnore @CurrentUser CustomUser user, @RequestParam(required = false) Long idxCorp) {
 
 		return service.refresh(user.idx(), idxCorp);
+	}
+
+	@ApiOperation(value = "스크래핑 상태확인 및 리스크 저장 확인", notes = "" + "\n")
+	@GetMapping( URI.CHECK_S_R )
+	public ResponseEntity check_scraping_risk(@ApiIgnore @CurrentUser CustomUser user, @RequestParam(required = false) Long idxCorp) {
+
+		return service.check_scraping_risk(user.idx(), idxCorp);
 	}
 }

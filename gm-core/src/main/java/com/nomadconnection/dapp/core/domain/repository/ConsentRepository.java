@@ -15,6 +15,8 @@ import java.util.stream.Stream;
 public interface ConsentRepository extends JpaRepository<Consent, Long> {
 	List<Consent> findByIdxIn(List<Long> idx);
 
+	Stream<Consent> findByEnabledAndTypeCodeOrderByConsentOrderAsc(Boolean enabled, String typeCode);
+
 	Stream<Consent> findAllByEnabledOrderByConsentOrderAsc(Boolean enabled);
 
 	@Modifying

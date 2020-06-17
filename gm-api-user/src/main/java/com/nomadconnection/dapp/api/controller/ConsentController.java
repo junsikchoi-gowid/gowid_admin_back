@@ -44,12 +44,12 @@ public class ConsentController {
             @ApiResponse(code = 500, message = "")
     })
     @GetMapping(URI.CONSENT)
-    public ResponseEntity consents() {
+    public ResponseEntity consents(@RequestParam(required = false) String typeCode) {
         if (log.isDebugEnabled()) {
             log.debug("getConsents List");
         }
 
-        return service.consents();
+        return service.consents(typeCode);
     }
 
     //==================================================================================================================
