@@ -36,6 +36,9 @@ public class BrandConsentDto {
     @ApiModelProperty("이용약관 Type 법인 ")
     public boolean corpStatus;
 
+    @ApiModelProperty("이용약관 Type ")
+    public String typeCode;
+
 
     public static BrandConsentDto from(Consent consent) {
         return BrandConsentDto.builder()
@@ -46,6 +49,7 @@ public class BrandConsentDto {
                 .title(consent.title())
                 .version(consent.version())
                 .consentOrder(consent.consentOrder())
+                .typeCode(consent.typeCode())
                 .build();
     }
 }
