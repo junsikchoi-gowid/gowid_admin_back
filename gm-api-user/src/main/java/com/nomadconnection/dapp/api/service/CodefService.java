@@ -1,10 +1,12 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
+import com.nomadconnection.dapp.core.utils.ImageConverter;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.codef.io.helper.Account;
@@ -19,6 +21,7 @@ import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
+import com.nomadconnection.dapp.core.dto.ImageConvertDto;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -27,6 +30,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,6 +102,9 @@ public class CodefService {
 	private final D1510Repository repoD1510;
 	private final D1520Repository repoD1520;
 	private final D1530Repository repoD1530;
+
+	private final ImageConverter converter;
+	private final AsyncService asyncService;
 
 	private final CardIssuanceInfoRepository repoCardIssuance;
 
@@ -987,6 +994,37 @@ public class CodefService {
 				corp.resUserType(d009);
 
 
+				// 이미지 Json Data 저장
+				ImageConvertDto param1510 =
+						ImageConvertDto.builder()
+								.mrdType(1510)
+								.data(corpRegisterJsonData(jsonData))
+								.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1510+CommonUtil.getNowYYYYMMDD().substring(0,3))
+								.build();
+
+				asyncService.run(() -> {
+					try {
+						converter.convertJsonToImage(param1510);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
+
+				ImageConvertDto param1530 =
+						ImageConvertDto.builder()
+								.mrdType(1530)
+								.data(corpRegisterJsonData(jsonDataCorpRegister))
+								.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1530+CommonUtil.getNowYYYYMMDD().substring(0,3))
+								.build();
+
+				asyncService.run(() -> {
+					try {
+						converter.convertJsonToImage(param1530);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
+
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
 						.c007(CommonUtil.getNowYYYYMMDD())
@@ -1038,6 +1076,7 @@ public class CodefService {
 						.d013(corp.resBusinessTypes()) // 업태
 						.d014(corp.resBusinessItems()) // 종목
 						.build());
+
 
 
 				JSONArray jsonArrayResStockItemList = (JSONArray)listResStockList.get(2);
@@ -1188,6 +1227,7 @@ public class CodefService {
 		);
 	}
 
+	@SneakyThrows
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity RegisterCorpInfo(ConnectedMngDto.CorpInfo dto, Long idxUser,Long idx_CardInfo){
 
@@ -1305,6 +1345,22 @@ public class CodefService {
 						.d019(strCode382.get()) // 자기자본금   대차대조표 상의 자본 총계
 						.d020(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate")) // 재무조사일   종료일자 (없으면 등기부등본상의 회사성립연월일)
 						.build());
+
+
+				ImageConvertDto param1520 =
+						ImageConvertDto.builder()
+								.mrdType(1530)
+								.data(corpRegisterJsonData(jsonData2))
+								.fileName(user.get().corp().resCompanyIdentityNo().replaceAll("-","")+1530+yyyyMm.substring(0,3))
+								.build();
+
+				asyncService.run(() -> {
+					try {
+						converter.convertJsonToImage(param1520);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
 
 			}else{
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
@@ -1997,5 +2053,13 @@ public class CodefService {
 						.idx(idx_user)
 						.build()
 		);
+	}
+
+	public org.springframework.boot.configurationprocessor.json.JSONObject corpRegisterJsonData(JSONObject lists) throws JSONException {
+		org.springframework.boot.configurationprocessor.json.JSONObject obj = new org.springframework.boot.configurationprocessor.json.JSONObject();
+		JSONObject result = new JSONObject();
+		obj.put("result", result);
+		result.put("lists", lists);
+		return obj;
 	}
 }
