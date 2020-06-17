@@ -12,6 +12,7 @@ import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
+import com.nomadconnection.dapp.secukeypad.SecuKeypad;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
@@ -48,10 +50,12 @@ public class IssuanceService {
      *
      * 1700 신분증 위조확인
      */
-    public void verifyCeoIdentification(UserCorporationDto.IdentificationReq request) {
+    public void verifyCeoIdentification(HttpServletRequest request, UserCorporationDto.IdentificationReq dto) {
+
+        SecuKeypad.decrypt(request, "identificationNumber");
 
         // 1700(신분증검증)
-        DataPart1700 resultOfD1700 = proc1700(request);
+        DataPart1700 resultOfD1700 = proc1700(dto);
 
         if (!resultOfD1700.getD008().equals("")) { // TODO : 결과값 확인
             throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1700, resultOfD1700.getD009());

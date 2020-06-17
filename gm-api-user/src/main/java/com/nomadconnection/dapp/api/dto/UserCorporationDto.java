@@ -217,6 +217,9 @@ public class UserCorporationDto {
 
         @ApiModelProperty("신분증 종류 (RESIDENT, DRIVER, FOREIGN")
         private CertificationType identityType;
+
+        @ApiModelProperty("대표자 종류 (SINGLE, EACH, PUBLIC")
+        private CeoType ceoType;
     }
 
     @Data

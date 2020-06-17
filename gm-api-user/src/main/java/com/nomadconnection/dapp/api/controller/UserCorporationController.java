@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -217,14 +218,15 @@ public class UserCorporationController {
     @ApiOperation(value = "신분증 본인 확인")
     @PostMapping(URI.CEO_ID)
     public ResponseEntity verifyIdentification(
+            HttpServletRequest request,
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody @Valid UserCorporationDto.IdentificationReq dto) {
+            @ModelAttribute @Valid UserCorporationDto.IdentificationReq dto) {
 
         if (log.isInfoEnabled()) {
             log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
         }
 
-        issuanceService.verifyCeoIdentification(dto);
+        issuanceService.verifyCeoIdentification(request, dto);
         return ResponseEntity.ok().build();
     }
 
@@ -235,7 +237,6 @@ public class UserCorporationController {
             @RequestBody @Valid UserCorporationDto.IssuanceReq request) {
 
         issuanceService.issuance(user.idx(), request);
-
         return ResponseEntity.ok().build();
     }
 

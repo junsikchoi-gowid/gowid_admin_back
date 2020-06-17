@@ -463,6 +463,7 @@ public class UserCorporationService {
                 .genderCode(dto.getGenderCode())
                 .birth(dto.getBirth())
                 .certificationType(dto.getIdentityType())
+                .type(dto.getCeoType())
                 .build();
 
         D1000 d1000 = getD1000(user.corp().idx());
