@@ -136,7 +136,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_PW+2).permitAll()
 				.antMatchers(BankController.URI.BASE + BankController.URI.MONTH_BALANCE_EXT).permitAll()
 				.antMatchers(UserCorporationController.URI.BASE + UserCorporationController.URI.RESUME).permitAll()
-				.antMatchers("/test").permitAll()
 
 				.anyRequest().authenticated();
 	}
