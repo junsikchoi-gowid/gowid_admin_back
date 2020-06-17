@@ -30,6 +30,7 @@ public class ImageConverter {
 		public static final String MRD_NAME = "mrd_path";
 		public static final String MRD_PARAM = "mrd_param";
 		public static final String EXPORT_TYPE = "export_type";
+		public static final String EXPORT_NAME = "export_name";
 		public static final String PROTOCOL = "protocol";
 
 		// mrd file (1510:사업자등록증, 1520:재무제표, 1530:법인등기부등본)
@@ -82,6 +83,7 @@ public class ImageConverter {
 		invoker.addParameter(ImageConvertParam.MRD_NAME, getMrdPath(params.getMrdType()));
 		invoker.addParameter(ImageConvertParam.MRD_PARAM, mrdParam);
 		invoker.addParameter(ImageConvertParam.EXPORT_TYPE, params.getExportType());
+		invoker.addParameter(ImageConvertParam.EXPORT_NAME, params.getFileName().concat("."+params.getExportType() ));
 		invoker.addParameter(ImageConvertParam.PROTOCOL, params.getProtocol());
 	}
 
@@ -111,12 +113,6 @@ public class ImageConverter {
 		if(!response.startsWith("1")){
 			throw new InvokerException(response);
 		}
-	}
-
-	public String getFileName() throws Exception {
-		String name = response.split("|")[1];
-
-		return name;
 	}
 
 	private void isNotNullData(String targetData) {
