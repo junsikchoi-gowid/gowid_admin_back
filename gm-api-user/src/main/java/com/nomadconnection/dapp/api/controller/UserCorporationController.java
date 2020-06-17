@@ -109,6 +109,7 @@ public class UserCorporationController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestParam String fileType,
+            @RequestParam String cardCode,
             @RequestPart MultipartFile[] files) throws IOException {
         if (log.isInfoEnabled()) {
             log.info("([ uploadStockholderFile ]) $user='{}', $files='{}', $idx_cardInfo='{}'", user, files, idxCardInfo);
@@ -237,6 +238,7 @@ public class UserCorporationController {
             @RequestBody @Valid UserCorporationDto.IssuanceReq request) {
 
         issuanceService.issuance(user.idx(), request);
+
         return ResponseEntity.ok().build();
     }
 
