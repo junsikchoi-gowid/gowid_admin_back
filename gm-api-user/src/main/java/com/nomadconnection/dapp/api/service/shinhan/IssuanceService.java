@@ -7,13 +7,16 @@ import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
-import com.nomadconnection.dapp.api.exception.gateway.InternalErrorException;
+import com.nomadconnection.dapp.api.exception.api.BadRequestException;
+import com.nomadconnection.dapp.api.exception.api.InternalErrorException;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
+import com.yettiesoft.vestsign.external.CertificateInfo;
+import com.yettiesoft.vestsign.external.SignVerifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -44,21 +47,6 @@ public class IssuanceService {
     private final ShinhanGwRpc shinhanGwRpc;
     private final AsyncService asyncService;
 
-
-    /**
-     * 카드 신청
-     * <p>
-     * 1700 신분증 위조확인
-     */
-    public void verifyCeoIdentification(UserCorporationDto.IdentificationReq request) {
-
-        // 1700(신분증검증)
-        DataPart1700 resultOfD1700 = proc1700(request);
-
-        if (!resultOfD1700.getD008().equals("")) { // TODO : 결과값 확인
-            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1700, resultOfD1700.getD009());
-        }
-    }
 
     /**
      * 카드 신청
@@ -97,7 +85,6 @@ public class IssuanceService {
         // 성공시 Body 는 공백으로.
         return new UserCorporationDto.IssuanceRes();
     }
-
 
 
     private DataPart1200 proc1200(Corp userCorp) {
@@ -320,7 +307,7 @@ public class IssuanceService {
         // todo 내부 테스트 데이터 삭제예정
         requestRpc.setD021("0000");             // 비번
         requestRpc.setD025("12312123456");      // 결제계좌번호
-        requestRpc.setD016(requestRpc.getD016().substring(0, 5));    // 게이트웨이 길이 버그로 인해 조치
+        // requestRpc.setD016(requestRpc.getD016().substring(0, 5));    // 게이트웨이 길이 버그로 인해 조치
 
         shinhanGwRpc.request1100(requestRpc);
     }
@@ -400,6 +387,67 @@ public class IssuanceService {
                         .idx(idx_user)
                         .build()
         );
+    }
+
+    /**
+     * 카드 신청
+     * <p>
+     * 1700 신분증 위조확인
+     */
+    public void verifyCeoIdentification(UserCorporationDto.IdentificationReq request) {
+
+        // 1700(신분증검증)
+        DataPart1700 resultOfD1700 = proc1700(request);
+
+        if (!resultOfD1700.getD008().equals("")) { // TODO : 결과값 확인
+            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1700, resultOfD1700.getD009());
+        }
+    }
+
+    public void verifySignedFileBinaryString(String signedString) {
+
+        int errorCode;
+        String errorMsg;
+
+        try {
+            SignVerifier signVerifier = new SignVerifier(signedString);
+            signVerifier.verify();
+            CertificateInfo cert = signVerifier.getSignerCertificate();
+            errorCode = signVerifier.getLastErrorCode();
+            errorMsg = signVerifier.getLastErrorMsg();
+
+            log.debug("### 에러 코드 : " + errorCode);
+            log.debug("### 검증 결과 : " + errorMsg);
+
+            log.debug("### 전자 서명 원문 : " + signVerifier.getSignedMessageText());
+            log.debug("### 사용자 인증서 정책 : " + cert.getPolicyIdentifier());
+            log.debug("### 사용자 인증서 DN : " + cert.getSubject());
+            log.debug("### 사용자 인증서 serial : " + cert.getSerial());
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "signed binary string");
+        }
+
+        if (errorCode != 0) {
+            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "signed binary string. errorCode=" + errorCode);
+        }
+
+    }
+
+    /**
+     * todo
+     * - 검증
+     * - db 저장
+     * - 복호화
+     */
+    public void verifySignedBinaryAndSave(Long userIdx, String signedString) {
+        verifySignedFileBinaryString(signedString);
+
+        User user = findUser(userIdx);
+        D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx());
+        d1200.setSignedBinaryString(signedString);
     }
 
 }

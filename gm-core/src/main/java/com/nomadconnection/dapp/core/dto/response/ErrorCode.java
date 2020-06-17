@@ -110,4 +110,14 @@ public class ErrorCode {
 		private final String code;
 		private final String desc;
 	}
+
+	@AllArgsConstructor
+	@Getter
+	public enum Api implements ErrorCodeDescriptor {
+		VALIDATION_FAILED("VALIDATION_FAILED", "validation failed"),
+		NOT_FOUND("NOT_FOUND", "not found");
+
+		private final String code;
+		private final String desc;
+	}
 }
