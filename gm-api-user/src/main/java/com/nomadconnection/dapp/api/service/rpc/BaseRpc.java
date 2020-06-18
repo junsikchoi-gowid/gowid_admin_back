@@ -63,6 +63,7 @@ public class BaseRpc {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("x-host", GATEWAY_IDC_HOST);
         headers.add("x-protocol", GATEWAY_IDC_PROTOCOL);
+
         if (headerParams != null) {
             for (String key : headerParams.keySet()) {
                 headers.add(key, headerParams.get(key));

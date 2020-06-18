@@ -553,6 +553,9 @@ public class UserCorporationDto {
         @ApiModelProperty("결제계좌번호")
         private String payAccount;
 
+        @ApiModelProperty("서명파일 바이너리 스트링")
+        private String signedBinaryString;
+
     }
 
     @Data
