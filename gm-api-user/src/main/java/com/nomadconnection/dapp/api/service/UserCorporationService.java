@@ -391,16 +391,16 @@ public class UserCorporationService {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
+        cardInfo.bankAccount(BankAccount.builder()
+                .bankAccount(dto.getAccountNumber())
+                .bankCode(dto.getBank())
+                .bankAccountHolder(dto.getAccountHolder())
+                .build());
+
         String bankCode = dto.getBank();
         if (bankCode.length() > 3) {
             bankCode = bankCode.substring(bankCode.length() - 3);
         }
-
-        cardInfo.bankAccount(BankAccount.builder()
-                .bankAccount(dto.getAccountNumber())
-                .bankCode(bankCode)
-                .bankAccountHolder(dto.getAccountHolder())
-                .build());
 
         D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
@@ -412,7 +412,7 @@ public class UserCorporationService {
         }
 
         String bankName = null;
-        CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, bankCode);
+        CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, dto.getBank());
         if (commonCodeDetail != null) {
             bankName = commonCodeDetail.value1();
         }
