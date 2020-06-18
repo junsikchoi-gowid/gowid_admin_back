@@ -3,6 +3,8 @@ package com.nomadconnection.dapp.core.domain;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
@@ -12,7 +14,8 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
+@DynamicUpdate
+@DynamicInsert
 public class D1520 extends BaseTime {
 
     @Id

@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.service.ScrapingService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -9,10 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.parser.ParseException;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -21,15 +17,14 @@ import java.io.IOException;
 
 
 @Slf4j
+@CrossOrigin(allowCredentials = "true")
 @RestController
 @RequestMapping(ScrapingController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
 @Api(tags = "스크래핑", description = ScrapingController.URI.BASE)
-@SuppressWarnings({"unused", "deprecation"})
 public class ScrapingController {
 
-    @SuppressWarnings("WeakerAccess")
     public static class URI {
         public static final String BASE = "/batch/v1";
         public static final String STOP = "/stop";    // 입출금 거래내역

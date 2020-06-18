@@ -19,14 +19,13 @@ import springfox.documentation.annotations.ApiIgnore;
 import java.util.List;
 
 @Slf4j
+@CrossOrigin(allowCredentials = "true")
 @RestController
 @RequestMapping(FaqController.URI.BASE)
 @RequiredArgsConstructor
 @Api(tags = "회원관리", description = FaqController.URI.BASE)
-@SuppressWarnings({"unused", "deprecation"})
 public class FaqController {
 
-    @SuppressWarnings("WeakerAccess")
     public static class URI {
         public static final String BASE = "/brand/v1";
         public static final String FAQ = "/faq";

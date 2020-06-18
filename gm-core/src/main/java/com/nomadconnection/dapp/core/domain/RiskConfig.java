@@ -3,6 +3,8 @@ package com.nomadconnection.dapp.core.domain;
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
@@ -13,6 +15,8 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@DynamicUpdate
+@DynamicInsert
 public class RiskConfig extends BaseTime {
 
 	@Id

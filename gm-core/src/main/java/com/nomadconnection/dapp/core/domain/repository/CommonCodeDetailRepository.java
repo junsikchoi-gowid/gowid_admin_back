@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface CommonCodeDetailRepository extends JpaRepository<CommonCodeDetail, Long>{
 	List<CommonCodeDetail> findAllByCode(CommonCodeType codeType);
+
+	CommonCodeDetail getByCodeAndCode1(CommonCodeType codeType, String code1);
 }
