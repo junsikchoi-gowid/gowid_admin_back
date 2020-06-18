@@ -3,39 +3,39 @@ package com.nomadconnection.dapp.secukeypad;
 import com.nprotect.common.json.JSONParser;
 import com.nprotect.pluginfree.PluginFree;
 import com.nprotect.pluginfree.modules.PluginFreeRequest;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class SecuKeypad {
 
-	public static void decrypt(HttpServletRequest request, String paramName) {
+	public static Map<String, String> decrypt(HttpServletRequest request, String encryptData, String[] paramNames) {
 
 		try {
-			String str = request.getParameter(paramName);
+			String str = request.getParameter(encryptData);
 			Map<String, String> map = (Map<String, String>) new JSONParser().parse(str);
 
-			HttpServletRequest req = new PluginFreeRequest(request, map);
+			HttpServletRequest decryptRequest = new PluginFreeRequest(request, map);
 			try {
-				PluginFree.verify(req, new String[]{paramName});
+				PluginFree.verify(decryptRequest, paramNames);
 			} catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("키보드보안/마우스입력기 복호화 검증 오류가 발생하였습니다." + e.getMessage());
+				log.error("[decrypt] $VERIFY_ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
+				throw SecuKeypadException.builder().category(SecuKeypadException.Category.VERIFY_ERROR).data(e.getMessage()).build();
 			}
 
+			Map<String, String> decryptData = new HashMap<>();
+			for (String param : paramNames) {
+				decryptData.put(param, decryptRequest.getParameter(param));
+			}
 
-			System.out.println("============== <b>수동복호화(필터사용안함)</b> ==============<br />");
-			System.out.println("<strong>수동복호화(e2e_id) : " + req.getParameter(paramName) + "</strong><br />");
+			return decryptData;
 
 		} catch (Exception e) {
-
-			e.printStackTrace();
-
+			log.error("[decrypt] $DECRYPT_ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
+			throw SecuKeypadException.builder().category(SecuKeypadException.Category.DECRYPT_ERROR).data(e.getMessage()).build();
 		}
-	}
-
-	public static void setPath() {
-		System.setProperty("PLUGINFREE_WEBAPP_PATH", "");
-		System.setProperty("PLUGINFREE_PROPERTIES_PATH", SecuKeypad.class.getClassLoader().getResource("nprotect.properties").getPath());
 	}
 }

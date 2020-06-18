@@ -24,7 +24,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@CrossOrigin
+@CrossOrigin(allowCredentials = "true")
 @RequestMapping(UserCorporationController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
@@ -223,12 +223,10 @@ public class UserCorporationController {
             HttpServletRequest request,
             @ApiIgnore @CurrentUser CustomUser user,
             @ModelAttribute @Valid UserCorporationDto.IdentificationReq dto) {
-
         if (log.isInfoEnabled()) {
             log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
         }
-        System.out.println(request.getSession().getAttribute("JSESSIONID"));
-        request.getSession(true);
+
         issuanceService.verifyCeoIdentification(request, dto);
         return ResponseEntity.ok().build();
     }

@@ -5,7 +5,6 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
-import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.gateway.InternalErrorException;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
@@ -14,6 +13,7 @@ import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
+import com.nomadconnection.dapp.secukeypad.EncryptParam;
 import com.nomadconnection.dapp.secukeypad.SecuKeypad;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -54,14 +55,14 @@ public class IssuanceService {
      */
     public void verifyCeoIdentification(HttpServletRequest request, UserCorporationDto.IdentificationReq dto) {
 
-        SecuKeypad.decrypt(request, "identificationNumberBack");
+        Map<String, String> decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
 
         // 1700(신분증검증)
-        DataPart1700 resultOfD1700 = proc1700(dto);
+        DataPart1700 resultOfD1700 = proc1700(dto, decryptData);
 
-        if (!resultOfD1700.getD008().equals("")) { // TODO : 결과값 확인
-            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1700, resultOfD1700.getD009());
-        }
+//        if (!resultOfD1700.getD008().equals("")) { // TODO : 결과값 확인
+//            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1700, resultOfD1700.getD009());
+//        }
     }
 
     /**
@@ -350,7 +351,7 @@ public class IssuanceService {
         return corpIdx;
     }
 
-    private DataPart1700 proc1700(UserCorporationDto.IdentificationReq request) {
+    private DataPart1700 proc1700(UserCorporationDto.IdentificationReq request, Map<String, String> decryptData) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1700);
 
@@ -359,9 +360,9 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
         requestRpc.setD001(request.getIdCode());
         requestRpc.setD002(request.getKorName());
-        requestRpc.setD003(request.getIdentificationNumberFront());
+        requestRpc.setD003(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER));
         requestRpc.setD004(request.getIssueDate());
-        requestRpc.setD005(request.getDriverNumber());
+        requestRpc.setD005(decryptData.get(EncryptParam.DRIVER_NUMBER));
         requestRpc.setD006(request.getDriverLocal());
         requestRpc.setD007(request.getDriverCode());
 
