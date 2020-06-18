@@ -21,5 +21,4 @@ dependencies {
     )
 
     compile fileTree(dir: 'libs', include: ['*.jar'])   // 인증서 검증 라이브러리
-    implementation files('libs/com.nprotect.pluginfree.v1.5.0.20200605.jar')
 }

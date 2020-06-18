@@ -6702,6 +6702,9 @@ var npKeyPadMaker = function (element, opt) {
         var $divkeypad = npQuery("#" + _this._uuid, $parent);
         //var $divkeypad = npCommon.selectorById(_this._uuid, $parent);
         var $divtext = npQuery("div.kpd-text", $divkeypad);
+        var $inputElement = npQuery(
+            '[name="' + options.data.info.inputs.info.split("__KI_")[1] + '"]'
+        );
 
 
         // 삭제된 키패드일 경우에는 보이기 작업 취소.
@@ -6880,11 +6883,15 @@ var npKeyPadMaker = function (element, opt) {
                     ele3.css("left", (bwidth - kwidth - (opt.position.deltax) - pos2.left) + "px");
                 }
             } else if ("center" === opt.position.x) {
-                if (resized) {
-                    ele3.css("left", ((bwidth - kwidth) / 2 - pos2.left) + "px");
-                } else {
-                    ele3.css("left", ((bwidth - kwidth) / 2 + (opt.position.deltax) - pos2.left) + "px");
-                }
+                // if (resized) {
+                //     ele3.css("left", ((bwidth - kwidth) / 2 - pos2.left) + "px");
+                // } else {
+                //     ele3.css("left", ((bwidth - kwidth) / 2 + (opt.position.deltax) - pos2.left) + "px");
+                // }
+                ele3.css(
+                    "left",
+                    $inputElement.offset().left + opt.position.deltax - pos2.left + "px"
+                );
             } else {
                 if (resized) {
                     ele3.css("left", ((bwidth - kwidth) / 2 - pos2.left) + "px");
