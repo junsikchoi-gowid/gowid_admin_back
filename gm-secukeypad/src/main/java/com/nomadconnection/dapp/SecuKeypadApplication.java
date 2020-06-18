@@ -2,6 +2,7 @@ package com.nomadconnection.dapp;
 
 import com.nprotect.pluginfree.PluginFreeFilter;
 import com.nprotect.pluginfree.PluginFreeServlet;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -13,6 +14,9 @@ import java.util.TimeZone;
 
 @SpringBootApplication
 public class SecuKeypadApplication {
+
+	@Value("${keypad.nprotect.properties.path}")
+	private String KEYPAD_PROPERTIES_PATH;
 
 	public static void main(String[] args) {
 		SpringApplication.run(SecuKeypadApplication.class, args);
@@ -27,7 +31,7 @@ public class SecuKeypadApplication {
 	public ServletRegistrationBean getServletRegistrationBean() {
 		ServletRegistrationBean registrationBean = new ServletRegistrationBean(new PluginFreeServlet());
 		registrationBean.addUrlMappings("/nppfs.servlet.do");
-		registrationBean.addInitParameter("PropertiesPath", "/home/webapp/appconfig/nprotect.properties");
+		registrationBean.addInitParameter("PropertiesPath", KEYPAD_PROPERTIES_PATH);
 		registrationBean.addInitParameter("ResponseEncoding", "UTF-8");
 		registrationBean.addInitParameter("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,UPDATE,OPTIONS");
 		registrationBean.addInitParameter("Access-Control-Allow-Headers", "Authorization, AuthorizationKey, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept");
@@ -39,7 +43,7 @@ public class SecuKeypadApplication {
 	public FilterRegistrationBean getFilterRegistrationBean() {
 		FilterRegistrationBean registrationBean = new FilterRegistrationBean(new PluginFreeFilter());
 		registrationBean.addUrlPatterns("/*"); //add pattern
-		registrationBean.addInitParameter("PropertiesPath", "/home/webapp/appconfig/nprotect.properties");    //add init-param
+		registrationBean.addInitParameter("PropertiesPath", KEYPAD_PROPERTIES_PATH);    //add init-param
 		registrationBean.addInitParameter("RequestEncoding", "UTF-8");    //add init-param
 		return registrationBean;
 	}
