@@ -51,6 +51,8 @@ public class IssuanceService {
     /**
      * 카드 신청
      * 1200
+     * 3000(이미지 제출여부)
+     * 이미지 전송요청
      * 1510
      * 1520
      * - 재무제표 보유시: 최대 2년치 2회연동
@@ -70,6 +72,12 @@ public class IssuanceService {
         // 1200(법인회원신규여부검증)
         DataPart1200 resultOfD1200 = proc1200(userCorp);
 
+        // 3000(이미지 제출여부)
+        DataPart3000Res resultOfD3000 = proc3000(resultOfD1200);
+
+        // 이미지 전송요청
+
+
         // 15X0(서류제출)
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
 
@@ -84,6 +92,25 @@ public class IssuanceService {
 
         // 성공시 Body 는 공백으로.
         return new UserCorporationDto.IssuanceRes();
+    }
+
+    // todo :
+    //  - 공통부 text개시문자가 고정값인지 확인.
+    //  - 데이터부 bpr map code 확인
+    //  - 데이터부 필수 필드만 보내면 되는지 확인
+    private DataPart3000Res proc3000(DataPart1200 resultOfD1200) {
+        // 공통부
+        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH3000);
+
+        // 데이터부
+        DataPart3000Req requestRpc = new DataPart3000Req("", resultOfD1200.getD007() + resultOfD1200.getD008());
+        BeanUtils.copyProperties(commonPart, requestRpc);
+
+        // todo : 테스트 데이터(삭제예정)
+        requestRpc.setC009("00");
+
+        // 요청 및 리턴
+        return shinhanGwRpc.request3000(requestRpc);
     }
 
 
