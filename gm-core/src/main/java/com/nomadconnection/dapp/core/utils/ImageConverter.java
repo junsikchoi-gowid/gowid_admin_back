@@ -74,7 +74,7 @@ public class ImageConverter {
 	}
 
 	private void setParameters(ImageConvertDto params) {
-		String targetData = params.getData().toString();
+		String targetData = params.getData();
 
 		isNotNullData(targetData);
 		String mrdParam = getMrdParam(targetData);
