@@ -25,7 +25,7 @@ import javax.validation.constraints.Email;
 import java.util.List;
 
 @Slf4j
-@CrossOrigin
+@CrossOrigin(allowCredentials = "true")
 @RestController
 @RequestMapping(AuthController.URI.BASE)
 @RequiredArgsConstructor

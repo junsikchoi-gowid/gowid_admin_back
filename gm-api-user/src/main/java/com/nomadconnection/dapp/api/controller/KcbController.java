@@ -17,7 +17,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 
 @Slf4j
-@CrossOrigin
+@CrossOrigin(allowCredentials = "true")
 @RestController
 @RequestMapping(KcbController.URI.BASE)
 @RequiredArgsConstructor

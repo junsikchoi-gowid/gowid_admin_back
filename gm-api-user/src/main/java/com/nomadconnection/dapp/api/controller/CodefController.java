@@ -20,7 +20,7 @@ import java.io.IOException;
 
 
 @Slf4j
-@CrossOrigin
+@CrossOrigin(allowCredentials = "true")
 @RestController
 @RequestMapping(CodefController.URI.BASE)
 @RequiredArgsConstructor

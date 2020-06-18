@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @Slf4j
-@CrossOrigin
+@CrossOrigin(allowCredentials = "true")
 @RestController
 @RequestMapping(ExternalController.URI.BASE)
 @RequiredArgsConstructor

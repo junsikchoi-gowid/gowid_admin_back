@@ -19,7 +19,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import java.util.List;
 
 @Slf4j
-@CrossOrigin
+@CrossOrigin(allowCredentials = "true")
 @RestController
 @RequestMapping(FaqController.URI.BASE)
 @RequiredArgsConstructor
