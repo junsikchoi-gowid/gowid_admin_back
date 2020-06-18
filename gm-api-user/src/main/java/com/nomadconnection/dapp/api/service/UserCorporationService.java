@@ -235,7 +235,7 @@ public class UserCorporationService {
         if (!ObjectUtils.isEmpty(fileList)) {
             for (StockholderFile file : fileList) {
                 repoFile.delete(file);
-                gwUploadService.delete(file.fname(), cardInfo.cardCode());
+                //gwUploadService.delete(file.fname(), cardInfo.cardCode());
                 s3Service.s3FileDelete(file.s3Key());
             }
         }
@@ -248,7 +248,7 @@ public class UserCorporationService {
             fos.write(file.getBytes());
             fos.close();
             try {
-                gwUploadService.upload(uploadFile, cardInfo.cardCode());
+                //gwUploadService.upload(uploadFile, cardInfo.cardCode());
 
                 String s3Key = "stockholder/" + idx_CardInfo + "/" + fileName;
                 String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
