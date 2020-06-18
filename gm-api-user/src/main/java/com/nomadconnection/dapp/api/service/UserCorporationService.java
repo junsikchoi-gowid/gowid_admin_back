@@ -138,6 +138,7 @@ public class UserCorporationService {
                     .user(user)
                     .corp(user.corp())
                     .ventureCertification(dto.getIsVerifiedVenture())
+                    .enabled(true)
                     .vcInvestment(dto.getIsVC())
                     .build()
             );
@@ -339,6 +340,7 @@ public class UserCorporationService {
                     .calculatedLimit(dto.getCalAmount())
                     .hopeLimit(dto.getAmount())
                     .grantLimit(dto.getGrantAmount())
+                    .enabled(true)
                     .build()
             );
         }

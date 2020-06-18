@@ -224,6 +224,7 @@ public class BankDto {
 		private String resAccountDeposit       ; //예금구분
 		private String resAccountNickName      ; //계좌별칭
 		private String resAccountCurrency      ; //통화코드
+		private String resAccountHolder        ; //예금주
 		private String resAccountStartDate     ; //신규일
 		private String resAccountEndDate       ; //만기일
 		private String resLastTranDate         ; //최종거래일
@@ -254,6 +255,7 @@ public class BankDto {
 					.organization(resAccount.organization())
 					.type(resAccount.type())
 					.resAccount(resAccount.resAccount())
+					.resAccountHolder(resAccount.resAccountHolder())
 					.resAccountDisplay(resAccount.resAccountDisplay())
 					.resAccountBalance(resAccount.resAccountBalance())
 					.resAccountDeposit(resAccount.resAccountDeposit())

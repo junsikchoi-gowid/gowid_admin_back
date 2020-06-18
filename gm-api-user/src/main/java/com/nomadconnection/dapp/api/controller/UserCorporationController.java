@@ -234,6 +234,7 @@ public class UserCorporationController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid UserCorporationDto.IssuanceReq request) {
 
+//        issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
         issuanceService.issuance(user.idx(), request);
 
         return ResponseEntity.ok().build();

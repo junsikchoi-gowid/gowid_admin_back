@@ -132,6 +132,7 @@ public class RiskService {
 					.ventureCertification(false)
 					.cardIssuance(false)
 					.ceoGuarantee(false)
+					.enabled(true)
 					.user(user)
 					.corp(corp)
 					.build();
@@ -146,6 +147,8 @@ public class RiskService {
 		Risk risk ;
 		if(riskOptional.isPresent()){
 			risk = riskOptional.get();
+			risk.ventureCertification(riskconfig.ventureCertification());
+			risk.vcInvestment(riskconfig.vcInvestment());
 		}else{
 			risk = Risk.builder()
 					.user(user)
@@ -159,6 +162,9 @@ public class RiskService {
 					.vcInvestment(riskconfig.vcInvestment())
 					.recentBalance(0)
 					.build();
+
+			risk.ventureCertification(riskconfig.ventureCertification());
+			risk.vcInvestment(riskconfig.vcInvestment());
 		}
 
 //		Corp finalCorp2 = corp;
@@ -177,14 +183,13 @@ public class RiskService {
 
 		// 45일
 		Stream<ResAccountRepository.CRisk> cRisk45daysTemp = cRisk45days.stream();
-		Stream<ResAccountRepository.CRisk> cRisk45daysTemp2 = cRisk45days.stream();
 
-		if(risk.ventureCertification() && risk.vcInvestment()){
+		if(riskconfig.ventureCertification() && riskconfig.vcInvestment()){
 			risk.grade("A");
 			risk.gradeLimitPercentage(10);
 			risk.minStartCash(100000000);
 			risk.minCashNeed(50000000);
-		}else if(risk.ventureCertification() && !risk.vcInvestment()){
+		}else if(riskconfig.ventureCertification() && !riskconfig.vcInvestment()){
 			risk.grade("B");
 			risk.gradeLimitPercentage(5);
 			risk.minStartCash(100000000);
@@ -244,11 +249,14 @@ public class RiskService {
 		risk.cashBalance(Collections.min(cashBalance));
 
 		// CardAvailable
-		if(risk.cashBalance() >= risk.minCashNeed()){
-			risk.cardAvailable(true);
-		}else{
-			risk.cardAvailable(false);
-		}
+//		if(risk.cashBalance() >= risk.minCashNeed()){
+//			risk.cardAvailable(true);
+//		}else{
+//			risk.cardAvailable(false);
+//		}
+
+		boolean isEnoughBalance = risk.cashBalance() >= risk.minCashNeed();
+		risk.cardAvailable(isEnoughBalance);
 
 		// CardLimitCalculation
 		risk.cardLimitCalculation( risk.cashBalance() * risk.gradeLimitPercentage()/100);
@@ -260,11 +268,14 @@ public class RiskService {
 		risk.cardLimit(Math.max(risk.depositGuarantee(),risk.realtimeLimit()));
 
 		// EmergencyStop
-		if(risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow()){
-			risk.emergencyStop(true);
-		}else{
-			risk.emergencyStop(false);
-		}
+//		if(risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow()){
+//			risk.emergencyStop(true);
+//		}else{
+//			risk.emergencyStop(false);
+//		}
+
+		boolean needToStop = risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow();
+		risk.emergencyStop(needToStop);
 
 		// CardLimitNow
 		Double cardLimitNow = repoRisk.findCardLimitNow(idxUser,calcDate);
@@ -340,38 +351,300 @@ public class RiskService {
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity saveRisk45(Long idxUser, Long idxCorp, String calcDate) {
 
-		saveRisk( idxUser,  idxCorp,  calcDate);
-		Risk risk = repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), calcDate).orElseThrow(
-				() -> new RuntimeException("Empty Data")
+		Corp corp;
+		Long finalIdxUser = idxUser;
+		User userAuth = findUser(finalIdxUser);
+		User user;
+
+		if(idxCorp != null && userAuth.authorities().stream().noneMatch(o-> o.role().equals(Role.GOWID_ADMIN))) {
+			throw new RuntimeException("DOES NOT HAVE GOWID-ADMIN");
+		}else if(idxCorp != null && userAuth.authorities().stream().anyMatch(o-> o.role().equals(Role.GOWID_ADMIN))){
+			corp = repoCorp.findById(idxCorp).orElseThrow(
+					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
+			);
+			Corp finalCorp = corp;
+			user = repoUser.findById(repoCorp.searchIdxUser(idxCorp)).orElseThrow(
+					() -> UserNotFoundException.builder().id(finalCorp.user().idx()).build()
+			);
+
+			idxUser = repoCorp.searchIdxUser(idxCorp);
+		}else{
+
+			Long finalIdxUser1 = idxUser;
+			user = findUser(finalIdxUser1);
+
+			corp = user.corp();
+		}
+
+		if(calcDate == null || calcDate.isEmpty()){
+			calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
+		}
+
+		String calcDatePlus = LocalDate.of(Integer.parseInt(calcDate.substring(0,4))
+				, Integer.parseInt(calcDate.substring(4,6))
+				, Integer.parseInt(calcDate.substring(6,8))
+		).plusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
+
+		String calcDateMinus = LocalDate.of(Integer.parseInt(calcDate.substring(0,4))
+				, Integer.parseInt(calcDate.substring(4,6))
+				, Integer.parseInt(calcDate.substring(6,8))
+		).minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
+
+		Optional<RiskConfig> riskConfigOptional = repoRiskConfig.findByUserAndEnabled(user, true);
+		RiskConfig riskconfig ;
+
+		if(riskConfigOptional.isPresent()){
+			riskconfig = RiskConfig.builder()
+					.depositGuarantee(riskConfigOptional.get().depositGuarantee())
+					.depositPayment(riskConfigOptional.get().depositPayment())
+					.vcInvestment(riskConfigOptional.get().vcInvestment())
+					.ventureCertification(riskConfigOptional.get().ventureCertification())
+					.cardIssuance(riskConfigOptional.get().cardIssuance())
+					.ceoGuarantee(riskConfigOptional.get().ceoGuarantee())
+					.user(user)
+					.corp(corp)
+					.build();
+		}else{
+			riskconfig = RiskConfig.builder()
+					.depositGuarantee(0F)
+					.depositPayment(false)
+					.vcInvestment(false)
+					.ventureCertification(false)
+					.cardIssuance(false)
+					.ceoGuarantee(false)
+					.enabled(true)
+					.user(user)
+					.corp(corp)
+					.build();
+		}
+
+		// 최초가입시 가입후 회사정보 변경으로 인한 자동 적용
+		if(riskconfig.user() == null || riskconfig.corp() == null ){
+			repoRiskConfig.modifyRiskConfig(riskconfig.idx(), user.idx(), corp.idx());
+		}
+
+		Optional<Risk> riskOptional = repoRisk.findByUserAndDate(User.builder().idx(idxUser).build(), calcDate);
+		Risk risk ;
+		if(riskOptional.isPresent()){
+			risk = riskOptional.get();
+			risk.ventureCertification(riskconfig.ventureCertification());
+			risk.vcInvestment(riskconfig.vcInvestment());
+		}else{
+			risk = Risk.builder()
+					.user(user)
+					.corp(user.corp())
+					.date(calcDate)
+					.ceoGuarantee(riskconfig.ceoGuarantee())
+					.depositGuarantee(riskconfig.depositGuarantee())
+					.depositPayment(riskconfig.depositPayment())
+					.cardIssuance(riskconfig.cardIssuance())
+					.ventureCertification(riskconfig.ventureCertification())
+					.vcInvestment(riskconfig.vcInvestment())
+					.recentBalance(0)
+					.build();
+
+			risk.ventureCertification(riskconfig.ventureCertification());
+			risk.vcInvestment(riskconfig.vcInvestment());
+
+		}
+
+//		Corp finalCorp2 = corp;
+//		Corp corpConfig = repoCorp.findById(user.corp().idx()).orElseThrow(
+//				() -> UserNotFoundException.builder().id(finalCorp2.user().idx()).build()
+//		);
+//		corpConfig.riskConfig(riskconfig);
+//		corpConfig.user(user);
+
+
+		risk.user(user);
+		risk.corp(corp);
+
+		// 46일
+		List<ResAccountRepository.CRisk> cRisk45days = repoResAccount.find45dayValance(idxUser, calcDate);
+
+		// 45일
+		Stream<ResAccountRepository.CRisk> cRisk45daysTemp = cRisk45days.stream();
+
+		if(riskconfig.ventureCertification() && riskconfig.vcInvestment()){
+			risk.grade("A");
+			risk.gradeLimitPercentage(10);
+			risk.minStartCash(100000000);
+			risk.minCashNeed(50000000);
+		}else if(riskconfig.ventureCertification() && !riskconfig.vcInvestment()){
+			risk.grade("B");
+			risk.gradeLimitPercentage(5);
+			risk.minStartCash(100000000);
+			risk.minCashNeed(50000000);
+		}else{
+			risk.grade("C");
+			risk.gradeLimitPercentage(5);
+			risk.minStartCash(500000000);
+			risk.minCashNeed(100000000);
+		}
+
+		// currentBalance
+
+		if(cRisk45days.size() > 0 ){
+			risk.currentBalance(cRisk45days.get(0).getCurrentBalance());
+			risk.errCode(cRisk45days.get(0).getErrCode());
+		}else{
+			risk.currentBalance(0F);
+		}
+
+
+		// Error
+
+		risk.error(repoRisk.findErrCount(idxUser));
+
+		// 45DMA
+		List<Double> arrList = new ArrayList<>();
+		cRisk45daysTemp.forEach( cRisk -> arrList.add((double) cRisk.getCurrentBalance()));
+
+		risk.dma45(arrList.stream().mapToDouble(Double::doubleValue).average().orElse(0));
+
+		// 45DMM
+		AtomicInteger i = new AtomicInteger(0);
+		arrList.stream().sorted().forEach( l -> {
+			log.debug("sort order $={} $={}" , i.getAndIncrement(), l);
+			if(i.get() == 23){
+				risk.dmm45(l);
+			}
+		});
+
+		if(repoResAccount.findRecentBalance(idxUser, calcDatePlus) != null ) {
+			risk.recentBalance(repoResAccount.findRecentBalance(idxUser, calcDatePlus));
+		}
+
+		// ActualBalance
+		if(risk.depositPayment()){
+			risk.actualBalance(risk.recentBalance()-risk.depositGuarantee());
+		}else {
+			risk.actualBalance(risk.recentBalance());
+		}
+
+		// CashBalance
+		ArrayList<Double> cashBalance = new ArrayList<>();
+		cashBalance.add(risk.dma45());
+		cashBalance.add(risk.dmm45());
+		cashBalance.add(risk.actualBalance());
+		risk.cashBalance(Collections.min(cashBalance));
+
+		// CardAvailable
+//		if(risk.cashBalance() >= risk.minCashNeed()){
+//			risk.cardAvailable(true);
+//		}else{
+//			risk.cardAvailable(false);
+//		}
+
+		boolean isEnoughBalance = risk.cashBalance() >= risk.minCashNeed();
+		risk.cardAvailable(isEnoughBalance);
+
+		// CardLimitCalculation
+		risk.cardLimitCalculation( risk.cashBalance() * risk.gradeLimitPercentage()/100);
+
+		// RealtimeLimit
+		risk.realtimeLimit(Math.floor(risk.cardLimitCalculation() / 1000000) * 1000000);
+
+		// CardLimit
+		risk.cardLimit(Math.max(risk.depositGuarantee(),risk.realtimeLimit()));
+
+		// EmergencyStop
+//		if(risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow()){
+//			risk.emergencyStop(true);
+//		}else{
+//			risk.emergencyStop(false);
+//		}
+
+		boolean needToStop = risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow();
+		risk.emergencyStop(needToStop);
+
+		// CardLimitNow
+		Double cardLimitNow = repoRisk.findCardLimitNow(idxUser,calcDate);
+		Double cardLimitNowFirst = repoRisk.findCardLimitNowFirst(idxUser,calcDate);
+		if(risk.emergencyStop()){
+			risk.cardLimitNow(risk.depositGuarantee());
+		}else {
+			if(cardLimitNow == null ){
+				if(cardLimitNowFirst == null){
+					risk.cardLimitNow(risk.cardLimit());
+				}else{
+					risk.cardLimitNow(cardLimitNowFirst);
+				}
+			}else {
+				risk.cardLimitNow(cardLimitNow);
+			}
+		}
+
+		// CardRestartCount
+		AtomicInteger iCardRestartCount = new AtomicInteger();
+		Risk risk1 =repoRisk.findByUserAndDate(User.builder().idx(idxUser).build(),calcDateMinus).orElse(
+				Risk.builder()
+						.cardRestartCount(0)
+						.confirmedLimit(0).build()
 		);
 
-		RiskConfig riskConfig = repoRiskConfig.findByCorpAndEnabled(Corp.builder().idx(idxCorp).build(), true)
-				.orElseThrow(
-						() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
-				);
+		if(risk.currentBalance()>  risk.minCashNeed()){
+			risk.cardRestartCount(risk1.cardRestartCount() + 1);
+		}else{
+			risk.cardRestartCount(0);
+		}
 
-		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(idxCorp);
-		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(idxCorp);
+		Double confirmedLimit = risk1.confirmedLimit();
+		if (confirmedLimit != null) {
+			risk.confirmedLimit(risk1.confirmedLimit());
+		} else {
+			risk.confirmedLimit(0);
+		}
 
-		d1000.setD071(risk.grade());//고위드 기업 등급
-		d1000.setD072(riskConfig.ventureCertification()?"1":"0");//벤처확인서보유여부
-		d1000.setD073(riskConfig.vcInvestment()?"1":"0");//VC투자유치여부
+		// CardRestart
+		if(risk.cardRestartCount() >= 45){
+			risk.cardRestart(true);
+		}else{
+			risk.cardRestart(false);
+		}
+
+		repoRisk.save(risk);
+
+
+		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(corp.idx());
+		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(corp.idx());
+
+		String strVentureCertification;
+		String strVcInvestment;
+		String strGrade;
+		if(riskconfig.ventureCertification()) {
+			strVentureCertification = "1";
+		}else{
+			strVentureCertification = "0";
+		}
+
+		if(riskconfig.vcInvestment()){
+			strVcInvestment = "1";
+		}else{
+			strVcInvestment = "0";
+		}
+
+		strGrade = risk.grade();
+
+		d1000.setD071(strGrade);//고위드 기업 등급
+		d1000.setD072(strVentureCertification);//벤처확인서보유여부
+		d1000.setD073(strVcInvestment);//VC투자유치여부
 		d1000.setD074(String.valueOf(risk.cardLimit()));//고위드계산한도
 		d1000.setD075(String.valueOf(risk.cashBalance()));//기준잔고
-		d1000.setD076(String.valueOf(risk.dma45()));//45일평균잔고
-		d1000.setD077(String.valueOf(risk.dmm45()));//45일중간잔고
+		d1000.setD076(String.valueOf(Math.floor(risk.dma45())));//45일평균잔고
+		d1000.setD077(String.valueOf(Math.floor(risk.dmm45())));//45일중간잔고
 		d1000.setD078(String.valueOf(risk.currentBalance()));//현재잔고
+		repoD1000.save(d1000);
 
-		d1400.setD025(risk.grade());//고위드 기업 등급
-		d1400.setD026(riskConfig.ventureCertification()?"1":"0");//벤처확인서보유여부
-		d1400.setD027(riskConfig.vcInvestment()?"1":"0");//VC투자유치여부
+		d1400.setD025(strGrade);//고위드 기업 등급
+		d1400.setD026(strVentureCertification);//벤처확인서보유여부
+		d1400.setD027(strVcInvestment);//VC투자유치여부
 		d1400.setD028(String.valueOf(risk.cardLimit()));//고위드계산한도
 		d1400.setD029(String.valueOf(risk.cashBalance()));//기준잔고
-		d1400.setD030(String.valueOf(risk.dma45()));//45일평균잔고
-		d1400.setD031(String.valueOf(risk.dmm45()));//45일중간잔고
+		d1400.setD030(String.valueOf(Math.floor(risk.dma45())));//45일평균잔고
+		d1400.setD031(String.valueOf(Math.floor(risk.dmm45())));//45일중간잔고
 		d1400.setD032(String.valueOf(risk.currentBalance()));//현재잔고
 
-		repoD1000.save(d1000);
 		repoD1400.save(d1400);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().build());
