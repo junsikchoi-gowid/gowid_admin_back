@@ -14,14 +14,13 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping(ConsentController.URI.BASE)
 @RequiredArgsConstructor
 @Api(tags = "회원관리", description = ConsentController.URI.BASE)
-@SuppressWarnings({"unused", "deprecation"})
 public class ConsentController {
 
-    @SuppressWarnings("WeakerAccess")
     public static class URI {
         public static final String BASE = "/brand/v1";
         public static final String CONSENT = "/consent";

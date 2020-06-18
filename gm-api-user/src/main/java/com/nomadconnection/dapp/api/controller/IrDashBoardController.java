@@ -16,15 +16,14 @@ import org.springframework.web.bind.annotation.*;
 
 
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping(IrDashBoardController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
 @Api(tags = "Ir 게시판", description = IrDashBoardController.URI.BASE)
-@SuppressWarnings({"unused", "deprecation"})
 public class IrDashBoardController {
 
-	@SuppressWarnings("WeakerAccess")
 	public static class URI {
 		public static final String BASE = "/IrDashBoard/v1";
 		public static final String IRDASHBOARD = "/IrDashBoard";			// 리스크

@@ -168,18 +168,17 @@ public class UserCorporationDto {
         @NotEmpty
         private String korName;
 
-        @ApiModelProperty("주민등록번호")
-        @NotEmpty
-        private String identificationNumber;
+        @ApiModelProperty("주민등록번호-앞")
+        private String identificationNumberFront;
+
+        @ApiModelProperty("암호화 대상(주민번호뒷자리, 운전면허번호)")
+        private String encryptData;
 
         @ApiModelProperty("발급일")
         private String issueDate;
 
         @ApiModelProperty("운전면허지역코드")
         private String driverLocal;
-
-        @ApiModelProperty("운전면허번호")
-        private String driverNumber;
 
         @ApiModelProperty("일련번호 : 본인신분증위조방지코드")
         private String driverCode;
@@ -217,6 +216,9 @@ public class UserCorporationDto {
 
         @ApiModelProperty("신분증 종류 (RESIDENT, DRIVER, FOREIGN")
         private CertificationType identityType;
+
+        @ApiModelProperty("대표자 종류 (SINGLE, EACH, PUBLIC")
+        private CeoType ceoType;
     }
 
     @Data

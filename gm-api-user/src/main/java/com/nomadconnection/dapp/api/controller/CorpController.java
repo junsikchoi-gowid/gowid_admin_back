@@ -1,34 +1,23 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.nomadconnection.dapp.api.dto.CorpDto;
-import com.nomadconnection.dapp.api.exception.AlreadyExistException;
-import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.api.service.CorpService;
-import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping(CorpController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
 @Api(tags = "법인정보", description = CorpController.URI.BASE)
-@SuppressWarnings({"unused", "deprecation"})
 public class CorpController {
 
-	@SuppressWarnings("WeakerAccess")
 	public static class URI {
 		public static final String BASE = "/corp/v1";
 		public static final String REGISTER_CORP = "/register/corp";

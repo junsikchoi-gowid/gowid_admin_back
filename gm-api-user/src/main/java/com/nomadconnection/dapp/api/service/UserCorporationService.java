@@ -422,6 +422,9 @@ public class UserCorporationService {
     @Transactional(readOnly = true)
     public UserCorporationDto.CeoTypeRes getCeoType(Long idx_user) {
         User user = findUser(idx_user);
+        if (user.corp() == null) {
+            throw EntityNotFoundException.builder().entity("Corp").build();
+        }
         D1000 d1000 = getD1000(user.corp().idx());
         Integer count = 1;
         String ceoType = "1";
@@ -466,6 +469,7 @@ public class UserCorporationService {
                 .genderCode(dto.getGenderCode())
                 .birth(dto.getBirth())
                 .certificationType(dto.getIdentityType())
+                .type(dto.getCeoType())
                 .build();
 
         D1000 d1000 = getD1000(user.corp().idx());

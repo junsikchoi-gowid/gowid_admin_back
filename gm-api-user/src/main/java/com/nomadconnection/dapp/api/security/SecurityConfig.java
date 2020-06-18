@@ -20,10 +20,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsUtils;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Slf4j
 @Configuration
@@ -47,6 +44,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			"/favicon.ico",
 			"/error",
 			"/logout",
+			"/index",
+			"/pluginfree/**",
+			"/nppfs.servlet.do/**",
 	};
 
 	private final CustomUserDetailsService service;
@@ -64,23 +64,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return super.authenticationManagerBean();
 	}
 
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.addAllowedOrigin("*");
-		configuration.addAllowedMethod("*");
-		configuration.addAllowedHeader("*");
-		configuration.setAllowCredentials(true);
-		configuration.setMaxAge(3600L);
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-	}
+//	@Bean
+//	public CorsConfigurationSource corsConfigurationSource() {
+//		CorsConfiguration configuration = new CorsConfiguration();
+//		configuration.addAllowedOrigin("*");
+//		configuration.addAllowedMethod("*");
+//		configuration.addAllowedHeader("*");
+//		configuration.setAllowCredentials(true);
+//		configuration.setMaxAge(3600L);
+//		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//		source.registerCorsConfiguration("/**", configuration);
+//		return source;
+//	}
 
+	@Override
 	protected void configure(AuthenticationManagerBuilder builder) throws Exception {
 		builder.userDetailsService(service).passwordEncoder(passwordEncoder());
 	}
 
+	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors();
 		http.csrf()
@@ -136,7 +138,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_PW+2).permitAll()
 				.antMatchers(BankController.URI.BASE + BankController.URI.MONTH_BALANCE_EXT).permitAll()
 				.antMatchers(UserCorporationController.URI.BASE + UserCorporationController.URI.RESUME).permitAll()
-
 				.anyRequest().authenticated();
 	}
 }

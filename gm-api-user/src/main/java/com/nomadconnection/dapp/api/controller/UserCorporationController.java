@@ -17,12 +17,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
 @Slf4j
 @RestController
+@CrossOrigin(allowCredentials = "true")
 @RequestMapping(UserCorporationController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
@@ -108,6 +110,7 @@ public class UserCorporationController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestParam String fileType,
+            @RequestParam String cardCode,
             @RequestPart MultipartFile[] files) throws IOException {
         if (log.isInfoEnabled()) {
             log.info("([ uploadStockholderFile ]) $user='{}', $files='{}', $idx_cardInfo='{}'", user, files, idxCardInfo);
@@ -216,15 +219,15 @@ public class UserCorporationController {
 
     @ApiOperation(value = "신분증 본인 확인")
     @PostMapping(URI.CEO_ID)
-    public ResponseEntity<?> verifyIdentification(
+    public ResponseEntity verifyIdentification(
+            HttpServletRequest request,
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody @Valid UserCorporationDto.IdentificationReq dto) {
-
+            @ModelAttribute @Valid UserCorporationDto.IdentificationReq dto) {
         if (log.isInfoEnabled()) {
             log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
         }
 
-        issuanceService.verifyCeoIdentification(dto);
+        issuanceService.verifyCeoIdentification(request, dto);
         return ResponseEntity.ok().build();
     }
 
@@ -240,6 +243,7 @@ public class UserCorporationController {
         return ResponseEntity.ok().build();
     }
 
+    // todo : 에러처리
     @ApiOperation(value = "법인카드 발급 재개")
     @PostMapping(URI.RESUME)
     public ResponseEntity<UserCorporationDto.ResumeRes> resumeApplication(

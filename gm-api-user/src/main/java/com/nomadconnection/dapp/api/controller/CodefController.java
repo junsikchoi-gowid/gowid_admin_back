@@ -20,15 +20,14 @@ import java.io.IOException;
 
 
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping(CodefController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
 @Api(tags = "CodeF 스크래핑", description = CodefController.URI.BASE)
-@SuppressWarnings({"unused", "deprecation"})
 public class CodefController {
 
-	@SuppressWarnings("WeakerAccess")
 	public static class URI {
 		public static final String BASE = "/codef/v1";
 

@@ -17,6 +17,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping(RiskController.URI.BASE)
 @RequiredArgsConstructor

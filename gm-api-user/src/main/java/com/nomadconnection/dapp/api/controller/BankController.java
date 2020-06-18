@@ -1,40 +1,32 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.api.service.BankService;
 import com.nomadconnection.dapp.api.service.UserService;
-import com.nomadconnection.dapp.core.annotation.ApiPageable;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.parser.ParseException;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.concurrent.ExecutionException;
 
 
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping(BankController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
 @Api(tags = "은행", description = BankController.URI.BASE)
-@SuppressWarnings({"unused", "deprecation"})
 public class BankController {
 
-	@SuppressWarnings("WeakerAccess")
 	public static class URI {
 		public static final String BASE = "/bank/v1";
 

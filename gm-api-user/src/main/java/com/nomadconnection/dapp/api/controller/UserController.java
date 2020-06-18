@@ -1,12 +1,11 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.AccountDto;
-import com.nomadconnection.dapp.api.dto.BrandDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
-import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
@@ -18,21 +17,20 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping(UserController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
 @Api(tags = "사용자", description = UserController.URI.BASE)
-@SuppressWarnings({"unused", "deprecation"})
 public class UserController {
 
-	@SuppressWarnings("WeakerAccess")
 	public static class URI {
 		public static final String BASE = "/user/v1";
 		public static final String REGISTER = "/register";
 		public static final String REGISTRATION_USER = "/registration/user";
 		public static final String REGISTRATION_CORP = "/registration/corp";
-		public static final String REGISTRATION_INFO  = "/registration/info";;
+		public static final String REGISTRATION_INFO  = "/registration/info";
 		public static final String REGISTRATION_PW = "/registrationpw/pw";
 		public static final String MEMBERS = "/members";
 		public static final String MEMBERS_MEMBER_DEPT = "/members/{member}/dept";
