@@ -45,6 +45,4 @@ public class D1200 extends BaseTime {
     @Column(columnDefinition = "varchar(5)    DEFAULT '' COMMENT '신청접수순번'")
     private String d008;    //제휴약정한도금액
 
-    @Column(columnDefinition = "blob COMMENT '전자서명파일'")
-    private String signedBinaryString;
 }
