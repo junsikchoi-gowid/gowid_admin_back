@@ -69,7 +69,7 @@ public class ImageConverter {
 
 		setParameters(params);
 		response = invoker.invoke();	// convert
-		isSuccess();
+		isSuccess(response);
 		return response;
 	}
 
@@ -109,7 +109,7 @@ public class ImageConverter {
 		return  "/rdata [" + targetData + "]";
 	}
 
-	public void isSuccess() throws Exception {
+	public void isSuccess(String response) throws Exception {
 		if(!response.startsWith("1")){
 			throw new InvokerException(response);
 		}

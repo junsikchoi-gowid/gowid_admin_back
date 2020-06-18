@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.json.simple.JSONObject;
 
 @Getter
 @NoArgsConstructor
