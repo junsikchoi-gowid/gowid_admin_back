@@ -27,7 +27,7 @@ public class SecuKeypadApplication {
 	public ServletRegistrationBean getServletRegistrationBean() {
 		ServletRegistrationBean registrationBean = new ServletRegistrationBean(new PluginFreeServlet());
 		registrationBean.addUrlMappings("/nppfs.servlet.do");
-		registrationBean.addInitParameter("PropertiesPath", "/home/ec2-user/appconfig/nprotect.properties");
+		registrationBean.addInitParameter("PropertiesPath", "/home/webapp/appconfig/nprotect.properties");
 		registrationBean.addInitParameter("ResponseEncoding", "UTF-8");
 		registrationBean.addInitParameter("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,UPDATE,OPTIONS");
 		registrationBean.addInitParameter("Access-Control-Allow-Headers", "Authorization, AuthorizationKey, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept");
@@ -39,7 +39,7 @@ public class SecuKeypadApplication {
 	public FilterRegistrationBean getFilterRegistrationBean() {
 		FilterRegistrationBean registrationBean = new FilterRegistrationBean(new PluginFreeFilter());
 		registrationBean.addUrlPatterns("/*"); //add pattern
-		registrationBean.addInitParameter("PropertiesPath", "/home/ec2-user/appconfig/nprotect.properties");    //add init-param
+		registrationBean.addInitParameter("PropertiesPath", "/home/webapp/appconfig/nprotect.properties");    //add init-param
 		registrationBean.addInitParameter("RequestEncoding", "UTF-8");    //add init-param
 		return registrationBean;
 	}

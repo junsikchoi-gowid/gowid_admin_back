@@ -2,5 +2,5 @@
 'SecuKeypadApplication.class' 에서 PropertiesPath 에 대한 value
 'nprotect.properties' 에서 'keypad.resources.path' 에 대한 value
 
-stage -> /home/ec2-user/appconfig/nprotect.properties
-      -> /home/ec2-user/appconfig/resources
+stage -> /home/webapp/appconfig/nprotect.properties
+      -> /home/webapp/appconfig/resources
