@@ -213,11 +213,10 @@ public class UserCorporationService {
      * @param files        파일
      * @param type         file type
      * @param idx_CardInfo CardIssuanceInfo idx
-     * @param cardCode     카드코드
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(Long idx_user, MultipartFile[] files, String type, Long idx_CardInfo, String cardCode) throws IOException {
+    public List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(Long idx_user, MultipartFile[] files, String type, Long idx_CardInfo) throws IOException {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -235,7 +234,7 @@ public class UserCorporationService {
         if (!ObjectUtils.isEmpty(fileList)) {
             for (StockholderFile file : fileList) {
                 repoFile.delete(file);
-                gwUploadService.delete(file.fname(), cardCode);
+                gwUploadService.delete(file.fname(), cardInfo.cardCode());
                 s3Service.s3FileDelete(file.s3Key());
             }
         }
@@ -248,7 +247,7 @@ public class UserCorporationService {
             fos.write(file.getBytes());
             fos.close();
             try {
-                gwUploadService.upload(uploadFile, cardCode);
+                gwUploadService.upload(uploadFile, cardInfo.cardCode());
 
                 String s3Key = "stockholder/" + idx_CardInfo + "/" + fileName;
                 String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
@@ -282,7 +281,7 @@ public class UserCorporationService {
      * @param idx_file 삭제대상 StockholderFile 식별자
      */
     @Transactional(rollbackFor = Exception.class)
-    public void deleteStockholderFile(Long idx_user, Long idx_file, Long idx_CardInfo) {
+    public void deleteStockholderFile(Long idx_user, Long idx_file, Long idx_CardInfo) throws IOException {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -293,6 +292,7 @@ public class UserCorporationService {
         if (file.cardIssuanceInfo().idx() != idx_CardInfo) {
             throw MismatchedException.builder().category(MismatchedException.Category.STOCKHOLDER_FILE).build();
         }
+        gwUploadService.delete(file.fname(), cardInfo.cardCode());
         s3Service.s3FileDelete(file.s3Key());
         repoFile.delete(file);
     }
