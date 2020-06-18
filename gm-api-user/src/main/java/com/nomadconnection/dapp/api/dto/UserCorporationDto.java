@@ -441,17 +441,21 @@ public class UserCorporationDto {
         @ApiModelProperty("은행명")
         private String bank;
 
+        @ApiModelProperty("은행코드")
+        private String bankCode;
+
         @ApiModelProperty("계좌번호")
         private String accountNumber;
 
         @ApiModelProperty("예금주")
         private String accountHolder;
 
-        public static AccountRes from(CardIssuanceInfo cardInfo) {
+        public static AccountRes from(CardIssuanceInfo cardInfo, String bankName) {
             if (cardInfo != null && cardInfo.bankAccount() != null) {
                 return AccountRes.builder()
                         .idx(cardInfo.idx())
-                        .bank(cardInfo.bankAccount().getBankCode())
+                        .bank(bankName)
+                        .bankCode(cardInfo.bankAccount().getBankCode())
                         .accountNumber(cardInfo.bankAccount().getBankAccount())
                         .accountHolder(cardInfo.bankAccount().getBankAccountHolder())
                         .build();
