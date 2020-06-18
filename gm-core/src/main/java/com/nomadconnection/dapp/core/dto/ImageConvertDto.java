@@ -4,14 +4,13 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.json.simple.JSONObject;
 
 @Getter
 @NoArgsConstructor
 public class ImageConvertDto {
 
 	@Builder
-	public ImageConvertDto(Integer mrdType, String fileName, JSONObject data) {
+	public ImageConvertDto(Integer mrdType, String fileName, String data) {
 		this.mrdType = mrdType;
 		this.fileName = fileName;
 		this.data = data;
@@ -27,7 +26,7 @@ public class ImageConvertDto {
 	private String fileName;
 
 	@ApiModelProperty("이미지 변환 대상 JSON 데이터")
-	private JSONObject data;
+	private String data;
 
 	@ApiModelProperty("확장자")
 	private String exportType = "tif";
