@@ -1,0 +1,15 @@
+spring:
+  profiles: dev
+keypad.nprotect.properties.path: /Users/jjh/keypad/nprotect.properties
+
+---
+
+spring:
+  profiles: stage
+keypad.nprotect.properties.path: /home/webapp/appconfig/nprotect.properties
+
+---
+
+spring:
+  profiles: prod
+keypad.nprotect.properties.path: /home/webapp/appconfig/nprotect.properties
