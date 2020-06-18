@@ -468,11 +468,11 @@ public class UserCorporationService {
                         .setD013(dto.getNation())
                         .setD035(dto.getName())
                         .setD036(dto.getPhoneNumber().substring(0, 3))
-                        .setD037(dto.getPhoneNumber().substring(3, 6))
-                        .setD038(dto.getPhoneNumber().substring(6))
+                        .setD037(dto.getPhoneNumber().substring(3, 7))
+                        .setD038(dto.getPhoneNumber().substring(7))
                         .setD040(dto.getPhoneNumber().substring(0, 3))
-                        .setD041(dto.getPhoneNumber().substring(3, 6))
-                        .setD042(dto.getPhoneNumber().substring(6))
+                        .setD041(dto.getPhoneNumber().substring(3, 7))
+                        .setD042(dto.getPhoneNumber().substring(7))
                 );
             }
             if (!StringUtils.hasText(d1000.getD016())) {
@@ -495,8 +495,8 @@ public class UserCorporationService {
         if (d1100 != null && !StringUtils.hasText(d1100.getD035())) {
             repoD1100.save(d1100
                     .setD035(dto.getPhoneNumber().substring(0, 3))
-                    .setD036(dto.getPhoneNumber().substring(3, 6))
-                    .setD037(dto.getPhoneNumber().substring(6))
+                    .setD036(dto.getPhoneNumber().substring(3, 7))
+                    .setD037(dto.getPhoneNumber().substring(7))
             );
         }
 

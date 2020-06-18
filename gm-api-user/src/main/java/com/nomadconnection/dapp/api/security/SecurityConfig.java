@@ -40,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			"/swagger-resources/**",
 			"/csrf",
 			"/static/**",
-			"/resources/**",
+			"/META-INF/resources/WEB-INF/resources/**",
 			"/favicon.ico",
 			"/error",
 			"/logout",
