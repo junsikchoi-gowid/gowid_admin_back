@@ -458,19 +458,6 @@ public class UserCorporationService {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
-        CeoInfo ceoInfo = CeoInfo.builder()
-                .cardIssuanceInfo(cardInfo)
-                .engName(dto.getEngName())
-                .name(dto.getName())
-                .nationality(dto.getNation())
-                .isForeign("KR".equalsIgnoreCase(dto.getNation()) ? false : true)
-                .phoneNumber(dto.getPhoneNumber())
-                .agencyCode(dto.getAgency())
-                .genderCode(dto.getGenderCode())
-                .birth(dto.getBirth())
-                .certificationType(dto.getIdentityType())
-                .type(dto.getCeoType())
-                .build();
 
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
@@ -512,6 +499,20 @@ public class UserCorporationService {
                     .setD037(dto.getPhoneNumber().substring(6))
             );
         }
+
+        CeoInfo ceoInfo = CeoInfo.builder()
+                .cardIssuanceInfo(cardInfo)
+                .engName(dto.getEngName())
+                .name(dto.getName())
+                .nationality(dto.getNation())
+                .isForeign("KR".equalsIgnoreCase(dto.getNation()) ? false : true)
+                .phoneNumber(dto.getPhoneNumber())
+                .agencyCode(dto.getAgency())
+                .genderCode(dto.getGenderCode())
+                .birth(dto.getBirth())
+                .certificationType(dto.getIdentityType())
+                .type(CeoType.from(d1000.getD009()))
+                .build();
 
         return UserCorporationDto.CeoRes.from(repoCeo.save(ceoInfo)).setDeviceId("");
     }

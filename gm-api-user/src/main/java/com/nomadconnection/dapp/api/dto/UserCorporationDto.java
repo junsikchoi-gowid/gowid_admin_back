@@ -216,9 +216,6 @@ public class UserCorporationDto {
 
         @ApiModelProperty("신분증 종류 (RESIDENT, DRIVER, FOREIGN")
         private CertificationType identityType;
-
-        @ApiModelProperty("대표자 종류 (SINGLE, EACH, PUBLIC")
-        private CeoType ceoType;
     }
 
     @Data
@@ -524,7 +521,7 @@ public class UserCorporationDto {
                         .phoneNumber(ceoInfo.phoneNumber())
                         .birth(ceoInfo.birth())
                         .genderCode(ceoInfo.genderCode())
-                        .ceoType(ceoInfo.type().getCode())
+                        .ceoType(ceoInfo.type() != null ? ceoInfo.type().getCode() : null)
                         .build();
             }
             return null;
