@@ -231,7 +231,7 @@ public class UserCorporationService {
         }
         List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
         int count = 0;
-        String licenseNo = cardInfo.corp().resUserIdentiyNo().replaceAll("-", "");
+        String licenseNo = cardInfo.corp().resCompanyIdentityNo().replaceAll("-", "");
         for (MultipartFile file : files) {
             String fileName = licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + (++count) + "." + FilenameUtils.getExtension(file.getOriginalFilename());
             File uploadFile = new File(fileName);
