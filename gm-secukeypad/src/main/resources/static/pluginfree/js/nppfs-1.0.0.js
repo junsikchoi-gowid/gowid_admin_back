@@ -52,7 +52,7 @@ w.npPfsConst = {
  */
 
 
-var servletUrl = "http://192.168.99.108:8080/nppfs.servlet.do";
+var servletUrl = "https://stg-api.gowid.com/nppfs.servlet.do";
 
 w.npPfsPolicy = {
     // 제품 공통
