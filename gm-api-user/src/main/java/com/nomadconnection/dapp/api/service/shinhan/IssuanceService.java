@@ -446,7 +446,12 @@ public class IssuanceService {
      */
     public void verifyCeoIdentification(HttpServletRequest request, UserCorporationDto.IdentificationReq dto) {
 
-        Map<String, String> decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
+        Map<String, String> decryptData = null;
+        if (dto.getIdType().equals(UserCorporationDto.IdentificationReq.IDType.DRIVE_LICENCE)) {
+            decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
+        } else {
+            decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER});
+        }
 
         // 1700(신분증검증)
         DataPart1700 resultOfD1700 = proc1700(dto, decryptData);

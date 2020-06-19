@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1600;
+import com.nomadconnection.dapp.api.util.MaskingUtils;
 import com.nomadconnection.dapp.core.domain.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
@@ -182,6 +183,15 @@ public class UserCorporationDto {
 
         @ApiModelProperty("일련번호 : 본인신분증위조방지코드")
         private String driverCode;
+
+        @ApiModelProperty("신분증종류 (ID_CARD, DRIVE_LICENCE)")
+        @NotEmpty
+        private IDType idType;
+
+        public enum IDType {
+            ID_CARD,
+            DRIVE_LICENCE
+        }
     }
 
     @Data
@@ -456,7 +466,7 @@ public class UserCorporationDto {
                         .idx(cardInfo.idx())
                         .bank(bankName)
                         .bankCode(cardInfo.bankAccount().getBankCode())
-                        .accountNumber(cardInfo.bankAccount().getBankAccount())
+                        .accountNumber(MaskingUtils.maskingBankAccountNumber(cardInfo.bankAccount().getBankAccount()))
                         .accountHolder(cardInfo.bankAccount().getBankAccountHolder())
                         .build();
             }

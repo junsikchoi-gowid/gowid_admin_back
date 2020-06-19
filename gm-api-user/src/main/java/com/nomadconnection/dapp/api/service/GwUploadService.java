@@ -34,7 +34,8 @@ public class GwUploadService {
     private final WebClient gwClient;
     private final ObjectMapper objectMapper;
 
-    public GwUploadDto.Response upload(File file, String cardCode) throws IOException {
+    public GwUploadDto.Response upload(File file, String cardCode, String fileCode, String licenseNo) throws IOException {
+        log.info("[GwUpload] $cardCode({}), $fileCode({}), $licenseNo({})", cardCode, fileCode, licenseNo);
         String url = UriComponentsBuilder.newInstance()
                 .path("/upload/" + cardCode)
                 .build()
@@ -42,6 +43,8 @@ public class GwUploadService {
 
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("files", new FileSystemResource(file));
+        params.add("licenseNo", licenseNo);
+        params.add("fileType", fileCode);
 
         ClientResponse clientResponse = gwClient.post()
                 .uri(url)

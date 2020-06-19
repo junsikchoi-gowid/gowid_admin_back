@@ -42,7 +42,6 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings("unused")
 public class BankService {
 
 	private final EmailConfig config;
@@ -137,8 +136,12 @@ public class BankService {
 
 		String startDate = dto.getMonth();
 		String endDate = dto.getMonth();
-		if(startDate == null) startDate = getMonth(-11);
-		if(endDate == null) endDate = getMonth(0);
+		if(startDate == null) {
+			startDate = getMonth(-11);
+		}
+		if(endDate == null) {
+			endDate = getMonth(0);
+		}
 
 		List<ResAccountRepository.CaccountMonthDto> transactionList = repoResAccount.findMonthHistory(startDate, endDate, idx);
 
@@ -234,8 +237,7 @@ public class BankService {
 				.map(BankDto.ResAccountDto::from)
 				.collect(Collectors.toList());
 
-		for( BankDto.ResAccountDto dto : resAccount )
-		{
+		for (BankDto.ResAccountDto dto : resAccount) {
 			ResBatchList historyData = repoResBatchList.findFirstByAccountOrderByUpdatedAtDesc(dto.getResAccount());
 			if(historyData != null ) {
 				dto.setErrCode(historyData.errCode());

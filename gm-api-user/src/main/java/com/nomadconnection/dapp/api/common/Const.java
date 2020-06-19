@@ -7,4 +7,5 @@ public class Const {
     public static final String CARD_RECEIVE_ADDRESS_CODE = "1";
     public static final String API_GW_IMAGE_NOT_EXIST_ERROR_CODE = "90004";
     public static final String D1200_MEMBER_TYPE_CODE = "01";
+    public static final String STOCKHOLDER_GW_FILE_CODE = "9999";
 }

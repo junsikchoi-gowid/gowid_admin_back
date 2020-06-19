@@ -62,9 +62,9 @@ public class UserCorporationController {
         return ResponseEntity.ok().body(service.getBusinessType());
     }
 
-    @ApiOperation("법인정보 등록")
-    @PostMapping(URI.CORPORATION)
-    public ResponseEntity<UserCorporationDto.CorporationRes> registerCorporation(
+    @ApiOperation("법인정보 수정")
+    @PutMapping(URI.CORPORATION)
+    public ResponseEntity<UserCorporationDto.CorporationRes> updateCorporation(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam(required = false) Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterCorporation dto) {
@@ -72,7 +72,7 @@ public class UserCorporationController {
             log.info("([ registerCorporation ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(service.registerCorporation(user.idx(), dto, idxCardInfo));
+        return ResponseEntity.ok().body(service.updateCorporation(user.idx(), dto, idxCardInfo));
     }
 
     @ApiOperation("벤처기업정보 등록")
