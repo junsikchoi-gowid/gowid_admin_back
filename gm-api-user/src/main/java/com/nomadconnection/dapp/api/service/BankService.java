@@ -52,8 +52,6 @@ public class BankService {
 
 	private final UserService serviceUser;
 	private final ScrapingService serviceScraping;
-	private final CodefService serviceCodef;
-
 
 	private final UserRepository repoUser;
 	private final CorpRepository repoCorp;
@@ -340,12 +338,7 @@ public class BankService {
 		ObjectMapper mapper = new ObjectMapper();
 
 		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idx);
-		if(returnData.size()>0 && Integer.valueOf(returnData.get(0).getMin()) < 3){
-			return ResponseEntity.ok().body(BusinessResponse.builder().normal(
-					BusinessResponse.Normal.builder()
-							.value("Request again after 3 minutes").build()
-			).build());
-		}
+
 		serviceScraping.scrapingBankN45DayDataList(idx);
 		Thread.sleep(1000);
 		return refresh(idx,null);

@@ -16,7 +16,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 
 @Slf4j
@@ -124,7 +130,7 @@ public class CodefController {
 	public ResponseEntity RegisterCorpInfo(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody ConnectedMngDto.CorpInfo dto,
-			@RequestParam(required = false) Long idxCardInfo) {
+			@RequestParam(required = false) Long idxCardInfo){
 		if (log.isDebugEnabled()) {
 			log.debug("([ RegisterCorpInfo ]) $dto='{}'", dto);
 		}
@@ -180,6 +186,4 @@ public class CodefController {
 			@RequestParam String connectedId) {
 		return service.deleteAccount2(connectedId, user.idx());
 	}
-
-
 }
