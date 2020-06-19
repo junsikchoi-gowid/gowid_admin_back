@@ -184,6 +184,7 @@ public class UserCorporationDto {
         private String driverCode;
 
         @ApiModelProperty("신분증종류 (ID_CARD, DRIVE_LICENCE)")
+        @NotEmpty
         private IDType idType;
 
         public enum IDType {
