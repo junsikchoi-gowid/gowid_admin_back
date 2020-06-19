@@ -186,16 +186,4 @@ public class CodefController {
 			@RequestParam String connectedId) {
 		return service.deleteAccount2(connectedId, user.idx());
 	}
-
-	@ApiOperation(value = "법인 정보 최초 수정 등록 및 등기부등본 스크래핑", notes = "  " +
-			"\n ### Remarks" +
-			"\n")
-	@PostMapping(URI.ACCOUNT_REGISTER_CORP + "_test")
-	public ResponseEntity RegisterCorpInfo_test(
-			@ApiIgnore @CurrentUser CustomUser user) throws Exception {
-
-		return service.RegisterCorpInfoTest(user.idx());
-	}
-
-
 }

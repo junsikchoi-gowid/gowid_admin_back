@@ -3,9 +3,7 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
-import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
-import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.core.utils.ImageConverter;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.util.CommonUtil;
@@ -35,13 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -853,8 +845,9 @@ public class CodefService {
 			throw new RuntimeException(code);
 		}
 
+		AtomicReference<String> strResult = null;
 		// 국세청 - 증명발급 사업자등록
-		JSONObject[] jsonObjectProofIssue = getApiResult(PROOF_ISSUE.proof_issue(
+		strResult.set(PROOF_ISSUE.proof_issue(
 				"0001",
 				connectedId,
 				"04",
@@ -864,6 +857,8 @@ public class CodefService {
 				"",
 				"" // 사업자번호
 		));
+
+		JSONObject[] jsonObjectProofIssue = getApiResult(strResult.get());
 
 		String jsonObjectProofIssueCode = jsonObjectProofIssue[0].get("code").toString();
 		if (jsonObjectProofIssueCode.equals("CF-00000") ) {
@@ -907,7 +902,7 @@ public class CodefService {
 			ImageConvertDto param1510 =
 					ImageConvertDto.builder()
 							.mrdType(1510)
-							.data(corpRegisterJsonData(jsonData).toString())
+							.data(strResult.get())
 							.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1510+CommonUtil.getNowYYYYMMDD().substring(0,4))
 							.build();
 
@@ -919,8 +914,10 @@ public class CodefService {
 				}
 			});
 
+			AtomicReference<String> strResult1530 = null;
+
 			// 대법원 - 법인등기부등본
-			JSONObject[] jsonObjectCorpRegister = getApiResult(CORP_REGISTER.corp_register(
+			strResult1530.set(CORP_REGISTER.corp_register(
 					"0002",
 					"0261057000",
 					RSAUtil.encryptRSA("6821", CommonConstant.PUBLIC_KEY),
@@ -939,6 +936,7 @@ public class CodefService {
 					"",
 					"N"
 			));
+			JSONObject[] jsonObjectCorpRegister = getApiResult(strResult1530.get());
 
 			String jsonObjectCorpRegisterCode = jsonObjectCorpRegister[0].get("code").toString();
 			if (jsonObjectCorpRegisterCode.equals("CF-00000")) {
@@ -1016,7 +1014,7 @@ public class CodefService {
 				ImageConvertDto param1530 =
 						ImageConvertDto.builder()
 								.mrdType(1530)
-								.data(corpRegisterJsonData(jsonDataCorpRegister).toString())
+								.data(strResult1530.get())
 								.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1530+CommonUtil.getNowYYYYMMDD().substring(0,4))
 								.build();
 
@@ -1180,57 +1178,6 @@ public class CodefService {
 				.data(null).build());
 	}
 
-	/**
-	 * 법인정보 등록
-	 *
-	 * @param idx_user 등록하는 User idx
-	 * @param dto      등록정보
-	 * @param idx_CardInfo CardIssuanceInfo idx
-	 */
-	@Transactional(rollbackFor = Exception.class)
-	UserCorporationDto.CorporationRes codeRegisterCorporation(Long idx_user, UserCorporationDto.RegisterCorporation dto, Long idx_CardInfo) {
-		User user = findUser(idx_user);
-
-		D1000 d1000 = repoD1000.getTopByIdxCorpOrderByIdxDesc(user.corp().idx());
-		Corp corp = repoCorp.save(user.corp()
-				.resCompanyEngNm(dto.getEngCorName())
-				.resCompanyNumber(dto.getCorNumber())
-				.resBusinessCode(dto.getBusinessCode())
-				.resUserType(d1000 != null ? d1000.getD009() : null)
-		);
-
-		CardIssuanceInfo cardInfo;
-		try {
-			cardInfo = findCardIssuanceInfo(user.corp());
-			if (!cardInfo.idx().equals(idx_CardInfo)) {
-				throw MismatchedException.builder().build();
-			}
-
-		} catch (EntityNotFoundException e) {
-			cardInfo = repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
-			if (d1000 != null) {
-				String[] corNumber = dto.getCorNumber().split("-");
-				repoD1000.save(d1000
-						.setD006(!StringUtils.hasText(d1000.getD006()) ? dto.getEngCorName() : d1000.getD006())
-						.setD008(!StringUtils.hasText(d1000.getD008()) ? dto.getBusinessCode() : d1000.getD008())
-						.setD026(!StringUtils.hasText(d1000.getD026()) ? corNumber[0] : d1000.getD026())
-						.setD027(!StringUtils.hasText(d1000.getD027()) ? corNumber[1] : d1000.getD027())
-						.setD028(!StringUtils.hasText(d1000.getD028()) ? corNumber[2] : d1000.getD028())
-				);
-			}
-		}
-		return UserCorporationDto.CorporationRes.from(corp, cardInfo.idx());
-	}
-
-	private CardIssuanceInfo findCardIssuanceInfo(Corp corp) {
-		return repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(corp).orElseThrow(
-				() -> EntityNotFoundException.builder()
-						.entity("CardIssuanceInfo")
-						.build()
-		);
-	}
-
-
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity RegisterCorpInfo(ConnectedMngDto.CorpInfo dto, Long idxUser,Long idx_CardInfo){
 
@@ -1249,11 +1196,12 @@ public class CodefService {
 
 		// 국세청 - 증명발급 표준재무재표
 		String finalConnectedId = connectedId;
-
+		AtomicReference<String> strResult = null;
 		listYyyyMm.forEach(yyyyMm ->{
 			JSONObject[] jsonObjectStandardFinancial = new JSONObject[0];
 			try {
-				jsonObjectStandardFinancial = getApiResult(STANDARD_FINANCIAL.standard_financial(
+
+				strResult.set(STANDARD_FINANCIAL.standard_financial(
 						"0001",
 						finalConnectedId,
 						yyyyMm,
@@ -1262,8 +1210,10 @@ public class CodefService {
 						"01",
 						"40",
 						"",
-						resCompanyIdentityNo.replaceAll("-","").trim() // 사업자번호
+						resCompanyIdentityNo.replaceAll("-", "").trim() // 사업자번호
 				));
+
+				jsonObjectStandardFinancial = getApiResult(strResult.get());
 			} catch (Exception e) {
 				log.debug(e.toString());
 			}
@@ -1354,7 +1304,7 @@ public class CodefService {
 				try {
 					ImageConvertDto param1520 = ImageConvertDto.builder()
 							.mrdType(1520)
-							.data(corpRegisterJsonData(jsonData2).toString())
+							.data(strResult.get())
 							.fileName(user.get().corp().resCompanyIdentityNo().replaceAll("-","")+1520+yyyyMm.substring(0,4))
 							.build();
 
@@ -1401,6 +1351,8 @@ public class CodefService {
 						.build());
 			}
 		});
+
+
 
 		repoD1100.save(D1100.builder()
 				.idxCorp(user.get().corp().idx())
@@ -1467,16 +1419,19 @@ public class CodefService {
 				.resBusinessCode(dto.getResBusinessCode())
 		);
 
-		CardIssuanceInfo cardInfo;
-		try {
-			cardInfo = findCardIssuanceInfo(user.get().corp());
-		} catch (EntityNotFoundException e) {
-			cardInfo = repoCardIssuance.save(CardIssuanceInfo.builder().corp(user.get().corp()).build());
-		}
+		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(user.get().corp().idx());
+		String[] corNumber = dto.getResCompanyPhoneNumber().split("-");
+		d1000.setD006(!StringUtils.hasText(d1000.getD006()) ? dto.getResCompanyEngNm() : d1000.getD006());
+		d1000.setD008(!StringUtils.hasText(d1000.getD008()) ? dto.getResBusinessCode() : d1000.getD008());
+		d1000.setD026(!StringUtils.hasText(d1000.getD026()) ? corNumber[0] : d1000.getD026());
+		d1000.setD027(!StringUtils.hasText(d1000.getD027()) ? corNumber[1] : d1000.getD027());
+		d1000.setD028(!StringUtils.hasText(d1000.getD028()) ? corNumber[2] : d1000.getD028());
+
+		repoD1000.save(d1000);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(normal)
-				.data(UserCorporationDto.CorporationRes.from(user.get().corp(), cardInfo.idx())).build());
+				.data(null).build());
 	}
 
 	private List<String> getFindClosingStandards(String Mm) {
@@ -2041,103 +1996,5 @@ public class CodefService {
 				);
 			});
 		});
-	}
-
-	private Long getaLong(Long idxUser, Long idxCorp) {
-		if(idxCorp != null){
-			if(repoUser.findById(idxUser).get().authorities().stream().anyMatch(o -> (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))){
-				idxUser = repoCorp.searchIdxUser(idxCorp)
-				;
-			}
-		}
-		return idxUser;
-	}
-
-	private User findUser(Long idx_user) {
-		return repoUser.findById(idx_user).orElseThrow(
-				() -> EntityNotFoundException.builder()
-						.entity("User")
-						.idx(idx_user)
-						.build()
-		);
-	}
-
-	public JSONObject corpRegisterJsonData(JSONObject lists){
-		JSONObject obj = new JSONObject();
-		JSONObject result = new JSONObject();
-		JSONArray array = new JSONArray();
-
-		array.add(lists);
-		result.put("lists", array);
-		obj.put("result", result);
-
-
-		System.out.println("================");
-		System.out.println(obj.toJSONString());
-		System.out.println("================");
-
-		return obj;
-	}
-
-
-	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity RegisterCorpInfoTest(Long idxUser) throws Exception {
-
-		Optional<User> user = repoUser.findById(idxUser);
-
-		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
-
-		JSONObject[] jsonObjectCorpRegister = getApiResult(CORP_REGISTER.corp_register(
-				"0002",
-				"0261057000",
-				RSAUtil.encryptRSA("6821", CommonConstant.PUBLIC_KEY),
-				"2",
-				"1101115639343".replaceAll("-","").trim(),
-				"1",
-				"T34029396293",
-				"gowid99!",
-				"",
-				"",
-				"",
-				"",
-				"1",
-				"",
-				"",
-				"",
-				"N"
-		));
-
-		String jsonObjectCorpRegisterCode = jsonObjectCorpRegister[0].get("code").toString();
-		if (jsonObjectCorpRegisterCode.equals("CF-00000")) {
-			JSONObject jsonDataCorpRegister = jsonObjectCorpRegister[1];
-
-
-			System.out.println(jsonDataCorpRegister.toJSONString());
-			System.out.println(jsonDataCorpRegister.toString());
-
-			JSONObject obj = new JSONObject();
-			JSONObject result = new JSONObject();
-			JSONObject lists = new JSONObject();
-
-
-
-			lists.put("resIssueYN",jsonDataCorpRegister.get("resIssueYN").toString());
-			lists.put("resRegisterEntriesList",jsonDataCorpRegister.get("resRegisterEntriesList").toString());
-			result.put("lists", lists);
-			obj.put("result", result);
-
-			ImageConvertDto param1530 =
-					ImageConvertDto.builder()
-							.mrdType(1530)
-							.data(obj.toString())
-							.fileName("1101115639343".replaceAll("-", "") + 1530 + CommonUtil.getNowYYYYMMDD().substring(0, 4))
-							.build();
-
-			converter.convertJsonToImage(param1530);
-		}
-
-		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.normal(normal)
-				.data(null).build());
 	}
 }

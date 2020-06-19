@@ -67,8 +67,8 @@ public class AwsS3Service {
     public void s3FileDelete(String key) {
         try {
             AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.accessKey(), config.secretKey())))
-                    //.withCredentials(new InstanceProfileCredentialsProvider(false))
+                    // .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.accessKey(), config.secretKey())))
+                    .withCredentials(new InstanceProfileCredentialsProvider(false))
                     .withRegion(Regions.AP_NORTHEAST_2)
                     .build();
 
