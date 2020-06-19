@@ -52,11 +52,6 @@ public class IssuanceService {
 
     /**
      * 카드 신청
-     * <p>
-     * todo
-     * - 1100 테이블에 비번 및 결제계좌 저장(키패드 복호화 -> seed128 암호화)
-     * - 3000, 이미지 전송요청 test
-     * <p>
      * 1200
      * 3000(이미지 제출여부)
      * 이미지 전송요청
@@ -70,6 +65,10 @@ public class IssuanceService {
     @Transactional(rollbackFor = Exception.class)
     public UserCorporationDto.IssuanceRes issuance(Long userIdx, UserCorporationDto.IssuanceReq request) {
 
+        // todo
+        //  - 1100 테이블에 비번 및 결제계좌 저장(키패드 복호화 -> seed128 암호화)
+        //  - 3000, 이미지 전송요청 주석해제(현재는 신한 방화벽 문제로 주석처리)
+
         User user = findUser(userIdx);
         Corp userCorp = user.corp();
         if (userCorp == null) {
@@ -80,10 +79,10 @@ public class IssuanceService {
         DataPart1200 resultOfD1200 = proc1200(userCorp);
 
         // 3000(이미지 제출여부)
-        DataPart3000Res resultOfD3000 = proc3000(resultOfD1200);
+        // DataPart3000Res resultOfD3000 = proc3000(resultOfD1200);
 
         // 이미지 전송요청
-        procBrpTransfer(resultOfD3000, user.corp().resCompanyIdentityNo());
+        // procBrpTransfer(resultOfD3000, user.corp().resCompanyIdentityNo());
 
         // 15X0(서류제출)
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
