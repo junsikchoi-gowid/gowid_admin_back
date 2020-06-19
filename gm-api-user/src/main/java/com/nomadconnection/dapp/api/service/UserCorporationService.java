@@ -561,15 +561,15 @@ public class UserCorporationService {
         User user = findUser(idx_user);
         CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(user.corp()).orElse(null);
 
-        String bankName = null;
-        if (cardIssuanceInfo.bankAccount() != null) {
-            CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, cardIssuanceInfo.bankAccount().getBankCode());
-            if (commonCodeDetail != null) {
-                bankName = commonCodeDetail.value1();
-            }
-        }
-
         if (cardIssuanceInfo != null) {
+            String bankName = null;
+            if (cardIssuanceInfo.bankAccount() != null) {
+                CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, cardIssuanceInfo.bankAccount().getBankCode());
+                if (commonCodeDetail != null) {
+                    bankName = commonCodeDetail.value1();
+                }
+            }
+
             return UserCorporationDto.CardIssuanceInfoRes.builder()
                     .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx()))
                     .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))

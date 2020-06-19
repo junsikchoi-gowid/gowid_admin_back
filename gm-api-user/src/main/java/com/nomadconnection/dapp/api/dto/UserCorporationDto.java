@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1600;
+import com.nomadconnection.dapp.api.util.MaskingUtils;
 import com.nomadconnection.dapp.core.domain.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
@@ -465,7 +466,7 @@ public class UserCorporationDto {
                         .idx(cardInfo.idx())
                         .bank(bankName)
                         .bankCode(cardInfo.bankAccount().getBankCode())
-                        .accountNumber(cardInfo.bankAccount().getBankAccount())
+                        .accountNumber(MaskingUtils.maskingBankAccountNumber(cardInfo.bankAccount().getBankAccount()))
                         .accountHolder(cardInfo.bankAccount().getBankAccountHolder())
                         .build();
             }
