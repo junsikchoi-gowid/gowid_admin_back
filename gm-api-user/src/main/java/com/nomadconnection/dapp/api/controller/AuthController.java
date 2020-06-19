@@ -25,12 +25,12 @@ import javax.validation.constraints.Email;
 import java.util.List;
 
 @Slf4j
+@CrossOrigin(allowCredentials = "true")
 @RestController
 @RequestMapping(AuthController.URI.BASE)
 @RequiredArgsConstructor
 @Api(tags = "인증", description = AuthController.URI.BASE)
 @Validated
-@SuppressWarnings({"unused", "deprecation"})
 public class AuthController {
 
     public static class URI {

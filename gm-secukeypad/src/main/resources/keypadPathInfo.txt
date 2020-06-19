@@ -1,0 +1,6 @@
+#resources 폴더, nprotect.properties는 외부에 존재해야 함.
+'SecuKeypadApplication.class' 에서 PropertiesPath 에 대한 value
+'nprotect.properties' 에서 'keypad.resources.path' 에 대한 value
+
+stage -> /home/webapp/appconfig/nprotect.properties
+      -> /home/webapp/appconfig/resources

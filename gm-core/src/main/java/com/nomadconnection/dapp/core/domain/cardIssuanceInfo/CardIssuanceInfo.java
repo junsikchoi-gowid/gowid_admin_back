@@ -54,4 +54,7 @@ public class CardIssuanceInfo extends BaseTime {
     @OneToMany(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     private Collection<StockholderFile> stockholderFiles;
+
+    @Builder.Default
+    private String cardCode = "0306"; //codef 카드코드넘버
 }

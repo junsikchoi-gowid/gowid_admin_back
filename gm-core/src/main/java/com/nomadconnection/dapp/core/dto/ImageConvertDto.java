@@ -4,18 +4,17 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 @Getter
 @NoArgsConstructor
 public class ImageConvertDto {
 
 	@Builder
-	public ImageConvertDto(Integer mrdType, String fileName, JSONObject data) {
-		this.mrdType = mrdType;
-		this.fileName = fileName;
-		this.data = data;
-	}
+    public ImageConvertDto(Integer mrdType, String fileName, String data) {
+        this.mrdType = mrdType;
+        this.fileName = fileName;
+        this.data = data;
+    }
 
 	@ApiModelProperty("솔루션 code(default: 500)")
 	private String opCode = "500";
@@ -26,8 +25,8 @@ public class ImageConvertDto {
 	@ApiModelProperty("파일명")
 	private String fileName;
 
-	@ApiModelProperty("이미지 변환 대상 JSON 데이터")
-	private JSONObject data;
+    @ApiModelProperty("이미지 변환 대상 JSON 데이터")
+    private String data;
 
 	@ApiModelProperty("확장자")
 	private String exportType = "tif";

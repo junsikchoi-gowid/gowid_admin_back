@@ -6,6 +6,7 @@ spring:
       - jwt
       - core
       - resx
+      - secukeypad
   devtools:
     livereload:
       enabled: true

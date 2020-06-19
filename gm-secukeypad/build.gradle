@@ -1,0 +1,20 @@
+dependencies {
+    implementation(
+            "org.springframework.boot:spring-boot-starter-web",
+            "org.apache.commons:commons-lang3:3.4",
+            "com.googlecode.json-simple:json-simple:1.1.1",
+            "org.json:json:20180813",
+            "com.fasterxml.jackson.core:jackson-core:2.9.9",
+            "com.fasterxml.jackson.core:jackson-annotations:2.9.9",
+            "com.fasterxml.jackson.core:jackson-databind:2.9.9.2",
+            "org.codehaus.jackson:jackson-mapper-asl:1.9.13",
+            "commons-codec:commons-codec:1.11",
+            "commons-io:commons-io:2.6",
+            "org.springframework.boot:spring-boot-starter-tomcat",
+            "org.apache.tomcat.embed:tomcat-embed-jasper",
+            "javax.servlet:jstl",
+            "org.springframework:springloaded:1.2.8.RELEASE"
+    )
+    implementation files('libs/com.nprotect.pluginfree.v1.5.0.20200605.jar')
+}
+jar.enabled = true; bootJar.enabled = false
