@@ -3,6 +3,8 @@ package com.nomadconnection.dapp.core.domain;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
@@ -12,7 +14,8 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
+@DynamicUpdate
+@DynamicInsert
 public class D1200 extends BaseTime {
 
     @Id
@@ -45,6 +48,4 @@ public class D1200 extends BaseTime {
     @Column(columnDefinition = "varchar(5)    DEFAULT '' COMMENT '신청접수순번'")
     private String d008;    //제휴약정한도금액
 
-    @Column(columnDefinition = "blob COMMENT '전자서명파일'")
-    private String signedBinaryString;
 }

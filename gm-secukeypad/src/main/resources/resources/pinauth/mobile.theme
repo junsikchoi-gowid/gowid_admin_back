@@ -1,0 +1,202 @@
+-----BEGIN PROPERTIES-----
+theme.id = mobile
+matrix.cols = 3
+matrix.rows = 3
+pattern.margin = 30
+pattern.radius = 50
+-----END PROPERTIES-----
+
+-----BEGIN LANGUAGE PACK-----
+pin-input-title = Please enter your PIN number.
+pin-pattern-info = Click here to activate pattern input.
+pin-pattern-submit = Ok
+pin-pattern-cancel = Cancel
+-----END LANGUAGE PACK-----
+
+
+-----BEGIN CASCADING STYLE SHEETS-----
+div.nppin-div-auth.mobile {
+	height: 34px;
+	border:1px solid #888;
+}
+div.nppin-div-auth.mobile .nppin-nav-div {
+	display:block;
+	position:absolute;
+	cursor:pointer;
+	width:34px;
+	height:34px;
+}
+div.nppin-div-auth.mobile .nppin-nav-div.arrowleft {
+	opacity:.5;
+	top:0px;
+	left:0;
+	background : url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA40lEQVRYR+2WSQ7CQAwEO79mDTvku/AC1BIjWb7Em5jL+JJLoi5XPMuEzjV1zscAGAaqDbwAfADwaapKAIZufql7AE8LQRUAw7Yi8A7g+C+AB4BdJJzfZA2wU+puRZiDpfP2TgbgpsLc4RkDOpwzIE2YJUQMXNWAhcMjBi4AZtEel54cQHPnkRk4AziJhEUtPXe410B3AALrX5C2UDGEKYgIAE3oZRiGiAKUQWQACKG3YreJLAAh9GHkgqgAIIQ+js0QVQCEkBcS3g0IsVqVAA3ibQ337oSr3UReqDbgZhgAw8AXom4oITXLC+wAAAAASUVORK5CYII=) 50% 50% no-repeat
+}
+div.nppin-div-auth.mobile .nppin-nav-div.arrowright {
+	opacity:.5;
+	top:0px;
+	right:0;
+	background : url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA80lEQVRYR+2WyQoCMRBEnyf9X3dx35ePVgqmIQSV6UycQUguc8lQr6srnfToePU61qcAFAe8DqyAPqDvM0eAPQAS3VeiR2CdA8IDcAIWQdVZIDwA2iuIeQBxADZNnPAASFf7z8AsF4QXwCAuwDQHRAqAQVyBSQChgG697UgFMIgbMI4glInaqwmAQdyBUaC4q5yoBdEUwCAewDAF4u8BVEBy9WZfrV692STxuP86Ca2E8JN4K8dQ4vHxSx7J3hBmFfdmQOLx9Euu3DLlcUC2h6O39etYbwFdx1pZxL0t0P4lMOjqSZY6L77+58lAASgO/MSBF+cNNCGT/MHkAAAAAElFTkSuQmCC) 50% 50% no-repeat
+}
+div.nppin-div-auth.mobile .nppin-nav-div:hover {
+	opacity:.8;
+	background-color:#ccc;
+}
+
+div.nppin-div-auth.mobile div.nppin-div-contents {
+	position: relative;
+}
+div.nppin-div-auth.mobile ul.nppin-keypad-dot, div.nppin-div-auth.mobile ul.nppin-pattern-dot {
+	list-style-type: none;
+	padding: 0px;
+	position: initial;
+    display: inline-block;
+    left: 0;
+    top: 8px;
+    margin: 8px;
+}
+div.nppin-div-auth.mobile .nppin-keypad-dot li, div.nppin-div-auth.mobile .nppin-pattern-dot li{
+	float:left; width:17px; height:17px; margin-left: 16px; border-radius:100%; background-color:#9b9fa8;
+}
+div.nppin-div-auth.mobile li.nppin-dot-item:first-child {
+	margin-left:0;
+}
+div.nppin-div-auth.mobile li.nppin-dot-item.on{
+	background-color: #f05000;
+}
+div.nppin-div-auth.mobile li.nppin-dot-item.tr{
+	background-color: transparent;
+}
+
+div.nppin-div-auth.mobile  .nppin-input {
+	position:absolute;
+	top:0;
+	left:50%;
+	width:150px;
+	margin-left: -75px;
+}
+
+div.nppin-div-auth.mobile .nppin-input-keypad {
+	height: 34px;
+	border: 0px;
+	color: transparent;
+	background-color: transparent;
+}
+div.nppin-div-auth.mobile .nppin-div-keypad-input, div.nppin-div-auth.mobile .nppin-div-pattern-input {
+	position:relative;
+	text-align: center;
+	height:34px;
+}
+div.nppin-div-auth.mobile .nppin-pattern-info{
+	width: 100%;
+	text-align: center;
+	left: 0;
+	position: absolute;
+	top: 10px;
+	margin: 0;
+}
+
+div.nppin-div-auth.mobile div.nppin-pattern-div {
+    position: absolute;
+    display: none;
+    width: 0px;
+    height: 0px;
+    display: block;
+}
+
+div.nppin-pattern.mobile {
+    position: relative;
+    margin: 0px;
+    z-index: 9999;
+    top: -5px;
+    left: 100px;
+}
+
+div.nppin-pattern.mobile .nppin-pattern-ui {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 0;
+}
+div.nppin-pattern.mobile .nppin-pattern-ui ul {
+	margin:0;
+	padding: 0;
+}
+div.nppin-pattern.mobile .nppin-pattern-controls ul {
+	list-style: none outside none; margin:0; padding: 0; text-align: center;
+}
+div.nppin-pattern.mobile .nppin-pattern-controls li {
+	float:right;
+	margin: 0 10px;
+	display: inline;
+}
+div.nppin-pattern.mobile li.nppin-pattern-button {
+	margin: 5px;
+	padding: 5px 20px;
+	border-radius: 10px;
+	border: 1px solid #888888;
+	cursor: pointer;
+	background-color: #fff;
+}
+
+div.nppin-pattern.mobile li.nppin-pattern-button.submit {
+	background-color: #fff;
+}
+div.nppin-pattern.mobile li.nppin-pattern-button.cancel {
+	background-color: #aaa;
+}
+
+div.nppin-pattern.mobile .nppin-patt-holder{
+	background:#3382c0;
+	-ms-touch-action: none;
+}
+div.nppin-pattern.mobile .nppin-patt-wrap{
+	position:relative;
+	cursor:pointer;
+}
+div.nppin-pattern.mobile .nppin-patt-wrap ul, div.nppin-pattern.mobile .nppin-patt-wrap li {
+	list-style: none;
+	margin:0;
+	padding: 0;
+}
+div.nppin-pattern.mobile .nppin-patt-circ{
+	position:relative;
+	float: left;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+ }
+div.nppin-pattern.mobile .nppin-patt-circ.hovered{
+	border:3px solid #009900;
+}
+
+div.nppin-pattern.mobile .nppin-patt-error .nppin-patt-circ.hovered{
+	border:3px solid #BA1B26;
+}
+
+div.nppin-pattern.mobile .nppin-patt-hidden .nppin-patt-circ.hovered{border:0;}
+
+div.nppin-pattern.mobile .nppin-patt-dots{
+	background: #FFF;
+	width: 10px;height: 10px;
+	border-radius:5px;
+	position:absolute;
+	top:50%;
+	left:50%;
+	margin-top:-5px;
+	margin-left:-5px;
+}
+div.nppin-pattern.mobile .nppin-patt-lines{
+	border-radius:5px;
+	height:10px;
+	background:rgba(255,255,255,.7);
+	position:absolute;
+	transform-origin:5px 5px;
+	-ms-transform-origin:5px 5px; /* IE 9 */
+	-webkit-transform-origin:5px 5px;
+}
+
+div.nppin-pattern.mobile .nppin-patt-hidden .nppin-patt-lines{
+	display:none;
+}
+
+-----END CASCADING STYLE SHEETS-----

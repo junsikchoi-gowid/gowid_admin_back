@@ -214,11 +214,10 @@ public class UserCorporationService {
      * @param files        파일
      * @param type         file type
      * @param idx_CardInfo CardIssuanceInfo idx
-     * @param cardCode     카드코드
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(Long idx_user, MultipartFile[] files, String type, Long idx_CardInfo, String cardCode) throws IOException {
+    public List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(Long idx_user, MultipartFile[] files, String type, Long idx_CardInfo) throws IOException {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -236,7 +235,7 @@ public class UserCorporationService {
         if (!ObjectUtils.isEmpty(fileList)) {
             for (StockholderFile file : fileList) {
                 repoFile.delete(file);
-                gwUploadService.delete(file.fname(), cardCode);
+                //gwUploadService.delete(file.fname(), cardInfo.cardCode());
                 s3Service.s3FileDelete(file.s3Key());
             }
         }
@@ -249,7 +248,7 @@ public class UserCorporationService {
             fos.write(file.getBytes());
             fos.close();
             try {
-                gwUploadService.upload(uploadFile, cardCode);
+                //gwUploadService.upload(uploadFile, cardInfo.cardCode());
 
                 String s3Key = "stockholder/" + idx_CardInfo + "/" + fileName;
                 String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
@@ -283,7 +282,7 @@ public class UserCorporationService {
      * @param idx_file 삭제대상 StockholderFile 식별자
      */
     @Transactional(rollbackFor = Exception.class)
-    public void deleteStockholderFile(Long idx_user, Long idx_file, Long idx_CardInfo) {
+    public void deleteStockholderFile(Long idx_user, Long idx_file, Long idx_CardInfo) throws IOException {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -294,6 +293,7 @@ public class UserCorporationService {
         if (file.cardIssuanceInfo().idx() != idx_CardInfo) {
             throw MismatchedException.builder().category(MismatchedException.Category.STOCKHOLDER_FILE).build();
         }
+        gwUploadService.delete(file.fname(), cardInfo.cardCode());
         s3Service.s3FileDelete(file.s3Key());
         repoFile.delete(file);
     }
@@ -391,16 +391,16 @@ public class UserCorporationService {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
+        cardInfo.bankAccount(BankAccount.builder()
+                .bankAccount(dto.getAccountNumber())
+                .bankCode(dto.getBank())
+                .bankAccountHolder(dto.getAccountHolder())
+                .build());
+
         String bankCode = dto.getBank();
         if (bankCode.length() > 3) {
             bankCode = bankCode.substring(bankCode.length() - 3);
         }
-
-        cardInfo.bankAccount(BankAccount.builder()
-                .bankAccount(dto.getAccountNumber())
-                .bankCode(bankCode)
-                .bankAccountHolder(dto.getAccountHolder())
-                .build());
 
         D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
@@ -410,7 +410,14 @@ public class UserCorporationService {
                     .setD026(dto.getAccountHolder())
             );
         }
-        return UserCorporationDto.AccountRes.from(repoCardIssuance.save(cardInfo));
+
+        String bankName = null;
+        CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, dto.getBank());
+        if (commonCodeDetail != null) {
+            bankName = commonCodeDetail.value1();
+        }
+
+        return UserCorporationDto.AccountRes.from(repoCardIssuance.save(cardInfo), bankName);
     }
 
     /**
@@ -422,6 +429,9 @@ public class UserCorporationService {
     @Transactional(readOnly = true)
     public UserCorporationDto.CeoTypeRes getCeoType(Long idx_user) {
         User user = findUser(idx_user);
+        if (user.corp() == null) {
+            throw EntityNotFoundException.builder().entity("Corp").build();
+        }
         D1000 d1000 = getD1000(user.corp().idx());
         Integer count = 1;
         String ceoType = "1";
@@ -455,18 +465,6 @@ public class UserCorporationService {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
-        CeoInfo ceoInfo = CeoInfo.builder()
-                .cardIssuanceInfo(cardInfo)
-                .engName(dto.getEngName())
-                .name(dto.getName())
-                .nationality(dto.getNation())
-                .isForeign("KR".equalsIgnoreCase(dto.getNation()) ? false : true)
-                .phoneNumber(dto.getPhoneNumber())
-                .agencyCode(dto.getAgency())
-                .genderCode(dto.getGenderCode())
-                .birth(dto.getBirth())
-                .certificationType(dto.getIdentityType())
-                .build();
 
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
@@ -477,11 +475,11 @@ public class UserCorporationService {
                         .setD013(dto.getNation())
                         .setD035(dto.getName())
                         .setD036(dto.getPhoneNumber().substring(0, 3))
-                        .setD037(dto.getPhoneNumber().substring(3, 6))
-                        .setD038(dto.getPhoneNumber().substring(6))
+                        .setD037(dto.getPhoneNumber().substring(3, 7))
+                        .setD038(dto.getPhoneNumber().substring(7))
                         .setD040(dto.getPhoneNumber().substring(0, 3))
-                        .setD041(dto.getPhoneNumber().substring(3, 6))
-                        .setD042(dto.getPhoneNumber().substring(6))
+                        .setD041(dto.getPhoneNumber().substring(3, 7))
+                        .setD042(dto.getPhoneNumber().substring(7))
                 );
             }
             if (!StringUtils.hasText(d1000.getD016())) {
@@ -504,10 +502,24 @@ public class UserCorporationService {
         if (d1100 != null && !StringUtils.hasText(d1100.getD035())) {
             repoD1100.save(d1100
                     .setD035(dto.getPhoneNumber().substring(0, 3))
-                    .setD036(dto.getPhoneNumber().substring(3, 6))
-                    .setD037(dto.getPhoneNumber().substring(6))
+                    .setD036(dto.getPhoneNumber().substring(3, 7))
+                    .setD037(dto.getPhoneNumber().substring(7))
             );
         }
+
+        CeoInfo ceoInfo = CeoInfo.builder()
+                .cardIssuanceInfo(cardInfo)
+                .engName(dto.getEngName())
+                .name(dto.getName())
+                .nationality(dto.getNation())
+                .isForeign("KR".equalsIgnoreCase(dto.getNation()) ? false : true)
+                .phoneNumber(dto.getPhoneNumber())
+                .agencyCode(dto.getAgency())
+                .genderCode(dto.getGenderCode())
+                .birth(dto.getBirth())
+                .certificationType(dto.getIdentityType())
+                .type(CeoType.from(d1000.getD009()))
+                .build();
 
         return UserCorporationDto.CeoRes.from(repoCeo.save(ceoInfo)).setDeviceId("");
     }
@@ -526,12 +538,21 @@ public class UserCorporationService {
                         .entity("CardIssuanceInfo")
                         .build()
         );
+
+        String bankName = null;
+        if (cardIssuanceInfo.bankAccount() != null) {
+            CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, cardIssuanceInfo.bankAccount().getBankCode());
+            if (commonCodeDetail != null) {
+                bankName = commonCodeDetail.value1();
+            }
+        }
+
         return UserCorporationDto.CardIssuanceInfoRes.builder()
                 .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), idx_cardIssuanceInfo))
                 .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
                 .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
                 .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
-                .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
+                .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo, bankName))
                 .ceoRes(cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()))
                 .stockholderFileRes(cardIssuanceInfo.stockholderFiles().stream().map(file -> UserCorporationDto.StockholderFileRes.from(file, idx_cardIssuanceInfo)).collect(Collectors.toList()))
                 .build();
@@ -547,13 +568,22 @@ public class UserCorporationService {
     public UserCorporationDto.CardIssuanceInfoRes getCardIssuanceInfoByUser(Long idx_user) {
         User user = findUser(idx_user);
         CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(user.corp()).orElse(null);
+
+        String bankName = null;
+        if (cardIssuanceInfo.bankAccount() != null) {
+            CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, cardIssuanceInfo.bankAccount().getBankCode());
+            if (commonCodeDetail != null) {
+                bankName = commonCodeDetail.value1();
+            }
+        }
+
         if (cardIssuanceInfo != null) {
             return UserCorporationDto.CardIssuanceInfoRes.builder()
                     .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx()))
                     .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
                     .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
                     .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
-                    .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo))
+                    .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo, bankName))
                     .ceoRes(cardIssuanceInfo.ceoInfos() != null ? cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()) : null)
                     .stockholderFileRes(cardIssuanceInfo.stockholderFiles() != null ? cardIssuanceInfo.stockholderFiles().stream().map(file -> UserCorporationDto.StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()) : null)
                     .build();

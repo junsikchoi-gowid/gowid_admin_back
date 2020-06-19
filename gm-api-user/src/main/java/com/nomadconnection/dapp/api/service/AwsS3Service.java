@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -29,8 +30,8 @@ public class AwsS3Service {
     public String s3FileUpload(File file, String key) {
         try {
             AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard()
-                    //.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.accessKey(), config.secretKey())))
-                    .withCredentials(new InstanceProfileCredentialsProvider(false))
+                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.accessKey(), config.secretKey())))
+                    //.withCredentials(new InstanceProfileCredentialsProvider(false))
                     .withRegion(Regions.AP_NORTHEAST_2)
                     .build();
             amazonS3.putObject(config.bucketName(), key, file);
@@ -46,8 +47,8 @@ public class AwsS3Service {
     public String s3FileDownload(String key) {
         try {
             AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard()
-                    //.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.accessKey(), config.secretKey())))
-                    .withCredentials(new InstanceProfileCredentialsProvider(false))
+                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.accessKey(), config.secretKey())))
+                    //.withCredentials(new InstanceProfileCredentialsProvider(false))
                     .withRegion(Regions.AP_NORTHEAST_2)
                     .build();
 
@@ -65,8 +66,8 @@ public class AwsS3Service {
     public void s3FileDelete(String key) {
         try {
             AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard()
-                    //.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.accessKey(), config.secretKey())))
-                    .withCredentials(new InstanceProfileCredentialsProvider(false))
+                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.accessKey(), config.secretKey())))
+                    //.withCredentials(new InstanceProfileCredentialsProvider(false))
                     .withRegion(Regions.AP_NORTHEAST_2)
                     .build();
 

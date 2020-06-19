@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import com.nomadconnection.dapp.jwt.exception.AccessTokenNotFoundException;
 import com.nomadconnection.dapp.jwt.exception.JwtSubjectMismatchedException;
 import com.nomadconnection.dapp.jwt.exception.UnacceptableJwtException;
+import com.nomadconnection.dapp.secukeypad.SecuKeypadException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -139,6 +140,12 @@ public class CustomExceptionHandler {
                 return ErrorResponse.from(ErrorCode.Unverified.UNVERIFIED_CVT);
         }
         return ErrorResponse.from(ErrorCode.Unverified.UNVERIFIED);
+    }
+
+    @ExceptionHandler(SecuKeypadException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    protected ErrorResponse onSecuKeypadException(SecuKeypadException e) {
+        return ErrorResponse.builder().category(e.category().name()).data(e.data()).build();
     }
 
     //==================================================================================================================

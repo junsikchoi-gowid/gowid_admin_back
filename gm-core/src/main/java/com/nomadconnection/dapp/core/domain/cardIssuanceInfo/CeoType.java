@@ -13,4 +13,16 @@ public enum CeoType {
 
     private String description;
     private String code;
+
+    public static CeoType from(String code) {
+        if (code.equals("3")) {
+            return PUBLIC;
+        } else if (code.equals("2")) {
+            return EACH;
+        } else if (code.equals("1")) {
+            return SINGLE;
+        } else {
+            return null;
+        }
+    }
 }

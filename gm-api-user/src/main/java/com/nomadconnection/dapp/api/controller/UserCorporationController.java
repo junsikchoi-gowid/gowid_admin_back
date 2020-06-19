@@ -17,12 +17,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
 @Slf4j
 @RestController
+@CrossOrigin(allowCredentials = "true")
 @RequestMapping(UserCorporationController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
@@ -114,7 +116,7 @@ public class UserCorporationController {
             log.info("([ uploadStockholderFile ]) $user='{}', $files='{}', $idx_cardInfo='{}'", user, files, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), files, fileType, idxCardInfo, cardCode));
+        return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), files, fileType, idxCardInfo));
     }
 
     @ApiOperation("주주명부 파일 삭제")
@@ -122,7 +124,7 @@ public class UserCorporationController {
     public ResponseEntity<ResponseEntity.BodyBuilder> deleteStockholderFile(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
-            @PathVariable Long idxFile) {
+            @PathVariable Long idxFile) throws IOException {
         if (log.isInfoEnabled()) {
             log.info("([ deleteStockholderFile ]) $user='{}', $idx_file='{}', $idx_cardInfo='{}'", user, idxFile, idxCardInfo);
         }
@@ -217,15 +219,15 @@ public class UserCorporationController {
 
     @ApiOperation(value = "신분증 본인 확인")
     @PostMapping(URI.CEO_ID)
-    public ResponseEntity<?> verifyIdentification(
+    public ResponseEntity verifyIdentification(
+            HttpServletRequest request,
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody @Valid UserCorporationDto.IdentificationReq dto) {
-
+            @ModelAttribute @Valid UserCorporationDto.IdentificationReq dto) {
         if (log.isInfoEnabled()) {
             log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
         }
 
-        issuanceService.verifyCeoIdentification(dto);
+        issuanceService.verifyCeoIdentification(request, dto);
         return ResponseEntity.ok().build();
     }
 
@@ -235,12 +237,13 @@ public class UserCorporationController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid UserCorporationDto.IssuanceReq request) {
 
-//        issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
+        issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
         issuanceService.issuance(user.idx(), request);
 
         return ResponseEntity.ok().build();
     }
 
+    // todo : 에러처리
     @ApiOperation(value = "법인카드 발급 재개")
     @PostMapping(URI.RESUME)
     public ResponseEntity<UserCorporationDto.ResumeRes> resumeApplication(

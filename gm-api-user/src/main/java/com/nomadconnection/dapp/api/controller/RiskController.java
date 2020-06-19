@@ -17,6 +17,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 
 @Slf4j
+@CrossOrigin(allowCredentials = "true")
 @RestController
 @RequestMapping(RiskController.URI.BASE)
 @RequiredArgsConstructor

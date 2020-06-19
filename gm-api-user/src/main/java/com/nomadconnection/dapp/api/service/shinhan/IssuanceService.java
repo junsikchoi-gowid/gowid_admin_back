@@ -5,17 +5,19 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
-import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.InternalErrorException;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.*;
+import com.nomadconnection.dapp.core.domain.repository.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
-import com.yettiesoft.vestsign.external.CertificateInfo;
+import com.nomadconnection.dapp.secukeypad.EncryptParam;
+import com.nomadconnection.dapp.secukeypad.SecuKeypad;
+import com.yettiesoft.vestsign.base.code.CommonConst;
 import com.yettiesoft.vestsign.external.SignVerifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +29,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -44,6 +48,7 @@ public class IssuanceService {
     private final D1000Repository d1000Repository;
     private final D1400Repository d1400Repository;
     private final D1100Repository d1100Repository;
+    private final SignatureHistoryRepository signatureHistoryRepository;
     private final ShinhanGwRpc shinhanGwRpc;
     private final AsyncService asyncService;
 
@@ -63,6 +68,10 @@ public class IssuanceService {
     @Transactional(rollbackFor = Exception.class)
     public UserCorporationDto.IssuanceRes issuance(Long userIdx, UserCorporationDto.IssuanceReq request) {
 
+        // todo
+        //  - 1100 테이블에 비번 및 결제계좌 저장(키패드 복호화 -> seed128 암호화)
+        //  - 3000, 이미지 전송요청 주석해제(현재는 신한 방화벽 문제로 주석처리)
+
         User user = findUser(userIdx);
         Corp userCorp = user.corp();
         if (userCorp == null) {
@@ -73,10 +82,10 @@ public class IssuanceService {
         DataPart1200 resultOfD1200 = proc1200(userCorp);
 
         // 3000(이미지 제출여부)
-        DataPart3000Res resultOfD3000 = proc3000(resultOfD1200);
+        // DataPart3000Res resultOfD3000 = proc3000(resultOfD1200);
 
         // 이미지 전송요청
-
+        // procBrpTransfer(resultOfD3000, user.corp().resCompanyIdentityNo());
 
         // 15X0(서류제출)
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
@@ -94,16 +103,22 @@ public class IssuanceService {
         return new UserCorporationDto.IssuanceRes();
     }
 
-    // todo :
-    //  - 공통부 text개시문자가 고정값인지 확인.
-    //  - 데이터부 bpr map code 확인
-    //  - 데이터부 필수 필드만 보내면 되는지 확인
     private DataPart3000Res proc3000(DataPart1200 resultOfD1200) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH3000);
 
+        String mapCode = null;
+        if ("Y".equals(resultOfD1200.getD003())) {
+            mapCode = "02"; // 신규
+        } else if ("N".equals(resultOfD1200.getD003())) {
+            mapCode = "04"; // 조건변경
+        } else {
+            String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
+            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_3000, msg);
+        }
+
         // 데이터부
-        DataPart3000Req requestRpc = new DataPart3000Req("", resultOfD1200.getD007() + resultOfD1200.getD008());
+        DataPart3000Req requestRpc = new DataPart3000Req(mapCode, resultOfD1200.getD007() + resultOfD1200.getD008());
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         // todo : 테스트 데이터(삭제예정)
@@ -111,6 +126,11 @@ public class IssuanceService {
 
         // 요청 및 리턴
         return shinhanGwRpc.request3000(requestRpc);
+    }
+
+    private void procBrpTransfer(DataPart3000Res resultOfD3000, String companyIdentityNo) {
+        BprTransferReq requestRpc = new BprTransferReq(resultOfD3000);
+        shinhanGwRpc.requestBprTransfer(requestRpc, companyIdentityNo);
     }
 
 
@@ -296,8 +316,11 @@ public class IssuanceService {
         shinhanGwRpc.request1400(requestRpc);
     }
 
-    // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
-    // todo : 에러 및 실패처리
+    /**
+     * 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
+     * todo
+     * - 1100 테이블 결제계좌, 비번 복호화(테스트환경에서만)
+     */
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1600);
         UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
@@ -360,7 +383,7 @@ public class IssuanceService {
         return corpIdx;
     }
 
-    private DataPart1700 proc1700(UserCorporationDto.IdentificationReq request) {
+    private DataPart1700 proc1700(UserCorporationDto.IdentificationReq request, Map<String, String> decryptData) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1700);
 
@@ -369,9 +392,9 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
         requestRpc.setD001(request.getIdCode());
         requestRpc.setD002(request.getKorName());
-        requestRpc.setD003(request.getIdentificationNumber());
+        requestRpc.setD003(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER));
         requestRpc.setD004(request.getIssueDate());
-        requestRpc.setD005(request.getDriverNumber());
+        requestRpc.setD005(decryptData.get(EncryptParam.DRIVER_NUMBER));
         requestRpc.setD006(request.getDriverLocal());
         requestRpc.setD007(request.getDriverCode());
 
@@ -421,14 +444,16 @@ public class IssuanceService {
      * <p>
      * 1700 신분증 위조확인
      */
-    public void verifyCeoIdentification(UserCorporationDto.IdentificationReq request) {
+    public void verifyCeoIdentification(HttpServletRequest request, UserCorporationDto.IdentificationReq dto) {
+
+        Map<String, String> decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
 
         // 1700(신분증검증)
-        DataPart1700 resultOfD1700 = proc1700(request);
+        DataPart1700 resultOfD1700 = proc1700(dto, decryptData);
 
-        if (!resultOfD1700.getD008().equals("")) { // TODO : 결과값 확인
-            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1700, resultOfD1700.getD009());
-        }
+//        if (!resultOfD1700.getD008().equals("")) { // TODO : 결과값 확인
+//            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1700, resultOfD1700.getD009());
+//        }
     }
 
     public void verifySignedFileBinaryString(String signedString) {
@@ -437,19 +462,18 @@ public class IssuanceService {
         String errorMsg;
 
         try {
-            SignVerifier signVerifier = new SignVerifier(signedString);
+            SignVerifier signVerifier = new SignVerifier(signedString, CommonConst.CERT_STATUS_NONE, CommonConst.ENCODE_HEX);
             signVerifier.verify();
-            CertificateInfo cert = signVerifier.getSignerCertificate();
             errorCode = signVerifier.getLastErrorCode();
             errorMsg = signVerifier.getLastErrorMsg();
 
             log.debug("### 에러 코드 : " + errorCode);
             log.debug("### 검증 결과 : " + errorMsg);
-
-            log.debug("### 전자 서명 원문 : " + signVerifier.getSignedMessageText());
-            log.debug("### 사용자 인증서 정책 : " + cert.getPolicyIdentifier());
-            log.debug("### 사용자 인증서 DN : " + cert.getSubject());
-            log.debug("### 사용자 인증서 serial : " + cert.getSerial());
+//            log.debug("### 전자 서명 원문 : " + signVerifier.getSignedMessageText());
+//            CertificateInfo cert = signVerifier.getSignerCertificate();
+//            log.debug("### 사용자 인증서 정책 : " + cert.getPolicyIdentifier());
+//            log.debug("### 사용자 인증서 DN : " + cert.getSubject());
+//            log.debug("### 사용자 인증서 serial : " + cert.getSerial());
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -469,12 +493,18 @@ public class IssuanceService {
      * - db 저장
      * - 복호화
      */
-    public void verifySignedBinaryAndSave(Long userIdx, String signedString) {
-        verifySignedFileBinaryString(signedString);
+    @Transactional(rollbackFor = Exception.class)
+    public void verifySignedBinaryAndSave(Long userIdx, String signedBinaryString) {
+        verifySignedFileBinaryString(signedBinaryString);
 
         User user = findUser(userIdx);
-        D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx());
-        d1200.setSignedBinaryString(signedString);
+        SignatureHistory signatureHistory = SignatureHistory.builder()
+                .corpIdx(user.idx())
+                .userIdx(user.corp().idx())
+                .signedBinaryString(signedBinaryString)
+                .build();
+
+        signatureHistoryRepository.save(signatureHistory);
     }
 
 }

@@ -22,12 +22,12 @@ import springfox.documentation.annotations.ApiIgnore;
 import java.util.List;
 
 @Slf4j
+@CrossOrigin(allowCredentials = "true")
 @RestController
 @RequestMapping(DeptController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
 @Api(tags = "부서", description = DeptController.URI.BASE)
-@SuppressWarnings({"unused", "deprecation"})
 public class DeptController {
 
 	public static class URI {
