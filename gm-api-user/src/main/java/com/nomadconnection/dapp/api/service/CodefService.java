@@ -30,13 +30,18 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -899,6 +904,21 @@ public class CodefService {
 			user.corp(corp);
 			repoUser.save(user);
 
+			ImageConvertDto param1510 =
+					ImageConvertDto.builder()
+							.mrdType(1510)
+							.data(corpRegisterJsonData(jsonData).toString())
+							.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1510+CommonUtil.getNowYYYYMMDD().substring(0,4))
+							.build();
+
+			asyncService.run(() -> {
+				try {
+					converter.convertJsonToImage(param1510);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
+
 			// 대법원 - 법인등기부등본
 			JSONObject[] jsonObjectCorpRegister = getApiResult(CORP_REGISTER.corp_register(
 					"0002",
@@ -993,28 +1013,11 @@ public class CodefService {
 
 				corp.resUserType(d009);
 
-
-				// 이미지 Json Data 저장
-				ImageConvertDto param1510 =
-						ImageConvertDto.builder()
-								.mrdType(1510)
-								.data(corpRegisterJsonData(jsonData))
-								.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1510+CommonUtil.getNowYYYYMMDD().substring(0,3))
-								.build();
-
-				asyncService.run(() -> {
-					try {
-						converter.convertJsonToImage(param1510);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				});
-
 				ImageConvertDto param1530 =
 						ImageConvertDto.builder()
 								.mrdType(1530)
-								.data(corpRegisterJsonData(jsonDataCorpRegister))
-								.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1530+CommonUtil.getNowYYYYMMDD().substring(0,3))
+								.data(corpRegisterJsonData(jsonDataCorpRegister).toString())
+								.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1530+CommonUtil.getNowYYYYMMDD().substring(0,4))
 								.build();
 
 				asyncService.run(() -> {
@@ -1227,7 +1230,7 @@ public class CodefService {
 		);
 	}
 
-	@SneakyThrows
+
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity RegisterCorpInfo(ConnectedMngDto.CorpInfo dto, Long idxUser,Long idx_CardInfo){
 
@@ -1347,20 +1350,24 @@ public class CodefService {
 						.build());
 
 
-				ImageConvertDto param1520 =
-						ImageConvertDto.builder()
-								.mrdType(1530)
-								.data(corpRegisterJsonData(jsonData2))
-								.fileName(user.get().corp().resCompanyIdentityNo().replaceAll("-","")+1530+yyyyMm.substring(0,3))
-								.build();
 
-				asyncService.run(() -> {
-					try {
-						converter.convertJsonToImage(param1520);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				});
+				try {
+					ImageConvertDto param1520 = ImageConvertDto.builder()
+							.mrdType(1520)
+							.data(corpRegisterJsonData(jsonData2).toString())
+							.fileName(user.get().corp().resCompanyIdentityNo().replaceAll("-","")+1520+yyyyMm.substring(0,4))
+							.build();
+
+					asyncService.run(() -> {
+						try {
+							converter.convertJsonToImage(param1520);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					});
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 
 			}else{
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
@@ -2055,11 +2062,82 @@ public class CodefService {
 		);
 	}
 
-	public org.springframework.boot.configurationprocessor.json.JSONObject corpRegisterJsonData(JSONObject lists) throws JSONException {
-		org.springframework.boot.configurationprocessor.json.JSONObject obj = new org.springframework.boot.configurationprocessor.json.JSONObject();
+	public JSONObject corpRegisterJsonData(JSONObject lists){
+		JSONObject obj = new JSONObject();
 		JSONObject result = new JSONObject();
+		JSONArray array = new JSONArray();
+
+		array.add(lists);
+		result.put("lists", array);
 		obj.put("result", result);
-		result.put("lists", lists);
+
+
+		System.out.println("================");
+		System.out.println(obj.toJSONString());
+		System.out.println("================");
+
 		return obj;
+	}
+
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity RegisterCorpInfoTest(Long idxUser) throws Exception {
+
+		Optional<User> user = repoUser.findById(idxUser);
+
+		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
+
+		JSONObject[] jsonObjectCorpRegister = getApiResult(CORP_REGISTER.corp_register(
+				"0002",
+				"0261057000",
+				RSAUtil.encryptRSA("6821", CommonConstant.PUBLIC_KEY),
+				"2",
+				"1101115639343".replaceAll("-","").trim(),
+				"1",
+				"T34029396293",
+				"gowid99!",
+				"",
+				"",
+				"",
+				"",
+				"1",
+				"",
+				"",
+				"",
+				"N"
+		));
+
+		String jsonObjectCorpRegisterCode = jsonObjectCorpRegister[0].get("code").toString();
+		if (jsonObjectCorpRegisterCode.equals("CF-00000")) {
+			JSONObject jsonDataCorpRegister = jsonObjectCorpRegister[1];
+
+
+			System.out.println(jsonDataCorpRegister.toJSONString());
+			System.out.println(jsonDataCorpRegister.toString());
+
+			JSONObject obj = new JSONObject();
+			JSONObject result = new JSONObject();
+			JSONObject lists = new JSONObject();
+
+
+
+			lists.put("resIssueYN",jsonDataCorpRegister.get("resIssueYN").toString());
+			lists.put("resRegisterEntriesList",jsonDataCorpRegister.get("resRegisterEntriesList").toString());
+			result.put("lists", lists);
+			obj.put("result", result);
+
+			ImageConvertDto param1530 =
+					ImageConvertDto.builder()
+							.mrdType(1530)
+							.data(obj.toString())
+							.fileName("1101115639343".replaceAll("-", "") + 1530 + CommonUtil.getNowYYYYMMDD().substring(0, 4))
+							.build();
+
+			converter.convertJsonToImage(param1530);
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(normal)
+				.data(null).build());
 	}
 }

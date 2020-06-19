@@ -53,8 +53,6 @@ public class BankService {
 
 	private final UserService serviceUser;
 	private final ScrapingService serviceScraping;
-	private final CodefService serviceCodef;
-
 
 	private final UserRepository repoUser;
 	private final CorpRepository repoCorp;

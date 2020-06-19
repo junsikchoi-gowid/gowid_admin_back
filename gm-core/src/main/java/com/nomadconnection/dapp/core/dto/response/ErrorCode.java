@@ -67,7 +67,7 @@ public class ErrorCode {
 
 	@AllArgsConstructor
 	@Getter
-	public enum External implements ErrorCodeDescriptor {
+	public enum External {
 		EXTERNAL_ERROR_GW("EXTERNAL_ERROR_GW", "external error(shinhan - GW)"),
 		INTERNAL_ERROR_GW("INTERNAL_ERROR_GW", "external error(shinhan - GW)"),
 
@@ -76,6 +76,10 @@ public class ErrorCode {
 		EXTERNAL_ERROR_SHINHAN_1200("EXTERNAL_ERROR_SHINHAN_1200", "external error(shinhan - 1200)"),
 		REJECTED_SHINHAN_1200("EXTERNAL_ERROR_SHINHAN_1200", "rejected(shinhan - 1200)"),
 		INTERNAL_ERROR_SHINHAN_1200("INTERNAL_ERROR_SHINHAN_1200", "internal error(shinhan - 1200)"),
+
+		EXTERNAL_ERROR_SHINHAN_3000("EXTERNAL_ERROR_SHINHAN_3000", "external error(shinhan - 3000)"),
+		REJECTED_SHINHAN_3000("EXTERNAL_ERROR_SHINHAN_3000", "rejected(shinhan - 3000)"),
+		INTERNAL_ERROR_SHINHAN_3000("INTERNAL_ERROR_SHINHAN_3000", "internal error(shinhan - 3000)"),
 
 		EXTERNAL_ERROR_SHINHAN_1510("EXTERNAL_ERROR_SHINHAN_1510", "external error(shinhan - 1510)"),
 		REJECTED_SHINHAN_1510("REJECTED_SHINHAN_1510", "rejected(shinhan - 1510) "),
@@ -106,6 +110,16 @@ public class ErrorCode {
 		EXTERNAL_ERROR_SHINHAN_1700("EXTERNAL_ERROR_SHINHAN_1700", "external error(shinhan - 1700)"),
 		REJECTED_SHINHAN_1700("EXTERNAL_ERROR_SHINHAN_1700", "rejected(shinhan - 1700) "),
 		INTERNAL_ERROR_SHINHAN_1700("INTERNAL_ERROR_SHINHAN_1700", "internal error(shinhan - 1700)");
+
+		private final String code;
+		private final String desc;
+	}
+
+	@AllArgsConstructor
+	@Getter
+	public enum Api {
+		VALIDATION_FAILED("VALIDATION_FAILED", "validation failed"),
+		NOT_FOUND("NOT_FOUND", "not found");
 
 		private final String code;
 		private final String desc;
