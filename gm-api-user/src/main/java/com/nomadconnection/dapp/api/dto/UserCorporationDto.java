@@ -182,6 +182,14 @@ public class UserCorporationDto {
 
         @ApiModelProperty("일련번호 : 본인신분증위조방지코드")
         private String driverCode;
+
+        @ApiModelProperty("신분증종류 (ID_CARD, DRIVE_LICENCE)")
+        private IDType idType;
+
+        public enum IDType {
+            ID_CARD,
+            DRIVE_LICENCE
+        }
     }
 
     @Data
