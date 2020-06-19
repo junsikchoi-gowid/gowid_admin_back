@@ -11,12 +11,12 @@ import lombok.experimental.Accessors;
 @RequiredArgsConstructor
 public class SecuKeypadException extends RuntimeException {
 
-	public enum Category {
-		VERIFY_ERROR,
-		DECRYPT_ERROR,
-		;
-	}
+    public enum Category {
+        VERIFY_ERROR,
+        DECRYPT_ERROR,
+        ;
+    }
 
-	private final Category category;
-	private final Object data;
+    private final Category category;
+    private final Object data;
 }

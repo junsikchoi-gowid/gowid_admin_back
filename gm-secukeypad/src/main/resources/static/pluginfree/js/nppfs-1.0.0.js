@@ -304,7 +304,6 @@ w.npConsole = {
 };
 
 
-
 /*
  ***************************************************************************
  * nProtect Online Security, User Information
@@ -314,12 +313,15 @@ w.npConsole = {
 w.npDefine = new function () {
     var nav = navigator.appName;
     var plt = navigator.platform.toLowerCase();
+
     function npos(txt) {
         return nua.indexOf(txt);
     }
+
     function nin(txt) {
         return nua.indexOf(txt) >= 0;
     }
+
     function lnin(txt) {
         return nua.toLowerCase().indexOf(txt) >= 0;
     }
@@ -1039,6 +1041,7 @@ w.npCommon = new function () {
         }
         return r;
     };
+
     function toString(array) {
         var char2, char3;
         var out = "";
@@ -1414,6 +1417,7 @@ w.npCommon = new function () {
         }
 
         var isreturn = false;
+
         function docallback(data) {
             if (isreturn == false) {
                 callback(data);
@@ -1660,7 +1664,6 @@ w.npCommon = new function () {
                 callback({readyState: 4, status: 999, responseText: ""});
             });
         }
-
 
 
         npConsole.log("REQ : " + command);
@@ -2386,6 +2389,7 @@ w.npBaseCtrl = new function () {
     var isRequiredReinstall = false;		// 모듈 재설치가 필요한 경우
 
     this.Options = {FW: true, SK: true, FD: true, KV: true};
+
     function parseOptions(options) {
         var o = {
             Firewall: true,
@@ -2883,6 +2887,7 @@ w.npBaseCtrl = new function () {
                     setTimeout(wwait, npPfsPolicy.Common.WaitTimeout);
                 }
             }
+
             wwait();
         } else {
             callback();
@@ -4511,6 +4516,7 @@ w.npKCtrl = new function () {
 
     this.rescanField = function () {
         var timeoutid = null;
+
         function wwait() {
             if (isCompleteStartup == true) {
                 clearTimeout(timeoutid);
@@ -4523,6 +4529,7 @@ w.npKCtrl = new function () {
                 timeoutid = setTimeout(wwait, npPfsPolicy.Common.WaitTimeout);
             }
         }
+
         wwait();
     }
 
@@ -5538,6 +5545,7 @@ w.npKCtrl = new function () {
 
     this.addDynamicField = function (form, field) {
         var timeoutid = null;
+
         function wwait() {
             if (npKCtrl.isComplete() == true) {
                 if (!npCommon.isBlank(form)) {
@@ -5572,6 +5580,7 @@ w.npKCtrl = new function () {
                 timeoutid = setTimeout(wwait, npPfsPolicy.Common.WaitTimeout);
             }
         }
+
         wwait();
     };
 
@@ -6054,6 +6063,7 @@ w.npFCtrl = new function () {
 
     var additionalDataErrorCount = 0;
     var processingTask = [];
+
     function callProcessingFunction(key, param, plain) {
         var taskName = "task_" + key;
         processingTask.push(taskName);
@@ -8046,6 +8056,7 @@ w.npVCtrl = new function () {
                     setTimeout(wwait, npPfsPolicy.Common.WaitTimeout);
                 }
             }
+
             wwait();
 
         } else {
@@ -8153,6 +8164,7 @@ w.npVCtrl = new function () {
 
     this.rescanField = function () {
         var timeoutid = null;
+
         function wwait() {
             if (npVCtrl.isComplete() == true) {
                 npQuery(npQuery("form")).each(function (index, value) {
@@ -8171,12 +8183,14 @@ w.npVCtrl = new function () {
                         setTimeout(load, npPfsPolicy.Common.WaitTimeout);
                     }
                 }
+
                 load();
 
             } else {
                 timeoutid = setTimeout(wwait, npPfsPolicy.Common.WaitTimeout);
             }
         }
+
         wwait();
     }
 
@@ -8554,6 +8568,7 @@ w.npVCtrl = new function () {
             }
             return src;
         }
+
         addOptions(p, "ip", makeimageurl());
 
         if (this.isAbsoluteUse()) {
@@ -8817,6 +8832,7 @@ w.npVCtrl = new function () {
 
     this.addDynamicField = function (form, field) {
         var timeoutid = null;
+
         function wwait() {
             if (npVCtrl.isComplete() == true) {
                 if (!npCommon.isBlank(form)) {
@@ -8843,6 +8859,7 @@ w.npVCtrl = new function () {
                 timeoutid = setTimeout(wwait, npPfsPolicy.Common.WaitTimeout);
             }
         }
+
         wwait();
     };
 
@@ -9494,12 +9511,15 @@ var AES = new function () {
     function B0(x) {
         return (x & 255);
     }
+
     function B1(x) {
         return ((x >> 8) & 255);
     }
+
     function B2(x) {
         return ((x >> 16) & 255);
     }
+
     function B3(x) {
         return ((x >> 24) & 255);
     }
@@ -10289,6 +10309,7 @@ for (vv = 10; vv < 36; ++vv)
 function int2char(n) {
     return BI_RM.charAt(n);
 }
+
 function intAt(s, i) {
     var c = BI_RC[s.charCodeAt(i)];
     return (c == null) ? -1 : c;
@@ -10688,22 +10709,27 @@ function bnMod(a) {
 function Classic(m) {
     this.m = m;
 }
+
 function cConvert(x) {
     if (x.s < 0 || x.compareTo(this.m) >= 0)
         return x.mod(this.m);
     else
         return x;
 }
+
 function cRevert(x) {
     return x;
 }
+
 function cReduce(x) {
     x.divRemTo(this.m, null, x);
 }
+
 function cMulTo(x, y, r) {
     x.multiplyTo(y, r);
     this.reduce(r);
 }
+
 function cSqrTo(x, r) {
     x.squareTo(r);
     this.reduce(r);
@@ -11071,6 +11097,7 @@ function RSAKey() {
     this.dmq1 = null;
     this.coeff = null;
 }
+
 RSAKey.prototype = {
     // Perform raw public operation on "x": return x^e (mod n)
     doPublic: function (x) {

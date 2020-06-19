@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CommonCodeDetailRepository extends JpaRepository<CommonCodeDetail, Long>{
-	List<CommonCodeDetail> findAllByCode(CommonCodeType codeType);
+public interface CommonCodeDetailRepository extends JpaRepository<CommonCodeDetail, Long> {
+    List<CommonCodeDetail> findAllByCode(CommonCodeType codeType);
 
-	CommonCodeDetail getByCodeAndCode1(CommonCodeType codeType, String code1);
+    CommonCodeDetail getByCodeAndCode1(CommonCodeType codeType, String code1);
 }

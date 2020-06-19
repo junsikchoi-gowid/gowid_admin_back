@@ -15,36 +15,36 @@ import java.util.TimeZone;
 @SpringBootApplication
 public class SecuKeypadApplication {
 
-	@Value("${keypad.nprotect.properties.path}")
-	private String KEYPAD_PROPERTIES_PATH;
+    @Value("${keypad.nprotect.properties.path}")
+    private String KEYPAD_PROPERTIES_PATH;
 
-	public static void main(String[] args) {
-		SpringApplication.run(SecuKeypadApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SecuKeypadApplication.class, args);
+    }
 
-	@PostConstruct
-	private void initialize() {
-		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
-	}
+    @PostConstruct
+    private void initialize() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
+    }
 
-	@Bean
-	public ServletRegistrationBean getServletRegistrationBean() {
-		ServletRegistrationBean registrationBean = new ServletRegistrationBean(new PluginFreeServlet());
-		registrationBean.addUrlMappings("/nppfs.servlet.do");
-		registrationBean.addInitParameter("PropertiesPath", KEYPAD_PROPERTIES_PATH);
-		registrationBean.addInitParameter("ResponseEncoding", "UTF-8");
-		registrationBean.addInitParameter("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,UPDATE,OPTIONS");
-		registrationBean.addInitParameter("Access-Control-Allow-Headers", "Authorization, AuthorizationKey, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept");
-		registrationBean.addInitParameter("Access-Control-Max-Age", "1728000");
-		return registrationBean;
-	}
+    @Bean
+    public ServletRegistrationBean getServletRegistrationBean() {
+        ServletRegistrationBean registrationBean = new ServletRegistrationBean(new PluginFreeServlet());
+        registrationBean.addUrlMappings("/nppfs.servlet.do");
+        registrationBean.addInitParameter("PropertiesPath", KEYPAD_PROPERTIES_PATH);
+        registrationBean.addInitParameter("ResponseEncoding", "UTF-8");
+        registrationBean.addInitParameter("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,UPDATE,OPTIONS");
+        registrationBean.addInitParameter("Access-Control-Allow-Headers", "Authorization, AuthorizationKey, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept");
+        registrationBean.addInitParameter("Access-Control-Max-Age", "1728000");
+        return registrationBean;
+    }
 
-	@Bean
-	public FilterRegistrationBean getFilterRegistrationBean() {
-		FilterRegistrationBean registrationBean = new FilterRegistrationBean(new PluginFreeFilter());
-		registrationBean.addUrlPatterns("/*"); //add pattern
-		registrationBean.addInitParameter("PropertiesPath", KEYPAD_PROPERTIES_PATH);    //add init-param
-		registrationBean.addInitParameter("RequestEncoding", "UTF-8");    //add init-param
-		return registrationBean;
-	}
+    @Bean
+    public FilterRegistrationBean getFilterRegistrationBean() {
+        FilterRegistrationBean registrationBean = new FilterRegistrationBean(new PluginFreeFilter());
+        registrationBean.addUrlPatterns("/*"); //add pattern
+        registrationBean.addInitParameter("PropertiesPath", KEYPAD_PROPERTIES_PATH);    //add init-param
+        registrationBean.addInitParameter("RequestEncoding", "UTF-8");    //add init-param
+        return registrationBean;
+    }
 }

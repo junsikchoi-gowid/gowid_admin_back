@@ -25,17 +25,17 @@ import springfox.documentation.annotations.ApiIgnore;
 @Api(tags = "사용자", description = UserController.URI.BASE)
 public class UserController {
 
-	public static class URI {
-		public static final String BASE = "/user/v1";
-		public static final String REGISTER = "/register";
-		public static final String REGISTRATION_USER = "/registration/user";
-		public static final String REGISTRATION_CORP = "/registration/corp";
-		public static final String REGISTRATION_INFO  = "/registration/info";
-		public static final String REGISTRATION_PW = "/registrationpw/pw";
-		public static final String MEMBERS = "/members";
-		public static final String MEMBERS_MEMBER_DEPT = "/members/{member}/dept";
-		public static final String INFO = "/info";
-	}
+    public static class URI {
+        public static final String BASE = "/user/v1";
+        public static final String REGISTER = "/register";
+        public static final String REGISTRATION_USER = "/registration/user";
+        public static final String REGISTRATION_CORP = "/registration/corp";
+        public static final String REGISTRATION_INFO = "/registration/info";
+        public static final String REGISTRATION_PW = "/registrationpw/pw";
+        public static final String MEMBERS = "/members";
+        public static final String MEMBERS_MEMBER_DEPT = "/members/{member}/dept";
+        public static final String INFO = "/info";
+    }
 
 	private final UserService service;
 	private final AuthService serviceAuth;
