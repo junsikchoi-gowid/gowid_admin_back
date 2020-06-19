@@ -67,24 +67,24 @@ public class ImageConverter {
 
 	public String convertJsonToImage(ImageConvertDto params) throws Exception {
 
-		setParameters(params);
-		response = invoker.invoke();	// convert
-		isSuccess(response);
-		return response;
-	}
+        setParameters(params);
+        response = invoker.invoke();    // convert
+        isSuccess(response);
+        return response;
+    }
 
 	private void setParameters(ImageConvertDto params) {
-		String targetData = params.getData();
+        String targetData = params.getData();
 
-		isNotNullData(targetData);
-		String mrdParam = getMrdParam(targetData);
+        isNotNullData(targetData);
+        String mrdParam = getMrdParam(targetData);
 
-		invoker.addParameter(ImageConvertParam.OPCODE, params.getOpCode());
-		invoker.addParameter(ImageConvertParam.MRD_NAME, getMrdPath(params.getMrdType()));
-		invoker.addParameter(ImageConvertParam.MRD_PARAM, mrdParam);
-		invoker.addParameter(ImageConvertParam.EXPORT_TYPE, params.getExportType());
-		invoker.addParameter(ImageConvertParam.EXPORT_NAME, params.getFileName().concat("."+params.getExportType() ));
-		invoker.addParameter(ImageConvertParam.PROTOCOL, params.getProtocol());
+        invoker.addParameter(ImageConvertParam.OPCODE, params.getOpCode());
+        invoker.addParameter(ImageConvertParam.MRD_NAME, getMrdPath(params.getMrdType()));
+        invoker.addParameter(ImageConvertParam.MRD_PARAM, mrdParam);
+        invoker.addParameter(ImageConvertParam.EXPORT_TYPE, params.getExportType());
+        invoker.addParameter(ImageConvertParam.EXPORT_NAME, params.getFileName().concat("." + params.getExportType()));
+        invoker.addParameter(ImageConvertParam.PROTOCOL, params.getProtocol());
 	}
 
 	private String getMrdPath(int mrdType) {
@@ -99,26 +99,26 @@ public class ImageConverter {
 			case 1530:
 				mrdName = ImageConvertParam.COPY_REGISTER_MRD;
 				break;
-			default:
-				throw new IllegalArgumentException("Not Found MrdType.");
-		}
-		return mrdName;
-	}
+            default:
+                throw new IllegalArgumentException("Not Found MrdType.");
+        }
+        return mrdName;
+    }
 
-	private String getMrdParam(String targetData){
-		return  "/rdata [" + targetData + "]";
-	}
+    private String getMrdParam(String targetData) {
+        return "/rdata [" + targetData + "]";
+    }
 
-	public void isSuccess(String response) throws Exception {
-		if(!response.startsWith("1")){
-			throw new InvokerException(response);
-		}
-	}
+    public void isSuccess(String response) throws Exception {
+        if (!response.startsWith("1")) {
+            throw new InvokerException(response);
+        }
+    }
 
-	private void isNotNullData(String targetData) {
-		if(StringUtils.isEmpty(targetData)){
-			throw new NullPointerException(targetData);
-		}
-	}
+    private void isNotNullData(String targetData) {
+        if (StringUtils.isEmpty(targetData)) {
+            throw new NullPointerException(targetData);
+        }
+    }
 
 }

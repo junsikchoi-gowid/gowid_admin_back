@@ -21,7 +21,8 @@ public enum ShinhanGwApiType {
     SH1700("1700", "SHCGWD", "IDN", "797", "1", "01", "GWD", "01", "신분증진위확인요청"),
     SH1800("1800", "SHCGWD", "SGN", "797", "1", "01", "GWD", "01", "카드신청 전자서명값 전송"),
     SH1900("1900", "SHCGWD", "LMT", "797", "1", "01", "GWD", "01", "실시간 한도 감액 요청"),
-    SH3000("3000", "SHCGWD", "BPR", "270", "1", "01", "GWD", "01", "BPR데이타 존재여부확인");
+    SH3000("3000", "SHCGWD", "BPR", "270", "1", "01", "GWD", "01", "BPR데이타 존재여부확인"),
+    BPR_TRANSFER("BPR_TRANSFER", null, null, null, null, null, null, null, "BPR데이타 전송요청");
 
     private String transactionCode;     // TRANSACTION CODE
     private String initialText;         // TEXT개시문자
