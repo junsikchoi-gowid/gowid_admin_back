@@ -2,10 +2,13 @@ package com.nomadconnection.dapp.api.util;
 
 import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
+import com.nomadconnection.dapp.secukeypad.SecuKeypad;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.Random;
 
 @Slf4j
@@ -37,5 +40,15 @@ public class CommonUtil {
     public static void throwBusinessException(ErrorCode.External externalErrorType, String msg) {
         log.error(msg);
         throw new BusinessException(externalErrorType, msg);
+    }
+
+    // 키패드 복호화
+    public static String getDecryptKeypad(HttpServletRequest httpServletRequest, String paramName, String fieldName) {
+        Map<String, String> decryptData = SecuKeypad.decrypt(httpServletRequest, paramName, new String[]{fieldName});
+        return decryptData.get(fieldName);
+    }
+
+    public static String getDecryptKeypad(HttpServletRequest httpServletRequest, String fieldName) {
+        return getDecryptKeypad(httpServletRequest, fieldName, fieldName);
     }
 }

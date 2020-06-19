@@ -15,6 +15,7 @@ import com.nomadconnection.dapp.core.domain.repository.SignatureHistoryRepositor
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
+import com.nomadconnection.dapp.core.encryption.Seed128;
 import com.nomadconnection.dapp.secukeypad.EncryptParam;
 import com.nomadconnection.dapp.secukeypad.SecuKeypad;
 import com.yettiesoft.vestsign.base.code.CommonConst;
@@ -66,7 +67,9 @@ public class IssuanceService {
      * 1000/1400
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserCorporationDto.IssuanceRes issuance(Long userIdx, UserCorporationDto.IssuanceReq request) {
+    public UserCorporationDto.IssuanceRes issuance(Long userIdx,
+                                                   HttpServletRequest httpServletRequest,
+                                                   UserCorporationDto.IssuanceReq request) {
 
         // todo
         //  - 1100 테이블에 비번 및 결제계좌 저장(키패드 복호화 -> seed128 암호화)
@@ -77,6 +80,9 @@ public class IssuanceService {
         if (userCorp == null) {
             throw new EntityNotFoundException("not found userIdx", "corp", userIdx);
         }
+
+        // 카드비번, 결제계좌. 키패드 복호화 -> seed 암호화 -> 1100 저장
+        encryptAndSaveD1100(userCorp.idx(), httpServletRequest, request);
 
         // 1200(법인회원신규여부검증)
         DataPart1200 resultOfD1200 = proc1200(userCorp);
@@ -91,9 +97,9 @@ public class IssuanceService {
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
 
         if ("Y".equals(resultOfD1200.getD003())) {
-            proc1000(userCorp, resultOfD1200, request);         // 1000(신규-법인회원신규심사요청)
+            proc1000(userCorp, resultOfD1200, httpServletRequest);         // 1000(신규-법인회원신규심사요청)
         } else if ("N".equals(resultOfD1200.getD003())) {
-            proc1400(userCorp, resultOfD1200, request);         // 1400(기존-법인조건변경신청)
+            proc1400(userCorp, resultOfD1200, httpServletRequest);         // 1400(기존-법인조건변경신청)
         } else {
             String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
@@ -101,6 +107,17 @@ public class IssuanceService {
 
         // 성공시 Body 는 공백으로.
         return new UserCorporationDto.IssuanceRes();
+    }
+
+    // 1100 데이터 저장
+    private void encryptAndSaveD1100(Long corpIdx, HttpServletRequest httpServletRequest, UserCorporationDto.IssuanceReq request) {
+        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
+                () -> new InternalErrorException(ErrorCode.External.INTERNAL_ERROR_GW,
+                        "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
+        );
+
+        d1100.setD021(Seed128.encryptEcb(request.getPayAccount()));
+        d1100.setD025(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.PASSWORD)));
     }
 
     private DataPart3000Res proc3000(DataPart1200 resultOfD1200) {
@@ -259,7 +276,9 @@ public class IssuanceService {
         shinhanGwRpc.request1530(requestRpc);
     }
 
-    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200, UserCorporationDto.IssuanceReq request) {
+    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200,
+                          HttpServletRequest httpServletRequest) {
+
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1000);
 
@@ -279,16 +298,19 @@ public class IssuanceService {
         DataPart1000 requestRpc = new DataPart1000();
         BeanUtils.copyProperties(d1000, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
-        requestRpc.setD011(request.getCeoRegisterNo1());
-        requestRpc.setD015(request.getCeoRegisterNo2());
-        requestRpc.setD019(request.getCeoRegisterNo3());
+        requestRpc.setD011(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1));
+        requestRpc.setD015(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO2));
+        requestRpc.setD019(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO3));
+//        requestRpc.setD011(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1)));   운영환경에서는 보내기전 암호화
+//        requestRpc.setD015(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO2)));
+//        requestRpc.setD019(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO3)));
 
         requestRpc.setC009("00"); // todo : 테스트 데이터(삭제예정). 응답코드 성공
 
         shinhanGwRpc.request1000(requestRpc);
     }
 
-    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, UserCorporationDto.IssuanceReq request) {
+    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1400);
 
@@ -308,7 +330,8 @@ public class IssuanceService {
         DataPart1400 requestRpc = new DataPart1400();
         BeanUtils.copyProperties(d1400, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
-        requestRpc.setD006(request.getCeoRegisterNo1());
+        requestRpc.setD006(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1));
+//        requestRpc.setD006(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1)));  todo 운영환경에서는 전송전 암호화
 
         // todo : 테스트 데이터(삭제예정)
         requestRpc.setC009("00");
@@ -316,11 +339,7 @@ public class IssuanceService {
         shinhanGwRpc.request1400(requestRpc);
     }
 
-    /**
-     * 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
-     * todo
-     * - 1100 테이블 결제계좌, 비번 복호화(테스트환경에서만)
-     */
+    // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1600);
         UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
@@ -332,9 +351,6 @@ public class IssuanceService {
         return response;
     }
 
-    // todo :
-    //  - 비번, 결제계좌번호 취득 방안 확인
-    //  - 비동기 안되는 문제 해결
     @Async
     public void proc1100(UserCorporationDto.ResumeReq request) {
         // 공통부
@@ -354,10 +370,13 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1100, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        // todo 내부 테스트 데이터 삭제예정
-        requestRpc.setD021("0000");             // 비번
-        requestRpc.setD025("12312123456");      // 결제계좌번호
-        // requestRpc.setD016(requestRpc.getD016().substring(0, 5));    // 게이트웨이 길이 버그로 인해 조치
+        // db에는 암호화된 상태.
+        // 테스트 환경에서는 복호화해서 보냄
+        requestRpc.setD021(Seed128.decryptEcb(d1100.getD021()));            // 비번
+        requestRpc.setD025(Seed128.decryptEcb(d1100.getD025()));            // 결제계좌번호
+        // todo 운영에서는 암호화해서 전송
+//        requestRpc.setD021(d1100.getD021());            // 비번
+//        requestRpc.setD025(d1100.getD025());            // 결제계좌번호
 
         shinhanGwRpc.request1100(requestRpc);
     }

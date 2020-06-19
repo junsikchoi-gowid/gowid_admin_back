@@ -1,6 +1,7 @@
 spring:
   profiles: dev
-keypad.nprotect.properties.path: /Users/jjh/keypad/nprotect.properties
+#keypad.nprotect.properties.path: /Users/jjh/keypad/nprotect.properties
+keypad.nprotect.properties.path: /Users/cylee/appconfig/nprotect.properties
 
 ---
 
