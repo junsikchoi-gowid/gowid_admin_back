@@ -23,6 +23,7 @@ import com.yettiesoft.vestsign.external.SignVerifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +53,12 @@ public class IssuanceService {
     private final SignatureHistoryRepository signatureHistoryRepository;
     private final ShinhanGwRpc shinhanGwRpc;
     private final AsyncService asyncService;
+
+    @Value("${encryption.keypad.enable: true}")
+    private Boolean ENC_KEYPAD_ENABLE;
+
+    @Value("${encryption.seed128..enable: true}")
+    private Boolean ENC_SEED128_ENABLE;
 
 
     /**
@@ -97,9 +104,9 @@ public class IssuanceService {
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
 
         if ("Y".equals(resultOfD1200.getD003())) {
-            proc1000(userCorp, resultOfD1200, httpServletRequest);         // 1000(신규-법인회원신규심사요청)
+            proc1000(userCorp, resultOfD1200, httpServletRequest, request);         // 1000(신규-법인회원신규심사요청)
         } else if ("N".equals(resultOfD1200.getD003())) {
-            proc1400(userCorp, resultOfD1200, httpServletRequest);         // 1400(기존-법인조건변경신청)
+            proc1400(userCorp, resultOfD1200, httpServletRequest, request);         // 1400(기존-법인조건변경신청)
         } else {
             String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
@@ -117,7 +124,11 @@ public class IssuanceService {
         );
 
         d1100.setD021(Seed128.encryptEcb(request.getPayAccount()));
-        d1100.setD025(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.PASSWORD)));
+        if (ENC_KEYPAD_ENABLE) {
+            d1100.setD025(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.PASSWORD)));
+        } else {
+            d1100.setD025(Seed128.encryptEcb(request.getPassword()));
+        }
     }
 
     private DataPart3000Res proc3000(DataPart1200 resultOfD1200) {
@@ -277,7 +288,7 @@ public class IssuanceService {
     }
 
     private void proc1000(Corp userCorp, DataPart1200 resultOfD1200,
-                          HttpServletRequest httpServletRequest) {
+                          HttpServletRequest httpServletRequest, UserCorporationDto.IssuanceReq request) {
 
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1000);
@@ -298,19 +309,30 @@ public class IssuanceService {
         DataPart1000 requestRpc = new DataPart1000();
         BeanUtils.copyProperties(d1000, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
-        requestRpc.setD011(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1));
-        requestRpc.setD015(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO2));
-        requestRpc.setD019(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO3));
+
+        if (ENC_KEYPAD_ENABLE) {
+            requestRpc.setD011(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1));
+            requestRpc.setD015(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO2));
+            requestRpc.setD019(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO3));
 //        requestRpc.setD011(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1)));   운영환경에서는 보내기전 암호화
 //        requestRpc.setD015(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO2)));
 //        requestRpc.setD019(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO3)));
+        } else {
+            requestRpc.setD011(request.getCeoRegisterNo1());
+            requestRpc.setD015(request.getCeoRegisterNo2());
+            requestRpc.setD019(request.getCeoRegisterNo3());
+//        requestRpc.setD011(Seed128.encryptEcb(request.getCeoRegisterNo1()));   운영환경에서는 보내기전 암호화
+//        requestRpc.setD015(Seed128.encryptEcb(request.getCeoRegisterNo2()));
+//        requestRpc.setD019(Seed128.encryptEcb(request.getCeoRegisterNo3()));
+        }
 
         requestRpc.setC009("00"); // todo : 테스트 데이터(삭제예정). 응답코드 성공
 
         shinhanGwRpc.request1000(requestRpc);
     }
 
-    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
+    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest,
+                          UserCorporationDto.IssuanceReq request) {
         // 공통부
         CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1400);
 
@@ -330,8 +352,14 @@ public class IssuanceService {
         DataPart1400 requestRpc = new DataPart1400();
         BeanUtils.copyProperties(d1400, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
-        requestRpc.setD006(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1));
+
+        if (ENC_KEYPAD_ENABLE) {
+            requestRpc.setD006(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1));
 //        requestRpc.setD006(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1)));  todo 운영환경에서는 전송전 암호화
+        } else {
+            requestRpc.setD006(request.getCeoRegisterNo1());
+//            requestRpc.setD006(Seed128.encryptEcb(request.getCeoRegisterNo1()));  todo 운영환경에서는 전송전 암호화
+        }
 
         // todo : 테스트 데이터(삭제예정)
         requestRpc.setC009("00");
@@ -465,7 +493,7 @@ public class IssuanceService {
      */
     public void verifyCeoIdentification(HttpServletRequest request, UserCorporationDto.IdentificationReq dto) {
 
-        Map<String, String> decryptData = null;
+        Map<String, String> decryptData;
         if (dto.getIdType().equals(UserCorporationDto.IdentificationReq.IDType.DRIVE_LICENCE)) {
             decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
         } else {
