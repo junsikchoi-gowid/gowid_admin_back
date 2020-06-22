@@ -57,7 +57,7 @@ public class IssuanceService {
     @Value("${encryption.keypad.enable: true}")
     private Boolean ENC_KEYPAD_ENABLE;
 
-    @Value("${encryption.seed128..enable: true}")
+    @Value("${encryption.seed128.enable: true}")
     private Boolean ENC_SEED128_ENABLE;
 
 
