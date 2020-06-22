@@ -185,7 +185,7 @@ public class UserCorporationDto {
         private String driverCode;
 
         @ApiModelProperty("신분증종류 (ID_CARD, DRIVE_LICENCE)")
-        @NotEmpty
+        @NotNull
         private IDType idType;
 
         public enum IDType {
@@ -395,7 +395,7 @@ public class UserCorporationDto {
         private Long count;
 
         @ApiModelProperty("명세서 수령방법")
-        private String receiveType;
+        private ReceiveType receiveType;
 
         @ApiModelProperty("기본주소")
         private String addressBasic;
@@ -433,6 +433,7 @@ public class UserCorporationDto {
                         .isUnsigned(cardInfo.card().isUnsigned())
                         .isOverseas(cardInfo.card().isOverseas())
                         .paymentDay(cardInfo.card().paymentDay())
+                        .receiveType(cardInfo.card().receiveType())
                         .build();
             }
             return null;
