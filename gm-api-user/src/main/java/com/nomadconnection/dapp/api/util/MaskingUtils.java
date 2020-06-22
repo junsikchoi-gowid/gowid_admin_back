@@ -7,7 +7,7 @@ import org.springframework.util.StringUtils;
 public class MaskingUtils {
 
 	public static String maskingBankAccountNumber(String bankAccountNumber) {
-		if (!StringUtils.hasText(bankAccountNumber)) {
+		if (!StringUtils.hasText(bankAccountNumber) || bankAccountNumber.length() < 10) {
 			return bankAccountNumber;
 		}
 		StringBuilder stringBuilder = new StringBuilder(bankAccountNumber);
