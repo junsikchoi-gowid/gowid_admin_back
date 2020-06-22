@@ -219,7 +219,7 @@ public class UserCorporationController {
 
     @ApiOperation(value = "신분증 본인 확인")
     @PostMapping(URI.CEO_ID)
-    public ResponseEntity verifyIdentification(
+    public ResponseEntity<?> verifyIdentification(
             HttpServletRequest request,
             @ApiIgnore @CurrentUser CustomUser user,
             @ModelAttribute @Valid UserCorporationDto.IdentificationReq dto) {
@@ -235,10 +235,11 @@ public class UserCorporationController {
     @PostMapping(URI.CARD)
     public ResponseEntity<UserCorporationDto.IssuanceRes> application(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody @Valid UserCorporationDto.IssuanceReq request) {
+            @ModelAttribute @Valid UserCorporationDto.IssuanceReq request,
+            HttpServletRequest httpServletRequest) {
 
         issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
-        issuanceService.issuance(user.idx(), request);
+        issuanceService.issuance(user.idx(), httpServletRequest, request);
 
         return ResponseEntity.ok().build();
     }

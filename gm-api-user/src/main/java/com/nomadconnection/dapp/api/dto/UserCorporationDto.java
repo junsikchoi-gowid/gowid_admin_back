@@ -551,7 +551,7 @@ public class UserCorporationDto {
         private Long cardIssuanceInfoIdx;
 
         @ApiModelProperty("카드비빌번호")
-        private Long password;
+        private String password;
 
         @ApiModelProperty("대표자주민등록번호1")
         @NotEmpty
