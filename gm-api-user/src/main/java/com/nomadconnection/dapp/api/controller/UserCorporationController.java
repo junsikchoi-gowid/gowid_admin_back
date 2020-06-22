@@ -235,7 +235,7 @@ public class UserCorporationController {
     @PostMapping(URI.CARD)
     public ResponseEntity<UserCorporationDto.IssuanceRes> application(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody @Valid UserCorporationDto.IssuanceReq request,
+            @ModelAttribute @Valid UserCorporationDto.IssuanceReq request,
             HttpServletRequest httpServletRequest) {
 
         issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());

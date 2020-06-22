@@ -506,12 +506,7 @@ public class IssuanceService {
 
     }
 
-    /**
-     * todo
-     * - 검증
-     * - db 저장
-     * - 복호화
-     */
+    // 전자서명 검증 및 저장
     @Transactional(rollbackFor = Exception.class)
     public void verifySignedBinaryAndSave(Long userIdx, String signedBinaryString) {
         verifySignedFileBinaryString(signedBinaryString);
