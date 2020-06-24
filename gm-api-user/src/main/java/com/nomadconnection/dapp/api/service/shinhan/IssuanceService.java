@@ -51,6 +51,7 @@ public class IssuanceService {
     private final D1400Repository d1400Repository;
     private final D1100Repository d1100Repository;
     private final SignatureHistoryRepository signatureHistoryRepository;
+    private final GwTranHistRepository gwTranHistRepository;
     private final ShinhanGwRpc shinhanGwRpc;
     private final AsyncService asyncService;
 
@@ -187,10 +188,12 @@ public class IssuanceService {
         requestRpc.setD007(CommonUtil.getNowYYYYMMDD());
         requestRpc.setD008(CommonUtil.getRandom5Num());
 
-        DataPart1200 resultOfD1200 = shinhanGwRpc.request1200(requestRpc);
-        BeanUtils.copyProperties(resultOfD1200, d1200);
+        saveGwTran(requestRpc);
+        DataPart1200 responseRpc = shinhanGwRpc.request1200(requestRpc);
+        saveGwTran(responseRpc);
+        BeanUtils.copyProperties(responseRpc, d1200);
 
-        return shinhanGwRpc.request1200(requestRpc);
+        return requestRpc;
     }
 
     private void proc15xx(Corp userCorp, String applyDate, String applyNo) {
@@ -228,7 +231,8 @@ public class IssuanceService {
         // todo : 테스트 데이터(삭제예정)
         requestRpc.setC009("00");
 
-        shinhanGwRpc.request1510(requestRpc);
+        saveGwTran(requestRpc);
+        saveGwTran(shinhanGwRpc.request1510(requestRpc));
     }
 
     private void proc1520(Corp userCorp, String applyDate, String applyNo) {
@@ -255,7 +259,8 @@ public class IssuanceService {
             // todo : 테스트 데이터(삭제예정)
             requestRpc.setC009("00");
 
-            shinhanGwRpc.request1520(requestRpc);
+            saveGwTran(requestRpc);
+            saveGwTran(shinhanGwRpc.request1520(requestRpc));
         }
     }
 
@@ -284,7 +289,8 @@ public class IssuanceService {
         requestRpc.setC009("00");       // 성공리턴
         requestRpc.setD007(requestRpc.getD007().substring(0, 5));  // 게이트웨이 길이 버그로인해 임시조치
 
-        shinhanGwRpc.request1530(requestRpc);
+        saveGwTran(requestRpc);
+        saveGwTran(shinhanGwRpc.request1530(requestRpc));
     }
 
     private void proc1000(Corp userCorp, DataPart1200 resultOfD1200,
@@ -328,7 +334,8 @@ public class IssuanceService {
 
         requestRpc.setC009("00"); // todo : 테스트 데이터(삭제예정). 응답코드 성공
 
-        shinhanGwRpc.request1000(requestRpc);
+        saveGwTran(requestRpc);
+        saveGwTran(shinhanGwRpc.request1000(requestRpc));
     }
 
     private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest,
@@ -364,7 +371,8 @@ public class IssuanceService {
         // todo : 테스트 데이터(삭제예정)
         requestRpc.setC009("00");
 
-        shinhanGwRpc.request1400(requestRpc);
+        saveGwTran(requestRpc);
+        saveGwTran(shinhanGwRpc.request1400(requestRpc));
     }
 
     // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
@@ -406,7 +414,8 @@ public class IssuanceService {
 //        requestRpc.setD021(d1100.getD021());            // 비번
 //        requestRpc.setD025(d1100.getD025());            // 결제계좌번호
 
-        shinhanGwRpc.request1100(requestRpc);
+        saveGwTran(requestRpc);
+        saveGwTran(shinhanGwRpc.request1100(requestRpc));
     }
 
     // 기존 1400/1000 연동으로 부터 법인 식별자 추출
@@ -445,7 +454,11 @@ public class IssuanceService {
         requestRpc.setD006(request.getDriverLocal());
         requestRpc.setD007(request.getDriverCode());
 
-        return shinhanGwRpc.request1700(requestRpc);
+        saveGwTran(requestRpc);
+        DataPart1700 responseRpc = shinhanGwRpc.request1700(requestRpc);
+        saveGwTran(responseRpc);
+
+        return responseRpc;
     }
 
 
@@ -552,6 +565,14 @@ public class IssuanceService {
                 .build();
 
         signatureHistoryRepository.save(signatureHistory);
+    }
+
+    // 연동 기록 저장
+    @Transactional
+    protected void saveGwTran(CommonPart commonPart) {
+        GwTranHist gwTranHist = new GwTranHist();
+        BeanUtils.copyProperties(commonPart, gwTranHist);
+        gwTranHistRepository.save(gwTranHist);
     }
 
 }
