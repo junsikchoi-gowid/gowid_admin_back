@@ -24,7 +24,7 @@ public class DataPart1520 extends CommonPart {
             
     private String d004;    // 발급(승인)번호
             
-    private String d005;    // 주민번호    
+    private String d005;    // 법인등록번호
             
     private String d006;    // 상호(사업장명)
             

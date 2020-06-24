@@ -42,7 +42,7 @@ public class D1520 extends BaseTime {
     @Column(columnDefinition = "varchar(80)    DEFAULT '' COMMENT '상호사업장명'")
     private String d006; //상호사업장명
     @Column(columnDefinition = "varchar(1)    DEFAULT '' COMMENT '발급가능여부'")
-    private String d007; //발급가능여부
+    private String d007; //발급가능여부(Y/N) 신설이라 증명서 발급이 안되는 법인은 "N". "N"인 경우 총자산&재무조사일 세팅
     @Column(columnDefinition = "varchar(8)    DEFAULT '' COMMENT '시작일자'")
     private String d008; //시작일자
     @Column(columnDefinition = "varchar(8)    DEFAULT '' COMMENT '종료일자'")
