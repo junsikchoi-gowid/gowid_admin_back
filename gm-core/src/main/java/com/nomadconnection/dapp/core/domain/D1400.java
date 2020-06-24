@@ -39,7 +39,7 @@ public class D1400 extends BaseTime {
     private String d004; // 법인명
     @Column(columnDefinition = "varchar(2)    DEFAULT '' COMMENT '기업규모코드'")
     private String d005; // 기업규모코드
-    @Column(columnDefinition = "varchar(13)    DEFAULT '' COMMENT '대표자주민등록번호'")
+    @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '대표자주민등록번호'")
     private String d006; // 대표자주민등록번호
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자명'")
     private String d007; // 대표자명

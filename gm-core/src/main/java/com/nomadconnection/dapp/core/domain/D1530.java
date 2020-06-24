@@ -121,7 +121,7 @@ public class D1530 extends BaseTime {
     private String d045;    //대표이사_직위1
     @Column(columnDefinition = "varchar(20)    DEFAULT '' COMMENT '대표이사_성명1'")
     private String d046;    //대표이사_성명1
-    @Column(columnDefinition = "varchar(13)    DEFAULT '' COMMENT '대표이사_주민번호1'")
+    @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '대표이사_주민번호1'")
     private String d047;    //대표이사_주민번호1
     @Column(columnDefinition = "varchar(200)    DEFAULT '' COMMENT '대표이사_주소1'")
     private String d048;    //대표이사_주소1
@@ -129,7 +129,7 @@ public class D1530 extends BaseTime {
     private String d049;    //대표이사_직위2
     @Column(columnDefinition = "varchar(20)    DEFAULT '' COMMENT '대표이사_성명2'")
     private String d050;    //대표이사_성명2
-    @Column(columnDefinition = "varchar(13)    DEFAULT '' COMMENT '대표이사_주민번호2'")
+    @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '대표이사_주민번호2'")
     private String d051;    //대표이사_주민번호2
     @Column(columnDefinition = "varchar(200)    DEFAULT '' COMMENT '대표이사_주소2'")
     private String d052;    //대표이사_주소2
@@ -137,7 +137,7 @@ public class D1530 extends BaseTime {
     private String d053;    //대표이사_직위3
     @Column(columnDefinition = "varchar(20)    DEFAULT '' COMMENT '대표이사_성명3'")
     private String d054;    //대표이사_성명3
-    @Column(columnDefinition = "varchar(13)    DEFAULT '' COMMENT '대표이사_주민번호3'")
+    @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '대표이사_주민번호3'")
     private String d055;    //대표이사_주민번호3
     @Column(columnDefinition = "varchar(200)    DEFAULT '' COMMENT '대표이사_주소3'")
     private String d056;    //대표이사_주소3

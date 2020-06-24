@@ -51,7 +51,7 @@ public class D1000 extends BaseTime {
     private String d009;    //대표자코드
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자명1'")
     private String d010;    //대표자명1
-    @Column(columnDefinition = "varchar(13)    DEFAULT '' COMMENT '대표자주민등록번호1'")
+    @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '대표자주민등록번호1'")
     private String d011;    //대표자주민등록번호1
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자영문명1'")
     private String d012;    //대표자영문명1
@@ -59,7 +59,7 @@ public class D1000 extends BaseTime {
     private String d013;    //대표자국적코드1
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자명2'")
     private String d014;    //대표자명2
-    @Column(columnDefinition = "varchar(13)    DEFAULT '' COMMENT '대표자주민등록번호2'")
+    @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '대표자주민등록번호2'")
     private String d015;    //대표자주민등록번호2
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자영문명2'")
     private String d016;    //대표자영문명2
@@ -67,7 +67,7 @@ public class D1000 extends BaseTime {
     private String d017;    //대표자국적코드2
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자명3'")
     private String d018;    //대표자명3
-    @Column(columnDefinition = "varchar(13)    DEFAULT '' COMMENT '대표자주민등록번호3'")
+    @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '대표자주민등록번호3'")
     private String d019;    //대표자주민등록번호3
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자영문명3'")
     private String d020;    //대표자영문명3
@@ -97,7 +97,7 @@ public class D1000 extends BaseTime {
     private String d032;    //신청관리자부서명
     @Column(columnDefinition = "varchar(20)    DEFAULT '' COMMENT '신청관리자직위명'")
     private String d033;    //신청관리자직위명
-    @Column(columnDefinition = "varchar(13)    DEFAULT '' COMMENT '신청관리자주민등록번호'")
+    @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '신청관리자주민등록번호'")
     private String d034;    //신청관리자주민등록번호
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '신청관리자명'")
     private String d035;    //신청관리자명
@@ -165,7 +165,7 @@ public class D1000 extends BaseTime {
     private String d066;    //외국인여부
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '법인신청대리인명'")
     private String d067;    //법인신청대리인명
-    @Column(columnDefinition = "varchar(13)    DEFAULT '' COMMENT '법인신청대리인주민등록번호'")
+    @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '법인신청대리인주민등록번호'")
     private String d068;    //법인신청대리인주민등록번호
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '법인신청대리인부서명'")
     private String d069;    //법인신청대리인부서명
