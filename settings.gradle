@@ -6,4 +6,5 @@ include 'gm-jwt'
 include 'gm-core'
 include 'gm-codef'
 include 'gm-secukeypad'
+include 'gm-redis'
 
