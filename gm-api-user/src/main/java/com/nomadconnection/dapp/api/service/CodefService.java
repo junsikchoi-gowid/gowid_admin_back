@@ -778,6 +778,8 @@ public class CodefService {
 				() -> new RuntimeException("UserNotFound")
 		);
 
+		log.debug("1");
+
 		for( String s : CommonConstant.LISTBANK){
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
@@ -822,6 +824,8 @@ public class CodefService {
 		String code = ((JSONObject)(jsonObject.get("result"))).get("code").toString();
 		String connectedId = null;
 
+		log.debug("2");
+
 		if(code.equals("CF-00000") || code.equals("CF-04012")) {
 			connectedId = ((JSONObject)(jsonObject.get("data"))).get("connectedId").toString();
 
@@ -837,17 +841,21 @@ public class CodefService {
 					.build()
 			);
 		}else if(code.equals("CF-04000")){
-			JSONObject JSONObjectData = ((JSONObject)(jsonObject.get("data")));
-			JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
-			connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
-			log.debug( "cf-04000 connectedId = {} ", connectedId );
+			try{
+				JSONObject JSONObjectData = (JSONObject)(jsonObject.get("data"));
+				JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
+				connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
+				log.debug( "cf-04000 connectedId = {} ", connectedId );
+			}catch (Exception e){
+				e.printStackTrace();
+			}
 		}else{
 			throw new RuntimeException(code);
 		}
 
-		AtomicReference<String> strResult = null;
+		String strResult = null;
 		// 국세청 - 증명발급 사업자등록
-		strResult.set(PROOF_ISSUE.proof_issue(
+		strResult = PROOF_ISSUE.proof_issue(
 				"0001",
 				connectedId,
 				"04",
@@ -856,9 +864,9 @@ public class CodefService {
 				"0",
 				"",
 				"" // 사업자번호
-		));
+		);
 
-		JSONObject[] jsonObjectProofIssue = getApiResult(strResult.get());
+		JSONObject[] jsonObjectProofIssue = getApiResult(strResult);
 
 		String jsonObjectProofIssueCode = jsonObjectProofIssue[0].get("code").toString();
 		if (jsonObjectProofIssueCode.equals("CF-00000") ) {
@@ -869,6 +877,8 @@ public class CodefService {
 			// todo 이미 가입된 회사의 경우 처리 필요
 			//	중복체크 테스트 후엔 적용
 			Corp corp = null;
+
+			log.debug("3");
 
 			if (repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).isPresent()) {
 				corp = repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).get();
@@ -902,7 +912,7 @@ public class CodefService {
 			ImageConvertDto param1510 =
 					ImageConvertDto.builder()
 							.mrdType(1510)
-							.data(strResult.get())
+							.data(strResult)
 							.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1510+CommonUtil.getNowYYYYMMDD().substring(0,4))
 							.build();
 
@@ -914,10 +924,10 @@ public class CodefService {
 				}
 			});
 
-			AtomicReference<String> strResult1530 = null;
+			String strResult1530 = null;
 
 			// 대법원 - 법인등기부등본
-			strResult1530.set(CORP_REGISTER.corp_register(
+			strResult1530 = CORP_REGISTER.corp_register(
 					"0002",
 					"0261057000",
 					RSAUtil.encryptRSA("6821", CommonConstant.PUBLIC_KEY),
@@ -935,8 +945,8 @@ public class CodefService {
 					"",
 					"",
 					"N"
-			));
-			JSONObject[] jsonObjectCorpRegister = getApiResult(strResult1530.get());
+			);
+			JSONObject[] jsonObjectCorpRegister = getApiResult(strResult1530);
 
 			String jsonObjectCorpRegisterCode = jsonObjectCorpRegister[0].get("code").toString();
 			if (jsonObjectCorpRegisterCode.equals("CF-00000")) {
@@ -986,12 +996,17 @@ public class CodefService {
 								.build()
 				);
 
+
+
+
 				List<String> listResCompanyNmList = saveJSONArray1(jsonArrayResCompanyNmList, parent.idx());
 				List<String> listResUserAddrList = saveJSONArray2(jsonArrayResUserAddrList, parent.idx());
 				List<String> listResNoticeMethodList = saveJSONArray3(jsonArrayResNoticeMethodList, parent.idx());
 				List<String> listResOneStocAmtList = saveJSONArray4(jsonArrayResOneStocAmtList, parent.idx());
 				List<String> listResTCntStockIssueList = saveJSONArray5(jsonArrayResTCntStockIssueList, parent.idx());
 				List<Object> listResStockList = saveJSONArray6(jsonArrayResStockList, parent.idx());
+
+				/*
 				saveJSONArray7(jsonArrayResPurposeList, parent.idx());
 				saveJSONArray8(jsonArrayResRegistrationHisList, parent.idx());
 				saveJSONArray9(jsonArrayResBranchList, parent.idx());
@@ -1005,16 +1020,22 @@ public class CodefService {
 				saveJSONArray17(jsonArrayResTypeStockContentList, parent.idx());
 				saveJSONArray18(jsonArrayResCCCapitalStockList, parent.idx());
 				saveJSONArray19(jsonArrayResEtcList, parent.idx());
-				String ResCorpEstablishDate = saveJSONArray20(jsonArrayResCorpEstablishDateList, parent.idx());
+
 				saveJSONArray21(jsonArrayResRegistrationRecReasonList, parent.idx());
+
+				*/
+				String ResCorpEstablishDate = saveJSONArray20(jsonArrayResCorpEstablishDateList, parent.idx());
+
 				String d009 = saveJSONArray22(jsonArrayResCEOList, parent.idx());
 
 				corp.resUserType(d009);
 
+				log.debug("4");
+
 				ImageConvertDto param1530 =
 						ImageConvertDto.builder()
 								.mrdType(1530)
-								.data(strResult1530.get())
+								.data(strResult1530)
 								.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1530+CommonUtil.getNowYYYYMMDD().substring(0,4))
 								.build();
 
@@ -1025,6 +1046,8 @@ public class CodefService {
 						e.printStackTrace();
 					}
 				});
+
+				log.debug("4.1");
 
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
@@ -1060,6 +1083,8 @@ public class CodefService {
 						.d069(null)
 						.d070(null)
 						.build());
+
+				log.debug("5");
 
 				repoD1510.save(D1510.builder()
 						.idxCorp(corp.idx())
@@ -1186,6 +1211,8 @@ public class CodefService {
 		String resCompanyIdentityNo = user.get().corp().resCompanyIdentityNo();
 
 		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
+		normal.setStatus(true);
+
 		String connectedId = null;
 
 		List<ConnectedMng> connectedMng = repoConnectedMng.findByIdxUser(idxUser);
@@ -1196,12 +1223,13 @@ public class CodefService {
 
 		// 국세청 - 증명발급 표준재무재표
 		String finalConnectedId = connectedId;
-		AtomicReference<String> strResult = null;
+		String strResult;
 		listYyyyMm.forEach(yyyyMm ->{
 			JSONObject[] jsonObjectStandardFinancial = new JSONObject[0];
+			String strResultTemp = null;
 			try {
 
-				strResult.set(STANDARD_FINANCIAL.standard_financial(
+				strResultTemp = STANDARD_FINANCIAL.standard_financial(
 						"0001",
 						finalConnectedId,
 						yyyyMm,
@@ -1211,11 +1239,11 @@ public class CodefService {
 						"40",
 						"",
 						resCompanyIdentityNo.replaceAll("-", "").trim() // 사업자번호
-				));
+				);
 
-				jsonObjectStandardFinancial = getApiResult(strResult.get());
+				jsonObjectStandardFinancial = getApiResult(strResultTemp);
 			} catch (Exception e) {
-				log.debug(e.toString());
+				e.printStackTrace();
 			}
 
 			String jsonObjectStandardFinancialCode = jsonObjectStandardFinancial[0].get("code").toString();
@@ -1304,7 +1332,7 @@ public class CodefService {
 				try {
 					ImageConvertDto param1520 = ImageConvertDto.builder()
 							.mrdType(1520)
-							.data(strResult.get())
+							.data(strResultTemp)
 							.fileName(user.get().corp().resCompanyIdentityNo().replaceAll("-","")+1520+yyyyMm.substring(0,4))
 							.build();
 
