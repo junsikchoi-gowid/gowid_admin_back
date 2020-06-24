@@ -46,6 +46,9 @@ public class ShinhanGwRpc extends BaseRpc {
     @Value("${gateway.shinhan.uri.1700}")
     private String GATEWAY_SHINHAN_URI_1700;
 
+    @Value("${gateway.shinhan.uri.1800}")
+    private String GATEWAY_SHINHAN_URI_1800;
+
     @Value("${gateway.shinhan.uri.bpr-transfer}")
     private String GATEWAY_SHINHAN_URI_BPR_TRANSFER;
 
@@ -239,6 +242,25 @@ public class ShinhanGwRpc extends BaseRpc {
 
         return response1700;
 
+    }
+
+    public DataPart1800 request1800(DataPart1800 request) {
+
+        ApiResponse<DataPart1800> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_1800, HttpMethod.POST,
+                null, request, ApiResponse.class, ShinhanGwApiType.SH1800);
+
+        if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
+            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1800, "gateway error");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        DataPart1800 responseData = mapper.convertValue(response.getData(), DataPart1800.class);
+
+        if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1800, responseData.getC009() + "/" + responseData.getC013());
+        }
+
+        return responseData;
     }
 
 }

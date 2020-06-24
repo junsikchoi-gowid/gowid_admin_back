@@ -79,10 +79,6 @@ public class IssuanceService {
                                                    HttpServletRequest httpServletRequest,
                                                    UserCorporationDto.IssuanceReq request) {
 
-        // todo
-        //  - 1100 테이블에 비번 및 결제계좌 저장(키패드 복호화 -> seed128 암호화)
-        //  - 3000, 이미지 전송요청 주석해제(현재는 신한 방화벽 문제로 주석처리)
-
         User user = findUser(userIdx);
         Corp userCorp = user.corp();
         if (userCorp == null) {
@@ -96,10 +92,10 @@ public class IssuanceService {
         DataPart1200 resultOfD1200 = proc1200(userCorp);
 
         // 3000(이미지 제출여부)
-        // DataPart3000Res resultOfD3000 = proc3000(resultOfD1200);
+        DataPart3000Res resultOfD3000 = proc3000(resultOfD1200);
 
         // 이미지 전송요청
-        // procBrpTransfer(resultOfD3000, user.corp().resCompanyIdentityNo());
+        procBrpTransfer(resultOfD3000, user.corp().resCompanyIdentityNo());
 
         // 15X0(서류제출)
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
@@ -113,8 +109,27 @@ public class IssuanceService {
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
         }
 
+        // 1800(전자서명값 제출)
+        proc1800(userCorp, request);
+
         // 성공시 Body 는 공백으로.
         return new UserCorporationDto.IssuanceRes();
+    }
+
+    @Async
+    void proc1800(Corp userCorp, UserCorporationDto.IssuanceReq request) {
+        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1800);
+
+        DataPart1800 requestRpc = DataPart1800.builder()
+                .d001(CommonUtil.getElectronicIdNumber(userCorp.resCompanyIdentityNo()))
+                .d002(Const.ELEC_SIGNATURE_CERTI_PROD_CODE)
+                .d003(request.getSignedBinaryString())
+                .build();
+        BeanUtils.copyProperties(commonPart, requestRpc);
+        requestRpc.setC009("00");   // todo : 테스트 데이터(삭제예정)
+
+        saveGwTran(commonPart);
+        saveGwTran(shinhanGwRpc.request1800(requestRpc));
     }
 
     // 1100 데이터 저장

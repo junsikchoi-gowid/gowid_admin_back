@@ -51,4 +51,9 @@ public class CommonUtil {
     public static String getDecryptKeypad(HttpServletRequest httpServletRequest, String fieldName) {
         return getDecryptKeypad(httpServletRequest, fieldName, fieldName);
     }
+
+    // 1800(전자서명값 전송)에 사용될 전자서명식별번호
+    public static String getElectronicIdNumber(String bizNo) {
+        return "GWD" + getNowYYYYMMDD() + bizNo + "00";
+    }
 }
