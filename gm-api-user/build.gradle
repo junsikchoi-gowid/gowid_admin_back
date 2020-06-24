@@ -4,6 +4,7 @@ dependencies {
     implementation project(":gm-core")
     implementation project(":gm-codef")
     implementation project(":gm-secukeypad")
+//    implementation project(":gm-redis")
     implementation(
             "org.springframework.boot:spring-boot-starter-web",
             "org.springframework.boot:spring-boot-starter-security",
@@ -18,6 +19,7 @@ dependencies {
             "com.amazonaws:aws-java-sdk-s3:1.11.792",
             "commons-fileupload:commons-fileupload:1.3.2",
             "commons-io:commons-io:2.0.1"
+
     )
 
     compile fileTree(dir: 'libs', include: ['*.jar'])   // 인증서 검증 라이브러리

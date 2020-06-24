@@ -1,0 +1,9 @@
+dependencies {
+    implementation(
+            "org.springframework.boot:spring-boot-starter-data-redis",
+            "org.springframework.session:spring-session-data-redis",
+            "io.lettuce:lettuce-core:5.3.1.RELEASE",
+            "com.fasterxml.jackson.core:jackson-databind"
+    )
+}
+jar.enabled = true; bootJar.enabled = false
