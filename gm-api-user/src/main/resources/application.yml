@@ -7,15 +7,18 @@ spring:
       - core
       - resx
       - secukeypad
+      - redis
   devtools:
     livereload:
       enabled: true
   freemarker:
     cache: false
+
 server:
   port: 8080
   error:
     include-stacktrace: never
+
 logging:
   level:
     root: info
@@ -29,7 +32,30 @@ logging:
 ---
 
 spring:
-  profiles: dev, stage
+  profiles: dev
+  cron:
+    enabled: false
+    time: 0 0 2 * * *
+    endtime: 0 0 6 * * *
+  mail:
+    sender: gowid <support@gowid.com>
+    host: email-smtp.us-west-2.amazonaws.com
+    port: 587
+    username: AKIAXD7XVDFHCXKO7DE5
+    password: BLkZ5wIHk5WRB5qNhZoLjVKDqPA4za0TR+8WXW1vWXc6
+    protocol: smtp
+    properties:
+      mail:
+        debug: true
+        smtp:
+          auth: true
+          starttls.enable: true
+    default-encoding: UTF-8
+
+---
+
+spring:
+  profiles: stage
   cron:
     enabled: false
     time: 0 0 2 * * *
