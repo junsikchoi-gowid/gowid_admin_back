@@ -1,9 +1,9 @@
 package com.nomadconnection.dapp.api.dto.shinhan.gateway;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * CommonPart
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
  */
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommonPart {

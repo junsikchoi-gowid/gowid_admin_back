@@ -113,7 +113,11 @@ public class ErrorCode {
 
 		EXTERNAL_ERROR_SHINHAN_1700("EXTERNAL_ERROR_SHINHAN_1700", "external error(shinhan - 1700)"),
 		REJECTED_SHINHAN_1700("EXTERNAL_ERROR_SHINHAN_1700", "rejected(shinhan - 1700) "),
-		INTERNAL_ERROR_SHINHAN_1700("INTERNAL_ERROR_SHINHAN_1700", "internal error(shinhan - 1700)");
+		INTERNAL_ERROR_SHINHAN_1700("INTERNAL_ERROR_SHINHAN_1700", "internal error(shinhan - 1700)"),
+
+		EXTERNAL_ERROR_SHINHAN_1800("EXTERNAL_ERROR_SHINHAN_1800", "external error(shinhan - 1800)"),
+		REJECTED_SHINHAN_1800("EXTERNAL_ERROR_SHINHAN_1800", "rejected(shinhan - 1800) "),
+		INTERNAL_ERROR_SHINHAN_1800("INTERNAL_ERROR_SHINHAN_1800", "internal error(shinhan - 1800)");
 
 		private final String code;
 		private final String desc;
