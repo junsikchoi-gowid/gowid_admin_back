@@ -3,7 +3,9 @@ package com.nomadconnection.dapp.api.controller;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.service.UserCorporationService;
 import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
+import com.nomadconnection.dapp.api.service.shinhan.ResumeService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.domain.SignatureHistory;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -50,6 +52,7 @@ public class UserCorporationController {
 
     private final UserCorporationService service;
     private final IssuanceService issuanceService;
+    private final ResumeService resumeService;
 
     @ApiOperation("법인정보 업종종류 조회")
     @GetMapping(URI.CORPORATION_TYPE)
@@ -238,8 +241,8 @@ public class UserCorporationController {
             @ModelAttribute @Valid UserCorporationDto.IssuanceReq request,
             HttpServletRequest httpServletRequest) {
 
-        issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
-        issuanceService.issuance(user.idx(), httpServletRequest, request);
+        SignatureHistory signatureHistory = issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
+        issuanceService.issuance(user.idx(), httpServletRequest, request, signatureHistory.getIdx());
 
         return ResponseEntity.ok().build();
     }
@@ -251,7 +254,7 @@ public class UserCorporationController {
             @RequestBody @Valid UserCorporationDto.ResumeReq request) {
 
         return ResponseEntity.ok().body(
-                issuanceService.resumeApplication(request)
+                resumeService.resumeApplication(request)
         );
     }
 

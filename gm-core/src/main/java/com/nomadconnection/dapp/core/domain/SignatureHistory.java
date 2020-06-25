@@ -27,4 +27,11 @@ public class SignatureHistory extends BaseTime {
     @Column(columnDefinition = "blob not null comment '전자서명파일'")
     private String signedBinaryString;
 
+    @Column(columnDefinition = "varchar(8)  COMMENT '신청접수일자'")
+    private String applicationDate;    //신청접수일자
+
+    @Column(columnDefinition = "varchar(5)  COMMENT '신청접수순번'")
+    private String applicationNum;    //신청접수순번
+
+
 }
