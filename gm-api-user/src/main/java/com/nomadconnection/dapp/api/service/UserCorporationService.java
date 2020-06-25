@@ -2,9 +2,7 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
-import com.nomadconnection.dapp.api.exception.EmptyResxException;
-import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
-import com.nomadconnection.dapp.api.exception.MismatchedException;
+import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.Card;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
@@ -15,6 +13,7 @@ import com.nomadconnection.dapp.core.domain.repository.shinhan.D1100Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -47,6 +46,9 @@ public class UserCorporationService {
 
     private final AwsS3Service s3Service;
     private final GwUploadService gwUploadService;
+
+	@Value("${stockholder.file.size}")
+	private Long STOCKHOLDER_FILE_SIZE;
 
     /**
      * 법인정보 업종종류 조회
@@ -204,20 +206,21 @@ public class UserCorporationService {
      * 주주명부 파일 등록
      *
      * @param idx_user     등록하는 User idx
-     * @param files        파일
-     * @param type         file type
+	 * @param file_1       파일1
+	 * @param file_2       파일2
+	 * @param type         file type
      * @param idx_CardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
-    @Transactional(rollbackFor = Exception.class)
-    public List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(Long idx_user, MultipartFile[] files, String type, Long idx_CardInfo) throws IOException {
+	@Transactional(noRollbackFor = FileUploadException.class)
+	public List<UserCorporationDto.StockholderFileRes> registerStockholderFile(Long idx_user, MultipartFile[] file_1, MultipartFile[] file_2, String type, Long idx_CardInfo) throws IOException {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
-        if (files == null || ObjectUtils.isEmpty(files)) {
+		if (ObjectUtils.isEmpty(file_1) && ObjectUtils.isEmpty(file_2)) {
             throw EmptyResxException.builder().build();
         }
 
@@ -229,43 +232,66 @@ public class UserCorporationService {
                 s3Service.s3FileDelete(file.s3Key());
             }
         }
-        List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
-        int count = 0;
-        String licenseNo = cardInfo.corp().resCompanyIdentityNo().replaceAll("-", "");
-        for (MultipartFile file : files) {
-            String fileName = licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + (++count) + "." + FilenameUtils.getExtension(file.getOriginalFilename());
-            File uploadFile = new File(fileName);
-            uploadFile.createNewFile();
-            FileOutputStream fos = new FileOutputStream(uploadFile);
-            fos.write(file.getBytes());
-            fos.close();
-            try {
-                gwUploadService.upload(uploadFile, cardInfo.cardCode(), Const.STOCKHOLDER_GW_FILE_CODE, licenseNo);
-
-                String s3Key = "stockholder/" + idx_CardInfo + "/" + fileName;
-                String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
-
-                uploadFile.delete();
-
-                resultList.add(UserCorporationDto.StockholderFileRes.from(repoFile.save(StockholderFile.builder()
-                        .cardIssuanceInfo(cardInfo)
-                        .corp(user.corp())
-                        .fname(fileName)
-                        .type(StockholderFileType.valueOf(type))
-                        .s3Link(s3Link)
-                        .s3Key(s3Key)
-                        .size(file.getSize())
-                        .orgfname(file.getOriginalFilename()).build()), cardInfo.idx()));
-
-            } catch (Exception e) {
-                uploadFile.delete();
-                log.error("[uploadStockholderFile] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
-                throw e;
-            }
-        }
+		List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
+		int gwUploadCount = 0;
+		if (!ObjectUtils.isEmpty(file_1)) {
+			resultList.addAll(uploadStockholderFile(file_1, type, cardInfo, gwUploadCount++));
+		}
+		if (!ObjectUtils.isEmpty(file_2)) {
+			resultList.addAll(uploadStockholderFile(file_2, type, cardInfo, gwUploadCount++));
+		}
 
         return resultList;
     }
+
+	private List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(MultipartFile[] files, String type, CardIssuanceInfo cardInfo, int num) throws IOException {
+		if (files.length > 2) {
+			throw BadRequestedException.builder().category(BadRequestedException.Category.EXCESS_UPLOAD_FILE_LENGTH).build();
+		}
+		boolean checkGwUpload = false;
+		String licenseNo = cardInfo.corp().resCompanyIdentityNo().replaceAll("-", "");
+		List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
+		for (MultipartFile file : files) {
+			String fileName = licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + num + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+			File uploadFile = new File(fileName);
+			uploadFile.createNewFile();
+			FileOutputStream fos = new FileOutputStream(uploadFile);
+			fos.write(file.getBytes());
+			fos.close();
+
+			String s3Key = "stockholder/" + cardInfo.idx() + "/" + fileName;
+			try {
+				if (file.getSize() <= STOCKHOLDER_FILE_SIZE && !checkGwUpload) {
+					gwUploadService.upload(uploadFile, cardInfo.cardCode(), Const.STOCKHOLDER_GW_FILE_CODE, licenseNo);
+					checkGwUpload = true;
+				}
+
+				String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
+
+				uploadFile.delete();
+
+				resultList.add(UserCorporationDto.StockholderFileRes.from(repoFile.save(StockholderFile.builder()
+						.cardIssuanceInfo(cardInfo)
+						.corp(cardInfo.corp())
+						.fname(fileName)
+						.type(StockholderFileType.valueOf(type))
+						.s3Link(s3Link)
+						.s3Key(s3Key)
+						.size(file.getSize())
+						.orgfname(file.getOriginalFilename()).build()), cardInfo.idx()));
+
+			} catch (Exception e) {
+				uploadFile.delete();
+				gwUploadService.delete(fileName, cardInfo.cardCode());
+				s3Service.s3FileDelete(s3Key);
+
+				log.error("[uploadStockholderFile] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
+				throw FileUploadException.builder().category(FileUploadException.Category.STOCKHOLDER).build();
+			}
+		}
+
+		return resultList;
+	}
 
     /**
      * 주주명부 파일 삭제

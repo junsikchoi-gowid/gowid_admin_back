@@ -111,12 +111,13 @@ public class UserCorporationController {
             @RequestParam Long idxCardInfo,
             @RequestParam String fileType,
             @RequestParam String cardCode,
-            @RequestPart MultipartFile[] files) throws IOException {
+            @RequestPart MultipartFile[] file_1,
+            @RequestPart MultipartFile[] file_2) throws IOException {
         if (log.isInfoEnabled()) {
-            log.info("([ uploadStockholderFile ]) $user='{}', $files='{}', $idx_cardInfo='{}'", user, files, idxCardInfo);
+            log.info("([ uploadStockholderFile ]) $user='{}', $file_1='{}', $file_2='{}', $idx_cardInfo='{}'", user, file_1, file_2, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(service.uploadStockholderFile(user.idx(), files, fileType, idxCardInfo));
+        return ResponseEntity.ok().body(service.registerStockholderFile(user.idx(), file_1, file_2, fileType, idxCardInfo));
     }
 
     @ApiOperation("주주명부 파일 삭제")
