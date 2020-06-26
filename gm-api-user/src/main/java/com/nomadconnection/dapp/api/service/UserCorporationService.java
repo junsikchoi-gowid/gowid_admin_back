@@ -228,17 +228,17 @@ public class UserCorporationService {
         if (!ObjectUtils.isEmpty(fileList)) {
             for (StockholderFile file : fileList) {
                 repoFile.delete(file);
-                gwUploadService.delete(file.fname(), cardInfo.cardCode());
                 s3Service.s3FileDelete(file.s3Key());
+				gwUploadService.delete(file.fname(), cardInfo.cardCode());
             }
         }
 		List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
 		int gwUploadCount = 0;
 		if (!ObjectUtils.isEmpty(file_1)) {
-			resultList.addAll(uploadStockholderFile(file_1, type, cardInfo, gwUploadCount++));
+			resultList.addAll(uploadStockholderFile(file_1, type, cardInfo, ++gwUploadCount));
 		}
 		if (!ObjectUtils.isEmpty(file_2)) {
-			resultList.addAll(uploadStockholderFile(file_2, type, cardInfo, gwUploadCount++));
+			resultList.addAll(uploadStockholderFile(file_2, type, cardInfo, ++gwUploadCount));
 		}
 
         return resultList;
@@ -248,11 +248,14 @@ public class UserCorporationService {
 		if (files.length > 2) {
 			throw BadRequestedException.builder().category(BadRequestedException.Category.EXCESS_UPLOAD_FILE_LENGTH).build();
 		}
-		boolean checkGwUpload = false;
+		boolean sendGwUpload = false;
 		String licenseNo = cardInfo.corp().resCompanyIdentityNo().replaceAll("-", "");
 		List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
 		for (MultipartFile file : files) {
 			String fileName = licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + num + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+			if (file.getSize() > STOCKHOLDER_FILE_SIZE || sendGwUpload) {
+				fileName = licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + num + "_back." + FilenameUtils.getExtension(file.getOriginalFilename());
+			}
 			File uploadFile = new File(fileName);
 			uploadFile.createNewFile();
 			FileOutputStream fos = new FileOutputStream(uploadFile);
@@ -261,12 +264,14 @@ public class UserCorporationService {
 
 			String s3Key = "stockholder/" + cardInfo.idx() + "/" + fileName;
 			try {
-				if (file.getSize() <= STOCKHOLDER_FILE_SIZE && !checkGwUpload) {
-					gwUploadService.upload(uploadFile, cardInfo.cardCode(), Const.STOCKHOLDER_GW_FILE_CODE, licenseNo);
-					checkGwUpload = true;
-				}
-
 				String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
+
+				if (file.getSize() <= STOCKHOLDER_FILE_SIZE && !sendGwUpload) {
+					gwUploadService.upload(uploadFile, cardInfo.cardCode(), Const.STOCKHOLDER_GW_FILE_CODE, licenseNo);
+					sendGwUpload = true;
+				} else {
+					sendGwUpload = false;
+				}
 
 				uploadFile.delete();
 
@@ -278,12 +283,13 @@ public class UserCorporationService {
 						.s3Link(s3Link)
 						.s3Key(s3Key)
 						.size(file.getSize())
+						.sendGw(sendGwUpload)
 						.orgfname(file.getOriginalFilename()).build()), cardInfo.idx()));
 
 			} catch (Exception e) {
 				uploadFile.delete();
-				gwUploadService.delete(fileName, cardInfo.cardCode());
 				s3Service.s3FileDelete(s3Key);
+				gwUploadService.delete(fileName, cardInfo.cardCode());
 
 				log.error("[uploadStockholderFile] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
 				throw FileUploadException.builder().category(FileUploadException.Category.STOCKHOLDER).build();

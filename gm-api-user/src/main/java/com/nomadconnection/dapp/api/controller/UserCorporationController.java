@@ -110,7 +110,6 @@ public class UserCorporationController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestParam String fileType,
-            @RequestParam String cardCode,
             @RequestPart MultipartFile[] file_1,
             @RequestPart MultipartFile[] file_2) throws IOException {
         if (log.isInfoEnabled()) {

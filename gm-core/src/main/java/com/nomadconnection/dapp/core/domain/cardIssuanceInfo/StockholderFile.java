@@ -16,7 +16,6 @@ import javax.persistence.*;
 @Builder
 @Entity
 @DynamicUpdate
-@SuppressWarnings("SpellCheckingInspection")
 public class StockholderFile extends BaseTime {
 
     @Id
@@ -37,6 +36,8 @@ public class StockholderFile extends BaseTime {
     private String s3Link; // s3주소
 
     private String s3Key; // s3key
+
+    private Boolean sendGw; // gw전송여부
 
     @Enumerated(EnumType.STRING)
     private StockholderFileType type;
