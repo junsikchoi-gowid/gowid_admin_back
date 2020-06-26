@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.api.service.shinhan;
 
-import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
@@ -24,12 +23,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -40,7 +36,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class IssuanceService {
 
-    private final GatewayTransactionIdxRepository gatewayTransactionIdxRepository;
+//    private final GatewayTransactionIdxRepository gatewayTransactionIdxRepository;
     private final UserRepository userRepository;
 
     private final D1200Repository d1200Repository;
@@ -51,9 +47,9 @@ public class IssuanceService {
     private final D1400Repository d1400Repository;
     private final D1100Repository d1100Repository;
     private final SignatureHistoryRepository signatureHistoryRepository;
-    private final GwTranHistRepository gwTranHistRepository;
+
     private final ShinhanGwRpc shinhanGwRpc;
-    private final AsyncService asyncService;
+    private final CommonService issCommonService;
 
     @Value("${encryption.keypad.enable: true}")
     private Boolean ENC_KEYPAD_ENABLE;
@@ -77,7 +73,8 @@ public class IssuanceService {
     @Transactional(rollbackFor = Exception.class)
     public UserCorporationDto.IssuanceRes issuance(Long userIdx,
                                                    HttpServletRequest httpServletRequest,
-                                                   UserCorporationDto.IssuanceReq request) {
+                                                   UserCorporationDto.IssuanceReq request,
+                                                   Long signatureHistoryIdx) {
 
         User user = findUser(userIdx);
         Corp userCorp = user.corp();
@@ -85,11 +82,15 @@ public class IssuanceService {
             throw new EntityNotFoundException("not found userIdx", "corp", userIdx);
         }
 
+        SignatureHistory signatureHistory = getSignatureHistory(signatureHistoryIdx);
+
         // 카드비번, 결제계좌. 키패드 복호화 -> seed 암호화 -> 1100 저장
         encryptAndSaveD1100(userCorp.idx(), httpServletRequest, request);
 
         // 1200(법인회원신규여부검증)
         DataPart1200 resultOfD1200 = proc1200(userCorp);
+        signatureHistory.setApplicationDate(resultOfD1200.getD007());
+        signatureHistory.setApplicationNum(resultOfD1200.getD008());
 
         // 3000(이미지 제출여부)
         DataPart3000Res resultOfD3000 = proc3000(resultOfD1200);
@@ -109,27 +110,14 @@ public class IssuanceService {
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
         }
 
-        // 1800(전자서명값 제출)
-        proc1800(userCorp, request);
-
-        // 성공시 Body 는 공백으로.
         return new UserCorporationDto.IssuanceRes();
     }
 
-    @Async
-    void proc1800(Corp userCorp, UserCorporationDto.IssuanceReq request) {
-        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1800);
-
-        DataPart1800 requestRpc = DataPart1800.builder()
-                .d001(CommonUtil.getElectronicIdNumber(userCorp.resCompanyIdentityNo()))
-                .d002(Const.ELEC_SIGNATURE_CERTI_PROD_CODE)
-                .d003(request.getSignedBinaryString())
-                .build();
-        BeanUtils.copyProperties(commonPart, requestRpc);
-        requestRpc.setC009("00");   // todo : 테스트 데이터(삭제예정)
-
-        saveGwTran(commonPart);
-        saveGwTran(shinhanGwRpc.request1800(requestRpc));
+    public SignatureHistory getSignatureHistory(Long signatureHistoryIdx) {
+        return signatureHistoryRepository.findById(signatureHistoryIdx).orElseThrow(
+                () -> new InternalErrorException(ErrorCode.External.INTERNAL_SERVER_ERROR,
+                        "signatureHistory(" + signatureHistoryIdx + ") is not found")
+        );
     }
 
     // 1100 데이터 저장
@@ -149,7 +137,7 @@ public class IssuanceService {
 
     private DataPart3000Res proc3000(DataPart1200 resultOfD1200) {
         // 공통부
-        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH3000);
+        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH3000);
 
         String mapCode = null;
         if ("Y".equals(resultOfD1200.getD003())) {
@@ -180,7 +168,7 @@ public class IssuanceService {
 
     private DataPart1200 proc1200(Corp userCorp) {
         // 공통부
-        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1200);
+        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1200);
 
         // 데이터부
         D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
@@ -203,9 +191,9 @@ public class IssuanceService {
         requestRpc.setD007(CommonUtil.getNowYYYYMMDD());
         requestRpc.setD008(CommonUtil.getRandom5Num());
 
-        saveGwTran(requestRpc);
+        issCommonService.saveGwTran(requestRpc);
         DataPart1200 responseRpc = shinhanGwRpc.request1200(requestRpc);
-        saveGwTran(responseRpc);
+        issCommonService.saveGwTran(responseRpc);
         BeanUtils.copyProperties(responseRpc, d1200);
 
         return requestRpc;
@@ -224,7 +212,7 @@ public class IssuanceService {
 
     private void proc1510(Corp userCorp, String applyDate, String applyNo) {
         // 공통부
-        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1510);
+        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1510);
 
         // 데이터부 - db 추출, 세팅
         D1510 d1510 = d1510Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
@@ -246,13 +234,13 @@ public class IssuanceService {
         // todo : 테스트 데이터(삭제예정)
         requestRpc.setC009("00");
 
-        saveGwTran(requestRpc);
-        saveGwTran(shinhanGwRpc.request1510(requestRpc));
+        issCommonService.saveGwTran(requestRpc);
+        issCommonService.saveGwTran(shinhanGwRpc.request1510(requestRpc));
     }
 
     private void proc1520(Corp userCorp, String applyDate, String applyNo) {
         // 공통부
-        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1520);
+        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1520);
 
         // 데이터부 - db 추출, 세팅
         List<D1520> d1520s = d1520Repository.findTop2ByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
@@ -274,14 +262,14 @@ public class IssuanceService {
             // todo : 테스트 데이터(삭제예정)
             requestRpc.setC009("00");
 
-            saveGwTran(requestRpc);
-            saveGwTran(shinhanGwRpc.request1520(requestRpc));
+            issCommonService.saveGwTran(requestRpc);
+            issCommonService.saveGwTran(shinhanGwRpc.request1520(requestRpc));
         }
     }
 
     private void proc1530(Corp userCorp, String applyDate, String applyNo) {
         // 공통부
-        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1530);
+        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1530);
 
         // 데이터부 - db 추출, 세팅
         D1530 d1530 = d1530Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
@@ -304,15 +292,15 @@ public class IssuanceService {
         requestRpc.setC009("00");       // 성공리턴
         requestRpc.setD007(requestRpc.getD007().substring(0, 5));  // 게이트웨이 길이 버그로인해 임시조치
 
-        saveGwTran(requestRpc);
-        saveGwTran(shinhanGwRpc.request1530(requestRpc));
+        issCommonService.saveGwTran(requestRpc);
+        issCommonService.saveGwTran(shinhanGwRpc.request1530(requestRpc));
     }
 
     private void proc1000(Corp userCorp, DataPart1200 resultOfD1200,
                           HttpServletRequest httpServletRequest, UserCorporationDto.IssuanceReq request) {
 
         // 공통부
-        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1000);
+        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1000);
 
         // 데이터부 - db 추출, 세팅
         D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
@@ -349,14 +337,14 @@ public class IssuanceService {
 
         requestRpc.setC009("00"); // todo : 테스트 데이터(삭제예정). 응답코드 성공
 
-        saveGwTran(requestRpc);
-        saveGwTran(shinhanGwRpc.request1000(requestRpc));
+        issCommonService.saveGwTran(requestRpc);
+        issCommonService.saveGwTran(shinhanGwRpc.request1000(requestRpc));
     }
 
     private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest,
                           UserCorporationDto.IssuanceReq request) {
         // 공통부
-        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1400);
+        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1400);
 
         // 데이터부 - db 추출, 세팅
         D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
@@ -386,124 +374,36 @@ public class IssuanceService {
         // todo : 테스트 데이터(삭제예정)
         requestRpc.setC009("00");
 
-        saveGwTran(requestRpc);
-        saveGwTran(shinhanGwRpc.request1400(requestRpc));
+        issCommonService.saveGwTran(requestRpc);
+        issCommonService.saveGwTran(shinhanGwRpc.request1400(requestRpc));
     }
 
-    // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
-    public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
-        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1600);
-        UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
-        BeanUtils.copyProperties(commonPart, response);
-
-        // 1100(법인카드신청), 비동기 처리
-        asyncService.run(() -> proc1100(request));
-
-        return response;
-    }
-
-    @Async
-    public void proc1100(UserCorporationDto.ResumeReq request) {
-        // 공통부
-        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1100);
-
-        // corpIdx 추출
-        Long corpIdx = getCorpIdxFromLastRequest(request);
-
-        // 데이터부 - db 추출, 세팅
-        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
-                () -> new InternalErrorException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100,
-                        "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
-        );
-
-        // 연동
-        DataPart1100 requestRpc = new DataPart1100();
-        BeanUtils.copyProperties(d1100, requestRpc);
-        BeanUtils.copyProperties(commonPart, requestRpc);
-
-        // db에는 암호화된 상태.
-        // 테스트 환경에서는 복호화해서 보냄
-        requestRpc.setD021(Seed128.decryptEcb(d1100.getD021()));            // 비번
-        requestRpc.setD025(Seed128.decryptEcb(d1100.getD025()));            // 결제계좌번호
-        // todo 운영에서는 암호화해서 전송
-//        requestRpc.setD021(d1100.getD021());            // 비번
-//        requestRpc.setD025(d1100.getD025());            // 결제계좌번호
-
-        saveGwTran(requestRpc);
-        saveGwTran(shinhanGwRpc.request1100(requestRpc));
-    }
-
-    // 기존 1400/1000 연동으로 부터 법인 식별자 추출
-    private Long getCorpIdxFromLastRequest(UserCorporationDto.ResumeReq request) {
-        Long corpIdx;
-
-        D1400 d1400 = d1400Repository.findFirstByD033AndD034OrderByUpdatedAtDesc(request.getD001(), request.getD002());
-        if (ObjectUtils.isEmpty(d1400)) {
-            D1000 d1000 = d1000Repository.findFirstByD079AndD080OrderByUpdatedAtDesc(request.getD001(), request.getD002());
-            corpIdx = d1000.getIdxCorp();
-        } else {
-            corpIdx = d1400.getIdxCorp();
-        }
-
-        // todo : 게이트웨이로 에러리턴 수정
-        if (StringUtils.isEmpty(corpIdx)) {
-            String msg = "not fount applyNo[" + request.getD001() + "], applyDate[" + request.getD002() + "]";
-            throw new InternalErrorException(ErrorCode.External.INTERNAL_SERVER_ERROR, msg);
-        }
-
-        return corpIdx;
-    }
 
     private DataPart1700 proc1700(UserCorporationDto.IdentificationReq request, Map<String, String> decryptData) {
         // 공통부
-        CommonPart commonPart = getCommonPart(ShinhanGwApiType.SH1700);
+        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1700);
 
         // 연동
         DataPart1700 requestRpc = new DataPart1700();
         BeanUtils.copyProperties(commonPart, requestRpc);
         requestRpc.setD001(request.getIdCode());
         requestRpc.setD002(request.getKorName());
-        requestRpc.setD003(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER));
-        requestRpc.setD004(request.getIssueDate());
-        requestRpc.setD005(decryptData.get(EncryptParam.DRIVER_NUMBER));
+		requestRpc.setD004(request.getIssueDate());
         requestRpc.setD006(request.getDriverLocal());
         requestRpc.setD007(request.getDriverCode());
 
-        saveGwTran(requestRpc);
+		requestRpc.setD003(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER));
+		requestRpc.setD005(decryptData.get(EncryptParam.DRIVER_NUMBER));
+//		requestRpc.setD003(Seed128.encryptEcb(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER))); // 운영환경에서는 보내기전 암호화
+//		requestRpc.setD005(Seed128.encryptEcb(decryptData.get(EncryptParam.DRIVER_NUMBER)));
+
+        issCommonService.saveGwTran(requestRpc);
         DataPart1700 responseRpc = shinhanGwRpc.request1700(requestRpc);
-        saveGwTran(responseRpc);
+        issCommonService.saveGwTran(responseRpc);
 
         return responseRpc;
     }
 
-
-    private CommonPart getCommonPart(ShinhanGwApiType apiType) {
-        // common part 세팅.
-        // optional : 응답 코드, 대외 기관 코드, 응답 메시지
-        return CommonPart.builder()
-                .c001(apiType.getTransactionCode())
-                .c002(apiType.getInitialText())
-                .c003(apiType.getFullTextLength())
-                .c004(apiType.getCode())
-                .c005(apiType.getTransferFlag())
-                .c006(getTransactionId(Integer.parseInt(apiType.getCode())))
-                .c007(CommonUtil.getNowYYYYMMDD())
-                .c008(CommonUtil.getNowHHMMSS())
-                .c010(apiType.getMemberNo())
-                .c011(apiType.getMemberCode())
-                .c012(apiType.getSearchMemberNo())
-                .build();
-    }
-
-    private String getTransactionId(Integer interfaceId) {
-        GatewayTransactionIdx gatewayTransactionIdx = GatewayTransactionIdx.builder()
-                .interfaceId(interfaceId).build();
-        gatewayTransactionIdxRepository.save(gatewayTransactionIdx);
-        gatewayTransactionIdxRepository.flush();
-
-        long tmpTranId = 20000000000L + gatewayTransactionIdx.getIdx();
-        return "0" + tmpTranId;     // 020000000001
-    }
 
     private User findUser(Long idx_user) {
         return userRepository.findById(idx_user).orElseThrow(
@@ -569,7 +469,7 @@ public class IssuanceService {
 
     // 전자서명 검증 및 저장
     @Transactional(rollbackFor = Exception.class)
-    public void verifySignedBinaryAndSave(Long userIdx, String signedBinaryString) {
+    public SignatureHistory verifySignedBinaryAndSave(Long userIdx, String signedBinaryString) {
         verifySignedFileBinaryString(signedBinaryString);
 
         User user = findUser(userIdx);
@@ -579,15 +479,8 @@ public class IssuanceService {
                 .signedBinaryString(signedBinaryString)
                 .build();
 
-        signatureHistoryRepository.save(signatureHistory);
+        return signatureHistoryRepository.save(signatureHistory);
     }
 
-    // 연동 기록 저장
-    @Transactional
-    protected void saveGwTran(CommonPart commonPart) {
-        GwTranHist gwTranHist = new GwTranHist();
-        BeanUtils.copyProperties(commonPart, gwTranHist);
-        gwTranHistRepository.save(gwTranHist);
-    }
 
 }
