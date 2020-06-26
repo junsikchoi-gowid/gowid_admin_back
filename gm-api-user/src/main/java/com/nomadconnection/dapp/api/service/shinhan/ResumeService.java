@@ -65,9 +65,9 @@ public class ResumeService {
         SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
 
         DataPart1800 requestRpc = DataPart1800.builder()
-                .d001(CommonUtil.getElectronicIdNumber(d1200.getD001()))
+                .d001(CommonUtil.getDigitalSignatureIdNumber(d1200.getD001()))
                 .d002(Const.ELEC_SIGNATURE_CERTI_PROD_CODE)
-                .d003(signatureHistory.getSignedBinaryString())
+                .d003(CommonUtil.encodeBase64(signatureHistory.getSignedBinaryString()))
                 .build();
         BeanUtils.copyProperties(commonPart, requestRpc);
         requestRpc.setC009("00");   // todo : 테스트 데이터(삭제예정)
