@@ -436,37 +436,6 @@ public class IssuanceService {
 //        }
     }
 
-    public void verifySignedFileBinaryString(String signedString) {
-
-        int errorCode;
-        String errorMsg;
-
-        try {
-            SignVerifier signVerifier = new SignVerifier(signedString, CommonConst.CERT_STATUS_NONE, CommonConst.ENCODE_HEX);
-            signVerifier.verify();
-            errorCode = signVerifier.getLastErrorCode();
-            errorMsg = signVerifier.getLastErrorMsg();
-
-            log.debug("### 에러 코드 : " + errorCode);
-            log.debug("### 검증 결과 : " + errorMsg);
-//            log.debug("### 전자 서명 원문 : " + signVerifier.getSignedMessageText());
-//            CertificateInfo cert = signVerifier.getSignerCertificate();
-//            log.debug("### 사용자 인증서 정책 : " + cert.getPolicyIdentifier());
-//            log.debug("### 사용자 인증서 DN : " + cert.getSubject());
-//            log.debug("### 사용자 인증서 serial : " + cert.getSerial());
-
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "signed binary string");
-        }
-
-        if (errorCode != 0) {
-            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "signed binary string. errorCode=" + errorCode);
-        }
-
-    }
-
     // 전자서명 검증 및 저장
     @Transactional(rollbackFor = Exception.class)
     public SignatureHistory verifySignedBinaryAndSave(Long userIdx, String signedBinaryString) {
@@ -482,5 +451,37 @@ public class IssuanceService {
         return signatureHistoryRepository.save(signatureHistory);
     }
 
+    public void verifySignedFileBinaryString(String signedString) {
+        int errorCode;
+        String errorMsg;
+
+        try {
+            SignVerifier signVerifier = new SignVerifier(signedString, CommonConst.CERT_STATUS_NONE, CommonConst.ENCODE_HEX);
+            signVerifier.verify();
+            errorCode = signVerifier.getLastErrorCode();
+            errorMsg = signVerifier.getLastErrorMsg();
+            loggingSignVerifier(errorCode, errorMsg);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "signed binary string");
+        }
+
+        if (errorCode != 0) {
+            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "signed binary string. errorCode=" + errorCode);
+        }
+
+    }
+
+    private void loggingSignVerifier(int errorCode, String errorMsg) {
+        log.debug("### 에러 코드 : " + errorCode);
+        log.debug("### 검증 결과 : " + errorMsg);
+        // log.debug("### 전자 서명 원문 : " + signVerifier.getSignedMessageText());
+        // CertificateInfo cert = signVerifier.getSignerCertificate();
+        // log.debug("### 사용자 인증서 정책 : " + cert.getPolicyIdentifier());
+        // log.debug("### 사용자 인증서 DN : " + cert.getSubject());
+        // log.debug("### 사용자 인증서 serial : " + cert.getSerial());
+    }
 
 }
