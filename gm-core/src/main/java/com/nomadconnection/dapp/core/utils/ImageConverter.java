@@ -33,10 +33,11 @@ public class ImageConverter {
 		public static final String EXPORT_NAME = "export_name";
 		public static final String PROTOCOL = "protocol";
 
-		// mrd file (1510:사업자등록증, 1520:재무제표, 1530:법인등기부등본)
+		// mrd file (1510:사업자등록증, 1520:재무제표, 1530:법인등기부등본, guarantee: 지급보증)
 		public static final String CORP_REGISTRATION_MRD = "1510.mrd";
 		public static final String FINANCIAL_STATEMENTS_MRD = "1520.mrd";
 		public static final String COPY_REGISTER_MRD = "1530.mrd";
+		public static final String GUARANTEE_MRD = "guarantee.mrd";
 	}
 
 	@PostConstruct
@@ -98,6 +99,9 @@ public class ImageConverter {
 				break;
 			case 1530:
 				mrdName = ImageConvertParam.COPY_REGISTER_MRD;
+				break;
+			case 9999:
+				mrdName = ImageConvertParam.GUARANTEE_MRD;
 				break;
             default:
                 throw new IllegalArgumentException("Not Found MrdType.");
