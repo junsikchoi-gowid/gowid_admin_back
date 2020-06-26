@@ -32,11 +32,13 @@ public class ImageConverter {
 		public static final String EXPORT_TYPE = "export_type";
 		public static final String EXPORT_NAME = "export_name";
 		public static final String PROTOCOL = "protocol";
+		public static final String FAX_RESERVED2 = "fax_reserved2";
 
-		// mrd file (1510:사업자등록증, 1520:재무제표, 1530:법인등기부등본)
+		// mrd file (1510:사업자등록증, 1520:재무제표, 1530:법인등기부등본, guarantee: 지급보증)
 		public static final String CORP_REGISTRATION_MRD = "1510.mrd";
 		public static final String FINANCIAL_STATEMENTS_MRD = "1520.mrd";
 		public static final String COPY_REGISTER_MRD = "1530.mrd";
+		public static final String GUARANTEE_MRD = "guarantee.mrd";
 	}
 
 	@PostConstruct
@@ -85,6 +87,7 @@ public class ImageConverter {
         invoker.addParameter(ImageConvertParam.EXPORT_TYPE, params.getExportType());
         invoker.addParameter(ImageConvertParam.EXPORT_NAME, params.getFileName().concat("." + params.getExportType()));
         invoker.addParameter(ImageConvertParam.PROTOCOL, params.getProtocol());
+        invoker.addParameter(ImageConvertParam.FAX_RESERVED2, "1"); // 이미지 해상도 조정
 	}
 
 	private String getMrdPath(int mrdType) {
@@ -98,6 +101,9 @@ public class ImageConverter {
 				break;
 			case 1530:
 				mrdName = ImageConvertParam.COPY_REGISTER_MRD;
+				break;
+			case 9999:
+				mrdName = ImageConvertParam.GUARANTEE_MRD;
 				break;
             default:
                 throw new IllegalArgumentException("Not Found MrdType.");
