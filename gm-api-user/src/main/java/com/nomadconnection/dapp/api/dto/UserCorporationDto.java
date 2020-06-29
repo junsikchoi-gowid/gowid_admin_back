@@ -619,6 +619,9 @@ public class UserCorporationDto {
         @ApiModelProperty("파일타입")
         private String type;
 
+        @ApiModelProperty("gw전송여부")
+        private Boolean isTransferToGw;
+
         public static StockholderFileRes from(StockholderFile file, Long cardIssuanceInfoIdx) {
             if (file != null) {
                 return StockholderFileRes.builder()
@@ -629,6 +632,7 @@ public class UserCorporationDto {
                         .size(file.size())
                         .s3Link(file.s3Link())
                         .type(file.type().name())
+                        .isTransferToGw(file.isTransferToGw())
                         .build();
             }
             return null;

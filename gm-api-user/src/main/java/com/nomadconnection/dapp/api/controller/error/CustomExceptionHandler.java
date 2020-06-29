@@ -196,4 +196,10 @@ public class CustomExceptionHandler {
     protected ErrorResponse onServerError(ServerError e) {
         return ErrorResponse.builder().category(e.category().name()).data(e.data()).build();
     }
+
+    @ExceptionHandler(FileUploadException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    protected ErrorResponse onFileUploadException(FileUploadException e) {
+        return ErrorResponse.builder().category(e.category().name()).build();
+    }
 }

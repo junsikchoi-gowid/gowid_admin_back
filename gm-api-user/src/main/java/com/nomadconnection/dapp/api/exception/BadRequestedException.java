@@ -12,7 +12,8 @@ import lombok.experimental.Accessors;
 public class BadRequestedException extends RuntimeException {
 
     public enum Category {
-        EXCESS_UPLOAD_FILE_COUNT,
+        EXCESS_UPLOAD_FILE_LENGTH,
+        INVALID_UPLOAD_FILE_SIZE,
     }
 
     private final Category category;
