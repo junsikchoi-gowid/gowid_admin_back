@@ -70,11 +70,12 @@ spring:
     open-in-view: false
   datasource:
     initialization-mode: always
-    url: jdbc:mysql://10.10.30.71:3306/gowid?useSSL=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&sslMode=VERIFY_IDENTITY&trustCertificateKeyStoreUrl=classpath:cacerts&trustCertificateKeyStorePassword=Gowid@0115
+    url: jdbc:mysql://10.10.30.71:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: gowid
-    password: Gowid%0203
-#    username: gowiddb
-#    password: gowidDB@123
+    password: Gowid%0115
+    #    url: jdbc:mysql://10.10.30.71:3306/gowid?useSSL=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&sslMode=VERIFY_IDENTITY&trustCertificateKeyStoreUrl=classpath:cacerts&trustCertificateKeyStorePassword=Gowid@0115
+    #    username: gowid
+    #    password: Gowid%0203
 
 ---
 
