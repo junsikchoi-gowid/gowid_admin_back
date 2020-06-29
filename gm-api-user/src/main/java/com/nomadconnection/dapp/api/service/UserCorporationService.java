@@ -43,6 +43,7 @@ public class UserCorporationService {
     private final CeoInfoRepository repoCeo;
     private final VentureBusinessRepository repoVenture;
     private final StockholderFileRepository repoFile;
+	private final ResAccountRepository repoResAccount;
 
     private final AwsS3Service s3Service;
     private final GwUploadService gwUploadService;
@@ -416,13 +417,15 @@ public class UserCorporationService {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
+		ResAccount account = findResAccount(dto.getAccountIdx());
+
         cardInfo.bankAccount(BankAccount.builder()
-                .bankAccount(dto.getAccountNumber())
-                .bankCode(dto.getBank())
+				.bankAccount(account.resAccount())
+				.bankCode(account.organization())
                 .bankAccountHolder(dto.getAccountHolder())
                 .build());
 
-        String bankCode = dto.getBank();
+		String bankCode = account.organization();
         if (bankCode.length() > 3) {
             bankCode = bankCode.substring(bankCode.length() - 3);
         }
@@ -431,13 +434,13 @@ public class UserCorporationService {
         if (d1100 != null) {
             repoD1100.save(d1100
                     .setD024(bankCode)
-                    .setD025(dto.getAccountNumber())
+					.setD025(account.resAccount())
                     .setD026(dto.getAccountHolder())
             );
         }
 
         String bankName = null;
-        CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, dto.getBank());
+		CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, account.organization());
         if (commonCodeDetail != null) {
             bankName = commonCodeDetail.value1();
         }
@@ -663,4 +666,12 @@ public class UserCorporationService {
         );
     }
 
+	private ResAccount findResAccount(Long idx_resAccount) {
+		return repoResAccount.findById(idx_resAccount).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.entity("ResAccount")
+						.idx(idx_resAccount)
+						.build()
+		);
+	}
 }

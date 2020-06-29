@@ -3,8 +3,6 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
-import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
-import com.nomadconnection.dapp.core.utils.ImageConverter;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.codef.io.helper.Account;
@@ -21,6 +19,7 @@ import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.dto.ImageConvertDto;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
+import com.nomadconnection.dapp.core.utils.ImageConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -215,7 +214,7 @@ public class CodefService {
 
 			if(getScrapingAccount(idx)){
 				resAccount = repoResAccount.findConnectedId(idx).stream()
-						.map(BankDto.ResAccountDto::from)
+						.map(account -> BankDto.ResAccountDto.from(account, false))
 						.collect(Collectors.toList());
 			}
 
@@ -236,7 +235,7 @@ public class CodefService {
 
 				if(getScrapingAccount(idx)){
 					resAccount = repoResAccount.findConnectedId(idx).stream()
-							.map(BankDto.ResAccountDto::from)
+							.map(account -> BankDto.ResAccountDto.from(account, false))
 							.collect(Collectors.toList());
 				}
 
@@ -269,7 +268,7 @@ public class CodefService {
 					for (String s : CommonConstant.LISTBANK) {
 						JSONObject[] strResult = new JSONObject[0];
 						try {
-							strResult = this.getApiResult(KR_BK_1_B_001.krbk1b001(connId, s));
+							strResult = getApiResult(KR_BK_1_B_001.krbk1b001(connId, s));
 						} catch (ParseException e) {
 							e.printStackTrace();
 						} catch (InterruptedException e) {
@@ -724,7 +723,7 @@ public class CodefService {
 		String urlPath = CommonConstant.getRequestDomain() + CommonConstant.GET_ACCOUNTS;
 
 		// 요청 파라미터 설정 시작
-		HashMap<String, Object> bodyMap = new HashMap<String, Object>();
+		HashMap<String, Object> bodyMap = new HashMap<>();
 
 		// String connectedId = "45t4DJOD44M9uwH7zxSgBg";	// 엔드유저의 은행/카드사 계정 등록 후 발급받은 커넥티드아이디 예시
 		bodyMap.put(CommonConstant.CONNECTED_ID, connectedId);
@@ -1216,8 +1215,11 @@ public class CodefService {
 		String connectedId = null;
 
 		List<ConnectedMng> connectedMng = repoConnectedMng.findByIdxUser(idxUser);
-		if(connectedMng.size() < 1) throw new RuntimeException("CONNECTED ID");
-		else connectedId = connectedMng.get(0).connectedId();
+		if(connectedMng.size() < 1) {
+			throw new RuntimeException("CONNECTED ID");
+		} else {
+			connectedId = connectedMng.get(0).connectedId();
+		}
 
 		List<String> listYyyyMm = getFindClosingStandards(dto.getResClosingStandards().trim());
 
@@ -1464,7 +1466,7 @@ public class CodefService {
 
 	private List<String> getFindClosingStandards(String Mm) {
 
-		List<String> returnYyyyMm = new ArrayList<String>();
+		List<String> returnYyyyMm = new ArrayList<>();
 		Calendar cal = Calendar.getInstance();
 		DateFormat df = new SimpleDateFormat("yyyy");
 		Date date = new Date();
@@ -1859,7 +1861,7 @@ public class CodefService {
 	}
 
 	private String saveJSONArray22(JSONArray jsonArray, Long idx ) {
-		AtomicReference<String> returnStr =  new AtomicReference<String>("");
+		AtomicReference<String> returnStr = new AtomicReference<>("");
 
 		// 1: 단일대표 2: 개별대표 3: 공동대표
 		jsonArray.forEach(item -> {

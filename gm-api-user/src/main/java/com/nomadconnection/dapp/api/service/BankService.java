@@ -226,13 +226,13 @@ public class BankService {
 	 * @param idxUser 엔터티(사용자)
 	 */
 	@Transactional(readOnly = true)
-	public ResponseEntity accountList(Long idxUser, Long idxCorp) {
+	public ResponseEntity accountList(Long idxUser, Long idxCorp, Boolean masking) {
 
 		//todo auth
 		idxUser = getaLong(idxUser, idxCorp);
 
 		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(idxUser).stream()
-				.map(BankDto.ResAccountDto::from)
+				.map(account -> BankDto.ResAccountDto.from(account, masking))
 				.collect(Collectors.toList());
 
 		for (BankDto.ResAccountDto dto : resAccount) {

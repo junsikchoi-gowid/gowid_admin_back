@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.api.util.MaskingUtils;
 import com.nomadconnection.dapp.core.domain.ResAccount;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -11,7 +12,6 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@SuppressWarnings("unused")
 public class BankDto {
 
 	@ApiModelProperty("이메일(계정)")
@@ -242,11 +242,24 @@ public class BankDto {
 		private LocalDateTime scrpaingUpdateTime    ;
 
 
-		public static ResAccountDto from(ResAccount resAccount){
+		public static ResAccountDto from(ResAccount resAccount, Boolean masking) {
 
-			if( resAccount.resAccountName() != null && !resAccount.resAccountName().isEmpty() ) resAccount.nickName(resAccount.resAccountName());
-			if( resAccount.resAccountNickName() != null && !resAccount.resAccountNickName().isEmpty() ) resAccount.nickName(resAccount.resAccountNickName());
-			if( resAccount.nickName() != null && !resAccount.nickName().isEmpty() ) resAccount.nickName(resAccount.nickName());
+			String account = resAccount.resAccount();
+			String accountDisplay = resAccount.resAccountDisplay();
+			if (masking != null && masking) {
+				account = MaskingUtils.maskingBankAccountNumber(resAccount.resAccount());
+				accountDisplay = null;
+			}
+
+			if (resAccount.resAccountName() != null && !resAccount.resAccountName().isEmpty()) {
+				resAccount.nickName(resAccount.resAccountName());
+			}
+			if (resAccount.resAccountNickName() != null && !resAccount.resAccountNickName().isEmpty()) {
+				resAccount.nickName(resAccount.resAccountNickName());
+			}
+			if (resAccount.nickName() != null && !resAccount.nickName().isEmpty()) {
+				resAccount.nickName(resAccount.nickName());
+			}
 
 			return ResAccountDto.builder()
 					.idx(resAccount.idx())
@@ -254,9 +267,9 @@ public class BankDto {
 					.connectedId(resAccount.connectedId())
 					.organization(resAccount.organization())
 					.type(resAccount.type())
-					.resAccount(resAccount.resAccount())
+					.resAccount(account)
 					.resAccountHolder(resAccount.resAccountHolder())
-					.resAccountDisplay(resAccount.resAccountDisplay())
+					.resAccountDisplay(accountDisplay)
 					.resAccountBalance(resAccount.resAccountBalance())
 					.resAccountDeposit(resAccount.resAccountDeposit())
 					.resAccountNickName(resAccount.resAccountNickName())
