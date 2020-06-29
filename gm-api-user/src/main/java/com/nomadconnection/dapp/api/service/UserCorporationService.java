@@ -418,32 +418,32 @@ public class UserCorporationService {
         }
 
 		ResAccount account = findResAccount(dto.getAccountIdx());
+		String bankCode = account.organization();
 
-        cardInfo.bankAccount(BankAccount.builder()
+		cardInfo.bankAccount(BankAccount.builder()
 				.bankAccount(account.resAccount())
-				.bankCode(account.organization())
+				.bankCode(bankCode)
                 .bankAccountHolder(dto.getAccountHolder())
                 .build());
 
-		String bankCode = account.organization();
-        if (bankCode.length() > 3) {
-            bankCode = bankCode.substring(bankCode.length() - 3);
-        }
-
-        D1100 d1100 = getD1100(user.corp().idx());
-        if (d1100 != null) {
-            repoD1100.save(d1100
-                    .setD024(bankCode)
-					.setD025(account.resAccount())
-                    .setD026(dto.getAccountHolder())
-            );
-        }
-
         String bankName = null;
-		CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, account.organization());
+		CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, bankCode);
         if (commonCodeDetail != null) {
             bankName = commonCodeDetail.value1();
         }
+
+		if (bankCode.length() > 3) {
+			bankCode = bankCode.substring(bankCode.length() - 3);
+		}
+
+		D1100 d1100 = getD1100(user.corp().idx());
+		if (d1100 != null) {
+			repoD1100.save(d1100
+					.setD024(bankCode)
+					.setD025(account.resAccount())
+					.setD026(dto.getAccountHolder())
+			);
+		}
 
         return UserCorporationDto.AccountRes.from(repoCardIssuance.save(cardInfo), bankName);
     }
