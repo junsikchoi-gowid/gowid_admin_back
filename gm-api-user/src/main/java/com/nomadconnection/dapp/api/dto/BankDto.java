@@ -242,11 +242,11 @@ public class BankDto {
 		private LocalDateTime scrpaingUpdateTime    ;
 
 
-		public static ResAccountDto from(ResAccount resAccount, Boolean masking) {
+		public static ResAccountDto from(ResAccount resAccount, Boolean isMasking) {
 
 			String account = resAccount.resAccount();
 			String accountDisplay = resAccount.resAccountDisplay();
-			if (masking != null && masking) {
+			if (isMasking != null && isMasking) {
 				account = MaskingUtils.maskingBankAccountNumber(resAccount.resAccount());
 				accountDisplay = null;
 			}

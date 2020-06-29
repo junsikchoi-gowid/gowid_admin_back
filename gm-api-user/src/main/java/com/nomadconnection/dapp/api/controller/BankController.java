@@ -59,11 +59,11 @@ public class BankController {
 	public ResponseEntity AccountList(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestParam(required = false) Long idxCorp,
-			@RequestParam(required = false) Boolean masking) {
+			@RequestParam(required = false) Boolean isMasking) {
 		if (log.isDebugEnabled()) {
 			// log.debug("([TransactionList]) $dto='{}'", dto);
 		}
-		return service.accountList(user.idx(), idxCorp, masking);
+		return service.accountList(user.idx(), idxCorp, isMasking);
 	}
 
 	@ApiOperation(value = "계좌별 거래내역", notes = "" + "\n")
