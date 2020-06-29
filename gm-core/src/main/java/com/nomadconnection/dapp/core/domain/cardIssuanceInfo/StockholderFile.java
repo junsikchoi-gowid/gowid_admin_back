@@ -37,7 +37,7 @@ public class StockholderFile extends BaseTime {
 
     private String s3Key; // s3key
 
-    private Boolean sendGw; // gw전송여부
+    private Boolean isTransferToGw; // gw전송여부
 
     @Enumerated(EnumType.STRING)
     private StockholderFileType type;

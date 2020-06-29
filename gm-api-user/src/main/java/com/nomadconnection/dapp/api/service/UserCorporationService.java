@@ -256,6 +256,7 @@ public class UserCorporationService {
 			if (file.getSize() > STOCKHOLDER_FILE_SIZE || sendGwUpload) {
 				fileName = licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + num + "_back." + FilenameUtils.getExtension(file.getOriginalFilename());
 			}
+
 			File uploadFile = new File(fileName);
 			uploadFile.createNewFile();
 			FileOutputStream fos = new FileOutputStream(uploadFile);
@@ -283,7 +284,7 @@ public class UserCorporationService {
 						.s3Link(s3Link)
 						.s3Key(s3Key)
 						.size(file.getSize())
-						.sendGw(sendGwUpload)
+						.isTransferToGw(sendGwUpload)
 						.orgfname(file.getOriginalFilename()).build()), cardInfo.idx()));
 
 			} catch (Exception e) {
