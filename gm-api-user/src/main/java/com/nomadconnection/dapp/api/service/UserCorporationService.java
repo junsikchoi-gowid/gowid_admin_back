@@ -225,7 +225,8 @@ public class UserCorporationService {
             throw EmptyResxException.builder().build();
         }
 
-        List<StockholderFile> fileList = repoFile.findAllByCorp(user.corp());
+		StockholderFileType fileType = StockholderFileType.valueOf(type);
+		List<StockholderFile> fileList = repoFile.findAllByCorpAndType(user.corp(), fileType);
         if (!ObjectUtils.isEmpty(fileList)) {
             for (StockholderFile file : fileList) {
                 repoFile.delete(file);
@@ -236,16 +237,16 @@ public class UserCorporationService {
 		List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
 		int gwUploadCount = 0;
 		if (!ObjectUtils.isEmpty(file_1)) {
-			resultList.addAll(uploadStockholderFile(file_1, type, cardInfo, ++gwUploadCount));
+			resultList.addAll(uploadStockholderFile(file_1, fileType, cardInfo, ++gwUploadCount));
 		}
 		if (!ObjectUtils.isEmpty(file_2)) {
-			resultList.addAll(uploadStockholderFile(file_2, type, cardInfo, ++gwUploadCount));
+			resultList.addAll(uploadStockholderFile(file_2, fileType, cardInfo, ++gwUploadCount));
 		}
 
         return resultList;
     }
 
-	private List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(MultipartFile[] files, String type, CardIssuanceInfo cardInfo, int num) throws IOException {
+	private List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(MultipartFile[] files, StockholderFileType type, CardIssuanceInfo cardInfo, int num) throws IOException {
 		if (files.length > 2) {
 			throw BadRequestedException.builder().category(BadRequestedException.Category.EXCESS_UPLOAD_FILE_LENGTH).build();
 		}
@@ -281,7 +282,7 @@ public class UserCorporationService {
 						.cardIssuanceInfo(cardInfo)
 						.corp(cardInfo.corp())
 						.fname(fileName)
-						.type(StockholderFileType.valueOf(type))
+						.type(type)
 						.s3Link(s3Link)
 						.s3Key(s3Key)
 						.size(file.getSize())
