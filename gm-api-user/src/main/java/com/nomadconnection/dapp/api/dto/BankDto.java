@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
@@ -251,19 +252,20 @@ public class BankDto {
 				accountDisplay = null;
 			}
 
-			if (resAccount.resAccountName() != null && !resAccount.resAccountName().isEmpty()) {
-				resAccount.nickName(resAccount.resAccountName());
+			String nickName = resAccount.nickName();
+			if (!StringUtils.isEmpty(resAccount.resAccountName())) {
+				nickName = resAccount.resAccountName();
 			}
-			if (resAccount.resAccountNickName() != null && !resAccount.resAccountNickName().isEmpty()) {
-				resAccount.nickName(resAccount.resAccountNickName());
+			if (!StringUtils.isEmpty(resAccount.resAccountNickName())) {
+				nickName = resAccount.resAccountNickName();
 			}
-			if (resAccount.nickName() != null && !resAccount.nickName().isEmpty()) {
-				resAccount.nickName(resAccount.nickName());
+			if (!StringUtils.isEmpty(resAccount.nickName())) {
+				nickName = resAccount.nickName();
 			}
 
 			return ResAccountDto.builder()
 					.idx(resAccount.idx())
-					.nickName(resAccount.nickName())
+					.nickName(nickName)
 					.connectedId(resAccount.connectedId())
 					.organization(resAccount.organization())
 					.type(resAccount.type())
