@@ -73,23 +73,18 @@ public class UserCorporationDto {
         private Boolean isStockholderList;
 
         @ApiModelProperty("주주이름(한글)")
-        @NotEmpty
         private String name;
 
         @ApiModelProperty("주주이름(영문)")
-        @NotEmpty
         private String engName;
 
         @ApiModelProperty("생년월일 6자리")
-        @NotEmpty
         private String birth;
 
         @ApiModelProperty("국적")
-        @NotEmpty
         private String nation;
 
         @ApiModelProperty("지분율(앞자리 3 : 뒷자리 2)")
-        @NotNull
         private String rate;
     }
 

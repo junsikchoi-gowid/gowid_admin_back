@@ -331,7 +331,7 @@ public class RiskService {
 	public String getCardLimit(Long idx_user) {
 		User user = findUser(idx_user);
 		String yesterday = LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-		Risk risk = repoRisk.findByCorpAndDate(user.corp(), yesterday).orElseThrow(
+		Risk risk = repoRisk.findTopByCorpAndDateOrderByUpdatedAtDesc(user.corp(), yesterday).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("Risk")
 						.build()
