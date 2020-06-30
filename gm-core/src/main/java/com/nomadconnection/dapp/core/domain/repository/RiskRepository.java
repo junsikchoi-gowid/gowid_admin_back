@@ -36,5 +36,7 @@ public interface RiskRepository extends JpaRepository<Risk, Long>, AdminCustomRe
 
     Optional<Risk> findByCorpAndDate(Corp corp, String Date);
 
+    Optional<Risk> findTopByCorpAndDateOrderByUpdatedAtDesc(Corp corp, String Date);
+
     Page<Risk> findByCorp(Corp corp, Pageable pageable);
 }
