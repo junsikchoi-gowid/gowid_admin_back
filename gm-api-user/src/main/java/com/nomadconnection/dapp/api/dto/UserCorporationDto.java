@@ -142,13 +142,9 @@ public class UserCorporationDto {
     @AllArgsConstructor
     public static class RegisterAccount {
 
-        @ApiModelProperty("은행코드")
-        @NotEmpty
-        private String bank;
-
-        @ApiModelProperty("계좌번호")
-        @NotEmpty
-        private String accountNumber;
+        @ApiModelProperty("계좌번호 IDX")
+        @NotNull
+        private Long accountIdx;
 
         @ApiModelProperty("예금주")
         @NotEmpty

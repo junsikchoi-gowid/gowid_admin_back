@@ -56,11 +56,14 @@ public class BankController {
 
 	@ApiOperation(value = "계좌정보", notes = "" + "\n")
 	@GetMapping( URI.ACCOUNT_LIST )
-	public ResponseEntity AccountList(@ApiIgnore @CurrentUser CustomUser user, @RequestParam(required = false)  Long idxCorp) {
+	public ResponseEntity AccountList(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestParam(required = false) Long idxCorp,
+			@RequestParam(required = false) Boolean isMasking) {
 		if (log.isDebugEnabled()) {
 			// log.debug("([TransactionList]) $dto='{}'", dto);
 		}
-		return service.accountList(user.idx(), idxCorp);
+		return service.accountList(user.idx(), idxCorp, isMasking);
 	}
 
 	@ApiOperation(value = "계좌별 거래내역", notes = "" + "\n")
