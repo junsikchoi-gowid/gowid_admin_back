@@ -243,7 +243,7 @@ public class UserCorporationController {
 
         SignatureHistory signatureHistory = issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
         // todo 내부 시연시 발급신청 제외. 시연 종류 후 주석해제
-        //issuanceService.issuance(user.idx(), httpServletRequest, request, signatureHistory.getIdx());
+        issuanceService.issuance(user.idx(), httpServletRequest, request, signatureHistory.getIdx());
 
         return ResponseEntity.ok().build();
     }

@@ -69,7 +69,7 @@ public class ErrorCode {
 	@Getter
 	public enum External {
 		EXTERNAL_ERROR_GW("EXTERNAL_ERROR_GW", "external error(shinhan - GW)"),
-		INTERNAL_ERROR_GW("INTERNAL_ERROR_GW", "external error(shinhan - GW)"),
+		INTERNAL_ERROR_GW("INTERNAL_ERROR_GW", "internal error(shinhan - GW)"),
 
 		INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "internal server error"),
 

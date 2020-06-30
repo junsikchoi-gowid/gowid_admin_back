@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class DataPart3000Res extends CommonPart {
+public class DataPart3000 extends CommonPart {
 
     private String d001;    // BPR데이터존재여부
 
@@ -36,5 +36,10 @@ public class DataPart3000Res extends CommonPart {
     private String d010;    // BPR처리응답코드
 
     private String d011;    // BPR응답메세지
+
+    public DataPart3000(String d002, String d003) {
+        d001 = d002;
+        this.d002 = d003;
+    }
 
 }

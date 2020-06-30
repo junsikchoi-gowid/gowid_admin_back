@@ -12,9 +12,9 @@ import org.springframework.beans.BeanUtils;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class BprTransferReq extends DataPart3000Res {
+public class BprTransferReq extends DataPart3000 {
 
-    public BprTransferReq(DataPart3000Res dataPart3000Req) {
+    public BprTransferReq(DataPart3000 dataPart3000Req) {
         BeanUtils.copyProperties(dataPart3000Req, this);
     }
 }
