@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
+import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.InternalErrorException;
@@ -394,7 +395,7 @@ public class IssuanceService {
 
 		requestRpc.setD003(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER));
 		requestRpc.setD005(decryptData.get(EncryptParam.DRIVER_NUMBER));
-//		requestRpc.setD003(Seed128.encryptEcb(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER))); // 운영환경에서는 보내기전 암호화
+//		requestRpc.setD003(Seed128.encryptEcb(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER))); todo: 운영환경에서는 보내기전 암호화
 //		requestRpc.setD005(Seed128.encryptEcb(decryptData.get(EncryptParam.DRIVER_NUMBER)));
 
         issCommonService.saveGwTran(requestRpc);
@@ -431,9 +432,9 @@ public class IssuanceService {
         // 1700(신분증검증)
         DataPart1700 resultOfD1700 = proc1700(dto, decryptData);
 
-//        if (!resultOfD1700.getD008().equals("")) { // TODO : 결과값 확인
-//            throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1700, resultOfD1700.getD009());
-//        }
+        if (!resultOfD1700.getD008().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+            throw BadRequestedException.builder().category(BadRequestedException.Category.INVALID_CEO_IDENTIFICATION).desc(resultOfD1700.getD009()).build();
+        }
     }
 
     // 전자서명 검증 및 저장

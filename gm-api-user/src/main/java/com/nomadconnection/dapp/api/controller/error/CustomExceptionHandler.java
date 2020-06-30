@@ -32,7 +32,7 @@ public class CustomExceptionHandler {
 	@ExceptionHandler(BadRequestedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
 	protected ErrorResponse onBadRequestedException(BadRequestedException e) {
-		return ErrorResponse.builder().category(e.category().name()).build();
+        return ErrorResponse.builder().category(e.category().name()).description(e.desc()).build();
 	}
 
 //	@ExceptionHandler(AlreadyExistException.class)
@@ -180,7 +180,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(BusinessException.class)
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ErrorResponse onBusinessException(BusinessException e) {
         return ErrorResponse.from(e.getError(), e.getDescription());
     }
