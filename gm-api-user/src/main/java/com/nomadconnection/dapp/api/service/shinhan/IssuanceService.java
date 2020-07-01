@@ -114,10 +114,31 @@ public class IssuanceService {
 
     @Async
     void procBpr(Corp userCorp, DataPart1200 resultOfD1200) {
-        DataPart3000 resultOfD3000 = proc3000(resultOfD1200);                    // 3000(이미지 제출여부)
-        if (!"Y".equals(resultOfD3000.getD001())) {
-            procBrpTransfer(resultOfD3000, userCorp.resCompanyIdentityNo());     // 이미지 전송요청
+        if (proc3000(userCorp, resultOfD1200)) {
+            return;
         }
+
+        try {
+            for (int i = 0; i < 3; i++) {
+                Thread.sleep(5000L);
+                if (proc3000(userCorp, resultOfD1200)) {
+                    return;
+                }
+            }
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+            throw new InternalErrorException(ErrorCode.External.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+
+    }
+
+    private boolean proc3000(Corp userCorp, DataPart1200 resultOfD1200) {
+        DataPart3000 resultOfD3000 = proc3000(resultOfD1200);                    // 3000(이미지 제출여부)
+        if ("Y".equals(resultOfD3000.getD001())) {
+            procBrpTransfer(resultOfD3000, userCorp.resCompanyIdentityNo());     // 이미지 전송요청
+            return true;
+        }
+        return false;
     }
 
     public SignatureHistory getSignatureHistory(Long signatureHistoryIdx) {
