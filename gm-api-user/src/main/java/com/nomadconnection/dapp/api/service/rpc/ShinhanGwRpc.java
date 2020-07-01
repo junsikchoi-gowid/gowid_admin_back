@@ -73,9 +73,9 @@ public class ShinhanGwRpc extends BaseRpc {
 
     }
 
-    public DataPart3000Res request3000(DataPart3000Req request) {
+    public DataPart3000 request3000(DataPart3000 request) {
 
-        ApiResponse<DataPart3000Res> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_3000, HttpMethod.POST,
+        ApiResponse<DataPart3000> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_3000, HttpMethod.POST,
                 null, request, ApiResponse.class, ShinhanGwApiType.SH3000);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
@@ -83,7 +83,7 @@ public class ShinhanGwRpc extends BaseRpc {
         }
 
         ObjectMapper mapper = new ObjectMapper();
-        DataPart3000Res responseData = mapper.convertValue(response.getData(), DataPart3000Res.class);
+        DataPart3000 responseData = mapper.convertValue(response.getData(), DataPart3000.class);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_3000, responseData.getC009() + "/" + responseData.getC013());

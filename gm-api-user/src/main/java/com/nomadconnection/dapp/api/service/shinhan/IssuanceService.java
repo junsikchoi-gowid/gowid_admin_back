@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -37,9 +38,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class IssuanceService {
 
-//    private final GatewayTransactionIdxRepository gatewayTransactionIdxRepository;
     private final UserRepository userRepository;
-
     private final D1200Repository d1200Repository;
     private final D1510Repository d1510Repository;
     private final D1520Repository d1520Repository;
@@ -77,31 +76,21 @@ public class IssuanceService {
                                                    UserCorporationDto.IssuanceReq request,
                                                    Long signatureHistoryIdx) {
 
-        User user = findUser(userIdx);
-        Corp userCorp = user.corp();
-        if (userCorp == null) {
-            throw new EntityNotFoundException("not found userIdx", "corp", userIdx);
-        }
+        Corp userCorp = getCorpByUserIdx(userIdx);
 
-        SignatureHistory signatureHistory = getSignatureHistory(signatureHistoryIdx);
-
-        // 카드비번, 결제계좌. 키패드 복호화 -> seed 암호화 -> 1100 저장
+        // 키패드 복호화(카드비번, 결제계좌) -> seed128 암호화 -> 1100 DB저장
         encryptAndSaveD1100(userCorp.idx(), httpServletRequest, request);
 
         // 1200(법인회원신규여부검증)
         DataPart1200 resultOfD1200 = proc1200(userCorp);
+        SignatureHistory signatureHistory = getSignatureHistory(signatureHistoryIdx);
         signatureHistory.setApplicationDate(resultOfD1200.getD007());
         signatureHistory.setApplicationNum(resultOfD1200.getD008());
 
-        // 3000(이미지 제출여부)
-        DataPart3000Res resultOfD3000 = proc3000(resultOfD1200);
-
-        // 이미지 전송요청
-        procBrpTransfer(resultOfD3000, user.corp().resCompanyIdentityNo());
-
-        // 15X0(서류제출)
+        // 15xx 서류제출
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
 
+        // 신규(1000) or 변경(1400) 신청
         if ("Y".equals(resultOfD1200.getD003())) {
             proc1000(userCorp, resultOfD1200, httpServletRequest, request);         // 1000(신규-법인회원신규심사요청)
         } else if ("N".equals(resultOfD1200.getD003())) {
@@ -111,7 +100,48 @@ public class IssuanceService {
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
         }
 
+        // BRP 전송(비동기)
+        procBpr(userCorp, resultOfD1200);
+
         return new UserCorporationDto.IssuanceRes();
+    }
+
+    private Corp getCorpByUserIdx(Long userIdx) {
+        User user = findUser(userIdx);
+        Corp userCorp = user.corp();
+        if (userCorp == null) {
+            throw new EntityNotFoundException("not found userIdx", "corp", userIdx);
+        }
+        return userCorp;
+    }
+
+    @Async
+    void procBpr(Corp userCorp, DataPart1200 resultOfD1200) {
+        if (proc3000(userCorp, resultOfD1200)) {
+            return;
+        }
+
+        try {
+            for (int i = 0; i < 3; i++) {
+                Thread.sleep(5000L);
+                if (proc3000(userCorp, resultOfD1200)) {
+                    return;
+                }
+            }
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+            throw new InternalErrorException(ErrorCode.External.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+
+    }
+
+    private boolean proc3000(Corp userCorp, DataPart1200 resultOfD1200) {
+        DataPart3000 resultOfD3000 = proc3000(resultOfD1200);                    // 3000(이미지 제출여부)
+        if ("Y".equals(resultOfD3000.getD001())) {
+            procBrpTransfer(resultOfD3000, userCorp.resCompanyIdentityNo());     // 이미지 전송요청
+            return true;
+        }
+        return false;
     }
 
     public SignatureHistory getSignatureHistory(Long signatureHistoryIdx) {
@@ -136,7 +166,7 @@ public class IssuanceService {
         }
     }
 
-    private DataPart3000Res proc3000(DataPart1200 resultOfD1200) {
+    private DataPart3000 proc3000(DataPart1200 resultOfD1200) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH3000);
 
@@ -151,7 +181,7 @@ public class IssuanceService {
         }
 
         // 데이터부
-        DataPart3000Req requestRpc = new DataPart3000Req(mapCode, resultOfD1200.getD007() + resultOfD1200.getD008());
+        DataPart3000 requestRpc = new DataPart3000(mapCode, resultOfD1200.getD007() + resultOfD1200.getD008());
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         // todo : 테스트 데이터(삭제예정)
@@ -161,13 +191,13 @@ public class IssuanceService {
         return shinhanGwRpc.request3000(requestRpc);
     }
 
-    private void procBrpTransfer(DataPart3000Res resultOfD3000, String companyIdentityNo) {
+    private void procBrpTransfer(DataPart3000 resultOfD3000, String companyIdentityNo) {
         BprTransferReq requestRpc = new BprTransferReq(resultOfD3000);
         shinhanGwRpc.requestBprTransfer(requestRpc, companyIdentityNo);
     }
 
-
-    private DataPart1200 proc1200(Corp userCorp) {
+    @Transactional(rollbackFor = Exception.class)
+    DataPart1200 proc1200(Corp userCorp) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1200);
 
@@ -187,17 +217,18 @@ public class IssuanceService {
 
         // todo : 테스트 데이터(삭제예정)
         requestRpc.setC009("00");
+        requestRpc.setC013("성공이지롱");
 //        requestRpc.setD003("Y");
-        requestRpc.setD003("N");
-        requestRpc.setD007(CommonUtil.getNowYYYYMMDD());
-        requestRpc.setD008(CommonUtil.getRandom5Num());
+//        requestRpc.setD003("N");
+//        requestRpc.setD007(CommonUtil.getNowYYYYMMDD());
+//        requestRpc.setD008(CommonUtil.getRandom5Num());
 
         issCommonService.saveGwTran(requestRpc);
         DataPart1200 responseRpc = shinhanGwRpc.request1200(requestRpc);
         issCommonService.saveGwTran(responseRpc);
         BeanUtils.copyProperties(responseRpc, d1200);
 
-        return requestRpc;
+        return responseRpc;
     }
 
     private void proc15xx(Corp userCorp, String applyDate, String applyNo) {
@@ -233,7 +264,7 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         // todo : 테스트 데이터(삭제예정)
-        requestRpc.setC009("00");
+//        requestRpc.setC009("00");
 
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1510(requestRpc));
@@ -261,7 +292,7 @@ public class IssuanceService {
             BeanUtils.copyProperties(commonPart, requestRpc);
 
             // todo : 테스트 데이터(삭제예정)
-            requestRpc.setC009("00");
+//            requestRpc.setC009("00");
 
             issCommonService.saveGwTran(requestRpc);
             issCommonService.saveGwTran(shinhanGwRpc.request1520(requestRpc));
@@ -290,8 +321,8 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         // todo : 테스트 데이터(삭제예정)
-        requestRpc.setC009("00");       // 성공리턴
-        requestRpc.setD007(requestRpc.getD007().substring(0, 5));  // 게이트웨이 길이 버그로인해 임시조치
+//        requestRpc.setC009("00");       // 성공리턴
+//        requestRpc.setD007(requestRpc.getD007().substring(0, 5));  // 게이트웨이 길이 버그로인해 임시조치
 
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1530(requestRpc));
@@ -336,7 +367,7 @@ public class IssuanceService {
 //        requestRpc.setD019(Seed128.encryptEcb(request.getCeoRegisterNo3()));
         }
 
-        requestRpc.setC009("00"); // todo : 테스트 데이터(삭제예정). 응답코드 성공
+//        requestRpc.setC009("00"); // todo : 테스트 데이터(삭제예정). 응답코드 성공
 
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1000(requestRpc));
