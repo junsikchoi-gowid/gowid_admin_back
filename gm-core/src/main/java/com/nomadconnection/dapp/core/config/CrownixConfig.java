@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "crownix")
 public class CrownixConfig {
 
-	private String stgUrl = "http://ec2-13-125-93-93.ap-northeast-2.compute.amazonaws.com";
+	private String stgUrl = "http://127.0.0.1";
 	private String prodUrl = "http://10.10.20.63";
 	private int port = 8282;
 	private String endPoint = "ReportingServer/service";
