@@ -912,7 +912,14 @@ public class CodefService {
 					File file = new File(Const.REPORTING_SERVER + param1510.getFileName());
 					log.debug("$file.getName = {}", file.getName());
 					log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
-					gwUploadService.upload(file, cardInfo.cardCode(),Const.STOCKHOLDER_GW_FILE_CODE , finalCorp.resCompanyIdentityNo().replaceAll("-",""));
+					try {
+						log.debug("$file.getName = {}", file.getName());
+						log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
+						gwUploadService.upload(file, cardInfo.cardCode(),Const.STOCKHOLDER_GW_FILE_CODE , finalCorp.resCompanyIdentityNo().replaceAll("-",""));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
 				}
 			});
 
@@ -993,7 +1000,14 @@ public class CodefService {
 						File file = new File(Const.REPORTING_SERVER + param1510.getFileName());
 						log.debug("$file.getName = {}", file.getName());
 						log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
-						gwUploadService.upload(file, cardInfo.cardCode(),Const.STOCKHOLDER_GW_FILE_CODE , finalCorp.resCompanyIdentityNo().replaceAll("-",""));
+						try {
+							log.debug("$file.getName = {}", file.getName());
+							log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
+							gwUploadService.upload(file, cardInfo.cardCode(),Const.STOCKHOLDER_GW_FILE_CODE , finalCorp.resCompanyIdentityNo().replaceAll("-",""));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+
 					}
 				});
 
