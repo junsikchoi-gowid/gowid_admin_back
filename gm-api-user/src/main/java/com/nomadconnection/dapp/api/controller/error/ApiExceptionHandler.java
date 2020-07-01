@@ -1,8 +1,8 @@
 package com.nomadconnection.dapp.api.controller.error;
 
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.response.ApiResponse;
-import com.nomadconnection.dapp.api.exception.BadRequestedException;
-import com.nomadconnection.dapp.api.exception.api.InternalErrorException;
+import com.nomadconnection.dapp.api.exception.api.BadRequestException;
+import com.nomadconnection.dapp.api.exception.api.SystemException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
-    @ExceptionHandler(InternalErrorException.class)
+    @ExceptionHandler(SystemException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected ApiResponse<?> handleInternalErrorException(InternalErrorException e) {
+    protected ApiResponse<?> handleSystemException(SystemException e) {
 
         return ApiResponse.builder()
                 .result(ApiResponse.ApiResult.builder()
@@ -23,9 +23,9 @@ public class ApiExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(BadRequestedException.class)
+    @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ApiResponse<?> handleBadRequestException(InternalErrorException e) {
+    protected ApiResponse<?> handleBadRequestException(BadRequestException e) {
 
         return ApiResponse.builder()
                 .result(ApiResponse.ApiResult.builder()
