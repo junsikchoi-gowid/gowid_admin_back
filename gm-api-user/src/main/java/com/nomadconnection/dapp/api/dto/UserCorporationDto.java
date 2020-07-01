@@ -246,6 +246,9 @@ public class UserCorporationDto {
         @ApiModelProperty("업종코드")
         private String businessCode;
 
+        @ApiModelProperty("업종코드정")
+        private String businessCodeValue;
+
         @ApiModelProperty("사업장전화번호")
         private String companyNumber;
 

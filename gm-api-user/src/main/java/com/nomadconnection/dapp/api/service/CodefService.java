@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.common.AsyncService;
+import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
@@ -32,6 +33,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -50,47 +54,6 @@ public class CodefService {
 	private final ResAccountRepository repoResAccount;
 	private final ConnectedMngRepository repoConnectedMng;
 	private final CorpRepository repoCorp;
-	private final ResBatchRepository repoResBatch;
-	private final ScrapingService serviceScraping;
-
-	private final ResRegisterEntriesListRepository repoResRegisterEntriesList;
-	private final ResCompanyNmListRepository repoResCompanyNmList;
-	private final ResUserAddrListRepository repoResUserAddrList;
-	private final ResNoticeMethodListRepository repoResNoticeMethodList;
-	private final ResOneStocAmtListRepository repoResOneStocAmtList;
-	private final ResTCntStockIssueListRepository repoResTCntStockIssueList;
-	private final ResStockListRepository repoResStockList;
-	private final ResPurposeListRepository repoResPurposeList;
-	private final ResRegistrationHisListRepository repoResRegistrationHisList;
-	private final ResBranchListRepository repoResBranchList;
-	private final ResIncompetenceReasonListRepository repoResIncompetenceReasonList;
-	private final ResJointPartnerListRepository repoResJointPartnerList;
-	private final ResManagerListRepository repoResManagerList;
-	private final ResConvertibleBondListRepository repoResConvertibleBondList;
-	private final ResWarrantBondListRepository repoResWarrantBondList;
-	private final ResParticipatingBondListRepository repoResParticipatingBondList;
-	private final ResStockOptionListRepository repoResStockOptionList;
-	private final ResTypeStockContentListRepository repoResTypeStockContentList;
-	private final ResCCCapitalStockListRepository repoResCCCapitalStockList;
-	private final ResEtcListRepository repoResEtcList;
-	private final ResCorpEstablishDateListRepository repoResCorpEstablishDateList;
-	private final ResRegistrationRecReasonListRepository repoResRegistrationRecReasonList;
-	private final ResCEOListRepository repoResCEOList;
-	private final ResChangeDateListRepository repoResChangeDateList;
-	private final ResStockItemListRepository repoResStockItemList;
-	private final ResRegistrationDateListRepository repoResRegistrationDateList;
-	private final ResConvertibleBondItemListRepository repoResConvertibleBondItemList;
-	private final ResWarrantBondItemListRepository repoResWarrantBondItemList;
-	private final ResParticipatingBondItemListRepository repoResParticipatingBondItemList;
-	private final ResTypeStockContentItemListRepository repoResTypeStockContentItemList;
-	private final ResCCCapitalStockItemListRepository repoResCCCapitalStockItemList;
-
-	private final ResStandardFinancialListRepository repoResStandardFinancialList;
-	private final ResBalanceSheetRepository repoResBalanceSheet;
-	private final ResIncomeStatementRepository repoResIncomeStatement;
-	private final ResCostSpecificationListRepository repoResCostSpecificationList;
-	private final ResFinancialStatementListRepository repoResFinancialStatementList;
-	private final ResCostSpecificationRepository repoResCostSpecification;
 
 	private final D1000Repository repoD1000;
 	private final D1100Repository repoD1100;
@@ -103,6 +66,7 @@ public class CodefService {
 	private final AsyncService asyncService;
 
 	private final CardIssuanceInfoRepository repoCardIssuance;
+	private final GwUploadService gwUploadService;
 
 	private final String urlPath = CommonConstant.getRequestDomain();
 
@@ -660,7 +624,7 @@ public class CodefService {
 
 	@SneakyThrows
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity deleteAccount2(String connectedId, Long idx){
+	public ResponseEntity deleteAccount2(String connectedId){
 
 		HashMap<String, Object> bodyMap = new HashMap<>();
 		List<HashMap<String, Object>> list = new ArrayList<>();
@@ -823,32 +787,47 @@ public class CodefService {
 		String code = ((JSONObject)(jsonObject.get("result"))).get("code").toString();
 		String connectedId = null;
 
-		log.debug("2");
-
 		if(code.equals("CF-00000") || code.equals("CF-04012")) {
+			JSONObject JSONObjectData = (JSONObject)(jsonObject.get("data"));
+			JSONArray JSONObjectSuccessData = (JSONArray) JSONObjectData.get("successList");
+			boolean boolConId = false;
+
+			for(Object item: JSONObjectSuccessData){
+				JSONObject obj = (JSONObject) item;
+				if(GowidUtils.getEmptyStringToString(obj, "clientType").equals("A")
+						&& GowidUtils.getEmptyStringToString(obj, "organization").equals("0002")){
+					boolConId = true;
+					break;
+				}
+			}
+
 			connectedId = ((JSONObject)(jsonObject.get("data"))).get("connectedId").toString();
 
-			repoConnectedMng.save(ConnectedMng.builder()
-					.connectedId(connectedId)
-					.idxUser(idxUser)
-					.name(dto.getName())
-					.startDate(dto.getStartDate())
-					.endDate(dto.getEndDate())
-					.desc1(dto.getDesc1())
-					.desc2(dto.getDesc2())
-					.type("NT")
-					.build()
-			);
-		}else if(code.equals("CF-04000")){
+			if(boolConId){
+				repoConnectedMng.save(ConnectedMng.builder()
+						.connectedId(connectedId)
+						.idxUser(idxUser)
+						.name(dto.getName())
+						.startDate(dto.getStartDate())
+						.endDate(dto.getEndDate())
+						.desc1(dto.getDesc1())
+						.desc2(dto.getDesc2())
+						.type("NT")
+						.build()
+				);
+			}else{
+				this.deleteAccount2(connectedId); // 삭제
+			}
+		}else{
 			try{
 				JSONObject JSONObjectData = (JSONObject)(jsonObject.get("data"));
 				JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
 				connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
+				this.deleteAccount2(connectedId); // 삭제
 				log.debug( "cf-04000 connectedId = {} ", connectedId );
 			}catch (Exception e){
 				e.printStackTrace();
 			}
-		}else{
 			throw new RuntimeException(code);
 		}
 
@@ -912,14 +891,28 @@ public class CodefService {
 					ImageConvertDto.builder()
 							.mrdType(1510)
 							.data(strResult)
-							.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1510+CommonUtil.getNowYYYYMMDD().substring(0,4))
+							.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1510+0001)
 							.build();
 
+			Corp finalCorp = corp;
 			asyncService.run(() -> {
+				boolean boolConverter = false;
 				try {
-					converter.convertJsonToImage(param1510);
+					String resultConverter = converter.convertJsonToImage(param1510);
+					if(!resultConverter.isEmpty()){
+						boolConverter = true;
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
+				}
+
+				//todo 파일전송
+				CardIssuanceInfo cardInfo = null;
+				if(boolConverter){
+					File file = new File(Const.REPORTING_SERVER + param1510.getFileName());
+					log.debug("$file.getName = {}", file.getName());
+					log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
+					gwUploadService.upload(file, cardInfo.cardCode(),Const.STOCKHOLDER_GW_FILE_CODE , finalCorp.resCompanyIdentityNo().replaceAll("-",""));
 				}
 			});
 
@@ -960,93 +953,49 @@ public class CodefService {
 
 				JSONArray jsonArrayResCompanyNmList = (JSONArray) jsonData2.get("resCompanyNmList");
 				JSONArray jsonArrayResUserAddrList = (JSONArray) jsonData2.get("resUserAddrList");
-				JSONArray jsonArrayResNoticeMethodList = (JSONArray) jsonData2.get("resNoticeMethodList");
 				JSONArray jsonArrayResOneStocAmtList = (JSONArray) jsonData2.get("resOneStocAmtList");
 				JSONArray jsonArrayResTCntStockIssueList = (JSONArray) jsonData2.get("resTCntStockIssueList");
 				JSONArray jsonArrayResStockList = (JSONArray) jsonData2.get("resStockList");
-				JSONArray jsonArrayResPurposeList = (JSONArray) jsonData2.get("resPurposeList");
-				JSONArray jsonArrayResRegistrationHisList = (JSONArray) jsonData2.get("resRegistrationHisList");
-				JSONArray jsonArrayResBranchList = (JSONArray) jsonData2.get("resBranchList");
-				JSONArray jsonArrayResIncompetenceReasonList = (JSONArray) jsonData2.get("resIncompetenceReasonList");
-				JSONArray jsonArrayResJointPartnerList = (JSONArray) jsonData2.get("resJointPartnerList");
-				JSONArray jsonArrayResManagerList = (JSONArray) jsonData2.get("resManagerList");
-				JSONArray jsonArrayResConvertibleBondList = (JSONArray) jsonData2.get("resConvertibleBondList");
-				JSONArray jsonArrayResWarrantBondList = (JSONArray) jsonData2.get("resWarrantBondList");
-				JSONArray jsonArrayResParticipatingBondList = (JSONArray) jsonData2.get("resParticipatingBondList");
-				JSONArray jsonArrayResStockOptionList = (JSONArray) jsonData2.get("resStockOptionList");
-				JSONArray jsonArrayResTypeStockContentList = (JSONArray) jsonData2.get("resTypeStockContentList");
-				JSONArray jsonArrayResCCCapitalStockList = (JSONArray) jsonData2.get("resCCCapitalStockList");
-				JSONArray jsonArrayResEtcList = (JSONArray) jsonData2.get("resEtcList");
 				JSONArray jsonArrayResCorpEstablishDateList = (JSONArray) jsonData2.get("resCorpEstablishDateList");
-				JSONArray jsonArrayResRegistrationRecReasonList = (JSONArray) jsonData2.get("resRegistrationRecReasonList");
 				JSONArray jsonArrayResCEOList = (JSONArray) jsonData2.get("resCEOList");
 
+				List<String> listResCompanyNmList = saveJSONArray1(jsonArrayResCompanyNmList);
+				List<String> listResUserAddrList = saveJSONArray2(jsonArrayResUserAddrList);
+				List<String> listResOneStocAmtList = saveJSONArray4(jsonArrayResOneStocAmtList);
+				List<String> listResTCntStockIssueList = saveJSONArray5(jsonArrayResTCntStockIssueList);
+				List<Object> listResStockList = saveJSONArray6(jsonArrayResStockList);
 
-				ResRegisterEntriesList parent = repoResRegisterEntriesList.save(
-						ResRegisterEntriesList.builder()
-								.idxCorp(corp.idx())
-								.resDocTitle(GowidUtils.getEmptyStringToString(jsonData2, "resAccountDisplay"))
-								.resRegistrationNumber(GowidUtils.getEmptyStringToString(jsonData2, "resRegistrationNumber"))
-								.resRegNumber(GowidUtils.getEmptyStringToString(jsonData2, "resRegNumber"))
-								.commCompetentRegistryOffice(GowidUtils.getEmptyStringToString(jsonData2, "commCompetentRegistryOffice"))
-								.resPublishRegistryOffice(GowidUtils.getEmptyStringToString(jsonData2, "resPublishRegistryOffice"))
-								.resPublishDate(GowidUtils.getEmptyStringToString(jsonData2, "resPublishDate"))
-								.resIssueNo(GowidUtils.getEmptyStringToString(jsonData2, "resIssueNo"))
-								.build()
-				);
-
-
-
-
-				List<String> listResCompanyNmList = saveJSONArray1(jsonArrayResCompanyNmList, parent.idx());
-				List<String> listResUserAddrList = saveJSONArray2(jsonArrayResUserAddrList, parent.idx());
-				List<String> listResNoticeMethodList = saveJSONArray3(jsonArrayResNoticeMethodList, parent.idx());
-				List<String> listResOneStocAmtList = saveJSONArray4(jsonArrayResOneStocAmtList, parent.idx());
-				List<String> listResTCntStockIssueList = saveJSONArray5(jsonArrayResTCntStockIssueList, parent.idx());
-				List<Object> listResStockList = saveJSONArray6(jsonArrayResStockList, parent.idx());
-
-				/*
-				saveJSONArray7(jsonArrayResPurposeList, parent.idx());
-				saveJSONArray8(jsonArrayResRegistrationHisList, parent.idx());
-				saveJSONArray9(jsonArrayResBranchList, parent.idx());
-				saveJSONArray10(jsonArrayResIncompetenceReasonList, parent.idx());
-				saveJSONArray11(jsonArrayResJointPartnerList, parent.idx());
-				saveJSONArray12(jsonArrayResManagerList, parent.idx());
-				saveJSONArray13(jsonArrayResConvertibleBondList, parent.idx());
-				saveJSONArray14(jsonArrayResWarrantBondList, parent.idx());
-				saveJSONArray15(jsonArrayResParticipatingBondList, parent.idx());
-				saveJSONArray16(jsonArrayResStockOptionList, parent.idx());
-				saveJSONArray17(jsonArrayResTypeStockContentList, parent.idx());
-				saveJSONArray18(jsonArrayResCCCapitalStockList, parent.idx());
-				saveJSONArray19(jsonArrayResEtcList, parent.idx());
-
-				saveJSONArray21(jsonArrayResRegistrationRecReasonList, parent.idx());
-
-				*/
-				String ResCorpEstablishDate = saveJSONArray20(jsonArrayResCorpEstablishDateList, parent.idx());
-
-				String d009 = saveJSONArray22(jsonArrayResCEOList, parent.idx());
+				String ResCorpEstablishDate = saveJSONArray20(jsonArrayResCorpEstablishDateList);
+				String d009 = saveJSONArray22(jsonArrayResCEOList);
 
 				corp.resUserType(d009);
-
-				log.debug("4");
 
 				ImageConvertDto param1530 =
 						ImageConvertDto.builder()
 								.mrdType(1530)
 								.data(strResult1530)
-								.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1530+CommonUtil.getNowYYYYMMDD().substring(0,4))
+								.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1530+0001)
 								.build();
 
 				asyncService.run(() -> {
+					boolean boolConverter = false;
 					try {
-						converter.convertJsonToImage(param1530);
+						String resultConverter = converter.convertJsonToImage(param1530);
+						if(!resultConverter.isEmpty()){
+							boolConverter = true;
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-				});
 
-				log.debug("4.1");
+					CardIssuanceInfo cardInfo = null;
+					if(boolConverter){
+						File file = new File(Const.REPORTING_SERVER + param1510.getFileName());
+						log.debug("$file.getName = {}", file.getName());
+						log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
+						gwUploadService.upload(file, cardInfo.cardCode(),Const.STOCKHOLDER_GW_FILE_CODE , finalCorp.resCompanyIdentityNo().replaceAll("-",""));
+					}
+				});
 
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
@@ -1254,32 +1203,6 @@ public class CodefService {
 
 				JSONArray resBalanceSheet = (JSONArray) jsonData2.get("resBalanceSheet");
 				JSONArray resIncomeStatement = (JSONArray) jsonData2.get("resIncomeStatement");
-				JSONArray resCostSpecificationList = (JSONArray) jsonData2.get("resCostSpecificationList");
-				JSONArray resFinancialStatementList = (JSONArray) jsonData2.get("resFinancialStatementList");
-
-				ResStandardFinancialList parentStandardFinancial = repoResStandardFinancialList.save(
-						ResStandardFinancialList.builder()
-								.idxCorp(user.get().corp().idx())
-								.commStartDate(GowidUtils.getEmptyStringToString(jsonData2, "commStartDate"))
-								.commEndDate(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate"))
-								.resUserNm(GowidUtils.getEmptyStringToString(jsonData2, "resUserNm"))
-								.resIssueNo(GowidUtils.getEmptyStringToString(jsonData2, "resIssueNo"))
-								.resUserAddr(GowidUtils.getEmptyStringToString(jsonData2, "resUserAddr"))
-								.resUserIdentiyNo(GowidUtils.getEmptyStringToString(jsonData2, "resUserIdentiyNo"))
-								.resCompanyNm(GowidUtils.getEmptyStringToString(jsonData2, "resCompanyNm"))
-								.resCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData2, "resCompanyIdentityNo"))
-								.resBusinessItems(GowidUtils.getEmptyStringToString(jsonData2, "resBusinessItems"))
-								.resBusinessTypes(GowidUtils.getEmptyStringToString(jsonData2, "resBusinessTypes"))
-								.resAttachDocument(GowidUtils.getEmptyStringToString(jsonData2, "resAttachDocument"))
-								.resReportingDate(GowidUtils.getEmptyStringToString(jsonData2, "resReportingDate"))
-								.resAttrYear(GowidUtils.getEmptyStringToString(jsonData2, "resAttrYear"))
-								.build()
-				);
-
-				saveJSONArrayResBalanceSheet(resBalanceSheet, parentStandardFinancial.idx()); // 표준대차대조표
-				saveJSONArrayResIncomeStatement(resIncomeStatement, parentStandardFinancial.idx()); // 표준손익계산서
-				saveJSONArrayResCostSpecificationList(resCostSpecificationList, parentStandardFinancial.idx()); // 표준원가명세서
-				saveJSONArrayResFinancialStatementList(resFinancialStatementList, parentStandardFinancial.idx()); // 제조원가명세서, 공사원가명세서, 임대원가명세서, 분양원가명세서, 운송원가명세서, 기타원가명세서
 
 				AtomicReference<String> strCode228 = new AtomicReference<>();
 				AtomicReference<String> strCode001 = new AtomicReference<>();
@@ -1339,12 +1262,75 @@ public class CodefService {
 							.build();
 
 					asyncService.run(() -> {
+						boolean boolConverter = false;
 						try {
-							converter.convertJsonToImage(param1520);
+							String resultConverter = converter.convertJsonToImage(param1520);
+							if(!resultConverter.isEmpty()){
+								boolConverter = true;
+							}
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
+
+						//todo 파일전송
+						CardIssuanceInfo cardInfo = null;
+						if(boolConverter){
+							File file = new File(Const.REPORTING_SERVER + param1520.getFileName());
+							try {
+								log.debug("$file.getName = {}", file.getName());
+								log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
+								gwUploadService.upload(file, cardInfo.cardCode(),Const.STOCKHOLDER_GW_FILE_CODE, user.get().corp().resCompanyIdentityNo().replaceAll("-",""));
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
 					});
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+
+
+
+				try {
+					strResultTemp = "{\n" +
+							"\t\"data\" : {\n" +
+							"\t\t\"resCompanyIdentityNo\" : \"" + user.get().corp().resCompanyIdentityNo()+ "\" ,\n" +
+							"\t\t\"resCompanyNm\" : \""+ user.get().corp().resCompanyNm()+"\"\n" +
+							"\t}\n" +
+							"}";
+					ImageConvertDto param9991 = ImageConvertDto.builder()
+							.mrdType(9991)
+							.data(strResultTemp)
+							.fileName(user.get().corp().resCompanyIdentityNo().replaceAll("-","")+9991+0001)
+							.build();
+
+					asyncService.run(() -> {
+						boolean boolConverter = false;
+						try {
+							String resultConverter = converter.convertJsonToImage(param9991);
+							if(!resultConverter.isEmpty()){
+								boolConverter = true;
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
+						//todo 파일전송
+						CardIssuanceInfo cardInfo = null;
+						if(boolConverter){
+							File file = new File(Const.REPORTING_SERVER + param9991.getFileName());
+							try {
+								log.debug("$file.getName = {}", file.getName());
+								log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
+								gwUploadService.upload(file, cardInfo.cardCode(),Const.STOCKHOLDER_GW_FILE_CODE, user.get().corp().resCompanyIdentityNo().replaceAll("-",""));
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					});
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -1353,9 +1339,7 @@ public class CodefService {
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
 				log.debug("jsonObjectStandardFinancial message = {} ", jsonObjectStandardFinancial[0].get("message").toString());
 
-				Optional<ResRegisterEntriesList> optResRegisterEntriesList = repoResRegisterEntriesList.findTopByIdxCorpOrderByIdxDesc(user.get().corp().idx());
-				Optional<ResStockList> otpRepoResStockList = repoResStockList.findTopByIdxParentOrderByIdxDesc(optResRegisterEntriesList.get().idx());
-				Optional<ResCorpEstablishDateList> otpResCorpEstablishDateList = repoResCorpEstablishDateList.findTopByIdxParentOrderByIdxDesc(optResRegisterEntriesList.get().idx());
+				D1530 d1530 = repoD1530.findFirstByIdxCorpOrderByUpdatedAtDesc(user.get().corp().idx());
 
 				repoD1520.save(D1520.builder()
 						.idxCorp(user.get().corp().idx())
@@ -1373,11 +1357,11 @@ public class CodefService {
 						.d013(user.get().corp().resBusinessTypes()) // 업태
 						.d014(CommonUtil.getNowYYYYMMDD()) // 작성일자
 						.d015("") // 귀속연도
-						.d016(otpRepoResStockList.get().resCapital()) // 총자산   대차대조표 상의 자본총계(없으면 등기부등본상의 자본금의 액) 희남 버그중
+						.d016(d1530.getD042()) // 총자산 대차대조표 상의 자본총계(없으면 등기부등본상의 자본금의 액) 희남 버그중
 						.d017("0") // 매출   손익계산서 상의 매출액
 						.d018("0") // 납입자본금   대차대조표 상의 자본금
 						.d019("0") // 자기자본금   대차대조표 상의 자본 총계
-						.d020(otpResCorpEstablishDateList.get().resCorpEstablishDate()) // 재무조사일   종료일자 (없으면 등기부등본상의 회사성립연월일)
+						.d020(d1530.getD057()) // 재무조사일   종료일자 (없으면 등기부등본상의 회사성립연월일)
 						.build());
 			}
 		});
@@ -1479,29 +1463,22 @@ public class CodefService {
 		return returnYyyyMm;
 	}
 
-	private List saveJSONArray1(JSONArray jsonArray, Long idx ) {
+	private List saveJSONArray1(JSONArray jsonArray) {
 		List<String> str = new ArrayList<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 
 			JSONArray jsonArrayResChangeDateList = (JSONArray) obj.get("resChangeDateList");
 			JSONArray jsonArrayResRegistrationDateList = (JSONArray) obj.get("resRegistrationDateList");
-
-			ResCompanyNmList parent = repoResCompanyNmList.save(ResCompanyNmList.builder()
-					.idxParent(idx)
-					.resCompanyNm(GowidUtils.getEmptyStringToString(obj, "resCompanyNm"))
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.build()
-			);
 
 			str.add(GowidUtils.getEmptyStringToString(obj, "resCompanyNm"));
-			str.add(saveResChangeDateList(jsonArrayResChangeDateList, parent.idx(), "ResCompanyNmList"));
-			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx(), "ResCompanyNmList"));
+			str.add(saveResChangeDateList(jsonArrayResChangeDateList));
+			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList));
 		});
 		return str;
 	}
 
-	private List saveJSONArray2(JSONArray jsonArray, Long idx ) {
+	private List saveJSONArray2(JSONArray jsonArray) {
 		List<String> str = new ArrayList<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
@@ -1509,64 +1486,42 @@ public class CodefService {
 			JSONArray jsonArrayResChangeDateList = (JSONArray) obj.get("resChangeDateList");
 			JSONArray jsonArrayResRegistrationDateList = (JSONArray) obj.get("resRegistrationDateList");
 
-			ResUserAddrList parent = repoResUserAddrList.save(ResUserAddrList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resUserAddr(GowidUtils.getEmptyStringToString(obj, "resUserAddr"))
-					.build()
-			);
-
-			str.add(GowidUtils.getEmptyStringToString(obj, "resUserAddr"));
-			str.add(saveResChangeDateList(jsonArrayResChangeDateList, parent.idx(),"ResUserAddrList"));
-			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx(),"ResUserAddrList"));
+			str.add(GowidUtils.getEmptyStringToString(obj));
+			str.add(saveResChangeDateList(jsonArrayResChangeDateList));
+			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList));
 		});
 		return str;
 	}
 
-	private List saveJSONArray3(JSONArray jsonArray, Long idx ) {
+	private List saveJSONArray3(JSONArray jsonArray) {
 		List<String> str = new ArrayList<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 
 			JSONArray jsonArrayResChangeDateList = (JSONArray) obj.get("resChangeDateList");
 			JSONArray jsonArrayResRegistrationDateList = (JSONArray) obj.get("resRegistrationDateList");
-
-			ResNoticeMethodList parent = repoResNoticeMethodList.save(ResNoticeMethodList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resNoticeMethod(GowidUtils.getEmptyStringToString(obj, "resNoticeMethod"))
-					.build()
-			);
-
-			str.add(saveResChangeDateList(jsonArrayResChangeDateList, parent.idx(), "ResNoticeMethodList" ));
-			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx(), "ResNoticeMethodList"));
+			str.add(saveResChangeDateList(jsonArrayResChangeDateList));
+			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList));
 		});
 		return str;
 	}
 
-	private List saveJSONArray4(JSONArray jsonArray, Long idx ) {
+	private List saveJSONArray4(JSONArray jsonArray) {
 		List<String> str = new ArrayList<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 
 			JSONArray jsonArrayResChangeDateList = (JSONArray) obj.get("resChangeDateList");
 			JSONArray jsonArrayResRegistrationDateList = (JSONArray) obj.get("resRegistrationDateList");
-
-			ResOneStocAmtList parent = repoResOneStocAmtList.save(ResOneStocAmtList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resOneStockAmt(GowidUtils.getEmptyStringToString(obj, "resOneStockAmt"))
-					.build()
-			);
 
 			str.add(GowidUtils.getEmptyStringToString(obj, "resOneStockAmt"));
-			str.add(saveResChangeDateList(jsonArrayResChangeDateList, parent.idx(), "ResOneStocAmtList"));
-			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx(), "ResOneStocAmtList"));
+			str.add(saveResChangeDateList(jsonArrayResChangeDateList));
+			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList));
 		});
 		return str;
 	}
 
-	private List saveJSONArray5(JSONArray jsonArray, Long idx ) {
+	private List saveJSONArray5(JSONArray jsonArray) {
 		List<String> str = new ArrayList<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
@@ -1574,21 +1529,14 @@ public class CodefService {
 			JSONArray jsonArrayResChangeDateList = (JSONArray) obj.get("resChangeDateList");
 			JSONArray jsonArrayResRegistrationDateList = (JSONArray) obj.get("resRegistrationDateList");
 
-			ResTCntStockIssueList parent = repoResTCntStockIssueList.save(ResTCntStockIssueList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resTCntStockIssue(GowidUtils.getEmptyStringToString(obj, "resTCntStockIssue"))
-					.build()
-			);
-
 			str.add(GowidUtils.getEmptyStringToString(obj, "resTCntStockIssue"));
-			str.add(saveResChangeDateList(jsonArrayResChangeDateList, parent.idx(), "ResTCntStockIssueList"));
-			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx(), "ResTCntStockIssueList"));
+			str.add(saveResChangeDateList(jsonArrayResChangeDateList));
+			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList));
 		});
 		return str;
 	}
 
-	private List<Object> saveJSONArray6(JSONArray jsonArray, Long idx ) {
+	private List<Object> saveJSONArray6(JSONArray jsonArray) {
 		List<Object> returnObj = new ArrayList<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
@@ -1597,270 +1545,26 @@ public class CodefService {
 			JSONArray jsonArrayResChangeDateList = (JSONArray) obj.get("resChangeDateList");
 			JSONArray jsonArrayResRegistrationDateList = (JSONArray) obj.get("resRegistrationDateList");
 
-
-			ResStockList parent = repoResStockList.save(ResStockList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.build()
-			);
-
-			saveResStockItemList(jsonArrayResStockItemList, parent.idx());
-
 			returnObj.add(GowidUtils.getEmptyStringToString(obj, "resTCntIssuedStock")); // 발행주식의 총수
 			returnObj.add(GowidUtils.getEmptyStringToString(obj, "resCapital")); // 총액정보
 			returnObj.add(jsonArrayResStockItemList); //주식 리스트
-			returnObj.add(saveResChangeDateList(jsonArrayResChangeDateList, parent.idx(),"ResStockList")); // 변경일자
-			returnObj.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList, parent.idx(),"ResStockList")); //등기일자
+			returnObj.add(saveResChangeDateList(jsonArrayResChangeDateList)); // 변경일자
+			returnObj.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList)); //등기일자
 		});
 		return returnObj;
 	}
 
-	private void saveJSONArray7(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-
-			ResPurposeList parent = repoResPurposeList.save(ResPurposeList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resPurpose(GowidUtils.getEmptyStringToString(obj, "resPurpose"))
-					.build()
-			);
-		});
-	}
-
-	private void saveJSONArray8(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-
-			ResRegistrationHisList parent = repoResRegistrationHisList.save(ResRegistrationHisList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resRegistrationHis(GowidUtils.getEmptyStringToString(obj, "resRegistrationHis"))
-					.build()
-			);
-		});
-	}
-
-	private void saveJSONArray9(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-
-			ResBranchList parent = repoResBranchList.save(ResBranchList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resBranch(GowidUtils.getEmptyStringToString(obj, "resBranch"))
-					.build()
-			);
-		});
-	}
-
-	private void saveJSONArray10(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-
-			ResIncompetenceReasonList parent = repoResIncompetenceReasonList.save(ResIncompetenceReasonList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resIncompetenceReason(GowidUtils.getEmptyStringToString(obj, "resIncompetenceReason"))
-					.build()
-			);
-		});
-	}
-
-	private void saveJSONArray11(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-
-			ResJointPartnerList parent = repoResJointPartnerList.save(ResJointPartnerList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resJointPartner(GowidUtils.getEmptyStringToString(obj, "resJointPartner"))
-					.build()
-			);
-		});
-	}
-
-	private void saveJSONArray12(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-
-			ResManagerList parent = repoResManagerList.save(ResManagerList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resManager(GowidUtils.getEmptyStringToString(obj, "resManager"))
-					.build()
-			);
-		});
-	}
-
-	private void saveJSONArray13(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-			JSONArray jsonArrayItem = (JSONArray) obj.get("resConvertibleBondItemList");
-
-			ResConvertibleBondList parent = repoResConvertibleBondList.save(ResConvertibleBondList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.build()
-			);
-
-			jsonArrayItem.forEach( item2 -> {
-				repoResConvertibleBondItemList.save(ResConvertibleBondItemList.builder()
-						.idxParent(parent.idx())
-						.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-						.resConvertibleBond(GowidUtils.getEmptyStringToString(obj, "resConvertibleBond"))
-						.build()
-				);
-			});
-		});
-	}
-
-	private void saveJSONArray14(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-			JSONArray jsonArrayItem = (JSONArray) obj.get("resWarrantBondItemList");
-
-			ResWarrantBondList parent = repoResWarrantBondList.save(ResWarrantBondList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.build()
-			);
-
-			jsonArrayItem.forEach( item2 -> {
-				repoResWarrantBondItemList.save(ResWarrantBondItemList.builder()
-						.idxParent(parent.idx())
-						.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-						.resWarrantBond(GowidUtils.getEmptyStringToString(obj, "resWarrantBond"))
-						.build()
-				);
-			});
-		});
-	}
-
-	private void saveJSONArray15(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-			JSONArray jsonArrayItem = (JSONArray) obj.get("resParticipatingBondItemList");
-
-			ResParticipatingBondList parent = repoResParticipatingBondList.save(ResParticipatingBondList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.build()
-			);
-
-			jsonArrayItem.forEach( item2 -> {
-				repoResParticipatingBondItemList.save(ResParticipatingBondItemList.builder()
-						.idxParent(parent.idx())
-						.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-						.resParticipatingBond(GowidUtils.getEmptyStringToString(obj, "resParticipatingBond"))
-						.build()
-				);
-			});
-		});
-	}
-
-	private void saveJSONArray16(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-
-			ResStockOptionList parent = repoResStockOptionList.save(ResStockOptionList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resStockOption(GowidUtils.getEmptyStringToString(obj, "resStockOption"))
-					.build()
-			);
-		});
-	}
-
-	private void saveJSONArray17(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-			JSONArray jsonArrayItem = (JSONArray) obj.get("resTypeStockContentItemList");
-
-			ResTypeStockContentList parent = repoResTypeStockContentList.save(ResTypeStockContentList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.build()
-			);
-
-			jsonArrayItem.forEach( item2 -> {
-				repoResTypeStockContentItemList.save(ResTypeStockContentItemList.builder()
-						.idxParent(parent.idx())
-						.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-						.resTypeStockContent(GowidUtils.getEmptyStringToString(obj, "resParticipatingBond"))
-						.build()
-				);
-			});
-		});
-	}
-
-	private void saveJSONArray18(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-			JSONArray jsonArrayItem = (JSONArray) obj.get("resCCCapitalStockItemList");
-
-			ResCCCapitalStockList parent = repoResCCCapitalStockList.save(ResCCCapitalStockList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.build()
-			);
-
-			jsonArrayItem.forEach( item2 -> {
-				repoResCCCapitalStockItemList.save(ResCCCapitalStockItemList.builder()
-						.idxParent(parent.idx())
-						.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-						.resCCCapitalStock(GowidUtils.getEmptyStringToString(obj, "resCCCapitalStock"))
-						.build()
-				);
-			});
-		});
-	}
-
-	private void saveJSONArray19(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-
-			repoResEtcList.save(ResEtcList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resEtc(GowidUtils.getEmptyStringToString(obj, "resEtc"))
-					.build()
-			);
-		});
-	}
-
-	private String saveJSONArray20(JSONArray jsonArray, Long idx ) {
+	private String saveJSONArray20(JSONArray jsonArray) {
 		AtomicReference<String> str = new AtomicReference<>();
 		jsonArray.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 
 			str.set(GowidUtils.getEmptyStringToString(obj, "resCorpEstablishDate"));
-
-			repoResCorpEstablishDateList.save(ResCorpEstablishDateList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resCorpEstablishDate(GowidUtils.getEmptyStringToString(obj, "resCorpEstablishDate"))
-					.build()
-			);
 		});
 		return str.get();
 	}
 
-	private void saveJSONArray21(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-
-			ResRegistrationRecReasonList parent = repoResRegistrationRecReasonList.save(ResRegistrationRecReasonList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resRegistrationRecReason(GowidUtils.getEmptyStringToString(obj, "resRegistrationRecReason"))
-					.resRegistrationRecDate(GowidUtils.getEmptyStringToString(obj, "resRegistrationRecDate"))
-					.build()
-			);
-		});
-	}
-
-	private String saveJSONArray22(JSONArray jsonArray, Long idx ) {
+	private String saveJSONArray22(JSONArray jsonArray) {
 		AtomicReference<String> returnStr = new AtomicReference<>("");
 
 		// 1: 단일대표 2: 개별대표 3: 공동대표
@@ -1873,54 +1577,25 @@ public class CodefService {
 			}else {
 				returnStr.set("2");
 			}
-
-			repoResCEOList.save(ResCEOList.builder()
-					.idxParent(idx)
-					.resPosition(GowidUtils.getEmptyStringToString(obj, "resPosition"))
-					.resUserNm(GowidUtils.getEmptyStringToString(obj, "resUserNm"))
-					.resUserIdentiyNo(GowidUtils.getEmptyStringToString(obj, "resUserIdentiyNo"))
-					.resUserAddr(GowidUtils.getEmptyStringToString(obj, "resUserAddr"))
-					.build()
-			);
 		});
 		return returnStr.get();
 	}
 
-	private String saveResRegistrationDateList(JSONArray jsonArrayResRegistrationDateList, Long idx,String Type) {
+	private String saveResRegistrationDateList(JSONArray jsonArrayResRegistrationDateList) {
 		AtomicReference<String> str = new AtomicReference<>();
 
 		jsonArrayResRegistrationDateList.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
-
 			str.set(GowidUtils.getEmptyStringToString(obj, "resRegistrationDate"));
-
-			repoResRegistrationDateList.save(ResRegistrationDateList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resRegistrationDate(GowidUtils.getEmptyStringToString(obj, "resRegistrationDate"))
-					.resNote(GowidUtils.getEmptyStringToString(obj, "resNote"))
-					.type(Type)
-					.build()
-			);
 		});
 		return str.get();
 	}
 
-	private String saveResChangeDateList(JSONArray jsonArrayResChangeDateList, Long idx, String Type) {
+	private String saveResChangeDateList(JSONArray jsonArrayResChangeDateList) {
 		AtomicReference<String> str = new AtomicReference<>();
 		jsonArrayResChangeDateList.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
-
 			str.set(GowidUtils.getEmptyStringToString(obj, "resChangeDate"));
-
-			repoResChangeDateList.save(ResChangeDateList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resChangeDate(GowidUtils.getEmptyStringToString(obj, "resChangeDate"))
-					.resNote(GowidUtils.getEmptyStringToString(obj, "resNote"))
-					.type(Type)
-					.build()
-			);
 		});
 		return str.get();
 	}
@@ -1933,98 +1608,8 @@ public class CodefService {
 
 			returnStr.add(GowidUtils.getEmptyStringToString(obj, "resTCntIssuedStock"));
 			returnStr.add(GowidUtils.getEmptyStringToString(obj, "resCapital"));
-
-			repoResStockItemList.save(ResStockItemList.builder()
-					.idxParent(idx)
-					.resNumber(GowidUtils.getEmptyStringToString(obj, "resNumber"))
-					.resStockType(GowidUtils.getEmptyStringToString(obj, "resStockType"))
-					.resStockCnt(GowidUtils.getEmptyStringToString(obj, "resStockCnt"))
-					.resTCntIssuedStock(GowidUtils.getEmptyStringToString(obj, "resTCntIssuedStock"))
-					.resCapital(GowidUtils.getEmptyStringToString(obj, "resCapital"))
-					.build()
-			);
 		});
 
 		return returnStr;
-	}
-
-	private void saveJSONArrayResBalanceSheet(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-
-			repoResBalanceSheet.save(ResBalanceSheet.builder()
-					.idxParent(idx)
-					.title(GowidUtils.getEmptyStringToString(obj, "title"))
-					.amt(GowidUtils.getEmptyStringToString(obj, "amt"))
-					.code(GowidUtils.getEmptyStringToString(obj, "code"))
-					.number(GowidUtils.getEmptyStringToString(obj, "number"))
-					.build()
-			);
-		});
-	}
-
-	private void saveJSONArrayResIncomeStatement(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-
-			repoResIncomeStatement.save(ResIncomeStatement.builder()
-					.idxParent(idx)
-					.title(GowidUtils.getEmptyStringToString(obj, "title"))
-					.amt(GowidUtils.getEmptyStringToString(obj, "amt"))
-					.code(GowidUtils.getEmptyStringToString(obj, "code"))
-					.number(GowidUtils.getEmptyStringToString(obj, "number"))
-					.build()
-			);
-		});
-	}
-
-	private void saveJSONArrayResCostSpecificationList(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-			JSONArray jsonArrayItem = (JSONArray) obj.get("resCostSpecification");
-
-			ResCostSpecificationList parent = repoResCostSpecificationList.save(
-					ResCostSpecificationList.builder()
-							.idxParent(idx)
-							.resDocTitle(GowidUtils.getEmptyStringToString(obj, "resDocTitle"))
-							.build()
-			);
-
-			jsonArrayItem.forEach( item2 -> {
-				repoResCostSpecification.save(ResCostSpecification.builder()
-						.idxParent(parent.idx())
-						.title(GowidUtils.getEmptyStringToString(obj, "title"))
-						.amt(GowidUtils.getEmptyStringToString(obj, "amt"))
-						.code(GowidUtils.getEmptyStringToString(obj, "code"))
-						.number(GowidUtils.getEmptyStringToString(obj, "number"))
-						.build()
-				);
-			});
-		});
-	}
-
-	private void saveJSONArrayResFinancialStatementList(JSONArray jsonArray, Long idx ) {
-		jsonArray.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
-			JSONArray jsonArrayItem = (JSONArray) obj.get("resFinancialStatement");
-
-			ResFinancialStatementList parent = repoResFinancialStatementList.save(
-					ResFinancialStatementList.builder()
-							.idxParent(idx)
-							.resDocTitle(GowidUtils.getEmptyStringToString(obj, "resDocTitle"))
-							.build()
-			);
-
-			jsonArrayItem.forEach( item2 -> {
-				repoResCostSpecification.save(ResCostSpecification.builder()
-						.idxParent(parent.idx())
-						.title(GowidUtils.getEmptyStringToString(obj, "title"))
-						.amt(GowidUtils.getEmptyStringToString(obj, "amt"))
-						.code(GowidUtils.getEmptyStringToString(obj, "code"))
-						.number(GowidUtils.getEmptyStringToString(obj, "number"))
-						.build()
-				);
-			});
-		});
 	}
 }

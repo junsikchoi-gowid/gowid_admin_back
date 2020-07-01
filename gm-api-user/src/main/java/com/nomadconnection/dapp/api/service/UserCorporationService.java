@@ -576,8 +576,12 @@ public class UserCorporationService {
             }
         }
 
+        UserCorporationDto.CorporationRes CorporationResDto = UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), idx_cardIssuanceInfo);
+        CorporationResDto.setBusinessCodeValue( repoCodeDetail.getByCode1AndCode5(CorporationResDto.getBusinessCode().substring(0,1) ,CorporationResDto.getBusinessCode().substring(1)).toString());
+
+
         return UserCorporationDto.CardIssuanceInfoRes.builder()
-                .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), idx_cardIssuanceInfo))
+                .corporationRes(CorporationResDto)
                 .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
                 .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
                 .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
