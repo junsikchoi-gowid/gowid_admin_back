@@ -102,7 +102,7 @@ public class ImageConverter {
 			case 1530:
 				mrdName = ImageConvertParam.COPY_REGISTER_MRD;
 				break;
-			case 9999:
+			case 9991:
 				mrdName = ImageConvertParam.GUARANTEE_MRD;
 				break;
             default:
