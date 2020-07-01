@@ -38,8 +38,8 @@ public class DataPart3000 extends CommonPart {
     private String d011;    // BPR응답메세지
 
     public DataPart3000(String d002, String d003) {
-        d001 = d002;
-        this.d002 = d003;
+        this.d002 = d002;
+        this.d003 = d003;
     }
 
 }
