@@ -77,7 +77,7 @@ public class IssuanceService {
 
         Corp userCorp = getCorpByUserIdx(userIdx);
 
-        // 카드비번, 결제계좌. 키패드 복호화 -> seed 암호화 -> 1100 저장
+        // 키패드 복호화(카드비번, 결제계좌) -> seed128 암호화 -> 1100 DB저장
         encryptAndSaveD1100(userCorp.idx(), httpServletRequest, request);
 
         // 1200(법인회원신규여부검증)
@@ -89,6 +89,7 @@ public class IssuanceService {
         // 15X0(서류제출)
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
 
+        // 신규 or 변경 신청
         if ("Y".equals(resultOfD1200.getD003())) {
             proc1000(userCorp, resultOfD1200, httpServletRequest, request);         // 1000(신규-법인회원신규심사요청)
         } else if ("N".equals(resultOfD1200.getD003())) {
@@ -98,6 +99,7 @@ public class IssuanceService {
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
         }
 
+        // BRP 전송(비동기)
         procBpr(userCorp, resultOfD1200);
 
         return new UserCorporationDto.IssuanceRes();
