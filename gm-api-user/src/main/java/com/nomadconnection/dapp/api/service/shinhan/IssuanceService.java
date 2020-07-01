@@ -86,10 +86,10 @@ public class IssuanceService {
         signatureHistory.setApplicationDate(resultOfD1200.getD007());
         signatureHistory.setApplicationNum(resultOfD1200.getD008());
 
-        // 15X0(서류제출)
+        // 15xx 서류제출
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
 
-        // 신규 or 변경 신청
+        // 신규(1000) or 변경(1400) 신청
         if ("Y".equals(resultOfD1200.getD003())) {
             proc1000(userCorp, resultOfD1200, httpServletRequest, request);         // 1000(신규-법인회원신규심사요청)
         } else if ("N".equals(resultOfD1200.getD003())) {
