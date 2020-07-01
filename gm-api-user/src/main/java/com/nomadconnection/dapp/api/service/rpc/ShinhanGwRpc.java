@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.response.ApiResponse;
 import com.nomadconnection.dapp.api.exception.BusinessException;
+import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,14 +60,14 @@ public class ShinhanGwRpc extends BaseRpc {
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1200);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, "gateway error");
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1200, "gateway error");
         }
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1200 responseData = mapper.convertValue(response.getData(), DataPart1200.class);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1200, responseData.getC009() + "/" + responseData.getC013());
+            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1200, responseData.getC009() + "/" + responseData.getC013());
         }
 
         return responseData;
@@ -79,14 +80,14 @@ public class ShinhanGwRpc extends BaseRpc {
                 null, request, ApiResponse.class, ShinhanGwApiType.SH3000);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_3000, "gateway error");
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_3000, "gateway error");
         }
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart3000 responseData = mapper.convertValue(response.getData(), DataPart3000.class);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_3000, responseData.getC009() + "/" + responseData.getC013());
+            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_3000, responseData.getC009() + "/" + responseData.getC013());
         }
 
         return responseData;
@@ -97,14 +98,14 @@ public class ShinhanGwRpc extends BaseRpc {
                 , HttpMethod.POST, null, request, ApiResponse.class, ShinhanGwApiType.BPR_TRANSFER);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_BPR_TRANSFER, "gateway error");
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_BPR_TRANSFER, "gateway error");
         }
 
         ObjectMapper mapper = new ObjectMapper();
         BprTransferRes responseData = mapper.convertValue(response.getData(), BprTransferRes.class);
 
         if (!responseData.getResult().getCode().equals(Const.API_GW_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_BPR_TRANSFER, responseData.getResult().getCode() + "/" + responseData.getResult().getDesc());
+            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_BPR_TRANSFER, responseData.getResult().getCode() + "/" + responseData.getResult().getDesc());
         }
 
         return responseData;
@@ -116,14 +117,14 @@ public class ShinhanGwRpc extends BaseRpc {
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1510);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1510, "gateway error");
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1510, "gateway error");
         }
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1510 responseData = mapper.convertValue(response.getData(), DataPart1510.class);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1510, responseData.getC009() + "/" + responseData.getC013());
+            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1510, responseData.getC009() + "/" + responseData.getC013());
         }
 
         return responseData;
@@ -135,14 +136,14 @@ public class ShinhanGwRpc extends BaseRpc {
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1520);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1520, "gateway error");
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1520, "gateway error");
         }
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1520 responseData = mapper.convertValue(response.getData(), DataPart1520.class);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1520, responseData.getC009() + "/" + responseData.getC013());
+            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1520, responseData.getC009() + "/" + responseData.getC013());
         }
 
         return responseData;
@@ -154,14 +155,14 @@ public class ShinhanGwRpc extends BaseRpc {
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1530);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1530, "gateway error");
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1530, "gateway error");
         }
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1530 responseData = mapper.convertValue(response.getData(), DataPart1530.class);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1530, responseData.getC009() + "/" + responseData.getC013());
+            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1530, responseData.getC009() + "/" + responseData.getC013());
         }
 
         return responseData;
@@ -173,14 +174,14 @@ public class ShinhanGwRpc extends BaseRpc {
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1000);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1000, "gateway error");
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1000, "gateway error");
         }
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1000 responseData = mapper.convertValue(response.getData(), DataPart1000.class);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1000, responseData.getC009() + "/" + responseData.getC013());
+            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1000, responseData.getC009() + "/" + responseData.getC013());
         }
 
         return responseData;
@@ -192,14 +193,14 @@ public class ShinhanGwRpc extends BaseRpc {
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1400);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1400, "gateway error");
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1400, "gateway error");
         }
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1400 responseData = mapper.convertValue(response.getData(), DataPart1400.class);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1400, responseData.getC009() + "/" + responseData.getC013());
+            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1400, responseData.getC009() + "/" + responseData.getC013());
         }
 
         return responseData;
@@ -211,14 +212,14 @@ public class ShinhanGwRpc extends BaseRpc {
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1100);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1100, "gateway error");
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1100, "gateway error");
         }
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1100 responseData = mapper.convertValue(response.getData(), DataPart1100.class);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1100, responseData.getC009() + "/" + responseData.getC013());
+            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1100, responseData.getC009() + "/" + responseData.getC013());
         }
 
         return responseData;
@@ -250,14 +251,14 @@ public class ShinhanGwRpc extends BaseRpc {
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1800);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1800, "gateway error");
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1800, "gateway error");
         }
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1800 responseData = mapper.convertValue(response.getData(), DataPart1800.class);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1800, responseData.getC009() + "/" + responseData.getC013());
+            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1800, responseData.getC009() + "/" + responseData.getC013());
         }
 
         return responseData;

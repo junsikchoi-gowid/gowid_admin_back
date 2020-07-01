@@ -7,7 +7,7 @@ import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
-import com.nomadconnection.dapp.api.exception.api.InternalErrorException;
+import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.*;
@@ -70,7 +70,7 @@ public class IssuanceService {
      * 1530
      * 1000/1400
      */
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(noRollbackFor = Exception.class)
     public UserCorporationDto.IssuanceRes issuance(Long userIdx,
                                                    HttpServletRequest httpServletRequest,
                                                    UserCorporationDto.IssuanceReq request,
@@ -110,7 +110,8 @@ public class IssuanceService {
         User user = findUser(userIdx);
         Corp userCorp = user.corp();
         if (userCorp == null) {
-            throw new EntityNotFoundException("not found userIdx", "corp", userIdx);
+            log.error("not found corp. userIdx=" + userIdx);
+            throw new BadRequestException(ErrorCode.Api.NOT_FOUND, "corp(userIdx=" + userIdx + ")");
         }
         return userCorp;
     }
@@ -130,7 +131,7 @@ public class IssuanceService {
             }
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
-            throw new InternalErrorException(ErrorCode.External.INTERNAL_SERVER_ERROR, e.getMessage());
+            throw new SystemException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_3000, e.getMessage());
         }
 
     }
@@ -146,7 +147,7 @@ public class IssuanceService {
 
     public SignatureHistory getSignatureHistory(Long signatureHistoryIdx) {
         return signatureHistoryRepository.findById(signatureHistoryIdx).orElseThrow(
-                () -> new InternalErrorException(ErrorCode.External.INTERNAL_SERVER_ERROR,
+                () -> new SystemException(ErrorCode.External.INTERNAL_SERVER_ERROR,
                         "signatureHistory(" + signatureHistoryIdx + ") is not found")
         );
     }
@@ -154,7 +155,7 @@ public class IssuanceService {
     // 1100 데이터 저장
     private void encryptAndSaveD1100(Long corpIdx, HttpServletRequest httpServletRequest, UserCorporationDto.IssuanceReq request) {
         D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
-                () -> new InternalErrorException(ErrorCode.External.INTERNAL_ERROR_GW,
+                () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
 
@@ -196,7 +197,6 @@ public class IssuanceService {
         shinhanGwRpc.requestBprTransfer(requestRpc, companyIdentityNo);
     }
 
-    @Transactional(rollbackFor = Exception.class)
     DataPart1200 proc1200(Corp userCorp) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1200);
@@ -469,7 +469,6 @@ public class IssuanceService {
     }
 
     // 전자서명 검증 및 저장
-    @Transactional(rollbackFor = Exception.class)
     public SignatureHistory verifySignedBinaryAndSave(Long userIdx, String signedBinaryString) {
         verifySignedFileBinaryString(signedBinaryString);
 

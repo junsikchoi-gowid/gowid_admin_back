@@ -8,7 +8,7 @@ import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1100;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1800;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
-import com.nomadconnection.dapp.api.exception.api.InternalErrorException;
+import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.*;
@@ -93,7 +93,7 @@ public class ResumeService {
 
         // 데이터부 - db 추출, 세팅
         D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
-                () -> new InternalErrorException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100,
+                () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
 
