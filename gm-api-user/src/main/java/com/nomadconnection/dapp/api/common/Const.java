@@ -10,4 +10,5 @@ public class Const {
     public static final String STOCKHOLDER_GW_FILE_CODE = "9999";
     public static final String ELEC_SIGNATURE_CERTI_PROD_CODE = "07";      // 1800 > 전자서명인증제품코드
     public static final String REPORTING_SERVER = "/m2/ReportingServer/report/";
+    public static final String REPORTING_FILE_CODE = "9991";
 }

@@ -32,9 +32,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -302,15 +299,15 @@ public class CodefService {
 											.organization(s)
 											.type("Loan")
 											.resAccount(obj.get("resAccount").toString())
-											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay").toString())
+											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay"))
 											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit").toString())
-											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName").toString())
-											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency").toString())
+											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
+											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
+											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
 											.resAccountStartDate(startDate)
-											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate").toString())
-											.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName").toString())
-											.resAccountLoanExecNo(GowidUtils.getEmptyStringToString(obj,"resAccountLoanExecNo").toString())
+											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
+											.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName"))
+											.resAccountLoanExecNo(GowidUtils.getEmptyStringToString(obj,"resAccountLoanExecNo"))
 											.build()
 									);
 								}
@@ -334,13 +331,13 @@ public class CodefService {
 											.organization(s)
 											.type("ResForeignCurrency")
 											.resAccount(obj.get("resAccount").toString())
-											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay").toString())
+											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay"))
 											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit").toString())
-											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName").toString())
-											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency").toString())
+											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
+											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
+											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
 											.resAccountStartDate(startDate)
-											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate").toString())
+											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
 											.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate").toString())
 											.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName").toString())
 											.build()
@@ -891,11 +888,11 @@ public class CodefService {
 					ImageConvertDto.builder()
 							.mrdType(1510)
 							.data(strResult)
-							.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1510+0001)
+							.fileName(corp.resCompanyIdentityNo().replaceAll("-","").concat("150100001"))
 							.build();
 
 			Corp finalCorp = corp;
-			asyncService.run(() -> {
+			// asyncService.run(() -> {
 				boolean boolConverter = false;
 				try {
 					String resultConverter = converter.convertJsonToImage(param1510);
@@ -908,20 +905,19 @@ public class CodefService {
 
 				//todo 파일전송
 				CardIssuanceInfo cardInfo = null;
+			log.debug("boolConverter = {}" , boolConverter);
 				if(boolConverter){
 					File file = new File(Const.REPORTING_SERVER + param1510.getFileName());
 					log.debug("$file.getName = {}", file.getName());
-					log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
 					try {
 						log.debug("$file.getName = {}", file.getName());
-						log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
-						gwUploadService.upload(file, cardInfo.cardCode(),Const.STOCKHOLDER_GW_FILE_CODE , finalCorp.resCompanyIdentityNo().replaceAll("-",""));
+						gwUploadService.upload(file, "0306", "1510" , finalCorp.resCompanyIdentityNo().replaceAll("-",""));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 
 				}
-			});
+			// });
 
 			String strResult1530 = null;
 
@@ -981,11 +977,12 @@ public class CodefService {
 						ImageConvertDto.builder()
 								.mrdType(1530)
 								.data(strResult1530)
-								.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+1530+0001)
+								.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+"15300001")
 								.build();
 
-				asyncService.run(() -> {
-					boolean boolConverter = false;
+				// asyncService.run(() -> {
+					// boolean boolConverter = false;
+					boolConverter = false;
 					try {
 						String resultConverter = converter.convertJsonToImage(param1530);
 						if(!resultConverter.isEmpty()){
@@ -995,21 +992,20 @@ public class CodefService {
 						e.printStackTrace();
 					}
 
-					CardIssuanceInfo cardInfo = null;
+					// CardIssuanceInfo cardInfo = null;
+					log.debug("boolConverter = {}" , boolConverter);
 					if(boolConverter){
 						File file = new File(Const.REPORTING_SERVER + param1510.getFileName());
 						log.debug("$file.getName = {}", file.getName());
-						log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
 						try {
 							log.debug("$file.getName = {}", file.getName());
-							log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
-							gwUploadService.upload(file, cardInfo.cardCode(),Const.STOCKHOLDER_GW_FILE_CODE , finalCorp.resCompanyIdentityNo().replaceAll("-",""));
+							gwUploadService.upload(file, "0306" , "1530" , finalCorp.resCompanyIdentityNo().replaceAll("-",""));
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
 
 					}
-				});
+				// });
 
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
@@ -1275,7 +1271,7 @@ public class CodefService {
 							.fileName(user.get().corp().resCompanyIdentityNo().replaceAll("-","")+1520+yyyyMm.substring(0,4))
 							.build();
 
-					asyncService.run(() -> {
+					//asyncService.run(() -> {
 						boolean boolConverter = false;
 						try {
 							String resultConverter = converter.convertJsonToImage(param1520);
@@ -1288,17 +1284,17 @@ public class CodefService {
 
 						//todo 파일전송
 						CardIssuanceInfo cardInfo = null;
+					log.debug("boolConverter = {}" , boolConverter);
 						if(boolConverter){
 							File file = new File(Const.REPORTING_SERVER + param1520.getFileName());
 							try {
 								log.debug("$file.getName = {}", file.getName());
-								log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
-								gwUploadService.upload(file, cardInfo.cardCode(),Const.STOCKHOLDER_GW_FILE_CODE, user.get().corp().resCompanyIdentityNo().replaceAll("-",""));
+								gwUploadService.upload(file, "0306", "1520", user.get().corp().resCompanyIdentityNo().replaceAll("-",""));
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
 						}
-					});
+					//});
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -1317,10 +1313,10 @@ public class CodefService {
 					ImageConvertDto param9991 = ImageConvertDto.builder()
 							.mrdType(9991)
 							.data(strResultTemp)
-							.fileName(user.get().corp().resCompanyIdentityNo().replaceAll("-","")+9991+0001)
+							.fileName(user.get().corp().resCompanyIdentityNo().replaceAll("-","").concat("99910001"))
 							.build();
 
-					asyncService.run(() -> {
+					// asyncService.run(() -> {
 						boolean boolConverter = false;
 						try {
 							String resultConverter = converter.convertJsonToImage(param9991);
@@ -1333,17 +1329,17 @@ public class CodefService {
 
 						//todo 파일전송
 						CardIssuanceInfo cardInfo = null;
+					log.debug("boolConverter = {}" , boolConverter);
 						if(boolConverter){
 							File file = new File(Const.REPORTING_SERVER + param9991.getFileName());
 							try {
 								log.debug("$file.getName = {}", file.getName());
-								log.debug("$cardInfo.cardCode = {}", cardInfo.cardCode());
-								gwUploadService.upload(file, cardInfo.cardCode(),Const.STOCKHOLDER_GW_FILE_CODE, user.get().corp().resCompanyIdentityNo().replaceAll("-",""));
+								gwUploadService.upload(file, "0306","9991", user.get().corp().resCompanyIdentityNo().replaceAll("-",""));
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
 						}
-					});
+					// });
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -1500,7 +1496,7 @@ public class CodefService {
 			JSONArray jsonArrayResChangeDateList = (JSONArray) obj.get("resChangeDateList");
 			JSONArray jsonArrayResRegistrationDateList = (JSONArray) obj.get("resRegistrationDateList");
 
-			str.add(GowidUtils.getEmptyStringToString(obj));
+			str.add(GowidUtils.getEmptyStringToString(obj, "resUserAddr"));
 			str.add(saveResChangeDateList(jsonArrayResChangeDateList));
 			str.add(saveResRegistrationDateList(jsonArrayResRegistrationDateList));
 		});
