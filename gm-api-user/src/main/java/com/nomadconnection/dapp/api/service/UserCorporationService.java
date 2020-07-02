@@ -237,16 +237,16 @@ public class UserCorporationService {
 		List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
 		int gwUploadCount = 0;
 		if (!ObjectUtils.isEmpty(file_1)) {
-			resultList.addAll(uploadStockholderFile(file_1, fileType, cardInfo, ++gwUploadCount));
+			resultList.addAll(uploadStockholderFile(file_1, fileType, cardInfo, "000" + (++gwUploadCount)));
 		}
 		if (!ObjectUtils.isEmpty(file_2)) {
-			resultList.addAll(uploadStockholderFile(file_2, fileType, cardInfo, ++gwUploadCount));
+			resultList.addAll(uploadStockholderFile(file_2, fileType, cardInfo, "000" + (++gwUploadCount)));
 		}
 
         return resultList;
     }
 
-	private List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(MultipartFile[] files, StockholderFileType type, CardIssuanceInfo cardInfo, int num) throws IOException {
+	private List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(MultipartFile[] files, StockholderFileType type, CardIssuanceInfo cardInfo, String seq) throws IOException {
 		if (files.length > 2) {
 			throw BadRequestedException.builder().category(BadRequestedException.Category.EXCESS_UPLOAD_FILE_LENGTH).build();
 		}
@@ -254,9 +254,9 @@ public class UserCorporationService {
 		String licenseNo = cardInfo.corp().resCompanyIdentityNo().replaceAll("-", "");
 		List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
 		for (MultipartFile file : files) {
-			String fileName = licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + num + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+			String fileName = licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + seq + "." + FilenameUtils.getExtension(file.getOriginalFilename());
 			if (file.getSize() > STOCKHOLDER_FILE_SIZE || sendGwUpload) {
-				fileName = licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + num + "_back." + FilenameUtils.getExtension(file.getOriginalFilename());
+				fileName = licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + seq + "_back." + FilenameUtils.getExtension(file.getOriginalFilename());
 			}
 
 			File uploadFile = new File(fileName);
