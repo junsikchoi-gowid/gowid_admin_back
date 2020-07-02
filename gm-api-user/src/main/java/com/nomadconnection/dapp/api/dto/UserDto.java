@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.core.domain.ConsentMapping;
 import com.nomadconnection.dapp.core.domain.MemberAuthority;
 import com.nomadconnection.dapp.core.domain.User;
 import io.swagger.annotations.ApiModelProperty;
@@ -167,5 +168,14 @@ public class UserDto {
 
 		@ApiModelProperty("email")
 		private String newPassword;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class RegisterUserConsent {
+		@ApiModelProperty("이용약관 정보")
+		private List<ConsentDto.RegDto> consents;
 	}
 }

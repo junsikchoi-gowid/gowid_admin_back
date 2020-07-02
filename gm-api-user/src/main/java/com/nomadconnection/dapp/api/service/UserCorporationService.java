@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.common.Const;
+import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.core.domain.*;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -44,6 +46,8 @@ public class UserCorporationService {
     private final VentureBusinessRepository repoVenture;
     private final StockholderFileRepository repoFile;
 	private final ResAccountRepository repoResAccount;
+	private final ConsentRepository repoConsent;
+	private final ConsentMappingRepository repoConsentMapping;
 
     private final AwsS3Service s3Service;
     private final GwUploadService gwUploadService;
@@ -611,7 +615,22 @@ public class UserCorporationService {
                 }
             }
 
+            List<UserCorporationDto.ConsentRes> consentInfo = new ArrayList<>();
+
+            List<BrandConsentDto> consents = repoConsent.findAllByEnabledOrderByConsentOrderAsc(true)
+                    .map(BrandConsentDto::from)
+                    .collect(Collectors.toList());
+
+            consents.forEach( item -> {
+                ConsentMapping consentMapping = repoConsentMapping.findTopByIdxUserAndIdxConsentOrderByIdxDesc(idx_user, item.getIdx());
+                UserCorporationDto.ConsentRes resTemp = null;
+                resTemp.setTitle(item.getTitle());
+                resTemp.setBoolConsent(consentMapping.status());
+                consentInfo.add(resTemp);
+            });
+
             return UserCorporationDto.CardIssuanceInfoRes.builder()
+                    .consentRes(consentInfo)
                     .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx()))
                     .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
                     .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))

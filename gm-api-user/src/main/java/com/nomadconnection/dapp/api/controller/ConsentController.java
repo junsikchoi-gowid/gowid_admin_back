@@ -89,5 +89,5 @@ public class ConsentController {
         }
 
         return service.consentDel(user, consent);
-    }
+    } 
 }
