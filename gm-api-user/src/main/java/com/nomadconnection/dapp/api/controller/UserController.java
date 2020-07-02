@@ -35,6 +35,7 @@ public class UserController {
         public static final String MEMBERS = "/members";
         public static final String MEMBERS_MEMBER_DEPT = "/members/{member}/dept";
         public static final String INFO = "/info";
+        public static final String REGISTRATION_CONSENT = "/registration/consent";
     }
 
 	private final UserService service;
@@ -285,5 +286,18 @@ public class UserController {
 	) {
 
 		return service.registerUserPasswordUpdate(dto, idxUser);
+	}
+
+	@ApiOperation(
+			value = "사용자별 이용약관 등록 ",
+			notes = "### Remarks "
+	)
+	@PostMapping(URI.REGISTRATION_CONSENT)
+	public ResponseEntity registerUserConsent(
+			@RequestParam Long idxUser ,
+			@RequestBody UserDto.RegisterUserConsent dto
+	) {
+
+		return service.registerUserConsent(dto, idxUser);
 	}
 }

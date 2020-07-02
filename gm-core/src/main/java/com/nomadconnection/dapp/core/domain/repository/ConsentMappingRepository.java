@@ -13,5 +13,5 @@ import java.util.stream.Stream;
 
 @Repository
 public interface ConsentMappingRepository extends JpaRepository<ConsentMapping, Long> {
-
+    ConsentMapping findTopByIdxUserAndIdxConsentOrderByIdxDesc(Long idxUser, Long idxConsent);
 }

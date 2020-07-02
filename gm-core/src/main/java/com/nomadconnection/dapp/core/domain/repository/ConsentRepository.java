@@ -24,4 +24,6 @@ public interface ConsentRepository extends JpaRepository<Consent, Long> {
 	int updateConsentMapping(@Param("status") boolean status,
 							 @Param("idxuser") Long idxuser,
 							 @Param("idxconsent") Long idxconsent);
+
+
 }

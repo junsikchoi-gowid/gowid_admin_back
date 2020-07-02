@@ -184,6 +184,6 @@ public class CodefController {
 	public ResponseEntity DeleteAccount2(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestParam String connectedId) {
-		return service.deleteAccount2(connectedId, user.idx());
+		return service.deleteAccount2(connectedId);
 	}
 }

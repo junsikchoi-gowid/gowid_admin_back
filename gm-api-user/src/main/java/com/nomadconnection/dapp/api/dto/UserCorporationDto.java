@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.dto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1600;
 import com.nomadconnection.dapp.api.util.MaskingUtils;
 import com.nomadconnection.dapp.core.domain.CommonCodeDetail;
+import com.nomadconnection.dapp.core.domain.ConsentMapping;
 import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import io.swagger.annotations.ApiModelProperty;
@@ -245,6 +246,9 @@ public class UserCorporationDto {
 
         @ApiModelProperty("업종코드")
         private String businessCode;
+
+        @ApiModelProperty("업종코드정보")
+        private String businessCodeValue;
 
         @ApiModelProperty("사업장전화번호")
         private String companyNumber;
@@ -535,6 +539,21 @@ public class UserCorporationDto {
     }
 
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ConsentRes {
+
+        @ApiModelProperty("이용약관제목")
+        @NotEmpty
+        private String title;
+
+        @ApiModelProperty("동의여부")
+        @NotNull
+        private Boolean boolConsent;
+    }
+
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class IssuanceReq {
@@ -574,6 +593,7 @@ public class UserCorporationDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CardIssuanceInfoRes {
+        private List<ConsentRes> consentRes;
         private CorporationRes corporationRes;
         private VentureRes ventureRes;
         private StockholderRes stockholderRes;

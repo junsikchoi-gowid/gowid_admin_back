@@ -1,22 +1,15 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.CorpDto;
-import com.nomadconnection.dapp.api.exception.AlreadyExistException;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
-import com.nomadconnection.dapp.core.domain.Corp;
-import com.nomadconnection.dapp.core.domain.CorpStatus;
-import com.nomadconnection.dapp.core.domain.ResxCategory;
 import com.nomadconnection.dapp.core.domain.User;
 import com.nomadconnection.dapp.core.domain.repository.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 

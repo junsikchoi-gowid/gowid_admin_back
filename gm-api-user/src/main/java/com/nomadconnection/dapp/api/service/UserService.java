@@ -301,6 +301,7 @@ public class UserService {
 				.build());
 	}
 
+
 	/**
 	 * 사용자 등록
 	 *
@@ -667,6 +668,29 @@ public class UserService {
 						.vcInvestment(dto.isVcInvestment())
 						.ventureCertification(dto.isVentureCertification())
 						.build()))
+				.build());
+	}
+
+
+	public ResponseEntity registerUserConsent(UserDto.RegisterUserConsent dto, Long idxUser) {
+
+		User user = repo.findById(idxUser).orElseThrow(
+				() -> UserNotFoundException.builder().id(idxUser).build()
+		);
+
+		// 이용약관 매핑
+		for(ConsentDto.RegDto regDto : dto.getConsents()) {
+			repoConsentMapping.save(
+					ConsentMapping.builder()
+							.idxConsent(regDto.idxConsent)
+							.idxUser(user.idx())
+							.status(regDto.status)
+							.build()
+			);
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.data(user)
 				.build());
 	}
 }
