@@ -31,7 +31,7 @@ public class Card {
     private ReceiveType receiveType; // 명세서 수령방법
 
     @Builder.Default
-    private String cardName = "고위드 카드 S"; // 카드명
+    private String cardName = "고위드 스타트업 카드"; // 카드명
 
     @Builder.Default
     private Boolean isUnsigned = true; // 무기명여부
