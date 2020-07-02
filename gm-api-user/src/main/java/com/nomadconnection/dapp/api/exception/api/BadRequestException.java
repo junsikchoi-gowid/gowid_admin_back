@@ -12,14 +12,14 @@ public class BadRequestException extends RuntimeException {
 	private String code;
 	private String desc;
 
-	public BadRequestException(ErrorCode.Api externalError) {
-		code = externalError.getCode();
-		desc = externalError.getDesc();
+	public BadRequestException(ErrorCode.Api errorCodeType) {
+		code = errorCodeType.getCode();
+		desc = errorCodeType.getDesc();
 	}
 
-	public BadRequestException(ErrorCode.Api externalError, String addString) {
-		code = externalError.getCode();
-		desc = externalError.getDesc() + " - " + addString;
+	public BadRequestException(ErrorCode.Api errorCodeType, String addString) {
+		code = errorCodeType.getCode();
+		desc = errorCodeType.getDesc() + " - " + addString;
 	}
 
 }
