@@ -13,8 +13,8 @@ public class AwsS3Config {
 
     private String bucketUrl = "https://s3.ap-northeast-2.amazonaws.com/stg-mycard.gowid.com/";
     private String bucketName = "stg-mycard.gowid.com";
-    private String accessKey = "AKIAXD7XVDFHOICQV3XW";
-    private String secretKey = "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";
+    private String accessKey = "ACCESS_KEY";
+    private String secretKey = "SECRET_KEY";
 
     //
     //	detour: @Accessors(fluent = true)
