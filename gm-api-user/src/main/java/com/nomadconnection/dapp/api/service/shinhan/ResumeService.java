@@ -11,9 +11,13 @@ import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.api.util.SignVerificationUtil;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.SignatureHistoryRepository;
-import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1100Repository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1200Repository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1400Repository;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.encryption.Seed128;
 import lombok.RequiredArgsConstructor;
@@ -34,16 +38,12 @@ public class ResumeService {
     private final D1400Repository d1400Repository;
     private final D1100Repository d1100Repository;
     private final SignatureHistoryRepository signatureHistoryRepository;
-    private final GwTranHistRepository gwTranHistRepository;
     private final ShinhanGwRpc shinhanGwRpc;
     private final AsyncService asyncService;
     private final CommonService issCommonService;
 
-    @Value("${encryption.keypad.enable: true}")
-    private Boolean ENC_KEYPAD_ENABLE;
-
-    @Value("${encryption.seed128.enable: true}")
-    private Boolean ENC_SEED128_ENABLE;
+    @Value("${decryption.seed128.enable}")
+    private boolean DEC_SEED128_ENABLE;
 
     // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
@@ -63,14 +63,14 @@ public class ResumeService {
 
         D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
         SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
+        String signedPlainString = SignVerificationUtil.verifySignedBinaryStringAndGetPlainString(signatureHistory.getSignedBinaryString());
 
         DataPart1800 requestRpc = DataPart1800.builder()
                 .d001(CommonUtil.getDigitalSignatureIdNumber(d1200.getD001()))
                 .d002(Const.ELEC_SIGNATURE_CERTI_PROD_CODE)
-                .d003(CommonUtil.encodeBase64(signatureHistory.getSignedBinaryString()))
+                .d003(CommonUtil.encodeBase64(signedPlainString))
                 .build();
         BeanUtils.copyProperties(commonPart, requestRpc);
-        requestRpc.setC009("00");   // todo : 테스트 데이터(삭제예정)
 
         issCommonService.saveGwTran(commonPart);
         issCommonService.saveGwTran(shinhanGwRpc.request1800(requestRpc));
@@ -103,12 +103,14 @@ public class ResumeService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         // db에는 암호화된 상태.
-        // 테스트 환경에서는 복호화해서 보냄
-        requestRpc.setD021(Seed128.decryptEcb(d1100.getD021()));            // 비번
-        requestRpc.setD025(Seed128.decryptEcb(d1100.getD025()));            // 결제계좌번호
-        // todo 운영에서는 암호화해서 전송
-//        requestRpc.setD021(d1100.getD021());            // 비번
-//        requestRpc.setD025(d1100.getD025());            // 결제계좌번호
+        if (DEC_SEED128_ENABLE) {
+            requestRpc.setD021(d1100.getD021());            // 비번
+            requestRpc.setD025(d1100.getD025());            // 결제계좌번호
+        } else {
+            // 테스트 환경에서는 복호화해서 보냄
+            requestRpc.setD021(Seed128.decryptEcb(d1100.getD021()));            // 비번
+            requestRpc.setD025(Seed128.decryptEcb(d1100.getD025()));            // 결제계좌번호
+        }
 
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1100(requestRpc));
@@ -134,7 +136,6 @@ public class ResumeService {
 
         return corpIdx;
     }
-
 
     private D1200 getD1200ByApplicationDateAndApplicationNum(String applicationDate, String applicationNum) {
         return d1200Repository.findFirstByD007AndD008OrderByUpdatedAtDesc(applicationDate, applicationNum).orElseThrow(
