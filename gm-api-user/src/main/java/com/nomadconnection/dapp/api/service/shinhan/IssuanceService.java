@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.service.shinhan;
 
+import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
@@ -10,6 +11,7 @@ import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.api.util.SignVerificationUtil;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.repository.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
@@ -18,8 +20,6 @@ import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.encryption.Seed128;
 import com.nomadconnection.dapp.secukeypad.EncryptParam;
 import com.nomadconnection.dapp.secukeypad.SecuKeypad;
-import com.yettiesoft.vestsign.base.code.CommonConst;
-import com.yettiesoft.vestsign.external.SignVerifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -50,25 +50,22 @@ public class IssuanceService {
 
     private final ShinhanGwRpc shinhanGwRpc;
     private final CommonService issCommonService;
+    private final AsyncService asyncService;
 
     @Value("${encryption.keypad.enable: true}")
-    private Boolean ENC_KEYPAD_ENABLE;
-
-    @Value("${encryption.seed128.enable: true}")
-    private Boolean ENC_SEED128_ENABLE;
-
+    private boolean ENC_KEYPAD_ENABLE;
 
     /**
      * 카드 신청
      * 1200
-     * 3000(이미지 제출여부)
-     * 이미지 전송요청
      * 1510
      * 1520
      * - 재무제표 보유시: 최대 2년치 2회연동
      * - 미보유시(신설업체 등): 최근 데이터 1회연동, 발급가능여부=N, 실설업체는 재무제표 이미지 없음
      * 1530
      * 1000/1400
+     * 3000(이미지 제출여부)
+     * 이미지 전송요청
      */
     @Transactional(noRollbackFor = Exception.class)
     public UserCorporationDto.IssuanceRes issuance(Long userIdx,
@@ -101,7 +98,7 @@ public class IssuanceService {
         }
 
         // BRP 전송(비동기)
-        procBpr(userCorp, resultOfD1200);
+        asyncService.run(() -> procBpr(userCorp, resultOfD1200));
 
         return new UserCorporationDto.IssuanceRes();
     }
@@ -216,8 +213,8 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         // todo : 테스트 데이터(삭제예정)
-        requestRpc.setC009("00");
-        requestRpc.setC013("성공이지롱");
+//        requestRpc.setC009("00");
+//        requestRpc.setC013("성공이지롱");
 //        requestRpc.setD003("Y");
 //        requestRpc.setD003("N");
 //        requestRpc.setD007(CommonUtil.getNowYYYYMMDD());
@@ -468,9 +465,15 @@ public class IssuanceService {
         }
     }
 
-    // 전자서명 검증 및 저장
+
+    /**
+     * 전자서명 검증 및 저장
+     * 저장은 바이너리
+     * 전송시 평문화 + base64
+     */
+    @Transactional(noRollbackFor = Exception.class)
     public SignatureHistory verifySignedBinaryAndSave(Long userIdx, String signedBinaryString) {
-        verifySignedFileBinaryString(signedBinaryString);
+        SignVerificationUtil.verifySignedBinaryString(signedBinaryString);
 
         User user = findUser(userIdx);
         SignatureHistory signatureHistory = SignatureHistory.builder()
@@ -482,37 +485,5 @@ public class IssuanceService {
         return signatureHistoryRepository.save(signatureHistory);
     }
 
-    public void verifySignedFileBinaryString(String signedString) {
-        int errorCode;
-        String errorMsg;
-
-        try {
-            SignVerifier signVerifier = new SignVerifier(signedString, CommonConst.CERT_STATUS_NONE, CommonConst.ENCODE_HEX);
-            signVerifier.verify();
-            errorCode = signVerifier.getLastErrorCode();
-            errorMsg = signVerifier.getLastErrorMsg();
-            loggingSignVerifier(errorCode, errorMsg);
-
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "signed binary string");
-        }
-
-        if (errorCode != 0) {
-            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "signed binary string. errorCode=" + errorCode);
-        }
-
-    }
-
-    private void loggingSignVerifier(int errorCode, String errorMsg) {
-        log.debug("### 에러 코드 : " + errorCode);
-        log.debug("### 검증 결과 : " + errorMsg);
-        // log.debug("### 전자 서명 원문 : " + signVerifier.getSignedMessageText());
-        // CertificateInfo cert = signVerifier.getSignerCertificate();
-        // log.debug("### 사용자 인증서 정책 : " + cert.getPolicyIdentifier());
-        // log.debug("### 사용자 인증서 DN : " + cert.getSubject());
-        // log.debug("### 사용자 인증서 serial : " + cert.getSerial());
-    }
 
 }
