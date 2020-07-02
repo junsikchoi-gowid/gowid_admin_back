@@ -907,7 +907,7 @@ public class CodefService {
 				CardIssuanceInfo cardInfo = null;
 			log.debug("boolConverter = {}" , boolConverter);
 				if(boolConverter){
-					File file = new File(Const.REPORTING_SERVER + param1510.getFileName());
+					File file = new File(Const.REPORTING_SERVER + param1510.getFileName() + ".tif");
 					log.debug("$file.getName = {}", file.getName());
 					try {
 						log.debug("$file.getName = {}", file.getName());
@@ -995,7 +995,7 @@ public class CodefService {
 					// CardIssuanceInfo cardInfo = null;
 					log.debug("boolConverter = {}" , boolConverter);
 					if(boolConverter){
-						File file = new File(Const.REPORTING_SERVER + param1510.getFileName());
+						File file = new File(Const.REPORTING_SERVER + param1530.getFileName() + ".tif");
 						log.debug("$file.getName = {}", file.getName());
 						try {
 							log.debug("$file.getName = {}", file.getName());
@@ -1286,7 +1286,7 @@ public class CodefService {
 						CardIssuanceInfo cardInfo = null;
 					log.debug("boolConverter = {}" , boolConverter);
 						if(boolConverter){
-							File file = new File(Const.REPORTING_SERVER + param1520.getFileName());
+							File file = new File(Const.REPORTING_SERVER + param1520.getFileName() + ".tif");
 							try {
 								log.debug("$file.getName = {}", file.getName());
 								gwUploadService.upload(file, "0306", "1520", user.get().corp().resCompanyIdentityNo().replaceAll("-",""));
@@ -1331,7 +1331,7 @@ public class CodefService {
 						CardIssuanceInfo cardInfo = null;
 					log.debug("boolConverter = {}" , boolConverter);
 						if(boolConverter){
-							File file = new File(Const.REPORTING_SERVER + param9991.getFileName());
+							File file = new File(Const.REPORTING_SERVER + param9991.getFileName() + ".tif");
 							try {
 								log.debug("$file.getName = {}", file.getName());
 								gwUploadService.upload(file, "0306","9991", user.get().corp().resCompanyIdentityNo().replaceAll("-",""));
