@@ -15,14 +15,14 @@ spring:
 
 ---
 spring:
-  profiles: stg
+  profiles: stage
   redis:
-    host: TBD
+    host: 10.10.20.66
     port: 6379
 
 ---
 spring:
   profiles: prod
   redis:
-    host: TBD
+    host: 10.10.20.66
     port: 6379
