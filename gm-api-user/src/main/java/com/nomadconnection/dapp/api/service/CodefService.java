@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
+import com.nomadconnection.dapp.api.dto.GwUploadDto;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.codef.io.helper.Account;
@@ -884,40 +885,8 @@ public class CodefService {
 			user.corp(corp);
 			repoUser.save(user);
 
-			ImageConvertDto param1510 =
-					ImageConvertDto.builder()
-							.mrdType(1510)
-							.data(strResult)
-							.fileName(corp.resCompanyIdentityNo().replaceAll("-","").concat("150100001"))
-							.build();
-
-			Corp finalCorp = corp;
-			// asyncService.run(() -> {
-				boolean boolConverter = false;
-				try {
-					String resultConverter = converter.convertJsonToImage(param1510);
-					if(!resultConverter.isEmpty()){
-						boolConverter = true;
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-				//todo 파일전송
-				CardIssuanceInfo cardInfo = null;
-			log.debug("boolConverter = {}" , boolConverter);
-				if(boolConverter){
-					File file = new File(Const.REPORTING_SERVER + param1510.getFileName() + ".tif");
-					log.debug("$file.getName = {}", file.getName());
-					try {
-						log.debug("$file.getName = {}", file.getName());
-						gwUploadService.upload(file, "0306", "1510" , finalCorp.resCompanyIdentityNo().replaceAll("-",""));
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
-				}
-			// });
+			//파일생성 및 전송
+			ImageCreateAndSend(1510, "150100001","0306", strResult,corp.resCompanyIdentityNo());
 
 			String strResult1530 = null;
 
@@ -973,39 +942,8 @@ public class CodefService {
 
 				corp.resUserType(d009);
 
-				ImageConvertDto param1530 =
-						ImageConvertDto.builder()
-								.mrdType(1530)
-								.data(strResult1530)
-								.fileName(corp.resCompanyIdentityNo().replaceAll("-","")+"15300001")
-								.build();
-
-				// asyncService.run(() -> {
-					// boolean boolConverter = false;
-					boolConverter = false;
-					try {
-						String resultConverter = converter.convertJsonToImage(param1530);
-						if(!resultConverter.isEmpty()){
-							boolConverter = true;
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
-					// CardIssuanceInfo cardInfo = null;
-					log.debug("boolConverter = {}" , boolConverter);
-					if(boolConverter){
-						File file = new File(Const.REPORTING_SERVER + param1530.getFileName() + ".tif");
-						log.debug("$file.getName = {}", file.getName());
-						try {
-							log.debug("$file.getName = {}", file.getName());
-							gwUploadService.upload(file, "0306" , "1530" , finalCorp.resCompanyIdentityNo().replaceAll("-",""));
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-
-					}
-				// });
+				//파일생성 및 전송
+				ImageCreateAndSend(1530, "150300001","0306", strResult1530, corp.resCompanyIdentityNo());
 
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
@@ -1262,88 +1200,8 @@ public class CodefService {
 						.d020(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate")) // 재무조사일   종료일자 (없으면 등기부등본상의 회사성립연월일)
 						.build());
 
-
-
-				try {
-					ImageConvertDto param1520 = ImageConvertDto.builder()
-							.mrdType(1520)
-							.data(strResultTemp)
-							.fileName(user.get().corp().resCompanyIdentityNo().replaceAll("-","")+1520+yyyyMm.substring(0,4))
-							.build();
-
-					//asyncService.run(() -> {
-						boolean boolConverter = false;
-						try {
-							String resultConverter = converter.convertJsonToImage(param1520);
-							if(!resultConverter.isEmpty()){
-								boolConverter = true;
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-
-						//todo 파일전송
-						CardIssuanceInfo cardInfo = null;
-					log.debug("boolConverter = {}" , boolConverter);
-						if(boolConverter){
-							File file = new File(Const.REPORTING_SERVER + param1520.getFileName() + ".tif");
-							try {
-								log.debug("$file.getName = {}", file.getName());
-								gwUploadService.upload(file, "0306", "1520", user.get().corp().resCompanyIdentityNo().replaceAll("-",""));
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						}
-					//});
-
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-
-
-
-				try {
-					strResultTemp = "{\n" +
-							"\t\"data\" : {\n" +
-							"\t\t\"resCompanyIdentityNo\" : \"" + user.get().corp().resCompanyIdentityNo()+ "\" ,\n" +
-							"\t\t\"resCompanyNm\" : \""+ user.get().corp().resCompanyNm()+"\"\n" +
-							"\t}\n" +
-							"}";
-					ImageConvertDto param9991 = ImageConvertDto.builder()
-							.mrdType(9991)
-							.data(strResultTemp)
-							.fileName(user.get().corp().resCompanyIdentityNo().replaceAll("-","").concat("99910001"))
-							.build();
-
-					// asyncService.run(() -> {
-						boolean boolConverter = false;
-						try {
-							String resultConverter = converter.convertJsonToImage(param9991);
-							if(!resultConverter.isEmpty()){
-								boolConverter = true;
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-
-						//todo 파일전송
-						CardIssuanceInfo cardInfo = null;
-					log.debug("boolConverter = {}" , boolConverter);
-						if(boolConverter){
-							File file = new File(Const.REPORTING_SERVER + param9991.getFileName() + ".tif");
-							try {
-								log.debug("$file.getName = {}", file.getName());
-								gwUploadService.upload(file, "0306","9991", user.get().corp().resCompanyIdentityNo().replaceAll("-",""));
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						}
-					// });
-
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				//파일생성 및 전송
+				ImageCreateAndSend(1520, 1520+yyyyMm.substring(0,4),"0306", strResultTemp, user.get().corp().resCompanyIdentityNo());
 
 			}else{
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
@@ -1452,6 +1310,17 @@ public class CodefService {
 		d1000.setD028(!StringUtils.hasText(d1000.getD028()) ? corNumber[2] : d1000.getD028());
 
 		repoD1000.save(d1000);
+
+		//파일생성 및 전송
+		String strResultTemp = "{\n" +
+				"\t\"data\" : {\n" +
+				"\t\t\"resCompanyIdentityNo\" : \"" + user.get().corp().resCompanyIdentityNo()+ "\" ,\n" +
+				"\t\t\"resCompanyNm\" : \""+ user.get().corp().resCompanyNm()+"\"\n" +
+				"\t}\n" +
+				"}";
+
+		ImageCreateAndSend(9991, "99910001", "0306", strResultTemp, user.get().corp().resCompanyIdentityNo());
+
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(normal)
@@ -1610,16 +1479,49 @@ public class CodefService {
 		return str.get();
 	}
 
-	private List<String> saveResStockItemList(JSONArray jsonArrayResStockItemList, Long idx) {
-		List<String> returnStr =  new ArrayList<>();
+	private boolean ImageCreateAndSend(Integer fileCode, String fileName, String cardCode, String jsonStringData, String corpIdNo)
+	{
+		ImageConvertDto param1510 =
+				ImageConvertDto.builder()
+						.mrdType(fileCode)
+						.data(jsonStringData)
+						.fileName(corpIdNo.concat(fileName))
+						.build();
 
-		jsonArrayResStockItemList.forEach(item -> {
-			JSONObject obj = (JSONObject) item;
+		boolean boolConverter = false;
 
-			returnStr.add(GowidUtils.getEmptyStringToString(obj, "resTCntIssuedStock"));
-			returnStr.add(GowidUtils.getEmptyStringToString(obj, "resCapital"));
-		});
+		try {
+			String resultConverter = converter.convertJsonToImage(param1510);
+			if(!resultConverter.isEmpty()){
+				boolConverter = true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e.toString());
+		}
 
-		return returnStr;
+		//todo 파일전송
+		CardIssuanceInfo cardInfo = null;
+		log.debug("boolConverter = {}" , boolConverter);
+		if(boolConverter){
+			File file = new File(Const.REPORTING_SERVER + param1510.getFileName() + ".tif");
+			log.debug("$file.getName = {}", file.getName());
+			try {
+				log.debug("$file.getName = {}", file.getName());
+				GwUploadDto.Response response;
+
+				for(int i = 0; i < 3 ; i++){
+					Thread.sleep(500);
+					response = gwUploadService.upload(file, cardCode, fileCode.toString(), corpIdNo.replaceAll("-", ""));
+					if(response.getResult().getCode().equals("200")){
+						break;
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException(e.toString());
+			}
+		}
+		return boolConverter;
 	}
 }
