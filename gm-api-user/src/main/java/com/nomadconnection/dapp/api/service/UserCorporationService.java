@@ -623,9 +623,11 @@ public class UserCorporationService {
 
             consents.forEach( item -> {
                 ConsentMapping consentMapping = repoConsentMapping.findTopByIdxUserAndIdxConsentOrderByIdxDesc(idx_user, item.getIdx());
-                UserCorporationDto.ConsentRes resTemp = null;
-                resTemp.setTitle(item.getTitle());
-                resTemp.setBoolConsent(consentMapping.status());
+
+                UserCorporationDto.ConsentRes resTemp = UserCorporationDto.ConsentRes.builder()
+                        .title(item.getTitle())
+                        .boolConsent(consentMapping != null ? consentMapping.status() : false)
+                        .build();
                 consentInfo.add(resTemp);
             });
 
