@@ -66,7 +66,7 @@ public class ResumeService {
         signatureHistory.setApplicationCount(count + 1);
         signatureHistoryRepository.save(signatureHistory);
 
-//        asyncService.run(() -> proc1100(request, signatureHistory));  // 1100(법인카드신청), 비동기 처리
+        asyncService.run(() -> proc1100(request, signatureHistory));  // 1100(법인카드신청), 비동기 처리
         asyncService.run(() -> proc1800(request, signatureHistory));  // 1800(전자서명값전달), 비동기 처리
     }
 
