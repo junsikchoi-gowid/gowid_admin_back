@@ -50,6 +50,10 @@ public class ResumeService {
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1600);
         UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
         BeanUtils.copyProperties(commonPart, response);
+        
+        if (!Const.API_SHINHAN_RESULT_SUCCESS.equals(request.getC009())) {
+            return response;
+        }
 
         asyncService.run(() -> procResume(request));
 
