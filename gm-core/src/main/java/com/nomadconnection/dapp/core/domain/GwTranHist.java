@@ -2,11 +2,15 @@ package com.nomadconnection.dapp.core.domain;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class GwTranHist extends BaseTime {

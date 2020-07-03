@@ -51,21 +51,33 @@ public class ResumeService {
         UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
         BeanUtils.copyProperties(commonPart, response);
 
-        asyncService.run(() -> proc1100(request));  // 1100(법인카드신청), 비동기 처리
-        asyncService.run(() -> proc1800(request));  // 1800(전자서명값전달), 비동기 처리
+        asyncService.run(() -> procResume(request));
 
         return response;
     }
 
     @Async
-    void proc1800(UserCorporationDto.ResumeReq request) {
+    void procResume(UserCorporationDto.ResumeReq request) {
+        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
+        Long count = signatureHistory.getApplicationCount();
+        if (count == null) {
+            count = 0L;
+        }
+        signatureHistory.setApplicationCount(count + 1);
+        signatureHistoryRepository.save(signatureHistory);
+
+        asyncService.run(() -> proc1100(request, signatureHistory));  // 1100(법인카드신청), 비동기 처리
+        asyncService.run(() -> proc1800(request, signatureHistory));  // 1800(전자서명값전달), 비동기 처리
+    }
+
+    @Async
+    void proc1800(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory) {
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1800);
 
-        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
         String signedPlainString = SignVerificationUtil.verifySignedBinaryStringAndGetPlainString(signatureHistory.getSignedBinaryString());
 
         DataPart1800 requestRpc = DataPart1800.builder()
-                .d001(getDigitalSignatureIdNumber(request.getD001(), request.getD002()))
+                .d001(getDigitalSignatureIdNumber(request.getD001(), request.getD002(), signatureHistory.getApplicationCount()))
                 .d002(Const.ELEC_SIGNATURE_CERTI_PROD_CODE)
                 .d003(CommonUtil.encodeBase64(signedPlainString))
                 .build();
@@ -75,28 +87,18 @@ public class ResumeService {
         issCommonService.saveGwTran(shinhanGwRpc.request1800(requestRpc));
     }
 
-    private SignatureHistory getSignatureHistoryByApplicationInfo(String applicationDate, String applicationNum) {
-        return signatureHistoryRepository.findFirstByApplicationDateAndApplicationNum(applicationDate, applicationNum).orElseThrow(
-                () -> new BadRequestException(ErrorCode.Api.NOT_FOUND,
-                        "not found d1200 of applicationDate[" + applicationDate + "], applicationNum[" + applicationNum + "]")
-        );
-    }
-
-
     @Async
-    public void proc1100(UserCorporationDto.ResumeReq request) {
+    public void proc1100(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1100);
 
-        // corpIdx 추출
+        // 데이터부
         Long corpIdx = getCorpIdxFromLastRequest(request);
-
-        // 데이터부 - db 추출, 세팅
         D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
-        d1100.setD050(getDigitalSignatureIdNumber(request.getD001(), request.getD002()));
+        d1100.setD050(getDigitalSignatureIdNumber(request.getD001(), request.getD002(), signatureHistory.getApplicationCount()));
 
         // 연동
         DataPart1100 requestRpc = new DataPart1100();
@@ -115,6 +117,13 @@ public class ResumeService {
 
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1100(requestRpc));
+    }
+
+    private SignatureHistory getSignatureHistoryByApplicationInfo(String applicationDate, String applicationNum) {
+        return signatureHistoryRepository.findFirstByApplicationDateAndApplicationNum(applicationDate, applicationNum).orElseThrow(
+                () -> new BadRequestException(ErrorCode.Api.NOT_FOUND,
+                        "not found d1200 of applicationDate[" + applicationDate + "], applicationNum[" + applicationNum + "]")
+        );
     }
 
     // 기존 1400/1000 연동으로 부터 법인 식별자 추출
@@ -138,9 +147,9 @@ public class ResumeService {
         return corpIdx;
     }
 
-    private String getDigitalSignatureIdNumber(String applicationDate, String applicationNum) {
+    private String getDigitalSignatureIdNumber(String applicationDate, String applicationNum, Long count) {
         D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(applicationDate, applicationNum);
-        return CommonUtil.getDigitalSignatureIdNumber(d1200.getD001());
+        return CommonUtil.getDigitalSignatureIdNumber(d1200.getD001(), count);
     }
 
     private D1200 getD1200ByApplicationDateAndApplicationNum(String applicationDate, String applicationNum) {
