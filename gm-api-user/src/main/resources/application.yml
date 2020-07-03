@@ -55,6 +55,11 @@ spring:
           auth: true
           starttls.enable: true
     default-encoding: UTF-8
+s3:
+  access-key: AKIAXD7XVDFHOICQV3XW
+  secret-key: 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
+  bucket-url: https://s3.ap-northeast-2.amazonaws.com/stg-mycard.gowid.com/
+  bucket-name: stg-mycard.gowid.com
 
 ---
 
@@ -78,7 +83,11 @@ spring:
           auth: true
           starttls.enable: true
     default-encoding: UTF-8
-
+s3:
+  access-key: AKIAXD7XVDFHOICQV3XW
+  secret-key: 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
+  bucket-url: https://s3.ap-northeast-2.amazonaws.com/stg-mycard.gowid.com/
+  bucket-name: stg-mycard.gowid.com
 ---
 
 spring:
@@ -101,3 +110,8 @@ spring:
           auth: true
           starttls.enable: true
     default-encoding: UTF-8
+s3:
+  access-key: AKIAXD7XVDFHOICQV3XW
+  secret-key: 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
+  bucket-url: https://s3.ap-northeast-2.amazonaws.com/stg-mycard.gowid.com/
+  bucket-name: stg-mycard.gowid.com
