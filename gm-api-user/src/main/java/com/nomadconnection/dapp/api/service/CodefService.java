@@ -1481,17 +1481,17 @@ public class CodefService {
 
 	private boolean ImageCreateAndSend(Integer fileCode, String fileName, String cardCode, String jsonStringData, String corpIdNo)
 	{
-		ImageConvertDto param1510 =
+		ImageConvertDto param =
 				ImageConvertDto.builder()
 						.mrdType(fileCode)
 						.data(jsonStringData)
-						.fileName(corpIdNo.concat(fileName))
+						.fileName(corpIdNo.replaceAll("-", "").concat(fileName))
 						.build();
 
 		boolean boolConverter = false;
 
 		try {
-			String resultConverter = converter.convertJsonToImage(param1510);
+			String resultConverter = converter.convertJsonToImage(param);
 			if(!resultConverter.isEmpty()){
 				boolConverter = true;
 			}
@@ -1504,7 +1504,7 @@ public class CodefService {
 		CardIssuanceInfo cardInfo = null;
 		log.debug("boolConverter = {}" , boolConverter);
 		if(boolConverter){
-			File file = new File(Const.REPORTING_SERVER + param1510.getFileName() + ".tif");
+			File file = new File(Const.REPORTING_SERVER + param.getFileName() + ".tif");
 			log.debug("$file.getName = {}", file.getName());
 			try {
 				log.debug("$file.getName = {}", file.getName());
