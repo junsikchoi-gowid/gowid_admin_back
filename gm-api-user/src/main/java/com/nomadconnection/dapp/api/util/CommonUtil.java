@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.secukeypad.SecuKeypad;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +32,7 @@ public class CommonUtil {
             int addNum=5-randomNum.length();
             if (addNum>0){
                 for (int i=0;i<addNum;i++){
-                    randomNum="0"+randomNum;
+                    randomNum = "0" + randomNum;
                 }
             }
         }
@@ -55,8 +56,12 @@ public class CommonUtil {
     }
 
     // 1800(전자서명값 전송)에 사용될 전자서명식별번호
-    public static String getDigitalSignatureIdNumber(String bizNo) {
-        return "GWD" + getNowYYYYMMDD() + bizNo + "00";
+    public static String getDigitalSignatureIdNumber(String bizNo, Long count) {
+        if (ObjectUtils.isEmpty(count)) {
+            count = 0L;
+        }
+        String countString = (count < 10) ? "0" + count : String.valueOf(count);
+        return "GWD" + getNowYYYYMMDD() + bizNo + countString;
     }
 
     public static String encodeBase64(String toEncString) {
