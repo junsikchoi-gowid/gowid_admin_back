@@ -33,8 +33,8 @@ public class SignatureHistory extends BaseTime {
     @Column(columnDefinition = "varchar(5)  COMMENT '신청접수순번'")
     private String applicationNum;    //신청접수순번
 
-    @Column(columnDefinition = "bigint(5)  COMMENT '신청일련번호. 전자서명식별벌호 생성시마다 맨뒤에 1씩증가하며 붙는 일련번호.'")
-    private Long applicationCount;    //신청접수순번
+    @Column(columnDefinition = "bigint  COMMENT '신청일련번호. 전자서명식별벌호 생성시마다 맨뒤에 1씩증가하며 붙는 일련번호.'")
+    private Long applicationCount;    //신청일련번호
 
 
 }
