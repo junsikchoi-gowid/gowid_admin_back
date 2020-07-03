@@ -61,12 +61,11 @@ public class ResumeService {
     void proc1800(UserCorporationDto.ResumeReq request) {
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1800);
 
-        D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
         SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
         String signedPlainString = SignVerificationUtil.verifySignedBinaryStringAndGetPlainString(signatureHistory.getSignedBinaryString());
 
         DataPart1800 requestRpc = DataPart1800.builder()
-                .d001(CommonUtil.getDigitalSignatureIdNumber(d1200.getD001()))
+                .d001(getDigitalSignatureIdNumber(request.getD001(), request.getD002()))
                 .d002(Const.ELEC_SIGNATURE_CERTI_PROD_CODE)
                 .d003(CommonUtil.encodeBase64(signedPlainString))
                 .build();
@@ -77,11 +76,12 @@ public class ResumeService {
     }
 
     private SignatureHistory getSignatureHistoryByApplicationInfo(String applicationDate, String applicationNum) {
-        return signatureHistoryRepository.findFirstByApplicationDateAndApplicationNum(applicationDate, applicationDate).orElseThrow(
+        return signatureHistoryRepository.findFirstByApplicationDateAndApplicationNum(applicationDate, applicationNum).orElseThrow(
                 () -> new BadRequestException(ErrorCode.Api.NOT_FOUND,
                         "not found d1200 of applicationDate[" + applicationDate + "], applicationNum[" + applicationNum + "]")
         );
     }
+
 
     @Async
     public void proc1100(UserCorporationDto.ResumeReq request) {
@@ -96,6 +96,7 @@ public class ResumeService {
                 () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
+        d1100.setD050(getDigitalSignatureIdNumber(request.getD001(), request.getD002()));
 
         // 연동
         DataPart1100 requestRpc = new DataPart1100();
@@ -135,6 +136,11 @@ public class ResumeService {
         }
 
         return corpIdx;
+    }
+
+    private String getDigitalSignatureIdNumber(String applicationDate, String applicationNum) {
+        D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(applicationDate, applicationNum);
+        return CommonUtil.getDigitalSignatureIdNumber(d1200.getD001());
     }
 
     private D1200 getD1200ByApplicationDateAndApplicationNum(String applicationDate, String applicationNum) {

@@ -115,4 +115,6 @@ public class DataPart1100 extends CommonPart {
 
     private String d049;  // 제휴정보
 
+    private String d050;  // 전자서명식별번전호
+
 }
