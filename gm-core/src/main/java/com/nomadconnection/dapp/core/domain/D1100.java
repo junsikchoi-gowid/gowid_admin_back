@@ -129,4 +129,6 @@ public class D1100 extends BaseTime {
     private String d048; //실물카드여부
     @Column(columnDefinition = "varchar(30)    DEFAULT '' COMMENT '제휴정보'")
     private String d049; //제휴정보
+    @Column(columnDefinition = "varchar(30)    DEFAULT '' COMMENT ' 전자서명식별번전호'")
+    private String d050; //전자서명식별번전호
 }
