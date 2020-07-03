@@ -76,7 +76,7 @@ public class ResumeService {
     }
 
     private SignatureHistory getSignatureHistoryByApplicationInfo(String applicationDate, String applicationNum) {
-        return signatureHistoryRepository.findFirstByApplicationDateAndApplicationNum(applicationDate, applicationDate).orElseThrow(
+        return signatureHistoryRepository.findFirstByApplicationDateAndApplicationNum(applicationDate, applicationNum).orElseThrow(
                 () -> new BadRequestException(ErrorCode.Api.NOT_FOUND,
                         "not found d1200 of applicationDate[" + applicationDate + "], applicationNum[" + applicationNum + "]")
         );
