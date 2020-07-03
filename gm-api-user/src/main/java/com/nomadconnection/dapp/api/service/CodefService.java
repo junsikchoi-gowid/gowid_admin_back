@@ -886,7 +886,7 @@ public class CodefService {
 			repoUser.save(user);
 
 			//파일생성 및 전송
-			ImageCreateAndSend(1510, "150100001","0306", strResult,corp.resCompanyIdentityNo());
+			ImageCreateAndSend(1510, "15010001","0306", strResult,corp.resCompanyIdentityNo());
 
 			String strResult1530 = null;
 
@@ -943,7 +943,7 @@ public class CodefService {
 				corp.resUserType(d009);
 
 				//파일생성 및 전송
-				ImageCreateAndSend(1530, "150300001","0306", strResult1530, corp.resCompanyIdentityNo());
+				ImageCreateAndSend(1530, "15030001","0306", strResult1530, corp.resCompanyIdentityNo());
 
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
