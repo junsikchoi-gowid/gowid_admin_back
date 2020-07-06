@@ -160,11 +160,8 @@ public class IssuanceService {
         );
 
         d1100.setD021(Seed128.encryptEcb(request.getPayAccount()));
-        if (ENC_KEYPAD_ENABLE) {
-            d1100.setD025(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.PASSWORD)));
-        } else {
-            d1100.setD025(Seed128.encryptEcb(request.getPassword()));
-        }
+        String passwd = CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.PASSWORD, ENC_KEYPAD_ENABLE);  // 키패드 암호화상태이면, 복호화함
+        d1100.setD025(Seed128.encryptEcb(passwd));
     }
 
     private DataPart3000 proc3000(DataPart1200 resultOfD1200) {
@@ -360,15 +357,15 @@ public class IssuanceService {
     // 키패드암호화 -> 복호화
     private String getDecKeyPadEncSeed128(String keypadEncParam, HttpServletRequest httpServletRequest) {
         String returnString = httpServletRequest.getParameter(keypadEncParam);
-        log.debug("## plain string : {}", returnString);
+        log.debug("## keypad encrypted string : {}", returnString);
 
         if (ENC_KEYPAD_ENABLE) {
             returnString = CommonUtil.getDecryptKeypad(httpServletRequest, keypadEncParam);
-            log.debug("## encrypted keypad string : {}", returnString);
+            log.debug("## keypad decrypted string : {}", returnString);
         }
         if (DEC_SEED128_ENABLE) {
             returnString = Seed128.encryptEcb(returnString);
-            log.debug("## encrypted seed128 string : {}", returnString);
+            log.debug("## seed128 encrypted string : {}", returnString);
         }
         return returnString;
     }
