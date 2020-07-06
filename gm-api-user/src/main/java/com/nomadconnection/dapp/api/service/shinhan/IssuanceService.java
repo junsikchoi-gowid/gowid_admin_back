@@ -13,6 +13,8 @@ import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
 import com.nomadconnection.dapp.core.domain.*;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.repository.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
@@ -47,6 +49,7 @@ public class IssuanceService {
     private final D1400Repository d1400Repository;
     private final D1100Repository d1100Repository;
     private final SignatureHistoryRepository signatureHistoryRepository;
+    private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
 
     private final ShinhanGwRpc shinhanGwRpc;
     private final CommonService issCommonService;
@@ -75,8 +78,13 @@ public class IssuanceService {
                                                    HttpServletRequest httpServletRequest,
                                                    UserCorporationDto.IssuanceReq request,
                                                    Long signatureHistoryIdx) {
-
+        paramsLogging(request);
         Corp userCorp = getCorpByUserIdx(userIdx);
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByIdx(request.getCardIssuanceInfoIdx()).orElseThrow(
+                () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
+                        "CardIssuanceInfo is not exist(idx=" + request.getCardIssuanceInfoIdx() + ")")
+        );
+        request.setPayAccount(cardIssuanceInfo.bankAccount().getBankAccount());
 
         // 키패드 복호화(카드비번, 결제계좌) -> seed128 암호화 -> 1100 DB저장
         encryptAndSaveD1100(userCorp.idx(), httpServletRequest, request);
@@ -104,6 +112,10 @@ public class IssuanceService {
         asyncService.run(() -> procBpr(userCorp, resultOfD1200));
 
         return new UserCorporationDto.IssuanceRes();
+    }
+
+    private void paramsLogging(UserCorporationDto.IssuanceReq request) {
+        log.debug("## request params : " + request.toString());
     }
 
     private Corp getCorpByUserIdx(Long userIdx) {
@@ -357,15 +369,15 @@ public class IssuanceService {
     // 키패드암호화 -> 복호화
     private String getDecKeyPadEncSeed128(String keypadEncParam, HttpServletRequest httpServletRequest) {
         String returnString = httpServletRequest.getParameter(keypadEncParam);
-        log.debug("## keypad encrypted string : {}", returnString);
+        log.debug("## keypad encrypted string[{}] : {}", keypadEncParam, returnString);
 
         if (ENC_KEYPAD_ENABLE) {
             returnString = CommonUtil.getDecryptKeypad(httpServletRequest, keypadEncParam);
-            log.debug("## keypad decrypted string : {}", returnString);
+            log.debug("## keypad decrypted string[{}] : {}", keypadEncParam, returnString);
         }
         if (DEC_SEED128_ENABLE) {
             returnString = Seed128.encryptEcb(returnString);
-            log.debug("## seed128 encrypted string : {}", returnString);
+            log.debug("## seed128 encrypted string[{}] : {}", keypadEncParam, returnString);
         }
         return returnString;
     }
@@ -407,12 +419,12 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
         requestRpc.setD001(request.getIdCode());
         requestRpc.setD002(request.getKorName());
-		requestRpc.setD004(request.getIssueDate());
+        requestRpc.setD004(request.getIssueDate());
         requestRpc.setD006(request.getDriverLocal());
         requestRpc.setD007(request.getDriverCode());
 
-		requestRpc.setD003(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER));
-		requestRpc.setD005(decryptData.get(EncryptParam.DRIVER_NUMBER));
+        requestRpc.setD003(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER));
+        requestRpc.setD005(decryptData.get(EncryptParam.DRIVER_NUMBER));
 //		requestRpc.setD003(Seed128.encryptEcb(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER))); todo: 운영환경에서는 보내기전 암호화
 //		requestRpc.setD005(Seed128.encryptEcb(decryptData.get(EncryptParam.DRIVER_NUMBER)));
 

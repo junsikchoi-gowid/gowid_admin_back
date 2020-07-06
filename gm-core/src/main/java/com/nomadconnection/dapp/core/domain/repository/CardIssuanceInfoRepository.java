@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface CardIssuanceInfoRepository extends JpaRepository<CardIssuanceInfo, Long> {
     Optional<CardIssuanceInfo> findTopByCorpAndDisabledFalseOrderByIdxDesc(Corp corp);
+
+    Optional<CardIssuanceInfo> findByIdx(Long idx);
 }

@@ -56,13 +56,15 @@ public class CommonUtil {
     }
 
     public static String getDecryptKeypad(HttpServletRequest httpServletRequest, String fieldName, boolean ENC_KEYPAD_ENABLE) {
-        String encString = httpServletRequest.getParameter(fieldName);
-        log.debug("keypad encrypted string : {}", encString);
+        String returnString = httpServletRequest.getParameter(fieldName);
+        log.debug("## keypad encrypted string[{}] : {}", fieldName, returnString);
         if (!ENC_KEYPAD_ENABLE) {
-            return encString;
+            return returnString;
         }
 
-        return getDecryptKeypad(httpServletRequest, fieldName, fieldName);
+        returnString = getDecryptKeypad(httpServletRequest, fieldName, fieldName);
+        log.debug("## keypad decrypted string[{}] : {}", fieldName, returnString);
+        return returnString;
     }
 
     // 1800(전자서명값 전송)에 사용될 전자서명식별번호
