@@ -52,8 +52,11 @@ public class IssuanceService {
     private final CommonService issCommonService;
     private final AsyncService asyncService;
 
-    @Value("${encryption.keypad.enable: true}")
+    @Value("${encryption.keypad.enable}")
     private boolean ENC_KEYPAD_ENABLE;
+
+    @Value("${decryption.seed128.enable}")
+    private boolean DEC_SEED128_ENABLE;
 
     /**
      * 카드 신청
@@ -89,9 +92,9 @@ public class IssuanceService {
 
         // 신규(1000) or 변경(1400) 신청
         if ("Y".equals(resultOfD1200.getD003())) {
-            proc1000(userCorp, resultOfD1200, httpServletRequest, request);         // 1000(신규-법인회원신규심사요청)
+            proc1000(userCorp, resultOfD1200, httpServletRequest);         // 1000(신규-법인회원신규심사요청)
         } else if ("N".equals(resultOfD1200.getD003())) {
-            proc1400(userCorp, resultOfD1200, httpServletRequest, request);         // 1400(기존-법인조건변경신청)
+            proc1400(userCorp, resultOfD1200, httpServletRequest);         // 1400(기존-법인조건변경신청)
         } else {
             String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
@@ -325,9 +328,7 @@ public class IssuanceService {
         issCommonService.saveGwTran(shinhanGwRpc.request1530(requestRpc));
     }
 
-    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200,
-                          HttpServletRequest httpServletRequest, UserCorporationDto.IssuanceReq request) {
-
+    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1000);
 
@@ -348,30 +349,31 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1000, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        if (ENC_KEYPAD_ENABLE) {
-            requestRpc.setD011(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1));
-            requestRpc.setD015(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO2));
-            requestRpc.setD019(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO3));
-//        requestRpc.setD011(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1)));   운영환경에서는 보내기전 암호화
-//        requestRpc.setD015(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO2)));
-//        requestRpc.setD019(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO3)));
-        } else {
-            requestRpc.setD011(request.getCeoRegisterNo1());
-            requestRpc.setD015(request.getCeoRegisterNo2());
-            requestRpc.setD019(request.getCeoRegisterNo3());
-//        requestRpc.setD011(Seed128.encryptEcb(request.getCeoRegisterNo1()));   운영환경에서는 보내기전 암호화
-//        requestRpc.setD015(Seed128.encryptEcb(request.getCeoRegisterNo2()));
-//        requestRpc.setD019(Seed128.encryptEcb(request.getCeoRegisterNo3()));
-        }
-
-//        requestRpc.setC009("00"); // todo : 테스트 데이터(삭제예정). 응답코드 성공
+        requestRpc.setD011(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO1, httpServletRequest));
+        requestRpc.setD015(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO2, httpServletRequest));
+        requestRpc.setD019(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO3, httpServletRequest));
 
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1000(requestRpc));
     }
 
-    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest,
-                          UserCorporationDto.IssuanceReq request) {
+    // 키패드암호화 -> 복호화
+    private String getDecKeyPadEncSeed128(String keypadEncParam, HttpServletRequest httpServletRequest) {
+        String returnString = httpServletRequest.getParameter(keypadEncParam);
+        log.debug("## plain string : {}", returnString);
+
+        if (ENC_KEYPAD_ENABLE) {
+            returnString = CommonUtil.getDecryptKeypad(httpServletRequest, keypadEncParam);
+            log.debug("## encrypted keypad string : {}", returnString);
+        }
+        if (DEC_SEED128_ENABLE) {
+            returnString = Seed128.encryptEcb(returnString);
+            log.debug("## encrypted seed128 string : {}", returnString);
+        }
+        return returnString;
+    }
+
+    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1400);
 
@@ -392,16 +394,7 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1400, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        if (ENC_KEYPAD_ENABLE) {
-            requestRpc.setD006(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1));
-//        requestRpc.setD006(Seed128.encryptEcb(CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.CEO_REGISTER_NO1)));  todo 운영환경에서는 전송전 암호화
-        } else {
-            requestRpc.setD006(request.getCeoRegisterNo1());
-//            requestRpc.setD006(Seed128.encryptEcb(request.getCeoRegisterNo1()));  todo 운영환경에서는 전송전 암호화
-        }
-
-        // todo : 테스트 데이터(삭제예정)
-        requestRpc.setC009("00");
+        requestRpc.setD006(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO1, httpServletRequest));
 
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1400(requestRpc));
