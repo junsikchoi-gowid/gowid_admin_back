@@ -43,7 +43,6 @@ public class UserCorporationController {
         public static final String STOCKHOLDER_FILES_IDX = "/stockholder/files/{idxFile}";
         public static final String ACCOUNT = "/account";
         public static final String ISSUANCE = "/issuance";
-        public static final String ISSUANCE_IDX = "/issuance/{idxCardInfo}";
         public static final String CARD = "/card";
         public static final String RESUME = "/resume";
         public static final String CEO = "/ceo";
@@ -206,18 +205,6 @@ public class UserCorporationController {
         }
 
         return ResponseEntity.ok().body(service.getVentureBusiness());
-    }
-
-    @ApiOperation("카드발급정보 전체조회")
-    @GetMapping(URI.ISSUANCE_IDX)
-    public ResponseEntity<UserCorporationDto.CardIssuanceInfoRes> getCardIssuanceByUser(
-            @ApiIgnore @CurrentUser CustomUser user,
-            @PathVariable Long idxCardInfo) {
-        if (log.isInfoEnabled()) {
-            log.info("([ getCardIssuanceByUser ]) $user='{}', $idx_cardInfo='{}'", user, idxCardInfo);
-        }
-
-        return ResponseEntity.ok().body(service.getCardIssuanceInfo(idxCardInfo));
     }
 
     @ApiOperation(value = "신분증 본인 확인")

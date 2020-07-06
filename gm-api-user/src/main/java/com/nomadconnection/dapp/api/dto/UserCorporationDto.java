@@ -161,7 +161,7 @@ public class UserCorporationDto {
         @NotEmpty
         private String korName;
 
-        @ApiModelProperty("주민등록번호-앞")
+        @ApiModelProperty("주민등록번호-앞(성별포함)")
         private String identificationNumberFront;
 
         @ApiModelProperty("암호화 대상(주민번호뒷자리, 운전면허번호)")
@@ -191,6 +191,9 @@ public class UserCorporationDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class RegisterCeo {
+
+        @ApiModelProperty("대표자 식별자")
+        private Long ceoIdx;
 
         @ApiModelProperty("국적(표준약어)")
         @NotNull
@@ -493,6 +496,9 @@ public class UserCorporationDto {
         @ApiModelProperty("카드발급정보 식별자")
         private Long idx;
 
+        @ApiModelProperty("대표자 식별자")
+        private Long ceoIdx;
+
         @ApiModelProperty("국적(표준약어)")
         private String nation;
 
@@ -524,6 +530,7 @@ public class UserCorporationDto {
             if (ceoInfo != null) {
                 return CeoRes.builder()
                         .idx(ceoInfo.cardIssuanceInfo().idx())
+                        .ceoIdx(ceoInfo.idx())
                         .nation(ceoInfo.nationality())
                         .name(ceoInfo.name())
                         .engName(ceoInfo.engName())

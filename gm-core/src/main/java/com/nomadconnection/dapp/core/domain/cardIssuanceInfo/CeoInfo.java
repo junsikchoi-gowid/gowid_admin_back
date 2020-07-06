@@ -37,6 +37,9 @@ public class CeoInfo {
     private String agencyCode; // 통신사 코드
     private Long genderCode; // 성별 1:남자 2:여자
 
+    @Builder.Default
+    private Integer ceoNumber = 0;
+
     @Enumerated(EnumType.STRING)
     private CertificationType certificationType; // 신분검증방법
 

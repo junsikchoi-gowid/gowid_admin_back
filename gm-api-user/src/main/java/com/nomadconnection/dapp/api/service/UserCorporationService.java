@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -144,7 +143,6 @@ public class UserCorporationService {
             );
         }
 
-        // TODO: 전문저장
         return UserCorporationDto.VentureRes.from(repoCardIssuance.save(cardInfo));
     }
 
@@ -212,8 +210,8 @@ public class UserCorporationService {
      *
      * @param idx_user     등록하는 User idx
 	 * @param file_1       파일1
-	 * @param file_2       파일2
-	 * @param type         file type
+     * @param file_2       파일2
+     * @param type         file type
      * @param idx_CardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
@@ -300,11 +298,11 @@ public class UserCorporationService {
 
 				log.error("[uploadStockholderFile] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
 				throw FileUploadException.builder().category(FileUploadException.Category.STOCKHOLDER).build();
-			}
-		}
+            }
+        }
 
-		return resultList;
-	}
+        return resultList;
+    }
 
     /**
      * 주주명부 파일 삭제
@@ -425,14 +423,14 @@ public class UserCorporationService {
 		ResAccount account = findResAccount(dto.getAccountIdx());
 		String bankCode = account.organization();
 
-		cardInfo.bankAccount(BankAccount.builder()
-				.bankAccount(account.resAccount())
+        cardInfo.bankAccount(BankAccount.builder()
+                .bankAccount(account.resAccount())
 				.bankCode(bankCode)
                 .bankAccountHolder(dto.getAccountHolder())
                 .build());
 
         String bankName = null;
-		CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, bankCode);
+        CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, bankCode);
         if (commonCodeDetail != null) {
             bankName = commonCodeDetail.value1();
         }
@@ -444,11 +442,11 @@ public class UserCorporationService {
 		D1100 d1100 = getD1100(user.corp().idx());
 		if (d1100 != null) {
 			repoD1100.save(d1100
-					.setD024(bankCode)
-					.setD025(account.resAccount())
-					.setD026(dto.getAccountHolder())
-			);
-		}
+                    .setD024(bankCode)
+                    .setD025(account.resAccount())
+                    .setD026(dto.getAccountHolder())
+            );
+        }
 
         return UserCorporationDto.AccountRes.from(repoCardIssuance.save(cardInfo), bankName);
     }
@@ -491,17 +489,25 @@ public class UserCorporationService {
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserCorporationDto.CeoRes registerCeo(Long idx_user, UserCorporationDto.RegisterCeo dto, Long idx_CardInfo) throws IOException {
+    public UserCorporationDto.CeoRes registerCeo(Long idx_user, UserCorporationDto.RegisterCeo dto, Long idx_CardInfo) {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
+        CeoInfo ceo = null;
+        if (!ObjectUtils.isEmpty(dto.getCeoIdx())) {
+            ceo = findCeoInfo(dto.getCeoIdx());
+            if (!cardInfo.ceoInfos().contains(ceo)) {
+                throw MismatchedException.builder().category(MismatchedException.Category.CEO).build();
+            }
+        }
 
+        Integer ceoNum = 0;
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
-            if (!StringUtils.hasText(d1000.getD012())) {
+            if (!StringUtils.hasText(d1000.getD012()) || (ceo != null && ceo.ceoNumber().equals(1))) { // 첫번째 대표자정보
                 repoD1000.save(d1000
                         .setD010(dto.getName())
                         .setD012(dto.getEngName())
@@ -514,85 +520,65 @@ public class UserCorporationService {
                         .setD041(dto.getPhoneNumber().substring(3, 7))
                         .setD042(dto.getPhoneNumber().substring(7))
                 );
-            }
-            if (!StringUtils.hasText(d1000.getD016())) {
+                ceoNum = 1;
+
+                D1100 d1100 = getD1100(user.corp().idx());
+                if (d1100 != null) {
+                    repoD1100.save(d1100
+                            .setD035(dto.getPhoneNumber().substring(0, 3))
+                            .setD036(dto.getPhoneNumber().substring(3, 7))
+                            .setD037(dto.getPhoneNumber().substring(7))
+                    );
+                }
+
+            } else if (!StringUtils.hasText(d1000.getD016()) || (ceo != null && ceo.ceoNumber().equals(2))) { // 두번째 대표자정보
                 repoD1000.save(d1000
                         .setD014(dto.getName())
                         .setD016(dto.getEngName())
                         .setD017(dto.getNation())
                 );
-            }
-            if (!StringUtils.hasText(d1000.getD020())) {
+                ceoNum = 2;
+
+            } else if (!StringUtils.hasText(d1000.getD020()) || (ceo != null && ceo.ceoNumber().equals(3))) { // 세번째 대표자정보
                 repoD1000.save(d1000
                         .setD018(dto.getName())
                         .setD020(dto.getEngName())
                         .setD021(dto.getNation())
                 );
+                ceoNum = 3;
             }
         }
 
-        D1100 d1100 = getD1100(user.corp().idx());
-        if (d1100 != null && !StringUtils.hasText(d1100.getD035())) {
-            repoD1100.save(d1100
-                    .setD035(dto.getPhoneNumber().substring(0, 3))
-                    .setD036(dto.getPhoneNumber().substring(3, 7))
-                    .setD037(dto.getPhoneNumber().substring(7))
-            );
+        if (ObjectUtils.isEmpty(ceo)) {
+            ceo = CeoInfo.builder()
+                    .cardIssuanceInfo(cardInfo)
+                    .engName(dto.getEngName())
+                    .name(dto.getName())
+                    .nationality(dto.getNation())
+                    .isForeign("KR".equalsIgnoreCase(dto.getNation()) ? false : true)
+                    .phoneNumber(dto.getPhoneNumber())
+                    .agencyCode(dto.getAgency())
+                    .genderCode(dto.getGenderCode())
+                    .birth(dto.getBirth())
+                    .certificationType(dto.getIdentityType())
+                    .type(CeoType.from(d1000.getD009()))
+                    .ceoNumber(ceoNum)
+                    .build();
+        } else {
+            ceo.engName(dto.getEngName())
+                    .name(dto.getName())
+                    .nationality(dto.getNation())
+                    .isForeign("KR".equalsIgnoreCase(dto.getNation()) ? false : true)
+                    .phoneNumber(dto.getPhoneNumber())
+                    .agencyCode(dto.getAgency())
+                    .genderCode(dto.getGenderCode())
+                    .birth(dto.getBirth())
+                    .certificationType(dto.getIdentityType())
+                    .type(CeoType.from(d1000.getD009()))
+                    .ceoNumber(ceoNum);
         }
 
-        CeoInfo ceoInfo = CeoInfo.builder()
-                .cardIssuanceInfo(cardInfo)
-                .engName(dto.getEngName())
-                .name(dto.getName())
-                .nationality(dto.getNation())
-                .isForeign("KR".equalsIgnoreCase(dto.getNation()) ? false : true)
-                .phoneNumber(dto.getPhoneNumber())
-                .agencyCode(dto.getAgency())
-                .genderCode(dto.getGenderCode())
-                .birth(dto.getBirth())
-                .certificationType(dto.getIdentityType())
-                .type(CeoType.from(d1000.getD009()))
-                .build();
-
-        return UserCorporationDto.CeoRes.from(repoCeo.save(ceoInfo)).setDeviceId("");
-    }
-
-    /**
-     * 카드발급정보 전체 조회
-     *
-     * @param idx_cardIssuanceInfo 조회하는 CardIssuanceInfo idx
-     * @return 카드발급정보
-     */
-    @Transactional(readOnly = true)
-    public UserCorporationDto.CardIssuanceInfoRes getCardIssuanceInfo(Long idx_cardIssuanceInfo) {
-        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findById(idx_cardIssuanceInfo).orElseThrow(
-                () -> EntityNotFoundException.builder()
-                        .idx(idx_cardIssuanceInfo)
-                        .entity("CardIssuanceInfo")
-                        .build()
-        );
-
-        String bankName = null;
-        if (cardIssuanceInfo.bankAccount() != null) {
-            CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, cardIssuanceInfo.bankAccount().getBankCode());
-            if (commonCodeDetail != null) {
-                bankName = commonCodeDetail.value1();
-            }
-        }
-
-        UserCorporationDto.CorporationRes CorporationResDto = UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), idx_cardIssuanceInfo);
-        CorporationResDto.setBusinessCodeValue( repoCodeDetail.getByCode1AndCode5(CorporationResDto.getBusinessCode().substring(0,1) ,CorporationResDto.getBusinessCode().substring(1)).toString());
-
-
-        return UserCorporationDto.CardIssuanceInfoRes.builder()
-                .corporationRes(CorporationResDto)
-                .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
-                .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
-                .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
-                .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo, bankName))
-                .ceoRes(cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()))
-                .stockholderFileRes(cardIssuanceInfo.stockholderFiles().stream().map(file -> UserCorporationDto.StockholderFileRes.from(file, idx_cardIssuanceInfo)).collect(Collectors.toList()))
-                .build();
+        return UserCorporationDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");
     }
 
     /**
@@ -621,7 +607,7 @@ public class UserCorporationService {
                     .map(BrandConsentDto::from)
                     .collect(Collectors.toList());
 
-            consents.forEach( item -> {
+            consents.forEach(item -> {
                 ConsentMapping consentMapping = repoConsentMapping.findTopByIdxUserAndIdxConsentOrderByIdxDesc(idx_user, item.getIdx());
 
                 UserCorporationDto.ConsentRes resTemp = UserCorporationDto.ConsentRes.builder()
@@ -631,9 +617,13 @@ public class UserCorporationService {
                 consentInfo.add(resTemp);
             });
 
+            UserCorporationDto.CorporationRes CorporationResDto = UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx());
+            if (!ObjectUtils.isEmpty(CorporationResDto.getBusinessCode())) {
+                CorporationResDto.setBusinessCodeValue(repoCodeDetail.getByCode1AndCode5(CorporationResDto.getBusinessCode().substring(0, 1), CorporationResDto.getBusinessCode().substring(1)).toString());
+            }
             return UserCorporationDto.CardIssuanceInfoRes.builder()
                     .consentRes(consentInfo)
-                    .corporationRes(UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx()))
+                    .corporationRes(CorporationResDto)
                     .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
                     .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
                     .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
@@ -663,6 +653,15 @@ public class UserCorporationService {
                 () -> EntityNotFoundException.builder()
                         .entity("User")
                         .idx(idx_user)
+                        .build()
+        );
+    }
+
+    private CeoInfo findCeoInfo(Long idx_ceo) {
+        return repoCeo.findById(idx_ceo).orElseThrow(
+                () -> EntityNotFoundException.builder()
+                        .entity("CeoInfo")
+                        .idx(idx_ceo)
                         .build()
         );
     }

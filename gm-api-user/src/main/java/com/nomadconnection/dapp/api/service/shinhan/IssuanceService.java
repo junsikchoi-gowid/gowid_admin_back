@@ -30,6 +30,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -423,10 +424,19 @@ public class IssuanceService {
         requestRpc.setD006(request.getDriverLocal());
         requestRpc.setD007(request.getDriverCode());
 
-        requestRpc.setD003(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER));
-        requestRpc.setD005(decryptData.get(EncryptParam.DRIVER_NUMBER));
-//		requestRpc.setD003(Seed128.encryptEcb(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER))); todo: 운영환경에서는 보내기전 암호화
-//		requestRpc.setD005(Seed128.encryptEcb(decryptData.get(EncryptParam.DRIVER_NUMBER)));
+        String d003 = request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
+        String d005 = decryptData.get(EncryptParam.DRIVER_NUMBER);
+        if (DEC_SEED128_ENABLE) {
+            log.debug("## raw string : d003='{}', d005='{}'", d003, d005);
+            if (StringUtils.hasText(d003)) {
+                d003 = Seed128.encryptEcb(d003);
+            }
+            if (StringUtils.hasText(d005)) {
+                d005 = Seed128.encryptEcb(d005);
+            }
+        }
+        requestRpc.setD003(d003);
+        requestRpc.setD005(d005);
 
         issCommonService.saveGwTran(requestRpc);
         DataPart1700 responseRpc = shinhanGwRpc.request1700(requestRpc);
