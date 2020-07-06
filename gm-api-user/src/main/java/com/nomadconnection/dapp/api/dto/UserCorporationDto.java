@@ -1,9 +1,9 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1600;
 import com.nomadconnection.dapp.api.util.MaskingUtils;
 import com.nomadconnection.dapp.core.domain.CommonCodeDetail;
-import com.nomadconnection.dapp.core.domain.ConsentMapping;
 import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import io.swagger.annotations.ApiModelProperty;
@@ -574,11 +574,12 @@ public class UserCorporationDto {
         @ApiModelProperty("대표자주민등록번호3")
         private String ceoRegisterNo3;
 
-        @ApiModelProperty("결제계좌번호")
-        private String payAccount;
-
         @ApiModelProperty("서명파일 바이너리 스트링")
+        @NotEmpty
         private String signedBinaryString;
+
+        @JsonIgnore
+        private String payAccount;  // 결제 계좌번호
 
     }
 
