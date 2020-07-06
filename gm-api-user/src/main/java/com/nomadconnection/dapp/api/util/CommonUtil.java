@@ -55,6 +55,16 @@ public class CommonUtil {
         return getDecryptKeypad(httpServletRequest, fieldName, fieldName);
     }
 
+    public static String getDecryptKeypad(HttpServletRequest httpServletRequest, String fieldName, boolean ENC_KEYPAD_ENABLE) {
+        String encString = httpServletRequest.getParameter(fieldName);
+        log.debug("keypad encrypted string : {}", encString);
+        if (!ENC_KEYPAD_ENABLE) {
+            return encString;
+        }
+
+        return getDecryptKeypad(httpServletRequest, fieldName, fieldName);
+    }
+
     // 1800(전자서명값 전송)에 사용될 전자서명식별번호
     public static String getDigitalSignatureIdNumber(String bizNo, Long count) {
         if (ObjectUtils.isEmpty(count)) {
