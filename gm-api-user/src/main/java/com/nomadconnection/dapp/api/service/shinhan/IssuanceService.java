@@ -419,12 +419,12 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
         requestRpc.setD001(request.getIdCode());
         requestRpc.setD002(request.getKorName());
-		requestRpc.setD004(request.getIssueDate());
+        requestRpc.setD004(request.getIssueDate());
         requestRpc.setD006(request.getDriverLocal());
         requestRpc.setD007(request.getDriverCode());
 
-		requestRpc.setD003(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER));
-		requestRpc.setD005(decryptData.get(EncryptParam.DRIVER_NUMBER));
+        requestRpc.setD003(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER));
+        requestRpc.setD005(decryptData.get(EncryptParam.DRIVER_NUMBER));
 //		requestRpc.setD003(Seed128.encryptEcb(request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER))); todo: 운영환경에서는 보내기전 암호화
 //		requestRpc.setD005(Seed128.encryptEcb(decryptData.get(EncryptParam.DRIVER_NUMBER)));
 
