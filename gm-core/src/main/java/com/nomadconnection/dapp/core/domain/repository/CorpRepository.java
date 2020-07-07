@@ -22,6 +22,8 @@ public interface CorpRepository extends JpaRepository<Corp, Long> , CorpCustomRe
 	@Query(value = "select Corp.idxUser from Corp where idx = :idxCorp limit 1", nativeQuery = true)
 	Long searchIdxUser(Long idxCorp);
 
+
+
 	public static interface ScrapingResultDto {
 		Long getIdxCorp();
 		String getIdxCorpName();

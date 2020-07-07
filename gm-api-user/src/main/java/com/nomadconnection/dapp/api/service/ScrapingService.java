@@ -54,12 +54,7 @@ public class ScrapingService {
 
     private final String urlPath = CommonConstant.getRequestDomain();
 
-    /**
-     * find connectedId
-     *
-     * @param idx
-     * @return
-     */
+
     @Transactional(rollbackFor = Exception.class)
     public List<ConnectedMng> getConnectedMng(Long idx) {
         return repoConnectedMng.findByIdxUser(idx);
@@ -2424,5 +2419,16 @@ public class ScrapingService {
         }
 
         return ResponseEntity.ok().body(BusinessResponse.builder().build());
+    }
+
+    public void awaitScraping3Years(Long idxUser){
+
+        // find connectedId ( idxUser )
+
+        // thread 은행별 계좌정보를 가져온다
+
+        // 가져와야 할 계좌( 오류난 목록의 일자 )를 가져온다.
+
+
     }
 }
