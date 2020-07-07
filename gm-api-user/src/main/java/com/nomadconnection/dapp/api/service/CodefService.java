@@ -961,17 +961,17 @@ public class CodefService {
 						.d007(GowidUtils.getEmptyStringToString(jsonData, "resRegisterDate"))
 						.d009(d009) // 1: 단일대표 2: 개별대표 3: 공동대표
 						.d010(listResCeoList.size()>2?listResCeoList.get(1):"")// 대표이사_성명1
-						.d011(listResCeoList.size()>3?Seed128.decryptEcb(listResCeoList.get(2)):"")// 대표이사_주민번호1
+						.d011(listResCeoList.size()>3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")// 대표이사_주민번호1
 						.d014(listResCeoList.size()>6?listResCeoList.get(5):"")// 대표이사_성명2
-						.d015(listResCeoList.size()>7?Seed128.decryptEcb(listResCeoList.get(6)):"")// 대표이사_주민번호2
+						.d015(listResCeoList.size()>7?Seed128.encryptEcb(listResCeoList.get(6).replaceAll("-","")):"")// 대표이사_주민번호2
 						.d018(listResCeoList.size()>10?listResCeoList.get(9):"")// 대표이사_성명3
-						.d019(listResCeoList.size()>11?Seed128.decryptEcb(listResCeoList.get(10)):"")// 대표이사_주민번호3
+						.d019(listResCeoList.size()>11?Seed128.encryptEcb(listResCeoList.get(10).replaceAll("-","")):"")// 대표이사_주민번호3
 						.d029(null)
 						.d030(null)
 						.d031(null)
 						.d032("대표이사")
 						.d033("대표이사")
-						.d034(listResCeoList.size()>3?Seed128.decryptEcb(listResCeoList.get(2)):"")// 대표이사_주민번호1
+						.d034(listResCeoList.size()>3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")// 대표이사_주민번호1
 						.d035(listResCeoList.size()>2?listResCeoList.get(1):"")// 대표이사_성명1
 						.d044("0113")
 						.d045("5")
@@ -1034,8 +1034,8 @@ public class CodefService {
 						.d013(listResUserAddrList.get(1))// 본점주소_변경일자
 						.d014(listResUserAddrList.get(2))// 본점주소_등기일자
 						.d015(listResOneStocAmtList.get(0))// 1주의금액
-						.d016(listResOneStocAmtList.get(1))// 1주의금액_변경일자
-						.d017(listResOneStocAmtList.get(2))// 1주의금액_등기일자
+						.d016(StringUtils.isEmpty(listResOneStocAmtList.get(1))?ResCorpEstablishDate:listResOneStocAmtList.get(1))// 1주의금액_변경일자
+						.d017(StringUtils.isEmpty(listResOneStocAmtList.get(2))?ResCorpEstablishDate:listResOneStocAmtList.get(2))// 1주의금액_등기일자
 						.d018(listResTCntStockIssueList.get(0))// 발행할주식의총수
 						.d019(listResTCntStockIssueList.get(1))// 발행할주식의총수_변경일자
 						.d020(listResTCntStockIssueList.get(2))// 발행할주식의총수_등기일자
@@ -1063,18 +1063,18 @@ public class CodefService {
 						.d042(listResStockList.get(1).toString())// 발행주식현황_자본금의액
 						.d043(listResStockList.get(3).toString())// 발행주식현황_변경일자
 						.d044(listResStockList.get(4).toString())// 발행주식현황_등기일자
-						.d045(listResCeoList.size()>1?listResCeoList.get(0):"")// 대표이사_직위1
-						.d046(listResCeoList.size()>2?listResCeoList.get(1):"")// 대표이사_성명1
-						.d047(listResCeoList.size()>3?Seed128.decryptEcb(listResCeoList.get(2)):"")// 대표이사_주민번호1
-						.d048(listResCeoList.size()>4?listResCeoList.get(3):"")// 대표이사_주소1
-						.d049(listResCeoList.size()>5?listResCeoList.get(4):"")// 대표이사_직위2
-						.d050(listResCeoList.size()>6?listResCeoList.get(5):"")// 대표이사_성명2
-						.d051(listResCeoList.size()>7?Seed128.decryptEcb(listResCeoList.get(6)):"")// 대표이사_주민번호2
-						.d052(listResCeoList.size()>8?listResCeoList.get(7):"")// 대표이사_주소2
-						.d053(listResCeoList.size()>9?listResCeoList.get(8):"")// 대표이사_직위3
-						.d054(listResCeoList.size()>10?listResCeoList.get(9):"")// 대표이사_성명3
-						.d055(listResCeoList.size()>11?Seed128.decryptEcb(listResCeoList.get(10)):"")// 대표이사_주민번호3
-						.d056(listResCeoList.size()>12?listResCeoList.get(11):"")// 대표이사_주소3
+						.d045(listResCeoList.size()>=1?listResCeoList.get(0):"")// 대표이사_직위1
+						.d046(listResCeoList.size()>=2?listResCeoList.get(1):"")// 대표이사_성명1
+						.d047(listResCeoList.size()>=3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")// 대표이사_주민번호1
+						.d048(listResCeoList.size()>=4?listResCeoList.get(3):"")// 대표이사_주소1
+						.d049(listResCeoList.size()>=5?listResCeoList.get(4):"")// 대표이사_직위2
+						.d050(listResCeoList.size()>=6?listResCeoList.get(5):"")// 대표이사_성명2
+						.d051(listResCeoList.size()>=7?Seed128.encryptEcb(listResCeoList.get(6).replaceAll("-","")):"")// 대표이사_주민번호2
+						.d052(listResCeoList.size()>=8?listResCeoList.get(7):"")// 대표이사_주소2
+						.d053(listResCeoList.size()>=9?listResCeoList.get(8):"")// 대표이사_직위3
+						.d054(listResCeoList.size()>=10?listResCeoList.get(9):"")// 대표이사_성명3
+						.d055(listResCeoList.size()>=11?Seed128.encryptEcb(listResCeoList.get(10).replaceAll("-","")):"")// 대표이사_주민번호3
+						.d056(listResCeoList.size()>=12?listResCeoList.get(11):"")// 대표이사_주소3
 						.d057(ResCorpEstablishDate)// 법인성립연월일
 						.build());
 
@@ -1086,13 +1086,15 @@ public class CodefService {
 						.d003("01")
 						.d004(corp.resCompanyNm().replaceAll("-",""))
 						.d005("06")
-						.d006(listResCeoList.size()>3?Seed128.decryptEcb(listResCeoList.get(2)):"")
+						.d006(listResCeoList.size()>3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")
 						.d007(listResCeoList.size()>2?listResCeoList.get(1):"")
 						.d008("261-81-25793")
 						.d009("고위드")
 						.d011("")
 						.d012("DAAC6F")
 						.d013("12")
+						.d015("GOWID1")
+						.d016("GOWID1")
 						.build());
 
 				repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
