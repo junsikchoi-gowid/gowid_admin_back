@@ -890,7 +890,7 @@ public class CodefService {
 			repoUser.save(user);
 
 			//파일생성 및 전송
-			ImageCreateAndSend(1510, "15010001","0306", strResult,corp.resCompanyIdentityNo());
+			// ImageCreateAndSend(1510, "15010001","0306", strResult,corp.resCompanyIdentityNo());
 
 			String strResult1530 = null;
 
@@ -1086,8 +1086,8 @@ public class CodefService {
 						.d003("01")
 						.d004(corp.resCompanyNm().replaceAll("-",""))
 						.d005("06")
-						.d006(listResCeoList.size()>3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")
-						.d007(listResCeoList.size()>2?listResCeoList.get(1):"")
+//						.d006(listResCeoList.size()>3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")
+//						.d007(listResCeoList.size()>2?listResCeoList.get(1):"")
 						.d008("261-81-25793")
 						.d009("고위드")
 						.d011("")
@@ -1522,9 +1522,6 @@ public class CodefService {
 						.data(jsonStringData)
 						.fileName(corpIdNo.replaceAll("-", "").concat(fileName))
 						.build();
-
-
-
 		try {
 			String resultConverter = converter.convertJsonToImage(param);
 			if(!resultConverter.isEmpty()){
