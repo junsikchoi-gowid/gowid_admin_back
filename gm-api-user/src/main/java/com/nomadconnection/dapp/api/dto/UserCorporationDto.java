@@ -153,6 +153,10 @@ public class UserCorporationDto {
     @AllArgsConstructor
     public static class IdentificationReq {
 
+        @ApiModelProperty("카드발급정보 식별자")
+        @NotEmpty
+        private Long cardIssuanceInfoIdx;
+
         @ApiModelProperty("신분증검증방법코드")
         @NotEmpty
         private String idCode;

@@ -466,8 +466,25 @@ public class IssuanceService {
         if (!resultOfD1700.getD008().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw BadRequestedException.builder().category(BadRequestedException.Category.INVALID_CEO_IDENTIFICATION).desc(resultOfD1700.getD009()).build();
         }
+        save1400(dto, decryptData);
     }
 
+    // 1400 테이블에 대표자 주민번호 저장
+    private void save1400(UserCorporationDto.IdentificationReq dto, Map<String, String> decryptData) {
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByIdx(dto.getCardIssuanceInfoIdx()).orElseThrow(
+                () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
+                        "CardIssuanceInfo is not exist(idx=" + dto.getCardIssuanceInfoIdx() + ")")
+        );
+        D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx());
+        if (d1400 == null) {
+            String msg = "data of d1400 is not exist(corpIdx=" + cardIssuanceInfo.corp().idx() + ")";
+            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_GW, msg);
+            return;
+        }
+        String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
+        d1400.setD006(Seed128.encryptEcb(idNum));
+        d1400Repository.save(d1400);
+    }
 
     /**
      * 전자서명 검증 및 저장
