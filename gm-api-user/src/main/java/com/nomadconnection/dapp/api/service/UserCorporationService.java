@@ -619,7 +619,8 @@ public class UserCorporationService {
 
             UserCorporationDto.CorporationRes CorporationResDto = UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx());
             if (!ObjectUtils.isEmpty(CorporationResDto.getBusinessCode())) {
-                CorporationResDto.setBusinessCodeValue(repoCodeDetail.getByCode1AndCode5(CorporationResDto.getBusinessCode().substring(0, 1), CorporationResDto.getBusinessCode().substring(1)).toString());
+                CommonCodeDetail codeDetailData = repoCodeDetail.getByCode1AndCode5(CorporationResDto.getBusinessCode().substring(0, 1), CorporationResDto.getBusinessCode().substring(1));
+                CorporationResDto.setBusinessCodeValue(codeDetailData.value5());
             }
             return UserCorporationDto.CardIssuanceInfoRes.builder()
                     .consentRes(consentInfo)

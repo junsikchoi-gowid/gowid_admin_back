@@ -629,21 +629,22 @@ public class RiskService {
 		d1000.setD071(strGrade);//고위드 기업 등급
 		d1000.setD072(strVentureCertification);//벤처확인서보유여부
 		d1000.setD073(strVcInvestment);//VC투자유치여부
-		d1000.setD074(String.valueOf(risk.cardLimit()));//고위드계산한도
-		d1000.setD075(String.valueOf(risk.cashBalance()));//기준잔고
-		d1000.setD076(String.valueOf(Math.floor(risk.dma45())));//45일평균잔고
-		d1000.setD077(String.valueOf(Math.floor(risk.dmm45())));//45일중간잔고
-		d1000.setD078(String.valueOf(risk.currentBalance()));//현재잔고
+		d1000.setD074(String.valueOf(Math.round(risk.cardLimit())));//고위드계산한도
+		d1000.setD075(String.valueOf(Math.round(risk.cashBalance())));//기준잔고
+		d1000.setD076(String.valueOf(Math.round(risk.dma45())));//45일평균잔고
+		d1000.setD077(String.valueOf(Math.round(risk.dmm45())));//45일중간잔고
+		d1000.setD078(String.valueOf(Math.round(risk.currentBalance())));//현재잔고
 		repoD1000.save(d1000);
 
+		d1400.setD014(String.valueOf(Math.round(risk.cardLimit())));
 		d1400.setD025(strGrade);//고위드 기업 등급
 		d1400.setD026(strVentureCertification);//벤처확인서보유여부
 		d1400.setD027(strVcInvestment);//VC투자유치여부
-		d1400.setD028(String.valueOf(risk.cardLimit()));//고위드계산한도
-		d1400.setD029(String.valueOf(risk.cashBalance()));//기준잔고
-		d1400.setD030(String.valueOf(Math.floor(risk.dma45())));//45일평균잔고
-		d1400.setD031(String.valueOf(Math.floor(risk.dmm45())));//45일중간잔고
-		d1400.setD032(String.valueOf(risk.currentBalance()));//현재잔고
+		d1400.setD028(String.valueOf(Math.round(risk.cardLimit())));//고위드계산한도
+		d1400.setD029(String.valueOf(Math.round(risk.cashBalance())));//기준잔고
+		d1400.setD030(String.valueOf(Math.round(risk.dma45())));//45일평균잔고
+		d1400.setD031(String.valueOf(Math.round(risk.dmm45())));//45일중간잔고
+		d1400.setD032(String.valueOf(Math.round(risk.currentBalance())));//현재잔고
 
 		repoD1400.save(d1400);
 
