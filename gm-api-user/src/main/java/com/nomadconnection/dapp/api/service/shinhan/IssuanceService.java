@@ -101,9 +101,9 @@ public class IssuanceService {
 
         // 신규(1000) or 변경(1400) 신청
         if ("Y".equals(resultOfD1200.getD003())) {
-            proc1000(userCorp, resultOfD1200, httpServletRequest);         // 1000(신규-법인회원신규심사요청)
+            proc1000(userCorp, resultOfD1200);         // 1000(신규-법인회원신규심사요청)
         } else if ("N".equals(resultOfD1200.getD003())) {
-            proc1400(userCorp, resultOfD1200, httpServletRequest);         // 1400(기존-법인조건변경신청)
+            proc1400(userCorp, resultOfD1200);         // 1400(기존-법인조건변경신청)
         } else {
             String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
@@ -273,9 +273,6 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1510, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        // todo : 테스트 데이터(삭제예정)
-//        requestRpc.setC009("00");
-
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1510(requestRpc));
     }
@@ -300,9 +297,6 @@ public class IssuanceService {
             DataPart1520 requestRpc = new DataPart1520();
             BeanUtils.copyProperties(d1520, requestRpc);
             BeanUtils.copyProperties(commonPart, requestRpc);
-
-            // todo : 테스트 데이터(삭제예정)
-//            requestRpc.setC009("00");
 
             issCommonService.saveGwTran(requestRpc);
             issCommonService.saveGwTran(shinhanGwRpc.request1520(requestRpc));
@@ -330,15 +324,12 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1530, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        // todo : 테스트 데이터(삭제예정)
-//        requestRpc.setC009("00");       // 성공리턴
-//        requestRpc.setD007(requestRpc.getD007().substring(0, 5));  // 게이트웨이 길이 버그로인해 임시조치
-
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1530(requestRpc));
     }
 
-    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
+    //    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
+    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1000);
 
@@ -359,9 +350,9 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1000, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        requestRpc.setD011(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO1, httpServletRequest));
-        requestRpc.setD015(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO2, httpServletRequest));
-        requestRpc.setD019(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO3, httpServletRequest));
+//        requestRpc.setD011(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO1, httpServletRequest));
+//        requestRpc.setD015(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO2, httpServletRequest));
+//        requestRpc.setD019(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO3, httpServletRequest));
 
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1000(requestRpc));
@@ -383,7 +374,8 @@ public class IssuanceService {
         return returnString;
     }
 
-    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
+    //    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
+    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1400);
 
@@ -403,8 +395,7 @@ public class IssuanceService {
         DataPart1400 requestRpc = new DataPart1400();
         BeanUtils.copyProperties(d1400, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
-
-        requestRpc.setD006(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO1, httpServletRequest));
+//        requestRpc.setD006(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO1, httpServletRequest));
 
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1400(requestRpc));
