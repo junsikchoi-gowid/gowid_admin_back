@@ -1514,7 +1514,6 @@ public class CodefService {
 	private boolean ImageCreateAndSend(Integer fileCode, String fileName, String cardCode, String jsonStringData, String corpIdNo)
 	{
 		boolean boolConverter = false;
-		/*
 		ImageConvertDto param =
 				ImageConvertDto.builder()
 						.mrdType(fileCode)
@@ -1556,8 +1555,6 @@ public class CodefService {
 				throw new RuntimeException(e.toString());
 			}
 		}
-
-		 */
 		return boolConverter;
 	}
 }
