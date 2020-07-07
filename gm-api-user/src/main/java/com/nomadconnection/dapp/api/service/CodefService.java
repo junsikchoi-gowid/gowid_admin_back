@@ -5,6 +5,7 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.dto.GwUploadDto;
+import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.codef.io.helper.Account;
@@ -21,6 +22,7 @@ import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.dto.ImageConvertDto;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
+import com.nomadconnection.dapp.core.encryption.Seed128;
 import com.nomadconnection.dapp.core.utils.ImageConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -33,6 +35,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import javax.persistence.Column;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -935,10 +939,11 @@ public class CodefService {
 				List<String> listResUserAddrList = saveJSONArray2(jsonArrayResUserAddrList);
 				List<String> listResOneStocAmtList = saveJSONArray4(jsonArrayResOneStocAmtList);
 				List<String> listResTCntStockIssueList = saveJSONArray5(jsonArrayResTCntStockIssueList);
+				List<String> listResCeoList = getJSONArrayCeo(jsonArrayResCEOList);
 				List<Object> listResStockList = saveJSONArray6(jsonArrayResStockList);
 
 				String ResCorpEstablishDate = saveJSONArray20(jsonArrayResCorpEstablishDateList);
-				String d009 = saveJSONArray22(jsonArrayResCEOList);
+				String d009 = getJSONArrayCeoType(jsonArrayResCEOList);
 
 				corp.resUserType(d009);
 
@@ -955,11 +960,19 @@ public class CodefService {
 						.d005("06")
 						.d007(GowidUtils.getEmptyStringToString(jsonData, "resRegisterDate"))
 						.d009(d009) // 1: 단일대표 2: 개별대표 3: 공동대표
+						.d010(listResCeoList.size()>2?listResCeoList.get(1):"")// 대표이사_성명1
+						.d011(listResCeoList.size()>3?Seed128.decryptEcb(listResCeoList.get(2)):"")// 대표이사_주민번호1
+						.d014(listResCeoList.size()>6?listResCeoList.get(5):"")// 대표이사_성명2
+						.d015(listResCeoList.size()>7?Seed128.decryptEcb(listResCeoList.get(6)):"")// 대표이사_주민번호2
+						.d018(listResCeoList.size()>10?listResCeoList.get(9):"")// 대표이사_성명3
+						.d019(listResCeoList.size()>11?Seed128.decryptEcb(listResCeoList.get(10)):"")// 대표이사_주민번호3
 						.d029(null)
 						.d030(null)
 						.d031(null)
 						.d032("대표이사")
 						.d033("대표이사")
+						.d034(listResCeoList.size()>3?Seed128.decryptEcb(listResCeoList.get(2)):"")// 대표이사_주민번호1
+						.d035(listResCeoList.size()>2?listResCeoList.get(1):"")// 대표이사_성명1
 						.d044("0113")
 						.d045("5")
 						.d046("Y")
@@ -980,8 +993,6 @@ public class CodefService {
 						.d070(null)
 						.build());
 
-				log.debug("5");
-
 				repoD1510.save(D1510.builder()
 						.idxCorp(corp.idx())
 						.c007(CommonUtil.getNowYYYYMMDD())
@@ -998,8 +1009,6 @@ public class CodefService {
 						.d013(corp.resBusinessTypes()) // 업태
 						.d014(corp.resBusinessItems()) // 종목
 						.build());
-
-
 
 				JSONArray jsonArrayResStockItemList = (JSONArray)listResStockList.get(2);
 				List<String> listD = new ArrayList<>(20);
@@ -1054,18 +1063,18 @@ public class CodefService {
 						.d042(listResStockList.get(1).toString())// 발행주식현황_자본금의액
 						.d043(listResStockList.get(3).toString())// 발행주식현황_변경일자
 						.d044(listResStockList.get(4).toString())// 발행주식현황_등기일자
-						// 대표이사_직위1
-						// 대표이사_성명1
-						// 대표이사_주민번호1
-						// 대표이사_주소1
-						// 대표이사_직위2
-						// 대표이사_성명2
-						// 대표이사_주민번호2
-						// 대표이사_주소2
-						// 대표이사_직위3
-						// 대표이사_성명3
-						// 대표이사_주민번호3
-						// 대표이사_주소3
+						.d045(listResCeoList.size()>1?listResCeoList.get(0):"")// 대표이사_직위1
+						.d046(listResCeoList.size()>2?listResCeoList.get(1):"")// 대표이사_성명1
+						.d047(listResCeoList.size()>3?Seed128.decryptEcb(listResCeoList.get(2)):"")// 대표이사_주민번호1
+						.d048(listResCeoList.size()>4?listResCeoList.get(3):"")// 대표이사_주소1
+						.d049(listResCeoList.size()>5?listResCeoList.get(4):"")// 대표이사_직위2
+						.d050(listResCeoList.size()>6?listResCeoList.get(5):"")// 대표이사_성명2
+						.d051(listResCeoList.size()>7?Seed128.decryptEcb(listResCeoList.get(6)):"")// 대표이사_주민번호2
+						.d052(listResCeoList.size()>8?listResCeoList.get(7):"")// 대표이사_주소2
+						.d053(listResCeoList.size()>9?listResCeoList.get(8):"")// 대표이사_직위3
+						.d054(listResCeoList.size()>10?listResCeoList.get(9):"")// 대표이사_성명3
+						.d055(listResCeoList.size()>11?Seed128.decryptEcb(listResCeoList.get(10)):"")// 대표이사_주민번호3
+						.d056(listResCeoList.size()>12?listResCeoList.get(11):"")// 대표이사_주소3
 						.d057(ResCorpEstablishDate)// 법인성립연월일
 						.build());
 
@@ -1077,6 +1086,8 @@ public class CodefService {
 						.d003("01")
 						.d004(corp.resCompanyNm().replaceAll("-",""))
 						.d005("06")
+						.d006(listResCeoList.size()>3?Seed128.decryptEcb(listResCeoList.get(2)):"")
+						.d007(listResCeoList.size()>2?listResCeoList.get(1):"")
 						.d008("261-81-25793")
 						.d009("고위드")
 						.d011("")
@@ -1099,12 +1110,28 @@ public class CodefService {
 				.data(null).build());
 	}
 
+	private List<String> getJSONArrayCeo(JSONArray jsonArrayResCEOList) {
+		List<String> str = new ArrayList<>();
+		jsonArrayResCEOList.forEach(item -> {
+			JSONObject obj = (JSONObject) item;
+			str.add(GowidUtils.getEmptyStringToString(obj, "resPosition"));
+			str.add(GowidUtils.getEmptyStringToString(obj, "resUserNm"));
+			str.add(GowidUtils.getEmptyStringToString(obj, "resUserIdentiyNo"));
+			str.add(GowidUtils.getEmptyStringToString(obj, "resUserAddr"));
+		});
+		return str;
+	}
+
+
+	@SneakyThrows
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity RegisterCorpInfo(ConnectedMngDto.CorpInfo dto, Long idxUser,Long idx_CardInfo){
 
-		Optional<User> user = repoUser.findById(idxUser);
+		User user = repoUser.findById(idxUser).orElseThrow(
+				() -> UserNotFoundException.builder().build()
+		);
 
-		String resCompanyIdentityNo = user.get().corp().resCompanyIdentityNo();
+		String resCompanyIdentityNo = user.corp().resCompanyIdentityNo();
 
 		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
 		normal.setStatus(true);
@@ -1159,31 +1186,31 @@ public class CodefService {
 
 				resBalanceSheet.forEach(item -> {
 					JSONObject obj = (JSONObject) item;
-					if(GowidUtils.getEmptyStringToString(obj, "code").equals("228")){
+					if(GowidUtils.getEmptyStringToString(obj, "_code").equals("228")){
 						strCode228.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
 					}
-					if(GowidUtils.getEmptyStringToString(obj, "code").equals("334")){
+					if(GowidUtils.getEmptyStringToString(obj, "_code").equals("334")){
 						strCode334.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
 					}
-					if(GowidUtils.getEmptyStringToString(obj, "code").equals("382")){
+					if(GowidUtils.getEmptyStringToString(obj, "_code").equals("382")){
 						strCode382.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
 					}
 				});
 
 				resIncomeStatement.forEach(item -> {
 					JSONObject obj = (JSONObject) item;
-					if(GowidUtils.getEmptyStringToString(obj, "code").equals("001")){
+					if(GowidUtils.getEmptyStringToString(obj, "_code").equals("001")){
 						strCode001.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
 					}
 				});
 
 				repoD1520.save(D1520.builder()
-						.idxCorp(user.get().corp().idx())
+						.idxCorp(user.corp().idx())
 						.c007(CommonUtil.getNowYYYYMMDD())
-						.d003(user.get().corp().resCompanyIdentityNo().replaceAll("-","")) // 사업자등록번호
-						.d004(user.get().corp().resIssueNo().replaceAll("-","")) // 발급(승인)번호
-						.d005(user.get().corp().resUserIdentiyNo().replaceAll("-","")) // 주민번호
-						.d006(user.get().corp().resCompanyNm()) // 상호(사업장명)
+						.d003(user.corp().resCompanyIdentityNo().replaceAll("-","")) // 사업자등록번호
+						.d004(user.corp().resIssueNo().replaceAll("-","")) // 발급(승인)번호
+						.d005(user.corp().resUserIdentiyNo().replaceAll("-","")) // 주민번호
+						.d006(user.corp().resCompanyNm()) // 상호(사업장명)
 						.d007("Y") // 발급가능여부
 						.d008(GowidUtils.getEmptyStringToString(jsonData2, "commStartDate")) // 시작일자
 						.d009(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate")) // 종료일자
@@ -1201,28 +1228,28 @@ public class CodefService {
 						.build());
 
 				//파일생성 및 전송
-				ImageCreateAndSend(1520, 1520+yyyyMm.substring(0,4),"0306", strResultTemp, user.get().corp().resCompanyIdentityNo());
+				ImageCreateAndSend(1520, 1520+yyyyMm.substring(0,4),"0306", strResultTemp, user.corp().resCompanyIdentityNo());
 
 			}else{
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
 				log.debug("jsonObjectStandardFinancial message = {} ", jsonObjectStandardFinancial[0].get("message").toString());
 
-				D1530 d1530 = repoD1530.findFirstByIdxCorpOrderByUpdatedAtDesc(user.get().corp().idx());
+				D1530 d1530 = repoD1530.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx());
 
 				repoD1520.save(D1520.builder()
-						.idxCorp(user.get().corp().idx())
+						.idxCorp(user.corp().idx())
 						.c007(CommonUtil.getNowYYYYMMDD())
-						.d003(user.get().corp().resCompanyIdentityNo().replaceAll("-","")) // 사업자등록번호
-						.d004(user.get().corp().resIssueNo().replaceAll("-","")) // 발급(승인)번호
-						.d005(user.get().corp().resUserIdentiyNo().replaceAll("-","")) // 주민번호
-						.d006(user.get().corp().resCompanyNm()) // 상호(사업장명)
+						.d003(user.corp().resCompanyIdentityNo().replaceAll("-","")) // 사업자등록번호
+						.d004(user.corp().resIssueNo().replaceAll("-","")) // 발급(승인)번호
+						.d005(user.corp().resUserIdentiyNo().replaceAll("-","")) // 주민번호
+						.d006(user.corp().resCompanyNm()) // 상호(사업장명)
 						.d007("Y") // 발급가능여부
 						.d008("") // 시작일자
 						.d009("") // 종료일자
-						.d010(user.get().corp().resUserNm()) // 성명
-						.d011(user.get().corp().resUserAddr()) // 주소
-						.d012(user.get().corp().resBusinessItems()) // 종목
-						.d013(user.get().corp().resBusinessTypes()) // 업태
+						.d010(user.corp().resUserNm()) // 성명
+						.d011(user.corp().resUserAddr()) // 주소
+						.d012(user.corp().resBusinessItems()) // 종목
+						.d013(user.corp().resBusinessTypes()) // 업태
 						.d014(CommonUtil.getNowYYYYMMDD()) // 작성일자
 						.d015("") // 귀속연도
 						.d016(d1530.getD042()) // 총자산 대차대조표 상의 자본총계(없으면 등기부등본상의 자본금의 액) 희남 버그중
@@ -1237,10 +1264,10 @@ public class CodefService {
 
 
 		repoD1100.save(D1100.builder()
-				.idxCorp(user.get().corp().idx())
+				.idxCorp(user.corp().idx())
 				.c007(CommonUtil.getNowYYYYMMDD())
 				.c007("")
-				.d001(user.get().corp().resCompanyIdentityNo().replaceAll("-",""))
+				.d001(user.corp().resCompanyIdentityNo().replaceAll("-",""))
 				.d002("01")
 				.d003("3")
 				.d004(null)
@@ -1266,7 +1293,7 @@ public class CodefService {
 				.d024("")
 				.d025("")
 				.d026("")
-				.d027(user.get().corp().resCompanyIdentityNo().replaceAll("-",""))
+				.d027(user.corp().resCompanyIdentityNo().replaceAll("-",""))
 				.d028("901")
 				.d029("")
 				.d030("1")
@@ -1291,17 +1318,17 @@ public class CodefService {
 				.d049(null)
 				.build());
 
-		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(user.get().corp().idx());
+		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx());
 		d1400.setD011(dto.getResBusinessCode());
 		repoD1400.save(d1400);
 
-		repoCorp.save(user.get().corp()
+		repoCorp.save(user.corp()
 				.resCompanyEngNm(dto.getResCompanyEngNm())
 				.resCompanyNumber(dto.getResCompanyPhoneNumber())
 				.resBusinessCode(dto.getResBusinessCode())
 		);
 
-		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(user.get().corp().idx());
+		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx());
 		String[] corNumber = dto.getResCompanyPhoneNumber().split("-");
 		d1000.setD006(!StringUtils.hasText(d1000.getD006()) ? dto.getResCompanyEngNm() : d1000.getD006());
 		d1000.setD008(!StringUtils.hasText(d1000.getD008()) ? dto.getResBusinessCode() : d1000.getD008());
@@ -1314,12 +1341,12 @@ public class CodefService {
 		//파일생성 및 전송
 		String strResultTemp = "{\n" +
 				"\t\"data\" : {\n" +
-				"\t\t\"resCompanyIdentityNo\" : \"" + user.get().corp().resCompanyIdentityNo()+ "\" ,\n" +
-				"\t\t\"resCompanyNm\" : \""+ user.get().corp().resCompanyNm()+"\"\n" +
+				"\t\t\"resCompanyIdentityNo\" : \"" + user.corp().resCompanyIdentityNo()+ "\" ,\n" +
+				"\t\t\"resCompanyNm\" : \""+ user.corp().resCompanyNm()+"\"\n" +
 				"\t}\n" +
 				"}";
 
-		ImageCreateAndSend(9991, "99910001", "0306", strResultTemp, user.get().corp().resCompanyIdentityNo());
+		ImageCreateAndSend(9991, "99910001", "0306", strResultTemp, user.corp().resCompanyIdentityNo());
 
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
@@ -1443,21 +1470,26 @@ public class CodefService {
 		return str.get();
 	}
 
-	private String saveJSONArray22(JSONArray jsonArray) {
-		AtomicReference<String> returnStr = new AtomicReference<>("");
+	private String getJSONArrayCeoType(JSONArray jsonArray) {
+		String str = null;
 
 		// 1: 단일대표 2: 개별대표 3: 공동대표
-		jsonArray.forEach(item -> {
+		for(Object item: jsonArray){
 			JSONObject obj = (JSONObject) item;
+
+			log.debug("resPosition = [{}]", GowidUtils.getEmptyStringToString(obj, "resPosition"));
 			if(GowidUtils.getEmptyStringToString(obj, "resPosition").equals("공동대표이사")) {
-				returnStr.set("3");
+				str = "3";
+				break;
 			}else if(jsonArray.size() < 2 && GowidUtils.getEmptyStringToString(obj, "resPosition").equals("대표이사")){
-				returnStr.set("1");
+				str = "1";
+				break;
 			}else {
-				returnStr.set("2");
+				str = "2";
+				break;
 			}
-		});
-		return returnStr.get();
+		}
+		return str;
 	}
 
 	private String saveResRegistrationDateList(JSONArray jsonArrayResRegistrationDateList) {
@@ -1481,6 +1513,8 @@ public class CodefService {
 
 	private boolean ImageCreateAndSend(Integer fileCode, String fileName, String cardCode, String jsonStringData, String corpIdNo)
 	{
+		boolean boolConverter = false;
+		/*
 		ImageConvertDto param =
 				ImageConvertDto.builder()
 						.mrdType(fileCode)
@@ -1488,7 +1522,7 @@ public class CodefService {
 						.fileName(corpIdNo.replaceAll("-", "").concat(fileName))
 						.build();
 
-		boolean boolConverter = false;
+
 
 		try {
 			String resultConverter = converter.convertJsonToImage(param);
@@ -1522,6 +1556,8 @@ public class CodefService {
 				throw new RuntimeException(e.toString());
 			}
 		}
+
+		 */
 		return boolConverter;
 	}
 }
