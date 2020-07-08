@@ -573,12 +573,13 @@ public class UserCorporationDto {
     @AllArgsConstructor
     public static class ConsentRes {
 
+        @ApiModelProperty("이용약관 식별자")
+        private Long consentIdx;
+
         @ApiModelProperty("이용약관제목")
-        @NotEmpty
         private String title;
 
         @ApiModelProperty("동의여부")
-        @NotNull
         private Boolean boolConsent;
     }
 

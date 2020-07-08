@@ -592,6 +592,23 @@ public class UserCorporationService {
         User user = findUser(idx_user);
         CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(user.corp()).orElse(null);
 
+        List<UserCorporationDto.ConsentRes> consentInfo = new ArrayList<>();
+
+        List<BrandConsentDto> consents = repoConsent.findAllByEnabledOrderByConsentOrderAsc(true)
+                .map(BrandConsentDto::from)
+                .collect(Collectors.toList());
+
+        consents.forEach(item -> {
+            ConsentMapping consentMapping = repoConsentMapping.findTopByIdxUserAndIdxConsentOrderByIdxDesc(idx_user, item.getIdx());
+
+            UserCorporationDto.ConsentRes resTemp = UserCorporationDto.ConsentRes.builder()
+                    .consentIdx(item.getIdx())
+                    .title(item.getTitle())
+                    .boolConsent(consentMapping != null ? consentMapping.status() : false)
+                    .build();
+            consentInfo.add(resTemp);
+        });
+
         if (cardIssuanceInfo != null) {
             String bankName = null;
             if (cardIssuanceInfo.bankAccount() != null) {
@@ -600,22 +617,6 @@ public class UserCorporationService {
                     bankName = commonCodeDetail.value1();
                 }
             }
-
-            List<UserCorporationDto.ConsentRes> consentInfo = new ArrayList<>();
-
-            List<BrandConsentDto> consents = repoConsent.findAllByEnabledOrderByConsentOrderAsc(true)
-                    .map(BrandConsentDto::from)
-                    .collect(Collectors.toList());
-
-            consents.forEach(item -> {
-                ConsentMapping consentMapping = repoConsentMapping.findTopByIdxUserAndIdxConsentOrderByIdxDesc(idx_user, item.getIdx());
-
-                UserCorporationDto.ConsentRes resTemp = UserCorporationDto.ConsentRes.builder()
-                        .title(item.getTitle())
-                        .boolConsent(consentMapping != null ? consentMapping.status() : false)
-                        .build();
-                consentInfo.add(resTemp);
-            });
 
             UserCorporationDto.CorporationRes CorporationResDto = UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx());
             if (!ObjectUtils.isEmpty(CorporationResDto.getBusinessCode())) {
@@ -634,6 +635,7 @@ public class UserCorporationService {
                     .build();
         } else {
             return UserCorporationDto.CardIssuanceInfoRes.builder()
+                    .consentRes(consentInfo)
                     .corporationRes(UserCorporationDto.CorporationRes.from(user.corp(), null)).build();
         }
     }

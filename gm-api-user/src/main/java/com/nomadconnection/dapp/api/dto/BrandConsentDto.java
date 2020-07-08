@@ -30,7 +30,7 @@ public class BrandConsentDto {
     @ApiModelProperty("현재사용여부")
     public Boolean enabled;
 
-    @ApiModelProperty("현재사용여부")
+    @ApiModelProperty("이용약관 순서")
     public Long consentOrder;
 
     @ApiModelProperty("이용약관 Type 법인 ")
