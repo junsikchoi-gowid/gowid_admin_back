@@ -239,10 +239,10 @@ public class UserCorporationService {
         List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
         int gwUploadCount = 0;
         if (!ObjectUtils.isEmpty(file_1)) {
-            resultList.addAll(uploadStockholderFile(file_1, fileType, cardInfo, "000" + (++gwUploadCount)));
+            resultList.addAll(uploadStockholderFile(file_1, fileType, cardInfo, fileType.getCode() + "00" + (++gwUploadCount)));
         }
         if (!ObjectUtils.isEmpty(file_2)) {
-            resultList.addAll(uploadStockholderFile(file_2, fileType, cardInfo, "000" + (++gwUploadCount)));
+            resultList.addAll(uploadStockholderFile(file_2, fileType, cardInfo, fileType.getCode() + "00" + (++gwUploadCount)));
         }
 
         return resultList;
