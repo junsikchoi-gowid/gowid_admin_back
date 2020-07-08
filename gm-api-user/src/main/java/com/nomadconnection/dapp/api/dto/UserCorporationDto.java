@@ -154,11 +154,11 @@ public class UserCorporationDto {
     public static class IdentificationReq {
 
         @ApiModelProperty("카드발급정보 식별자")
-        @NotEmpty
+        @NotNull
         private Long cardIssuanceInfoIdx;
 
         @ApiModelProperty("대표자시퀀스번호(1, 2, 3)")
-        @NotEmpty
+        @NotNull
         private CeoSeqType ceoSeqNo;
 
         @ApiModelProperty("신분증검증방법코드")
