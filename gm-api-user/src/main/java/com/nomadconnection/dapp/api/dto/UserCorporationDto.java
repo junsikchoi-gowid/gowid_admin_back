@@ -438,6 +438,9 @@ public class UserCorporationDto {
         @ApiModelProperty("결제일")
         private Integer paymentDay;
 
+        @ApiModelProperty("도로명 참조키캆")
+        private String addressKey;
+
         public static CardRes from(CardIssuanceInfo cardInfo) {
             if (cardInfo != null && cardInfo.card() != null) {
                 return CardRes.builder()
@@ -448,6 +451,7 @@ public class UserCorporationDto {
                         .count(cardInfo.card().requestCount())
                         .addressBasic(cardInfo.card().addressBasic())
                         .addressDetail(cardInfo.card().addressDetail())
+                        .addressKey(cardInfo.card().addressKey())
                         .zipCode(cardInfo.card().zipCode())
                         .cardName(cardInfo.card().cardName())
                         .isUnsigned(cardInfo.card().isUnsigned())
