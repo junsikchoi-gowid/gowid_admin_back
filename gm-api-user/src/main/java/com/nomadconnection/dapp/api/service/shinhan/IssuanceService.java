@@ -345,8 +345,8 @@ public class IssuanceService {
         }
 
         // 접수일자, 순번
-        d1000.setD079(resultOfD1200.getD007());
-        d1000.setD080(resultOfD1200.getD008());
+        d1000.setD071(resultOfD1200.getD007());
+        d1000.setD072(resultOfD1200.getD008());
 
         // 연동
         DataPart1000 requestRpc = new DataPart1000();
@@ -397,8 +397,8 @@ public class IssuanceService {
         }
 
         // 접수일자, 순번
-        d1400.setD033(resultOfD1200.getD007());
-        d1400.setD034(resultOfD1200.getD008());
+        d1400.setD025(resultOfD1200.getD007());
+        d1400.setD026(resultOfD1200.getD008());
 
         // 연동
         DataPart1400 requestRpc = new DataPart1400();

@@ -8,6 +8,6 @@ public interface D1000Repository extends JpaRepository<D1000, Long> {
 
     D1000 findFirstByIdxCorpOrderByUpdatedAtDesc(long idxCorp);
 
-    D1000 findFirstByD079AndD080OrderByUpdatedAtDesc(String d079, String d080);
+    D1000 findFirstByD071AndD072OrderByUpdatedAtDesc(String d079, String d080);
 
 }
