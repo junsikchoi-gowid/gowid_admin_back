@@ -42,15 +42,15 @@ public class ResumeService {
     private final AsyncService asyncService;
     private final CommonService issCommonService;
 
-    @Value("${decryption.seed128.enable}")
-    private boolean DEC_SEED128_ENABLE;
+    @Value("${encryption.seed128.enable}")
+    private boolean ENC_SEED128_ENABLE;
 
     // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1600);
         UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
         BeanUtils.copyProperties(commonPart, response);
-        
+
         if (!Const.API_SHINHAN_RESULT_SUCCESS.equals(request.getC009())) {
             return response;
         }
@@ -109,14 +109,12 @@ public class ResumeService {
         BeanUtils.copyProperties(d1100, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        // db에는 암호화된 상태.
-        if (DEC_SEED128_ENABLE) {
+        if (ENC_SEED128_ENABLE) {
             requestRpc.setD021(d1100.getD021());            // 비번
             requestRpc.setD025(d1100.getD025());            // 결제계좌번호
         } else {
-            // 테스트 환경에서는 복호화해서 보냄
-            requestRpc.setD021(Seed128.decryptEcb(d1100.getD021()));            // 비번
-            requestRpc.setD025(Seed128.decryptEcb(d1100.getD025()));            // 결제계좌번호
+            requestRpc.setD021(Seed128.decryptEcb(d1100.getD021()));
+            requestRpc.setD025(Seed128.decryptEcb(d1100.getD025()));
         }
 
         issCommonService.saveGwTran(requestRpc);

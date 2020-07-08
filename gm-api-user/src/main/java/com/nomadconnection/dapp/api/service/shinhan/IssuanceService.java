@@ -59,8 +59,8 @@ public class IssuanceService {
     @Value("${encryption.keypad.enable}")
     private boolean ENC_KEYPAD_ENABLE;
 
-    @Value("${decryption.seed128.enable}")
-    private boolean DEC_SEED128_ENABLE;
+    @Value("${encryption.seed128.enable}")
+    private boolean ENC_SEED128_ENABLE;
 
     /**
      * 카드 신청
@@ -225,14 +225,6 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1200, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        // todo : 테스트 데이터(삭제예정)
-//        requestRpc.setC009("00");
-//        requestRpc.setC013("성공이지롱");
-//        requestRpc.setD003("Y");
-//        requestRpc.setD003("N");
-//        requestRpc.setD007(CommonUtil.getNowYYYYMMDD());
-//        requestRpc.setD008(CommonUtil.getRandom5Num());
-
         issCommonService.saveGwTran(requestRpc);
         DataPart1200 responseRpc = shinhanGwRpc.request1200(requestRpc);
         issCommonService.saveGwTran(responseRpc);
@@ -319,11 +311,17 @@ public class IssuanceService {
         d1530.setD001(applyDate);
         d1530.setD002(applyNo);
 
-        // 연동
         DataPart1530 requestRpc = new DataPart1530();
         BeanUtils.copyProperties(d1530, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
+        if (!ENC_SEED128_ENABLE) {
+            requestRpc.setD047(Seed128.decryptEcb(d1530.getD047()));
+            requestRpc.setD051(Seed128.decryptEcb(d1530.getD051()));
+            requestRpc.setD055(Seed128.decryptEcb(d1530.getD055()));
+        }
+
+        // 연동 및 저장
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1530(requestRpc));
     }
@@ -350,29 +348,31 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1000, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-//        requestRpc.setD011(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO1, httpServletRequest));
-//        requestRpc.setD015(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO2, httpServletRequest));
-//        requestRpc.setD019(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO3, httpServletRequest));
+        if (!ENC_SEED128_ENABLE) {
+            requestRpc.setD011(Seed128.decryptEcb(d1000.getD011()));
+            requestRpc.setD015(Seed128.decryptEcb(d1000.getD015()));
+            requestRpc.setD019(Seed128.decryptEcb(d1000.getD019()));
+        }
 
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1000(requestRpc));
     }
 
-    // 키패드암호화 -> 복호화
-    private String getDecKeyPadEncSeed128(String keypadEncParam, HttpServletRequest httpServletRequest) {
-        String returnString = httpServletRequest.getParameter(keypadEncParam);
-        log.debug("## keypad encrypted string[{}] : {}", keypadEncParam, returnString);
-
-        if (ENC_KEYPAD_ENABLE) {
-            returnString = CommonUtil.getDecryptKeypad(httpServletRequest, keypadEncParam);
-            log.debug("## keypad decrypted string[{}] : {}", keypadEncParam, returnString);
-        }
-        if (DEC_SEED128_ENABLE) {
-            returnString = Seed128.encryptEcb(returnString);
-            log.debug("## seed128 encrypted string[{}] : {}", keypadEncParam, returnString);
-        }
-        return returnString;
-    }
+//    // 키패드암호화 -> 복호화
+//    private String getDecKeyPadEncSeed128(String keypadEncParam, HttpServletRequest httpServletRequest) {
+//        String returnString = httpServletRequest.getParameter(keypadEncParam);
+//        log.debug("## keypad encrypted string[{}] : {}", keypadEncParam, returnString);
+//
+//        if (ENC_KEYPAD_ENABLE) {
+//            returnString = CommonUtil.getDecryptKeypad(httpServletRequest, keypadEncParam);
+//            log.debug("## keypad decrypted string[{}] : {}", keypadEncParam, returnString);
+//        }
+//        if (DEC_SEED128_ENABLE) {
+//            returnString = Seed128.encryptEcb(returnString);
+//            log.debug("## seed128 encrypted string[{}] : {}", keypadEncParam, returnString);
+//        }
+//        return returnString;
+//    }
 
     //    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
     private void proc1400(Corp userCorp, DataPart1200 resultOfD1200) {
@@ -395,7 +395,10 @@ public class IssuanceService {
         DataPart1400 requestRpc = new DataPart1400();
         BeanUtils.copyProperties(d1400, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
-//        requestRpc.setD006(getDecKeyPadEncSeed128(EncryptParam.CEO_REGISTER_NO1, httpServletRequest));
+
+        if (!ENC_SEED128_ENABLE) {
+            requestRpc.setD006(Seed128.decryptEcb(d1400.getD006()));
+        }
 
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1400(requestRpc));
@@ -417,7 +420,7 @@ public class IssuanceService {
 
         String d003 = request.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
         String d005 = decryptData.get(EncryptParam.DRIVER_NUMBER);
-        if (DEC_SEED128_ENABLE) {
+        if (ENC_SEED128_ENABLE) {
             log.debug("## raw string : d003='{}', d005='{}'", d003, d005);
             if (StringUtils.hasText(d003)) {
                 d003 = Seed128.encryptEcb(d003);
@@ -466,24 +469,58 @@ public class IssuanceService {
         if (!resultOfD1700.getD008().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw BadRequestedException.builder().category(BadRequestedException.Category.INVALID_CEO_IDENTIFICATION).desc(resultOfD1700.getD009()).build();
         }
+
         save1400(dto, decryptData);
+        save1000(dto, decryptData);
     }
 
     // 1400 테이블에 대표자 주민번호 저장
     private void save1400(UserCorporationDto.IdentificationReq dto, Map<String, String> decryptData) {
-        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByIdx(dto.getCardIssuanceInfoIdx()).orElseThrow(
-                () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
-                        "CardIssuanceInfo is not exist(idx=" + dto.getCardIssuanceInfoIdx() + ")")
-        );
+        if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_1 != dto.getCeoSeqNo()) {
+            return;
+        }
+
+        CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(dto);
         D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx());
         if (d1400 == null) {
-            String msg = "data of d1400 is not exist(corpIdx=" + cardIssuanceInfo.corp().idx() + ")";
-            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_GW, msg);
-            return;
+            String msg = "data of d1400 is not exist(cardIssuanceInfo.idx =" + cardIssuanceInfo.idx() + ")";
+            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, msg);
         }
         String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
         d1400.setD006(Seed128.encryptEcb(idNum));
         d1400Repository.save(d1400);
+    }
+
+    // 1000 테이블에 대표자1,2,3 주민번호 저장(d11,15,19)
+    private void save1000(UserCorporationDto.IdentificationReq dto, Map<String, String> decryptData) {
+        CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(dto);
+        D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx());
+        if (d1000 == null) {
+            String msg = "data of d1000 is not exist(cardIssuanceInfo.idx =" + cardIssuanceInfo.idx() + ")";
+            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, msg);
+        }
+        String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
+        idNum = Seed128.encryptEcb(idNum);
+
+        if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_1 == dto.getCeoSeqNo()) {
+            d1000.setD011(idNum);
+        } else if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_2 == dto.getCeoSeqNo()) {
+            d1000.setD012(idNum);
+        } else if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_3 == dto.getCeoSeqNo()) {
+            d1000.setD019(idNum);
+        } else {
+            log.error("invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
+            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
+        }
+
+        d1000Repository.save(d1000);
+    }
+
+    private CardIssuanceInfo getCardIssuanceInfo(UserCorporationDto.IdentificationReq dto) {
+        return cardIssuanceInfoRepository.findByIdx(dto.getCardIssuanceInfoIdx()).orElseThrow(
+                () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
+                        "CardIssuanceInfo is not exist(idx=" + dto.getCardIssuanceInfoIdx() + ")")
+        );
     }
 
     /**
