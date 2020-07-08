@@ -454,7 +454,7 @@ public class IssuanceService {
      * <p>
      * 1700 신분증 위조확인
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void verifyCeoIdentification(HttpServletRequest request, UserCorporationDto.IdentificationReq dto) {
 
         Map<String, String> decryptData;
