@@ -79,7 +79,7 @@ public class D1100 extends BaseTime {
     private String d023; //결제일
     @Column(columnDefinition = "varchar(3)    DEFAULT '' COMMENT '은행코드'")
     private String d024; //은행코드
-    @Column(columnDefinition = "varchar(24)    DEFAULT '' COMMENT '결제계좌'")
+    @Column(columnDefinition = "varchar(42)    DEFAULT '' COMMENT '결제계좌'")
     private String d025; //결제계좌
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '예금주명'")
     private String d026; //예금주명
