@@ -158,8 +158,8 @@ public class UserCorporationDto {
         private Long cardIssuanceInfoIdx;
 
         @ApiModelProperty("대표자시퀀스번호(1, 2, 3)")
-        @NotNull
-        private CeoSeqType ceoSeqNo;
+        @NotEmpty
+        private String ceoSeqNo;
 
         @ApiModelProperty("신분증검증방법코드")
         @NotEmpty
@@ -193,18 +193,18 @@ public class UserCorporationDto {
             DRIVE_LICENCE
         }
 
-        @Getter
-        public enum CeoSeqType {
-            CEO_1("1"),
-            CEO_2("2"),
-            CEO_3("3");
-
-            private final String code;
-
-            CeoSeqType(String code) {
-                this.code = code;
-            }
-        }
+//        @Getter
+//        public enum CeoSeqType {
+//            CEO_1("1"),
+//            CEO_2("2"),
+//            CEO_3("3");
+//
+//            private final String code;
+//
+//            CeoSeqType(String code) {
+//                this.code = code;
+//            }
+//        }
 
     }
 

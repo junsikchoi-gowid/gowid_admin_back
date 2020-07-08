@@ -476,7 +476,7 @@ public class IssuanceService {
 
     // 1400 테이블에 대표자 주민번호 저장
     private void save1400(UserCorporationDto.IdentificationReq dto, Map<String, String> decryptData) {
-        if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_1 != dto.getCeoSeqNo()) {
+        if (!"1".equals(dto.getCeoSeqNo())) {
             return;
         }
 
@@ -502,11 +502,11 @@ public class IssuanceService {
         String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
         idNum = Seed128.encryptEcb(idNum);
 
-        if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_1.getCode().equals(dto.getCeoSeqNo().getCode())) {
+        if ("1".equals(dto.getCeoSeqNo())) {
             d1000.setD011(idNum);
-        } else if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_2.getCode().equals(dto.getCeoSeqNo().getCode())) {
+        } else if ("2".equals(dto.getCeoSeqNo())) {
             d1000.setD012(idNum);
-        } else if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_3.getCode().equals(dto.getCeoSeqNo().getCode())) {
+        } else if ("3".equals(dto.getCeoSeqNo())) {
             d1000.setD019(idNum);
         } else {
             log.error("invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
