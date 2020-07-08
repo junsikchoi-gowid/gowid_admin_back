@@ -134,10 +134,10 @@ public class ResumeService {
 
         D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
         if ("Y".equals(d1200.getD003())) {
-            D1000 d1000 = d1000Repository.findFirstByD079AndD080OrderByUpdatedAtDesc(request.getD001(), request.getD002());
+            D1000 d1000 = d1000Repository.findFirstByD071AndD072OrderByUpdatedAtDesc(request.getD001(), request.getD002());
             corpIdx = d1000.getIdxCorp();
         } else {
-            D1400 d1400 = d1400Repository.findFirstByD033AndD034OrderByUpdatedAtDesc(request.getD001(), request.getD002());
+            D1400 d1400 = d1400Repository.findFirstByD025AndD026OrderByUpdatedAtDesc(request.getD001(), request.getD002());
             corpIdx = d1400.getIdxCorp();
         }
 

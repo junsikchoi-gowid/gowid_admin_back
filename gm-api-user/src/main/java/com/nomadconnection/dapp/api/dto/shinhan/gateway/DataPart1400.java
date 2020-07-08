@@ -64,23 +64,7 @@ public class DataPart1400 extends CommonPart {
 
     private String d024;   // 자금세탁방지실소유자지분율
 
-    private String d025;   // 고위드기업등급
+    private String d025;   // 접수일자
 
-    private String d026; // 벤처확인서보유여부
-
-    private String d027; // VC투자유치여부
-
-    private String d028;  // 고위드계산한도
-
-    private String d029; // 기준잔고
-
-    private String d030;  // 45일 평균잔고
-
-    private String d031;  // 45일 중간잔고
-
-    private String d032;  // 현재잔고
-
-    private String d033;  // 접수일자
-
-    private String d034;  // 접수순번
+    private String d026;   // 접수순번
 }
