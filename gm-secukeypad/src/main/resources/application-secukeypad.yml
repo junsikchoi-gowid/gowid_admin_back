@@ -14,4 +14,4 @@ keypad.nprotect.properties.path: /home/gowidapi/webapp/appconfig/nprotect.proper
 
 spring:
   profiles: prod
-keypad.nprotect.properties.path: /home/gowidapi/appconfig/nprotect.properties
+keypad.nprotect.properties.path: /home/gowidapi/webapp/appconfig/nprotect.properties
