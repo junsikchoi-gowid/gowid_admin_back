@@ -1,10 +1,13 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.core.domain.CardCompany;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -39,5 +42,17 @@ public class ConsentDto {
 
         @ApiModelProperty("체크여부")
         public boolean status;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RegisterUserConsent {
+        @ApiModelProperty("회사코드")
+        private CardCompany companyCode;
+
+        @ApiModelProperty("이용약관 정보")
+        private List<RegDto> consents;
     }
 }
