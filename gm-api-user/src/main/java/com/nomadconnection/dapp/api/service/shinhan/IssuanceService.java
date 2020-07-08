@@ -30,6 +30,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -317,8 +318,12 @@ public class IssuanceService {
 
         if (!ENC_SEED128_ENABLE) {
             requestRpc.setD047(Seed128.decryptEcb(d1530.getD047()));
-            requestRpc.setD051(Seed128.decryptEcb(d1530.getD051()));
-            requestRpc.setD055(Seed128.decryptEcb(d1530.getD055()));
+            if (!ObjectUtils.isEmpty(d1530.getD051())) {
+                requestRpc.setD051(Seed128.decryptEcb(d1530.getD051()));
+            }
+            if (!ObjectUtils.isEmpty(d1530.getD055())) {
+                requestRpc.setD055(Seed128.decryptEcb(d1530.getD055()));
+            }
         }
 
         // 연동 및 저장
@@ -350,8 +355,12 @@ public class IssuanceService {
 
         if (!ENC_SEED128_ENABLE) {
             requestRpc.setD011(Seed128.decryptEcb(d1000.getD011()));
-            requestRpc.setD015(Seed128.decryptEcb(d1000.getD015()));
-            requestRpc.setD019(Seed128.decryptEcb(d1000.getD019()));
+            if (!ObjectUtils.isEmpty(d1000.getD015())) {
+                requestRpc.setD015(Seed128.decryptEcb(d1000.getD015()));
+            }
+            if (!ObjectUtils.isEmpty(d1000.getD019())) {
+                requestRpc.setD019(Seed128.decryptEcb(d1000.getD019()));
+            }
         }
 
         issCommonService.saveGwTran(requestRpc);
