@@ -14,4 +14,5 @@ public class Const {
     public static final String CORP_OWNER_CODE_1 = "1";
     public static final String CORP_OWNER_CODE_2 = "2";
     public static final String CORP_OWNER_CODE_5 = "5";
+    public static final String ID_VERIFICATION_NO = "GOWID1";
 }
