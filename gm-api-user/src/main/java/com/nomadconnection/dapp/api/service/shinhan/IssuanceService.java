@@ -502,11 +502,11 @@ public class IssuanceService {
         String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
         idNum = Seed128.encryptEcb(idNum);
 
-        if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_1 == dto.getCeoSeqNo()) {
+        if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_1.getCode().equals(dto.getCeoSeqNo().getCode())) {
             d1000.setD011(idNum);
-        } else if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_2 == dto.getCeoSeqNo()) {
+        } else if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_2.getCode().equals(dto.getCeoSeqNo().getCode())) {
             d1000.setD012(idNum);
-        } else if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_3 == dto.getCeoSeqNo()) {
+        } else if (UserCorporationDto.IdentificationReq.CeoSeqType.CEO_3.getCode().equals(dto.getCeoSeqNo().getCode())) {
             d1000.setD019(idNum);
         } else {
             log.error("invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());

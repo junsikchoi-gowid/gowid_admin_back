@@ -193,12 +193,16 @@ public class UserCorporationDto {
             DRIVE_LICENCE
         }
 
+        @Getter
         public enum CeoSeqType {
-            CEO_1(1),
-            CEO_2(2),
-            CEO_3(3);
+            CEO_1("1"),
+            CEO_2("2"),
+            CEO_3("3");
 
-            CeoSeqType(int code) {
+            private final String code;
+
+            CeoSeqType(String code) {
+                this.code = code;
             }
         }
 
