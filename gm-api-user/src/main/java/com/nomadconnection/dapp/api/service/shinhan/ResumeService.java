@@ -48,10 +48,15 @@ public class ResumeService {
     // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1600);
+        issCommonService.saveGwTran(commonPart);
         UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
         BeanUtils.copyProperties(commonPart, response);
 
+
         if (!Const.API_SHINHAN_RESULT_SUCCESS.equals(request.getC009())) {
+            log.error("## incoming result of 1600 is fail.");
+            log.error("## c009 = " + request.getC009());
+            log.error("## c013 = " + request.getC013());
             return response;
         }
 
@@ -62,6 +67,7 @@ public class ResumeService {
 
     @Async
     void procResume(UserCorporationDto.ResumeReq request) {
+        log.debug("## start thread for 1100/1800 ");
         SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
         Long count = signatureHistory.getApplicationCount();
         if (count == null) {
@@ -76,6 +82,7 @@ public class ResumeService {
 
     @Async
     void proc1800(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory) {
+        log.debug("## 1800 start");
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1800);
 
         String signedPlainString = SignVerificationUtil.verifySignedBinaryStringAndGetPlainString(signatureHistory.getSignedBinaryString());
@@ -89,11 +96,13 @@ public class ResumeService {
 
         issCommonService.saveGwTran(commonPart);
         issCommonService.saveGwTran(shinhanGwRpc.request1800(requestRpc));
+        log.debug("## 1800 end");
     }
 
     @Async
     public void proc1100(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory) {
         // 공통부
+        log.debug("## 1100 start");
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1100);
 
         // 데이터부
@@ -119,12 +128,13 @@ public class ResumeService {
 
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1100(requestRpc));
+        log.debug("## 1100 end");
     }
 
     private SignatureHistory getSignatureHistoryByApplicationInfo(String applicationDate, String applicationNum) {
         return signatureHistoryRepository.findFirstByApplicationDateAndApplicationNum(applicationDate, applicationNum).orElseThrow(
                 () -> new BadRequestException(ErrorCode.Api.NOT_FOUND,
-                        "not found d1200 of applicationDate[" + applicationDate + "], applicationNum[" + applicationNum + "]")
+                        "not found signatureHistoryRepository. applicationDate[" + applicationDate + "], applicationNum[" + applicationNum + "]")
         );
     }
 

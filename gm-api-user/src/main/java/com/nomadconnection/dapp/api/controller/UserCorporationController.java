@@ -238,7 +238,10 @@ public class UserCorporationController {
     @ApiOperation(value = "법인카드 발급 재개")
     @PostMapping(URI.RESUME)
     public ResponseEntity<UserCorporationDto.ResumeRes> resumeApplication(
-            @RequestBody @Valid UserCorporationDto.ResumeReq request) {
+            @RequestBody UserCorporationDto.ResumeReq request) {
+
+        log.debug("## Received 1600");
+        log.debug("## request data of 1600 => {}", request.toString());
 
         return ResponseEntity.ok().body(
                 resumeService.resumeApplication(request)

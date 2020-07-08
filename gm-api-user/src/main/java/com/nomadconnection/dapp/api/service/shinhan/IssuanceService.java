@@ -176,6 +176,7 @@ public class IssuanceService {
         d1100.setD021(Seed128.encryptEcb(request.getPayAccount()));
         String passwd = CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.PASSWORD, ENC_KEYPAD_ENABLE);  // 키패드 암호화상태이면, 복호화함
         d1100.setD025(Seed128.encryptEcb(passwd));
+        d1100Repository.save(d1100);
     }
 
     private DataPart3000 proc3000(DataPart1200 resultOfD1200) {
@@ -229,7 +230,9 @@ public class IssuanceService {
         issCommonService.saveGwTran(requestRpc);
         DataPart1200 responseRpc = shinhanGwRpc.request1200(requestRpc);
         issCommonService.saveGwTran(responseRpc);
+
         BeanUtils.copyProperties(responseRpc, d1200);
+        d1200Repository.save(d1200);
 
         return responseRpc;
     }
