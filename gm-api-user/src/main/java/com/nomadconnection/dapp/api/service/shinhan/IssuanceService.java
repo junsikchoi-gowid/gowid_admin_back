@@ -178,6 +178,8 @@ public class IssuanceService {
         d1100.setD025(Seed128.encryptEcb(request.getPayAccount()));
         d1100.setD040(Const.ID_VERIFICATION_NO);
         d1100.setD041(Const.ID_VERIFICATION_NO);
+        d1100.setD044("Y");
+        d1100.setD045("Y");
         d1100Repository.save(d1100);
     }
 
