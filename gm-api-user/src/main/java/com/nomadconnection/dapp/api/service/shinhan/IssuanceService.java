@@ -176,6 +176,8 @@ public class IssuanceService {
         String passwd = CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.PASSWORD, ENC_KEYPAD_ENABLE);  // 키패드 암호화상태이면, 복호화함
         d1100.setD021(Seed128.encryptEcb(passwd));
         d1100.setD025(Seed128.encryptEcb(request.getPayAccount()));
+        d1100.setD040(Const.ID_VERIFICATION_NO);
+        d1100.setD041(Const.ID_VERIFICATION_NO);
         d1100Repository.save(d1100);
     }
 
