@@ -518,7 +518,7 @@ public class IssuanceService {
         if ("1".equals(dto.getCeoSeqNo())) {
             d1000.setD011(idNum);
         } else if ("2".equals(dto.getCeoSeqNo())) {
-            d1000.setD012(idNum);
+            d1000.setD015(idNum);
         } else if ("3".equals(dto.getCeoSeqNo())) {
             d1000.setD019(idNum);
         } else {
