@@ -173,9 +173,9 @@ public class IssuanceService {
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
 
-        d1100.setD021(Seed128.encryptEcb(request.getPayAccount()));
         String passwd = CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.PASSWORD, ENC_KEYPAD_ENABLE);  // 키패드 암호화상태이면, 복호화함
-        d1100.setD025(Seed128.encryptEcb(passwd));
+        d1100.setD021(Seed128.encryptEcb(passwd));
+        d1100.setD025(Seed128.encryptEcb(request.getPayAccount()));
         d1100Repository.save(d1100);
     }
 
