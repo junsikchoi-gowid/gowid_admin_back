@@ -34,7 +34,7 @@ public class DataPart1400 extends CommonPart {
 
     private String d009;   // 보증인고객한글명
 
-    private Long d010;  // 현재제휴한도
+    private String d010;  // 현재제휴한도
 
     private String d011;    // 업종코드
 
@@ -42,7 +42,7 @@ public class DataPart1400 extends CommonPart {
 
     private String d013;  // 조건변경법인심사신청구분코드
 
-    private Long d014;    // 변경후제휴한도금액
+    private String d014;    // 변경후제휴한도금액
 
     private String d015; // 신청인사번
 
