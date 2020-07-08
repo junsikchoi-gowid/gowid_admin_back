@@ -11,6 +11,7 @@ import com.nomadconnection.dapp.core.domain.embed.BankAccount;
 import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1100Repository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1400Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -47,6 +48,7 @@ public class UserCorporationService {
 	private final ResAccountRepository repoResAccount;
 	private final ConsentRepository repoConsent;
 	private final ConsentMappingRepository repoConsentMapping;
+    private final D1400Repository repoD1400;
 
     private final AwsS3Service s3Service;
     private final GwUploadService gwUploadService;
@@ -193,16 +195,46 @@ public class UserCorporationService {
 
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
-            repoD1000.save(d1000.setD059(dto.getName())
+            repoD1000.save(d1000.setD044("0113")
+                    .setD059(dto.getName())
                     .setD060(dto.getEngName())
                     .setD061(dto.getBirth())
                     .setD062(dto.getNation())
+                    .setD064(getCorpOwnerCode(dto))
                     .setD065(dto.getRate())
                     .setD066("KR".equalsIgnoreCase(dto.getNation()) ? "N" : "Y")
             );
         }
 
+        D1400 d1400 = getD1400(user.corp().idx());
+        if (d1400 != null) {
+            repoD1400.save(d1400.setD018("0113")
+                    .setD019(dto.getName())
+                    .setD020(dto.getEngName())
+                    .setD021(dto.getBirth())
+                    .setD022(dto.getNation())
+                    .setD023(getCorpOwnerCode(dto))
+                    .setD024(dto.getRate())
+            );
+        }
+
         return UserCorporationDto.VentureRes.from(repoCardIssuance.save(cardInfo));
+    }
+
+    private String getCorpOwnerCode(UserCorporationDto.RegisterStockholder dto) {
+        if (dto.getIsHold25()) {
+            return Const.CORP_OWNER_CODE_1;
+        } else {
+            if (dto.getIsPersonal()) {
+                return Const.CORP_OWNER_CODE_2;
+            } else {
+                if (dto.getIsStockholderList()) {
+                    return Const.CORP_OWNER_CODE_5;
+                } else {
+                    return Const.CORP_OWNER_CODE_2;
+                }
+            }
+        }
     }
 
     /**
@@ -683,6 +715,10 @@ public class UserCorporationService {
 
     private D1100 getD1100(Long idx_corp) {
         return repoD1100.getTopByIdxCorpOrderByIdxDesc(idx_corp);
+    }
+
+    private D1400 getD1400(Long idx_corp) {
+        return repoD1400.getTopByIdxCorpOrderByIdxDesc(idx_corp);
     }
 
     private StockholderFile findStockholderFile(Long idx_file) {

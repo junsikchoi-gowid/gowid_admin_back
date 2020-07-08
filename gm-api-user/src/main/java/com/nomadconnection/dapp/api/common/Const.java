@@ -11,4 +11,7 @@ public class Const {
     public static final String ELEC_SIGNATURE_CERTI_PROD_CODE = "07";      // 1800 > 전자서명인증제품코드
     public static final String REPORTING_SERVER = "/m2/ReportingServer/report/";
     public static final String REPORTING_FILE_CODE = "9991";
+    public static final String CORP_OWNER_CODE_1 = "1";
+    public static final String CORP_OWNER_CODE_2 = "2";
+    public static final String CORP_OWNER_CODE_5 = "5";
 }

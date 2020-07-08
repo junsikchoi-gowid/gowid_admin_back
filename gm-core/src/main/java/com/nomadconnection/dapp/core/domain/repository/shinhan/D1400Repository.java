@@ -7,4 +7,6 @@ public interface D1400Repository extends JpaRepository<D1400, Long> {
     D1400 findFirstByIdxCorpOrderByUpdatedAtDesc(long idxCorp);
 
     D1400 findFirstByD025AndD026OrderByUpdatedAtDesc(String d025, String d026);
+
+    D1400 getTopByIdxCorpOrderByIdxDesc(Long idxCorp);
 }

@@ -3,13 +3,14 @@ package com.nomadconnection.dapp.core.domain;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
 @Data
-//@Accessors(fluent = true)
+@Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Builder
