@@ -28,7 +28,7 @@ logging:
     root: info
     com.nomadconnection.dapp: debug
     org.hibernate.SQL: warn
-    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.hibernate.type.descriptor.sql.BasicBinder: warn
     org.springframework.jdbc.core.JdbcTemplate: debug
     org.springframework.jdbc.core.StatementCreatorUtils: trace
   config: classpath:application-logback.xml
