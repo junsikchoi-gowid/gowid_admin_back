@@ -36,7 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.Column;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -818,16 +817,16 @@ public class CodefService {
 						.build()
 				);
 			}else{
-				this.deleteAccount2(connectedId); // 삭제
+				deleteAccount2(connectedId); // 삭제
 			}
-		}else{
-			try{
-				JSONObject JSONObjectData = (JSONObject)(jsonObject.get("data"));
+		}else {
+			try {
+				JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
 				JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
 				connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
-				this.deleteAccount2(connectedId); // 삭제
-				log.debug( "cf-04000 connectedId = {} ", connectedId );
-			}catch (Exception e){
+				deleteAccount2(connectedId); // 삭제
+				log.debug("cf-04000 connectedId = {} ", connectedId);
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			throw new RuntimeException(code);
@@ -1295,10 +1294,10 @@ public class CodefService {
 				.d024("")
 				.d025("")
 				.d026("")
-				.d027(user.corp().resCompanyIdentityNo().replaceAll("-",""))
+				.d027(user.corp().resCompanyIdentityNo().replaceAll("-", ""))
 				.d028("901")
 				.d029("")
-				.d030("1")
+				.d030("2")
 				.d031("")
 				.d032("")
 				.d033("")
