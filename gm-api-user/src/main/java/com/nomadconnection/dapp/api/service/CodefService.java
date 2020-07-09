@@ -183,33 +183,16 @@ public class CodefService {
 						.collect(Collectors.toList());
 			}
 
-		}else if(code.equals("CF-04004")){
-			connectedId = (((JSONObject) jsonParse.parse(strResultData)).get("connectedId")).toString();
-
-			if(!repoConnectedMng.findByConnectedIdAndIdxUser(connectedId,idx).isPresent()){
-				repoConnectedMng.save(ConnectedMng.builder()
-						.connectedId(connectedId)
-						.idxUser(idx)
-						.name(dto.getName())
-						.startDate(dto.getStartDate())
-						.endDate(dto.getEndDate())
-						.desc1(dto.getDesc1())
-						.desc2(dto.getDesc2())
-						.build()
-				);
-
-				if(getScrapingAccount(idx)){
-					resAccount = repoResAccount.findConnectedId(idx).stream()
-							.map(account -> BankDto.ResAccountDto.from(account, false))
-							.collect(Collectors.toList());
-				}
-
-			}else{
-				normal.setStatus(false);
-				normal.setKey(code);
-				normal.setValue((((JSONObject)jsonParse.parse(strResultCode)).get("message")).toString());
-			}
 		}else{
+			try {
+				JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
+				JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
+				connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
+				deleteAccount2(connectedId);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 			normal.setStatus(false);
 			normal.setKey(code);
 			normal.setValue((((JSONObject)jsonParse.parse(strResultCode)).get("message")).toString());
@@ -742,8 +725,6 @@ public class CodefService {
 				() -> new RuntimeException("UserNotFound")
 		);
 
-		log.debug("1");
-
 		for( String s : CommonConstant.LISTBANK){
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
@@ -856,8 +837,6 @@ public class CodefService {
 			// todo 이미 가입된 회사의 경우 처리 필요
 			//	중복체크 테스트 후엔 적용
 			Corp corp = null;
-
-			log.debug("3");
 
 			if (repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).isPresent()) {
 				corp = repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).get();
