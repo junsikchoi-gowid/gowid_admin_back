@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @NoArgsConstructor
@@ -19,7 +20,8 @@ public class ImageConvertDto {
 	@ApiModelProperty("솔루션 code(default: 500)")
 	private String opCode = "500";
 
-	@ApiModelProperty("1510:사업자등록증, 1520:재무제표, 1530:법인등기부등본")
+	@Setter
+	@ApiModelProperty("1510:사업자등록증, 1520:재무제표, 1530:법인등기부등본, 9991: 지급보증")
 	private Integer mrdType;
 
 	@ApiModelProperty("파일명")
@@ -32,6 +34,6 @@ public class ImageConvertDto {
 	private String exportType = "tif";
 
 	@ApiModelProperty("프로토콜")
-	private String protocol = "async";
+	private String protocol = "sync";
 
 }
