@@ -173,12 +173,12 @@ public class IssuanceService {
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
 
-        String passwd = CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.PASSWORD, ENC_KEYPAD_ENABLE);  // 키패드 암호화상태이면, 복호화함
-        if (!StringUtils.isEmpty(passwd)) {
-            d1100.setD021(Seed128.encryptEcb(passwd));
-        } else {
-            log.warn("### d1100.d21 (password) is empty!");
-        }
+//        String passwd = CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.PASSWORD, ENC_KEYPAD_ENABLE);  // 키패드 암호화상태이면, 복호화함
+//        if (!StringUtils.isEmpty(passwd)) {
+//            d1100.setD021(Seed128.encryptEcb(passwd));
+//        } else {
+//            log.warn("### d1100.d21 (password) is empty!");
+//        }
         if (!StringUtils.isEmpty(request.getPayAccount())) {
             d1100.setD025(Seed128.encryptEcb(request.getPayAccount()));
         } else {
