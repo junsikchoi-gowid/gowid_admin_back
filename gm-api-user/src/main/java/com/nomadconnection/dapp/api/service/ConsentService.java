@@ -1,14 +1,9 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
-import com.nomadconnection.dapp.api.dto.ConsentDto;
-import com.nomadconnection.dapp.api.dto.UserCorporationDto;
-import com.nomadconnection.dapp.api.exception.UserNotFoundException;
-import com.nomadconnection.dapp.core.domain.*;
-import com.nomadconnection.dapp.core.domain.repository.CommonCodeDetailRepository;
-import com.nomadconnection.dapp.core.domain.repository.ConsentMappingRepository;
+import com.nomadconnection.dapp.core.domain.Consent;
+import com.nomadconnection.dapp.core.domain.Role;
 import com.nomadconnection.dapp.core.domain.repository.ConsentRepository;
-import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +21,6 @@ import java.util.stream.Collectors;
 public class ConsentService {
 
     private final ConsentRepository repoConsent;
-    private final UserRepository repoUser;
-    private final CommonCodeDetailRepository repoCodeDetail;
-    private final ConsentMappingRepository repoConsentMapping;
-
 
     /**
      * 이용약관 현재 사용여부 등
@@ -104,36 +95,5 @@ public class ConsentService {
         }
 
         return ResponseEntity.ok().body(ErrorResponse.from("success", "정상처리"));
-    }
-
-    public ResponseEntity consentCard(Long idxUser) {
-        return ResponseEntity.ok().body(
-                BusinessResponse.builder()
-                        .data(repoCodeDetail.findAllByCode(CommonCodeType.GOWIDCARDS).stream().map(UserCorporationDto.CardType::from).collect(Collectors.toList()))
-                        .build());
-    }
-
-    public ResponseEntity consentCardSave(Long idxUser, ConsentDto.RegisterCardUserConsent dto) {
-
-        User user = repoUser.findById(idxUser).orElseThrow(
-                () -> UserNotFoundException.builder().build()
-        );
-
-        user.cardCompany(dto.getCompanyCode());
-        repoUser.save(user);
-
-        // 이용약관 매핑
-        for(ConsentDto.RegDto regDto : dto.getConsents()) {
-            repoConsentMapping.save(
-                    ConsentMapping.builder()
-                            .idxConsent(regDto.idxConsent)
-                            .idxUser(idxUser)
-                            .status(regDto.status)
-                            .build()
-            );
-        }
-
-
-        return ResponseEntity.ok().body(BusinessResponse.builder().build());
     }
 }

@@ -265,7 +265,7 @@ public class UserCorporationService {
             for (StockholderFile file : fileList) {
                 repoFile.delete(file);
                 s3Service.s3FileDelete(file.s3Key());
-                gwUploadService.delete(file.fname(), cardInfo.cardCompany().getCode());
+                gwUploadService.delete(file.fname(), cardInfo.cardCode());
             }
         }
         List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
@@ -304,7 +304,7 @@ public class UserCorporationService {
                 String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
 
                 if (file.getSize() <= STOCKHOLDER_FILE_SIZE && !sendGwUpload) {
-                    gwUploadService.upload(uploadFile, cardInfo.cardCompany().getCode(), Const.STOCKHOLDER_GW_FILE_CODE, licenseNo);
+                    gwUploadService.upload(uploadFile, cardInfo.cardCode(), Const.STOCKHOLDER_GW_FILE_CODE, licenseNo);
                     sendGwUpload = true;
                 } else {
                     sendGwUpload = false;
@@ -326,7 +326,7 @@ public class UserCorporationService {
             } catch (Exception e) {
 				uploadFile.delete();
 				s3Service.s3FileDelete(s3Key);
-                gwUploadService.delete(fileName, cardInfo.cardCompany().getCode());
+				gwUploadService.delete(fileName, cardInfo.cardCode());
 
 				log.error("[uploadStockholderFile] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
 				throw FileUploadException.builder().category(FileUploadException.Category.STOCKHOLDER).build();
@@ -354,7 +354,7 @@ public class UserCorporationService {
         if (file.cardIssuanceInfo().idx() != idx_CardInfo) {
             throw MismatchedException.builder().category(MismatchedException.Category.STOCKHOLDER_FILE).build();
         }
-        gwUploadService.delete(file.fname(), cardInfo.cardCompany().getCode());
+        gwUploadService.delete(file.fname(), cardInfo.cardCode());
         s3Service.s3FileDelete(file.s3Key());
         repoFile.delete(file);
     }

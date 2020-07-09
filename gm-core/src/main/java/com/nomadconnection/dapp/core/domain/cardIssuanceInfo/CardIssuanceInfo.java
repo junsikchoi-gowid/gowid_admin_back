@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.core.domain.cardIssuanceInfo;
 
-import com.nomadconnection.dapp.core.domain.CardCompany;
 import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import com.nomadconnection.dapp.core.domain.embed.BankAccount;
@@ -57,6 +56,5 @@ public class CardIssuanceInfo extends BaseTime {
     private Collection<StockholderFile> stockholderFiles;
 
     @Builder.Default
-    @Enumerated(EnumType.STRING)
-    private CardCompany cardCompany = CardCompany.SHINHAN;
+    private String cardCode = "0306"; //codef 카드코드넘버
 }

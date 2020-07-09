@@ -595,8 +595,8 @@ public class UserCorporationDto {
         @ApiModelProperty("카드발급정보 식별자")
         private Long cardIssuanceInfoIdx;
 
-//        @ApiModelProperty("카드비빌번호")
-//        private String password;
+        @ApiModelProperty("카드비빌번호")
+        private String password;
 
 //        @ApiModelProperty("대표자주민등록번호1")
 //        @NotEmpty
@@ -707,31 +707,6 @@ public class UserCorporationDto {
             return null;
         }
     }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CardType {
-
-        @ApiModelProperty("코드")
-        private String code;
-
-        @ApiModelProperty("이름")
-        private String name;
-
-        public static BusinessType from(CommonCodeDetail code) {
-            if (code != null) {
-                return BusinessType.builder()
-                        .code(code.code1())
-                        .name(code.value1())
-                        .build();
-            }
-            return null;
-        }
-    }
-
-
 
     // 1600
     @EqualsAndHashCode(callSuper = true)

@@ -119,10 +119,10 @@ public class ResumeService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         if (ENC_SEED128_ENABLE) {
-//            requestRpc.setD021(d1100.getD021());            // 비번
+            requestRpc.setD021(d1100.getD021());            // 비번
             requestRpc.setD025(d1100.getD025());            // 결제계좌번호
         } else {
-//            requestRpc.setD021(Seed128.decryptEcb(d1100.getD021()));
+            requestRpc.setD021(Seed128.decryptEcb(d1100.getD021()));
             requestRpc.setD025(Seed128.decryptEcb(d1100.getD025()));
         }
 
