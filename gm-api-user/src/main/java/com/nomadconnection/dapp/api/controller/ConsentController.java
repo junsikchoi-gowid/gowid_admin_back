@@ -1,8 +1,10 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
+import com.nomadconnection.dapp.api.dto.ConsentDto;
 import com.nomadconnection.dapp.api.service.ConsentService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -26,6 +28,8 @@ public class ConsentController {
         public static final String CONSENT = "/consent";
         public static final String CONSENT_SAVE = "/consentsave";
         public static final String CONSENT_DEL = "/consentdel/{consent}";
+        public static final String CONSENT_CARD = "/consentcard";
+        public static final String CONSENT_CARD_SAVE = "/consentcard/save";
     }
 
     private final ConsentService service;
@@ -89,5 +93,33 @@ public class ConsentController {
         }
 
         return service.consentDel(user, consent);
-    } 
+    }
+
+    @ApiOperation(value = "신용카드 제휴 리스트",
+            notes = "### Remarks \n - <mark>액세스 필요</mark> \n - <mark> 마스터권한 필요</mark>")
+    @GetMapping(URI.CONSENT_CARD)
+    public ResponseEntity consentCard(
+            @ApiIgnore @CurrentUser CustomUser user
+    ) {
+        if (log.isDebugEnabled()) {
+            log.debug("([ postConsent ]) $user='{}', $dto='{}' ", user);
+        }
+
+        return service.consentCard(user.idx());
+    }
+
+    @ApiOperation(value = "가입절차 이용약관 카드선택 저장",
+            notes = "### Remarks \n - <mark>액세스 필요</mark> \n - <mark> 마스터권한 필요</mark>")
+    @PostMapping(URI.CONSENT_CARD_SAVE)
+    public ResponseEntity ConsentCardSave(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestBody ConsentDto.RegisterCardUserConsent dto
+    ) {
+        if (log.isDebugEnabled()) {
+            log.debug("([ postConsent ]) $user='{}', $dto='{}' ", user);
+        }
+
+        return service.consentCardSave(user.idx(), dto);
+    }
+
 }
