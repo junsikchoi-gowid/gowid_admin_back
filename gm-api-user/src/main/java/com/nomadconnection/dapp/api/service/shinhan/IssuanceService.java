@@ -318,7 +318,7 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         D1530 d1530 = d1530Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1530 == null) {
-            String msg="data of d1530 is not exist(corpIdx="+userCorp.idx()+")";
+            String msg = "data of d1530 is not exist(corpIdx=" + userCorp.idx() + ")";
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1530, msg);
             return;
         }
@@ -326,6 +326,17 @@ public class IssuanceService {
         // 접수일자, 순번
         d1530.setD001(applyDate);
         d1530.setD002(applyNo);
+
+
+        // todo : 발행주식현황_종류1_수량 안들어감
+
+        // 발행할주식의총수_변경일자', '발행할주식의총수_등기일자 빈값일때 => "법인성립연월일"로 입력
+        if (StringUtils.isEmpty(d1530.getD019())) {
+            d1530.setD019(d1530.getD057());
+        }
+        if (StringUtils.isEmpty(d1530.getD020())) {
+            d1530.setD020(d1530.getD057());
+        }
 
         DataPart1530 requestRpc = new DataPart1530();
         BeanUtils.copyProperties(d1530, requestRpc);
@@ -363,6 +374,12 @@ public class IssuanceService {
         d1000.setD071(resultOfD1200.getD007());
         d1000.setD072(resultOfD1200.getD008());
 
+        // d39 => 02 로 하드코딩
+        d1000.setD039("02");
+        // d43 신청관리자이메일주소 => 사용자계정
+        d1000.setD043(userCorp.user().email());
+        // todo : d50 제휴약정한도금액 => 안들어옴
+
         // 연동
         DataPart1000 requestRpc = new DataPart1000();
         BeanUtils.copyProperties(d1000, requestRpc);
@@ -375,6 +392,9 @@ public class IssuanceService {
             }
             if (!ObjectUtils.isEmpty(d1000.getD019())) {
                 requestRpc.setD019(Seed128.decryptEcb(d1000.getD019()));
+            }
+            if (!ObjectUtils.isEmpty(d1000.getD034())) {
+                requestRpc.setD019(Seed128.decryptEcb(d1000.getD034()));
             }
         }
 
