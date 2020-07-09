@@ -109,11 +109,11 @@ public class ConsentService {
     public ResponseEntity consentCard(Long idxUser) {
         return ResponseEntity.ok().body(
                 BusinessResponse.builder()
-                        .data(repoCodeDetail.findAllByCode(CommonCodeType.GOWIDCARDS).stream().map(UserCorporationDto.BusinessType::from).collect(Collectors.toList()))
+                        .data(repoCodeDetail.findAllByCode(CommonCodeType.GOWIDCARDS).stream().map(UserCorporationDto.CardType::from).collect(Collectors.toList()))
                         .build());
     }
 
-    public ResponseEntity consentCardSave(Long idxUser, ConsentDto.RegisterUserConsent dto) {
+    public ResponseEntity consentCardSave(Long idxUser, ConsentDto.RegisterCardUserConsent dto) {
 
         User user = repoUser.findById(idxUser).orElseThrow(
                 () -> UserNotFoundException.builder().build()

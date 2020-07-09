@@ -708,6 +708,31 @@ public class UserCorporationDto {
         }
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CardType {
+
+        @ApiModelProperty("코드")
+        private String code;
+
+        @ApiModelProperty("이름")
+        private String name;
+
+        public static BusinessType from(CommonCodeDetail code) {
+            if (code != null) {
+                return BusinessType.builder()
+                        .code(code.code1())
+                        .name(code.value1())
+                        .build();
+            }
+            return null;
+        }
+    }
+
+
+
     // 1600
     @EqualsAndHashCode(callSuper = true)
     @NoArgsConstructor

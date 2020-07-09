@@ -111,9 +111,9 @@ public class ConsentController {
     @ApiOperation(value = "가입절차 이용약관 카드선택 저장",
             notes = "### Remarks \n - <mark>액세스 필요</mark> \n - <mark> 마스터권한 필요</mark>")
     @PostMapping(URI.CONSENT_CARD_SAVE)
-    public ResponseEntity consentCardSave(
+    public ResponseEntity ConsentCardSave(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody ConsentDto.RegisterUserConsent dto
+            @RequestBody ConsentDto.RegisterCardUserConsent dto
     ) {
         if (log.isDebugEnabled()) {
             log.debug("([ postConsent ]) $user='{}', $dto='{}' ", user);

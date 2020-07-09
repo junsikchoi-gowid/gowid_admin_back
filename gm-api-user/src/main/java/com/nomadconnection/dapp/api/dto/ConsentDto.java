@@ -48,11 +48,13 @@ public class ConsentDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class RegisterUserConsent {
-        @ApiModelProperty("회사코드")
+    public static class RegisterCardUserConsent {
+
+        @ApiModelProperty("카드회사이름 etc 1.SHINHAN 2.LOTTE")
         private CardCompany companyCode;
 
         @ApiModelProperty("이용약관 정보")
-        private List<RegDto> consents;
+        private List<ConsentDto.RegDto> consents;
+
     }
 }
