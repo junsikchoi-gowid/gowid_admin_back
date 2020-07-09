@@ -150,7 +150,6 @@ public class CodefService {
 		String strResultCode = jsonObject.get("result").toString();
 		String strResultData = jsonObject.get("data").toString();
 
-		// insert user table - connectedId save
 		User user = repoUser.findById(idx).orElseThrow(
 				() -> new RuntimeException("UserNotFound")
 		);
@@ -184,6 +183,7 @@ public class CodefService {
 			}
 
 		}else{
+			// 삭제처리
 			try {
 				JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
 				JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
@@ -191,6 +191,46 @@ public class CodefService {
 				deleteAccount2(connectedId);
 			} catch (Exception e) {
 				e.printStackTrace();
+			}
+
+			// 재등록
+			strObject = ApiRequest.request(createUrlPath, bodyMap);
+
+			jsonParse = new JSONParser();
+			jsonObject = (JSONObject)jsonParse.parse(strObject);
+			strResultCode = jsonObject.get("result").toString();
+			strResultData = jsonObject.get("data").toString();
+
+			code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
+
+			if(code.equals("CF-00000") || code.equals("CF-04012")) {
+				connectedId = (((JSONObject) jsonParse.parse(strResultData)).get("connectedId")).toString();
+
+				repoConnectedMng.save(ConnectedMng.builder()
+						.connectedId(connectedId)
+						.idxUser(idx)
+						.name(dto.getName())
+						.startDate(dto.getStartDate())
+						.endDate(dto.getEndDate())
+						.desc1(dto.getDesc1())
+						.desc2(dto.getDesc2())
+						.build()
+				);
+
+				if (getScrapingAccount(idx)) {
+					resAccount = repoResAccount.findConnectedId(idx).stream()
+							.map(account -> BankDto.ResAccountDto.from(account, false))
+							.collect(Collectors.toList());
+				}
+			}else{
+				try {
+					JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
+					JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
+					connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
+					deleteAccount2(connectedId);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 
 			normal.setStatus(false);
