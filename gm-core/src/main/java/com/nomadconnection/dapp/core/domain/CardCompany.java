@@ -1,10 +1,14 @@
 package com.nomadconnection.dapp.core.domain;
 
-@SuppressWarnings("unused")
-public enum CardCompany {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-	HYUNDAI,
-	SAMSUNG,
-	SHINHAN,
-	LOTTE
+@Getter
+@AllArgsConstructor
+public enum CardCompany {
+	SHINHAN("0306"),
+	LOTTE("0311"),
+	;
+
+	private String code;
 }
