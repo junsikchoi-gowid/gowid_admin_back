@@ -36,7 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.Column;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -818,16 +817,16 @@ public class CodefService {
 						.build()
 				);
 			}else{
-				this.deleteAccount2(connectedId); // 삭제
+				deleteAccount2(connectedId); // 삭제
 			}
-		}else{
-			try{
-				JSONObject JSONObjectData = (JSONObject)(jsonObject.get("data"));
+		}else {
+			try {
+				JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
 				JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
 				connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
-				this.deleteAccount2(connectedId); // 삭제
-				log.debug( "cf-04000 connectedId = {} ", connectedId );
-			}catch (Exception e){
+				deleteAccount2(connectedId); // 삭제
+				log.debug("cf-04000 connectedId = {} ", connectedId);
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			throw new RuntimeException(code);
@@ -890,7 +889,7 @@ public class CodefService {
 			repoUser.save(user);
 
 			//파일생성 및 전송
-			// ImageCreateAndSend(1510, "15010001","0306", strResult,corp.resCompanyIdentityNo());
+			ImageCreateAndSend(1510, "15100001","0306", strResult,corp.resCompanyIdentityNo());
 
 			String strResult1530 = null;
 
@@ -948,7 +947,7 @@ public class CodefService {
 				corp.resUserType(d009);
 
 				//파일생성 및 전송
-//				ImageCreateAndSend(1530, "15030001","0306", strResult1530, corp.resCompanyIdentityNo());
+//				ImageCreateAndSend(1530, "15300001","0306", strResult1530, corp.resCompanyIdentityNo());
 
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
@@ -1295,10 +1294,10 @@ public class CodefService {
 				.d024("")
 				.d025("")
 				.d026("")
-				.d027(user.corp().resCompanyIdentityNo().replaceAll("-",""))
+				.d027(user.corp().resCompanyIdentityNo().replaceAll("-", ""))
 				.d028("901")
 				.d029("")
-				.d030("1")
+				.d030("2")
 				.d031("")
 				.d032("")
 				.d033("")
