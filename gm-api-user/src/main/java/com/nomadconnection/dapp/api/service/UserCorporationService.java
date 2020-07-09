@@ -12,6 +12,7 @@ import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1100Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1400Repository;
+import com.nomadconnection.dapp.core.encryption.Seed128;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -475,7 +476,7 @@ public class UserCorporationService {
 		if (d1100 != null) {
 			repoD1100.save(d1100
                     .setD024(bankCode)
-                    .setD025(account.resAccount())
+                    .setD025(Seed128.encryptEcb(account.resAccount()))
                     .setD026(dto.getAccountHolder())
             );
         }
