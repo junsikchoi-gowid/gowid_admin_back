@@ -129,17 +129,17 @@ public class CodefService {
 			list.add(accountMap1);
 		}
 
-		accountMap1 = new HashMap<>();
-		accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
-		accountMap1.put("businessType",	CommonConstant.REVENUETYPE);  // 업무구분코드
-		accountMap1.put("clientType",  	"A");   // 고객구분(P: 개인, B: 기업)
-		accountMap1.put("organization",	"0002");// 기관코드
-		accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
-		accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
-		accountMap1.put("certType",     CommonConstant.CERTTYPE);
-		accountMap1.put("certFile",     dto.getCertFile());
-
-		list.add(accountMap1);
+//		accountMap1 = new HashMap<>();
+//		accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+//		accountMap1.put("businessType",	CommonConstant.REVENUETYPE);  // 업무구분코드
+//		accountMap1.put("clientType",  	"A");   // 고객구분(P: 개인, B: 기업)
+//		accountMap1.put("organization",	"0002");// 기관코드
+//		accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+//		accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
+//		accountMap1.put("certType",     CommonConstant.CERTTYPE);
+//		accountMap1.put("certFile",     dto.getCertFile());
+//
+//		list.add(accountMap1);
 
 		bodyMap.put("accountList", list);
 		String strObject = ApiRequest.request(createUrlPath, bodyMap);
@@ -1295,19 +1295,19 @@ public class CodefService {
 						.d004(user.corp().resIssueNo().replaceAll("-","")) // 발급(승인)번호
 						.d005(user.corp().resUserIdentiyNo().replaceAll("-","")) // 주민번호
 						.d006(user.corp().resCompanyNm()) // 상호(사업장명)
-						.d007("Y") // 발급가능여부
+						.d007("N") // 발급가능여부
 						.d008("") // 시작일자
 						.d009("") // 종료일자
-						.d010(user.corp().resUserNm()) // 성명
-						.d011(user.corp().resUserAddr()) // 주소
-						.d012(user.corp().resBusinessItems()) // 종목
-						.d013(user.corp().resBusinessTypes()) // 업태
-						.d014(CommonUtil.getNowYYYYMMDD()) // 작성일자
+						.d010("") // 성명
+						.d011("") // 주소
+						.d012("") // 종목
+						.d013("") // 업태
+						.d014("") // 작성일자
 						.d015("") // 귀속연도
 						.d016(d1530.getD042()) // 총자산 대차대조표 상의 자본총계(없으면 등기부등본상의 자본금의 액) 희남 버그중
-						.d017("0") // 매출   손익계산서 상의 매출액
-						.d018("0") // 납입자본금   대차대조표 상의 자본금
-						.d019("0") // 자기자본금   대차대조표 상의 자본 총계
+						.d017("") // 매출   손익계산서 상의 매출액
+						.d018("") // 납입자본금   대차대조표 상의 자본금
+						.d019("") // 자기자본금   대차대조표 상의 자본 총계
 						.d020(d1530.getD057()) // 재무조사일   종료일자 (없으면 등기부등본상의 회사성립연월일)
 						.build());
 			}
@@ -1533,11 +1533,8 @@ public class CodefService {
 			if(GowidUtils.getEmptyStringToString(obj, "resPosition").equals("공동대표이사")) {
 				str = "3";
 				break;
-			}else if(jsonArray.size() < 2){
+			}else{
 				str = "1";
-				break;
-			}else {
-				str = "2";
 				break;
 			}
 		}

@@ -39,6 +39,9 @@ public class AuthDto {
 		@ApiModelProperty("연락처(폰)")
 		private String mdn;
 
+		@ApiModelProperty("제휴카드")
+		private String companyCard;
+
 		@ApiModelProperty("수령지(주소)")
 		private Address recipientAddress;
 
