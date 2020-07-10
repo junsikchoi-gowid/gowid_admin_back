@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.core.encryption;
 
 import com.nomadconnection.dapp.core.encryption.core.KISA_SEED_CBC;
 import com.nomadconnection.dapp.core.encryption.core.KISA_SEED_ECB;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -10,6 +11,7 @@ import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 import java.util.Objects;
 
+@Slf4j
 public class Seed128 {
     static String charset = "EUC-KR";
 
@@ -79,8 +81,7 @@ public class Seed128 {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
-        System.out.println("hex : [" + byteArrayToHex(enc)+ "]");
+        log.debug("hex : [{}]", byteArrayToHex(enc));
 
         Encoder encoder = Base64.getEncoder();
         byte[] encArray = encoder.encode(enc);
