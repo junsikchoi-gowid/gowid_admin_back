@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -414,7 +415,7 @@ public class UserCorporationService {
 
 
 
-        Integer intLimitrepoRisk = Integer.parseInt(String.valueOf(Math.round(repoRisk.findCardLimitNow(idx_user, CommonUtil.getNowYYYYMMDD()))));
+        Integer intLimitrepoRisk = Integer.parseInt(String.valueOf(Math.round(repoRisk.findCardLimitNowFirst(idx_user, LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")) ))));
         Integer intAmount = Integer.parseInt(dto.getAmount());
 
         D1000 d1000 = getD1000(user.corp().idx());
