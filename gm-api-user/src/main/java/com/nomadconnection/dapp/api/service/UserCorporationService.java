@@ -638,6 +638,7 @@ public class UserCorporationService {
                     .consentIdx(item.getIdx())
                     .title(item.getTitle())
                     .boolConsent(consentMapping != null ? consentMapping.status() : false)
+                    .consentType(item.getTypeCode())
                     .build();
             consentInfo.add(resTemp);
         });

@@ -585,6 +585,9 @@ public class UserCorporationDto {
 
         @ApiModelProperty("동의여부")
         private Boolean boolConsent;
+
+        @ApiModelProperty("타입")
+        private String consentType;
     }
 
     @Data
