@@ -394,7 +394,7 @@ public class IssuanceService {
                 requestRpc.setD019(Seed128.decryptEcb(d1000.getD019()));
             }
             if (!ObjectUtils.isEmpty(d1000.getD034())) {
-                requestRpc.setD019(Seed128.decryptEcb(d1000.getD034()));
+                requestRpc.setD034(Seed128.decryptEcb(d1000.getD034()));
             }
         }
 
