@@ -414,7 +414,7 @@ public class UserCorporationService {
 
 
 
-        Integer intLimitrepoRisk = Integer.parseInt(String.valueOf(Math.round(repoRisk.findCardLimitNow(idx_user, CommonUtil.getNowYYYYMMDD()))));
+        Integer intLimitrepoRisk = Integer.parseInt(String.valueOf(Math.round(repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD()))));
         Integer intAmount = Integer.parseInt(dto.getAmount());
 
         D1000 d1000 = getD1000(user.corp().idx());
