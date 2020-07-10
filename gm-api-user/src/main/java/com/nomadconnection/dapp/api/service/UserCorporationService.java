@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.*;
+import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.*;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.Card;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
@@ -12,6 +13,7 @@ import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1100Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1400Repository;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.encryption.Seed128;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +44,8 @@ public class UserCorporationService {
     private final CorpRepository repoCorp;
     private final CardIssuanceInfoRepository repoCardIssuance;
     private final D1000Repository repoD1000;
-    private final RiskConfigRepository repoRisk;
+    private final RiskConfigRepository repoRiskConfig;
+    private final RiskRepository repoRisk;
     private final D1100Repository repoD1100;
     private final CommonCodeDetailRepository repoCodeDetail;
     private final CeoInfoRepository repoCeo;
@@ -129,14 +134,14 @@ public class UserCorporationService {
                 .isExist(investorName != null ? true : false)
                 .build()
         );
-        Optional<RiskConfig> riskConfig = repoRisk.findByCorpAndEnabled(user.corp(), true);
+        Optional<RiskConfig> riskConfig = repoRiskConfig.findByCorpAndEnabled(user.corp(), true);
         if (riskConfig.isPresent()) {
-            repoRisk.save(riskConfig.get()
+            repoRiskConfig.save(riskConfig.get()
                     .ventureCertification(dto.getIsVerifiedVenture())
                     .vcInvestment(dto.getIsVC())
             );
         } else {
-            repoRisk.save(RiskConfig.builder()
+            repoRiskConfig.save(RiskConfig.builder()
                     .user(user)
                     .corp(user.corp())
                     .ventureCertification(dto.getIsVerifiedVenture())
@@ -176,15 +181,15 @@ public class UserCorporationService {
                 .stockRate(dto.getRate())
                 .build());
 
-        Optional<RiskConfig> riskConfig = repoRisk.findByCorpAndEnabled(user.corp(), true);
+        Optional<RiskConfig> riskConfig = repoRiskConfig.findByCorpAndEnabled(user.corp(), true);
         if (riskConfig.isPresent()) {
-            repoRisk.save(riskConfig.get()
+            repoRiskConfig.save(riskConfig.get()
                     .isStockHold25(dto.getIsHold25())
                     .isStockholderList(dto.getIsStockholderList())
                     .isStockholderPersonal(dto.getIsPersonal())
             );
         } else {
-            repoRisk.save(RiskConfig.builder()
+            repoRiskConfig.save(RiskConfig.builder()
                     .user(user)
                     .corp(user.corp())
                     .isStockHold25(dto.getIsHold25())
@@ -388,15 +393,15 @@ public class UserCorporationService {
                 .requestCount(dto.getCount())
                 .build());
 
-        Optional<RiskConfig> riskConfig = repoRisk.findByCorpAndEnabled(user.corp(), true);
+        Optional<RiskConfig> riskConfig = repoRiskConfig.findByCorpAndEnabled(user.corp(), true);
         if (riskConfig.isPresent()) {
-            repoRisk.save(riskConfig.get()
+            repoRiskConfig.save(riskConfig.get()
                     .calculatedLimit(dto.getCalAmount())
                     .hopeLimit(dto.getAmount())
                     .grantLimit(dto.getGrantAmount())
             );
         } else {
-            repoRisk.save(RiskConfig.builder()
+            repoRiskConfig.save(RiskConfig.builder()
                     .user(user)
                     .corp(user.corp())
                     .calculatedLimit(dto.getCalAmount())
@@ -407,6 +412,11 @@ public class UserCorporationService {
             );
         }
 
+
+
+        Integer intLimitrepoRisk = Integer.parseInt(String.valueOf(Math.round(repoRisk.findCardLimitNow(idx_user, CommonUtil.getNowYYYYMMDD()))));
+        Integer intAmount = Integer.parseInt(dto.getAmount());
+
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
             repoD1000.save(d1000
@@ -415,6 +425,7 @@ public class UserCorporationService {
                     .setD023(dto.getZipCode().substring(3))
                     .setD024(dto.getAddressBasic())
                     .setD025(dto.getAddressDetail())
+                    .setD050(intLimitrepoRisk<intAmount?intLimitrepoRisk.toString():intAmount.toString())
                     .setD055(dto.getAddressKey())
             );
         }
