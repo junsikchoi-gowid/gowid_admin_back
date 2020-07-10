@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Decoder;
@@ -14,16 +13,16 @@ import java.util.Base64.Encoder;
 
 @Slf4j
 public class Seed128 {
-    static String charset = StandardCharsets.UTF_8.toString();
+    static String charset = "EUC-KR";
 
     // 사용자가 지정하는 입력 키(16bytes), 암호화 대칭키
     public static byte[] pbUserKey = {(byte) 0x2c, (byte) 0x11, (byte) 0x19, (byte) 0x1d, (byte) 0x1f, (byte) 0x16, (byte) 0x12,
             (byte) 0x12, (byte) 0x11, (byte) 0x19, (byte) 0x1d, (byte) 0x1f, (byte) 0x10, (byte) 0x14, (byte) 0x1b,
             (byte) 0x16};
 
-    public static byte[] pbUserKey2 = {(byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67, (byte) 0x78, (byte) 0x89, (byte) 0xab,
-            (byte) 0xcd, (byte) 0xef, (byte) 0xfe, (byte) 0xdc, (byte) 0xba, (byte) 0x98, (byte) 0x76, (byte) 0x54,
-            (byte) 0x32, (byte) 0x10};
+    public static byte[] pbUserKey2 = {(byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67, (byte) 0x89, (byte) 0xAB, (byte) 0xCD,
+            (byte) 0xEF, (byte) 0xFE, (byte) 0xDC, (byte) 0xBA, (byte) 0x98, (byte) 0x76, (byte) 0x54, (byte) 0x32,
+            (byte) 0x10};
 
     // 사용자가 지정하는 초기화 벡터(16bytes), CBC 대칭키
     public static byte[] bszIV = {(byte) 0x27, (byte) 0x28, (byte) 0x27, (byte) 0x6d, (byte) 0x2d, (byte) 0xd5, (byte) 0x4e,
@@ -90,14 +89,10 @@ public class Seed128 {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        log.debug("hex : [{}]", byteArrayToHex(enc));
 
         Encoder encoder = Base64.getEncoder();
         byte[] encArray = encoder.encode(enc);
-        try {
-            System.out.println(new String(encArray, charset));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
         return encArray;
     }
 
@@ -116,7 +111,6 @@ public class Seed128 {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        System.out.println("decrypt Result = " + result);
         return result;
     }
 
@@ -135,11 +129,6 @@ public class Seed128 {
 
         Encoder encoder = Base64.getEncoder();
         byte[] encArray = encoder.encode(enc);
-        try {
-            System.out.println(new String(encArray, charset));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
         return encArray;
     }
 
@@ -241,15 +230,22 @@ public class Seed128 {
     }
 
     public static void main(String[] args) {
-        System.out.println("============ KEY =================");
-        String text = "1005103574503";
+        System.out.println("============ ECB 암복호화 =================");
+        String text = "신한카드";
         String encryptedText = encryptEcb(text);
         String decryptedText = decryptEcb(encryptedText);
+        System.out.println("plain text = [" + text + "]");
+        System.out.println("encryptedText = [" + encryptedText + "]");
+        System.out.println("decryptedText = [" + decryptedText + "]");
 
-        System.out.println("============ ECB 암복호화 =================");
-        System.out.println("text = " + text);
-        System.out.println("encryptedText = " + encryptedText);
-        System.out.println("decryptedText = " + decryptedText);
+        System.out.println("============ ECB 암복호화2 =================");
+
+        String text2 = "GOWID 1234 신한카드";
+        String encryptedText2 = encryptEcb(text2);
+        String decryptedText2 = decryptEcb(encryptedText2);
+        System.out.println("plain text = [" + text2 + "]");
+        System.out.println("encryptedText = [" + encryptedText2 + "]");
+        System.out.println("decryptedText = [" + decryptedText2 + "]");
     }
 
 }
