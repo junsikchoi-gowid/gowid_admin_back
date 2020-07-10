@@ -315,14 +315,13 @@ public class AuthService {
 				cardIssuanceInfo -> { idxCardIssuance.set(cardIssuanceInfo.idx()); }
 		);
 
-
-
 		return AuthDto.AuthInfo.builder()
 				.idx(user.idx())
 				.idxCorp(user.corp() != null ? user.corp().idx() : null)
 				.email(user.email())
 				.name(user.name())
 				.mdn(user.mdn())
+				.companyCard(user.cardCompany().getCode())
 				.corpStatus(user.corp() != null ? user.corp().status() : null)
 				.info(TokenDto.TokenSet.AccountInfo.builder()
 						.authorities(authorities.stream().map(Authority::role).collect(Collectors.toList()))
