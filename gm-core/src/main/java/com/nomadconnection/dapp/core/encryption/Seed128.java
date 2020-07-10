@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.core.encryption;
 import com.nomadconnection.dapp.core.encryption.core.KISA_SEED_CBC;
 import com.nomadconnection.dapp.core.encryption.core.KISA_SEED_ECB;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -38,6 +39,10 @@ public class Seed128 {
      */
     public static String encryptEcb(String str) {
         try {
+            if (StringUtils.isEmpty(str)) {
+                log.warn("## input string is empty! skip encryption!");
+                return str;
+            }
             return new String(encryptEcb(str, pbUserKey2), charset);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -53,7 +58,11 @@ public class Seed128 {
      */
     public static String decryptEcb(String encryptedText) {
         try {
-            return decryptEcb(Objects.requireNonNull(encryptedText).getBytes(charset));
+            if (StringUtils.isEmpty(encryptedText)) {
+                log.warn("## encryptedText is empty! skip decryption!");
+                return encryptedText;
+            }
+            return decryptEcb(encryptedText.getBytes(charset));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
