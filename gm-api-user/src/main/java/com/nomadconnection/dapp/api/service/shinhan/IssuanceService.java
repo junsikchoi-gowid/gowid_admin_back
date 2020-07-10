@@ -374,9 +374,9 @@ public class IssuanceService {
         d1000.setD071(resultOfD1200.getD007());
         d1000.setD072(resultOfD1200.getD008());
 
-        // d39 => 02 로 하드코딩
-        d1000.setD039("02");
-        // d43 신청관리자이메일주소 => 사용자계정
+        // d39(신청관리자내선번호) => 02 로 하드코딩
+        d1000.setD039("00");
+        // d43(신청관리자이메일주소) => 사용자계정
         d1000.setD043(userCorp.user().email());
         // todo : d50 제휴약정한도금액 => 안들어옴
 
