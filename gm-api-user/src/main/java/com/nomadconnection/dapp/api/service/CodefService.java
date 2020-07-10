@@ -150,7 +150,6 @@ public class CodefService {
 		String strResultCode = jsonObject.get("result").toString();
 		String strResultData = jsonObject.get("data").toString();
 
-		// insert user table - connectedId save
 		User user = repoUser.findById(idx).orElseThrow(
 				() -> new RuntimeException("UserNotFound")
 		);
@@ -183,10 +182,30 @@ public class CodefService {
 						.collect(Collectors.toList());
 			}
 
-		}else if(code.equals("CF-04004")){
-			connectedId = (((JSONObject) jsonParse.parse(strResultData)).get("connectedId")).toString();
+		}else{
+			// 삭제처리
+			try {
+				JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
+				JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
+				connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
+				deleteAccount2(connectedId);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-			if(!repoConnectedMng.findByConnectedIdAndIdxUser(connectedId,idx).isPresent()){
+			// 재등록
+			strObject = ApiRequest.request(createUrlPath, bodyMap);
+
+			jsonParse = new JSONParser();
+			jsonObject = (JSONObject)jsonParse.parse(strObject);
+			strResultCode = jsonObject.get("result").toString();
+			strResultData = jsonObject.get("data").toString();
+
+			code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
+
+			if(code.equals("CF-00000") || code.equals("CF-04012")) {
+				connectedId = (((JSONObject) jsonParse.parse(strResultData)).get("connectedId")).toString();
+
 				repoConnectedMng.save(ConnectedMng.builder()
 						.connectedId(connectedId)
 						.idxUser(idx)
@@ -198,18 +217,22 @@ public class CodefService {
 						.build()
 				);
 
-				if(getScrapingAccount(idx)){
+				if (getScrapingAccount(idx)) {
 					resAccount = repoResAccount.findConnectedId(idx).stream()
 							.map(account -> BankDto.ResAccountDto.from(account, false))
 							.collect(Collectors.toList());
 				}
-
 			}else{
-				normal.setStatus(false);
-				normal.setKey(code);
-				normal.setValue((((JSONObject)jsonParse.parse(strResultCode)).get("message")).toString());
+				try {
+					JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
+					JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
+					connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
+					deleteAccount2(connectedId);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
-		}else{
+
 			normal.setStatus(false);
 			normal.setKey(code);
 			normal.setValue((((JSONObject)jsonParse.parse(strResultCode)).get("message")).toString());
@@ -742,8 +765,6 @@ public class CodefService {
 				() -> new RuntimeException("UserNotFound")
 		);
 
-		log.debug("1");
-
 		for( String s : CommonConstant.LISTBANK){
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
@@ -857,8 +878,6 @@ public class CodefService {
 			//	중복체크 테스트 후엔 적용
 			Corp corp = null;
 
-			log.debug("3");
-
 			if (repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).isPresent()) {
 				corp = repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).get();
 			} else {
@@ -947,7 +966,39 @@ public class CodefService {
 				corp.resUserType(d009);
 
 				//파일생성 및 전송
-//				ImageCreateAndSend(1530, "15300001","0306", strResult1530, corp.resCompanyIdentityNo());
+
+				String strChange[] = {
+						"resStockOptionList\" : [ {\n" +
+								"        \"resStockOption\" : \"내용 없음\",\n" +
+								"        \"resNumber\" : \"0\"\n" +
+								"      } ]"
+						,"resTypeStockContentList\" : [ {\n" +
+						"        \"resNumber\" : \"0\",\n" +
+						"        \"resTypeStockContentItemList\" : [ {\n" +
+						"          \"resNumber\" : \"0\",\n" +
+						"          \"resTypeStockContent\" : \"내용 없음\"\n" +
+						"        } ]\n" +
+						"} ]"
+						,"resConvertibleBondList\" : [ {\n" +
+						"        \"resNumber\" : \"0\",\n" +
+						"        \"resConvertibleBondItemList\" : [ {\n" +
+						"          \"resNumber\" : \"0\",\n" +
+						"          \"resConvertibleBond\" : \"내용 없음\"\n" +
+						"        } ]\n" +
+						"} ]"
+						,"resEtcList\" : [ {\n" +
+						"        \"resNumber\" : \"0\",\n" +
+						"        \"resEtc\" : \"내용 없음\"\n" +
+						"      } ]"
+				};
+
+				strResult1530 = strResult1530.concat("");
+				strResult1530 = strResult1530.replaceAll("resStockOptionList\" : \\[ \\]",strChange[0]);
+				strResult1530 = strResult1530.replaceAll("resTypeStockContentList\" : \\[ \\]",strChange[1]);
+				strResult1530 = strResult1530.replaceAll("resConvertibleBondList\" : \\[ \\]",strChange[2]);
+				strResult1530 = strResult1530.replaceAll("resEtcList\" : \\[ \\]",strChange[3]);
+
+				ImageCreateAndSend(1530, "15300001","0306", strResult1530, corp.resCompanyIdentityNo());
 
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
@@ -959,19 +1010,19 @@ public class CodefService {
 						.d005("06")
 						.d007(GowidUtils.getEmptyStringToString(jsonData, "resRegisterDate"))
 						.d009(d009) // 1: 단일대표 2: 개별대표 3: 공동대표
-						.d010(listResCeoList.size()>2?listResCeoList.get(1):"")// 대표이사_성명1
-						.d011(listResCeoList.size()>3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")// 대표이사_주민번호1
-						.d014(listResCeoList.size()>6?listResCeoList.get(5):"")// 대표이사_성명2
-						.d015(listResCeoList.size()>7?Seed128.encryptEcb(listResCeoList.get(6).replaceAll("-","")):"")// 대표이사_주민번호2
-						.d018(listResCeoList.size()>10?listResCeoList.get(9):"")// 대표이사_성명3
-						.d019(listResCeoList.size()>11?Seed128.encryptEcb(listResCeoList.get(10).replaceAll("-","")):"")// 대표이사_주민번호3
+						.d010(listResCeoList.size()>=2?listResCeoList.get(1):"")// 대표이사_성명1
+						.d011(listResCeoList.size()>=3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")// 대표이사_주민번호1
+						.d014(listResCeoList.size()>=6?listResCeoList.get(5):"")// 대표이사_성명2
+						.d015(listResCeoList.size()>=7?Seed128.encryptEcb(listResCeoList.get(6).replaceAll("-","")):"")// 대표이사_주민번호2
+						.d018(listResCeoList.size()>=10?listResCeoList.get(9):"")// 대표이사_성명3
+						.d019(listResCeoList.size()>=11?Seed128.encryptEcb(listResCeoList.get(10).replaceAll("-","")):"")// 대표이사_주민번호3
 						.d029(null)
 						.d030(null)
 						.d031(null)
 						.d032("대표이사")
 						.d033("대표이사")
-						.d034(listResCeoList.size()>3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")// 대표이사_주민번호1
-						.d035(listResCeoList.size()>2?listResCeoList.get(1):"")// 대표이사_성명1
+						.d034(listResCeoList.size()>=3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")// 대표이사_주민번호1
+						.d035(listResCeoList.size()>=2?listResCeoList.get(1):"")// 대표이사_성명1
 						.d044("0113")
 						.d045("5")
 						.d046("Y")
@@ -1039,26 +1090,26 @@ public class CodefService {
 						.d019(listResTCntStockIssueList.get(1))// 발행할주식의총수_변경일자
 						.d020(listResTCntStockIssueList.get(2))// 발행할주식의총수_등기일자
 						.d021(listResStockList.get(0).toString())// 발행주식현황_총수
-						.d022(listD.size()>1?listD.get(0):"")// 발행주식현황_종류1
-						.d023(listD.size()>2?listD.get(1):"")// 발행주식현황_종류1_수량
-						.d024(listD.size()>3?listD.get(2):"")// 발행주식현황_종류2
-						.d025(listD.size()>4?listD.get(3):"")// 발행주식현황_종류2_수량
-						.d026(listD.size()>5?listD.get(4):"")// 발행주식현황_종류3
-						.d027(listD.size()>6?listD.get(5):"")// 발행주식현황_종류3_수량
-						.d028(listD.size()>7?listD.get(6):"")// 발행주식현황_종류4
-						.d029(listD.size()>8?listD.get(7):"")// 발행주식현황_종류4_수량
-						.d030(listD.size()>9?listD.get(8):"")// 발행주식현황_종류5
-						.d031(listD.size()>10?listD.get(9):"")// 발행주식현황_종류5_수량
-						.d032(listD.size()>11?listD.get(10):"")// 발행주식현황_종류6
-						.d033(listD.size()>12?listD.get(11):"")// 발행주식현황_종류6_수량
-						.d034(listD.size()>13?listD.get(12):"")// 발행주식현황_종류7
-						.d035(listD.size()>14?listD.get(13):"")// 발행주식현황_종류7_수량
-						.d036(listD.size()>15?listD.get(14):"")// 발행주식현황_종류8
-						.d037(listD.size()>16?listD.get(15):"")// 발행주식현황_종류8_수량
-						.d038(listD.size()>17?listD.get(16):"")// 발행주식현황_종류9
-						.d039(listD.size()>18?listD.get(17):"")// 발행주식현황_종류9_수량
-						.d040(listD.size()>19?listD.get(18):"")// 발행주식현황_종류10
-						.d041(listD.size()>20?listD.get(19):"")// 발행주식현황_종류10_수량
+						.d022(listD.size()>=1?listD.get(0):"")// 발행주식현황_종류1
+						.d023(listD.size()>=2?listD.get(1):"")// 발행주식현황_종류1_수량
+						.d024(listD.size()>=3?listD.get(2):"")// 발행주식현황_종류2
+						.d025(listD.size()>=4?listD.get(3):"")// 발행주식현황_종류2_수량
+						.d026(listD.size()>=5?listD.get(4):"")// 발행주식현황_종류3
+						.d027(listD.size()>=6?listD.get(5):"")// 발행주식현황_종류3_수량
+						.d028(listD.size()>=7?listD.get(6):"")// 발행주식현황_종류4
+						.d029(listD.size()>=8?listD.get(7):"")// 발행주식현황_종류4_수량
+						.d030(listD.size()>=9?listD.get(8):"")// 발행주식현황_종류5
+						.d031(listD.size()>=10?listD.get(9):"")// 발행주식현황_종류5_수량
+						.d032(listD.size()>=11?listD.get(10):"")// 발행주식현황_종류6
+						.d033(listD.size()>=12?listD.get(11):"")// 발행주식현황_종류6_수량
+						.d034(listD.size()>=13?listD.get(12):"")// 발행주식현황_종류7
+						.d035(listD.size()>=14?listD.get(13):"")// 발행주식현황_종류7_수량
+						.d036(listD.size()>=15?listD.get(14):"")// 발행주식현황_종류8
+						.d037(listD.size()>=16?listD.get(15):"")// 발행주식현황_종류8_수량
+						.d038(listD.size()>=17?listD.get(16):"")// 발행주식현황_종류9
+						.d039(listD.size()>=18?listD.get(17):"")// 발행주식현황_종류9_수량
+						.d040(listD.size()>=19?listD.get(18):"")// 발행주식현황_종류10
+						.d041(listD.size()>=20?listD.get(19):"")// 발행주식현황_종류10_수량
 						.d042(listResStockList.get(1).toString())// 발행주식현황_자본금의액
 						.d043(listResStockList.get(3).toString())// 발행주식현황_변경일자
 						.d044(listResStockList.get(4).toString())// 발행주식현황_등기일자
@@ -1103,8 +1154,8 @@ public class CodefService {
 				normal.setValue(jsonObjectCorpRegister[0].get("message").toString());
 			}
 		}else{
-		normal.setStatus(false);
-	}
+			normal.setStatus(false);
+		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(normal)
@@ -1482,7 +1533,7 @@ public class CodefService {
 			if(GowidUtils.getEmptyStringToString(obj, "resPosition").equals("공동대표이사")) {
 				str = "3";
 				break;
-			}else if(jsonArray.size() < 2 && GowidUtils.getEmptyStringToString(obj, "resPosition").equals("대표이사")){
+			}else if(jsonArray.size() < 2){
 				str = "1";
 				break;
 			}else {

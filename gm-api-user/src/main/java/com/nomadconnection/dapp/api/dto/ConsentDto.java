@@ -40,6 +40,9 @@ public class ConsentDto {
         @ApiModelProperty("이용약관(식별자)")
         public Long idxConsent;
 
+        @ApiModelProperty("필수여부")
+        public Boolean essential;
+
         @ApiModelProperty("체크여부")
         public boolean status;
     }
