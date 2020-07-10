@@ -42,9 +42,6 @@ public class AuthDto {
 		@ApiModelProperty("제휴카드")
 		private String companyCard;
 
-		@ApiModelProperty("가입절차스텝")
-		private String untactStep;
-
 		@ApiModelProperty("수령지(주소)")
 		private Address recipientAddress;
 
