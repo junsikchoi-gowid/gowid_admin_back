@@ -1202,6 +1202,7 @@ public class CodefService {
 		// 국세청 - 증명발급 표준재무재표
 		String finalConnectedId = connectedId;
 		String strResult;
+		AtomicReference<Boolean> boolIfFirst = new AtomicReference<>(true);
 		listYyyyMm.forEach(yyyyMm ->{
 			JSONObject[] jsonObjectStandardFinancial = new JSONObject[0];
 			String strResultTemp = null;
@@ -1225,7 +1226,7 @@ public class CodefService {
 			}
 
 			String jsonObjectStandardFinancialCode = jsonObjectStandardFinancial[0].get("code").toString();
-			if (jsonObjectStandardFinancialCode.equals("CF-00000") ) {
+			if (jsonObjectStandardFinancialCode.equals("CF-00000")) {
 				JSONObject jsonData2 = jsonObjectStandardFinancial[1];
 
 				JSONArray resBalanceSheet = (JSONArray) jsonData2.get("resBalanceSheet");
@@ -1282,7 +1283,7 @@ public class CodefService {
 				//파일생성 및 전송
 				ImageCreateAndSend(1520, 1520+yyyyMm.substring(0,4),"0306", strResultTemp, user.corp().resCompanyIdentityNo());
 
-			}else{
+			}else if(boolIfFirst.get()){
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
 				log.debug("jsonObjectStandardFinancial message = {} ", jsonObjectStandardFinancial[0].get("message").toString());
 
@@ -1311,6 +1312,7 @@ public class CodefService {
 						.d020(d1530.getD057()) // 재무조사일   종료일자 (없으면 등기부등본상의 회사성립연월일)
 						.build());
 			}
+			boolIfFirst.set(false);
 		});
 
 
