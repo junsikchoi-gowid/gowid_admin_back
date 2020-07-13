@@ -47,11 +47,13 @@ public class ResumeService {
 
     // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
-        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1600);
-        issCommonService.saveGwTran(commonPart);
-        UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
-        BeanUtils.copyProperties(commonPart, response);
+        issCommonService.saveGwTran(request);
 
+        UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
+        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1600);
+        BeanUtils.copyProperties(request, response);
+        BeanUtils.copyProperties(commonPart, response);
+        issCommonService.saveGwTran(response);
 
         if (!Const.API_SHINHAN_RESULT_SUCCESS.equals(request.getC009())) {
             log.error("## incoming result of 1600 is fail.");
