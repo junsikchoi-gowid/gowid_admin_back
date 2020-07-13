@@ -286,18 +286,16 @@ public class IssuanceService {
     }
 
     private void proc1520(Corp userCorp, String applyDate, String applyNo) {
-        // 공통부
-        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1520);
 
-        // 데이터부 - db 추출, 세팅
         List<D1520> d1520s = d1520Repository.findTop2ByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (CollectionUtils.isEmpty(d1520s)) {
             String msg="data of d1520 is not exist(corpIdx="+userCorp.idx()+")";
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1520, msg);
         }
 
-        // 연동
         for (D1520 d1520 : d1520s) {
+            CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1520);
+
             // 접수일자, 순번
             d1520.setD001(applyDate);
             d1520.setD002(applyNo);
