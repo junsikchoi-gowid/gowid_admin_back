@@ -77,6 +77,12 @@ public class ResumeService {
         signatureHistoryRepository.save(signatureHistory);
 
         asyncService.run(() -> proc1100(request, signatureHistory));  // 1100(법인카드신청), 비동기 처리
+        try {
+            Thread.sleep(3000L);            // 게이트웨이 이슈로 당분간 일정 텀을 두고 요청
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+            throw new SystemException(ErrorCode.External.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
         asyncService.run(() -> proc1800(request, signatureHistory));  // 1800(전자서명값전달), 비동기 처리
     }
 
