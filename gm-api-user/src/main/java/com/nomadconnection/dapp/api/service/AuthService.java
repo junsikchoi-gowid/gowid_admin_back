@@ -24,6 +24,7 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
@@ -321,8 +322,8 @@ public class AuthService {
 				.email(user.email())
 				.name(user.name())
 				.mdn(user.mdn())
-				.companyCard(user.cardCompany() != null ? user.cardCompany().getCode() : null)
-				.corpStatus(user.corp() != null ? user.corp().status() : null)
+				.companyCard(!ObjectUtils.isEmpty(user.cardCompany()) ? user.cardCompany().name() : null)
+				.corpStatus(!ObjectUtils.isEmpty(user.corp()) ? user.corp().status() : null)
 				.info(TokenDto.TokenSet.AccountInfo.builder()
 						.authorities(authorities.stream().map(Authority::role).collect(Collectors.toList()))
 						.cardCompanyMapping(cardCompanyMapping)
