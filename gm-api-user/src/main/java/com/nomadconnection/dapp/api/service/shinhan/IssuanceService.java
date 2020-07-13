@@ -340,14 +340,12 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1530, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        if (!ENC_SEED128_ENABLE) {
-            requestRpc.setD047(Seed128.decryptEcb(d1530.getD047()));
-            if (!ObjectUtils.isEmpty(d1530.getD051())) {
-                requestRpc.setD051(Seed128.decryptEcb(d1530.getD051()));
-            }
-            if (!ObjectUtils.isEmpty(d1530.getD055())) {
-                requestRpc.setD055(Seed128.decryptEcb(d1530.getD055()));
-            }
+        requestRpc.setD047(Seed128.decryptEcb(d1530.getD047()));
+        if (!ObjectUtils.isEmpty(d1530.getD051())) {
+            requestRpc.setD051(Seed128.decryptEcb(d1530.getD051()));
+        }
+        if (!ObjectUtils.isEmpty(d1530.getD055())) {
+            requestRpc.setD055(Seed128.decryptEcb(d1530.getD055()));
         }
 
         // 연동 및 저장
