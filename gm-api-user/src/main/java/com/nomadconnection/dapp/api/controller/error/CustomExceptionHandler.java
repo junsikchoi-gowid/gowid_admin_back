@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.controller.error;
 
 import com.nomadconnection.dapp.api.exception.*;
+import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import com.nomadconnection.dapp.jwt.exception.AccessTokenNotFoundException;
@@ -32,7 +33,7 @@ public class CustomExceptionHandler {
 	@ExceptionHandler(BadRequestedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
 	protected ErrorResponse onBadRequestedException(BadRequestedException e) {
-        return ErrorResponse.builder().category(e.category().name()).description(e.desc()).build();
+        return ErrorResponse.from(e.category().name(), e.desc());
 	}
 
 //	@ExceptionHandler(AlreadyExistException.class)
@@ -145,7 +146,7 @@ public class CustomExceptionHandler {
     @ExceptionHandler(SecuKeypadException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ErrorResponse onSecuKeypadException(SecuKeypadException e) {
-        return ErrorResponse.builder().category(e.category().name()).data(e.data()).build();
+        return ErrorResponse.from(e.category().name(), e.data());
     }
 
     //==================================================================================================================
@@ -194,12 +195,18 @@ public class CustomExceptionHandler {
     @ExceptionHandler(ServerError.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ErrorResponse onServerError(ServerError e) {
-        return ErrorResponse.builder().category(e.category().name()).data(e.data()).build();
+        return ErrorResponse.from(e.category().name(), e.data());
     }
 
     @ExceptionHandler(FileUploadException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ErrorResponse onFileUploadException(FileUploadException e) {
-        return ErrorResponse.builder().category(e.category().name()).build();
+        return ErrorResponse.from(e.category().name(), "");
+    }
+
+    @ExceptionHandler(SystemException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    protected ErrorResponse onSystemException(SystemException e) {
+        return ErrorResponse.from(e.getCode(), e.getDesc());
     }
 }

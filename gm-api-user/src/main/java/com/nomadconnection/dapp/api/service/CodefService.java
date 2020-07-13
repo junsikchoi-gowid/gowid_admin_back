@@ -178,7 +178,7 @@ public class CodefService {
 
 			if(getScrapingAccount(idx)){
 				resAccount = repoResAccount.findConnectedId(idx).stream()
-						.map(account -> BankDto.ResAccountDto.from(account, false))
+						.map(account -> BankDto.ResAccountDto.from(account, true))
 						.collect(Collectors.toList());
 			}
 
@@ -219,7 +219,7 @@ public class CodefService {
 
 				if (getScrapingAccount(idx)) {
 					resAccount = repoResAccount.findConnectedId(idx).stream()
-							.map(account -> BankDto.ResAccountDto.from(account, false))
+							.map(account -> BankDto.ResAccountDto.from(account, true))
 							.collect(Collectors.toList());
 				}
 			}else{

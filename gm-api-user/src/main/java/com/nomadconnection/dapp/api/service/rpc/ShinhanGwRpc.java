@@ -5,7 +5,6 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.response.ApiResponse;
-import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -231,14 +230,14 @@ public class ShinhanGwRpc extends BaseRpc {
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1700);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(responseRpc.getResult().getCode())) {
-            throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1700, "gateway error");
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1700, "gateway error");
         }
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1700 response1700 = mapper.convertValue(responseRpc.getData(), DataPart1700.class);
 
         if (!response1700.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new BusinessException(ErrorCode.External.REJECTED_SHINHAN_1700, response1700.getC009() + "/" + response1700.getC013());
+            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1700, response1700.getC009() + "/" + response1700.getC013());
         }
 
         return response1700;

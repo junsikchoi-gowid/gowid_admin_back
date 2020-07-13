@@ -66,4 +66,11 @@ public class ErrorResponse {
 				.description(reason)
 				.build();
 	}
+
+	public static ErrorResponse from(String value, Object data) {
+		return ErrorResponse.builder()
+				.error(value)
+				.data(data)
+				.build();
+	}
 }
