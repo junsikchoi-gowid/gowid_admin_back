@@ -442,6 +442,13 @@ public class UserCorporationService {
             );
         }
 
+        D1400 d1400 = getD1400(user.corp().idx());
+        if (d1400 != null) {
+            repoD1400.save(d1400
+                    .setD014(intLimitrepoRisk<intAmount?intLimitrepoRisk.toString():intAmount.toString())
+            );
+        }
+
         return UserCorporationDto.CardRes.from(repoCardIssuance.save(cardInfo));
     }
 
