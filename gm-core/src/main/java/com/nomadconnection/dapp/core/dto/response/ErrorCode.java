@@ -53,6 +53,7 @@ public class ErrorCode {
 		MISMATCHED_CORP,
 		MISMATCHED_CARD_ISSUANCE_INFO,
 		MISMATCHED_STOCKHOLDER_FILE,
+		MISMATCHED_CEO
 	}
 
 	public enum Unverified implements ErrorCodeDescriptor {

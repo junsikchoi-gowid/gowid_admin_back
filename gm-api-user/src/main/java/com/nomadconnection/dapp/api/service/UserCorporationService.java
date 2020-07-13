@@ -13,7 +13,6 @@ import com.nomadconnection.dapp.core.domain.repository.*;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1100Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1400Repository;
-import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.encryption.Seed128;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -335,7 +332,7 @@ public class UserCorporationService {
                 gwUploadService.delete(fileName, cardInfo.cardCompany().getCode());
 
 				log.error("[uploadStockholderFile] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
-				throw FileUploadException.builder().category(FileUploadException.Category.STOCKHOLDER).build();
+                throw FileUploadException.builder().category(FileUploadException.Category.UPLOAD_STOCKHOLDER_FILE).build();
             }
         }
 

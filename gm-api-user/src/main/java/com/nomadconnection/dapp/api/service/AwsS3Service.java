@@ -58,7 +58,7 @@ public class AwsS3Service {
             return Base64.encodeAsString(IOUtils.toByteArray(objectInputStream));
 
         } catch (IOException e) {
-            log.error("([ s3FileUpload ]) $error='FAILED TO DOWNLOAD', $path='{}', $exception='{} => {}'", config.bucketUrl() + key, e.getClass().getSimpleName(), e.getMessage(), e);
+            log.error("([ s3FileDownload ]) $error='FAILED TO DOWNLOAD', $path='{}', $exception='{} => {}'", config.bucketUrl() + key, e.getClass().getSimpleName(), e.getMessage(), e);
             throw ServerError.builder().category(ServerError.Category.S3_SERVER_ERROR).build();
         }
     }

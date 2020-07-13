@@ -120,6 +120,8 @@ public class CustomExceptionHandler {
                 return ErrorResponse.from(ErrorCode.Mismatched.MISMATCHED_CARD_ISSUANCE_INFO);
             case STOCKHOLDER_FILE:
                 return ErrorResponse.from(ErrorCode.Mismatched.MISMATCHED_STOCKHOLDER_FILE);
+            case CEO:
+                return ErrorResponse.from(ErrorCode.Mismatched.MISMATCHED_CEO);
             default:
                 return ErrorResponse.from(ErrorCode.Mismatched.MISMATCHED);
         }
