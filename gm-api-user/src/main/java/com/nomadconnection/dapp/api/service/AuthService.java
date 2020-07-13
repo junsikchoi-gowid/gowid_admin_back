@@ -175,9 +175,9 @@ public class AuthService {
 						.email(email)
 						.build()
 		);
-		final TokenDto.Token token = jwt.issue(email, TokenDto.TokenType.JWT_FOR_AUTHENTICATION, new Date());
-		final MimeMessagePreparator preparator = mimeMessage -> {
-			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+		TokenDto.Token token = jwt.issue(email, TokenDto.TokenType.JWT_FOR_AUTHENTICATION, new Date());
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 			helper.setFrom(config.getSender());
 			helper.setTo(email);
 			helper.setSubject("[MyCard] 비밀번호 재설정");
@@ -321,7 +321,7 @@ public class AuthService {
 				.email(user.email())
 				.name(user.name())
 				.mdn(user.mdn())
-				.companyCard(user.cardCompany().getCode())
+				.companyCard(user.cardCompany() != null ? user.cardCompany().getCode() : null)
 				.corpStatus(user.corp() != null ? user.corp().status() : null)
 				.info(TokenDto.TokenSet.AccountInfo.builder()
 						.authorities(authorities.stream().map(Authority::role).collect(Collectors.toList()))
@@ -355,8 +355,8 @@ public class AuthService {
 			}
 			return false;
 		}
-		final MimeMessagePreparator preparator = mimeMessage -> {
-			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 			{
 				Context context = new Context();
 				{
