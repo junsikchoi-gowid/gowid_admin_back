@@ -1,16 +1,9 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.core.domain.repository.CorpRepository;
-import com.nomadconnection.dapp.core.domain.repository.ResAccountRepository;
-import com.nomadconnection.dapp.core.domain.repository.ResBatchListRepository;
-import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor

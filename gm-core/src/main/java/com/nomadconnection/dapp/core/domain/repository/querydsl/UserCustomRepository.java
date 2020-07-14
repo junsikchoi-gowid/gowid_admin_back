@@ -1,7 +1,7 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
-import com.nomadconnection.dapp.core.domain.Corp;
-import com.nomadconnection.dapp.core.domain.User;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.user.User;
 
 import java.util.stream.Stream;
 

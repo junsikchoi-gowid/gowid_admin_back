@@ -1,18 +1,11 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
-import com.nomadconnection.dapp.core.domain.*;
-import com.querydsl.core.types.Projections;
+import com.nomadconnection.dapp.core.domain.common.QConnectedMng;
+import com.nomadconnection.dapp.core.domain.corp.QCorp;
+import com.nomadconnection.dapp.core.domain.res.QResAccount;
+import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.querydsl.core.types.dsl.StringPath;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 public class ResAccountCustomRepositoryImpl extends QuerydslRepositorySupport implements ResAccountCustomRepository{
 

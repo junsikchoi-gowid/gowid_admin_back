@@ -1,6 +1,15 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
-import com.nomadconnection.dapp.core.domain.*;
+import com.nomadconnection.dapp.core.domain.common.QCommonCodeDetail;
+import com.nomadconnection.dapp.core.domain.common.QConnectedMng;
+import com.nomadconnection.dapp.core.domain.corp.QCorp;
+import com.nomadconnection.dapp.core.domain.res.QResAccount;
+import com.nomadconnection.dapp.core.domain.res.QResAccountHistory;
+import com.nomadconnection.dapp.core.domain.res.QResBatch;
+import com.nomadconnection.dapp.core.domain.res.QResBatchList;
+import com.nomadconnection.dapp.core.domain.risk.QRisk;
+import com.nomadconnection.dapp.core.domain.risk.Risk;
+import com.nomadconnection.dapp.core.domain.user.QUser;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
@@ -8,16 +17,10 @@ import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
-import javax.persistence.TypedQuery;
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 
 public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport implements AdminCustomRepository {
@@ -42,9 +45,9 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
     @Override
     public Page<SearchRiskResultDto> riskList(SearchRiskDto dto, Long idxUser, Pageable pageable) {
 
-        final List<SearchRiskResultDto> riskList;
+        List<SearchRiskResultDto> riskList;
 
-        final JPQLQuery<SearchRiskResultDto> query = from(risk)
+        JPQLQuery<SearchRiskResultDto> query = from(risk)
                 .select(Projections.bean(SearchRiskResultDto.class,
                         risk.user.corp.idx.as("idxCorp"),
                         risk.user.corp.resCompanyNm.as("idxCorpName"),

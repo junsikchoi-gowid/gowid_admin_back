@@ -1,22 +1,15 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.IrDashBoardDto;
-import com.nomadconnection.dapp.core.domain.IrDashBoard;
-import com.nomadconnection.dapp.core.domain.repository.IrDashBoardRepository;
+import com.nomadconnection.dapp.core.domain.etc.IrDashBoard;
+import com.nomadconnection.dapp.core.domain.repository.etc.IrDashBoardRepository;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @Slf4j
 @Service

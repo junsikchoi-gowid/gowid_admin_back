@@ -1,8 +1,8 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.core.domain.Dept;
-import com.nomadconnection.dapp.core.domain.MemberAuthority;
-import com.nomadconnection.dapp.core.domain.User;
+import com.nomadconnection.dapp.core.domain.corp.Dept;
+import com.nomadconnection.dapp.core.domain.user.MemberAuthority;
+import com.nomadconnection.dapp.core.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,8 +24,8 @@ public class DeptDto {
 	private String name;
 
 	public DeptDto(Dept dept) {
-		this.idx = dept.idx();
-		this.name = dept.name();
+		idx = dept.idx();
+		name = dept.name();
 	}
 
 	@Data

@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.core.domain.Consent;
+import com.nomadconnection.dapp.core.domain.consent.Consent;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

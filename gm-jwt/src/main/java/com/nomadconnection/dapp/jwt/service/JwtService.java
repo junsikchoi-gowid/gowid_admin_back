@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.jwt.service;
 
-import com.nomadconnection.dapp.core.domain.Authority;
+import com.nomadconnection.dapp.core.domain.user.Authority;
 import com.nomadconnection.dapp.jwt.config.JwtConfig;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import com.nomadconnection.dapp.jwt.exception.JwtSubjectMismatchedException;

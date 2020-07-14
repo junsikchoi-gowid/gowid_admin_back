@@ -1,19 +1,13 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.core.domain.Corp;
-import com.nomadconnection.dapp.core.domain.MemberAuthority;
-import com.nomadconnection.dapp.core.domain.User;
-import com.nomadconnection.dapp.core.domain.embed.Address;
-import io.swagger.annotations.ApiModel;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.user.MemberAuthority;
+import com.nomadconnection.dapp.core.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder

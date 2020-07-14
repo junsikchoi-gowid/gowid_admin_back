@@ -2,36 +2,20 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.ExternalDto;
-import com.nomadconnection.dapp.api.dto.RiskDto;
-import com.nomadconnection.dapp.core.domain.ResAccount;
-import com.nomadconnection.dapp.core.domain.ResAccountHistory;
-import com.nomadconnection.dapp.core.domain.Risk;
-import com.nomadconnection.dapp.core.domain.RiskConfig;
-import com.nomadconnection.dapp.core.domain.repository.ResAccountHistoryRepository;
-import com.nomadconnection.dapp.core.domain.repository.ResAccountRepository;
-import com.nomadconnection.dapp.core.domain.repository.RiskConfigRepository;
-import com.nomadconnection.dapp.core.domain.repository.RiskRepository;
-import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
+import com.nomadconnection.dapp.core.domain.repository.res.ResAccountHistoryRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
+import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
+import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.thymeleaf.ITemplateEngine;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service

@@ -1,12 +1,9 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.core.domain.ResBatchList;
-import com.nomadconnection.dapp.core.domain.Risk;
-import com.nomadconnection.dapp.core.domain.repository.CorpRepository;
-import com.nomadconnection.dapp.core.domain.repository.ResAccountRepository;
-import com.nomadconnection.dapp.core.domain.repository.ResBatchListRepository;
+import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
-import com.nomadconnection.dapp.core.domain.repository.querydsl.ResBatchListCustomRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResBatchListRepository;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

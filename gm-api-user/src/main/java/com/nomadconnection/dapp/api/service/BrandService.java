@@ -1,9 +1,10 @@
 package com.nomadconnection.dapp.api.service;
+
 import com.nomadconnection.dapp.api.dto.BrandDto;
-import com.nomadconnection.dapp.core.domain.User;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
-import com.nomadconnection.dapp.core.domain.repository.UserRepository;
-import com.nomadconnection.dapp.core.domain.repository.VerificationCodeRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
+import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

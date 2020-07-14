@@ -1,8 +1,8 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.CronConfig;
-import com.nomadconnection.dapp.core.domain.repository.ResBatchRepository;
-import com.nomadconnection.dapp.core.domain.repository.UserRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResBatchRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.core.domain.Risk;
-import com.nomadconnection.dapp.core.domain.RiskConfig;
+import com.nomadconnection.dapp.core.domain.risk.Risk;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,9 +50,11 @@ public class RiskDto {
 
     public Long idxUser;
 
-    public static RiskDto from(Risk risk){
+    public static RiskDto from(Risk risk) {
 
-        if( risk.errCode() == null) risk.errCode("");
+        if (risk.errCode() == null) {
+            risk.errCode("");
+        }
 
         RiskDto riskDto = RiskDto.builder()
                 .date(risk.date())

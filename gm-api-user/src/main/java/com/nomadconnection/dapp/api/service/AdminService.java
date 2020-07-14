@@ -7,11 +7,23 @@ import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
-import com.nomadconnection.dapp.core.domain.*;
-import com.nomadconnection.dapp.core.domain.repository.*;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.ResBatchListCustomRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResAccountHistoryRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResBatchListRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResBatchRepository;
+import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
+import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
+import com.nomadconnection.dapp.core.domain.risk.Risk;
+import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
+import com.nomadconnection.dapp.core.domain.user.Role;
+import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +41,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -62,10 +73,13 @@ public class AdminService {
         );
 
         if (user.authorities().stream().noneMatch(o ->
-                (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER))))
+                (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))) {
             throw UserNotFoundException.builder().build();
+        }
 
-        if (user.authorities().stream().anyMatch(o -> o.role().equals(Role.GOWID_ADMIN))) boolV = true;
+        if (user.authorities().stream().anyMatch(o -> o.role().equals(Role.GOWID_ADMIN))) {
+            boolV = true;
+        }
 
         return boolV;
     }
@@ -79,9 +93,13 @@ public class AdminService {
         );
 
         if (user.authorities().stream().noneMatch(o ->
-                (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))) iReturn = 1;
+                (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))) {
+            iReturn = 1;
+        }
 
-        if (user.authorities().stream().anyMatch(o -> o.role().equals(Role.GOWID_ADMIN))) iReturn = 2;
+        if (user.authorities().stream().anyMatch(o -> o.role().equals(Role.GOWID_ADMIN))) {
+            iReturn = 2;
+        }
 
         return iReturn;
     }
@@ -97,12 +115,17 @@ public class AdminService {
     public ResponseEntity riskList(AdminCustomRepository.SearchRiskDto riskDto, Long idxUser, Pageable pageable) {
         Boolean isMaster = isGowidMaster(idxUser);
 
-        if (!isMaster) riskDto.setIdxCorpName("");
+        if (!isMaster) {
+            riskDto.setIdxCorpName("");
+        }
 
         Page<AdminDto.RiskDto> resAccountPage = repoRisk.riskList(riskDto, idxUser, pageable).map(AdminDto.RiskDto::from);
 
-        if (!isMaster)
-            for (AdminDto.RiskDto x : resAccountPage.getContent()) x.setIdxCorpName("#" + x.idxCorp);
+        if (!isMaster) {
+            for (AdminDto.RiskDto x : resAccountPage.getContent()) {
+                x.setIdxCorpName("#" + x.idxCorp);
+            }
+        }
 
         return ResponseEntity.ok().body(
                 BusinessResponse.builder().data(resAccountPage).build()
@@ -127,8 +150,11 @@ public class AdminService {
 
         Page<CorpCustomRepository.SearchCorpResultDto> page = repoCorp.corpList(corpDto, idxUser, pageable);
 
-        if (!isMaster)
-            for (CorpCustomRepository.SearchCorpResultDto x : page.getContent()) x.setResCompanyNm("#" + x.idx);
+        if (!isMaster) {
+            for (CorpCustomRepository.SearchCorpResultDto x : page.getContent()) {
+                x.setResCompanyNm("#" + x.idx);
+            }
+        }
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(page).build());
     }
@@ -249,11 +275,14 @@ public class AdminService {
         Page<AdminDto.CashListDto> returnData = null;
 
         if (isMaster) {
-            if(updateStatus != null ){
-                if(updateStatus.equals("true")) returnData = repoResAccount.cashList(corpName, true, pageable).map(AdminDto.CashListDto::from);
-                else if(updateStatus.equals("false")) returnData = repoResAccount.cashList(corpName, false, pageable).map(AdminDto.CashListDto::from);
+            if (updateStatus != null) {
+                if (updateStatus.equals("true")) {
+                    returnData = repoResAccount.cashList(corpName, true, pageable).map(AdminDto.CashListDto::from);
+                } else if (updateStatus.equals("false")) {
+                    returnData = repoResAccount.cashList(corpName, false, pageable).map(AdminDto.CashListDto::from);
+                }
 
-            }else {
+            } else {
                 returnData = repoResAccount.cashList(corpName, null, pageable).map(AdminDto.CashListDto::from);
             }
 
@@ -301,8 +330,11 @@ public class AdminService {
                     }
             );
 
-            if ( intMaster < 2 )
-                for (AdminDto.ScrapingListDto x : resAccountPage.getContent()) x.setIdxCorpName("#" + x.idxCorp);
+            if (intMaster < 2) {
+                for (AdminDto.ScrapingListDto x : resAccountPage.getContent()) {
+                    x.setIdxCorpName("#" + x.idxCorp);
+                }
+            }
         }
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(resAccountPage).build());
@@ -326,17 +358,19 @@ public class AdminService {
         Boolean isMaster = isGowidMaster(idx);
 
         String toDay = dto.getBoolToday();
-        if(toDay != null && toDay.equals("true")){
+        if (toDay != null && toDay.equals("true")) {
             toDay = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        }else{
+        } else {
             toDay = "20100000";
         }
 
-        Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto.getCorpName(), dto.getErrorCode() ,dto.getTransactionId(), toDay, dto.getIdxCorp(), pageable).map(AdminDto.ErrorResultDto::from);
+        Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto.getCorpName(), dto.getErrorCode(), dto.getTransactionId(), toDay, dto.getIdxCorp(), pageable).map(AdminDto.ErrorResultDto::from);
 
-        if (!isMaster)
-            for (AdminDto.ErrorResultDto errorResultDto : list)
+        if (!isMaster) {
+            for (AdminDto.ErrorResultDto errorResultDto : list) {
                 errorResultDto.setCorpName("#" + errorResultDto.idxCorp);
+            }
+        }
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(list).normal(BusinessResponse.Normal.builder().status(true).build()).build());
     }
@@ -347,7 +381,9 @@ public class AdminService {
         Long longEndBalance = firstBalance.get(3);
         Long BurnRate = (longFirstBalance - longEndBalance) / 3;
         int intMonth = 1;
-        if (BurnRate > 0) intMonth = (int) Math.ceil((double) longEndBalance / BurnRate);
+        if (BurnRate > 0) {
+            intMonth = (int) Math.ceil((double) longEndBalance / BurnRate);
+        }
         x.setBurnRate(BurnRate);
         x.setRunWay(intMonth);
     }

@@ -1,16 +1,12 @@
 package com.nomadconnection.dapp.core.security;
 
-import com.nomadconnection.dapp.core.domain.Role;
-import com.nomadconnection.dapp.core.domain.repository.CorpRepository;
-import com.nomadconnection.dapp.core.domain.repository.UserRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service

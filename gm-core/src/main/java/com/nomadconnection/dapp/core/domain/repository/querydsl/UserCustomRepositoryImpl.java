@@ -1,10 +1,11 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
-import com.nomadconnection.dapp.core.domain.*;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.user.QUser;
+import com.nomadconnection.dapp.core.domain.user.User;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
-import java.util.Collections;
 import java.util.stream.Stream;
 
 public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implements UserCustomRepository {
@@ -24,11 +25,12 @@ public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implemen
 	 * @param corp 엔터티(법인)
 	 * @return 멤버목록
 	 */
+	@Override
 	public Stream<User> findCorpMembers(Corp corp, String keyword) {
 		if (corp == null) {
 			return Stream.empty();
 		}
-		final JPQLQuery<User> query = from(user).leftJoin(user.dept).where(user.corp.eq(corp));
+		JPQLQuery<User> query = from(user).leftJoin(user.dept).where(user.corp.eq(corp));
 		if (keyword != null) {
 			query.where(user.name.contains(keyword)
 					.or(user.email.contains(keyword))
@@ -38,11 +40,12 @@ public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implemen
 		return query.fetch().stream();
 	}
 
+	@Override
 	public Stream<User> findDeptMembers(Corp corp, Long idxDept) {
 		if (corp == null) {
 			return Stream.empty();
 		}
-		final JPQLQuery<User> query = from(user).where(user.corp.eq(corp));
+		JPQLQuery<User> query = from(user).where(user.corp.eq(corp));
 		{
 			if (idxDept == null) {
 				query.where(user.dept.isNull());
