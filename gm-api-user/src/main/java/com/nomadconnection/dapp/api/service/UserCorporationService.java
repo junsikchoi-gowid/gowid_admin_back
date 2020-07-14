@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -411,8 +412,8 @@ public class UserCorporationService {
 
 
 
-        Integer intLimitrepoRisk = Integer.parseInt(String.valueOf(Math.round(repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD()))));
-        Integer intAmount = Integer.parseInt(dto.getAmount());
+        Long intLimitrepoRisk = Long.parseLong(String.valueOf(Math.round(repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD()))));
+        Long intAmount = Long.parseLong(dto.getAmount());
 
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
