@@ -1,5 +1,7 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.core.domain.shinhan.IssuanceProgressType;
+import com.nomadconnection.dapp.core.domain.shinhan.IssuanceStatusType;
 import com.nomadconnection.dapp.core.domain.user.MemberAuthority;
 import com.nomadconnection.dapp.core.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
@@ -177,4 +179,19 @@ public class UserDto {
 		@ApiModelProperty("이용약관 정보")
 		private List<ConsentDto.RegDto> consents;
 	}
+
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class IssuanceProgressRes {
+
+		@ApiModelProperty("진행 단계 (NOT_SIGNED:서명전, SIGNED:서명 완료, RESUME:재개)")
+		private IssuanceProgressType progress;
+
+		@ApiModelProperty("상태 (DEFAULT:초기상태(실행전), SUCCESS:성공, FAILED:실패")
+		private IssuanceStatusType status;
+	}
+
 }

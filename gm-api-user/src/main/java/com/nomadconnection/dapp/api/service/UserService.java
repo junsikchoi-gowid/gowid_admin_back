@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.*;
 import com.nomadconnection.dapp.api.exception.*;
+import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.consent.ConsentMapping;
@@ -15,13 +16,16 @@ import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.DeptRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ReceptionRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.AlarmRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
+import com.nomadconnection.dapp.core.domain.shinhan.IssuanceProgress;
 import com.nomadconnection.dapp.core.domain.user.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +57,6 @@ public class UserService {
 	private final PasswordEncoder encoder;
 	private final UserRepository repo;
 	private final RiskConfigRepository repoRiskConfig;
-
 	private final ConsentMappingRepository repoConsentMapping;
 	private final ReceptionRepository receptionRepository;
 	private final CorpRepository repoCorp;
@@ -62,6 +65,7 @@ public class UserService {
 	private final VerificationCodeRepository repoVerificationCode;
 	private final AlarmRepository repoAlarm;
 	private final ITemplateEngine templateEngine;
+	private final IssuanceProgressRepository issuanceProgressRepository;
 
 	private final JwtService jwt;
 
@@ -705,6 +709,16 @@ public class UserService {
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(user)
+				.build());
+	}
+
+	public ResponseEntity<UserDto.IssuanceProgressRes> issuanceProgress(Long userIdx) {
+		IssuanceProgress issuanceProgress = issuanceProgressRepository.findById(userIdx).orElseThrow(
+				() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "issuanceProgress(userIdx=" + userIdx + ")")
+		);
+		return ResponseEntity.ok().body(UserDto.IssuanceProgressRes.builder()
+				.progress(issuanceProgress.getProgress())
+				.status(issuanceProgress.getStatus())
 				.build());
 	}
 }
