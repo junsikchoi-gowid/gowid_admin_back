@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.shinhan;
 
-import com.nomadconnection.dapp.core.domain.D1100;
+import com.nomadconnection.dapp.core.domain.shinhan.D1100;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

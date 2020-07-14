@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.core.domain.CardCompany;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

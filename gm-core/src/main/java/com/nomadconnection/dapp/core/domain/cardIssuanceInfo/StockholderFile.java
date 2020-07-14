@@ -1,7 +1,7 @@
 package com.nomadconnection.dapp.core.domain.cardIssuanceInfo;
 
-import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicUpdate;

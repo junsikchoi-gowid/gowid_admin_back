@@ -7,8 +7,18 @@ import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import com.nomadconnection.dapp.codef.io.sandbox.bk.*;
-import com.nomadconnection.dapp.core.domain.*;
-import com.nomadconnection.dapp.core.domain.repository.*;
+import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResAccountHistoryRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResBatchListRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResBatchRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
+import com.nomadconnection.dapp.core.domain.res.*;
+import com.nomadconnection.dapp.core.domain.user.Role;
+import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -76,8 +86,9 @@ public class ScrapingService {
                     resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
                 }
                 double balance = 0;
-                if (jsonData.get("resAccountBalance") != "")
+                if (jsonData.get("resAccountBalance") != "") {
                     balance = Double.parseDouble(jsonData.get("resAccountBalance").toString());
+                }
                 resAccount.resAccountBalance(balance);
                 resAccount.resAccountRiskBalance(balance);
 
@@ -112,8 +123,9 @@ public class ScrapingService {
                     resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
                 }
                 double balance = 0;
-                if (jsonData.get("resAccountBalance") != "")
+                if (jsonData.get("resAccountBalance") != "") {
                     balance = Double.parseDouble(jsonData.get("resAccountBalance").toString());
+                }
                 resAccount.resAccountBalance(balance);
                 resAccount.resAccountRiskBalance(balance);
                 resAccount.resAccountHolder(GowidUtils.getEmptyStringToString(jsonData, "resAccountHolder"));
@@ -225,8 +237,9 @@ public class ScrapingService {
             if (nowFlag.equals("1")) {
                 resAccount.resAccountStartDate("" + jsonData.get("resAccountStartDate").toString());
                 double balance = 0;
-                if (jsonData.get("resAccountBalance") != "")
+                if (jsonData.get("resAccountBalance") != "") {
                     balance = Double.parseDouble(jsonData.get("resAccountBalance").toString());
+                }
                 resAccount.resAccountBalance(balance);
                 resAccount.resAccountRiskBalance(balance);
                 resAccount.resAccountHolder(GowidUtils.getEmptyStringToString(jsonData, "resAccountHolder"));
@@ -349,8 +362,12 @@ public class ScrapingService {
 
         String startDate = dto.getMonth();
         String endDate = dto.getMonth();
-        if (startDate == null) startDate = GowidUtils.getMonth(-11);
-        if (endDate == null) endDate = GowidUtils.getMonth(0);
+        if (startDate == null) {
+            startDate = GowidUtils.getMonth(-11);
+        }
+        if (endDate == null) {
+            endDate = GowidUtils.getMonth(0);
+        }
 
         List<ResAccountRepository.CaccountMonthDto> transactionList = repoResAccount.findMonthHistory(startDate, endDate, idx);
 
@@ -666,7 +683,9 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
-            if (iType == 0) continue;
+            if (iType == 0) {
+                continue;
+            }
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
 
             if (repoResBatch.findById(idxResBatchParent).get().endFlag()) {
@@ -675,7 +694,7 @@ public class ScrapingService {
 
             try {
                 if (strType.equals("10") || strType.equals("11")) {
-                    strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                    strResult = getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
                             , resData.getOrganization()
                             , resData.getResAccount()
                             , strStart
@@ -683,7 +702,7 @@ public class ScrapingService {
                             , "0"
                             , "1"));
                 } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
-                    strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                    strResult = getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
                             , resData.getOrganization()
                             , resData.getResAccount()
                             , strStart
@@ -691,7 +710,7 @@ public class ScrapingService {
                             , "0"
                             , "1"));
                 } else if (strType.equals("40")) {
-                    strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                    strResult = getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
                             , resData.getOrganization()
                             , resData.getResAccount()
                             , strStart
@@ -699,7 +718,7 @@ public class ScrapingService {
                             , "0"
                             , resData.getResAccountLoanExecNo()));
                 } else if (strType.equals("30")) {
-                    strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                    strResult = getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
                             , resData.getOrganization()
                             , resData.getResAccount()
                             , strStart
@@ -707,7 +726,7 @@ public class ScrapingService {
                             , "0"
                             , "1"));
                 } else if (strType.equals("20")) {
-                    strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                    strResult = getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
                             , resData.getOrganization()
                             , resData.getResAccount()
                             , strStart
@@ -994,7 +1013,9 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
-            if (iType == 0) continue;
+            if (iType == 0) {
+                continue;
+            }
             Long idxResBatchList = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatch, idx);
 
             if (repoResBatch.findById(idxResBatch).get().endFlag()) {
@@ -1005,7 +1026,7 @@ public class ScrapingService {
                 switch (strType) {
                     case "10":
                     case "11":
-                        strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -1016,7 +1037,7 @@ public class ScrapingService {
                     case "12":
                     case "13":
                     case "14":
-                        strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -1025,7 +1046,7 @@ public class ScrapingService {
                                 , "1"));
                         break;
                     case "40":
-                        strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -1034,7 +1055,7 @@ public class ScrapingService {
                                 , resData.getResAccountLoanExecNo()));
                         break;
                     case "30":
-                        strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -1043,7 +1064,7 @@ public class ScrapingService {
                                 , "1"));
                         break;
                     case "20":
-                        strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -1128,7 +1149,9 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
-            if (iType == 0) continue;
+            if (iType == 0) {
+                continue;
+            }
             Long idxResBatchList = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatch, idx);
 
             if (repoResBatch.findById(idxResBatch).get().endFlag()) {
@@ -1139,7 +1162,7 @@ public class ScrapingService {
                 switch (strType) {
                     case "10":
                     case "11":
-                        strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -1150,7 +1173,7 @@ public class ScrapingService {
                     case "12":
                     case "13":
                     case "14":
-                        strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -1159,7 +1182,7 @@ public class ScrapingService {
                                 , "1"));
                         break;
                     case "40":
-                        strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -1168,7 +1191,7 @@ public class ScrapingService {
                                 , resData.getResAccountLoanExecNo()));
                         break;
                     case "30":
-                        strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -1177,7 +1200,7 @@ public class ScrapingService {
                                 , "1"));
                         break;
                     case "20":
-                        strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -1484,7 +1507,9 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
-            if (iType == 0) continue;
+            if (iType == 0) {
+                continue;
+            }
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
 
             if (!repoResBatch.findById(idxResBatchParent).get().endFlag()) {
@@ -1493,7 +1518,7 @@ public class ScrapingService {
                     switch (strType) {
                         case "10":
                         case "11":
-                            strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1504,7 +1529,7 @@ public class ScrapingService {
                         case "12":
                         case "13":
                         case "14":
-                            strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1513,7 +1538,7 @@ public class ScrapingService {
                                     , "1"));
                             break;
                         case "40":
-                            strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1522,7 +1547,7 @@ public class ScrapingService {
                                     , resData.getResAccountLoanExecNo()));
                             break;
                         case "30":
-                            strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1531,7 +1556,7 @@ public class ScrapingService {
                                     , "1"));
                             break;
                         case "20":
-                            strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1621,7 +1646,9 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
-            if (iType == 0) continue;
+            if (iType == 0) {
+                continue;
+            }
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
 
             if (!repoResBatch.findById(idxResBatchParent).get().endFlag()) {
@@ -1630,7 +1657,7 @@ public class ScrapingService {
                     switch (strType) {
                         case "10":
                         case "11":
-                            strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1641,7 +1668,7 @@ public class ScrapingService {
                         case "12":
                         case "13":
                         case "14":
-                            strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1650,7 +1677,7 @@ public class ScrapingService {
                                     , "1"));
                             break;
                         case "40":
-                            strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1659,7 +1686,7 @@ public class ScrapingService {
                                     , resData.getResAccountLoanExecNo()));
                             break;
                         case "30":
-                            strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1668,7 +1695,7 @@ public class ScrapingService {
                                     , "1"));
                             break;
                         case "20":
-                            strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1758,7 +1785,9 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
-            if (iType == 0) continue;
+            if (iType == 0) {
+                continue;
+            }
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
 
             if (iType == 0) {
@@ -1780,7 +1809,7 @@ public class ScrapingService {
                     switch (strType) {
                         case "10":
                         case "11":
-                            strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1791,7 +1820,7 @@ public class ScrapingService {
                         case "12":
                         case "13":
                         case "14":
-                            strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1800,7 +1829,7 @@ public class ScrapingService {
                                     , "1"));
                             break;
                         case "40":
-                            strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1809,7 +1838,7 @@ public class ScrapingService {
                                     , resData.getResAccountLoanExecNo()));
                             break;
                         case "30":
-                            strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -1818,7 +1847,7 @@ public class ScrapingService {
                                     , "1"));
                             break;
                         case "20":
-                            strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                            strResult = getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
                                     , resData.getOrganization()
                                     , resData.getResAccount()
                                     , strStart
@@ -2096,7 +2125,9 @@ public class ScrapingService {
             JSONParser jsonParse = new JSONParser();
             JSONObject[] strResult = new JSONObject[0];
 
-            if (iType == 0) continue;
+            if (iType == 0) {
+                continue;
+            }
             Long idxResBatch = startLog(resData.getResAccount(), resData.getConnectedId(), ResBatchType.ACCOUNT, idxResBatchParent, idx);
 
             if (repoResBatch.findById(idxResBatchParent).get().endFlag()) {
@@ -2107,7 +2138,7 @@ public class ScrapingService {
                 switch (strType) {
                     case "10":
                     case "11":
-                        strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_002.krbk1b002(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -2118,7 +2149,7 @@ public class ScrapingService {
                     case "12":
                     case "13":
                     case "14":
-                        strResult = this.getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -2127,7 +2158,7 @@ public class ScrapingService {
                                 , "1"));
                         break;
                     case "40":
-                        strResult = this.getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_004.krbk1b004(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -2136,7 +2167,7 @@ public class ScrapingService {
                                 , resData.getResAccountLoanExecNo()));
                         break;
                     case "30":
-                        strResult = this.getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_006.krbk1b006(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -2146,7 +2177,7 @@ public class ScrapingService {
                         break;
                     case "20":
 
-                        strResult = this.getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
+                        strResult = getApiResult(KR_BK_1_B_005.krbk1b005(resData.getConnectedId()
                                 , resData.getOrganization()
                                 , resData.getResAccount()
                                 , strStart
@@ -2239,10 +2270,13 @@ public class ScrapingService {
         );
 
         if (user.authorities().stream().noneMatch(o ->
-                (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER))))
+                (o.role().equals(Role.GOWID_ADMIN) || o.role().equals(Role.GOWID_USER)))) {
             throw UserNotFoundException.builder().build();
+        }
 
-        if (user.authorities().stream().anyMatch(o -> o.role().equals(Role.GOWID_ADMIN))) boolV = true;
+        if (user.authorities().stream().anyMatch(o -> o.role().equals(Role.GOWID_ADMIN))) {
+            boolV = true;
+        }
 
         return boolV;
     }
@@ -2256,7 +2290,7 @@ public class ScrapingService {
                     () -> new RuntimeException("Waring Account")
             );
 
-            JSONObject[] strResult = this.getApiResult(KR_BK_1_B_002.krbk1b002(resAccountData.connectedId()
+            JSONObject[] strResult = getApiResult(KR_BK_1_B_002.krbk1b002(resAccountData.connectedId()
                     , resAccountData.organization()
                     , resAccountData.resAccount()
                     , strStart

@@ -1,8 +1,15 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
-import com.nomadconnection.dapp.core.domain.*;
+import com.nomadconnection.dapp.core.domain.common.QConnectedMng;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.corp.QCorp;
+import com.nomadconnection.dapp.core.domain.res.QResAccount;
+import com.nomadconnection.dapp.core.domain.res.QResBatch;
+import com.nomadconnection.dapp.core.domain.res.QResBatchList;
+import com.nomadconnection.dapp.core.domain.res.ResBatchType;
+import com.nomadconnection.dapp.core.domain.risk.QRisk;
+import com.nomadconnection.dapp.core.domain.user.QUser;
 import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
@@ -33,8 +40,8 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
     @Override
     public Page<SearchCorpResultDto> corpList(SearchCorpDto dto, Long idxUser, Pageable pageable) {
 
-        final List<SearchCorpResultDto> riskList;
-        final JPQLQuery<SearchCorpResultDto> query = from(corp)
+        List<SearchCorpResultDto> riskList;
+        JPQLQuery<SearchCorpResultDto> query = from(corp)
                 .select(Projections.bean(SearchCorpResultDto.class,
                         corp.idx.as("idx"),
                         corp.resCompanyNm.as("resCompanyNm"),

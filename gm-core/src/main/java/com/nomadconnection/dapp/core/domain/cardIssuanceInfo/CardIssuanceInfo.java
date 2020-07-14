@@ -1,8 +1,8 @@
 package com.nomadconnection.dapp.core.domain.cardIssuanceInfo;
 
-import com.nomadconnection.dapp.core.domain.CardCompany;
-import com.nomadconnection.dapp.core.domain.Corp;
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.embed.BankAccount;
 import lombok.*;
 import lombok.experimental.Accessors;

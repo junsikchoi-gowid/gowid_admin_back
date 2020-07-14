@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.jwt.dto;
 
-import com.nomadconnection.dapp.core.domain.Role;
+import com.nomadconnection.dapp.core.domain.user.Role;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -54,13 +54,13 @@ public class TokenDto {
 	private Date expiration;
 
 	public TokenDto(Claims claims) {
-		this.issuer = claims.getIssuer();
-		this.identifier = claims.getSubject();
-		this.idx = claims.get(CustomClaim.IDX.name(), Long.class);
-		this.idxReference = claims.get(CustomClaim.IDX_REFERENCE.name(), Long.class);
-		this.issuedAt = claims.getIssuedAt();
-		this.expiration = claims.getExpiration();
-		this.tokenType = TokenType.from(claims.get(CustomClaim.TOKEN_TYPE.name(), String.class));
+		issuer = claims.getIssuer();
+		identifier = claims.getSubject();
+		idx = claims.get(CustomClaim.IDX.name(), Long.class);
+		idxReference = claims.get(CustomClaim.IDX_REFERENCE.name(), Long.class);
+		issuedAt = claims.getIssuedAt();
+		expiration = claims.getExpiration();
+		tokenType = TokenType.from(claims.get(CustomClaim.TOKEN_TYPE.name(), String.class));
 	}
 
 	@Data

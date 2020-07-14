@@ -5,7 +5,7 @@ import com.nomadconnection.dapp.api.service.UserCorporationService;
 import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.api.service.shinhan.ResumeService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
-import com.nomadconnection.dapp.core.domain.SignatureHistory;
+import com.nomadconnection.dapp.core.domain.shinhan.SignatureHistory;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;

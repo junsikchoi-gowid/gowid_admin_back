@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.core.security;
 
-import com.nomadconnection.dapp.core.domain.User;
-import lombok.Data;
+import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,8 +35,8 @@ public class CustomUser extends org.springframework.security.core.userdetails.Us
                         .map(authority -> new SimpleGrantedAuthority(authority.role().name()))
                         .collect(Collectors.toList())
         );
-        this.idx = user.idx();
-        this.name = user.name();
+        idx = user.idx();
+        name = user.name();
         //
         //	todo: set profile image uri
         //

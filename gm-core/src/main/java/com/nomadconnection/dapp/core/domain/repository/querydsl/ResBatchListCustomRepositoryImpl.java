@@ -1,6 +1,10 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
-import com.nomadconnection.dapp.core.domain.*;
+import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
+import com.nomadconnection.dapp.core.domain.common.QCommonCodeDetail;
+import com.nomadconnection.dapp.core.domain.corp.QCorp;
+import com.nomadconnection.dapp.core.domain.res.QResBatchList;
+import com.nomadconnection.dapp.core.domain.res.ResBatchList;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;

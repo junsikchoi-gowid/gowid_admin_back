@@ -1,7 +1,5 @@
 package com.nomadconnection.dapp.api.helper;
 
-import com.nomadconnection.dapp.core.domain.Role;
-import com.nomadconnection.dapp.core.domain.repository.UserRepository;
 import org.json.simple.JSONObject;
 import org.springframework.util.StringUtils;
 

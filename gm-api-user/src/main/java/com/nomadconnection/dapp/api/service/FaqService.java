@@ -2,9 +2,8 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BrandFaqDto;
-import com.nomadconnection.dapp.core.domain.Faq;
-import com.nomadconnection.dapp.core.domain.Role;
-import com.nomadconnection.dapp.core.domain.repository.FaqRepository;
+import com.nomadconnection.dapp.core.domain.repository.etc.FaqRepository;
+import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +15,11 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.thymeleaf.ITemplateEngine;
 
 @Slf4j
 @Service
@@ -64,8 +63,8 @@ public class FaqService {
         );
         */
 
-        final MimeMessagePreparator preparator = mimeMessage -> {
-            final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+        MimeMessagePreparator preparator = mimeMessage -> {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
             {
                 Context context = new Context();
                 {

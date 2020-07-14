@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.api.exception;
 
-import com.nomadconnection.dapp.core.domain.MemberAuthority;
+import com.nomadconnection.dapp.core.domain.user.MemberAuthority;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.Accessors;

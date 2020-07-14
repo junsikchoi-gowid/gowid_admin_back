@@ -1,9 +1,9 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
-import com.nomadconnection.dapp.core.domain.Corp;
-import com.nomadconnection.dapp.core.domain.Dept;
-import com.nomadconnection.dapp.core.domain.QDept;
-import com.nomadconnection.dapp.core.domain.QUser;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.corp.Dept;
+import com.nomadconnection.dapp.core.domain.corp.QDept;
+import com.nomadconnection.dapp.core.domain.user.QUser;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
@@ -27,18 +27,19 @@ public class DeptCustomRepositoryImpl extends QuerydslRepositorySupport implemen
 		super(Dept.class);
 	}
 
+	@Override
 	public List<DeptWithMemberCountDto> findDeptWithMemberCount(Corp corp) {
 		if (corp == null) {
 			return Collections.emptyList();
 		}
-		final JPQLQuery<DeptWithMemberCountDto> q1 = from(dept).leftJoin(user).on(dept.eq(user.dept))
+		JPQLQuery<DeptWithMemberCountDto> q1 = from(dept).leftJoin(user).on(dept.eq(user.dept))
 				.select(Projections.bean(DeptWithMemberCountDto.class,
 						dept.idx.as("idx"),
 						dept.name.as("name"),
 						user.countDistinct().as("members")))
 				.where(dept.corp.eq(corp))
 				.groupBy(dept);
-		final JPQLQuery<DeptWithMemberCountDto> q2 = from(user)
+		JPQLQuery<DeptWithMemberCountDto> q2 = from(user)
 				.select(Projections.bean(DeptWithMemberCountDto.class,
 						Expressions.asString("미지정").as("name"),
 						user.count().as("members")))

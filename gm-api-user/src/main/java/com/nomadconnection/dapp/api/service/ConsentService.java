@@ -4,11 +4,15 @@ import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.dto.ConsentDto;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
-import com.nomadconnection.dapp.core.domain.*;
-import com.nomadconnection.dapp.core.domain.repository.CommonCodeDetailRepository;
-import com.nomadconnection.dapp.core.domain.repository.ConsentMappingRepository;
-import com.nomadconnection.dapp.core.domain.repository.ConsentRepository;
-import com.nomadconnection.dapp.core.domain.repository.UserRepository;
+import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
+import com.nomadconnection.dapp.core.domain.consent.Consent;
+import com.nomadconnection.dapp.core.domain.consent.ConsentMapping;
+import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
+import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
+import com.nomadconnection.dapp.core.domain.repository.consent.ConsentRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
+import com.nomadconnection.dapp.core.domain.user.Role;
+import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +43,9 @@ public class ConsentService {
     public ResponseEntity consents(String typeCode) {
 
         //todo 하드코딩 형태 수정 필요
-        if(typeCode == null ) typeCode = "GOWID-A";
+        if (typeCode == null) {
+            typeCode = "GOWID-A";
+        }
         // List<BrandConsentDto> consents = repoConsent.findAllByEnabledOrderByConsentOrderAsc(true)
         List<BrandConsentDto> consents = repoConsent.findByEnabledAndTypeCodeOrderByConsentOrderAsc(true, typeCode)
                 .map(BrandConsentDto::from)
@@ -47,8 +53,8 @@ public class ConsentService {
 
         return ResponseEntity.ok().body(
                 BusinessResponse.builder()
-                    .data(consents)
-                    .build());
+                        .data(consents)
+                        .build());
     }
 
     /**

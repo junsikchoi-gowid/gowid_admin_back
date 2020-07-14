@@ -4,9 +4,23 @@ import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.*;
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
-import com.nomadconnection.dapp.core.domain.*;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.core.domain.consent.ConsentMapping;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
+import com.nomadconnection.dapp.core.domain.corp.Dept;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
-import com.nomadconnection.dapp.core.domain.repository.*;
+import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
+import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
+import com.nomadconnection.dapp.core.domain.repository.corp.DeptRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ReceptionRepository;
+import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.AlarmRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
+import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
+import com.nomadconnection.dapp.core.domain.user.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import com.nomadconnection.dapp.jwt.service.JwtService;
@@ -182,8 +196,8 @@ public class UserService {
 				.code(code)
 				.build());
 		//	메일 발송
-		final MimeMessagePreparator preparator = mimeMessage -> {
-			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 			helper.setFrom(config.getSender());
 			helper.setTo(dto.getEmail());
 			helper.setSubject("[MyCard] 멤버초대");
@@ -492,9 +506,9 @@ public class UserService {
 
 		user.cardCompany(dto.getCompanyCode());
 
-		if(dto.getCompanyCode().equals(CardCompany.SHINHAN)){
-			final MimeMessagePreparator preparator = mimeMessage -> {
-				final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+		if (dto.getCompanyCode().equals(CardCompany.SHINHAN)) {
+			MimeMessagePreparator preparator = mimeMessage -> {
+				MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 				{
 					Context context = new Context();
 					{
@@ -512,8 +526,8 @@ public class UserService {
 			sender.send(preparator);
 
 
-			final MimeMessagePreparator preparator2 = mimeMessage -> {
-				final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			MimeMessagePreparator preparator2 = mimeMessage -> {
+				MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 				{
 					Context context = new Context();
 					{
@@ -640,16 +654,16 @@ public class UserService {
 
 	public ResponseEntity saveAlarm(BrandDto.Alarm dto) {
 
-		final MimeMessagePreparator preparator = mimeMessage -> {
-			final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 			{
 				Context context = new Context();
 				{
-					context.setVariable("contents1", dto.getCorpName()  );
-					context.setVariable("contents2", dto.getName()  );
-					context.setVariable("contents3", dto.getEmail()  );
-					context.setVariable("contents4", dto.isVentureCertification()  );
-					context.setVariable("contents5", dto.isVcInvestment()  );
+					context.setVariable("contents1", dto.getCorpName());
+					context.setVariable("contents2", dto.getName());
+					context.setVariable("contents3", dto.getEmail());
+					context.setVariable("contents4", dto.isVentureCertification());
+					context.setVariable("contents5", dto.isVcInvestment());
 				}
 
 				helper.setFrom(config.getSender());

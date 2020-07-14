@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.core.domain.ConnectedMng;
+import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

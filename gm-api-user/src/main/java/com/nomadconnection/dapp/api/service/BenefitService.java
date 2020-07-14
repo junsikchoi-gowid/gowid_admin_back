@@ -2,10 +2,10 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.BenefitDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
-import com.nomadconnection.dapp.core.domain.Benefit;
-import com.nomadconnection.dapp.core.domain.User;
-import com.nomadconnection.dapp.core.domain.repository.BenefitRepository;
-import com.nomadconnection.dapp.core.domain.repository.UserRepository;
+import com.nomadconnection.dapp.core.domain.etc.Benefit;
+import com.nomadconnection.dapp.core.domain.repository.etc.BenefitRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
+import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
