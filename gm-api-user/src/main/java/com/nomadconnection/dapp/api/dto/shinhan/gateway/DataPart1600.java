@@ -17,4 +17,6 @@ public class DataPart1600 extends CommonPart {
 
     private String d001;    // 신청접수일자
     private String d002;      // 신청접수순번
+    private String d003;      // 사업자등록번호
+
 }

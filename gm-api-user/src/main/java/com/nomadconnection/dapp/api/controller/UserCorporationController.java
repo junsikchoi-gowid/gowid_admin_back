@@ -243,7 +243,7 @@ public class UserCorporationController {
 
         log.debug("## Received 1600");
         if (!ObjectUtils.isEmpty(request)) {
-            log.debug("## request data of 1600 : d001={}, d002={}", request.getD001(), request.getD002());
+            log.debug("## request 1600 => " + request.toString());
         } else {
             log.warn("## request data of 1600 is empty!");
         }
