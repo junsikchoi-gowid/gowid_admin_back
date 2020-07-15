@@ -83,6 +83,7 @@ public class IssuanceService {
                          UserCorporationDto.IssuanceReq request,
                          Long signatureHistoryIdx) {
         paramsLogging(request);
+        request.setUserIdx(userIdx);
         userService.saveIssuanceProgress(userIdx, IssuanceProgressType.SIGNED);
         Corp userCorp = getCorpByUserIdx(userIdx);
 
@@ -90,14 +91,19 @@ public class IssuanceService {
         encryptAndSaveD1100(userCorp.idx(), request);
 
         // 1200(법인회원신규여부검증)
+        userService.saveIssuanceProgFailed(userCorp.user().idx(), IssuanceProgressType.P_1200);
         DataPart1200 resultOfD1200 = proc1200(userCorp);
         saveSignatureHistory(signatureHistoryIdx, resultOfD1200);
+        userService.saveIssuanceProgSuccess(userCorp.user().idx(), IssuanceProgressType.P_1200);
 
 
         // 15xx 서류제출
+        userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_15XX);
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
+        userService.saveIssuanceProgSuccess(userCorp.user().idx(), IssuanceProgressType.P_15XX);
 
         // 신규(1000) or 변경(1400) 신청
+        userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_AUTO_CHECK);
         if ("Y".equals(resultOfD1200.getD003())) {
             proc1000(userCorp, resultOfD1200);         // 1000(신규-법인회원신규심사요청)
         } else if ("N".equals(resultOfD1200.getD003())) {
@@ -106,6 +112,7 @@ public class IssuanceService {
             String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
         }
+        userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_AUTO_CHECK);
 
         // BRP 전송(비동기)
         asyncService.run(() -> procBpr(userCorp, resultOfD1200));
@@ -133,6 +140,7 @@ public class IssuanceService {
         User user = findUser(userIdx);
         Corp userCorp = user.corp();
         if (userCorp == null) {
+            userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED);
             log.error("not found corp. userIdx=" + userIdx);
             throw new BadRequestException(ErrorCode.Api.NOT_FOUND, "corp(userIdx=" + userIdx + ")");
         }
@@ -141,7 +149,10 @@ public class IssuanceService {
 
     @Async
     void procBpr(Corp userCorp, DataPart1200 resultOfD1200) {
+        userService.saveIssuanceProgFailed(userCorp.user().idx(), IssuanceProgressType.P_IMG);
+
         if (proc3000(userCorp, resultOfD1200)) {
+            userService.saveIssuanceProgSuccess(userCorp.user().idx(), IssuanceProgressType.P_IMG);
             return;
         }
 
@@ -149,6 +160,7 @@ public class IssuanceService {
             for (int i = 0; i < 3; i++) {
                 Thread.sleep(5000L);
                 if (proc3000(userCorp, resultOfD1200)) {
+                    userService.saveIssuanceProgSuccess(userCorp.user().idx(), IssuanceProgressType.P_IMG);
                     return;
                 }
             }
@@ -219,10 +231,7 @@ public class IssuanceService {
     }
 
     DataPart1200 proc1200(Corp userCorp) {
-        // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1200);
-
-        // 데이터부
         D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1200 == null) {
             d1200 = new D1200();
@@ -235,7 +244,6 @@ public class IssuanceService {
         DataPart1200 requestRpc = new DataPart1200();
         BeanUtils.copyProperties(d1200, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
-
         issCommonService.saveGwTran(requestRpc);
         DataPart1200 responseRpc = shinhanGwRpc.request1200(requestRpc);
         issCommonService.saveGwTran(responseRpc);

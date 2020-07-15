@@ -605,6 +605,9 @@ public class UserCorporationDto {
         @JsonIgnore
         private String payAccount;  // 결제 계좌번호
 
+        @JsonIgnore
+        private Long userIdx;
+
     }
 
     @Data
