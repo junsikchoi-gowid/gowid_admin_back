@@ -9,6 +9,7 @@ import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
+import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
@@ -57,6 +58,7 @@ public class IssuanceService {
     private final ShinhanGwRpc shinhanGwRpc;
     private final CommonService issCommonService;
     private final AsyncService asyncService;
+    private final UserService userService;
 
     @Value("${encryption.keypad.enable}")
     private boolean ENC_KEYPAD_ENABLE;
@@ -77,26 +79,20 @@ public class IssuanceService {
      * 이미지 전송요청
      */
     @Transactional(noRollbackFor = Exception.class)
-    public UserCorporationDto.IssuanceRes issuance(Long userIdx,
-                                                   HttpServletRequest httpServletRequest,
-                                                   UserCorporationDto.IssuanceReq request,
-                                                   Long signatureHistoryIdx) {
+    public void issuance(Long userIdx,
+                         UserCorporationDto.IssuanceReq request,
+                         Long signatureHistoryIdx) {
         paramsLogging(request);
+        userService.saveIssuanceProgress(userIdx, IssuanceProgressType.SIGNED);
         Corp userCorp = getCorpByUserIdx(userIdx);
-        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByIdx(request.getCardIssuanceInfoIdx()).orElseThrow(
-                () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
-                        "CardIssuanceInfo is not exist(idx=" + request.getCardIssuanceInfoIdx() + ")")
-        );
-        request.setPayAccount(cardIssuanceInfo.bankAccount().getBankAccount());
 
         // 키패드 복호화(카드비번, 결제계좌) -> seed128 암호화 -> 1100 DB저장
-        encryptAndSaveD1100(userCorp.idx(), httpServletRequest, request);
+        encryptAndSaveD1100(userCorp.idx(), request);
 
         // 1200(법인회원신규여부검증)
         DataPart1200 resultOfD1200 = proc1200(userCorp);
-        SignatureHistory signatureHistory = getSignatureHistory(signatureHistoryIdx);
-        signatureHistory.setApplicationDate(resultOfD1200.getD007());
-        signatureHistory.setApplicationNum(resultOfD1200.getD008());
+        saveSignatureHistory(signatureHistoryIdx, resultOfD1200);
+
 
         // 15xx 서류제출
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
@@ -114,7 +110,19 @@ public class IssuanceService {
         // BRP 전송(비동기)
         asyncService.run(() -> procBpr(userCorp, resultOfD1200));
 
-        return new UserCorporationDto.IssuanceRes();
+    }
+
+    private void saveSignatureHistory(Long signatureHistoryIdx, DataPart1200 resultOfD1200) {
+        SignatureHistory signatureHistory = getSignatureHistory(signatureHistoryIdx);
+        signatureHistory.setApplicationDate(resultOfD1200.getD007());
+        signatureHistory.setApplicationNum(resultOfD1200.getD008());
+    }
+
+    private CardIssuanceInfo getCardIssuanceInfo(UserCorporationDto.IssuanceReq request) {
+        return cardIssuanceInfoRepository.findByIdx(request.getCardIssuanceInfoIdx()).orElseThrow(
+                () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
+                        "CardIssuanceInfo is not exist(idx=" + request.getCardIssuanceInfoIdx() + ")")
+        );
     }
 
     private void paramsLogging(UserCorporationDto.IssuanceReq request) {
@@ -168,23 +176,14 @@ public class IssuanceService {
     }
 
     // 1100 데이터 저장
-    private void encryptAndSaveD1100(Long corpIdx, HttpServletRequest httpServletRequest, UserCorporationDto.IssuanceReq request) {
+    private void encryptAndSaveD1100(Long corpIdx, UserCorporationDto.IssuanceReq request) {
         D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
 
-//        String passwd = CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.PASSWORD, ENC_KEYPAD_ENABLE);  // 키패드 암호화상태이면, 복호화함
-//        if (!StringUtils.isEmpty(passwd)) {
-//            d1100.setD021(Seed128.encryptEcb(passwd));
-//        } else {
-//            log.warn("### d1100.d21 (password) is empty!");
-//        }
-        if (!StringUtils.isEmpty(request.getPayAccount())) {
-            d1100.setD025(Seed128.encryptEcb(request.getPayAccount()));
-        } else {
-            log.warn("### d1100.d25 (payAccount) is empty!");
-        }
+        CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(request);
+        d1100.setD025(Seed128.encryptEcb(cardIssuanceInfo.bankAccount().getBankAccount()));
         d1100.setD040(Const.ID_VERIFICATION_NO);
         d1100.setD041(Const.ID_VERIFICATION_NO);
         d1100.setD044("Y");

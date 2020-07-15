@@ -225,11 +225,10 @@ public class UserCorporationController {
     @PostMapping(URI.CARD)
     public ResponseEntity<UserCorporationDto.IssuanceRes> application(
             @ApiIgnore @CurrentUser CustomUser user,
-            @ModelAttribute @Valid UserCorporationDto.IssuanceReq request,
-            HttpServletRequest httpServletRequest) {
+            @ModelAttribute @Valid UserCorporationDto.IssuanceReq request) {
 
         SignatureHistory signatureHistory = issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
-        issuanceService.issuance(user.idx(), httpServletRequest, request, signatureHistory.getIdx());
+        issuanceService.issuance(user.idx(), request, signatureHistory.getIdx());
 
         return ResponseEntity.ok().build();
     }

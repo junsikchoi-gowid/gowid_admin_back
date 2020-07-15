@@ -23,6 +23,8 @@ import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.shinhan.IssuanceProgress;
+import com.nomadconnection.dapp.core.domain.shinhan.IssuanceProgressType;
+import com.nomadconnection.dapp.core.domain.shinhan.IssuanceStatusType;
 import com.nomadconnection.dapp.core.domain.user.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -720,5 +722,15 @@ public class UserService {
 				.progress(issuanceProgress.getProgress())
 				.status(issuanceProgress.getStatus())
 				.build());
+	}
+
+	public void saveIssuanceProgress(Long userIdx, IssuanceProgressType progressType) {
+		saveIssuanceProgress(userIdx, progressType, IssuanceStatusType.DEFAULT);
+	}
+
+	public void saveIssuanceProgress(Long userIdx, IssuanceProgressType progressType, IssuanceStatusType statusType) {
+		issuanceProgressRepository.save(IssuanceProgress.builder()
+				.progress(progressType)
+				.status(statusType).build());
 	}
 }
