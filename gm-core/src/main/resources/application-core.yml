@@ -17,9 +17,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
-      show-sql: true
-      generate-ddl: true
-      open-in-view: false
+    show-sql: true
+    generate-ddl: true
+    open-in-view: false
   datasource:
     initialization-mode: always
 #    url: jdbc:mysql://14.37.191.160:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
@@ -41,9 +41,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
-      show-sql: false
-      generate-ddl: true
-      open-in-view: false
+    show-sql: false
+    generate-ddl: true
+    open-in-view: false
   datasource:
     initialization-mode: always
     url: jdbc:mysql://10.10.30.71:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
@@ -65,9 +65,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
-      show-sql: true
-      generate-ddl: true
-      open-in-view: false
+    show-sql: true
+    generate-ddl: true
+    open-in-view: false
   datasource:
     initialization-mode: always
     url: jdbc:mysql://10.10.30.71:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
@@ -84,7 +84,14 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+    generate-ddl: true
+    open-in-view: false
   datasource:
+    initialization-mode: always
     url: jdbc:mysql://127.0.0.1:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: card
     password: card2019
