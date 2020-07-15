@@ -39,6 +39,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.thymeleaf.ITemplateEngine;
 
 import java.io.IOException;
@@ -202,7 +203,7 @@ public class BankService {
 			Corp corp = repoCorp.findById(idxCorp).orElseThrow(
 					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
 			);
-			idxUser = repoCorp.findById(idxCorp).get().user().idx();
+			idxUser = corp.user().idx();
 		}
 
 		List<Long> firstBalance = repoResAccount.findBalance(idxUser);
@@ -210,8 +211,12 @@ public class BankService {
 		Long longFirstBalance = 0L;
 		Long longEndBalance = 0L;
 
-		longFirstBalance = Long.valueOf(firstBalance.get(0));
-		longEndBalance = Long.valueOf(firstBalance.get(3));
+		if (!ObjectUtils.isEmpty(firstBalance)) {
+			longFirstBalance = Long.valueOf(firstBalance.get(0));
+			if (firstBalance.size() > 3) {
+				longEndBalance = Long.valueOf(firstBalance.get(3));
+			}
+		}
 
 		Long BurnRate = (longFirstBalance - longEndBalance) / 3 ;
 		Integer intMonth = 1 ;
