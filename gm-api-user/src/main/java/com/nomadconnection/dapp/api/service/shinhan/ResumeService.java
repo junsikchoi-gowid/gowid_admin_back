@@ -62,6 +62,7 @@ public class ResumeService {
 
         asyncService.run(() -> procResume(request));
 
+        log.debug("## response 1600 => " + response.toString());
         return response;
     }
 

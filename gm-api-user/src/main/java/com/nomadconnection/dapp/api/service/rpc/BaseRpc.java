@@ -33,7 +33,7 @@ public class BaseRpc {
         HttpHeaders headers = makeHeader(headerParams);
         RestTemplate restTemplate = new RestTemplate();
         ((SimpleClientHttpRequestFactory) restTemplate.getRequestFactory()).setConnectTimeout(60000);
-        ((SimpleClientHttpRequestFactory) restTemplate.getRequestFactory()).setReadTimeout(90000);
+        ((SimpleClientHttpRequestFactory) restTemplate.getRequestFactory()).setReadTimeout(600000);
 
         try {
             log.debug("Request [POST] {}", gatewayUrl);
