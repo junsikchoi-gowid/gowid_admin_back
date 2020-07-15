@@ -210,9 +210,6 @@ public class IssuanceService {
         DataPart3000 requestRpc = new DataPart3000(mapCode, resultOfD1200.getD007() + resultOfD1200.getD008());
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        // todo : 테스트 데이터(삭제예정)
-        requestRpc.setC009("00");
-
         // 요청 및 리턴
         return shinhanGwRpc.request3000(requestRpc);
     }
@@ -326,9 +323,6 @@ public class IssuanceService {
         d1530.setD001(applyDate);
         d1530.setD002(applyNo);
 
-
-        // todo : 발행주식현황_종류1_수량 안들어감
-
         // 발행할주식의총수_변경일자', '발행할주식의총수_등기일자 빈값일때 => "법인성립연월일"로 입력
         if (StringUtils.isEmpty(d1530.getD019())) {
             d1530.setD019(d1530.getD057());
@@ -375,7 +369,6 @@ public class IssuanceService {
         d1000.setD039("00");
         // d43(신청관리자이메일주소) => 사용자계정
         d1000.setD043(userCorp.user().email());
-        // todo : d50 제휴약정한도금액 => 안들어옴
 
         // 연동
         DataPart1000 requestRpc = new DataPart1000();
