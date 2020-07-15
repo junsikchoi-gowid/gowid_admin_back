@@ -1,18 +1,25 @@
 spring:
-  profiles: dev
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
-      ddl-auto: update
       use-new-id-generator-mappings: true
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+---
+spring:
+  profiles: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
-    show-sql: true
-    generate-ddl: true
-    open-in-view: false
+      show-sql: true
+      generate-ddl: true
+      open-in-view: false
   datasource:
     initialization-mode: always
 #    url: jdbc:mysql://14.37.191.160:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
@@ -26,22 +33,17 @@ spring:
 #    password: Gowid%0203
 
 ---
-
 spring:
   profiles: stage
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
       ddl-auto: update
-      use-new-id-generator-mappings: true
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
         format_sql: true
-    show-sql: false
-    generate-ddl: true
-    open-in-view: false
+      show-sql: false
+      generate-ddl: true
+      open-in-view: false
   datasource:
     initialization-mode: always
     url: jdbc:mysql://10.10.30.71:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
@@ -55,22 +57,17 @@ spring:
 #    password: Gowid%0203
 
 ---
-
 spring:
   profiles: prod
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
       ddl-auto: validate
-      use-new-id-generator-mappings: true
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
         format_sql: true
-    show-sql: true
-    generate-ddl: true
-    open-in-view: false
+      show-sql: true
+      generate-ddl: true
+      open-in-view: false
   datasource:
     initialization-mode: always
     url: jdbc:mysql://10.10.30.71:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
@@ -85,20 +82,9 @@ spring:
 spring:
   profiles: aws
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
       ddl-auto: update
-      use-new-id-generator-mappings: true
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    properties:
-      hibernate:
-        format_sql: true
-    show-sql: true
-    generate-ddl: true
-    open-in-view: false
   datasource:
-    initialization-mode: always
     url: jdbc:mysql://127.0.0.1:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: card
     password: card2019
