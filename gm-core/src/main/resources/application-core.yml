@@ -1,12 +1,19 @@
 spring:
-  profiles: dev
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
-      ddl-auto: update
       use-new-id-generator-mappings: true
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+---
+spring:
+  profiles: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -26,16 +33,11 @@ spring:
 #    password: Gowid%0203
 
 ---
-
 spring:
   profiles: stage
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
       ddl-auto: update
-      use-new-id-generator-mappings: true
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
         format_sql: true
@@ -55,16 +57,11 @@ spring:
 #    password: Gowid%0203
 
 ---
-
 spring:
   profiles: prod
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
       ddl-auto: validate
-      use-new-id-generator-mappings: true
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
         format_sql: true
@@ -85,12 +82,8 @@ spring:
 spring:
   profiles: aws
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
       ddl-auto: update
-      use-new-id-generator-mappings: true
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
         format_sql: true

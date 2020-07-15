@@ -7,6 +7,7 @@ import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -31,6 +32,8 @@ public class BaseRpc {
                                          ShinhanGwApiType shinhanGwApiType) {
         HttpHeaders headers = makeHeader(headerParams);
         RestTemplate restTemplate = new RestTemplate();
+        ((SimpleClientHttpRequestFactory) restTemplate.getRequestFactory()).setConnectTimeout(60000);
+        ((SimpleClientHttpRequestFactory) restTemplate.getRequestFactory()).setReadTimeout(600000);
 
         try {
             log.debug("Request [POST] {}", gatewayUrl);
@@ -73,7 +76,7 @@ public class BaseRpc {
     }
 
     private void responseRpcExternalError(ShinhanGwApiType shinhanGwApiType, Exception e) {
-        log.error("error ====== {}", shinhanGwApiType.getName());
+        log.error("error ====== {}({})", shinhanGwApiType.getName(), shinhanGwApiType.getCode());
 
         if (ShinhanGwApiType.SH1000.getName().equals(shinhanGwApiType.getCode())) {
             throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1000, e.getMessage());
@@ -104,7 +107,7 @@ public class BaseRpc {
     }
 
     private void responseRpcInternalError(ShinhanGwApiType shinhanGwApiType, Exception e) {
-        log.error("error ====== {}", shinhanGwApiType.getName());
+        log.error("error ====== {}({})", shinhanGwApiType.getName(), shinhanGwApiType.getCode());
 
         if (ShinhanGwApiType.SH1000.getName().equals(shinhanGwApiType.getCode())) {
             throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1000, e.getMessage());

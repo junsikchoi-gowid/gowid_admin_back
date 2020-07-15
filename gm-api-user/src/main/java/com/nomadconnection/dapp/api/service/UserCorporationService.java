@@ -116,11 +116,14 @@ public class UserCorporationService {
         if (d1000 != null) {
             String[] corNumber = dto.getCorNumber().split("-");
             repoD1000.save(d1000
-                    .setD006(!StringUtils.hasText(d1000.getD006()) ? dto.getEngCorName() : d1000.getD006())
-                    .setD008(!StringUtils.hasText(d1000.getD008()) ? dto.getBusinessCode() : d1000.getD008())
-                    .setD026(!StringUtils.hasText(d1000.getD026()) ? corNumber[0] : d1000.getD026())
-                    .setD027(!StringUtils.hasText(d1000.getD027()) ? corNumber[1] : d1000.getD027())
-                    .setD028(!StringUtils.hasText(d1000.getD028()) ? corNumber[2] : d1000.getD028())
+                    .setD006(dto.getEngCorName())
+                    .setD008(dto.getBusinessCode())
+                    .setD026(corNumber[0])
+                    .setD027(corNumber[1])
+                    .setD028(corNumber[2])
+                    .setD036(corNumber[0])
+                    .setD037(corNumber[1])
+                    .setD038(corNumber[3])
             );
         }
         return UserCorporationDto.CorporationRes.from(corp, cardInfo.idx());

@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ObjectUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -240,7 +241,11 @@ public class UserCorporationController {
             @RequestBody UserCorporationDto.ResumeReq request) {
 
         log.debug("## Received 1600");
-        log.debug("## request data of 1600 => {}", request.toString());
+        if (!ObjectUtils.isEmpty(request)) {
+            log.debug("## request 1600 => " + request.toString());
+        } else {
+            log.warn("## request data of 1600 is empty!");
+        }
 
         return ResponseEntity.ok().body(
                 resumeService.resumeApplication(request)

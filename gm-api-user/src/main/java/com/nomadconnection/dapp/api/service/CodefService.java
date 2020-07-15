@@ -1314,7 +1314,7 @@ public class CodefService {
 						.d012("") // 종목
 						.d013("") // 업태
 						.d014("") // 작성일자
-						.d015("") // 귀속연도
+						.d015(CommonUtil.getNowYYYYMMDD().substring(0,4)) // 귀속연도
 						.d016(d1530.getD042()) // 총자산 대차대조표 상의 자본총계(없으면 등기부등본상의 자본금의 액) 희남 버그중
 						.d017("") // 매출   손익계산서 상의 매출액
 						.d018("") // 납입자본금   대차대조표 상의 자본금
@@ -1396,17 +1396,20 @@ public class CodefService {
 		String[] corNumber = dto.getResCompanyPhoneNumber().split("-");
 		d1000.setD006(!StringUtils.hasText(d1000.getD006()) ? dto.getResCompanyEngNm() : d1000.getD006());
 		d1000.setD008(!StringUtils.hasText(d1000.getD008()) ? dto.getResBusinessCode() : d1000.getD008());
-		d1000.setD026(!StringUtils.hasText(d1000.getD026()) ? corNumber[0] : d1000.getD026());
-		d1000.setD027(!StringUtils.hasText(d1000.getD027()) ? corNumber[1] : d1000.getD027());
-		d1000.setD028(!StringUtils.hasText(d1000.getD028()) ? corNumber[2] : d1000.getD028());
+		d1000.setD026(corNumber[0]);
+		d1000.setD027(corNumber[1]);
+		d1000.setD028(corNumber[2]);
+		d1000.setD036(d1000.getD026());
+		d1000.setD037(d1000.getD027());
+		d1000.setD038(d1000.getD028());
 
 		repoD1000.save(d1000);
 
 		//파일생성 및 전송
 		String strResultTemp = "{\n" +
 				"\t\"data\" : {\n" +
-				"\t\t\"resCompanyIdentityNo\" : \"" + user.corp().resCompanyIdentityNo()+ "\" ,\n" +
-				"\t\t\"resCompanyNm\" : \""+ user.corp().resCompanyNm()+"\"\n" +
+				"\t\t\"resCompanyIdentityNo\" : \"" + user.corp().resCompanyIdentityNo() + "\" ,\n" +
+				"\t\t\"resCompanyNm\" : \"" + user.corp().resCompanyNm() + "\"\n" +
 				"\t}\n" +
 				"}";
 

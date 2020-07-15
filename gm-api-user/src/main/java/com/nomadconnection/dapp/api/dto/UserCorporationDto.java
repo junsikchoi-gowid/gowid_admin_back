@@ -726,7 +726,6 @@ public class UserCorporationDto {
     // 1600
     @EqualsAndHashCode(callSuper = true)
     @NoArgsConstructor
-    @ToString
     public static class ResumeReq extends DataPart1600 {
 
     }

@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -77,8 +76,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 			if (log.isErrorEnabled()) {
 				log.error("([ doFilterInternal ]) $error='Could not set user authentication in security context', $exception='{} => {}'",
 						e.getClass().getSimpleName(),
-						e.getMessage(),
-						e);
+						e.getMessage());
 			}
 			SecurityContextHolder.clearContext();
 		}
