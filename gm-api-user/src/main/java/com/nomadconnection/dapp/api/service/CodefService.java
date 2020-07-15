@@ -1396,17 +1396,20 @@ public class CodefService {
 		String[] corNumber = dto.getResCompanyPhoneNumber().split("-");
 		d1000.setD006(!StringUtils.hasText(d1000.getD006()) ? dto.getResCompanyEngNm() : d1000.getD006());
 		d1000.setD008(!StringUtils.hasText(d1000.getD008()) ? dto.getResBusinessCode() : d1000.getD008());
-		d1000.setD026(!StringUtils.hasText(d1000.getD026()) ? corNumber[0] : d1000.getD026());
-		d1000.setD027(!StringUtils.hasText(d1000.getD027()) ? corNumber[1] : d1000.getD027());
-		d1000.setD028(!StringUtils.hasText(d1000.getD028()) ? corNumber[2] : d1000.getD028());
+		d1000.setD026(corNumber[0]);
+		d1000.setD027(corNumber[1]);
+		d1000.setD028(corNumber[2]);
+		d1000.setD036(d1000.getD026());
+		d1000.setD037(d1000.getD027());
+		d1000.setD038(d1000.getD028());
 
 		repoD1000.save(d1000);
 
 		//파일생성 및 전송
 		String strResultTemp = "{\n" +
 				"\t\"data\" : {\n" +
-				"\t\t\"resCompanyIdentityNo\" : \"" + user.corp().resCompanyIdentityNo()+ "\" ,\n" +
-				"\t\t\"resCompanyNm\" : \""+ user.corp().resCompanyNm()+"\"\n" +
+				"\t\t\"resCompanyIdentityNo\" : \"" + user.corp().resCompanyIdentityNo() + "\" ,\n" +
+				"\t\t\"resCompanyNm\" : \"" + user.corp().resCompanyNm() + "\"\n" +
 				"\t}\n" +
 				"}";
 

@@ -76,7 +76,7 @@ public class BaseRpc {
     }
 
     private void responseRpcExternalError(ShinhanGwApiType shinhanGwApiType, Exception e) {
-        log.error("error ====== {}", shinhanGwApiType.getName());
+        log.error("error ====== {}({})", shinhanGwApiType.getName(), shinhanGwApiType.getCode());
 
         if (ShinhanGwApiType.SH1000.getName().equals(shinhanGwApiType.getCode())) {
             throw new BusinessException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1000, e.getMessage());
@@ -107,7 +107,7 @@ public class BaseRpc {
     }
 
     private void responseRpcInternalError(ShinhanGwApiType shinhanGwApiType, Exception e) {
-        log.error("error ====== {}", shinhanGwApiType.getName());
+        log.error("error ====== {}({})", shinhanGwApiType.getName(), shinhanGwApiType.getCode());
 
         if (ShinhanGwApiType.SH1000.getName().equals(shinhanGwApiType.getCode())) {
             throw new BusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1000, e.getMessage());
