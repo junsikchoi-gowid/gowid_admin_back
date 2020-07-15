@@ -9,6 +9,7 @@ import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
+import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
@@ -57,6 +58,7 @@ public class IssuanceService {
     private final ShinhanGwRpc shinhanGwRpc;
     private final CommonService issCommonService;
     private final AsyncService asyncService;
+    private final UserService userService;
 
     @Value("${encryption.keypad.enable}")
     private boolean ENC_KEYPAD_ENABLE;
@@ -77,31 +79,31 @@ public class IssuanceService {
      * 이미지 전송요청
      */
     @Transactional(noRollbackFor = Exception.class)
-    public UserCorporationDto.IssuanceRes issuance(Long userIdx,
-                                                   HttpServletRequest httpServletRequest,
-                                                   UserCorporationDto.IssuanceReq request,
-                                                   Long signatureHistoryIdx) {
+    public void issuance(Long userIdx,
+                         UserCorporationDto.IssuanceReq request,
+                         Long signatureHistoryIdx) {
         paramsLogging(request);
+        request.setUserIdx(userIdx);
+        userService.saveIssuanceProgress(userIdx, IssuanceProgressType.SIGNED);
         Corp userCorp = getCorpByUserIdx(userIdx);
-        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByIdx(request.getCardIssuanceInfoIdx()).orElseThrow(
-                () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
-                        "CardIssuanceInfo is not exist(idx=" + request.getCardIssuanceInfoIdx() + ")")
-        );
-        request.setPayAccount(cardIssuanceInfo.bankAccount().getBankAccount());
 
         // 키패드 복호화(카드비번, 결제계좌) -> seed128 암호화 -> 1100 DB저장
-        encryptAndSaveD1100(userCorp.idx(), httpServletRequest, request);
+        encryptAndSaveD1100(userCorp.idx(), request);
 
         // 1200(법인회원신규여부검증)
+        userService.saveIssuanceProgFailed(userCorp.user().idx(), IssuanceProgressType.P_1200);
         DataPart1200 resultOfD1200 = proc1200(userCorp);
-        SignatureHistory signatureHistory = getSignatureHistory(signatureHistoryIdx);
-        signatureHistory.setApplicationDate(resultOfD1200.getD007());
-        signatureHistory.setApplicationNum(resultOfD1200.getD008());
+        saveSignatureHistory(signatureHistoryIdx, resultOfD1200);
+        userService.saveIssuanceProgSuccess(userCorp.user().idx(), IssuanceProgressType.P_1200);
+
 
         // 15xx 서류제출
+        userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_15XX);
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
+        userService.saveIssuanceProgSuccess(userCorp.user().idx(), IssuanceProgressType.P_15XX);
 
         // 신규(1000) or 변경(1400) 신청
+        userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_AUTO_CHECK);
         if ("Y".equals(resultOfD1200.getD003())) {
             proc1000(userCorp, resultOfD1200);         // 1000(신규-법인회원신규심사요청)
         } else if ("N".equals(resultOfD1200.getD003())) {
@@ -110,11 +112,24 @@ public class IssuanceService {
             String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
         }
+        userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_AUTO_CHECK);
 
         // BRP 전송(비동기)
         asyncService.run(() -> procBpr(userCorp, resultOfD1200));
 
-        return new UserCorporationDto.IssuanceRes();
+    }
+
+    private void saveSignatureHistory(Long signatureHistoryIdx, DataPart1200 resultOfD1200) {
+        SignatureHistory signatureHistory = getSignatureHistory(signatureHistoryIdx);
+        signatureHistory.setApplicationDate(resultOfD1200.getD007());
+        signatureHistory.setApplicationNum(resultOfD1200.getD008());
+    }
+
+    private CardIssuanceInfo getCardIssuanceInfo(UserCorporationDto.IssuanceReq request) {
+        return cardIssuanceInfoRepository.findByIdx(request.getCardIssuanceInfoIdx()).orElseThrow(
+                () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
+                        "CardIssuanceInfo is not exist(idx=" + request.getCardIssuanceInfoIdx() + ")")
+        );
     }
 
     private void paramsLogging(UserCorporationDto.IssuanceReq request) {
@@ -125,6 +140,7 @@ public class IssuanceService {
         User user = findUser(userIdx);
         Corp userCorp = user.corp();
         if (userCorp == null) {
+            userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED);
             log.error("not found corp. userIdx=" + userIdx);
             throw new BadRequestException(ErrorCode.Api.NOT_FOUND, "corp(userIdx=" + userIdx + ")");
         }
@@ -133,7 +149,10 @@ public class IssuanceService {
 
     @Async
     void procBpr(Corp userCorp, DataPart1200 resultOfD1200) {
+        userService.saveIssuanceProgFailed(userCorp.user().idx(), IssuanceProgressType.P_IMG);
+
         if (proc3000(userCorp, resultOfD1200)) {
+            userService.saveIssuanceProgSuccess(userCorp.user().idx(), IssuanceProgressType.P_IMG);
             return;
         }
 
@@ -141,6 +160,7 @@ public class IssuanceService {
             for (int i = 0; i < 3; i++) {
                 Thread.sleep(5000L);
                 if (proc3000(userCorp, resultOfD1200)) {
+                    userService.saveIssuanceProgSuccess(userCorp.user().idx(), IssuanceProgressType.P_IMG);
                     return;
                 }
             }
@@ -168,23 +188,14 @@ public class IssuanceService {
     }
 
     // 1100 데이터 저장
-    private void encryptAndSaveD1100(Long corpIdx, HttpServletRequest httpServletRequest, UserCorporationDto.IssuanceReq request) {
+    private void encryptAndSaveD1100(Long corpIdx, UserCorporationDto.IssuanceReq request) {
         D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
 
-//        String passwd = CommonUtil.getDecryptKeypad(httpServletRequest, EncryptParam.PASSWORD, ENC_KEYPAD_ENABLE);  // 키패드 암호화상태이면, 복호화함
-//        if (!StringUtils.isEmpty(passwd)) {
-//            d1100.setD021(Seed128.encryptEcb(passwd));
-//        } else {
-//            log.warn("### d1100.d21 (password) is empty!");
-//        }
-        if (!StringUtils.isEmpty(request.getPayAccount())) {
-            d1100.setD025(Seed128.encryptEcb(request.getPayAccount()));
-        } else {
-            log.warn("### d1100.d25 (payAccount) is empty!");
-        }
+        CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(request);
+        d1100.setD025(Seed128.encryptEcb(cardIssuanceInfo.bankAccount().getBankAccount()));
         d1100.setD040(Const.ID_VERIFICATION_NO);
         d1100.setD041(Const.ID_VERIFICATION_NO);
         d1100.setD044("Y");
@@ -210,9 +221,6 @@ public class IssuanceService {
         DataPart3000 requestRpc = new DataPart3000(mapCode, resultOfD1200.getD007() + resultOfD1200.getD008());
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        // todo : 테스트 데이터(삭제예정)
-        requestRpc.setC009("00");
-
         // 요청 및 리턴
         return shinhanGwRpc.request3000(requestRpc);
     }
@@ -223,10 +231,7 @@ public class IssuanceService {
     }
 
     DataPart1200 proc1200(Corp userCorp) {
-        // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1200);
-
-        // 데이터부
         D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1200 == null) {
             d1200 = new D1200();
@@ -239,7 +244,6 @@ public class IssuanceService {
         DataPart1200 requestRpc = new DataPart1200();
         BeanUtils.copyProperties(d1200, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
-
         issCommonService.saveGwTran(requestRpc);
         DataPart1200 responseRpc = shinhanGwRpc.request1200(requestRpc);
         issCommonService.saveGwTran(responseRpc);
@@ -326,9 +330,6 @@ public class IssuanceService {
         d1530.setD001(applyDate);
         d1530.setD002(applyNo);
 
-
-        // todo : 발행주식현황_종류1_수량 안들어감
-
         // 발행할주식의총수_변경일자', '발행할주식의총수_등기일자 빈값일때 => "법인성립연월일"로 입력
         if (StringUtils.isEmpty(d1530.getD019())) {
             d1530.setD019(d1530.getD057());
@@ -375,7 +376,6 @@ public class IssuanceService {
         d1000.setD039("00");
         // d43(신청관리자이메일주소) => 사용자계정
         d1000.setD043(userCorp.user().email());
-        // todo : d50 제휴약정한도금액 => 안들어옴
 
         // 연동
         DataPart1000 requestRpc = new DataPart1000();

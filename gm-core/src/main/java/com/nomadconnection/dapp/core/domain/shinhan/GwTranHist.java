@@ -20,9 +20,6 @@ public class GwTranHist extends BaseTime {
     @Column(nullable = false, updatable = false)
     private Long idx;
 
-//    @Column(columnDefinition = "varchar(9) COMMENT 'Transaction Code'")
-//    private String c001; // Transaction Code
-
     @Column(columnDefinition = "varchar(3) COMMENT 'TEXT 개시문자'")
     private String c002; // TEXT 개시문자
 
@@ -46,15 +43,6 @@ public class GwTranHist extends BaseTime {
 
     @Column(columnDefinition = "varchar(2) COMMENT '응답코드'")
     private String c009;  // 응답코드
-
-//    @Column(columnDefinition = "varchar(12) COMMENT '회원사번호'")
-//    private String c010;  // 회원사번호
-//
-//    @Column(columnDefinition = "varchar(12) COMMENT '대외기관코드'")
-//    private String c011;  // 대외기관코드
-//
-//    @Column(columnDefinition = "varchar(12) COMMENT '조회제휴사번호'")
-//    private String c012;  // 조회제휴사번호
 
     @Column(columnDefinition = "varchar(100) COMMENT '응답메시지'")
     private String c013;  // 응답메시지

@@ -92,22 +92,13 @@ public class ShinhanGwRpc extends BaseRpc {
         return responseData;
     }
 
-    public BprTransferRes requestBprTransfer(BprTransferReq request, String licenseNo) {
+    public void requestBprTransfer(BprTransferReq request, String licenseNo) {
         ApiResponse<BprTransferRes> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_BPR_TRANSFER + "/" + licenseNo
                 , HttpMethod.POST, null, request, ApiResponse.class, ShinhanGwApiType.BPR_TRANSFER);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
             throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_BPR_TRANSFER, "gateway error");
         }
-
-        ObjectMapper mapper = new ObjectMapper();
-        BprTransferRes responseData = mapper.convertValue(response.getData(), BprTransferRes.class);
-
-        if (!responseData.getResult().getCode().equals(Const.API_GW_RESULT_SUCCESS)) {
-            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_BPR_TRANSFER, responseData.getResult().getCode() + "/" + responseData.getResult().getDesc());
-        }
-
-        return responseData;
     }
 
     public DataPart1510 request1510(DataPart1510 request) {

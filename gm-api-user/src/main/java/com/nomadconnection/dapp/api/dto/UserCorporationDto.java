@@ -598,25 +598,15 @@ public class UserCorporationDto {
         @ApiModelProperty("카드발급정보 식별자")
         private Long cardIssuanceInfoIdx;
 
-//        @ApiModelProperty("카드비빌번호")
-//        private String password;
-
-//        @ApiModelProperty("대표자주민등록번호1")
-//        @NotEmpty
-//        private String ceoRegisterNo1;
-//
-//        @ApiModelProperty("대표자주민등록번호2")
-//        private String ceoRegisterNo2;
-//
-//        @ApiModelProperty("대표자주민등록번호3")
-//        private String ceoRegisterNo3;
-
         @ApiModelProperty("서명파일 바이너리 스트링")
         @NotEmpty
         private String signedBinaryString;
 
         @JsonIgnore
         private String payAccount;  // 결제 계좌번호
+
+        @JsonIgnore
+        private Long userIdx;
 
     }
 

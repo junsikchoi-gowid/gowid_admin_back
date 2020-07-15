@@ -26,17 +26,18 @@ import springfox.documentation.annotations.ApiIgnore;
 public class UserController {
 
     public static class URI {
-        public static final String BASE = "/user/v1";
-        public static final String REGISTER = "/register";
-        public static final String REGISTRATION_USER = "/registration/user";
-        public static final String REGISTRATION_CORP = "/registration/corp";
-        public static final String REGISTRATION_INFO = "/registration/info";
-        public static final String REGISTRATION_PW = "/registrationpw/pw";
-        public static final String MEMBERS = "/members";
-        public static final String MEMBERS_MEMBER_DEPT = "/members/{member}/dept";
-        public static final String INFO = "/info";
-        public static final String REGISTRATION_CONSENT = "/registration/consent";
-    }
+		public static final String BASE = "/user/v1";
+		public static final String REGISTER = "/register";
+		public static final String REGISTRATION_USER = "/registration/user";
+		public static final String REGISTRATION_CORP = "/registration/corp";
+		public static final String REGISTRATION_INFO = "/registration/info";
+		public static final String REGISTRATION_PW = "/registrationpw/pw";
+		public static final String MEMBERS = "/members";
+		public static final String MEMBERS_MEMBER_DEPT = "/members/{member}/dept";
+		public static final String INFO = "/info";
+		public static final String REGISTRATION_CONSENT = "/registration/consent";
+		public static final String ISSUANCE_PROGRESS = "/issuance-progress/{userIdx}";
+	}
 
 	private final UserService service;
 	private final AuthService serviceAuth;
@@ -289,15 +290,13 @@ public class UserController {
 	}
 
 	@ApiOperation(
-			value = "사용자별 이용약관 등록 ",
+			value = "카드발급 진행상태 ",
 			notes = "### Remarks "
 	)
-	@PostMapping(URI.REGISTRATION_CONSENT)
-	public ResponseEntity registerUserConsent(
-			@RequestParam Long idxUser ,
-			@RequestBody UserDto.RegisterUserConsent dto
-	) {
-
-		return service.registerUserConsent(dto, idxUser);
+	@GetMapping(URI.ISSUANCE_PROGRESS)
+	public ResponseEntity<UserDto.IssuanceProgressRes> registerUserConsent(@PathVariable Long userIdx) {
+		return service.issuanceProgress(userIdx);
 	}
+
+
 }
