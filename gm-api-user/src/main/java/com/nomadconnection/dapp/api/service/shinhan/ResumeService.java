@@ -22,6 +22,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Slf4j
@@ -42,6 +43,7 @@ public class ResumeService {
     private boolean ENC_SEED128_ENABLE;
 
     // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
+    @Transactional(noRollbackFor = Exception.class)
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
         issCommonService.saveGwTran(request);
 
