@@ -289,6 +289,19 @@ public class UserController {
 		return service.registerUserPasswordUpdate(dto, idxUser);
 	}
 
+	@ApiOperation(
+			value = "사용자별 이용약관 등록 ",
+			notes = "### Remarks "
+	)
+	@PostMapping(URI.REGISTRATION_CONSENT)
+	public ResponseEntity registerUserConsent(
+			@RequestParam Long idxUser,
+			@RequestBody UserDto.RegisterUserConsent dto
+	) {
+
+		return service.registerUserConsent(dto, idxUser);
+	}
+
 	@ApiOperation(value = "카드발급 진행상태 ", notes = "### Remarks ")
 	@GetMapping(URI.ISSUANCE_PROGRESS)
 	public ResponseEntity<UserDto.IssuanceProgressRes> registerUserConsent(
