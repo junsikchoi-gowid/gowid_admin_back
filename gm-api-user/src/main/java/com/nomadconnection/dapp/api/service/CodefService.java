@@ -848,14 +848,20 @@ public class CodefService {
 						.build()
 				);
 			}else{
-				deleteAccount2(connectedId); // 삭제
+				if(connectedId != null) {
+					deleteAccount2(connectedId); // 삭제
+				}
 			}
 		}else {
 			try {
 				JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
 				JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
 				connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
-				deleteAccount2(connectedId); // 삭제
+
+				if(connectedId != null) {
+					deleteAccount2(connectedId); // 삭제
+				}
+
 				log.debug("cf-04000 connectedId = {} ", connectedId);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -881,8 +887,6 @@ public class CodefService {
 		String jsonObjectProofIssueCode = jsonObjectProofIssue[0].get("code").toString();
 		if (jsonObjectProofIssueCode.equals("CF-00000") ) {
 			JSONObject jsonData = jsonObjectProofIssue[1];
-
-			// JSONObject jsonData = (JSONObject) jsonDataYn.get("resRegisterEntriesList");
 
 			// todo 이미 가입된 회사의 경우 처리 필요
 			//	중복체크 테스트 후엔 적용
@@ -936,19 +940,67 @@ public class CodefService {
 					"",
 					"",
 					"",
-					"1",
+					"0",
 					"",
 					"",
 					"",
 					"N"
 			);
-			JSONObject[] jsonObjectCorpRegister = getApiResult(strResult1530);
 
+			JSONObject[] jsonObjectCorpRegister = getApiResult(strResult1530);
 			String jsonObjectCorpRegisterCode = jsonObjectCorpRegister[0].get("code").toString();
+
+			if (jsonObjectCorpRegisterCode.equals("CF-00000")) {
+				JSONObject jsonDataCorpRegister = jsonObjectCorpRegister[1];
+				String resIssueYn = jsonDataCorpRegister.get("resIssueYN").toString();
+				if (resIssueYn.equals("0")) {
+
+					JSONArray jsonDataArraySearchList = (JSONArray) jsonDataCorpRegister.get("resSearchList");
+
+					String registrationNumber = "";
+					for (Object o : jsonDataArraySearchList) {
+						JSONObject obj = (JSONObject) o;
+						if (obj.get("commRegistryStatus").equals("살아있는 등기") && obj.get("commBranchType").equals("본점")) {
+							registrationNumber = obj.get("resRegistrationNumber").toString().trim();
+							break;
+						}
+					}
+
+					strResult1530 = CORP_REGISTER.corp_register(
+							"0002",
+							"0261057000",
+							RSAUtil.encryptRSA("6821", CommonConstant.PUBLIC_KEY),
+							"1", // 검색구분 1 등기번호로 찾기
+							registrationNumber, // 살아있는 등기
+							"1", // 등기사항증명서종류 1 유효한부분
+							"T34029396293",
+							"gowid99!",
+							"",
+							"",
+							"",
+							"",
+							"0",
+							"",
+							"",
+							"",
+							"N"
+					);
+				} else if (!resIssueYn.equals("1")) {
+
+					deleteAccount2(connectedId); // 삭제
+					throw new RuntimeException("발행실패");
+				}
+			}
+
+			jsonObjectCorpRegister = getApiResult(strResult1530);
+			jsonObjectCorpRegisterCode = jsonObjectCorpRegister[0].get("code").toString();
+
 			if (jsonObjectCorpRegisterCode.equals("CF-00000")) {
 				JSONObject jsonDataCorpRegister = jsonObjectCorpRegister[1];
 
 				if (!jsonDataCorpRegister.get("resIssueYN").toString().equals("1")) {
+
+					deleteAccount2(connectedId); // 삭제
 					throw new RuntimeException("발행실패");
 				}
 
@@ -1159,11 +1211,21 @@ public class CodefService {
 
 				repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
 			}else{
+
+				if(connectedId != null) {
+					deleteAccount2(connectedId); // 삭제
+				}
+
 				normal.setStatus(false);
 				normal.setKey(jsonObjectCorpRegisterCode);
 				normal.setValue(jsonObjectCorpRegister[0].get("message").toString());
 			}
 		}else{
+
+			if(connectedId != null) {
+				deleteAccount2(connectedId); // 삭제
+			}
+
 			normal.setStatus(false);
 		}
 
