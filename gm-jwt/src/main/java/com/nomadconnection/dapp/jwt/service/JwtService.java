@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings({"unused", "WeakerAccess"})
 public class JwtService {
 
 	@Getter
@@ -51,8 +50,7 @@ public class JwtService {
 				log.error("([ parse ]) $error='failed to parse, jwt', $jwt='{}', $exception='{} => {}'",
 						jwt,
 						e.getClass().getSimpleName(),
-						e.getMessage(),
-						e);
+						e.getMessage());
 			}
 			throw UnacceptableJwtException.builder().jwt(jwt).build();
 		}
