@@ -84,11 +84,10 @@ public class IssuanceService {
                          Long signatureHistoryIdx) {
         paramsLogging(request);
         request.setUserIdx(userIdx);
-        userService.saveIssuanceProgress(userIdx, IssuanceProgressType.SIGNED);
+        userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED);
         Corp userCorp = getCorpByUserIdx(userIdx);
-
-        // 키패드 복호화(카드비번, 결제계좌) -> seed128 암호화 -> 1100 DB저장
         encryptAndSaveD1100(userCorp.idx(), request);
+        userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.SIGNED);
 
         // 1200(법인회원신규여부검증)
         userService.saveIssuanceProgFailed(userCorp.user().idx(), IssuanceProgressType.P_1200);

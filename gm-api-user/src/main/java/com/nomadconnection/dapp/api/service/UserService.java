@@ -724,10 +724,6 @@ public class UserService {
 				.build());
 	}
 
-	public void saveIssuanceProgress(Long userIdx, IssuanceProgressType progressType) {
-		saveIssuanceProgress(userIdx, progressType, IssuanceStatusType.DEFAULT);
-	}
-
 	public void saveIssuanceProgress(Long userIdx, IssuanceProgressType progressType, IssuanceStatusType statusType) {
 		issuanceProgressRepository.save(IssuanceProgress.builder()
 				.userIdx(userIdx)
@@ -735,16 +731,8 @@ public class UserService {
 				.status(statusType).build());
 	}
 
-	public void saveIssuanceProgFailed(UserCorporationDto.IssuanceReq request, IssuanceProgressType progressType) {
-		saveIssuanceProgress(request.getUserIdx(), progressType, IssuanceStatusType.FAILED);
-	}
-
 	public void saveIssuanceProgFailed(Long userIdx, IssuanceProgressType progressType) {
 		saveIssuanceProgress(userIdx, progressType, IssuanceStatusType.FAILED);
-	}
-
-	public void saveIssuanceProgSuccess(UserCorporationDto.IssuanceReq request, IssuanceProgressType progressType) {
-		saveIssuanceProgress(request.getUserIdx(), progressType, IssuanceStatusType.FAILED);
 	}
 
 	public void saveIssuanceProgSuccess(Long userIdx, IssuanceProgressType progressType) {
