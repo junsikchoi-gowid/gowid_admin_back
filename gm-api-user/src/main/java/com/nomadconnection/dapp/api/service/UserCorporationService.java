@@ -123,7 +123,7 @@ public class UserCorporationService {
                     .setD028(corNumber[2])
                     .setD036(corNumber[0])
                     .setD037(corNumber[1])
-                    .setD038(corNumber[3])
+                    .setD038(corNumber[2])
             );
         }
         return UserCorporationDto.CorporationRes.from(corp, cardInfo.idx());
@@ -580,14 +580,14 @@ public class UserCorporationService {
         if (d1000 != null) {
             if (!StringUtils.hasText(d1000.getD012()) || (ceo != null && ceo.ceoNumber().equals(1))) { // 첫번째 대표자정보
                 repoD1000.save(d1000
-                        .setD010(dto.getName())
-                        .setD012(dto.getEngName())
-                        .setD013(dto.getNation())
-                        .setD035(dto.getName())
-                        .setD036(dto.getPhoneNumber().substring(0, 3))
-                        .setD037(dto.getPhoneNumber().substring(3, 7))
-                        .setD038(dto.getPhoneNumber().substring(7))
-                        .setD040(dto.getPhoneNumber().substring(0, 3))
+                                .setD010(dto.getName())
+                                .setD012(dto.getEngName())
+                                .setD013(dto.getNation())
+                                .setD035(dto.getName())
+//                        .setD036(dto.getPhoneNumber().substring(0, 3))
+//                        .setD037(dto.getPhoneNumber().substring(3, 7))
+//                        .setD038(dto.getPhoneNumber().substring(7))
+                                .setD040(dto.getPhoneNumber().substring(0, 3))
                         .setD041(dto.getPhoneNumber().substring(3, 7))
                         .setD042(dto.getPhoneNumber().substring(7))
                 );
