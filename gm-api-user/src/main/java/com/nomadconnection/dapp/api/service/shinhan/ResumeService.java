@@ -49,8 +49,7 @@ public class ResumeService {
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
         issCommonService.saveGwTran(request);
 
-        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
-        userService.saveIssuanceProgFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1600);
+//        userService.saveIssuanceProgFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1600);
 
         UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1600);
@@ -65,16 +64,17 @@ public class ResumeService {
             return response;
         }
 
-        asyncService.run(() -> procResume(request, signatureHistory));
+        asyncService.run(() -> procResume(request));
 
-        userService.saveIssuanceProgSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1600);
+//        userService.saveIssuanceProgSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1600);
         log.debug("## response 1600 => " + response.toString());
         return response;
     }
 
     @Async
-    void procResume(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory) {
+    void procResume(UserCorporationDto.ResumeReq request) {
         log.debug("## start thread for 1100/1800 ");
+        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
         Long count = signatureHistory.getApplicationCount();
         if (count == null) {
             count = 0L;
@@ -82,13 +82,13 @@ public class ResumeService {
         signatureHistory.setApplicationCount(count + 1);
         signatureHistoryRepository.save(signatureHistory);
 
-        userService.saveIssuanceProgFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
+//        userService.saveIssuanceProgFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
         proc1100(request, signatureHistory);  // 1100(법인카드신청)
-        userService.saveIssuanceProgSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
+//        userService.saveIssuanceProgSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
 
-        userService.saveIssuanceProgFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
+//        userService.saveIssuanceProgFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
         proc1800(request, signatureHistory);  // 1800(전자서명값전달)
-        userService.saveIssuanceProgSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
+//        userService.saveIssuanceProgSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
     }
 
     private void proc1800(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory) {
