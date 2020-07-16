@@ -46,7 +46,7 @@ spring:
     open-in-view: false
   datasource:
     initialization-mode: always
-    url: jdbc:mysql://10.10.30.71:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://10.10.40.173:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: gowid
     password: Gowid%0115
 #    url: jdbc:mysql://gowid-mysql-stg.clb82ylu4eie.ap-northeast-2.rds.amazonaws.com:3306/gowid?useSSL=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&sslMode=VERIFY_IDENTITY&trustCertificateKeyStoreUrl=classpath:cacerts&trustCertificateKeyStorePassword=Gowid@0115

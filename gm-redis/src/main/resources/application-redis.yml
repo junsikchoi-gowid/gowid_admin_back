@@ -17,7 +17,7 @@ spring:
 spring:
   profiles: stage
   redis:
-    host: 10.10.20.66
+    host: 10.10.40.175
     port: 6379
 
 ---
