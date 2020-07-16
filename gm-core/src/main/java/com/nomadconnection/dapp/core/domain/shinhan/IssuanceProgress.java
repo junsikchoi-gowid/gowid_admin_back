@@ -23,7 +23,7 @@ public class IssuanceProgress extends BaseTime {
     private IssuanceProgressType progress;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "varchar(40) COMMENT '상태. DEFAULT:초기상태(실행전), SUCCESS:성공, FAILED:실패'")
+    @Column(columnDefinition = "varchar(40) COMMENT '상태. SUCCESS:성공, FAILED:실패'")
     private IssuanceStatusType status;
 
 }

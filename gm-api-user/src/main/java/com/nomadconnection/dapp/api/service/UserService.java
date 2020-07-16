@@ -715,9 +715,18 @@ public class UserService {
 	}
 
 	public ResponseEntity<UserDto.IssuanceProgressRes> issuanceProgress(Long userIdx) {
-		IssuanceProgress issuanceProgress = issuanceProgressRepository.findById(userIdx).orElseThrow(
-				() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "issuanceProgress(userIdx=" + userIdx + ")")
+		repo.findById(userIdx).orElseThrow(
+				() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "userIdx=" + userIdx)
 		);
+
+		IssuanceProgress issuanceProgress = issuanceProgressRepository.findById(userIdx).orElse(
+				IssuanceProgress.builder()
+						.userIdx(userIdx)
+						.progress(IssuanceProgressType.NOT_SIGNED)
+						.status(IssuanceStatusType.SUCCESS)
+						.build()
+		);
+
 		return ResponseEntity.ok().body(UserDto.IssuanceProgressRes.builder()
 				.progress(issuanceProgress.getProgress())
 				.status(issuanceProgress.getStatus())

@@ -36,7 +36,7 @@ public class UserController {
 		public static final String MEMBERS_MEMBER_DEPT = "/members/{member}/dept";
 		public static final String INFO = "/info";
 		public static final String REGISTRATION_CONSENT = "/registration/consent";
-		public static final String ISSUANCE_PROGRESS = "/issuance-progress/{userIdx}";
+		public static final String ISSUANCE_PROGRESS = "/issuance-progress";
 	}
 
 	private final UserService service;
@@ -280,22 +280,21 @@ public class UserController {
 			value = "Brand 비밀번호 수정 2 ",
 			notes = "### Remarks "
 	)
-	@PostMapping(URI.REGISTRATION_PW+2)
+	@PostMapping(URI.REGISTRATION_PW + 2)
 	public ResponseEntity registerUserPasswordUpdate2(
-			@RequestParam Long idxUser ,
+			@RequestParam Long idxUser,
 			@RequestBody UserDto.registerUserPasswordUpdate dto
 	) {
 
 		return service.registerUserPasswordUpdate(dto, idxUser);
 	}
 
-	@ApiOperation(
-			value = "카드발급 진행상태 ",
-			notes = "### Remarks "
-	)
+	@ApiOperation(value = "카드발급 진행상태 ", notes = "### Remarks ")
 	@GetMapping(URI.ISSUANCE_PROGRESS)
-	public ResponseEntity<UserDto.IssuanceProgressRes> registerUserConsent(@PathVariable Long userIdx) {
-		return service.issuanceProgress(userIdx);
+	public ResponseEntity<UserDto.IssuanceProgressRes> registerUserConsent(
+			@ApiIgnore @CurrentUser CustomUser user
+	) {
+		return service.issuanceProgress(user.idx());
 	}
 
 
