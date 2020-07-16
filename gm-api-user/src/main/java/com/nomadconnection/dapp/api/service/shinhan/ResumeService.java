@@ -55,7 +55,7 @@ public class ResumeService {
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1600);
         BeanUtils.copyProperties(request, response);
         BeanUtils.copyProperties(commonPart, response);
-        issCommonService.saveGwTran(response);
+//        issCommonService.saveGwTran(response);
 
         if (!Const.API_SHINHAN_RESULT_SUCCESS.equals(request.getC009())) {
             log.error("## incoming result of 1600 is fail.");
