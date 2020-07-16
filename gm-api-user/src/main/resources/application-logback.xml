@@ -10,7 +10,7 @@
     <property name="_backup_" value="${logging.path}/backups"/>
     <property name="_ptn_level_" value="%highlight(%1.-1level)"/>
     <property name="_ptn_timestamp_" value="%yellow(%d{yyyyMMdd.HHmmss.SSS,Asia/Seoul})"/>
-    <property name="_ptn_logger_" value="%cyan(%60.60logger{60})"/>
+    <property name="_ptn_logger_" value="%cyan(%40.40logger{40})"/>
     <property name="_ptn_" value="[${_ptn_level_}][${_ptn_timestamp_}][${_ptn_logger_}] %msg%n"/>
 
     <!-- CONSOLE -->
