@@ -848,14 +848,20 @@ public class CodefService {
 						.build()
 				);
 			}else{
-				deleteAccount2(connectedId); // 삭제
+				if(connectedId != null) {
+					deleteAccount2(connectedId); // 삭제
+				}
 			}
 		}else {
 			try {
 				JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
 				JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
 				connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
-				deleteAccount2(connectedId); // 삭제
+
+				if(connectedId != null) {
+					deleteAccount2(connectedId); // 삭제
+				}
+
 				log.debug("cf-04000 connectedId = {} ", connectedId);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -881,8 +887,6 @@ public class CodefService {
 		String jsonObjectProofIssueCode = jsonObjectProofIssue[0].get("code").toString();
 		if (jsonObjectProofIssueCode.equals("CF-00000") ) {
 			JSONObject jsonData = jsonObjectProofIssue[1];
-
-			// JSONObject jsonData = (JSONObject) jsonDataYn.get("resRegisterEntriesList");
 
 			// todo 이미 가입된 회사의 경우 처리 필요
 			//	중복체크 테스트 후엔 적용
@@ -1207,11 +1211,21 @@ public class CodefService {
 
 				repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
 			}else{
+
+				if(connectedId != null) {
+					deleteAccount2(connectedId); // 삭제
+				}
+
 				normal.setStatus(false);
 				normal.setKey(jsonObjectCorpRegisterCode);
 				normal.setValue(jsonObjectCorpRegister[0].get("message").toString());
 			}
 		}else{
+
+			if(connectedId != null) {
+				deleteAccount2(connectedId); // 삭제
+			}
+
 			normal.setStatus(false);
 		}
 
