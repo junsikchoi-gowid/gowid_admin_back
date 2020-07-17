@@ -436,39 +436,37 @@ public class UserCorporationService {
 
         Long intLimitrepoRisk = Long.parseLong(String.valueOf(Math.round(repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD()))));
         Long intAmount = Long.parseLong(dto.getAmount());
+        String limitPrice = intLimitrepoRisk < intAmount ? intLimitrepoRisk.toString() : intAmount.toString();
 
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
             repoD1000.save(d1000
                     .setD022(dto.getZipCode().substring(0, 3))
-                    .setD022(dto.getZipCode().substring(0, 3))
                     .setD023(dto.getZipCode().substring(3))
                     .setD024(dto.getAddressBasic())
                     .setD025(dto.getAddressDetail())
-                    .setD050(intLimitrepoRisk<intAmount?intLimitrepoRisk.toString():intAmount.toString())
+                    .setD050(limitPrice)
                     .setD055(dto.getAddressKey())
-            );
-        }
-
-        D1100 d1100 = getD1100(user.corp().idx());
-        if (d1100 != null) {
-            repoD1100.save(d1100
-                    .setD029(dto.getReceiveType().getCode())
-                    .setD031(dto.getZipCode().substring(0, 3))
-                    .setD032(dto.getZipCode().substring(3))
-                    .setD033(dto.getAddressBasic())
-                    .setD034(dto.getAddressDetail())
-                    .setD020(dto.getGrantAmount())
-                    .setD039(dto.getCount() + "")
-                    .setD046(Const.CARD_RECEIVE_ADDRESS_CODE)
-                    .setD047(dto.getAddressKey())
             );
         }
 
         D1400 d1400 = getD1400(user.corp().idx());
         if (d1400 != null) {
-            repoD1400.save(d1400
-                    .setD014(intLimitrepoRisk<intAmount?intLimitrepoRisk.toString():intAmount.toString())
+            repoD1400.save(d1400.setD014(limitPrice));
+        }
+
+        D1100 d1100 = getD1100(user.corp().idx());
+        if (d1100 != null) {
+            repoD1100.save(d1100
+                    .setD020(dto.getGrantAmount())
+                    .setD029(dto.getReceiveType().getCode())
+                    .setD031(dto.getZipCode().substring(0, 3))
+                    .setD032(dto.getZipCode().substring(3))
+                    .setD033(dto.getAddressBasic())
+                    .setD034(dto.getAddressDetail())
+                    .setD039(dto.getCount() + "")
+                    .setD046(Const.CARD_RECEIVE_ADDRESS_CODE)
+                    .setD047(dto.getAddressKey())
             );
         }
 
@@ -588,8 +586,8 @@ public class UserCorporationService {
 //                        .setD037(dto.getPhoneNumber().substring(3, 7))
 //                        .setD038(dto.getPhoneNumber().substring(7))
                                 .setD040(dto.getPhoneNumber().substring(0, 3))
-                        .setD041(dto.getPhoneNumber().substring(3, 7))
-                        .setD042(dto.getPhoneNumber().substring(7))
+                                .setD041(dto.getPhoneNumber().substring(3, 7))
+                                .setD042(dto.getPhoneNumber().substring(7))
                 );
                 ceoNum = 1;
 
@@ -705,6 +703,7 @@ public class UserCorporationService {
                     .ceoRes(cardIssuanceInfo.ceoInfos() != null ? cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()) : null)
                     .stockholderFileRes(cardIssuanceInfo.stockholderFiles() != null ? cardIssuanceInfo.stockholderFiles().stream().map(file -> UserCorporationDto.StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()) : null)
                     .build();
+
         } else {
             return UserCorporationDto.CardIssuanceInfoRes.builder()
                     .consentRes(consentInfo)
