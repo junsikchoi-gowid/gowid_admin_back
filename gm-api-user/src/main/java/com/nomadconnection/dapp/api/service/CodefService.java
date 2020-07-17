@@ -1194,8 +1194,8 @@ public class CodefService {
 						.d040(listD.size()>=19?listD.get(18):"")// 발행주식현황_종류10
 						.d041(listD.size()>=20?listD.get(19):"")// 발행주식현황_종류10_수량
 						.d042(listResStockList.get(1).toString())// 발행주식현황_자본금의액
-						.d043(listResStockList.get(3).toString())// 발행주식현황_변경일자
-						.d044(listResStockList.get(4).toString())// 발행주식현황_등기일자
+						.d043(StringUtils.isEmpty(listResStockList.get(3))?ResCorpEstablishDate:listResStockList.get(3).toString())// 발행주식현황_변경일자
+						.d044(StringUtils.isEmpty(listResStockList.get(4))?ResCorpEstablishDate:listResStockList.get(4).toString())// 발행주식현황_등기일자
 						.d045(listResCeoList.size()>=1?listResCeoList.get(0):"")// 대표이사_직위1
 						.d046(listResCeoList.size()>=2?listResCeoList.get(1):"")// 대표이사_성명1
 						.d047(listResCeoList.size()>=3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")// 대표이사_주민번호1
