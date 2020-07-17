@@ -10,6 +10,8 @@ public enum CommonCodeType {
 	CARD_1("카드사 코드"),
 	BUSINESS_1("법인업종 코드"),
 	GOWIDCARDS("제휴회사 코드"),
+	REG_OFFICE("등기소"),
+	REG_OFFICE_TYPE("법인구분"),
 	;
 
 	private String description;

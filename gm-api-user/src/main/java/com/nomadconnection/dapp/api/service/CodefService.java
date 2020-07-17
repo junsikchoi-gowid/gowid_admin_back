@@ -17,10 +17,14 @@ import com.nomadconnection.dapp.codef.io.sandbox.pb.CORP_REGISTER;
 import com.nomadconnection.dapp.codef.io.sandbox.pb.PROOF_ISSUE;
 import com.nomadconnection.dapp.codef.io.sandbox.pb.STANDARD_FINANCIAL;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.common.CommonCode;
+import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
+import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
+import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
@@ -73,6 +77,7 @@ public class CodefService {
 	private final D1520Repository repoD1520;
 	private final D1530Repository repoD1530;
 
+	private final CommonCodeDetailRepository repoCommonCodeDetail;
 	private final ImageConverter converter;
 	private final AsyncService asyncService;
 
@@ -848,19 +853,35 @@ public class CodefService {
 						.build()
 				);
 			}else{
-				deleteAccount2(connectedId); // 삭제
+				if(connectedId != null) {
+					deleteAccount2(connectedId); // 삭제
+				}
 			}
 		}else {
 			try {
 				JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
 				JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
 				connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
-				deleteAccount2(connectedId); // 삭제
+
+				if(connectedId != null) {
+					deleteAccount2(connectedId); // 삭제
+				}
+
 				log.debug("cf-04000 connectedId = {} ", connectedId);
 			} catch (Exception e) {
 				e.printStackTrace();
+			} finally {
+
+				if(connectedId != null) {
+					deleteAccount2(connectedId); // 삭제
+				}
+
+				normal.setStatus(false);
+
+				return ResponseEntity.ok().body(BusinessResponse.builder()
+						.normal(normal)
+						.data(null).build());
 			}
-			throw new RuntimeException(code);
 		}
 
 		String strResult = null;
@@ -881,8 +902,6 @@ public class CodefService {
 		String jsonObjectProofIssueCode = jsonObjectProofIssue[0].get("code").toString();
 		if (jsonObjectProofIssueCode.equals("CF-00000") ) {
 			JSONObject jsonData = jsonObjectProofIssue[1];
-
-			// JSONObject jsonData = (JSONObject) jsonDataYn.get("resRegisterEntriesList");
 
 			// todo 이미 가입된 회사의 경우 처리 필요
 			//	중복체크 테스트 후엔 적용
@@ -936,19 +955,73 @@ public class CodefService {
 					"",
 					"",
 					"",
-					"1",
+					"0",
 					"",
 					"",
 					"",
 					"N"
 			);
-			JSONObject[] jsonObjectCorpRegister = getApiResult(strResult1530);
 
+			JSONObject[] jsonObjectCorpRegister = getApiResult(strResult1530);
 			String jsonObjectCorpRegisterCode = jsonObjectCorpRegister[0].get("code").toString();
+
+			if (jsonObjectCorpRegisterCode.equals("CF-00000")) {
+				JSONObject jsonDataCorpRegister = jsonObjectCorpRegister[1];
+				String resIssueYn = jsonDataCorpRegister.get("resIssueYN").toString();
+				if (resIssueYn.equals("0")) {
+
+					JSONArray jsonDataArraySearchList = (JSONArray) jsonDataCorpRegister.get("resSearchList");
+
+					String registrationNumber = "";
+					CommonCodeDetail commCompetentRegistryOffice = new CommonCodeDetail();
+					CommonCodeDetail commBranchType = new CommonCodeDetail();
+
+					for (Object o : jsonDataArraySearchList) {
+						JSONObject obj = (JSONObject) o;
+						if (obj.get("commRegistryStatus").equals("살아있는 등기") && obj.get("commBranchType").equals("본점")) {
+							registrationNumber = obj.get("resRegistrationNumber").toString().trim();
+							commCompetentRegistryOffice = repoCommonCodeDetail.findFirstByCodeAndValue1(CommonCodeType.REG_OFFICE, obj.get("commCompetentRegistryOffice").toString());
+							commBranchType = repoCommonCodeDetail.findFirstByCodeAndValue1(CommonCodeType.REG_OFFICE_TYPE, obj.get("commCompanyType").toString());
+							break;
+						}
+					}
+
+
+					strResult1530 = CORP_REGISTER.corp_register(
+							"0002",
+							"0261057000",
+							RSAUtil.encryptRSA("6821", CommonConstant.PUBLIC_KEY),
+							"1", // 검색구분 1 등기번호로 찾기
+							registrationNumber, // 살아있는 등기
+							"1", // 등기사항증명서종류 1 유효한부분
+							"T34029396293",
+							"gowid99!",
+							commCompetentRegistryOffice.code1(),
+							commBranchType.code1(),
+							"",
+							"",
+							"0",
+							"",
+							"",
+							"",
+							"N"
+					);
+				} else if (!resIssueYn.equals("1")) {
+
+					deleteAccount2(connectedId); // 삭제
+					throw new RuntimeException("발행실패");
+				}
+			}
+
+			jsonObjectCorpRegister = getApiResult(strResult1530);
+			jsonObjectCorpRegisterCode = jsonObjectCorpRegister[0].get("code").toString();
+
 			if (jsonObjectCorpRegisterCode.equals("CF-00000")) {
 				JSONObject jsonDataCorpRegister = jsonObjectCorpRegister[1];
 
 				if (!jsonDataCorpRegister.get("resIssueYN").toString().equals("1")) {
+
+					deleteAccount2(connectedId); // 삭제
 					throw new RuntimeException("발행실패");
 				}
 
@@ -1088,8 +1161,8 @@ public class CodefService {
 						.d007(GowidUtils.getEmptyStringToString(jsonData2, "resPublishRegistryOffice"))// 발행등기소
 						.d008(GowidUtils.getEmptyStringToString(jsonData2, "resPublishDate"))// 발행일자
 						.d009(listResCompanyNmList.get(0))// 상호
-						.d010(listResCompanyNmList.get(1))// 상호_변경일자
-						.d011(listResCompanyNmList.get(2))// 상호_등기일자
+						.d010(StringUtils.isEmpty(listResCompanyNmList.get(1))?ResCorpEstablishDate:listResCompanyNmList.get(1))// 상호_변경일자
+						.d011(StringUtils.isEmpty(listResCompanyNmList.get(2))?ResCorpEstablishDate:listResCompanyNmList.get(2))// 상호_등기일자
 						.d012(listResUserAddrList.get(0))// 본점주소
 						.d013(listResUserAddrList.get(1))// 본점주소_변경일자
 						.d014(listResUserAddrList.get(2))// 본점주소_등기일자
@@ -1159,11 +1232,21 @@ public class CodefService {
 
 				repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
 			}else{
+
+				if(connectedId != null) {
+					deleteAccount2(connectedId); // 삭제
+				}
+
 				normal.setStatus(false);
 				normal.setKey(jsonObjectCorpRegisterCode);
 				normal.setValue(jsonObjectCorpRegister[0].get("message").toString());
 			}
 		}else{
+
+			if(connectedId != null) {
+				deleteAccount2(connectedId); // 삭제
+			}
+
 			normal.setStatus(false);
 		}
 

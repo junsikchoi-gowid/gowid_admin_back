@@ -65,6 +65,8 @@ public class CommonConstant {
 	public static final String REPORT_WITHHOLDING	= "/v1/kr/public/nt/report/a-withholding-tax"; 						// 국세청 - 신고서 원천징수 이행상황 신고서
 	public static final String STANDARD_FINANCIAL	= "/v1/kr/public/nt/proof-issue/a-standard-financial-statements"; 	// 국세청 - 증명발급 표준재무제표
 	public static final String CORP_REGISTER		= "/v1/kr/public/ck/corp-register/issue"; 							// 대법원 - 법인등기부등본
+	public static final String CORP_REGISTER_CORD	= "v1/kr/public/ck/corp-register/search-code"; 						// 대법원 - 법인등기부등본 코드 검색
+
 
 	public static final String GET_CONNECTED_IDS = "/v1/account/connectedId-list";       					// 커넥티드아이디 목록 조회
 	public static final String GET_ACCOUNTS = "/v1/account/list";            								// 계정 목록 조회
