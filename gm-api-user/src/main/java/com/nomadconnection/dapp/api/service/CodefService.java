@@ -1170,8 +1170,8 @@ public class CodefService {
 						.d016(StringUtils.isEmpty(listResOneStocAmtList.get(1))?ResCorpEstablishDate:listResOneStocAmtList.get(1))// 1주의금액_변경일자
 						.d017(StringUtils.isEmpty(listResOneStocAmtList.get(2))?ResCorpEstablishDate:listResOneStocAmtList.get(2))// 1주의금액_등기일자
 						.d018(listResTCntStockIssueList.get(0))// 발행할주식의총수
-						.d019(listResTCntStockIssueList.get(1))// 발행할주식의총수_변경일자
-						.d020(listResTCntStockIssueList.get(2))// 발행할주식의총수_등기일자
+						.d019(StringUtils.isEmpty(listResTCntStockIssueList.get(1))?ResCorpEstablishDate:listResTCntStockIssueList.get(1))// 발행할주식의총수_변경일자
+						.d020(StringUtils.isEmpty(listResTCntStockIssueList.get(2))?ResCorpEstablishDate:listResTCntStockIssueList.get(2))// 발행할주식의총수_등기일자
 						.d021(listResStockList.get(0).toString())// 발행주식현황_총수
 						.d022(listD.size()>=1?listD.get(0):"")// 발행주식현황_종류1
 						.d023(listD.size()>=2?listD.get(1):"")// 발행주식현황_종류1_수량
