@@ -48,6 +48,7 @@ public class UserCorporationController {
         public static final String RESUME = "/resume";
         public static final String CEO = "/ceo";
         public static final String CEO_ID = "/ceo/identification";
+        public static final String SHINHAN_DRIVER_LOCAL_CODE = "/shinhan/driver-local-code";
     }
 
     private final UserCorporationService service;
@@ -206,6 +207,17 @@ public class UserCorporationController {
         }
 
         return ResponseEntity.ok().body(service.getVentureBusiness());
+    }
+
+    @ApiOperation("신한 운전면허 지역코드 조회")
+    @GetMapping(URI.SHINHAN_DRIVER_LOCAL_CODE)
+    public ResponseEntity<List<UserCorporationDto.ShinhanDriverLocalCode>> getShinhanDriverLocalCodes(
+            @ApiIgnore @CurrentUser CustomUser user) {
+        if (log.isInfoEnabled()) {
+            log.info("([ getShinhanDriverLocalCodes ]) $user='{}'", user);
+        }
+
+        return ResponseEntity.ok().body(service.getShinhanDriverLocalCodes());
     }
 
     @ApiOperation(value = "신분증 본인 확인")

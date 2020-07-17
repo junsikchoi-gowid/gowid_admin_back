@@ -12,6 +12,8 @@ public enum CommonCodeType {
 	GOWIDCARDS("제휴회사 코드"),
 	REG_OFFICE("등기소"),
 	REG_OFFICE_TYPE("법인구분"),
+	SHINHAN_DRIVER_LOCAL_CODE("신한 운전면허 지역코드"),
+	CONCENT_TYPE("이용약관"),
 	;
 
 	private String description;

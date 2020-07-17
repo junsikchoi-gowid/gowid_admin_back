@@ -721,6 +721,16 @@ public class UserCorporationService {
         return repoVenture.findAllByOrderByNameAsc().stream().map(VentureBusiness::name).collect(Collectors.toList());
     }
 
+    /**
+     * 신한 운전면허 지역코드 조회
+     *
+     * @return 신한 운전면허 지역코드 목록
+     */
+    @Transactional(readOnly = true)
+    public List<UserCorporationDto.ShinhanDriverLocalCode> getShinhanDriverLocalCodes() {
+        return repoCodeDetail.findAllByCode(CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).stream().map(UserCorporationDto.ShinhanDriverLocalCode::from).collect(Collectors.toList());
+    }
+
 
     private User findUser(Long idx_user) {
         return repoUser.findById(idx_user).orElseThrow(

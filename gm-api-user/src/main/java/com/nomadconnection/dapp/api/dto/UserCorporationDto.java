@@ -737,4 +737,27 @@ public class UserCorporationDto {
     public static class ResumeRes extends DataPart1600 {
 
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ShinhanDriverLocalCode {
+
+        @ApiModelProperty("지역코드")
+        private String code;
+
+        @ApiModelProperty("지역명")
+        private String name;
+
+        public static ShinhanDriverLocalCode from(CommonCodeDetail code) {
+            if (code != null) {
+                return ShinhanDriverLocalCode.builder()
+                        .code(code.code1())
+                        .name(code.value1())
+                        .build();
+            }
+            return null;
+        }
+    }
 }
