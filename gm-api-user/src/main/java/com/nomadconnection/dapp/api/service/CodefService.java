@@ -1174,25 +1174,25 @@ public class CodefService {
 						.d020(StringUtils.isEmpty(listResTCntStockIssueList.get(2))?ResCorpEstablishDate:listResTCntStockIssueList.get(2))// 발행할주식의총수_등기일자
 						.d021(listResStockList.get(0).toString())// 발행주식현황_총수
 						.d022(listD.size()>=1?listD.get(0):"")// 발행주식현황_종류1
-						.d023(listD.size()>=2?listD.get(1).substring( listD.get(1).indexOf(" ")).trim():"")// 발행주식현황_종류1_수량
+						.d023(listD.size()>=2?listD.get(1).substring(listD.get(1).indexOf(" ")+1 , listD.get(1).length()).trim():"")// 발행주식현황_종류1_수량
 						.d024(listD.size()>=3?listD.get(2):"")// 발행주식현황_종류2
-						.d025(listD.size()>=4?listD.get(3).substring( listD.get(1).indexOf(" ")).trim():"")// 발행주식현황_종류2_수량
+						.d025(listD.size()>=4?listD.get(3).substring(listD.get(3).indexOf(" ")+1 , listD.get(3).length()).trim():"")// 발행주식현황_종류2_수량
 						.d026(listD.size()>=5?listD.get(4):"")// 발행주식현황_종류3
-						.d027(listD.size()>=6?listD.get(5).substring( listD.get(1).indexOf(" ")).trim():"")// 발행주식현황_종류3_수량
+						.d027(listD.size()>=6?listD.get(5).substring(listD.get(5).indexOf(" ")+1 , listD.get(5).length()).trim():"")// 발행주식현황_종류3_수량
 						.d028(listD.size()>=7?listD.get(6):"")// 발행주식현황_종류4
-						.d029(listD.size()>=8?listD.get(7).substring( listD.get(1).indexOf(" ")).trim():"")// 발행주식현황_종류4_수량
+						.d029(listD.size()>=8?listD.get(7).substring(listD.get(7).indexOf(" ")+1 , listD.get(7).length()).trim():"")// 발행주식현황_종류4_수량
 						.d030(listD.size()>=9?listD.get(8):"")// 발행주식현황_종류5
-						.d031(listD.size()>=10?listD.get(9).substring( listD.get(1).indexOf(" ")).trim():"")// 발행주식현황_종류5_수량
+						.d031(listD.size()>=10?listD.get(9).substring(listD.get(9).indexOf(" ")+1 , listD.get(9).length()).trim():"")// 발행주식현황_종류5_수량
 						.d032(listD.size()>=11?listD.get(10):"")// 발행주식현황_종류6
-						.d033(listD.size()>=12?listD.get(11).substring( listD.get(1).indexOf(" ")).trim():"")// 발행주식현황_종류6_수량
+						.d033(listD.size()>=12?listD.get(11).substring(listD.get(11).indexOf(" ")+1 , listD.get(11).length()).trim():"")// 발행주식현황_종류6_수량
 						.d034(listD.size()>=13?listD.get(12):"")// 발행주식현황_종류7
-						.d035(listD.size()>=14?listD.get(13).substring( listD.get(1).indexOf(" ")).trim():"")// 발행주식현황_종류7_수량
+						.d035(listD.size()>=14?listD.get(13).substring(listD.get(13).indexOf(" ")+1 , listD.get(13).length()).trim():"")// 발행주식현황_종류7_수량
 						.d036(listD.size()>=15?listD.get(14):"")// 발행주식현황_종류8
-						.d037(listD.size()>=16?listD.get(15).substring( listD.get(1).indexOf(" ")).trim():"")// 발행주식현황_종류8_수량
+						.d037(listD.size()>=16?listD.get(15).substring(listD.get(15).indexOf(" ")+1 , listD.get(15).length()).trim():"")// 발행주식현황_종류8_수량
 						.d038(listD.size()>=17?listD.get(16):"")// 발행주식현황_종류9
-						.d039(listD.size()>=18?listD.get(17).substring( listD.get(1).indexOf(" ")).trim():"")// 발행주식현황_종류9_수량
+						.d039(listD.size()>=18?listD.get(17).substring(listD.get(17).indexOf(" ")+1 , listD.get(17).length()).trim():"")// 발행주식현황_종류9_수량
 						.d040(listD.size()>=19?listD.get(18):"")// 발행주식현황_종류10
-						.d041(listD.size()>=20?listD.get(19).substring( listD.get(1).indexOf(" ")).trim():"")// 발행주식현황_종류10_수량
+						.d041(listD.size()>=20?listD.get(19).substring(listD.get(19).indexOf(" ")+1 , listD.get(19).length()).trim():"")// 발행주식현황_종류10_수량
 						.d042(listResStockList.get(1).toString())// 발행주식현황_자본금의액
 						.d043(StringUtils.isEmpty(listResStockList.get(3))?ResCorpEstablishDate:listResStockList.get(3).toString())// 발행주식현황_변경일자
 						.d044(StringUtils.isEmpty(listResStockList.get(4))?ResCorpEstablishDate:listResStockList.get(4).toString())// 발행주식현황_등기일자
