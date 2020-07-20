@@ -576,8 +576,8 @@ public class IssuanceService {
 
         User user = findUser(userIdx);
         SignatureHistory signatureHistory = SignatureHistory.builder()
-                .corpIdx(user.idx())
-                .userIdx(user.corp().idx())
+                .userIdx(user.idx())
+                .corpIdx(user.corp().idx())
                 .signedBinaryString(signedBinaryString)
                 .build();
 
