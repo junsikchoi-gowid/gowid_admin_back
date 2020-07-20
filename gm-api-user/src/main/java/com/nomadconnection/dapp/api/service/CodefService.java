@@ -1161,17 +1161,17 @@ public class CodefService {
 						.d007(GowidUtils.getEmptyStringToString(jsonData2, "resPublishRegistryOffice"))// 발행등기소
 						.d008(GowidUtils.getEmptyStringToString(jsonData2, "resPublishDate"))// 발행일자
 						.d009(listResCompanyNmList.get(0))// 상호
-						.d010(StringUtils.isEmpty(listResCompanyNmList.get(1))?"법인성립연월일":listResCompanyNmList.get(1))// 상호_변경일자
-						.d011(StringUtils.isEmpty(listResCompanyNmList.get(2))?"법인성립연월일":listResCompanyNmList.get(2))// 상호_등기일자
+						.d010(StringUtils.isEmpty(listResCompanyNmList.get(1))?ResCorpEstablishDate:listResCompanyNmList.get(1))// 상호_변경일자
+						.d011(StringUtils.isEmpty(listResCompanyNmList.get(2))?ResCorpEstablishDate:listResCompanyNmList.get(2))// 상호_등기일자
 						.d012(listResUserAddrList.get(0))// 본점주소
-						.d013(StringUtils.isEmpty(listResUserAddrList.get(1))?"법인성립연월일":listResUserAddrList.get(1))// 본점주소_변경일자
-						.d014(StringUtils.isEmpty(listResUserAddrList.get(2))?"법인성립연월일":listResUserAddrList.get(2))// 본점주소_등기일자
+						.d013(StringUtils.isEmpty(listResUserAddrList.get(1))?ResCorpEstablishDate:listResUserAddrList.get(1))// 본점주소_변경일자
+						.d014(StringUtils.isEmpty(listResUserAddrList.get(2))?ResCorpEstablishDate:listResUserAddrList.get(2))// 본점주소_등기일자
 						.d015(listResOneStocAmtList.get(0))// 1주의금액
-						.d016(StringUtils.isEmpty(listResOneStocAmtList.get(1))?"법인성립연월일":listResOneStocAmtList.get(1))// 1주의금액_변경일자
-						.d017(StringUtils.isEmpty(listResOneStocAmtList.get(2))?"법인성립연월일":listResOneStocAmtList.get(2))// 1주의금액_등기일자
+						.d016(StringUtils.isEmpty(listResOneStocAmtList.get(1))?ResCorpEstablishDate:listResOneStocAmtList.get(1))// 1주의금액_변경일자
+						.d017(StringUtils.isEmpty(listResOneStocAmtList.get(2))?ResCorpEstablishDate:listResOneStocAmtList.get(2))// 1주의금액_등기일자
 						.d018(listResTCntStockIssueList.get(0))// 발행할주식의총수
-						.d019(StringUtils.isEmpty(listResTCntStockIssueList.get(1))?"법인성립연월일":listResTCntStockIssueList.get(1))// 발행할주식의총수_변경일자
-						.d020(StringUtils.isEmpty(listResTCntStockIssueList.get(2))?"법인성립연월일":listResTCntStockIssueList.get(2))// 발행할주식의총수_등기일자
+						.d019(StringUtils.isEmpty(listResTCntStockIssueList.get(1))?ResCorpEstablishDate:listResTCntStockIssueList.get(1))// 발행할주식의총수_변경일자
+						.d020(StringUtils.isEmpty(listResTCntStockIssueList.get(2))?ResCorpEstablishDate:listResTCntStockIssueList.get(2))// 발행할주식의총수_등기일자
 						.d021(listResStockList.get(0).toString())// 발행주식현황_총수
 						.d022(listD.size()>=1?listD.get(0):"")// 발행주식현황_종류1
 						.d023(listD.size()>=2?listD.get(1).substring(listD.get(1).indexOf(" ")+1 , listD.get(1).length()).trim():"")// 발행주식현황_종류1_수량
@@ -1194,8 +1194,8 @@ public class CodefService {
 						.d040(listD.size()>=19?listD.get(18):"")// 발행주식현황_종류10
 						.d041(listD.size()>=20?listD.get(19).substring(listD.get(19).indexOf(" ")+1 , listD.get(19).length()).trim():"")// 발행주식현황_종류10_수량
 						.d042(listResStockList.get(1).toString())// 발행주식현황_자본금의액
-						.d043(StringUtils.isEmpty(listResStockList.get(3))?"법인성립연월일":listResStockList.get(3).toString())// 발행주식현황_변경일자
-						.d044(StringUtils.isEmpty(listResStockList.get(4))?"법인성립연월일":listResStockList.get(4).toString())// 발행주식현황_등기일자
+						.d043(StringUtils.isEmpty(listResStockList.get(3))?ResCorpEstablishDate:listResStockList.get(3).toString())// 발행주식현황_변경일자
+						.d044(StringUtils.isEmpty(listResStockList.get(4))?ResCorpEstablishDate:listResStockList.get(4).toString())// 발행주식현황_등기일자
 						.d045(listResCeoList.size()>=1?listResCeoList.get(0):"")// 대표이사_직위1
 						.d046(listResCeoList.size()>=2?listResCeoList.get(1):"")// 대표이사_성명1
 						.d047(listResCeoList.size()>=3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")// 대표이사_주민번호1
