@@ -14,8 +14,11 @@ import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
+import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
+import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.shinhan.*;
@@ -54,6 +57,7 @@ public class IssuanceService {
     private final D1100Repository d1100Repository;
     private final SignatureHistoryRepository signatureHistoryRepository;
     private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
+    private final CommonCodeDetailRepository commonCodeDetailRepository;
 
     private final ShinhanGwRpc shinhanGwRpc;
     private final CommonService issCommonService;
@@ -504,6 +508,9 @@ public class IssuanceService {
             decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER});
         }
 
+        CommonCodeDetail commonCodeDetail = findShinhanDriverLocalCode(dto.getDriverLocal());
+        dto.setDriverLocal(commonCodeDetail.code1());
+
         // 1700(신분증검증)
         DataPart1700 resultOfD1700 = proc1700(dto, decryptData);
 
@@ -584,5 +591,11 @@ public class IssuanceService {
         return signatureHistoryRepository.save(signatureHistory);
     }
 
-
+    private CommonCodeDetail findShinhanDriverLocalCode(String code) {
+        return commonCodeDetailRepository.findFirstByCodeAndValue1OrValue2(CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE, code, code).orElseThrow(
+                () -> EntityNotFoundException.builder()
+                        .entity("CommonCodeDetail")
+                        .build()
+        );
+    }
 }
