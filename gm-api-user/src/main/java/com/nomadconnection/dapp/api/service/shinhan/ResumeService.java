@@ -9,7 +9,6 @@ import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1800;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
-import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
@@ -39,7 +38,6 @@ public class ResumeService {
     private final ShinhanGwRpc shinhanGwRpc;
     private final AsyncService asyncService;
     private final CommonService issCommonService;
-    private final UserService userService;
 
     @Value("${encryption.seed128.enable}")
     private boolean ENC_SEED128_ENABLE;
@@ -48,14 +46,12 @@ public class ResumeService {
     @Transactional(noRollbackFor = Exception.class)
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
         issCommonService.saveGwTran(request);
+        log.debug("### saveProgressFailed start");
+        issCommonService.saveProgressFailed(request, IssuanceProgressType.P_1600);
+        log.debug("### saveProgressFailed end");
 
-//        userService.saveIssuanceProgFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1600);
-
-        UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
-        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1600);
-        BeanUtils.copyProperties(request, response);
-        BeanUtils.copyProperties(commonPart, response);
-//        issCommonService.saveGwTran(response);
+        UserCorporationDto.ResumeRes response = getResumeRes(request);
+        issCommonService.saveGwTran(response);
 
         if (!Const.API_SHINHAN_RESULT_SUCCESS.equals(request.getC009())) {
             log.error("## incoming result of 1600 is fail.");
@@ -66,15 +62,27 @@ public class ResumeService {
 
         asyncService.run(() -> procResume(request));
 
-//        userService.saveIssuanceProgSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1600);
+        issCommonService.saveProgressSuccess(request, IssuanceProgressType.P_1600);
         log.debug("## response 1600 => " + response.toString());
+
+        return response;
+    }
+
+    private UserCorporationDto.ResumeRes getResumeRes(UserCorporationDto.ResumeReq request) {
+        UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
+        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1600);
+        BeanUtils.copyProperties(request, response);
+        BeanUtils.copyProperties(commonPart, response);
+        response.setC006(request.getC006());    // 거래 고유번호
+        response.setC009(request.getC009());    // 코드
+        response.setC013(request.getC013());    // 메시지
         return response;
     }
 
     @Async
     void procResume(UserCorporationDto.ResumeReq request) {
         log.debug("## start thread for 1100/1800 ");
-        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
+        SignatureHistory signatureHistory = issCommonService.getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
         Long count = signatureHistory.getApplicationCount();
         if (count == null) {
             count = 0L;
@@ -82,13 +90,13 @@ public class ResumeService {
         signatureHistory.setApplicationCount(count + 1);
         signatureHistoryRepository.save(signatureHistory);
 
-//        userService.saveIssuanceProgFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
+        issCommonService.saveProgressFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
         proc1100(request, signatureHistory);  // 1100(법인카드신청)
-//        userService.saveIssuanceProgSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
+        issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
 
-//        userService.saveIssuanceProgFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
+        issCommonService.saveProgressFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
         proc1800(request, signatureHistory);  // 1800(전자서명값전달)
-//        userService.saveIssuanceProgSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
+        issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
     }
 
     private void proc1800(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory) {
@@ -136,13 +144,6 @@ public class ResumeService {
         issCommonService.saveGwTran(requestRpc);
         issCommonService.saveGwTran(shinhanGwRpc.request1100(requestRpc));
         log.debug("## 1100 end");
-    }
-
-    private SignatureHistory getSignatureHistoryByApplicationInfo(String applicationDate, String applicationNum) {
-        return signatureHistoryRepository.findFirstByApplicationDateAndApplicationNum(applicationDate, applicationNum).orElseThrow(
-                () -> new BadRequestException(ErrorCode.Api.NOT_FOUND,
-                        "not found signatureHistoryRepository. applicationDate[" + applicationDate + "], applicationNum[" + applicationNum + "]")
-        );
     }
 
     // 기존 1400/1000 연동으로 부터 법인 식별자 추출
