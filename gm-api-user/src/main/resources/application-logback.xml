@@ -7,38 +7,37 @@
         </then>
     </if>
     <property name="_base_" value="${logging.path}/logs"/>
-    <property name="_backup_" value="${logging.path}/backups"/>
-    <property name="_ptn_level_" value="%highlight(%1.-1level)"/>
-    <property name="_ptn_timestamp_" value="%yellow(%d{yyyyMMdd.HHmmss.SSS,Asia/Seoul})"/>
-    <property name="_ptn_logger_" value="%cyan(%40.40logger{40})"/>
-    <property name="_ptn_" value="[${_ptn_level_}][${_ptn_timestamp_}][${_ptn_logger_}] %msg%n"/>
+    <property name="_backup_" value="${logging.path}/logs/backups"/>
 
     <!-- CONSOLE -->
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>${_ptn_}</pattern>
+            <pattern>%yellow([%d{yyyy-MM-dd HH:mm:ss.SSS}]) %highlight([%-5level]) - %cyan([%thread] [%logger{40}]) : %msg %n</pattern>
         </encoder>
     </appender>
 
     <!-- ROLLING.FILE.DI -->
-    <appender name="di" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${_base_}/di.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${_backup_}/di.%d{yyyyMMddHH}.log.gz</fileNamePattern>
-            <maxHistory>2</maxHistory>
-        </rollingPolicy>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+    <appender name="DAILY_ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${_base_}/api.log</file>
+        <encoder>
             <charset>UTF-8</charset>
-            <pattern>${_ptn_}</pattern>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] - [%-5level] [%logger{40}] [%thread]: %msg %n</pattern>
         </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>trace</level>
-        </filter>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${_backup_}/api.%d{yyyy-MM-dd,GMT+9}-%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- kb, mb, gb -->
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
     </appender>
 
     <root level="${logging.level.root}">
-        <appender-ref ref="console"/>
-        <appender-ref ref="di"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="DAILY_ROLLING"/>
     </root>
 
 </configuration>
