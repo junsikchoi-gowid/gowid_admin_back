@@ -1,15 +1,24 @@
 package com.nomadconnection.dapp.api.service.shinhan;
 
+import com.nomadconnection.dapp.api.common.AsyncService;
+import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.CommonPart;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
+import com.nomadconnection.dapp.api.exception.api.BadRequestException;
+import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.GatewayTransactionIdxRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.GwTranHistRepository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.shinhan.GatewayTransactionIdx;
 import com.nomadconnection.dapp.core.domain.shinhan.GwTranHist;
+import com.nomadconnection.dapp.core.domain.shinhan.IssuanceProgressType;
+import com.nomadconnection.dapp.core.domain.shinhan.SignatureHistory;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -19,6 +28,45 @@ public class CommonService {
 
     private final GatewayTransactionIdxRepository gatewayTransactionIdxRepository;
     private final GwTranHistRepository gwTranHistRepository;
+    private final AsyncService asyncService;
+    private final UserService userService;
+    private final SignatureHistoryRepository signatureHistoryRepository;
+
+    public void saveProgressFailed(Long userIdx, IssuanceProgressType progressType) {
+        asyncService.run(() -> saveIssuanceProgFailedBg(userIdx, progressType));
+    }
+
+    public void saveProgressFailed(UserCorporationDto.ResumeReq request, IssuanceProgressType progressType) {
+        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
+        asyncService.run(() -> saveIssuanceProgFailedBg(signatureHistory.getUserIdx(), progressType));
+    }
+
+    @Async
+    protected void saveIssuanceProgFailedBg(Long userIdx, IssuanceProgressType progressType) {
+        userService.saveIssuanceProgFailed(userIdx, progressType);
+    }
+
+    public void saveProgressSuccess(Long userIdx, IssuanceProgressType progressType) {
+        asyncService.run(() -> saveIssuanceProgSuccessBg(userIdx, progressType));
+    }
+
+    public void saveProgressSuccess(UserCorporationDto.ResumeReq request, IssuanceProgressType progressType) {
+        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
+        asyncService.run(() -> saveIssuanceProgSuccessBg(signatureHistory.getUserIdx(), progressType));
+    }
+
+    @Async
+    protected void saveIssuanceProgSuccessBg(Long userIdx, IssuanceProgressType progressType) {
+        userService.saveIssuanceProgSuccess(userIdx, progressType);
+    }
+
+    public SignatureHistory getSignatureHistoryByApplicationInfo(String applicationDate, String applicationNum) {
+        return signatureHistoryRepository.findFirstByApplicationDateAndApplicationNum(applicationDate, applicationNum).orElseThrow(
+                () -> new BadRequestException(ErrorCode.Api.NOT_FOUND,
+                        "not found signatureHistoryRepository. applicationDate[" + applicationDate + "], applicationNum[" + applicationNum + "]")
+        );
+    }
+
 
     // 연동 기록 저장
     protected void saveGwTran(CommonPart commonPart) {
