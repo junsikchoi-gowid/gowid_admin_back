@@ -4,7 +4,7 @@ dependencies {
     implementation project(":gm-core")
     implementation project(":gm-codef")
     implementation project(":gm-secukeypad")
-    implementation project(":gm-redis")
+//    implementation project(":gm-redis")
     implementation(
             "org.springframework.boot:spring-boot-starter-web",
             "org.springframework.boot:spring-boot-starter-security",
