@@ -745,6 +745,6 @@ public class UserService {
 	}
 
 	public void saveIssuanceProgSuccess(Long userIdx, IssuanceProgressType progressType) {
-		saveIssuanceProgress(userIdx, progressType, IssuanceStatusType.FAILED);
+		saveIssuanceProgress(userIdx, progressType, IssuanceStatusType.SUCCESS);
 	}
 }
