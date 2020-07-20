@@ -1164,8 +1164,8 @@ public class CodefService {
 						.d010(StringUtils.isEmpty(listResCompanyNmList.get(1))?ResCorpEstablishDate:listResCompanyNmList.get(1))// 상호_변경일자
 						.d011(StringUtils.isEmpty(listResCompanyNmList.get(2))?ResCorpEstablishDate:listResCompanyNmList.get(2))// 상호_등기일자
 						.d012(listResUserAddrList.get(0))// 본점주소
-						.d013(listResUserAddrList.get(1))// 본점주소_변경일자
-						.d014(listResUserAddrList.get(2))// 본점주소_등기일자
+						.d013(StringUtils.isEmpty(listResUserAddrList.get(1))?ResCorpEstablishDate:listResUserAddrList.get(1))// 본점주소_변경일자
+						.d014(StringUtils.isEmpty(listResUserAddrList.get(2))?ResCorpEstablishDate:listResUserAddrList.get(2))// 본점주소_등기일자
 						.d015(listResOneStocAmtList.get(0))// 1주의금액
 						.d016(StringUtils.isEmpty(listResOneStocAmtList.get(1))?ResCorpEstablishDate:listResOneStocAmtList.get(1))// 1주의금액_변경일자
 						.d017(StringUtils.isEmpty(listResOneStocAmtList.get(2))?ResCorpEstablishDate:listResOneStocAmtList.get(2))// 1주의금액_등기일자
