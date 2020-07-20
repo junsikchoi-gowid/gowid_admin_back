@@ -37,13 +37,20 @@ public class CommonService {
     }
 
     public void saveProgressFailed(UserCorporationDto.ResumeReq request, IssuanceProgressType progressType) {
-        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
-        asyncService.run(() -> saveIssuanceProgFailedBg(signatureHistory.getUserIdx(), progressType));
+        asyncService.run(() -> saveIssuanceProgFailedBg(request, progressType));
     }
 
     @Async
-    protected void saveIssuanceProgFailedBg(Long userIdx, IssuanceProgressType progressType) {
+    public void saveIssuanceProgFailedBg(Long userIdx, IssuanceProgressType progressType) {
         userService.saveIssuanceProgFailed(userIdx, progressType);
+    }
+
+    @Async
+    public void saveIssuanceProgFailedBg(UserCorporationDto.ResumeReq request, IssuanceProgressType progressType) {
+        log.debug("### start saveIssuanceProgFailedBg");
+        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
+        userService.saveIssuanceProgFailed(signatureHistory.getUserIdx(), progressType);
+        log.debug("### end saveIssuanceProgFailedBg");
     }
 
     public void saveProgressSuccess(Long userIdx, IssuanceProgressType progressType) {
@@ -51,13 +58,20 @@ public class CommonService {
     }
 
     public void saveProgressSuccess(UserCorporationDto.ResumeReq request, IssuanceProgressType progressType) {
-        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
-        asyncService.run(() -> saveIssuanceProgSuccessBg(signatureHistory.getUserIdx(), progressType));
+        asyncService.run(() -> saveIssuanceProgSuccessBg(request, progressType));
     }
 
     @Async
-    protected void saveIssuanceProgSuccessBg(Long userIdx, IssuanceProgressType progressType) {
+    public void saveIssuanceProgSuccessBg(Long userIdx, IssuanceProgressType progressType) {
         userService.saveIssuanceProgSuccess(userIdx, progressType);
+    }
+
+    @Async
+    public void saveIssuanceProgSuccessBg(UserCorporationDto.ResumeReq request, IssuanceProgressType progressType) {
+        log.debug("### start saveIssuanceProgSuccessBg");
+        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
+        userService.saveIssuanceProgSuccess(signatureHistory.getUserIdx(), progressType);
+        log.debug("### end saveIssuanceProgSuccessBg");
     }
 
     public SignatureHistory getSignatureHistoryByApplicationInfo(String applicationDate, String applicationNum) {

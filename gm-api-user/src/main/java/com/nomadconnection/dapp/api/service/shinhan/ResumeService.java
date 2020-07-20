@@ -46,7 +46,9 @@ public class ResumeService {
     @Transactional(noRollbackFor = Exception.class)
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
         issCommonService.saveGwTran(request);
+        log.debug("### saveProgressFailed start");
         issCommonService.saveProgressFailed(request, IssuanceProgressType.P_1600);
+        log.debug("### saveProgressFailed end");
 
         UserCorporationDto.ResumeRes response = getResumeRes(request);
         issCommonService.saveGwTran(response);
