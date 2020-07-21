@@ -83,10 +83,13 @@ public class CommonService {
 
 
     // 연동 기록 저장
-    protected void saveGwTran(CommonPart commonPart) {
+    @Async
+    public void saveGwTran(CommonPart commonPart) {
+        log.debug("## save tran {} - start", commonPart.getC004());
         GwTranHist gwTranHist = new GwTranHist();
         BeanUtils.copyProperties(commonPart, gwTranHist);
         gwTranHistRepository.save(gwTranHist);
+        log.debug("## save tran {} - end", commonPart.getC004());
     }
 
     protected CommonPart getCommonPart(ShinhanGwApiType apiType) {

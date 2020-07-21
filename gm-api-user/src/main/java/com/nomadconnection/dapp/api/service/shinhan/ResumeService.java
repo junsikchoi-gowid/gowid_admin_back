@@ -112,8 +112,7 @@ public class ResumeService {
                 .build();
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        issCommonService.saveGwTran(commonPart);
-        issCommonService.saveGwTran(shinhanGwRpc.request1800(requestRpc));
+        shinhanGwRpc.request1800(requestRpc);
         log.debug("## 1800 end");
     }
 
@@ -141,8 +140,9 @@ public class ResumeService {
             requestRpc.setD025(Seed128.decryptEcb(d1100.getD025()));
         }
 
-        issCommonService.saveGwTran(requestRpc);
-        issCommonService.saveGwTran(shinhanGwRpc.request1100(requestRpc));
+        shinhanGwRpc.request1100(requestRpc);
+//        issCommonService.saveGwTran(requestRpc);
+//        issCommonService.saveGwTran(shinhanGwRpc.request1100(requestRpc));
         log.debug("## 1100 end");
     }
 

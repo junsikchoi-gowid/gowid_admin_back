@@ -246,9 +246,7 @@ public class IssuanceService {
         DataPart1200 requestRpc = new DataPart1200();
         BeanUtils.copyProperties(d1200, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
-        issCommonService.saveGwTran(requestRpc);
         DataPart1200 responseRpc = shinhanGwRpc.request1200(requestRpc);
-        issCommonService.saveGwTran(responseRpc);
 
         BeanUtils.copyProperties(responseRpc, d1200);
         d1200Repository.save(d1200);
@@ -288,8 +286,7 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1510, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        issCommonService.saveGwTran(requestRpc);
-        issCommonService.saveGwTran(shinhanGwRpc.request1510(requestRpc));
+        shinhanGwRpc.request1510(requestRpc);
     }
 
     private void proc1520(Corp userCorp, String applyDate, String applyNo) {
@@ -311,8 +308,7 @@ public class IssuanceService {
             BeanUtils.copyProperties(d1520, requestRpc);
             BeanUtils.copyProperties(commonPart, requestRpc);
 
-            issCommonService.saveGwTran(requestRpc);
-            issCommonService.saveGwTran(shinhanGwRpc.request1520(requestRpc));
+            shinhanGwRpc.request1520(requestRpc);
         }
     }
 
@@ -353,8 +349,7 @@ public class IssuanceService {
         }
 
         // 연동 및 저장
-        issCommonService.saveGwTran(requestRpc);
-        issCommonService.saveGwTran(shinhanGwRpc.request1530(requestRpc));
+        shinhanGwRpc.request1530(requestRpc);
     }
 
     //    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
@@ -397,25 +392,8 @@ public class IssuanceService {
             }
         }
 
-        issCommonService.saveGwTran(requestRpc);
-        issCommonService.saveGwTran(shinhanGwRpc.request1000(requestRpc));
+        shinhanGwRpc.request1000(requestRpc);
     }
-
-//    // 키패드암호화 -> 복호화
-//    private String getDecKeyPadEncSeed128(String keypadEncParam, HttpServletRequest httpServletRequest) {
-//        String returnString = httpServletRequest.getParameter(keypadEncParam);
-//        log.debug("## keypad encrypted string[{}] : {}", keypadEncParam, returnString);
-//
-//        if (ENC_KEYPAD_ENABLE) {
-//            returnString = CommonUtil.getDecryptKeypad(httpServletRequest, keypadEncParam);
-//            log.debug("## keypad decrypted string[{}] : {}", keypadEncParam, returnString);
-//        }
-//        if (DEC_SEED128_ENABLE) {
-//            returnString = Seed128.encryptEcb(returnString);
-//            log.debug("## seed128 encrypted string[{}] : {}", keypadEncParam, returnString);
-//        }
-//        return returnString;
-//    }
 
     //    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
     private void proc1400(Corp userCorp, DataPart1200 resultOfD1200) {
@@ -443,8 +421,7 @@ public class IssuanceService {
             requestRpc.setD006(Seed128.decryptEcb(d1400.getD006()));
         }
 
-        issCommonService.saveGwTran(requestRpc);
-        issCommonService.saveGwTran(shinhanGwRpc.request1400(requestRpc));
+        shinhanGwRpc.request1400(requestRpc);
     }
 
 
@@ -475,11 +452,7 @@ public class IssuanceService {
         requestRpc.setD003(d003);
         requestRpc.setD005(d005);
 
-        issCommonService.saveGwTran(requestRpc);
-        DataPart1700 responseRpc = shinhanGwRpc.request1700(requestRpc);
-        issCommonService.saveGwTran(responseRpc);
-
-        return responseRpc;
+        return shinhanGwRpc.request1700(requestRpc);
     }
 
 
