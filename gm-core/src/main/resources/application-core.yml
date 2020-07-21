@@ -43,8 +43,8 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        format_sql: true
-    show-sql: false
+        format_sql: flase
+    show-sql: true
     generate-ddl: true
     open-in-view: false
   datasource:
@@ -67,8 +67,8 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        format_sql: true
-    show-sql: false
+        format_sql: false
+    show-sql: true
     generate-ddl: true
     open-in-view: false
   datasource:
