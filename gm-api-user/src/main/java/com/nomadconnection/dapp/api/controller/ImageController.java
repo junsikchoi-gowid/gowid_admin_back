@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.core.dto.ImageConvertDto;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.utils.ImageConverter;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ public class ImageController {
 
 	private final ImageConverter imageConverter;
 
+	@ApiOperation(value = "이미지 생성", notes = "" + "\n")
 	@PostMapping
 	public ResponseEntity<?> create(@RequestBody ImageConvertDto params) {
 		try {
