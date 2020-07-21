@@ -1,0 +1,671 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!--[if !mso]><!-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--<![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gowid</title>
+    <style type="text/css">
+      body {
+        margin: 0 !important;
+        padding: 0;
+        background-color: #f8f8f8;
+      }
+      table {
+        border-spacing: 0;
+        font-family: "Noto Sans KR", sans-serif !important;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 24px;
+        letter-spacing: -0.18px;
+        color: #333333;
+        word-break: keep-all;
+      }
+      td {
+        padding: 0;
+      }
+      img {
+        border: 0;
+      }
+      div[style*="margin: 16px 0"] {
+        margin: 0 !important;
+      }
+      p {
+        margin: 0;
+      }
+      a:visited {
+        color: #333333;
+      }
+      .wrapper {
+        width: 100%;
+        padding: 40px 0 32px;
+        table-layout: fixed;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      }
+      .webkit {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .outer {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 600px;
+      }
+      .padding-top-24 {
+        padding-top: 24px;
+      }
+      .padding-top-16 {
+        padding-top: 16px;
+      }
+      .padding-bottom-8 {
+        padding-bottom: 8px;
+      }
+      .padding-bottom-16 {
+        padding-bottom: 16px;
+      }
+      .content-style {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 600px;
+        padding: 40px 32px;
+        border-radius: 16px;
+        border: solid 1px #e6e6e6;
+        background-color: #ffffff;
+      }
+      .title {
+        padding-top: 40px;
+        padding-bottom: 16px;
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 24px;
+        letter-spacing: -0.33px;
+        color: #333333;
+      }
+      .divide {
+        width: 100%;
+        height: 1px;
+        margin: 0;
+        border: none;
+        background-color: #e6e6e6;
+      }
+      .h1 {
+        margin-bottom: 16px;
+        font-size: 16px;
+        font-weight: bold;
+        line-height: 16px;
+        letter-spacing: -0.21px;
+        color: #333333;
+      }
+      .content-end {
+        padding-top: 16px;
+      }
+      .footer {
+        padding-top: 32px;
+      }
+      .padding-right-8 {
+        padding-right: 8px;
+      }
+      .footer-table {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 288px;
+
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 20px;
+        letter-spacing: -0.15px;
+        text-align: center;
+        color: #787878;
+      }
+      .footer-border::after {
+        line-height: 14px;
+        padding-left: 8px;
+        border-right: 1px solid #e6e6e6;
+        content: "";
+      }
+      .footer-text-dark {
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 20px;
+        letter-spacing: -0.15px;
+        text-align: center;
+        color: #333333;
+      }
+      .footer-text-dark a {
+        text-decoration: none;
+        color: #333333;
+      }
+      .footer-gowid {
+        font-weight: 600;
+      }
+      .footer-consent a {
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 20px;
+        letter-spacing: -0.15px;
+        text-align: center;
+        color: #787878;
+      }
+      .footer-consent a:visited {
+        color: #787878;
+      }
+    </style>
+    <!--[if (gte mso 9)|(IE)]>
+      <style type="text/css">
+        table {
+          border-collapse: collapse !important !important;
+        }
+      </style>
+    <![endif]-->
+  </head>
+  <body
+    style="
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      margin-right: 0 !important;
+      margin-left: 0 !important;
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-right: 0;
+      padding-left: 0;
+      background-color: #f8f8f8;
+    "
+  >
+    <center
+      class="wrapper"
+      style="
+        width: 100%;
+        padding-top: 40px;
+        padding-bottom: 32px;
+        padding-right: 0;
+        padding-left: 0;
+        table-layout: fixed;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      "
+    >
+      <div
+        class="webkit"
+        style="
+          max-width: 600px;
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-right: auto;
+          margin-left: auto;
+        "
+      >
+        <!--[if (gte mso 9)|(IE)]>
+        <table width="600" align="center" style="border-spacing:0;font-family:'Noto Sans KR', sans-serif !important;font-size:14px;font-weight:400;line-height:24px;letter-spacing:-0.18px;color:#333333;word-break:keep-all;" >
+        <tr>
+        <td style="padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;" >
+        <![endif]-->
+        <table
+          class="outer"
+          align="center"
+          style="
+            border-spacing: 0;
+            font-family: 'Noto Sans KR', sans-serif !important;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 24px;
+            letter-spacing: -0.18px;
+            color: #333333;
+            word-break: keep-all;
+            margin-top: 0;
+            margin-bottom: 0;
+            margin-right: auto;
+            margin-left: auto;
+            width: 100%;
+            max-width: 600px;
+          "
+        >
+          <!-- 본문 영역 -->
+          <tr>
+            <td
+              style="
+                padding-top: 0;
+                padding-bottom: 0;
+                padding-right: 0;
+                padding-left: 0;
+              "
+            >
+              <table
+                class="content-style"
+                align="cener"
+                style="
+                  border-spacing: 0;
+                  font-family: 'Noto Sans KR', sans-serif !important;
+                  font-size: 14px;
+                  font-weight: 400;
+                  line-height: 24px;
+                  letter-spacing: -0.18px;
+                  color: #333333;
+                  word-break: keep-all;
+                  margin-top: 0;
+                  margin-bottom: 0;
+                  margin-right: auto;
+                  margin-left: auto;
+                  width: 100%;
+                  max-width: 600px;
+                  padding-top: 40px;
+                  padding-bottom: 40px;
+                  padding-right: 32px;
+                  padding-left: 32px;
+                  border-radius: 16px;
+                  border-width: 1px;
+                  border-style: solid;
+                  border-color: #e6e6e6;
+                  background-color: #ffffff;
+                "
+              >
+                <tr>
+                  <td
+                    class="logo-section"
+                    style="
+                      padding-top: 0;
+                      padding-bottom: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <img
+                      src="https://www.gowid.com/img/gowid-png.png"
+                      alt="gowid"
+                      style="width: 67px; height: 25px; vertical-align: top;"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    class="title-section"
+                    style="
+                      padding-top: 0;
+                      padding-bottom: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <p
+                      class="title"
+                      style="
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        margin-right: 0;
+                        margin-left: 0;
+                        padding-top: 40px;
+                        padding-bottom: 16px;
+                        font-size: 20px;
+                        font-weight: 500;
+                        line-height: 24px;
+                        letter-spacing: -0.33px;
+                        color: #333333;
+                      "
+                    >
+                      고위드 카드 발급 거절 안내
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style="
+                      padding-top: 0;
+                      padding-bottom: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <hr
+                      class="divide"
+                      style="
+                        width: 100%;
+                        height: 1px;
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        margin-right: 0;
+                        margin-left: 0;
+                        border-style: none;
+                        background-color: #e6e6e6;
+                      "
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style="
+                      padding-top: 0;
+                      padding-bottom: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <p
+                      class="padding-top-24"
+                      style="
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        margin-right: 0;
+                        margin-left: 0;
+                        padding-top: 24px;
+                      "
+                    >
+                      안녕하세요, <b>[[회원이름]]</b>님.<br />
+                      스타트업을 위한 법인카드를 만드는 고위드입니다.
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style="
+                      padding-top: 0;
+                      padding-bottom: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <p
+                      class="padding-top-16"
+                      style="
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        margin-right: 0;
+                        margin-left: 0;
+                        padding-top: 16px;
+                      "
+                    >
+                      우선 고위드 카드를 신청해주셔서 감사합니다. <br />
+                      고위드 신용평가 모델을 기반으로 (신청 법인명)의 과거 및
+                      현재 잔고 추이 등에 대한 종합적인 분석 결과, 카드 발급
+                      기준에 충족되지 않아 발급이 어렵습니다. <br />
+                      빠른 시일 내에 신용평가 모델을 고도화하여 고객님께 더 나은
+                      서비스를 제공해드리겠습니다.<br />
+                      이용에 불편을 드려서 죄송합니다.
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style="
+                      padding-top: 0;
+                      padding-bottom: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <p
+                      class="padding-top-16"
+                      style="
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        margin-right: 0;
+                        margin-left: 0;
+                        padding-top: 16px;
+                      "
+                    >
+                      이후 카드 발급이 가능한 시점에 다시 안내받기를 원하신다면,
+                      고위드 고객지원 이메일(support@gowid.com) 또는
+                      02-6105-8101로 연락주시면 도와드리겠습니다.
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style="
+                      padding-top: 0;
+                      padding-bottom: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <p
+                      class="padding-top-16"
+                      style="
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        margin-right: 0;
+                        margin-left: 0;
+                        padding-top: 16px;
+                      "
+                    >
+                      감사합니다.
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style="
+                      padding-top: 0;
+                      padding-bottom: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <p
+                      class="padding-top-16"
+                      style="
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        margin-right: 0;
+                        margin-left: 0;
+                        padding-top: 16px;
+                      "
+                    >
+                      고위드 스타트업 카드팀 드림
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer 영역 -->
+          <tr>
+            <td
+              class="footer"
+              style="
+                padding-bottom: 0;
+                padding-right: 0;
+                padding-left: 0;
+                padding-top: 32px;
+              "
+            >
+              <table
+                class="footer-table"
+                align="center"
+                style="
+                  border-spacing: 0;
+                  font-family: 'Noto Sans KR', sans-serif !important;
+                  word-break: keep-all;
+                  margin-top: 0;
+                  margin-bottom: 0;
+                  margin-right: auto;
+                  margin-left: auto;
+                  width: 100%;
+                  max-width: 288px;
+                  font-size: 12px;
+                  font-weight: 400;
+                  line-height: 20px;
+                  letter-spacing: -0.15px;
+                  text-align: center;
+                  color: #787878;
+                "
+              >
+                <tr>
+                  <td
+                    class="padding-bottom-8"
+                    style="
+                      padding-top: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                      padding-bottom: 8px;
+                    "
+                  >
+                    <table
+                      class="footer-text-dark"
+                      align="center"
+                      style="
+                        border-spacing: 0;
+                        font-family: 'Noto Sans KR', sans-serif !important;
+                        word-break: keep-all;
+                        font-size: 12px;
+                        font-weight: 400;
+                        line-height: 20px;
+                        letter-spacing: -0.15px;
+                        text-align: center;
+                        color: #333333;
+                      "
+                    >
+                      <tr>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                        >
+                          <a
+                            href="https://gowid.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="footer-gowid"
+                            style="font-weight: 600;"
+                          >
+                            (주)고위드 </a
+                          ><span class="footer-border"></span>
+                        </td>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                        >
+                          <a
+                            href="mailto:support@gowid.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="text-decoration: none; color: #333333;"
+                            >support@gowid.com</a
+                          >
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    class="padding-bottom-8"
+                    style="
+                      padding-top: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                      padding-bottom: 8px;
+                    "
+                  >
+                    <table
+                      class="footer-consent"
+                      align="center"
+                      style="
+                        border-spacing: 0;
+                        font-family: 'Noto Sans KR', sans-serif !important;
+                        font-size: 14px;
+                        font-weight: 400;
+                        line-height: 24px;
+                        letter-spacing: -0.18px;
+                        color: #333333;
+                        word-break: keep-all;
+                      "
+                    >
+                      <tr>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                        >
+                          <a
+                            href="https://gowid.com/support/private"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >개인정보처리방침<span class="footer-border"></span
+                          ></a>
+                        </td>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                        >
+                          <a
+                            href="https://gowid.com/support/terms"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >고위드 이용약관<span class="footer-border"></span
+                          ></a>
+                        </td>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                        >
+                          <a
+                            href="https://gowid.com/support/unsubscribe"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >수신거부</a
+                          >
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style="
+                      padding-top: 0;
+                      padding-bottom: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <p
+                      style="
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        margin-right: 0;
+                        margin-left: 0;
+                      "
+                    >
+                      서울특별시 강남구 도산대로 317 호림아트센터 14층
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        <!--[if (gte mso 9)|(IE)]>
+        </td>
+        </tr>
+        </table>
+        <![endif]-->
+      </div>
+    </center>
+  </body>
+</html>
