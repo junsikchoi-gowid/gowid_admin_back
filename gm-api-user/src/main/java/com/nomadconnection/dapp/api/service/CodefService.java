@@ -17,7 +17,6 @@ import com.nomadconnection.dapp.codef.io.sandbox.pb.CORP_REGISTER;
 import com.nomadconnection.dapp.codef.io.sandbox.pb.PROOF_ISSUE;
 import com.nomadconnection.dapp.codef.io.sandbox.pb.STANDARD_FINANCIAL;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
-import com.nomadconnection.dapp.core.domain.common.CommonCode;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
@@ -938,7 +937,7 @@ public class CodefService {
 			repoUser.save(user);
 
 			//파일생성 및 전송
-			// ImageCreateAndSend(1510, "15100001","0306", strResult,corp.resCompanyIdentityNo());
+			ImageCreateAndSend(1510, "15100001", "0306", strResult, corp.resCompanyIdentityNo());
 
 			String strResult1530 = null;
 
@@ -948,7 +947,7 @@ public class CodefService {
 					"0261057000",
 					RSAUtil.encryptRSA("6821", CommonConstant.PUBLIC_KEY),
 					"2",
-					GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").replaceAll("-","").trim(),
+					GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").replaceAll("-", "").trim(),
 					"1",
 					"T34029396293",
 					"gowid99!",
@@ -1063,32 +1062,32 @@ public class CodefService {
 						"          \"resTypeStockContent\" : \"내용 없음\"\n" +
 						"        } ]\n" +
 						"} ]"
-						,"resConvertibleBondList\" : [ {\n" +
+						, "resConvertibleBondList\" : [ {\n" +
 						"        \"resNumber\" : \"0\",\n" +
 						"        \"resConvertibleBondItemList\" : [ {\n" +
 						"          \"resNumber\" : \"0\",\n" +
 						"          \"resConvertibleBond\" : \"내용 없음\"\n" +
 						"        } ]\n" +
 						"} ]"
-						,"resEtcList\" : [ {\n" +
+						, "resEtcList\" : [ {\n" +
 						"        \"resNumber\" : \"0\",\n" +
 						"        \"resEtc\" : \"내용 없음\"\n" +
 						"      } ]"
 				};
 
 				strResult1530 = strResult1530.concat("");
-				strResult1530 = strResult1530.replaceAll("resStockOptionList\" : \\[ \\]",strChange[0]);
-				strResult1530 = strResult1530.replaceAll("resTypeStockContentList\" : \\[ \\]",strChange[1]);
-				strResult1530 = strResult1530.replaceAll("resConvertibleBondList\" : \\[ \\]",strChange[2]);
-				strResult1530 = strResult1530.replaceAll("resEtcList\" : \\[ \\]",strChange[3]);
+				strResult1530 = strResult1530.replaceAll("resStockOptionList\" : \\[ \\]", strChange[0]);
+				strResult1530 = strResult1530.replaceAll("resTypeStockContentList\" : \\[ \\]", strChange[1]);
+				strResult1530 = strResult1530.replaceAll("resConvertibleBondList\" : \\[ \\]", strChange[2]);
+				strResult1530 = strResult1530.replaceAll("resEtcList\" : \\[ \\]", strChange[3]);
 
-				// ImageCreateAndSend(1530, "15300001","0306", strResult1530, corp.resCompanyIdentityNo());
+				ImageCreateAndSend(1530, "15300001", "0306", strResult1530, corp.resCompanyIdentityNo());
 
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
 						.c007(CommonUtil.getNowYYYYMMDD())
-						.d001(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo").replaceAll("-",""))
-						.d002(GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").replaceAll("-",""))
+						.d001(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo").replaceAll("-", ""))
+						.d002(GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").replaceAll("-", ""))
 						.d003(GowidUtils.getEmptyStringToString(jsonData, "resCompanyNm"))
 						.d004("400")
 						.d005("06")
@@ -1375,7 +1374,7 @@ public class CodefService {
 						.build());
 
 				//파일생성 및 전송
-				// ImageCreateAndSend(1520, 1520+yyyyMm.substring(0,4),"0306", strResultTemp, user.corp().resCompanyIdentityNo());
+				ImageCreateAndSend(1520, 1520 + yyyyMm.substring(0, 4), "0306", strResultTemp, user.corp().resCompanyIdentityNo());
 
 			}else if(boolIfFirst.get()){
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
@@ -1497,7 +1496,7 @@ public class CodefService {
 				"\t}\n" +
 				"}";
 
-		// ImageCreateAndSend(9991, "99910001", "0306", strResultTemp, user.corp().resCompanyIdentityNo());
+		ImageCreateAndSend(9991, "99910001", "0306", strResultTemp, user.corp().resCompanyIdentityNo());
 
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
