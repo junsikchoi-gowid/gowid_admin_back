@@ -172,6 +172,7 @@ public class CodefService {
 		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
 
 		String code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
+		normal.setKey(code);
 		String connectedId;
 
 		log.error("json data $data={}", strResultData);
@@ -937,7 +938,7 @@ public class CodefService {
 			repoUser.save(user);
 
 			//파일생성 및 전송
-			ImageCreateAndSend(1510, "15100001","0306", strResult,corp.resCompanyIdentityNo());
+			// ImageCreateAndSend(1510, "15100001","0306", strResult,corp.resCompanyIdentityNo());
 
 			String strResult1530 = null;
 
@@ -1081,7 +1082,7 @@ public class CodefService {
 				strResult1530 = strResult1530.replaceAll("resConvertibleBondList\" : \\[ \\]",strChange[2]);
 				strResult1530 = strResult1530.replaceAll("resEtcList\" : \\[ \\]",strChange[3]);
 
-				ImageCreateAndSend(1530, "15300001","0306", strResult1530, corp.resCompanyIdentityNo());
+				// ImageCreateAndSend(1530, "15300001","0306", strResult1530, corp.resCompanyIdentityNo());
 
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
@@ -1109,7 +1110,7 @@ public class CodefService {
 						.d044("0113")
 						.d045("5")
 						.d046("Y")
-						.d047("Y")
+						.d047("N")
 						.d048("09")
 						.d049("DAAC6F")
 						.d051("10")
@@ -1374,7 +1375,7 @@ public class CodefService {
 						.build());
 
 				//파일생성 및 전송
-				ImageCreateAndSend(1520, 1520+yyyyMm.substring(0,4),"0306", strResultTemp, user.corp().resCompanyIdentityNo());
+				// ImageCreateAndSend(1520, 1520+yyyyMm.substring(0,4),"0306", strResultTemp, user.corp().resCompanyIdentityNo());
 
 			}else if(boolIfFirst.get()){
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
@@ -1496,7 +1497,7 @@ public class CodefService {
 				"\t}\n" +
 				"}";
 
-		ImageCreateAndSend(9991, "99910001", "0306", strResultTemp, user.corp().resCompanyIdentityNo());
+		// ImageCreateAndSend(9991, "99910001", "0306", strResultTemp, user.corp().resCompanyIdentityNo());
 
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
