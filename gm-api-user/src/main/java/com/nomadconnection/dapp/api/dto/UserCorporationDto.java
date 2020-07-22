@@ -99,14 +99,6 @@ public class UserCorporationDto {
         @NotEmpty
         private String amount;
 
-        @ApiModelProperty("계산한도")
-        @NotEmpty
-        private String calAmount;
-
-        @ApiModelProperty("부여한도")
-        @NotEmpty
-        private String grantAmount;
-
         @ApiModelProperty("신청수량")
         @NotNull
         private Long count;

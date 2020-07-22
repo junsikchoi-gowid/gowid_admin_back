@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.*;
+import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
@@ -400,14 +401,21 @@ public class UserCorporationService {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
+        Double cardLimitNow = repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD());
+        Long calculatedLimit = 0L;
+        if (!ObjectUtils.isEmpty(cardLimitNow)) {
+            calculatedLimit = Long.parseLong(String.valueOf(Math.round(cardLimitNow)));
+        }
+        String grantLimit = calculatedLimit < Long.parseLong(dto.getAmount()) ? calculatedLimit + "" : dto.getAmount();
+
         cardInfo.card(Card.builder()
                 .addressBasic(dto.getAddressBasic())
                 .addressDetail(dto.getAddressDetail())
                 .zipCode(dto.getZipCode())
                 .addressKey(dto.getAddressKey())
                 .hopeLimit(dto.getAmount())
-                .calculatedLimit(dto.getCalAmount())
-                .grantLimit(dto.getGrantAmount())
+                .calculatedLimit(calculatedLimit + "")
+                .grantLimit(grantLimit)
                 .receiveType(dto.getReceiveType())
                 .requestCount(dto.getCount())
                 .build());
@@ -415,17 +423,17 @@ public class UserCorporationService {
         Optional<RiskConfig> riskConfig = repoRiskConfig.findByCorpAndEnabled(user.corp(), true);
         if (riskConfig.isPresent()) {
             repoRiskConfig.save(riskConfig.get()
-                    .calculatedLimit(dto.getCalAmount())
+                    .calculatedLimit(calculatedLimit + "")
                     .hopeLimit(dto.getAmount())
-                    .grantLimit(dto.getGrantAmount())
+                    .grantLimit(grantLimit)
             );
         } else {
             repoRiskConfig.save(RiskConfig.builder()
                     .user(user)
                     .corp(user.corp())
-                    .calculatedLimit(dto.getCalAmount())
+                    .calculatedLimit(calculatedLimit + "")
                     .hopeLimit(dto.getAmount())
-                    .grantLimit(dto.getGrantAmount())
+                    .grantLimit(grantLimit)
                     .enabled(true)
                     .build()
             );
@@ -438,20 +446,20 @@ public class UserCorporationService {
                     .setD023(dto.getZipCode().substring(3))
                     .setD024(dto.getAddressBasic())
                     .setD025(dto.getAddressDetail())
-                    .setD050(dto.getGrantAmount())
+                    .setD050(grantLimit)
                     .setD055(dto.getAddressKey())
             );
         }
 
         D1400 d1400 = getD1400(user.corp().idx());
         if (d1400 != null) {
-            repoD1400.save(d1400.setD014(dto.getGrantAmount()));
+            repoD1400.save(d1400.setD014(grantLimit));
         }
 
         D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
             repoD1100.save(d1100
-                    .setD020(dto.getGrantAmount())
+                    .setD020(grantLimit)
                     .setD029(dto.getReceiveType().getCode())
                     .setD031(dto.getZipCode().substring(0, 3))
                     .setD032(dto.getZipCode().substring(3))

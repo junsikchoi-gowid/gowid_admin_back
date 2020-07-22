@@ -18,5 +18,5 @@ public interface CommonCodeDetailRepository extends JpaRepository<CommonCodeDeta
 
     CommonCodeDetail findFirstByCodeAndValue1(CommonCodeType code, String value1);
 
-    Optional<CommonCodeDetail> findFirstByCodeAndValue1OrValue2(CommonCodeType code, String value1, String value2);
+    Optional<CommonCodeDetail> findFirstByValue1OrValue2AndCode(String value1, String value2, CommonCodeType code);
 }

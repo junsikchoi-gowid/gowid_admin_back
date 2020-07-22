@@ -476,11 +476,10 @@ public class IssuanceService {
         Map<String, String> decryptData;
         if (dto.getIdType().equals(UserCorporationDto.IdentificationReq.IDType.DRIVE_LICENCE)) {
             decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
+            dto.setDriverLocal(findShinhanDriverLocalCode(dto.getDriverLocal()));
         } else {
             decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER});
         }
-
-        dto.setDriverLocal(findShinhanDriverLocalCode(dto.getDriverLocal()));
 
         // 1700(신분증검증)
         DataPart1700 resultOfD1700 = proc1700(dto, decryptData);
@@ -563,7 +562,7 @@ public class IssuanceService {
     }
 
     private String findShinhanDriverLocalCode(String code) {
-        return commonCodeDetailRepository.findFirstByCodeAndValue1OrValue2(CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE, code, code).orElseThrow(
+        return commonCodeDetailRepository.findFirstByValue1OrValue2AndCode(code, code, CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).orElseThrow(
                 () -> EntityNotFoundException.builder()
                         .entity("CommonCodeDetail")
                         .build()
