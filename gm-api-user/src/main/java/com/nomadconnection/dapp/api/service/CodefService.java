@@ -1259,10 +1259,12 @@ public class CodefService {
 		List<String> str = new ArrayList<>();
 		jsonArrayResCEOList.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
-			str.add(GowidUtils.getEmptyStringToString(obj, "resPosition"));
-			str.add(GowidUtils.getEmptyStringToString(obj, "resUserNm"));
-			str.add(GowidUtils.getEmptyStringToString(obj, "resUserIdentiyNo"));
-			str.add(GowidUtils.getEmptyStringToString(obj, "resUserAddr"));
+			if(GowidUtils.getEmptyStringToString(obj, "resPosition").charAt(0) != '!' ){
+				str.add(GowidUtils.getEmptyStringToString(obj, "resPosition"));
+				str.add(GowidUtils.getEmptyStringToString(obj, "resUserNm"));
+				str.add(GowidUtils.getEmptyStringToString(obj, "resUserIdentiyNo"));
+				str.add(GowidUtils.getEmptyStringToString(obj, "resUserAddr"));
+			}
 		});
 		return str;
 	}
