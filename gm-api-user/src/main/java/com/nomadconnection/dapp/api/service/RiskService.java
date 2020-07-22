@@ -3,8 +3,8 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
-import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
+import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
@@ -339,14 +339,7 @@ public class RiskService {
 
 	@Transactional(readOnly = true)
 	public String getCardLimit(Long idx_user) {
-		User user = findUser(idx_user);
-		String yesterday = LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-		Risk risk = repoRisk.findTopByCorpAndDateOrderByUpdatedAtDesc(user.corp(), yesterday).orElseThrow(
-				() -> EntityNotFoundException.builder()
-						.entity("Risk")
-						.build()
-		);
-		return risk.cardLimit() + "";
+		return repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD()) + "";
 	}
 
 	private User findUser(Long idx_user) {

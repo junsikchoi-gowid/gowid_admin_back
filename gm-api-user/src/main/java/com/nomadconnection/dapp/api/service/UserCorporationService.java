@@ -4,7 +4,6 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.*;
-import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
@@ -432,12 +431,6 @@ public class UserCorporationService {
             );
         }
 
-
-
-        Long intLimitrepoRisk = Long.parseLong(String.valueOf(Math.round(repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD()))));
-        Long intAmount = Long.parseLong(dto.getAmount());
-        String limitPrice = intLimitrepoRisk < intAmount ? intLimitrepoRisk.toString() : intAmount.toString();
-
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
             repoD1000.save(d1000
@@ -445,20 +438,20 @@ public class UserCorporationService {
                     .setD023(dto.getZipCode().substring(3))
                     .setD024(dto.getAddressBasic())
                     .setD025(dto.getAddressDetail())
-                    .setD050(limitPrice)
+                    .setD050(dto.getGrantAmount())
                     .setD055(dto.getAddressKey())
             );
         }
 
         D1400 d1400 = getD1400(user.corp().idx());
         if (d1400 != null) {
-            repoD1400.save(d1400.setD014(limitPrice));
+            repoD1400.save(d1400.setD014(dto.getGrantAmount()));
         }
 
         D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
             repoD1100.save(d1100
-                    .setD020(limitPrice)
+                    .setD020(dto.getGrantAmount())
                     .setD029(dto.getReceiveType().getCode())
                     .setD031(dto.getZipCode().substring(0, 3))
                     .setD032(dto.getZipCode().substring(3))
