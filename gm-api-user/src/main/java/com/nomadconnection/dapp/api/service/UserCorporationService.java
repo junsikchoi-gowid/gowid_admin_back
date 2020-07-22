@@ -458,7 +458,7 @@ public class UserCorporationService {
         D1100 d1100 = getD1100(user.corp().idx());
         if (d1100 != null) {
             repoD1100.save(d1100
-                    .setD020(dto.getGrantAmount())
+                    .setD020(limitPrice)
                     .setD029(dto.getReceiveType().getCode())
                     .setD031(dto.getZipCode().substring(0, 3))
                     .setD032(dto.getZipCode().substring(3))
