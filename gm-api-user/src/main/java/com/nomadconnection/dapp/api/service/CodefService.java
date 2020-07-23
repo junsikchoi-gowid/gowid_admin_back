@@ -774,37 +774,12 @@ public class CodefService {
 		List<HashMap<String, Object>> list = new ArrayList<>();
 		HashMap<String, Object> accountMap1;
 		String createUrlPath = urlPath + CommonConstant.CREATE_ACCOUNT;
+		String addUrlPath = urlPath + CommonConstant.ADD_ACCOUNT;
 
 		//	사용자 조회
 		User user = repoUser.findById(idxUser).orElseThrow(
 				() -> new RuntimeException("UserNotFound")
 		);
-
-		for( String s : CommonConstant.LISTBANK){
-			accountMap1 = new HashMap<>();
-			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
-			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
-			accountMap1.put("organization",	s);// 기관코드
-			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
-			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
-			accountMap1.put("certType",     CommonConstant.CERTTYPE);
-			accountMap1.put("certFile",     dto.getCertFile());
-			list.add(accountMap1);
-		}
-
-		for( String s : CommonConstant.LISTCARD){
-			accountMap1 = new HashMap<>();
-			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
-			accountMap1.put("businessType",	CommonConstant.CARDTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
-			accountMap1.put("organization",	s);// 기관코드
-			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
-			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
-			accountMap1.put("certType",     CommonConstant.CERTTYPE);
-			accountMap1.put("certFile",     dto.getCertFile());
-			list.add(accountMap1);
-		}
 
 		accountMap1 = new HashMap<>();
 		accountMap1.put("countryCode",	"KR");  	// 국가코드
@@ -852,6 +827,47 @@ public class CodefService {
 						.type("NT")
 						.build()
 				);
+
+
+				// 은행 추가
+				bodyMap.clear();
+				list.clear();
+				for( String s : CommonConstant.LISTBANK){
+					accountMap1 = new HashMap<>();
+					accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+					accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
+					accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
+					accountMap1.put("organization",	s);// 기관코드
+					accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+					accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
+					accountMap1.put("certType",     CommonConstant.CERTTYPE);
+					accountMap1.put("certFile",     dto.getCertFile());
+					list.add(accountMap1);
+				}
+				bodyMap.put("accountList", list);
+				bodyMap.put("connectedId", connectedId);
+				ApiRequest.request(addUrlPath, bodyMap);
+
+				// 카드사 추가
+				bodyMap.clear();
+				list.clear();
+				for( String s : CommonConstant.LISTCARD){
+					accountMap1 = new HashMap<>();
+					accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+					accountMap1.put("businessType",	CommonConstant.CARDTYPE);  // 업무구분코드
+					accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
+					accountMap1.put("organization",	s);// 기관코드
+					accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+					accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
+					accountMap1.put("certType",     CommonConstant.CERTTYPE);
+					accountMap1.put("certFile",     dto.getCertFile());
+					list.add(accountMap1);
+				}
+				bodyMap.put("accountList", list);
+				bodyMap.put("connectedId", connectedId);
+				ApiRequest.request(addUrlPath, bodyMap);
+				bodyMap.clear();
+
 			}else{
 				if(connectedId != null) {
 					deleteAccount2(connectedId); // 삭제
@@ -883,6 +899,8 @@ public class CodefService {
 						.data(null).build());
 			}
 		}
+
+
 
 		String strResult = null;
 		// 국세청 - 증명발급 사업자등록
