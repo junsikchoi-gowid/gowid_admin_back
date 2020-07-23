@@ -26,4 +26,6 @@ public class IssuanceProgress extends BaseTime {
     @Column(columnDefinition = "varchar(40) COMMENT '상태. SUCCESS:성공, FAILED:실패'")
     private IssuanceStatusType status;
 
+    @Column
+    private Long corpIdx;
 }

@@ -58,8 +58,8 @@ public class ShinhanGwRpc extends BaseRpc {
     private final CommonService issCommonService;
 
 
-    public DataPart1200 request1200(DataPart1200 request) {
-        issCommonService.saveGwTran(request);
+    public DataPart1200 request1200(DataPart1200 request, Long idxUser) {
+        issCommonService.saveGwTran(request, idxUser);
 
         ApiResponse<DataPart1200> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_1200, HttpMethod.POST,
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1200);
@@ -70,7 +70,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1200 responseData = mapper.convertValue(response.getData(), DataPart1200.class);
-        issCommonService.saveGwTran(responseData);
+        issCommonService.saveGwTran(responseData, idxUser);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1200, responseData.getC009() + "/" + responseData.getC013());
@@ -80,8 +80,8 @@ public class ShinhanGwRpc extends BaseRpc {
 
     }
 
-    public DataPart3000 request3000(DataPart3000 request) {
-        issCommonService.saveGwTran(request);
+    public DataPart3000 request3000(DataPart3000 request, Long idxUser) {
+        issCommonService.saveGwTran(request, idxUser);
 
         ApiResponse<DataPart3000> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_3000, HttpMethod.POST,
                 null, request, ApiResponse.class, ShinhanGwApiType.SH3000);
@@ -92,7 +92,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart3000 responseData = mapper.convertValue(response.getData(), DataPart3000.class);
-        issCommonService.saveGwTran(responseData);
+        issCommonService.saveGwTran(responseData, idxUser);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_3000, responseData.getC009() + "/" + responseData.getC013());
@@ -101,9 +101,9 @@ public class ShinhanGwRpc extends BaseRpc {
         return responseData;
     }
 
-    public void requestBprTransfer(BprTransferReq request, String licenseNo) {
+    public void requestBprTransfer(BprTransferReq request, String licenseNo, Long idxUser) {
 
-        issCommonService.saveGwTran(request);
+        issCommonService.saveGwTran(request, idxUser);
 
         ApiResponse<BprTransferRes> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_BPR_TRANSFER + "/" + licenseNo
                 , HttpMethod.POST, null, request, ApiResponse.class, ShinhanGwApiType.BPR_TRANSFER);
@@ -113,8 +113,8 @@ public class ShinhanGwRpc extends BaseRpc {
         }
     }
 
-    public DataPart1510 request1510(DataPart1510 request) {
-        issCommonService.saveGwTran(request);
+    public DataPart1510 request1510(DataPart1510 request, Long idxUser) {
+        issCommonService.saveGwTran(request, idxUser);
 
         ApiResponse<DataPart1510> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_1510, HttpMethod.POST,
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1510);
@@ -125,7 +125,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1510 responseData = mapper.convertValue(response.getData(), DataPart1510.class);
-        issCommonService.saveGwTran(responseData);
+        issCommonService.saveGwTran(responseData, idxUser);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1510, responseData.getC009() + "/" + responseData.getC013());
@@ -134,8 +134,8 @@ public class ShinhanGwRpc extends BaseRpc {
         return responseData;
     }
 
-    public DataPart1520 request1520(DataPart1520 request) {
-        issCommonService.saveGwTran(request);
+    public DataPart1520 request1520(DataPart1520 request, Long idxUser) {
+        issCommonService.saveGwTran(request, idxUser);
 
         ApiResponse<DataPart1520> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_1520, HttpMethod.POST,
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1520);
@@ -146,7 +146,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1520 responseData = mapper.convertValue(response.getData(), DataPart1520.class);
-        issCommonService.saveGwTran(responseData);
+        issCommonService.saveGwTran(responseData, idxUser);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1520, responseData.getC009() + "/" + responseData.getC013());
@@ -155,8 +155,8 @@ public class ShinhanGwRpc extends BaseRpc {
         return responseData;
     }
 
-    public DataPart1530 request1530(DataPart1530 request) {
-        issCommonService.saveGwTran(request);
+    public DataPart1530 request1530(DataPart1530 request, Long idxUser) {
+        issCommonService.saveGwTran(request, idxUser);
 
         ApiResponse<DataPart1530> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_1530, HttpMethod.POST,
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1530);
@@ -167,7 +167,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1530 responseData = mapper.convertValue(response.getData(), DataPart1530.class);
-        issCommonService.saveGwTran(responseData);
+        issCommonService.saveGwTran(responseData, idxUser);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1530, responseData.getC009() + "/" + responseData.getC013());
@@ -176,8 +176,8 @@ public class ShinhanGwRpc extends BaseRpc {
         return responseData;
     }
 
-    public DataPart1000 request1000(DataPart1000 request) {
-        issCommonService.saveGwTran(request);
+    public DataPart1000 request1000(DataPart1000 request, Long idxUser) {
+        issCommonService.saveGwTran(request, idxUser);
 
         ApiResponse<DataPart1000> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_1000, HttpMethod.POST,
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1000);
@@ -188,7 +188,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1000 responseData = mapper.convertValue(response.getData(), DataPart1000.class);
-        issCommonService.saveGwTran(responseData);
+        issCommonService.saveGwTran(responseData, idxUser);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1000, responseData.getC009() + "/" + responseData.getC013());
@@ -197,8 +197,8 @@ public class ShinhanGwRpc extends BaseRpc {
         return responseData;
     }
 
-    public DataPart1400 request1400(DataPart1400 request) {
-        issCommonService.saveGwTran(request);
+    public DataPart1400 request1400(DataPart1400 request, Long idxUser) {
+        issCommonService.saveGwTran(request, idxUser);
 
         ApiResponse<DataPart1400> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_1400, HttpMethod.POST,
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1400);
@@ -209,7 +209,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1400 responseData = mapper.convertValue(response.getData(), DataPart1400.class);
-        issCommonService.saveGwTran(responseData);
+        issCommonService.saveGwTran(responseData, idxUser);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1400, responseData.getC009() + "/" + responseData.getC013());
@@ -218,8 +218,8 @@ public class ShinhanGwRpc extends BaseRpc {
         return responseData;
     }
 
-    public DataPart1100 request1100(DataPart1100 request) {
-        issCommonService.saveGwTran(request);
+    public DataPart1100 request1100(DataPart1100 request, Long idxUser) {
+        issCommonService.saveGwTran(request, idxUser);
 
         ApiResponse<DataPart1100> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_1100, HttpMethod.POST,
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1100);
@@ -230,7 +230,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1100 responseData = mapper.convertValue(response.getData(), DataPart1100.class);
-        issCommonService.saveGwTran(responseData);
+        issCommonService.saveGwTran(responseData, idxUser);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1100, responseData.getC009() + "/" + responseData.getC013());
@@ -239,8 +239,8 @@ public class ShinhanGwRpc extends BaseRpc {
         return responseData;
     }
 
-    public DataPart1700 request1700(DataPart1700 request) {
-        issCommonService.saveGwTran(request);
+    public DataPart1700 request1700(DataPart1700 request, Long idxUser) {
+        issCommonService.saveGwTran(request, idxUser);
 
         ApiResponse<DataPart1700> responseRpc = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_1700, HttpMethod.POST,
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1700);
@@ -251,7 +251,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1700 response1700 = mapper.convertValue(responseRpc.getData(), DataPart1700.class);
-        issCommonService.saveGwTran(response1700);
+        issCommonService.saveGwTran(response1700, idxUser);
 
         if (!response1700.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1700, response1700.getC009() + "/" + response1700.getC013());
@@ -261,8 +261,8 @@ public class ShinhanGwRpc extends BaseRpc {
 
     }
 
-    public DataPart1800 request1800(DataPart1800 request) {
-        issCommonService.saveGwTran(request);
+    public DataPart1800 request1800(DataPart1800 request, Long idxUser) {
+        issCommonService.saveGwTran(request, idxUser);
 
         ApiResponse<DataPart1800> response = requestGateWayByJson(GATEWAY_AWS_URL + GATEWAY_SHINHAN_URI_1800, HttpMethod.POST,
                 null, request, ApiResponse.class, ShinhanGwApiType.SH1800);
@@ -273,7 +273,7 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ObjectMapper mapper = new ObjectMapper();
         DataPart1800 responseData = mapper.convertValue(response.getData(), DataPart1800.class);
-        issCommonService.saveGwTran(responseData);
+        issCommonService.saveGwTran(responseData, idxUser);
 
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1800, responseData.getC009() + "/" + responseData.getC013());

@@ -12,6 +12,7 @@ import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
+import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.domain.shinhan.*;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -38,6 +39,7 @@ public class ResumeService {
     private final ShinhanGwRpc shinhanGwRpc;
     private final AsyncService asyncService;
     private final CommonService issCommonService;
+    private final CorpRepository corpRepository;
 
     @Value("${encryption.seed128.enable}")
     private boolean ENC_SEED128_ENABLE;
@@ -45,13 +47,13 @@ public class ResumeService {
     // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
     @Transactional(noRollbackFor = Exception.class)
     public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
-        issCommonService.saveGwTran(request);
+        issCommonService.saveGwTranForD1600(request);
         log.debug("### saveProgressFailed start");
         issCommonService.saveProgressFailed(request, IssuanceProgressType.P_1600);
         log.debug("### saveProgressFailed end");
 
         UserCorporationDto.ResumeRes response = getResumeRes(request);
-        issCommonService.saveGwTran(response);
+        issCommonService.saveGwTranForD1600(response);
 
         if (!Const.API_SHINHAN_RESULT_SUCCESS.equals(request.getC009())) {
             log.error("## incoming result of 1600 is fail.");
@@ -91,15 +93,15 @@ public class ResumeService {
         signatureHistoryRepository.save(signatureHistory);
 
         issCommonService.saveProgressFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
-        proc1100(request, signatureHistory);  // 1100(법인카드신청)
+        proc1100(request, signatureHistory, signatureHistory.getUserIdx());  // 1100(법인카드신청)
         issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
 
         issCommonService.saveProgressFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
-        proc1800(request, signatureHistory);  // 1800(전자서명값전달)
+        proc1800(request, signatureHistory, signatureHistory.getUserIdx());  // 1800(전자서명값전달)
         issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
     }
 
-    private void proc1800(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory) {
+    private void proc1800(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory, Long idxUser) {
         log.debug("## 1800 start");
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1800);
 
@@ -112,11 +114,11 @@ public class ResumeService {
                 .build();
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        shinhanGwRpc.request1800(requestRpc);
+        shinhanGwRpc.request1800(requestRpc, idxUser);
         log.debug("## 1800 end");
     }
 
-    private void proc1100(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory) {
+    private void proc1100(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory, Long idxUser) {
         // 공통부
         log.debug("## 1100 start");
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1100);
@@ -140,7 +142,7 @@ public class ResumeService {
             requestRpc.setD025(Seed128.decryptEcb(d1100.getD025()));
         }
 
-        shinhanGwRpc.request1100(requestRpc);
+        shinhanGwRpc.request1100(requestRpc, idxUser);
 //        issCommonService.saveGwTran(requestRpc);
 //        issCommonService.saveGwTran(shinhanGwRpc.request1100(requestRpc));
         log.debug("## 1100 end");

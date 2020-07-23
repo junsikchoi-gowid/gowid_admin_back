@@ -93,16 +93,16 @@ public class IssuanceService {
         userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.SIGNED);
 
         // 1200(법인회원신규여부검증)
-        userService.saveIssuanceProgFailed(userCorp.user().idx(), IssuanceProgressType.P_1200);
+        userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_1200);
         DataPart1200 resultOfD1200 = proc1200(userCorp);
         saveSignatureHistory(signatureHistoryIdx, resultOfD1200);
-        userService.saveIssuanceProgSuccess(userCorp.user().idx(), IssuanceProgressType.P_1200);
+        userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_1200);
 
 
         // 15xx 서류제출
         userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_15XX);
         proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
-        userService.saveIssuanceProgSuccess(userCorp.user().idx(), IssuanceProgressType.P_15XX);
+        userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_15XX);
 
         // 신규(1000) or 변경(1400) 신청
         userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_AUTO_CHECK);
@@ -117,7 +117,7 @@ public class IssuanceService {
         userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_AUTO_CHECK);
 
         // BRP 전송(비동기)
-        asyncService.run(() -> procBpr(userCorp, resultOfD1200));
+        asyncService.run(() -> procBpr(userCorp, resultOfD1200, userIdx));
 
     }
 
@@ -150,19 +150,19 @@ public class IssuanceService {
     }
 
     @Async
-    void procBpr(Corp userCorp, DataPart1200 resultOfD1200) {
-        userService.saveIssuanceProgFailed(userCorp.user().idx(), IssuanceProgressType.P_IMG);
+    void procBpr(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
+        userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_IMG);
 
-        if (proc3000(userCorp, resultOfD1200)) {
-            userService.saveIssuanceProgSuccess(userCorp.user().idx(), IssuanceProgressType.P_IMG);
+        if (proc3000(userCorp, resultOfD1200, userIdx)) {
+            userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_IMG);
             return;
         }
 
         try {
             for (int i = 0; i < 3; i++) {
                 Thread.sleep(5000L);
-                if (proc3000(userCorp, resultOfD1200)) {
-                    userService.saveIssuanceProgSuccess(userCorp.user().idx(), IssuanceProgressType.P_IMG);
+                if (proc3000(userCorp, resultOfD1200, userIdx)) {
+                    userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_IMG);
                     return;
                 }
             }
@@ -173,10 +173,10 @@ public class IssuanceService {
 
     }
 
-    private boolean proc3000(Corp userCorp, DataPart1200 resultOfD1200) {
-        DataPart3000 resultOfD3000 = proc3000(resultOfD1200);                    // 3000(이미지 제출여부)
+    private boolean proc3000(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
+        DataPart3000 resultOfD3000 = proc3000(resultOfD1200, userIdx);                    // 3000(이미지 제출여부)
         if ("Y".equals(resultOfD3000.getD001())) {
-            procBrpTransfer(resultOfD3000, userCorp.resCompanyIdentityNo());     // 이미지 전송요청
+            procBrpTransfer(resultOfD3000, userCorp.resCompanyIdentityNo(), userIdx);     // 이미지 전송요청
             return true;
         }
         return false;
@@ -205,7 +205,7 @@ public class IssuanceService {
         d1100Repository.save(d1100);
     }
 
-    private DataPart3000 proc3000(DataPart1200 resultOfD1200) {
+    private DataPart3000 proc3000(DataPart1200 resultOfD1200, Long idxUser) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH3000);
 
@@ -224,12 +224,12 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         // 요청 및 리턴
-        return shinhanGwRpc.request3000(requestRpc);
+        return shinhanGwRpc.request3000(requestRpc, idxUser);
     }
 
-    private void procBrpTransfer(DataPart3000 resultOfD3000, String companyIdentityNo) {
+    private void procBrpTransfer(DataPart3000 resultOfD3000, String companyIdentityNo, Long idxUser) {
         BprTransferReq requestRpc = new BprTransferReq(resultOfD3000);
-        shinhanGwRpc.requestBprTransfer(requestRpc, companyIdentityNo);
+        shinhanGwRpc.requestBprTransfer(requestRpc, companyIdentityNo, idxUser);
     }
 
     DataPart1200 proc1200(Corp userCorp) {
@@ -246,7 +246,7 @@ public class IssuanceService {
         DataPart1200 requestRpc = new DataPart1200();
         BeanUtils.copyProperties(d1200, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
-        DataPart1200 responseRpc = shinhanGwRpc.request1200(requestRpc);
+        DataPart1200 responseRpc = shinhanGwRpc.request1200(requestRpc, userCorp.user().idx());
 
         BeanUtils.copyProperties(responseRpc, d1200);
         d1200Repository.save(d1200);
@@ -286,7 +286,7 @@ public class IssuanceService {
         BeanUtils.copyProperties(d1510, requestRpc);
         BeanUtils.copyProperties(commonPart, requestRpc);
 
-        shinhanGwRpc.request1510(requestRpc);
+        shinhanGwRpc.request1510(requestRpc, userCorp.user().idx());
     }
 
     private void proc1520(Corp userCorp, String applyDate, String applyNo) {
@@ -308,7 +308,7 @@ public class IssuanceService {
             BeanUtils.copyProperties(d1520, requestRpc);
             BeanUtils.copyProperties(commonPart, requestRpc);
 
-            shinhanGwRpc.request1520(requestRpc);
+            shinhanGwRpc.request1520(requestRpc, userCorp.user().idx());
         }
     }
 
@@ -349,7 +349,7 @@ public class IssuanceService {
         }
 
         // 연동 및 저장
-        shinhanGwRpc.request1530(requestRpc);
+        shinhanGwRpc.request1530(requestRpc, userCorp.user().idx());
     }
 
     //    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
@@ -392,7 +392,7 @@ public class IssuanceService {
             }
         }
 
-        shinhanGwRpc.request1000(requestRpc);
+        shinhanGwRpc.request1000(requestRpc, userCorp.user().idx());
     }
 
     //    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
@@ -421,11 +421,11 @@ public class IssuanceService {
             requestRpc.setD006(Seed128.decryptEcb(d1400.getD006()));
         }
 
-        shinhanGwRpc.request1400(requestRpc);
+        shinhanGwRpc.request1400(requestRpc, userCorp.user().idx());
     }
 
 
-    private DataPart1700 proc1700(UserCorporationDto.IdentificationReq request, Map<String, String> decryptData) {
+    private DataPart1700 proc1700(Long idxUser, UserCorporationDto.IdentificationReq request, Map<String, String> decryptData) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1700);
 
@@ -452,7 +452,7 @@ public class IssuanceService {
         requestRpc.setD003(d003);
         requestRpc.setD005(d005);
 
-        return shinhanGwRpc.request1700(requestRpc);
+        return shinhanGwRpc.request1700(requestRpc, idxUser);
     }
 
 
@@ -471,8 +471,7 @@ public class IssuanceService {
      * 1700 신분증 위조확인
      */
     @Transactional(rollbackFor = Exception.class)
-    public void verifyCeoIdentification(HttpServletRequest request, UserCorporationDto.IdentificationReq dto) {
-
+    public void verifyCeoIdentification(HttpServletRequest request, Long idxUser, UserCorporationDto.IdentificationReq dto) {
         Map<String, String> decryptData;
         if (dto.getIdType().equals(UserCorporationDto.IdentificationReq.IDType.DRIVE_LICENCE)) {
             decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
@@ -482,7 +481,7 @@ public class IssuanceService {
         }
 
         // 1700(신분증검증)
-        DataPart1700 resultOfD1700 = proc1700(dto, decryptData);
+        DataPart1700 resultOfD1700 = proc1700(idxUser, dto, decryptData);
 
         if (!resultOfD1700.getD008().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
             throw BadRequestedException.builder().category(BadRequestedException.Category.INVALID_CEO_IDENTIFICATION).desc(resultOfD1700.getD009()).build();

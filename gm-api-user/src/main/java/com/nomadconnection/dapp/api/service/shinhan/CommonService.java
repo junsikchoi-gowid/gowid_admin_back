@@ -3,23 +3,28 @@ package com.nomadconnection.dapp.api.service.shinhan;
 import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.CommonPart;
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1600;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1200Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.GatewayTransactionIdxRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.GwTranHistRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.SignatureHistoryRepository;
-import com.nomadconnection.dapp.core.domain.shinhan.GatewayTransactionIdx;
-import com.nomadconnection.dapp.core.domain.shinhan.GwTranHist;
-import com.nomadconnection.dapp.core.domain.shinhan.IssuanceProgressType;
-import com.nomadconnection.dapp.core.domain.shinhan.SignatureHistory;
+import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
+import com.nomadconnection.dapp.core.domain.shinhan.*;
+import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 @Slf4j
 @Service
@@ -31,6 +36,9 @@ public class CommonService {
     private final AsyncService asyncService;
     private final UserService userService;
     private final SignatureHistoryRepository signatureHistoryRepository;
+    private final UserRepository userRepository;
+    private final CorpRepository corpRepository;
+    private final D1200Repository d1200Repository;
 
     public void saveProgressFailed(Long userIdx, IssuanceProgressType progressType) {
         asyncService.run(() -> saveIssuanceProgFailedBg(userIdx, progressType));
@@ -84,12 +92,30 @@ public class CommonService {
 
     // 연동 기록 저장
     @Async
-    public void saveGwTran(CommonPart commonPart) {
+    @Transactional(noRollbackFor = Exception.class)
+    public void saveGwTran(CommonPart commonPart, Long idxUser) {
         log.debug("## save tran {} - start", commonPart.getC004());
         GwTranHist gwTranHist = new GwTranHist();
         BeanUtils.copyProperties(commonPart, gwTranHist);
+        gwTranHist.setUserIdx(idxUser);
+        gwTranHist.setCorpIdx(getCorpIdx(idxUser));
         gwTranHistRepository.save(gwTranHist);
         log.debug("## save tran {} - end", commonPart.getC004());
+    }
+
+    @Async
+    @Transactional(noRollbackFor = Exception.class)
+    public void saveGwTranForD1600(DataPart1600 dataPart1600) {
+        log.debug("## save tran {} - start", dataPart1600.getC004());
+        GwTranHist gwTranHist = new GwTranHist();
+        BeanUtils.copyProperties(dataPart1600, gwTranHist);
+        D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(dataPart1600.getD001(), dataPart1600.getD002());
+        if (d1200 != null) {
+            gwTranHist.setUserIdx(getUserIdx(d1200.getIdxCorp()));
+            gwTranHist.setCorpIdx(d1200.getIdxCorp());
+        }
+        gwTranHistRepository.save(gwTranHist);
+        log.debug("## save tran {} - end", dataPart1600.getC004());
     }
 
     protected CommonPart getCommonPart(ShinhanGwApiType apiType) {
@@ -118,5 +144,31 @@ public class CommonService {
 
         long tmpTranId = 20000000000L + gatewayTransactionIdx.getIdx();
         return "0" + tmpTranId;     // 020000000001
+    }
+
+    private Long getCorpIdx(Long userIdx) {
+        if (ObjectUtils.isEmpty(userIdx)) {
+            return null;
+        }
+        User user = userRepository.findById(userIdx).orElse(null);
+        if (user == null) {
+            return null;
+        }
+        return !ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null;
+    }
+
+    private D1200 getD1200ByApplicationDateAndApplicationNum(String applicationDate, String applicationNum) {
+        return d1200Repository.findFirstByD007AndD008OrderByUpdatedAtDesc(applicationDate, applicationNum).orElse(null);
+    }
+
+    private Long getUserIdx(Long corpIdx) {
+        if (ObjectUtils.isEmpty(corpIdx)) {
+            return null;
+        }
+        Corp corp = corpRepository.findById(corpIdx).orElse(null);
+        if (corp == null) {
+            return null;
+        }
+        return corp.user().idx();
     }
 }

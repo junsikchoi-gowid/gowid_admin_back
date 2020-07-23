@@ -47,4 +47,9 @@ public class GwTranHist extends BaseTime {
     @Column(columnDefinition = "varchar(100) COMMENT '응답메시지'")
     private String c013;  // 응답메시지
 
+    @Column
+    private Long userIdx;
+
+    @Column
+    private Long corpIdx;
 }

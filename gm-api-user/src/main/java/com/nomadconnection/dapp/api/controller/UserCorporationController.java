@@ -229,7 +229,7 @@ public class UserCorporationController {
             log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
         }
 
-        issuanceService.verifyCeoIdentification(request, dto);
+        issuanceService.verifyCeoIdentification(request, user.idx(), dto);
         return ResponseEntity.ok().build();
     }
 

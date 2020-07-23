@@ -40,6 +40,7 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
@@ -715,13 +716,15 @@ public class UserService {
 	}
 
 	public ResponseEntity<UserDto.IssuanceProgressRes> issuanceProgress(Long userIdx) {
-		repo.findById(userIdx).orElseThrow(
+		User user = repo.findById(userIdx).orElseThrow(
 				() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "userIdx=" + userIdx)
 		);
+		Long corpIdx = !ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null;
 
 		IssuanceProgress issuanceProgress = issuanceProgressRepository.findById(userIdx).orElse(
 				IssuanceProgress.builder()
 						.userIdx(userIdx)
+						.corpIdx(corpIdx)
 						.progress(IssuanceProgressType.NOT_SIGNED)
 						.status(IssuanceStatusType.SUCCESS)
 						.build()
@@ -737,6 +740,7 @@ public class UserService {
 		try {
 			issuanceProgressRepository.save(IssuanceProgress.builder()
 					.userIdx(userIdx)
+          .corpIdx(getCorpIdx(userIdx))
 					.progress(progressType)
 					.status(statusType).build());
 		} catch (Exception e) {
@@ -744,11 +748,24 @@ public class UserService {
 		}
 	}
 
+	@Transactional(noRollbackFor = Exception.class)
 	public void saveIssuanceProgFailed(Long userIdx, IssuanceProgressType progressType) {
 		saveIssuanceProgress(userIdx, progressType, IssuanceStatusType.FAILED);
 	}
 
+	@Transactional(noRollbackFor = Exception.class)
 	public void saveIssuanceProgSuccess(Long userIdx, IssuanceProgressType progressType) {
 		saveIssuanceProgress(userIdx, progressType, IssuanceStatusType.SUCCESS);
+	}
+
+	private Long getCorpIdx(Long userIdx) {
+		if (ObjectUtils.isEmpty(userIdx)) {
+			return null;
+		}
+		User user = repo.findById(userIdx).orElse(null);
+		if (user == null) {
+			return null;
+		}
+		return !ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null;
 	}
 }
