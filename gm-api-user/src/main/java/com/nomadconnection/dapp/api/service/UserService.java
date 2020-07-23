@@ -734,10 +734,14 @@ public class UserService {
 	}
 
 	public void saveIssuanceProgress(Long userIdx, IssuanceProgressType progressType, IssuanceStatusType statusType) {
-		issuanceProgressRepository.save(IssuanceProgress.builder()
-				.userIdx(userIdx)
-				.progress(progressType)
-				.status(statusType).build());
+		try {
+			issuanceProgressRepository.save(IssuanceProgress.builder()
+					.userIdx(userIdx)
+					.progress(progressType)
+					.status(statusType).build());
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+		}
 	}
 
 	public void saveIssuanceProgFailed(Long userIdx, IssuanceProgressType progressType) {
