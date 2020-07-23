@@ -715,16 +715,16 @@ public class UserService {
 				.build());
 	}
 
+	@Transactional
 	public ResponseEntity<UserDto.IssuanceProgressRes> issuanceProgress(Long userIdx) {
 		User user = repo.findById(userIdx).orElseThrow(
 				() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "userIdx=" + userIdx)
 		);
-		Long corpIdx = !ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null;
 
 		IssuanceProgress issuanceProgress = issuanceProgressRepository.findById(userIdx).orElse(
 				IssuanceProgress.builder()
 						.userIdx(userIdx)
-						.corpIdx(corpIdx)
+						.corpIdx(!ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null)
 						.progress(IssuanceProgressType.NOT_SIGNED)
 						.status(IssuanceStatusType.SUCCESS)
 						.build()
