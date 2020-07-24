@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.*;
+import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
@@ -33,6 +34,7 @@ import com.nomadconnection.dapp.core.domain.shinhan.D1000;
 import com.nomadconnection.dapp.core.domain.shinhan.D1100;
 import com.nomadconnection.dapp.core.domain.shinhan.D1400;
 import com.nomadconnection.dapp.core.domain.user.User;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.encryption.Seed128;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,6 +80,7 @@ public class UserCorporationService {
 
 	@Value("${stockholder.file.size}")
 	private Long STOCKHOLDER_FILE_SIZE;
+
 
     /**
      * 법인정보 업종종류 조회
@@ -730,6 +733,58 @@ public class UserCorporationService {
     @Transactional(readOnly = true)
     public List<UserCorporationDto.ShinhanDriverLocalCode> getShinhanDriverLocalCodes() {
         return repoCodeDetail.findAllByCode(CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).stream().map(UserCorporationDto.ShinhanDriverLocalCode::from).collect(Collectors.toList());
+    }
+
+    /**
+     * 대표자 타당성 확인
+     *
+     * @param idx_user 조회하는 User idx
+     * @param dto      대표자 타당성 확인 정보
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void verifyValidCeo(Long idx_user, UserCorporationDto.CeoValidReq dto) {
+        User user = findUser(idx_user);
+        if (ObjectUtils.isEmpty(user.corp())) {
+            throw EntityNotFoundException.builder().entity("Corp").build();
+        }
+
+        CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(user.corp());
+        cardIssuanceInfo.ceoInfos().forEach(ceoInfo -> {
+            if (dto.getPhoneNumber().equals(ceoInfo.phoneNumber())) {
+                throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "ALREADY_AUTH_CEO");
+            }
+        });
+
+        // 스크래핑 데이터와 입력 데이터 일치여부 확인
+        verifyCorrespondCeo(user.corp().idx(), dto);
+    }
+
+    public void verifyCorrespondCeo(Long idx_corp, UserCorporationDto.CeoValidReq dto) {
+        D1000 d1000 = getD1000(idx_corp);
+        if (ObjectUtils.isEmpty(d1000)) {
+            throw EntityNotFoundException.builder().entity("D1000").build();
+        }
+
+        boolean isValidCeoInfo = !checkCeo(d1000.getD010(), d1000.getD012(), d1000.getD011(), dto)
+                && !checkCeo(d1000.getD014(), d1000.getD016(), d1000.getD015(), dto)
+                && !checkCeo(d1000.getD018(), d1000.getD020(), d1000.getD019(), dto);
+
+        if (isValidCeoInfo) {
+            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "MISMATCH_CEO");
+        }
+    }
+
+    private boolean checkCeo(String korName, String engName, String idNum, UserCorporationDto.CeoValidReq dto) {
+        if (!StringUtils.hasText(idNum)) {
+            return false;
+        }
+
+        idNum = Seed128.decryptEcb(idNum);
+
+        if ((dto.getName().equals(korName) || dto.getName().equals(engName)) && dto.getIdentificationNumberFront().substring(0, 6).equals(idNum.substring(0, 6))) {
+            return true;
+        }
+        return false;
     }
 
 

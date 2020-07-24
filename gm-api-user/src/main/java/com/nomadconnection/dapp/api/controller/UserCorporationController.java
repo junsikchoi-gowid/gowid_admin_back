@@ -48,6 +48,8 @@ public class UserCorporationController {
         public static final String CEO = "/ceo";
         public static final String CEO_ID = "/ceo/identification";
         public static final String SHINHAN_DRIVER_LOCAL_CODE = "/shinhan/driver-local-code";
+        public static final String CEO_CORRESPOND = "/ceo/correspond";
+
     }
 
     private final UserCorporationService service;
@@ -261,6 +263,19 @@ public class UserCorporationController {
         return ResponseEntity.ok().body(
                 resumeService.resumeApplication(request)
         );
+    }
+
+    @ApiOperation(value = "대표자 일치 확인")
+    @PostMapping(URI.CEO_CORRESPOND)
+    public ResponseEntity<?> verifyCorrespondCeo(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestBody @Valid UserCorporationDto.CeoValidReq dto) {
+        if (log.isInfoEnabled()) {
+            log.info("([ verifyCorrespondCeo ]) $user='{}', $dto='{}'", user, dto);
+        }
+
+        service.verifyValidCeo(user.idx(), dto);
+        return ResponseEntity.ok().build();
     }
 
 }

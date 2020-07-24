@@ -752,4 +752,24 @@ public class UserCorporationDto {
             return null;
         }
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CeoValidReq {
+
+        @ApiModelProperty("휴대폰번호('-' 제거)")
+        @NotEmpty
+        private String phoneNumber;
+
+        @ApiModelProperty("대표자명")
+        @NotEmpty
+        private String name;
+
+        @ApiModelProperty("주민등록번호 앞자리")
+        @NotEmpty
+        private String identificationNumberFront;
+    }
+
 }
