@@ -104,6 +104,7 @@ public class UserCorporationService {
         User user = findUser(idx_user);
 
         D1000 d1000 = getD1000(user.corp().idx());
+        D1400 d1400 = getD1400(user.corp().idx());
         Corp corp = repoCorp.save(user.corp()
                 .resCompanyEngNm(dto.getEngCorName())
                 .resCompanyNumber(dto.getCorNumber())
@@ -116,19 +117,32 @@ public class UserCorporationService {
             throw MismatchedException.builder().build();
         }
 
+        String[] corNumber = dto.getCorNumber().split("-");
         if (d1000 != null) {
-            String[] corNumber = dto.getCorNumber().split("-");
             repoD1000.save(d1000
-                    .setD006(dto.getEngCorName())
-                    .setD008(dto.getBusinessCode())
-                    .setD026(corNumber[0])
-                    .setD027(corNumber[1])
-                    .setD028(corNumber[2])
-                    .setD036(corNumber[0])
-                    .setD037(corNumber[1])
-                    .setD038(corNumber[2])
+                    .setD006(dto.getEngCorName())           //법인영문명
+                    .setD008(dto.getBusinessCode())         //업종코드
+                    .setD026(corNumber[0])                  //직장전화지역번호
+                    .setD027(corNumber[1])                  //직장전화국번호
+                    .setD028(corNumber[2])                  //직장전화고유번호
+                    .setD036(corNumber[0])                  //신청관리자전화지역번호
+                    .setD037(corNumber[1])                  //신청관리자전화국번호
+                    .setD038(corNumber[2])                  //신청관리자전화고유번호
             );
         }
+
+        if (d1400 != null) {
+            repoD1400.save(d1400
+                    .setD030(dto.getEngCorName())
+                    .setD049(corNumber[0])
+                    .setD050(corNumber[1])
+                    .setD051(corNumber[2])
+                    .setD059(corNumber[0])
+                    .setD060(corNumber[1])
+                    .setD061(corNumber[2])
+            );
+        }
+
         return UserCorporationDto.CorporationRes.from(corp, cardInfo.idx());
     }
 
@@ -445,18 +459,25 @@ public class UserCorporationService {
         D1000 d1000 = getD1000(user.corp().idx());
         if (d1000 != null) {
             repoD1000.save(d1000
-                    .setD022(dto.getZipCode().substring(0, 3))
-                    .setD023(dto.getZipCode().substring(3))
-                    .setD024(dto.getAddressBasic())
-                    .setD025(dto.getAddressDetail())
-                    .setD050(grantLimit)
-                    .setD055(dto.getAddressKey())
+                    .setD022(dto.getZipCode().substring(0, 3))      //직장우편앞번호
+                    .setD023(dto.getZipCode().substring(3))         //직장우편뒷번호
+                    .setD024(dto.getAddressBasic())                 //직장기본주소
+                    .setD025(dto.getAddressDetail())                //직장상세주소
+                    .setD050(grantLimit)                            //제휴약정한도금액
+                    .setD055(dto.getAddressKey())                   //도로명참조KEY값
             );
         }
 
         D1400 d1400 = getD1400(user.corp().idx());
         if (d1400 != null) {
-            repoD1400.save(d1400.setD014(grantLimit));
+            repoD1400.save(d1400
+                    .setD014(grantLimit)
+                    .setD045(dto.getZipCode().substring(0, 3))      // 직장우편앞번호
+                    .setD046(dto.getZipCode().substring(3))         // 직장우편뒷번호
+                    .setD047(dto.getAddressBasic())                 // 직장기본주소
+                    .setD048(dto.getAddressDetail())                // 직장상세주소
+                    .setD067(dto.getAddressKey())                   // 도로명참조KEY값
+            );
         }
 
         D1100 d1100 = getD1100(user.corp().idx());
@@ -582,16 +603,16 @@ public class UserCorporationService {
         if (d1000 != null) {
             if (!StringUtils.hasText(d1000.getD012()) || (ceo != null && ceo.ceoNumber().equals(1))) { // 첫번째 대표자정보
                 repoD1000.save(d1000
-                                .setD010(dto.getName())
-                                .setD012(dto.getEngName())
-                                .setD013(dto.getNation())
-                                .setD035(dto.getName())
+                                .setD010(dto.getName())                     //대표자명1
+                                .setD012(dto.getEngName())                  //대표자영문명1
+                                .setD013(dto.getNation())                   //대표자국적코드1
+                                .setD035(dto.getName())                     //신청관리자명
 //                        .setD036(dto.getPhoneNumber().substring(0, 3))
 //                        .setD037(dto.getPhoneNumber().substring(3, 7))
 //                        .setD038(dto.getPhoneNumber().substring(7))
-                                .setD040(dto.getPhoneNumber().substring(0, 3))
-                                .setD041(dto.getPhoneNumber().substring(3, 7))
-                                .setD042(dto.getPhoneNumber().substring(7))
+                                .setD040(dto.getPhoneNumber().substring(0, 3))      //신청관리자휴대전화식별번호
+                                .setD041(dto.getPhoneNumber().substring(3, 7))      //신청관리자휴대전화국번호
+                                .setD042(dto.getPhoneNumber().substring(7))         //신청관리자휴대전화고유번호
                 );
                 ceoNum = 1;
 
@@ -606,21 +627,23 @@ public class UserCorporationService {
 
             } else if (!StringUtils.hasText(d1000.getD016()) || (ceo != null && ceo.ceoNumber().equals(2))) { // 두번째 대표자정보
                 repoD1000.save(d1000
-                        .setD014(dto.getName())
-                        .setD016(dto.getEngName())
-                        .setD017(dto.getNation())
+                        .setD014(dto.getName())         //대표자명2
+                        .setD016(dto.getEngName())      //대표자영문명2
+                        .setD017(dto.getNation())       //대표자국적코드2
                 );
                 ceoNum = 2;
 
             } else if (!StringUtils.hasText(d1000.getD020()) || (ceo != null && ceo.ceoNumber().equals(3))) { // 세번째 대표자정보
                 repoD1000.save(d1000
-                        .setD018(dto.getName())
-                        .setD020(dto.getEngName())
-                        .setD021(dto.getNation())
+                        .setD018(dto.getName())         //대표자명3
+                        .setD020(dto.getEngName())      //대표자영문명3
+                        .setD021(dto.getNation())       //대표자국적코드3
                 );
                 ceoNum = 3;
             }
         }
+
+        ceoNum = updateD1400Ceo(dto, ceo, user, ceoNum);
 
         if (ObjectUtils.isEmpty(ceo)) {
             ceo = CeoInfo.builder()
@@ -652,6 +675,44 @@ public class UserCorporationService {
         }
 
         return UserCorporationDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");
+    }
+
+    private Integer updateD1400Ceo(UserCorporationDto.RegisterCeo dto, CeoInfo ceo, User user, Integer ceoNum) {
+        D1400 d1400 = getD1400(user.corp().idx());
+        if (d1400 == null) {
+            return ceoNum;
+        }
+
+        if (!StringUtils.hasText(d1400.getD035()) || (ceo != null && ceo.ceoNumber().equals(1))) { // 첫번째 대표자정보
+            repoD1400.save(d1400
+                    .setD033(dto.getName())                     //대표자명1
+                    .setD035(dto.getEngName())                  //대표자영문명1
+                    .setD036(dto.getNation())                   //대표자국적코드1
+                    .setD058(dto.getName())                     //신청관리자명
+                    .setD063(dto.getPhoneNumber().substring(0, 3))      //신청관리자휴대전화식별번호
+                    .setD064(dto.getPhoneNumber().substring(3, 7))      //신청관리자휴대전화국번호
+                    .setD065(dto.getPhoneNumber().substring(7))         //신청관리자휴대전화고유번호
+            );
+            ceoNum = 1;
+
+        } else if (!StringUtils.hasText(d1400.getD039()) || (ceo != null && ceo.ceoNumber().equals(2))) { // 두번째 대표자정보
+            repoD1400.save(d1400
+                    .setD037(dto.getName())         //대표자명2
+                    .setD039(dto.getEngName())      //대표자영문명2
+                    .setD040(dto.getNation())       //대표자국적코드2
+            );
+            ceoNum = 2;
+
+        } else if (!StringUtils.hasText(d1400.getD043()) || (ceo != null && ceo.ceoNumber().equals(3))) { // 세번째 대표자정보
+            repoD1400.save(d1400
+                    .setD041(dto.getName())         //대표자명3
+                    .setD043(dto.getEngName())      //대표자영문명3
+                    .setD044(dto.getNation())       //대표자국적코드3
+            );
+            ceoNum = 3;
+        }
+
+        return ceoNum;
     }
 
     /**

@@ -102,7 +102,7 @@ public class D1100 extends BaseTime {
     @Column(columnDefinition = "varchar(3)    DEFAULT '' COMMENT '수령인휴대전화식별번호'")
     private String d035; //수령인휴대전화식별번호
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '수령인휴대전화국번호'")
-    private String d036; //수령인휴대전화국번호
+    private String d036; //수령인휴대전화국번호스
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '수령인휴대전화고유번호'")
     private String d037; //수령인휴대전화고유번호
     @Column(columnDefinition = "varchar(1)    DEFAULT '' COMMENT 'SMS신청여부'")
