@@ -282,6 +282,14 @@ public class IssuanceService {
         d1510.setD001(applyDate);
         d1510.setD002(applyNo);
 
+        if (StringUtils.hasText(d1510.getD013()) && d1510.getD013().length() > 40) {
+            d1510.setD013(d1510.getD013().substring(0, 40));
+        }
+
+        if (StringUtils.hasText(d1510.getD014()) && d1510.getD014().length() > 40) {
+            d1510.setD014(d1510.getD014().substring(0, 40));
+        }
+
         // 연동
         DataPart1510 requestRpc = new DataPart1510();
         BeanUtils.copyProperties(d1510, requestRpc);
