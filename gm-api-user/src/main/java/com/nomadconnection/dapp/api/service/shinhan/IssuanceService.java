@@ -57,6 +57,7 @@ public class IssuanceService {
     private final SignatureHistoryRepository signatureHistoryRepository;
     private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
     private final CommonCodeDetailRepository commonCodeDetailRepository;
+    private final IssuanceProgressRepository issuanceProgressRepository;
 
     private final ShinhanGwRpc shinhanGwRpc;
     private final CommonService issCommonService;
@@ -115,7 +116,7 @@ public class IssuanceService {
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
         }
         userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_AUTO_CHECK);
-
+        issuanceProgressRepository.flush();
         // BRP 전송(비동기)
         asyncService.run(() -> procBpr(userCorp, resultOfD1200, userIdx));
 

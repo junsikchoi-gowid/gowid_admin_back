@@ -740,7 +740,7 @@ public class UserService {
 		try {
 			issuanceProgressRepository.save(IssuanceProgress.builder()
 					.userIdx(userIdx)
-          .corpIdx(getCorpIdx(userIdx))
+					.corpIdx(getCorpIdx(userIdx))
 					.progress(progressType)
 					.status(statusType).build());
 		} catch (Exception e) {
