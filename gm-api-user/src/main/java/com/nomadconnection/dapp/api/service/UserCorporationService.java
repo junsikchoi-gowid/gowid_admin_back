@@ -133,13 +133,13 @@ public class UserCorporationService {
 
         if (d1400 != null) {
             repoD1400.save(d1400
-                    .setD030(dto.getEngCorName())
-                    .setD049(corNumber[0])
-                    .setD050(corNumber[1])
-                    .setD051(corNumber[2])
-                    .setD059(corNumber[0])
-                    .setD060(corNumber[1])
-                    .setD061(corNumber[2])
+                    .setD029(dto.getEngCorName())       // 법인영문명
+                    .setD048(corNumber[0])              // 직장전화지역번호
+                    .setD049(corNumber[1])              // 직장전화국번호
+                    .setD050(corNumber[2])              // 직장전화고유번호
+                    .setD058(corNumber[0])              // 신청관리자전화지역번호
+                    .setD059(corNumber[1])              // 신청관리자전화국번호
+                    .setD060(corNumber[2])              // 신청관리자전화고유번호
             );
         }
 
@@ -472,11 +472,11 @@ public class UserCorporationService {
         if (d1400 != null) {
             repoD1400.save(d1400
                     .setD014(grantLimit)
-                    .setD045(dto.getZipCode().substring(0, 3))      // 직장우편앞번호
-                    .setD046(dto.getZipCode().substring(3))         // 직장우편뒷번호
-                    .setD047(dto.getAddressBasic())                 // 직장기본주소
-                    .setD048(dto.getAddressDetail())                // 직장상세주소
-                    .setD067(dto.getAddressKey())                   // 도로명참조KEY값
+                    .setD044(dto.getZipCode().substring(0, 3))      // 직장우편앞번호
+                    .setD045(dto.getZipCode().substring(3))         // 직장우편뒷번호
+                    .setD046(dto.getAddressBasic())                 // 직장기본주소
+                    .setD047(dto.getAddressDetail())                // 직장상세주소
+                    .setD066(dto.getAddressKey())                   // 도로명참조KEY값
             );
         }
 
@@ -685,29 +685,29 @@ public class UserCorporationService {
 
         if (!StringUtils.hasText(d1400.getD035()) || (ceo != null && ceo.ceoNumber().equals(1))) { // 첫번째 대표자정보
             repoD1400.save(d1400
-                    .setD033(dto.getName())                     //대표자명1
-                    .setD035(dto.getEngName())                  //대표자영문명1
-                    .setD036(dto.getNation())                   //대표자국적코드1
-                    .setD058(dto.getName())                     //신청관리자명
-                    .setD063(dto.getPhoneNumber().substring(0, 3))      //신청관리자휴대전화식별번호
-                    .setD064(dto.getPhoneNumber().substring(3, 7))      //신청관리자휴대전화국번호
-                    .setD065(dto.getPhoneNumber().substring(7))         //신청관리자휴대전화고유번호
+                    .setD032(dto.getName())                     //대표자명1
+                    .setD034(dto.getEngName())                  //대표자영문명1
+                    .setD035(dto.getNation())                   //대표자국적코드1
+                    .setD057(dto.getName())                     //신청관리자명
+                    .setD062(dto.getPhoneNumber().substring(0, 3))      //신청관리자휴대전화식별번호
+                    .setD063(dto.getPhoneNumber().substring(3, 7))      //신청관리자휴대전화국번호
+                    .setD064(dto.getPhoneNumber().substring(7))         //신청관리자휴대전화고유번호
             );
             ceoNum = 1;
 
         } else if (!StringUtils.hasText(d1400.getD039()) || (ceo != null && ceo.ceoNumber().equals(2))) { // 두번째 대표자정보
             repoD1400.save(d1400
-                    .setD037(dto.getName())         //대표자명2
-                    .setD039(dto.getEngName())      //대표자영문명2
-                    .setD040(dto.getNation())       //대표자국적코드2
+                    .setD036(dto.getName())         //대표자명2
+                    .setD038(dto.getEngName())      //대표자영문명2
+                    .setD039(dto.getNation())       //대표자국적코드2
             );
             ceoNum = 2;
 
         } else if (!StringUtils.hasText(d1400.getD043()) || (ceo != null && ceo.ceoNumber().equals(3))) { // 세번째 대표자정보
             repoD1400.save(d1400
-                    .setD041(dto.getName())         //대표자명3
-                    .setD043(dto.getEngName())      //대표자영문명3
-                    .setD044(dto.getNation())       //대표자국적코드3
+                    .setD040(dto.getName())         //대표자명3
+                    .setD042(dto.getEngName())      //대표자영문명3
+                    .setD043(dto.getNation())       //대표자국적코드3
             );
             ceoNum = 3;
         }

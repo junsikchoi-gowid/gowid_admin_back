@@ -89,123 +89,120 @@ public class D1400 extends BaseTime {
     @Column(columnDefinition = "varchar(13)    DEFAULT '' COMMENT '법인등록번호'")
     private String d027;    // 법인등록번호
 
-    @Column(columnDefinition = "varchar(80)    DEFAULT '' COMMENT '법인명'")
-    private String d028;    // 법인명
-
     @Column(columnDefinition = "varchar(3)    DEFAULT '' COMMENT '법인자격코드'")
-    private String d029;    // 법인자격코드
+    private String d028;    // 법인자격코드
 
     @Column(columnDefinition = "varchar(80)    DEFAULT '' COMMENT '법인영문명'")
-    private String d030;    // 법인영문명
+    private String d029;    // 법인영문명
 
     @Column(columnDefinition = "varchar(8)    DEFAULT '' COMMENT '설립일자'")
-    private String d031;    // 설립일자
+    private String d030;    // 설립일자
 
     @Column(columnDefinition = "varchar(1)    DEFAULT '' COMMENT '대표자코드'")
-    private String d032;    // 대표자코드
+    private String d031;    // 대표자코드
 
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자명1'")
-    private String d033;    // 대표자명1
+    private String d032;    // 대표자명1
 
     @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '대표자주민등록번호1'")
-    private String d034;    // 대표자주민등록번호1
+    private String d033;    // 대표자주민등록번호1
 
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자영문명1'")
-    private String d035;    // 대표자영문명1
+    private String d034;    // 대표자영문명1
 
     @Column(columnDefinition = "varchar(3)    DEFAULT '' COMMENT '대표자국적코드1'")
-    private String d036;    // 대표자국적코드1
+    private String d035;    // 대표자국적코드1
 
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자명2'")
-    private String d037;    // 대표자명2
+    private String d036;    // 대표자명2
 
     @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '대표자주민등록번호2'")
-    private String d038;    // 대표자주민등록번호2
+    private String d037;    // 대표자주민등록번호2
 
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자영문명2'")
-    private String d039;    // 대표자영문명2
+    private String d038;    // 대표자영문명2
 
     @Column(columnDefinition = "varchar(3)    DEFAULT '' COMMENT '대표자국적코드2'")
-    private String d040;    // 대표자국적코드2
+    private String d039;    // 대표자국적코드2
 
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자명3'")
-    private String d041;    // 대표자명3
+    private String d040;    // 대표자명3
 
     @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '대표자주민등록번호3'")
-    private String d042;    // 대표자주민등록번호3
+    private String d041;    // 대표자주민등록번호3
 
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '대표자영문명3'")
-    private String d043;    // 대표자영문명3
+    private String d042;    // 대표자영문명3
 
     @Column(columnDefinition = "varchar(3)    DEFAULT '' COMMENT '대표자국적코드3'")
-    private String d044;    // 대표자국적코드3
+    private String d043;    // 대표자국적코드3
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '직장우편앞번호'")
-    private String d045;    // 직장우편앞번호
+    private String d044;    // 직장우편앞번호
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '직장우편뒷번호'")
-    private String d046;    // 직장우편뒷번호
+    private String d045;    // 직장우편뒷번호
 
     @Column(columnDefinition = "varchar(100)    DEFAULT '' COMMENT '직장기본주소'")
-    private String d047;    // 직장기본주소
+    private String d046;    // 직장기본주소
 
     @Column(columnDefinition = "varchar(100)    DEFAULT '' COMMENT '직장상세주소'")
-    private String d048;    // 직장상세주소
+    private String d047;    // 직장상세주소
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '직장전화지역번호'")
-    private String d049;    // 직장전화지역번호
+    private String d048;    // 직장전화지역번호
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '직장전화국번호'")
-    private String d050;    // 직장전화국번호
+    private String d049;    // 직장전화국번호
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '직장전화고유번호'")
-    private String d051;    // 직장전화고유번호
+    private String d050;    // 직장전화고유번호
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '팩스전화지역번호'")
-    private String d052;    // 팩스전화지역번호
+    private String d051;    // 팩스전화지역번호
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '팩스전화국번호'")
-    private String d053;    // 팩스전화국번호
+    private String d052;    // 팩스전화국번호
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '팩스전화고유번호'")
-    private String d054;    // 팩스전화고유번호
+    private String d053;    // 팩스전화고유번호
 
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '신청관리자부서명'")
-    private String d055;    // 신청관리자부서명
+    private String d054;    // 신청관리자부서명
 
     @Column(columnDefinition = "varchar(20)    DEFAULT '' COMMENT '신청관리자직위명'")
-    private String d056;    // 신청관리자직위명
+    private String d055;    // 신청관리자직위명
 
     @Column(columnDefinition = "varchar(32)    DEFAULT '' COMMENT '신청관리자주민등록번호'")
-    private String d057;    // 신청관리자주민등록번호
+    private String d056;    // 신청관리자주민등록번호
 
     @Column(columnDefinition = "varchar(50)    DEFAULT '' COMMENT '신청관리자명'")
-    private String d058;    // 신청관리자명
+    private String d057;    // 신청관리자명
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '신청관리자전화지역번호'")
-    private String d059;    // 신청관리자전화지역번호
+    private String d058;    // 신청관리자전화지역번호
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '신청관리자전화국번호'")
-    private String d060;    // 신청관리자전화국번호
+    private String d059;    // 신청관리자전화국번호
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '신청관리자전화고유번호'")
-    private String d061;    // 신청관리자전화고유번호
+    private String d060;    // 신청관리자전화고유번호
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '신청관리자전화내선번호'")
-    private String d062;    // 신청관리자전화내선번호
+    private String d061;    // 신청관리자전화내선번호
 
     @Column(columnDefinition = "varchar(3)    DEFAULT '' COMMENT '신청관리자휴대전화식별번호'")
-    private String d063;    // 신청관리자휴대전화식별번호
+    private String d062;    // 신청관리자휴대전화식별번호
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '신청관리자휴대전화국번호'")
-    private String d064;    // 신청관리자휴대전화국번호
+    private String d063;    // 신청관리자휴대전화국번호
 
     @Column(columnDefinition = "varchar(4)    DEFAULT '' COMMENT '신청관리자휴대전화고유번호'")
-    private String d065;    // 신청관리자휴대전화고유번호
+    private String d064;    // 신청관리자휴대전화고유번호
 
     @Column(columnDefinition = "varchar(60)    DEFAULT '' COMMENT '신청관리자이메일주소'")
-    private String d066;    // 신청관리자이메일주소
+    private String d065;    // 신청관리자이메일주소
 
     @Column(columnDefinition = "varchar(25)    DEFAULT '' COMMENT '도로명참조KEY값'")
-    private String d067;    // 도로명참조KEY값
+    private String d066;    // 도로명참조KEY값
 }

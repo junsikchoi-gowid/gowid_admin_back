@@ -54,9 +54,9 @@ public class D1510 extends BaseTime {
     private String d011; // 사업자등록일
     @Column(columnDefinition = "varchar(40)    DEFAULT '' COMMENT '발급기관'")
     private String d012; // 발급기관
-    @Column(columnDefinition = "varchar(100)    DEFAULT '' COMMENT '업태'")
+    @Column(columnDefinition = "varchar(300)    DEFAULT '' COMMENT '업태'")
     private String d013; // 업태
-    @Column(columnDefinition = "varchar(100)    DEFAULT '' COMMENT '종목'")
+    @Column(columnDefinition = "varchar(300)    DEFAULT '' COMMENT '종목'")
     private String d014; // 종목
 
 }

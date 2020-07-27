@@ -415,8 +415,8 @@ public class IssuanceService {
         d1400.setD025(resultOfD1200.getD007());
         d1400.setD026(resultOfD1200.getD008());
 
-        d1400.setD062("00");                        // 신청관리자내선번호 => 02 로 하드코딩
-        d1400.setD066(userCorp.user().email());     // 신청관리자이메일주소 => 사용자계정
+        d1400.setD061("00");                        // 신청관리자내선번호 => 02 로 하드코딩
+        d1400.setD065(userCorp.user().email());     // 신청관리자이메일주소 => 사용자계정
 
         // 연동
         DataPart1400 requestRpc = new DataPart1400();
@@ -424,11 +424,10 @@ public class IssuanceService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         if (!ENC_SEED128_ENABLE) {
-            //requestRpc.setD006(Seed128.decryptEcb(d1400.getD006()));
-            requestRpc.setD034(Seed128.decryptEcb(d1400.getD034()));    //대표자주민등록번호1
-            requestRpc.setD038(Seed128.decryptEcb(d1400.getD038()));        //대표자주민등록번호2
-            requestRpc.setD042(Seed128.decryptEcb(d1400.getD042()));        //대표자주민등록번호3
-            requestRpc.setD057(Seed128.decryptEcb(d1400.getD057()));        //신청관리자주민등록번호
+            requestRpc.setD033(Seed128.decryptEcb(d1400.getD033()));        //대표자주민등록번호1
+            requestRpc.setD037(Seed128.decryptEcb(d1400.getD037()));        //대표자주민등록번호2
+            requestRpc.setD041(Seed128.decryptEcb(d1400.getD041()));        //대표자주민등록번호3
+            requestRpc.setD056(Seed128.decryptEcb(d1400.getD056()));        //신청관리자주민등록번호
         }
 
         shinhanGwRpc.request1400(requestRpc, userCorp.user().idx());

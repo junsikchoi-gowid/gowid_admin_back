@@ -1247,23 +1247,22 @@ public class CodefService {
 						.d015("GOWID1")
 						.d016("GOWID1")
 						.d027(GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo").replaceAll("-", ""))    // 법인등록번호
-						.d028(GowidUtils.getEmptyStringToString(jsonData, "resCompanyNm"))    // 법인명
-						.d029("400")    // 법인자격코드
-						.d031(GowidUtils.getEmptyStringToString(jsonData, "resRegisterDate"))    // 설립일자
-						.d032(d009)    // 대표자코드
-						.d033(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")    // 대표자명1
-						.d034(listResCeoList.size() >= 3 ? Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-", "")) : "")    // 대표자주민등록번호1
-						.d037(listResCeoList.size() >= 6 ? listResCeoList.get(5) : "")    // 대표자명2
-						.d038(listResCeoList.size() >= 7 ? Seed128.encryptEcb(listResCeoList.get(6).replaceAll("-", "")) : "")    // 대표자주민등록번호2
-						.d041(listResCeoList.size() >= 10 ? listResCeoList.get(9) : "")    // 대표자명3
-						.d042(listResCeoList.size() >= 11 ? Seed128.encryptEcb(listResCeoList.get(10).replaceAll("-", "")) : "")    // 대표자주민등록번호3
-						.d052(null)    // 팩스전화지역번호
-						.d053(null)    // 팩스전화국번호
-						.d054(null)    // 팩스전화고유번호
-						.d055("대표이사")    // 신청관리자부서명
-						.d056("대표이사")    // 신청관리자직위명
-						.d057(listResCeoList.size() >= 3 ? Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-", "")) : "")    // 신청관리자주민등록번호
-						.d058(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")    // 신청관리자명
+						.d028("400")    // 법인자격코드
+						.d030(GowidUtils.getEmptyStringToString(jsonData, "resRegisterDate"))    // 설립일자
+						.d031(d009)    // 대표자코드
+						.d032(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")    // 대표자명1
+						.d033(listResCeoList.size() >= 3 ? Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-", "")) : "")    // 대표자주민등록번호1
+						.d036(listResCeoList.size() >= 6 ? listResCeoList.get(5) : "")    // 대표자명2
+						.d037(listResCeoList.size() >= 7 ? Seed128.encryptEcb(listResCeoList.get(6).replaceAll("-", "")) : "")    // 대표자주민등록번호2
+						.d040(listResCeoList.size() >= 10 ? listResCeoList.get(9) : "")    // 대표자명3
+						.d041(listResCeoList.size() >= 11 ? Seed128.encryptEcb(listResCeoList.get(10).replaceAll("-", "")) : "")    // 대표자주민등록번호3
+						.d051(null)    // 팩스전화지역번호
+						.d052(null)    // 팩스전화국번호
+						.d053(null)    // 팩스전화고유번호
+						.d054("대표이사")    // 신청관리자부서명
+						.d055("대표이사")    // 신청관리자직위명
+						.d056(listResCeoList.size() >= 3 ? Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-", "")) : "")    // 신청관리자주민등록번호
+						.d057(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")    // 신청관리자명
 						.build());
 
 				repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
@@ -1505,15 +1504,14 @@ public class CodefService {
 
 		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx());
 		String[] corNumber = dto.getResCompanyPhoneNumber().split("-");
-		d1400.setD011(dto.getResBusinessCode());
-		d1400.setD030(!StringUtils.hasText(d1400.getD030()) ? dto.getResCompanyEngNm() : d1400.getD030());    //법인영문명
-		d1400.setD011(!StringUtils.hasText(d1400.getD011()) ? dto.getResCompanyEngNm() : d1400.getD011());        //업종코드
-		d1400.setD049(corNumber[0]);        //직장전화지역번호
-		d1400.setD050(corNumber[1]);        //직장전화국번호
-		d1400.setD051(corNumber[2]);        //직장전화고유번호
-		d1400.setD059(d1400.getD049());        //신청관리자전화지역번호
-		d1400.setD060(d1400.getD050());        //신청관리자전화국번호
-		d1400.setD061(d1400.getD051());        //신청관리자전화고유번호
+		d1400.setD011(!StringUtils.hasText(d1400.getD011()) ? dto.getResBusinessCode() : d1400.getD011());        //업종코드
+		d1400.setD029(!StringUtils.hasText(d1400.getD029()) ? dto.getResCompanyEngNm() : d1400.getD029());    //법인영문명
+		d1400.setD048(corNumber[0]);        //직장전화지역번호
+		d1400.setD049(corNumber[1]);        //직장전화국번호
+		d1400.setD050(corNumber[2]);        //직장전화고유번호
+		d1400.setD058(d1400.getD048());        //신청관리자전화지역번호
+		d1400.setD059(d1400.getD049());        //신청관리자전화국번호
+		d1400.setD060(d1400.getD050());        //신청관리자전화고유번호
 		repoD1400.save(d1400);
 
 		repoCorp.save(user.corp()
