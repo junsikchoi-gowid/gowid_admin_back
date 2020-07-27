@@ -103,8 +103,14 @@ public class UserCorporationService {
     public UserCorporationDto.CorporationRes updateCorporation(Long idx_user, UserCorporationDto.RegisterCorporation dto, Long idx_CardInfo) {
         User user = findUser(idx_user);
 
-        D1000 d1000 = getD1000(user.corp().idx());
-        D1400 d1400 = getD1400(user.corp().idx());
+        CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+        if (!cardInfo.idx().equals(idx_CardInfo)) {
+            throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
+        }
+
+        D1000 d1000 = updateD1000Corp(user.corp().idx(), dto);
+        updateD1400Corp(user.corp().idx(), dto);
+
         Corp corp = repoCorp.save(user.corp()
                 .resCompanyEngNm(dto.getEngCorName())
                 .resCompanyNumber(dto.getCorNumber())
@@ -112,38 +118,43 @@ public class UserCorporationService {
                 .resUserType(d1000 != null ? d1000.getD009() : null)
         );
 
-        CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
-        if (!cardInfo.idx().equals(idx_CardInfo)) {
-            throw MismatchedException.builder().build();
-        }
-
-        String[] corNumber = dto.getCorNumber().split("-");
-        if (d1000 != null) {
-            repoD1000.save(d1000
-                    .setD006(dto.getEngCorName())           //법인영문명
-                    .setD008(dto.getBusinessCode())         //업종코드
-                    .setD026(corNumber[0])                  //직장전화지역번호
-                    .setD027(corNumber[1])                  //직장전화국번호
-                    .setD028(corNumber[2])                  //직장전화고유번호
-                    .setD036(corNumber[0])                  //신청관리자전화지역번호
-                    .setD037(corNumber[1])                  //신청관리자전화국번호
-                    .setD038(corNumber[2])                  //신청관리자전화고유번호
-            );
-        }
-
-        if (d1400 != null) {
-            repoD1400.save(d1400
-                    .setD029(dto.getEngCorName())       // 법인영문명
-                    .setD048(corNumber[0])              // 직장전화지역번호
-                    .setD049(corNumber[1])              // 직장전화국번호
-                    .setD050(corNumber[2])              // 직장전화고유번호
-                    .setD058(corNumber[0])              // 신청관리자전화지역번호
-                    .setD059(corNumber[1])              // 신청관리자전화국번호
-                    .setD060(corNumber[2])              // 신청관리자전화고유번호
-            );
-        }
-
         return UserCorporationDto.CorporationRes.from(corp, cardInfo.idx());
+    }
+
+    private D1400 updateD1400Corp(Long idx_corp, UserCorporationDto.RegisterCorporation dto) {
+        D1400 d1400 = getD1400(idx_corp);
+        if (ObjectUtils.isEmpty(d1400)) {
+            return d1400;
+        }
+        String[] corNumber = dto.getCorNumber().split("-");
+        return repoD1400.save(d1400
+                .setD029(dto.getEngCorName())       // 법인영문명
+                .setD048(corNumber[0])              // 직장전화지역번호
+                .setD049(corNumber[1])              // 직장전화국번호
+                .setD050(corNumber[2])              // 직장전화고유번호
+                .setD058(corNumber[0])              // 신청관리자전화지역번호
+                .setD059(corNumber[1])              // 신청관리자전화국번호
+                .setD060(corNumber[2])              // 신청관리자전화고유번호
+        );
+    }
+
+
+    private D1000 updateD1000Corp(Long idx_corp, UserCorporationDto.RegisterCorporation dto) {
+        D1000 d1000 = getD1000(idx_corp);
+        if (ObjectUtils.isEmpty(d1000)) {
+            return d1000;
+        }
+        String[] corNumber = dto.getCorNumber().split("-");
+        return repoD1000.save(d1000
+                .setD006(dto.getEngCorName())           //법인영문명
+                .setD008(dto.getBusinessCode())         //업종코드
+                .setD026(corNumber[0])                  //직장전화지역번호
+                .setD027(corNumber[1])                  //직장전화국번호
+                .setD028(corNumber[2])                  //직장전화고유번호
+                .setD036(corNumber[0])                  //신청관리자전화지역번호
+                .setD037(corNumber[1])                  //신청관리자전화국번호
+                .setD038(corNumber[2])                  //신청관리자전화고유번호
+        );
     }
 
     /**
@@ -171,14 +182,21 @@ public class UserCorporationService {
                 .isExist(investorName != null ? true : false)
                 .build()
         );
+
+        updateRiskConfigVenture(user, dto);
+
+        return UserCorporationDto.VentureRes.from(repoCardIssuance.save(cardInfo));
+    }
+
+    private RiskConfig updateRiskConfigVenture(User user, UserCorporationDto.RegisterVenture dto) {
         Optional<RiskConfig> riskConfig = repoRiskConfig.findByCorpAndEnabled(user.corp(), true);
         if (riskConfig.isPresent()) {
-            repoRiskConfig.save(riskConfig.get()
+            return repoRiskConfig.save(riskConfig.get()
                     .ventureCertification(dto.getIsVerifiedVenture())
                     .vcInvestment(dto.getIsVC())
             );
         } else {
-            repoRiskConfig.save(RiskConfig.builder()
+            return repoRiskConfig.save(RiskConfig.builder()
                     .user(user)
                     .corp(user.corp())
                     .ventureCertification(dto.getIsVerifiedVenture())
@@ -187,8 +205,6 @@ public class UserCorporationService {
                     .build()
             );
         }
-
-        return UserCorporationDto.VentureRes.from(repoCardIssuance.save(cardInfo));
     }
 
     /**
@@ -207,6 +223,10 @@ public class UserCorporationService {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
+        updateRiskConfigStockholder(user, dto);
+        updateD1000Stockholder(user.corp().idx(), dto);
+        updateD1400Stockholder(user.corp().idx(), dto);
+
         cardInfo.stockholder(Stockholder.builder()
                 .isStockHold25(dto.getIsHold25())
                 .isStockholderList(dto.getIsStockholderList())
@@ -218,15 +238,19 @@ public class UserCorporationService {
                 .stockRate(dto.getRate())
                 .build());
 
+        return UserCorporationDto.VentureRes.from(repoCardIssuance.save(cardInfo));
+    }
+
+    private RiskConfig updateRiskConfigStockholder(User user, UserCorporationDto.RegisterStockholder dto) {
         Optional<RiskConfig> riskConfig = repoRiskConfig.findByCorpAndEnabled(user.corp(), true);
         if (riskConfig.isPresent()) {
-            repoRiskConfig.save(riskConfig.get()
+            return repoRiskConfig.save(riskConfig.get()
                     .isStockHold25(dto.getIsHold25())
                     .isStockholderList(dto.getIsStockholderList())
                     .isStockholderPersonal(dto.getIsPersonal())
             );
         } else {
-            repoRiskConfig.save(RiskConfig.builder()
+            return repoRiskConfig.save(RiskConfig.builder()
                     .user(user)
                     .corp(user.corp())
                     .isStockHold25(dto.getIsHold25())
@@ -235,33 +259,37 @@ public class UserCorporationService {
                     .build()
             );
         }
+    }
 
-        D1000 d1000 = getD1000(user.corp().idx());
-        if (d1000 != null) {
-            repoD1000.save(d1000.setD044("0113")
-                    .setD059(dto.getName())
-                    .setD060(dto.getEngName())
-                    .setD061(dto.getBirth())
-                    .setD062(dto.getNation())
-                    .setD064(getCorpOwnerCode(dto))
-                    .setD065(dto.getRate())
-                    .setD066("KR".equalsIgnoreCase(dto.getNation()) ? "N" : "Y")
-            );
+    private D1400 updateD1400Stockholder(Long idx_corp, UserCorporationDto.RegisterStockholder dto) {
+        D1400 d1400 = getD1400(idx_corp);
+        if (ObjectUtils.isEmpty(d1400)) {
+            return d1400;
         }
+        return repoD1400.save(d1400.setD018("0113")
+                .setD019(dto.getName())
+                .setD020(dto.getEngName())
+                .setD021(dto.getBirth())
+                .setD022(dto.getNation())
+                .setD023(getCorpOwnerCode(dto))
+                .setD024(dto.getRate())
+        );
+    }
 
-        D1400 d1400 = getD1400(user.corp().idx());
-        if (d1400 != null) {
-            repoD1400.save(d1400.setD018("0113")
-                    .setD019(dto.getName())
-                    .setD020(dto.getEngName())
-                    .setD021(dto.getBirth())
-                    .setD022(dto.getNation())
-                    .setD023(getCorpOwnerCode(dto))
-                    .setD024(dto.getRate())
-            );
+    private D1000 updateD1000Stockholder(Long idx_corp, UserCorporationDto.RegisterStockholder dto) {
+        D1000 d1000 = getD1000(idx_corp);
+        if (ObjectUtils.isEmpty(d1000)) {
+            return d1000;
         }
-
-        return UserCorporationDto.VentureRes.from(repoCardIssuance.save(cardInfo));
+        return repoD1000.save(d1000.setD044("0113")
+                .setD059(dto.getName())
+                .setD060(dto.getEngName())
+                .setD061(dto.getBirth())
+                .setD062(dto.getNation())
+                .setD064(getCorpOwnerCode(dto))
+                .setD065(dto.getRate())
+                .setD066("KR".equalsIgnoreCase(dto.getNation()) ? "N" : "Y")
+        );
     }
 
     private String getCorpOwnerCode(UserCorporationDto.RegisterStockholder dto) {
@@ -284,12 +312,12 @@ public class UserCorporationService {
      * 주주명부 파일 등록
      *
      * @param idx_user     등록하는 User idx
-	 * @param file_1       파일1
+     * @param file_1       파일1
      * @param file_2       파일2
      * @param type         file type
-     * @param idx_CardInfo CardIssuanceInfo idx
-     * @return 등록 정보
-     */
+	 * @param idx_CardInfo CardIssuanceInfo idx
+	 * @return 등록 정보
+	 */
 	@Transactional(noRollbackFor = FileUploadException.class)
 	public List<UserCorporationDto.StockholderFileRes> registerStockholderFile(Long idx_user, MultipartFile[] file_1, MultipartFile[] file_2, String type, Long idx_CardInfo) throws IOException {
         User user = findUser(idx_user);
@@ -364,12 +392,12 @@ public class UserCorporationService {
                         .s3Key(s3Key)
                         .size(file.getSize())
                         .isTransferToGw(sendGwUpload)
-                        .orgfname(file.getOriginalFilename()).build()), cardInfo.idx()));
+						.orgfname(file.getOriginalFilename()).build()), cardInfo.idx()));
 
             } catch (Exception e) {
 				uploadFile.delete();
 				s3Service.s3FileDelete(s3Key);
-                gwUploadService.delete(fileName, cardInfo.cardCompany().getCode());
+				gwUploadService.delete(fileName, cardInfo.cardCompany().getCode());
 
 				log.error("[uploadStockholderFile] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
                 throw FileUploadException.builder().category(FileUploadException.Category.UPLOAD_STOCKHOLDER_FILE).build();
@@ -425,6 +453,11 @@ public class UserCorporationService {
         }
         String grantLimit = calculatedLimit < Long.parseLong(dto.getAmount()) ? calculatedLimit + "" : dto.getAmount();
 
+        updateRiskConfigCard(user, grantLimit, calculatedLimit + "", dto.getAmount());
+        updateD1000Card(user.corp().idx(), grantLimit, dto);
+        updateD1400Card(user.corp().idx(), grantLimit, dto);
+        updateD1100Card(user.corp().idx(), grantLimit, dto);
+
         cardInfo.card(Card.builder()
                 .addressBasic(dto.getAddressBasic())
                 .addressDetail(dto.getAddressDetail())
@@ -437,65 +470,76 @@ public class UserCorporationService {
                 .requestCount(dto.getCount())
                 .build());
 
+        return UserCorporationDto.CardRes.from(repoCardIssuance.save(cardInfo));
+    }
+
+    private RiskConfig updateRiskConfigCard(User user, String grantLimit, String calculatedLimit, String hopeLimit) {
         Optional<RiskConfig> riskConfig = repoRiskConfig.findByCorpAndEnabled(user.corp(), true);
         if (riskConfig.isPresent()) {
-            repoRiskConfig.save(riskConfig.get()
+            return repoRiskConfig.save(riskConfig.get()
                     .calculatedLimit(calculatedLimit + "")
-                    .hopeLimit(dto.getAmount())
+                    .hopeLimit(hopeLimit)
                     .grantLimit(grantLimit)
             );
         } else {
-            repoRiskConfig.save(RiskConfig.builder()
+            return repoRiskConfig.save(RiskConfig.builder()
                     .user(user)
                     .corp(user.corp())
                     .calculatedLimit(calculatedLimit + "")
-                    .hopeLimit(dto.getAmount())
+                    .hopeLimit(hopeLimit)
                     .grantLimit(grantLimit)
                     .enabled(true)
                     .build()
             );
         }
+    }
 
-        D1000 d1000 = getD1000(user.corp().idx());
-        if (d1000 != null) {
-            repoD1000.save(d1000
-                    .setD022(dto.getZipCode().substring(0, 3))      //직장우편앞번호
-                    .setD023(dto.getZipCode().substring(3))         //직장우편뒷번호
-                    .setD024(dto.getAddressBasic())                 //직장기본주소
-                    .setD025(dto.getAddressDetail())                //직장상세주소
-                    .setD050(grantLimit)                            //제휴약정한도금액
-                    .setD055(dto.getAddressKey())                   //도로명참조KEY값
-            );
+    private D1000 updateD1000Card(Long idx_corp, String grantLimit, UserCorporationDto.RegisterCard dto) {
+        D1000 d1000 = getD1000(idx_corp);
+        if (ObjectUtils.isEmpty(d1000)) {
+            return d1000;
         }
+        return repoD1000.save(d1000
+                .setD022(dto.getZipCode().substring(0, 3))      //직장우편앞번호
+                .setD023(dto.getZipCode().substring(3))         //직장우편뒷번호
+                .setD024(dto.getAddressBasic())                 //직장기본주소
+                .setD025(dto.getAddressDetail())                //직장상세주소
+                .setD050(grantLimit)                            //제휴약정한도금액
+                .setD055(dto.getAddressKey())                   //도로명참조KEY값
+        );
+    }
 
-        D1400 d1400 = getD1400(user.corp().idx());
-        if (d1400 != null) {
-            repoD1400.save(d1400
-                    .setD014(grantLimit)
-                    .setD044(dto.getZipCode().substring(0, 3))      // 직장우편앞번호
-                    .setD045(dto.getZipCode().substring(3))         // 직장우편뒷번호
-                    .setD046(dto.getAddressBasic())                 // 직장기본주소
-                    .setD047(dto.getAddressDetail())                // 직장상세주소
-                    .setD066(dto.getAddressKey())                   // 도로명참조KEY값
-            );
+    private D1400 updateD1400Card(Long idx_corp, String grantLimit, UserCorporationDto.RegisterCard dto) {
+        D1400 d1400 = getD1400(idx_corp);
+        if (ObjectUtils.isEmpty(d1400)) {
+            return d1400;
         }
+        return repoD1400.save(d1400
+                .setD014(grantLimit)
+                .setD044(dto.getZipCode().substring(0, 3))      // 직장우편앞번호
+                .setD045(dto.getZipCode().substring(3))         // 직장우편뒷번호
+                .setD046(dto.getAddressBasic())                 // 직장기본주소
+                .setD047(dto.getAddressDetail())                // 직장상세주소
+                .setD066(dto.getAddressKey())                   // 도로명참조KEY값
+        );
+    }
 
-        D1100 d1100 = getD1100(user.corp().idx());
-        if (d1100 != null) {
-            repoD1100.save(d1100
-                    .setD020(grantLimit)
-                    .setD029(dto.getReceiveType().getCode())
-                    .setD031(dto.getZipCode().substring(0, 3))
-                    .setD032(dto.getZipCode().substring(3))
-                    .setD033(dto.getAddressBasic())
-                    .setD034(dto.getAddressDetail())
-                    .setD039(dto.getCount() + "")
-                    .setD046(Const.CARD_RECEIVE_ADDRESS_CODE)
-                    .setD047(dto.getAddressKey())
-            );
+    private D1100 updateD1100Card(Long idx_corp, String grantLimit, UserCorporationDto.RegisterCard dto) {
+        D1100 d1100 = getD1100(idx_corp);
+        if (ObjectUtils.isEmpty(d1100)) {
+            return d1100;
         }
-
-        return UserCorporationDto.CardRes.from(repoCardIssuance.save(cardInfo));
+        return repoD1100.save(d1100
+                .setD020(grantLimit)
+                .setD029(dto.getReceiveType().getCode())
+                .setD031(dto.getZipCode().substring(0, 3))
+                .setD032(dto.getZipCode().substring(3))
+                .setD033(dto.getAddressBasic())
+                .setD034(dto.getAddressDetail())
+                .setD039(dto.getCount() + "")
+                .setD046(Const.CARD_RECEIVE_ADDRESS_CODE)
+                .setD047(dto.getAddressKey())
+        );
     }
 
     /**
@@ -514,35 +558,36 @@ public class UserCorporationService {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
-		ResAccount account = findResAccount(dto.getAccountIdx());
-		String bankCode = account.organization();
+        ResAccount account = findResAccount(dto.getAccountIdx());
+        if (ObjectUtils.isEmpty(account.resAccountHolder())) {
+            account.resAccountHolder(dto.getAccountHolder());
+        }
+
+        updateD1100Account(user.corp().idx(), account);
 
         cardInfo.bankAccount(BankAccount.builder()
                 .bankAccount(account.resAccount())
-				.bankCode(bankCode)
-                .bankAccountHolder(dto.getAccountHolder())
+                .bankCode(account.organization())
+                .bankAccountHolder(account.resAccountHolder())
                 .build());
 
-        String bankName = null;
-        CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, bankCode);
-        if (commonCodeDetail != null) {
-            bankName = commonCodeDetail.value1();
+        return UserCorporationDto.AccountRes.from(repoCardIssuance.save(cardInfo), getBankName(account.organization()));
+    }
+
+    private D1100 updateD1100Account(Long idx_corp, ResAccount account) {
+        D1100 d1100 = getD1100(idx_corp);
+        if (ObjectUtils.isEmpty(d1100) || ObjectUtils.isEmpty(account)) {
+            return d1100;
         }
-
-		if (bankCode.length() > 3) {
-			bankCode = bankCode.substring(bankCode.length() - 3);
-		}
-
-		D1100 d1100 = getD1100(user.corp().idx());
-		if (d1100 != null) {
-			repoD1100.save(d1100
-                    .setD024(bankCode)
-                    .setD025(Seed128.encryptEcb(account.resAccount()))
-                    .setD026(dto.getAccountHolder())
-            );
+        String bankCode = account.organization();
+        if (bankCode != null && bankCode.length() > 3) {
+            bankCode = bankCode.substring(bankCode.length() - 3);
         }
-
-        return UserCorporationDto.AccountRes.from(repoCardIssuance.save(cardInfo), bankName);
+        return repoD1100.save(d1100
+                .setD024(bankCode)
+                .setD025(Seed128.encryptEcb(account.resAccount()))
+                .setD026(account.resAccountHolder())
+        );
     }
 
     /**
@@ -599,51 +644,12 @@ public class UserCorporationService {
         }
 
         Integer ceoNum = 0;
+
         D1000 d1000 = getD1000(user.corp().idx());
-        if (d1000 != null) {
-            if (!StringUtils.hasText(d1000.getD012()) || (ceo != null && ceo.ceoNumber().equals(1))) { // 첫번째 대표자정보
-                repoD1000.save(d1000
-                                .setD010(dto.getName())                     //대표자명1
-                                .setD012(dto.getEngName())                  //대표자영문명1
-                                .setD013(dto.getNation())                   //대표자국적코드1
-                                .setD035(dto.getName())                     //신청관리자명
-//                        .setD036(dto.getPhoneNumber().substring(0, 3))
-//                        .setD037(dto.getPhoneNumber().substring(3, 7))
-//                        .setD038(dto.getPhoneNumber().substring(7))
-                                .setD040(dto.getPhoneNumber().substring(0, 3))      //신청관리자휴대전화식별번호
-                                .setD041(dto.getPhoneNumber().substring(3, 7))      //신청관리자휴대전화국번호
-                                .setD042(dto.getPhoneNumber().substring(7))         //신청관리자휴대전화고유번호
-                );
-                ceoNum = 1;
+        ceoNum = updateD1000Ceo(d1000, user.corp().idx(), dto, ceo, ceoNum);
 
-                D1100 d1100 = getD1100(user.corp().idx());
-                if (d1100 != null) {
-                    repoD1100.save(d1100
-                            .setD035(dto.getPhoneNumber().substring(0, 3))
-                            .setD036(dto.getPhoneNumber().substring(3, 7))
-                            .setD037(dto.getPhoneNumber().substring(7))
-                    );
-                }
-
-            } else if (!StringUtils.hasText(d1000.getD016()) || (ceo != null && ceo.ceoNumber().equals(2))) { // 두번째 대표자정보
-                repoD1000.save(d1000
-                        .setD014(dto.getName())         //대표자명2
-                        .setD016(dto.getEngName())      //대표자영문명2
-                        .setD017(dto.getNation())       //대표자국적코드2
-                );
-                ceoNum = 2;
-
-            } else if (!StringUtils.hasText(d1000.getD020()) || (ceo != null && ceo.ceoNumber().equals(3))) { // 세번째 대표자정보
-                repoD1000.save(d1000
-                        .setD018(dto.getName())         //대표자명3
-                        .setD020(dto.getEngName())      //대표자영문명3
-                        .setD021(dto.getNation())       //대표자국적코드3
-                );
-                ceoNum = 3;
-            }
-        }
-
-        ceoNum = updateD1400Ceo(dto, ceo, user, ceoNum);
+        D1400 d1400 = getD1400(user.corp().idx());
+        ceoNum = updateD1400Ceo(d1400, dto, ceo, ceoNum);
 
         if (ObjectUtils.isEmpty(ceo)) {
             ceo = CeoInfo.builder()
@@ -677,8 +683,59 @@ public class UserCorporationService {
         return UserCorporationDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");
     }
 
-    private Integer updateD1400Ceo(UserCorporationDto.RegisterCeo dto, CeoInfo ceo, User user, Integer ceoNum) {
-        D1400 d1400 = getD1400(user.corp().idx());
+    private Integer updateD1000Ceo(D1000 d1000, Long idx_corp, UserCorporationDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
+        if (d1000 != null) {
+            return ceoNum;
+        }
+
+        if (!StringUtils.hasText(d1000.getD012()) || (ceo != null && ceo.ceoNumber().equals(1))) { // 첫번째 대표자정보
+            repoD1000.save(d1000
+                    .setD010(dto.getName())                     //대표자명1
+                    .setD012(dto.getEngName())                  //대표자영문명1
+                    .setD013(dto.getNation())                   //대표자국적코드1
+                    .setD035(dto.getName())                     //신청관리자명
+                    .setD040(dto.getPhoneNumber().substring(0, 3))      //신청관리자휴대전화식별번호
+                    .setD041(dto.getPhoneNumber().substring(3, 7))      //신청관리자휴대전화국번호
+                    .setD042(dto.getPhoneNumber().substring(7))         //신청관리자휴대전화고유번호
+            );
+            ceoNum = 1;
+
+            updateD1100Ceo(idx_corp, dto);
+
+        } else if (!StringUtils.hasText(d1000.getD016()) || (ceo != null && ceo.ceoNumber().equals(2))) { // 두번째 대표자정보
+            repoD1000.save(d1000
+                    .setD014(dto.getName())         //대표자명2
+                    .setD016(dto.getEngName())      //대표자영문명2
+                    .setD017(dto.getNation())       //대표자국적코드2
+            );
+            ceoNum = 2;
+
+        } else if (!StringUtils.hasText(d1000.getD020()) || (ceo != null && ceo.ceoNumber().equals(3))) { // 세번째 대표자정보
+            repoD1000.save(d1000
+                    .setD018(dto.getName())         //대표자명3
+                    .setD020(dto.getEngName())      //대표자영문명3
+                    .setD021(dto.getNation())       //대표자국적코드3
+            );
+            ceoNum = 3;
+        }
+
+
+        return ceoNum;
+    }
+
+    private D1100 updateD1100Ceo(Long idx_corp, UserCorporationDto.RegisterCeo dto) {
+        D1100 d1100 = getD1100(idx_corp);
+        if (d1100 != null) {
+            d1100 = repoD1100.save(d1100
+                    .setD035(dto.getPhoneNumber().substring(0, 3))
+                    .setD036(dto.getPhoneNumber().substring(3, 7))
+                    .setD037(dto.getPhoneNumber().substring(7))
+            );
+        }
+        return d1100;
+    }
+
+    private Integer updateD1400Ceo(D1400 d1400, UserCorporationDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
         if (d1400 == null) {
             return ceoNum;
         }
@@ -726,6 +783,28 @@ public class UserCorporationService {
         User user = findUser(idx_user);
         CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(user.corp()).orElse(null);
 
+        List<UserCorporationDto.ConsentRes> consentInfo = getConsentRes(idx_user);
+
+        if (cardIssuanceInfo != null) {
+            return UserCorporationDto.CardIssuanceInfoRes.builder()
+                    .consentRes(consentInfo)
+                    .corporationRes(getCorporationRes(cardIssuanceInfo))
+                    .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
+                    .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
+                    .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
+                    .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo, getBankName(!ObjectUtils.isEmpty(cardIssuanceInfo.bankAccount()) ? cardIssuanceInfo.bankAccount().getBankCode() : null)))
+                    .ceoRes(cardIssuanceInfo.ceoInfos() != null ? cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()) : null)
+                    .stockholderFileRes(cardIssuanceInfo.stockholderFiles() != null ? cardIssuanceInfo.stockholderFiles().stream().map(file -> UserCorporationDto.StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()) : null)
+                    .build();
+
+        } else {
+            return UserCorporationDto.CardIssuanceInfoRes.builder()
+                    .consentRes(consentInfo)
+                    .corporationRes(UserCorporationDto.CorporationRes.from(user.corp(), null)).build();
+        }
+    }
+
+    private List<UserCorporationDto.ConsentRes> getConsentRes(Long idx_user) {
         List<UserCorporationDto.ConsentRes> consentInfo = new ArrayList<>();
 
         List<BrandConsentDto> consents = repoConsent.findAllByEnabledOrderByConsentOrderAsc(true)
@@ -744,36 +823,24 @@ public class UserCorporationService {
             consentInfo.add(resTemp);
         });
 
-        if (cardIssuanceInfo != null) {
-            String bankName = null;
-            if (cardIssuanceInfo.bankAccount() != null) {
-                CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, cardIssuanceInfo.bankAccount().getBankCode());
-                if (commonCodeDetail != null) {
-                    bankName = commonCodeDetail.value1();
-                }
-            }
+        return consentInfo;
+    }
 
-            UserCorporationDto.CorporationRes CorporationResDto = UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx());
-            if (!ObjectUtils.isEmpty(CorporationResDto.getBusinessCode())) {
-                CommonCodeDetail codeDetailData = repoCodeDetail.getByCode1AndCode5(CorporationResDto.getBusinessCode().substring(0, 1), CorporationResDto.getBusinessCode().substring(1));
-                CorporationResDto.setBusinessCodeValue(codeDetailData.value5());
-            }
-            return UserCorporationDto.CardIssuanceInfoRes.builder()
-                    .consentRes(consentInfo)
-                    .corporationRes(CorporationResDto)
-                    .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
-                    .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
-                    .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
-                    .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo, bankName))
-                    .ceoRes(cardIssuanceInfo.ceoInfos() != null ? cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()) : null)
-                    .stockholderFileRes(cardIssuanceInfo.stockholderFiles() != null ? cardIssuanceInfo.stockholderFiles().stream().map(file -> UserCorporationDto.StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()) : null)
-                    .build();
-
-        } else {
-            return UserCorporationDto.CardIssuanceInfoRes.builder()
-                    .consentRes(consentInfo)
-                    .corporationRes(UserCorporationDto.CorporationRes.from(user.corp(), null)).build();
+    private UserCorporationDto.CorporationRes getCorporationRes(CardIssuanceInfo cardIssuanceInfo) {
+        UserCorporationDto.CorporationRes corporationRes = UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx());
+        if (!ObjectUtils.isEmpty(corporationRes.getBusinessCode())) {
+            CommonCodeDetail codeDetailData = repoCodeDetail.getByCode1AndCode5(corporationRes.getBusinessCode().substring(0, 1), corporationRes.getBusinessCode().substring(1));
+            corporationRes.setBusinessCodeValue(codeDetailData.value5());
         }
+        return corporationRes;
+    }
+
+    private String getBankName(String bankCode) {
+        CommonCodeDetail commonCodeDetail = repoCodeDetail.getByCodeAndCode1(CommonCodeType.BANK_1, bankCode);
+        if (commonCodeDetail != null) {
+            return commonCodeDetail.value1();
+        }
+        return null;
     }
 
     /**
@@ -888,13 +955,13 @@ public class UserCorporationService {
     }
 
     private StockholderFile findStockholderFile(Long idx_file) {
-        return repoFile.findById(idx_file).orElseThrow(
-                () -> EntityNotFoundException.builder()
-                        .entity("StockholderFile")
-                        .idx(idx_file)
-                        .build()
-        );
-    }
+		return repoFile.findById(idx_file).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.entity("StockholderFile")
+						.idx(idx_file)
+						.build()
+		);
+	}
 
 	private ResAccount findResAccount(Long idx_resAccount) {
 		return repoResAccount.findById(idx_resAccount).orElseThrow(

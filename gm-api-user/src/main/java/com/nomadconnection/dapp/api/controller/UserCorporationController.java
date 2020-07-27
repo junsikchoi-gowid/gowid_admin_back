@@ -71,7 +71,7 @@ public class UserCorporationController {
     @PutMapping(URI.CORPORATION)
     public ResponseEntity<UserCorporationDto.CorporationRes> updateCorporation(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestParam(required = false) Long idxCardInfo,
+            @RequestParam Long idxCardInfo,
             @RequestBody @Valid UserCorporationDto.RegisterCorporation dto) {
         if (log.isInfoEnabled()) {
             log.info("([ registerCorporation ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
