@@ -462,13 +462,14 @@ public class UserCorporationService {
         }
 
         Double cardLimitNow = repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD());
-        Long calculatedLimit = 0L;
+        Long calculatedLimitLong = 0L;
         if (!ObjectUtils.isEmpty(cardLimitNow)) {
-            calculatedLimit = Long.parseLong(String.valueOf(Math.round(cardLimitNow)));
+            calculatedLimitLong = Long.parseLong(String.valueOf(Math.round(cardLimitNow)));
         }
-        String grantLimit = calculatedLimit < Long.parseLong(dto.getAmount()) ? calculatedLimit + "" : dto.getAmount();
+        String calculatedLimit = String.valueOf(calculatedLimitLong);
+        String grantLimit = calculatedLimitLong < Long.parseLong(dto.getAmount()) ? calculatedLimit : dto.getAmount();
 
-        updateRiskConfigCard(user, grantLimit, calculatedLimit + "", dto.getAmount());
+        updateRiskConfigCard(user, grantLimit, calculatedLimit, dto.getAmount());
         updateD1000Card(user.corp().idx(), grantLimit, dto);
         updateD1400Card(user.corp().idx(), grantLimit, dto);
         updateD1100Card(user.corp().idx(), grantLimit, dto);
@@ -479,7 +480,7 @@ public class UserCorporationService {
                 .zipCode(dto.getZipCode())
                 .addressKey(dto.getAddressKey())
                 .hopeLimit(dto.getAmount())
-                .calculatedLimit(calculatedLimit + "")
+                .calculatedLimit(calculatedLimit)
                 .grantLimit(grantLimit)
                 .receiveType(dto.getReceiveType())
                 .requestCount(dto.getCount())
@@ -492,7 +493,7 @@ public class UserCorporationService {
         Optional<RiskConfig> riskConfig = repoRiskConfig.findByCorpAndEnabled(user.corp(), true);
         if (riskConfig.isPresent()) {
             return repoRiskConfig.save(riskConfig.get()
-                    .calculatedLimit(calculatedLimit + "")
+                    .calculatedLimit(calculatedLimit)
                     .hopeLimit(hopeLimit)
                     .grantLimit(grantLimit)
             );
@@ -500,7 +501,7 @@ public class UserCorporationService {
             return repoRiskConfig.save(RiskConfig.builder()
                     .user(user)
                     .corp(user.corp())
-                    .calculatedLimit(calculatedLimit + "")
+                    .calculatedLimit(calculatedLimit)
                     .hopeLimit(hopeLimit)
                     .grantLimit(grantLimit)
                     .enabled(true)
@@ -967,9 +968,9 @@ public class UserCorporationService {
 
     private D1400 getD1400(Long idx_corp) {
         return repoD1400.getTopByIdxCorpOrderByIdxDesc(idx_corp);
-    }
+	}
 
-    private StockholderFile findStockholderFile(Long idx_file) {
+	private StockholderFile findStockholderFile(Long idx_file) {
 		return repoFile.findById(idx_file).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("StockholderFile")

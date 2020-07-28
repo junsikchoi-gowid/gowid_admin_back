@@ -744,7 +744,7 @@ public class UserService {
 					.progress(progressType)
 					.status(statusType).build());
 		} catch (Exception e) {
-			log.warn(e.getMessage());
+			log.warn("[saveIssuanceProgress] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
 		}
 	}
 

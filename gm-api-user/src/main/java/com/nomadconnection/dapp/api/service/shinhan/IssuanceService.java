@@ -90,7 +90,8 @@ public class IssuanceService {
         Corp userCorp = getCorpByUserIdx(userIdx);
         encryptAndSaveD1100(userCorp.idx(), request);
         userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.SIGNED);
-
+        issuanceProgressRepository.flush();
+        
         // 1200(법인회원신규여부검증)
         userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_1200);
         DataPart1200 resultOfD1200 = proc1200(userCorp);
@@ -114,7 +115,6 @@ public class IssuanceService {
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
         }
         userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_AUTO_CHECK);
-        issuanceProgressRepository.flush();
 
         // BRP 전송(비동기)
         asyncService.run(() -> procBpr(userCorp, resultOfD1200, userIdx));
