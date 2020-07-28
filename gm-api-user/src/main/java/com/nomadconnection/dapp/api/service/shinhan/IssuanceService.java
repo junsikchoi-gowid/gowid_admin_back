@@ -83,9 +83,7 @@ public class IssuanceService {
      * 이미지 전송요청
      */
     @Transactional(noRollbackFor = Exception.class)
-    public void issuance(Long userIdx,
-                         UserCorporationDto.IssuanceReq request,
-                         Long signatureHistoryIdx) {
+    public void issuance(Long userIdx, UserCorporationDto.IssuanceReq request, Long signatureHistoryIdx) {
         paramsLogging(request);
         request.setUserIdx(userIdx);
         userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED);
@@ -117,6 +115,7 @@ public class IssuanceService {
         }
         userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_AUTO_CHECK);
         issuanceProgressRepository.flush();
+
         // BRP 전송(비동기)
         asyncService.run(() -> procBpr(userCorp, resultOfD1200, userIdx));
 
@@ -143,7 +142,6 @@ public class IssuanceService {
         User user = findUser(userIdx);
         Corp userCorp = user.corp();
         if (userCorp == null) {
-            userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED);
             log.error("not found corp. userIdx=" + userIdx);
             throw new BadRequestException(ErrorCode.Api.NOT_FOUND, "corp(userIdx=" + userIdx + ")");
         }
@@ -152,18 +150,21 @@ public class IssuanceService {
 
     @Async
     void procBpr(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
-        userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_IMG);
-
-        if (proc3000(userCorp, resultOfD1200, userIdx)) {
-            userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_IMG);
-            return;
-        }
 
         try {
+            Thread.sleep(2000L);
+            issCommonService.saveProgressFailed(userIdx, IssuanceProgressType.P_IMG);
+
+            if (proc3000(userCorp, resultOfD1200, userIdx)) {
+                Thread.sleep(2000L);
+                issCommonService.saveProgressSuccess(userIdx, IssuanceProgressType.P_IMG);
+                return;
+            }
+
             for (int i = 0; i < 3; i++) {
                 Thread.sleep(5000L);
                 if (proc3000(userCorp, resultOfD1200, userIdx)) {
-                    userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_IMG);
+                    issCommonService.saveProgressSuccess(userIdx, IssuanceProgressType.P_IMG);
                     return;
                 }
             }
