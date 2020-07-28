@@ -12,7 +12,6 @@ import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
-import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.domain.shinhan.*;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -39,7 +38,7 @@ public class ResumeService {
     private final ShinhanGwRpc shinhanGwRpc;
     private final AsyncService asyncService;
     private final CommonService issCommonService;
-    private final CorpRepository corpRepository;
+    private final IssuanceProgressRepository issuanceProgressRepository;
 
     @Value("${encryption.seed128.enable}")
     private boolean ENC_SEED128_ENABLE;
@@ -51,6 +50,7 @@ public class ResumeService {
         log.debug("### saveProgressFailed start");
         issCommonService.saveProgressFailed(request, IssuanceProgressType.P_1600);
         log.debug("### saveProgressFailed end");
+        issuanceProgressRepository.flush();
 
         UserCorporationDto.ResumeRes response = getResumeRes(request);
         issCommonService.saveGwTranForD1600(response);

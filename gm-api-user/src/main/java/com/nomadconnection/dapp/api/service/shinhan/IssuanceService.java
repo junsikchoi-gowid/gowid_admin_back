@@ -91,7 +91,7 @@ public class IssuanceService {
         encryptAndSaveD1100(userCorp.idx(), request);
         userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.SIGNED);
         issuanceProgressRepository.flush();
-        
+
         // 1200(법인회원신규여부검증)
         userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_1200);
         DataPart1200 resultOfD1200 = proc1200(userCorp);
@@ -150,29 +150,18 @@ public class IssuanceService {
 
     @Async
     void procBpr(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
-
-        try {
-            Thread.sleep(2000L);
-            issCommonService.saveProgressFailed(userIdx, IssuanceProgressType.P_IMG);
-
-            if (proc3000(userCorp, resultOfD1200, userIdx)) {
-                Thread.sleep(2000L);
-                issCommonService.saveProgressSuccess(userIdx, IssuanceProgressType.P_IMG);
-                return;
-            }
-
-            for (int i = 0; i < 3; i++) {
+        issCommonService.saveProgressFailed(userIdx, IssuanceProgressType.P_IMG);
+        for (int i = 0; i < 4; i++) {
+            try {
                 Thread.sleep(5000L);
                 if (proc3000(userCorp, resultOfD1200, userIdx)) {
                     issCommonService.saveProgressSuccess(userIdx, IssuanceProgressType.P_IMG);
                     return;
                 }
+            } catch (Exception e) {
+                log.error("[procBpr] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
             }
-        } catch (InterruptedException e) {
-            log.error(e.getMessage(), e);
-            throw new SystemException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_3000, e.getMessage());
         }
-
     }
 
     private boolean proc3000(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
@@ -274,7 +263,7 @@ public class IssuanceService {
         // 데이터부 - db 추출, 세팅
         D1510 d1510 = d1510Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1510 == null) {
-            String msg="data of d1510 is not exist(corpIdx="+userCorp.idx()+")";
+            String msg = "data of d1510 is not exist(corpIdx=" + userCorp.idx() + ")";
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1510, msg);
             return;
         }
@@ -303,7 +292,7 @@ public class IssuanceService {
 
         List<D1520> d1520s = d1520Repository.findTop2ByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (CollectionUtils.isEmpty(d1520s)) {
-            String msg="data of d1520 is not exist(corpIdx="+userCorp.idx()+")";
+            String msg = "data of d1520 is not exist(corpIdx=" + userCorp.idx() + ")";
             CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1520, msg);
         }
 
