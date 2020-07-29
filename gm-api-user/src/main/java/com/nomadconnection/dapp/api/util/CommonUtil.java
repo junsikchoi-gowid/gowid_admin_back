@@ -26,17 +26,17 @@ public class CommonUtil {
     }
 
     public static String getRandom5Num() {
-        Random r=new Random();
-        String randomNum=""+r.nextInt(10000);
-        if (randomNum.length()!=5){
-            int addNum=5-randomNum.length();
-            if (addNum>0){
-                for (int i=0;i<addNum;i++){
-                    randomNum = "0" + randomNum;
+        Random r = new Random();
+        StringBuilder randomNum = new StringBuilder("" + r.nextInt(10000));
+        if (randomNum.length() != 5) {
+            int addNum = 5 - randomNum.length();
+            if (addNum > 0) {
+                for (int i = 0; i < addNum; i++) {
+                    randomNum.insert(0, "0");
                 }
             }
         }
-        return randomNum;
+        return randomNum.toString();
     }
 
     // 카드발급 백엔드 연동 관련 예외처
@@ -82,5 +82,16 @@ public class CommonUtil {
         }
         byte[] signatureString = toEncString.getBytes();
         return Base64.getEncoder().encodeToString(signatureString);
+    }
+
+    // 길이가 length 넘어가면, length 길이 만큼 남기고 컷
+    public static String cutString(String source, int length) {
+        if (StringUtils.isEmpty(source)) {
+            return source;
+        }
+        if (source.length() > length) {
+            return source.substring(0, length);
+        }
+        return source;
     }
 }

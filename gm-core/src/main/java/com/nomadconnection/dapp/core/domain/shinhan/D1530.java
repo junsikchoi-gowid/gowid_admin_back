@@ -63,7 +63,7 @@ public class D1530 extends BaseTime {
     private String d016;    //1주의금액_변경일자
     @Column(columnDefinition = "varchar(8)    DEFAULT '' COMMENT '1주의금액_등기일자'")
     private String d017;    //1주의금액_등기일자
-    @Column(columnDefinition = "varchar(10)    DEFAULT '' COMMENT '발행할주식의총수'")
+    @Column(columnDefinition = "varchar(15)    DEFAULT '' COMMENT '발행할주식의총수'")
     private String d018;    //발행할주식의총수
     @Column(columnDefinition = "varchar(8)    DEFAULT '' COMMENT '발행할주식의총수_변경일자'")
     private String d019;    //발행할주식의총수_변경일자
