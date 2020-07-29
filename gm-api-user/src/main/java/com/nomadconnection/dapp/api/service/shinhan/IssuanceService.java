@@ -499,9 +499,10 @@ public class IssuanceService {
             throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, msg);
         }
         String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
-        d1400.setD006(Seed128.encryptEcb(idNum));
+        idNum = Seed128.encryptEcb(idNum);
 
         if ("1".equals(dto.getCeoSeqNo())) {
+            d1400.setD006(idNum);
             d1400.setD033(idNum);       // 대표자주민등록번호1
             d1400.setD056(idNum);       // 신청관리자주민등록번호
         } else if ("2".equals(dto.getCeoSeqNo())) {
