@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.config;
 
 import org.apache.catalina.connector.Connector;
+import org.apache.coyote.AbstractProtocol;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
@@ -18,11 +19,17 @@ public class WasConfig {
     @Value("${tomcat.ajp.enabled}")
     boolean tomcatAjpEnabled;
 
+    @Value("${tomcat.ajp.connection-timeout}")
+    int tomcatAjpConnectionTimeout;
+
     @Bean
     public ServletWebServerFactory servletContainer() {
         TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
         if (tomcatAjpEnabled) {
-            tomcat.addAdditionalTomcatConnectors(createAjpConnector());
+            Connector ajpConnector = createAjpConnector();
+            tomcat.addAdditionalTomcatConnectors(ajpConnector);
+            tomcat.addConnectorCustomizers(connector ->
+                    ((AbstractProtocol) ajpConnector.getProtocolHandler()).setConnectionTimeout(tomcatAjpConnectionTimeout));
         }
         return tomcat;
     }

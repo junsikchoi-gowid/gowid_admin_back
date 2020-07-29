@@ -8,8 +8,7 @@ public enum Role {
 	ROLE_MEMBER,
 	GOWID_ADMIN,
 	GOWID_USER,
-	GOWID_EXTERNAL
-	;
+	GOWID_EXTERNAL;
 
 	public static boolean isMaster(Role role) {
 		return ROLE_MASTER.equals(role);
@@ -19,9 +18,13 @@ public enum Role {
 		return ROLE_ADMIN.equals(role);
 	}
 
-	public static boolean isGowidAdmin(Role role) {		return GOWID_ADMIN.equals(role);	}
+	public static boolean isGowidAdmin(Role role) {
+		return GOWID_ADMIN.equals(role);
+	}
 
-	public static boolean isGowidUser(Role role) {		return GOWID_USER.equals(role);	}
+	public static boolean isGowidUser(Role role) {
+		return GOWID_USER.equals(role);
+	}
 
 	public static boolean isUpdatableCreditLimit(Role role) {
 		return ROLE_MASTER.equals(role) || ROLE_ADMIN.equals(role);

@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
@@ -286,9 +287,9 @@ public class AdminDto {
 					.updatedAt(dto.getUpdatedAt())
 					.idxCorp(dto.getIdxCorp())
 					.idxCorpName(dto.getIdxCorpName())
-					.successAccountCnt(dto.getSuccessAccountCnt()==null?"":dto.getSuccessAccountCnt())
-					.processAccountCnt(dto.getProcessAccountCnt()==null?"":dto.getProcessAccountCnt())
-					.allAccountCnt(dto.getAllAccountCnt()==null?"":dto.getAllAccountCnt())
+					.successAccountCnt(dto.getSuccessAccountCnt() == null ? "" : dto.getSuccessAccountCnt())
+					.processAccountCnt(dto.getProcessAccountCnt() == null ? "" : dto.getProcessAccountCnt())
+					.allAccountCnt(dto.getAllAccountCnt() == null ? "" : dto.getAllAccountCnt())
 					.endFlag(dto.getEndFlag())
 					.idxUser(dto.getIdxUser())
 					.build();
@@ -296,4 +297,17 @@ public class AdminDto {
 			return scrapingListDto;
 		}
 	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class Issuance1800Req {
+
+		@ApiModelProperty("user")
+		@NotNull(message = "userIdx is empty!")
+		public Long userIdx;
+	}
+
+
 }

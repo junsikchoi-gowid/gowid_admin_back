@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.service.shinhan;
 
 import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.common.Const;
+import com.nomadconnection.dapp.api.dto.AdminDto;
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.CommonPart;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1100;
@@ -84,13 +85,7 @@ public class ResumeService {
     @Async
     void procResume(UserCorporationDto.ResumeReq request) {
         log.debug("## start thread for 1100/1800 ");
-        SignatureHistory signatureHistory = issCommonService.getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
-        Long count = signatureHistory.getApplicationCount();
-        if (count == null) {
-            count = 0L;
-        }
-        signatureHistory.setApplicationCount(count + 1);
-        signatureHistoryRepository.save(signatureHistory);
+        SignatureHistory signatureHistory = getSignatureHistory(request);
 
         issCommonService.saveProgressFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
         proc1100(request, signatureHistory, signatureHistory.getUserIdx());  // 1100(법인카드신청)
@@ -98,6 +93,38 @@ public class ResumeService {
 
         issCommonService.saveProgressFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
         proc1800(request, signatureHistory, signatureHistory.getUserIdx());  // 1800(전자서명값전달)
+        issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
+    }
+
+    private SignatureHistory getSignatureHistory(UserCorporationDto.ResumeReq request) {
+        SignatureHistory signatureHistory = issCommonService.getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
+        updateApplicationCount(signatureHistory);
+        return signatureHistory;
+    }
+
+    private SignatureHistory getSignatureHistory(Long userIdx) {
+        SignatureHistory signatureHistory = issCommonService.getSignatureHistoryByUserIdx(userIdx);
+        updateApplicationCount(signatureHistory);
+        return signatureHistory;
+    }
+
+    private void updateApplicationCount(SignatureHistory signatureHistory) {
+        Long count = signatureHistory.getApplicationCount();
+        if (count == null) {
+            count = 0L;
+        }
+        signatureHistory.setApplicationCount(count + 1);
+        signatureHistoryRepository.save(signatureHistory);
+    }
+
+    public void procAdmin1800(AdminDto.Issuance1800Req request) {
+        SignatureHistory signatureHistory = getSignatureHistory(request.getUserIdx());
+        UserCorporationDto.ResumeReq request1800 = new UserCorporationDto.ResumeReq();
+        request1800.setD001(signatureHistory.getApplicationDate());
+        request1800.setD002(signatureHistory.getApplicationNum());
+
+        issCommonService.saveProgressFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
+        proc1800(request1800, signatureHistory, signatureHistory.getUserIdx());  // 1800(전자서명값전달)
         issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
     }
 

@@ -84,6 +84,14 @@ public class AdminService {
         return boolV;
     }
 
+    public boolean isGowidAdmin(long idxUser) {
+        User user = repoUser.findById(idxUser).orElseThrow(
+                () -> UserNotFoundException.builder().build()
+        );
+        return user.authorities().stream()
+                .anyMatch(o -> o.role().equals(Role.GOWID_ADMIN));
+    }
+
     private Integer intGowidMaster(Long idxUser) {
 
         int iReturn = 0;

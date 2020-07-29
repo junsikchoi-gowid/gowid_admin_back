@@ -1,15 +1,20 @@
 package com.nomadconnection.dapp.api.controller;
 
+import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.AdminDto;
 import com.nomadconnection.dapp.api.dto.RiskDto;
+import com.nomadconnection.dapp.api.dto.shinhan.gateway.response.ApiResponse;
+import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.AdminService;
 import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.api.service.UserService;
+import com.nomadconnection.dapp.api.service.shinhan.ResumeService;
 import com.nomadconnection.dapp.core.annotation.ApiPageable;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.ResBatchListCustomRepository;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -21,6 +26,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
+
+import javax.validation.Valid;
 
 
 @Slf4j
@@ -35,28 +42,30 @@ public class AdminController {
 	public static class URI {
 		public static final String BASE = "/admin/v1";
 
-		public static final String RISK = "/risk";		// 카드 리스크
-		public static final String RISK_ID_NOWBALANCE = "/risk_id_nowbalance";		// 카드 현재 잔고
-		public static final String RISK_ID_CALC = "/risk/id/calc";		// 11 한도 재계산 - 리스크 저장
-		public static final String RISK_ID_LEVEL_CHANGE = "/risk/id/level_change";		// 1 등급 변경
-		public static final String RISK_ID_E_STOP = "/risk/id/e_stop";		// 3 긴급중지
-		public static final String RISK_ID_A_STOP = "/risk/id/a_stop";		// 4 일시정지
-		public static final String RISK_ID_LIST1 = "/risk/id/list1";		// 13 CSV다운로드
-		public static final String RISK_ID_LIST2 = "/risk/id/list2";		// 5 한도기록
-		public static final String RISK_ID_LIST3 = "/risk/id/list3";		// 5 잔고기록
-		public static final String RISK_ID_CALC2 = "/risk/id/calc2";		// 12 날짜별 리스크 재계산 - 리스크 저장
+		public static final String RISK = "/risk";        // 카드 리스크
+		public static final String RISK_ID_NOWBALANCE = "/risk_id_nowbalance";        // 카드 현재 잔고
+		public static final String RISK_ID_CALC = "/risk/id/calc";        // 11 한도 재계산 - 리스크 저장
+		public static final String RISK_ID_LEVEL_CHANGE = "/risk/id/level_change";        // 1 등급 변경
+		public static final String RISK_ID_E_STOP = "/risk/id/e_stop";        // 3 긴급중지
+		public static final String RISK_ID_A_STOP = "/risk/id/a_stop";        // 4 일시정지
+		public static final String RISK_ID_LIST1 = "/risk/id/list1";        // 13 CSV다운로드
+		public static final String RISK_ID_LIST2 = "/risk/id/list2";        // 5 한도기록
+		public static final String RISK_ID_LIST3 = "/risk/id/list3";        // 5 잔고기록
+		public static final String RISK_ID_CALC2 = "/risk/id/calc2";        // 12 날짜별 리스크 재계산 - 리스크 저장
 
-		public static final String CORP = "/corp";			// 법인 정보
-		public static final String CORP_ID = "/corp/id";	// 법인 정보
+		public static final String CORP = "/corp";            // 법인 정보
+		public static final String CORP_ID = "/corp/id";    // 법인 정보
 
-		public static final String CASH = "/cash";		// 현금흐름
-		public static final String CASH_ID_LIST = "/cash/id/list";		// 현금흐름
+		public static final String CASH = "/cash";        // 현금흐름
+		public static final String CASH_ID_LIST = "/cash/id/list";        // 현금흐름
 
-		public static final String SCRAPING = "/scraping";		// 계좌 스크래핑
-		public static final String SCRAPING_UPDATE= "/scraping/update";		// 계좌 스크래핑 update
+		public static final String SCRAPING = "/scraping";        // 계좌 스크래핑
+		public static final String SCRAPING_UPDATE = "/scraping/update";        // 계좌 스크래핑 update
 
-		public static final String ERROR = "/error";	// 에러내역
-		public static final String ERROR_ID = "/error/id";	// 에러내역
+		public static final String ISSUANCE_1800 = "/issuance/1800";        // 1800 수동전송
+
+		public static final String ERROR = "/error";    // 에러내역
+		public static final String ERROR_ID = "/error/id";    // 에러내역
 	}
 
 	private final Boolean boolDebug = true;
@@ -296,25 +305,48 @@ public class AdminController {
 	@ApiOperation(value = "에러내역"
 			, notes = "" + "\n"
 			+ "Sort 방식 " + "\n"
-            + "idxCorp  " + "\n"
-            + "updatedAt  " + "\n"
-            + "corpName  " + "\n"
-            + "bankName  " + "\n"
-            + "account  " + "\n"
-            + "accountDisplay  " + "\n"
-            + "errorMessage  " + "\n"
-            + "errorCode  " + "\n"
-            + "transactionId  " + "\n"
+			+ "idxCorp  " + "\n"
+			+ "updatedAt  " + "\n"
+			+ "corpName  " + "\n"
+			+ "bankName  " + "\n"
+			+ "account  " + "\n"
+			+ "accountDisplay  " + "\n"
+			+ "errorMessage  " + "\n"
+			+ "errorCode  " + "\n"
+			+ "transactionId  " + "\n"
 	)
-	@GetMapping( URI.ERROR )
+	@GetMapping(URI.ERROR)
 	@ApiPageable
 	public ResponseEntity errorList(@ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable
-									,@ModelAttribute ResBatchListCustomRepository.ErrorSearchDto dto
-		) {
+			, @ModelAttribute ResBatchListCustomRepository.ErrorSearchDto dto
+	) {
 		if (log.isDebugEnabled()) {
 			log.debug("([ errorList ]) $user='{}'", user.idx());
 		}
 		return service.errorList(user.idx(), pageable, dto);
+	}
+
+	private final ResumeService resumeService;
+
+	@ApiOperation(value = "1800(전자서명) 수동전송"
+			, notes = "" + "\n" + "1800(전자서명) 수동전송" + "\n"
+	)
+	@PostMapping(URI.ISSUANCE_1800)
+	public ResponseEntity<ApiResponse.ApiResult> issuance1800(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody @Valid AdminDto.Issuance1800Req request) {
+
+		log.info("### ADMIN 1800 START ###");
+		log.debug("request => {}", request.toString());
+		log.debug("login user => {}", user.toString());
+
+		if (!service.isGowidAdmin(user.idx())) {
+			throw new BadRequestException(ErrorCode.Api.NO_PERMISSION);
+		}
+		resumeService.procAdmin1800(request);
+
+		log.info("### ADMIN 1800 END ###");
+		return ResponseEntity.ok().body(ApiResponse.ApiResult.builder().code(Const.API_SHINHAN_RESULT_SUCCESS).build());
 	}
 }
 

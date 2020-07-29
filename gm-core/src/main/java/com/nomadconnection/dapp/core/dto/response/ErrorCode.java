@@ -128,7 +128,9 @@ public class ErrorCode {
 	@Getter
 	public enum Api {
 		VALIDATION_FAILED("VALIDATION_FAILED", "validation failed"),
-		NOT_FOUND("NOT_FOUND", "not found");
+		NOT_FOUND("NOT_FOUND", "not found"),
+		NO_PERMISSION("NO_PERMISSION", "no permission"),
+		SUCCESS("SUCCESS", null);
 
 		private final String code;
 		private final String desc;

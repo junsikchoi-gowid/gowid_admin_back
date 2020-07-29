@@ -83,9 +83,15 @@ public class CommonService {
     }
 
     public SignatureHistory getSignatureHistoryByApplicationInfo(String applicationDate, String applicationNum) {
-        return signatureHistoryRepository.findFirstByApplicationDateAndApplicationNum(applicationDate, applicationNum).orElseThrow(
+        return signatureHistoryRepository.findFirstByApplicationDateAndApplicationNumOrderByUpdatedAtDesc(applicationDate, applicationNum).orElseThrow(
                 () -> new BadRequestException(ErrorCode.Api.NOT_FOUND,
                         "not found signatureHistoryRepository. applicationDate[" + applicationDate + "], applicationNum[" + applicationNum + "]")
+        );
+    }
+
+    public SignatureHistory getSignatureHistoryByUserIdx(long userIdx) {
+        return signatureHistoryRepository.findFirstByUserIdxOrderByUpdatedAtDesc(userIdx).orElseThrow(
+                () -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "not found signatureHistoryRepository. userIdx[" + userIdx + "]")
         );
     }
 

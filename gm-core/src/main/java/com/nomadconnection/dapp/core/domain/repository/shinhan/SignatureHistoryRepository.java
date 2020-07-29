@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface SignatureHistoryRepository extends JpaRepository<SignatureHistory, Long> {
-    Optional<SignatureHistory> findFirstByApplicationDateAndApplicationNum(String applicationDate, String applicationNum);
+    Optional<SignatureHistory> findFirstByApplicationDateAndApplicationNumOrderByUpdatedAtDesc(String applicationDate, String applicationNum);
+
+    Optional<SignatureHistory> findFirstByUserIdxOrderByUpdatedAtDesc(long userIdx);
 }
