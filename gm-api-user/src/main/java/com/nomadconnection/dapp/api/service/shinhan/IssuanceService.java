@@ -492,10 +492,6 @@ public class IssuanceService {
 
     // 1400 테이블에 대표자 주민번호 저장
     private void save1400(UserCorporationDto.IdentificationReq dto, Map<String, String> decryptData) {
-        if (!"1".equals(dto.getCeoSeqNo())) {
-            return;
-        }
-
         CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(dto);
         D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx());
         if (d1400 == null) {
@@ -504,6 +500,19 @@ public class IssuanceService {
         }
         String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
         d1400.setD006(Seed128.encryptEcb(idNum));
+
+        if ("1".equals(dto.getCeoSeqNo())) {
+            d1400.setD033(idNum);       // 대표자주민등록번호1
+            d1400.setD056(idNum);       // 신청관리자주민등록번호
+        } else if ("2".equals(dto.getCeoSeqNo())) {
+            d1400.setD037(idNum);       // 대표자주민등록번호2
+        } else if ("3".equals(dto.getCeoSeqNo())) {
+            d1400.setD041(idNum);       // 대표자주민등록번호3
+        } else {
+            log.error("invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
+            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
+        }
+
         d1400Repository.save(d1400);
     }
 
