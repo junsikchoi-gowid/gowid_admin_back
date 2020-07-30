@@ -10,6 +10,7 @@ import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1800;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
+import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
@@ -36,10 +37,11 @@ public class ResumeService {
     private final D1400Repository d1400Repository;
     private final D1100Repository d1100Repository;
     private final SignatureHistoryRepository signatureHistoryRepository;
+    private final IssuanceProgressRepository issuanceProgressRepository;
     private final ShinhanGwRpc shinhanGwRpc;
     private final AsyncService asyncService;
     private final CommonService issCommonService;
-    private final IssuanceProgressRepository issuanceProgressRepository;
+    private final EmailService emailService;
 
     @Value("${encryption.seed128.enable}")
     private boolean ENC_SEED128_ENABLE;
@@ -94,6 +96,19 @@ public class ResumeService {
         issCommonService.saveProgressFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
         proc1800(request, signatureHistory, signatureHistory.getUserIdx());  // 1800(전자서명값전달)
         issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
+
+        sendApprovedEmail(request);
+    }
+
+    private void sendApprovedEmail(UserCorporationDto.ResumeReq request) {
+        D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
+        if (StringUtils.isEmpty(d1200.getD001())) {
+            log.error("## biz no is empty! email not sent!");
+            log.error("## application date={}, application num={}", request.getD001(), request.getD002());
+            return;
+        }
+        emailService.sendApproveEmail(d1200.getD001());
+        log.debug("## email sent. biz no = " + d1200.getD001());
     }
 
     private SignatureHistory getSignatureHistory(CardIssuanceDto.ResumeReq request) {
