@@ -1,9 +1,9 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.UserCorporationDto;
-import com.nomadconnection.dapp.api.service.UserCorporationService;
 import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.api.service.shinhan.ResumeService;
+import com.nomadconnection.dapp.api.service.shinhan.ShinhanCardService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.domain.shinhan.SignatureHistory;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -27,11 +27,11 @@ import java.util.List;
 @Slf4j
 @RestController
 @CrossOrigin(allowCredentials = "true")
-@RequestMapping(UserCorporationController.URI.BASE)
+@RequestMapping(ShinhanCardController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "법인카드 발급", description = UserCorporationController.URI.BASE)
-public class UserCorporationController {
+@Api(tags = "법인카드 발급", description = ShinhanCardController.URI.BASE)
+public class ShinhanCardController {
 
     public static class URI {
         public static final String BASE = "/corp/v1";
@@ -52,7 +52,7 @@ public class UserCorporationController {
 
     }
 
-    private final UserCorporationService service;
+    private final ShinhanCardService service;
     private final IssuanceService issuanceService;
     private final ResumeService resumeService;
 
