@@ -15,7 +15,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public class UserCorporationDto {
+public class CardIssuanceDto {
 
     @Data
     @Builder

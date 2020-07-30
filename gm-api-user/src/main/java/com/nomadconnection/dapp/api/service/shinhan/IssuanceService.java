@@ -2,7 +2,7 @@ package com.nomadconnection.dapp.api.service.shinhan;
 
 import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.common.Const;
-import com.nomadconnection.dapp.api.dto.UserCorporationDto;
+import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.BadRequestedException;
@@ -83,7 +83,7 @@ public class IssuanceService {
      * 이미지 전송요청
      */
     @Transactional(noRollbackFor = Exception.class)
-    public void issuance(Long userIdx, UserCorporationDto.IssuanceReq request, Long signatureHistoryIdx) {
+    public void issuance(Long userIdx, CardIssuanceDto.IssuanceReq request, Long signatureHistoryIdx) {
         paramsLogging(request);
         request.setUserIdx(userIdx);
         userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED);
@@ -127,14 +127,14 @@ public class IssuanceService {
         signatureHistory.setApplicationNum(resultOfD1200.getD008());
     }
 
-    private CardIssuanceInfo getCardIssuanceInfo(UserCorporationDto.IssuanceReq request) {
+    private CardIssuanceInfo getCardIssuanceInfo(CardIssuanceDto.IssuanceReq request) {
         return cardIssuanceInfoRepository.findByIdx(request.getCardIssuanceInfoIdx()).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
                         "CardIssuanceInfo is not exist(idx=" + request.getCardIssuanceInfoIdx() + ")")
         );
     }
 
-    private void paramsLogging(UserCorporationDto.IssuanceReq request) {
+    private void paramsLogging(CardIssuanceDto.IssuanceReq request) {
         log.debug("## request params : " + request.toString());
     }
 
@@ -181,7 +181,7 @@ public class IssuanceService {
     }
 
     // 1100 데이터 저장
-    private void encryptAndSaveD1100(Long corpIdx, UserCorporationDto.IssuanceReq request) {
+    private void encryptAndSaveD1100(Long corpIdx, CardIssuanceDto.IssuanceReq request) {
         D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
@@ -424,7 +424,7 @@ public class IssuanceService {
     }
 
 
-    private DataPart1700 proc1700(Long idxUser, UserCorporationDto.IdentificationReq request, Map<String, String> decryptData) {
+    private DataPart1700 proc1700(Long idxUser, CardIssuanceDto.IdentificationReq request, Map<String, String> decryptData) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1700);
 
@@ -470,9 +470,9 @@ public class IssuanceService {
      * 1700 신분증 위조확인
      */
     @Transactional(rollbackFor = Exception.class)
-    public void verifyCeoIdentification(HttpServletRequest request, Long idxUser, UserCorporationDto.IdentificationReq dto) {
+    public void verifyCeoIdentification(HttpServletRequest request, Long idxUser, CardIssuanceDto.IdentificationReq dto) {
         Map<String, String> decryptData;
-        if (dto.getIdType().equals(UserCorporationDto.IdentificationReq.IDType.DRIVE_LICENCE)) {
+        if (dto.getIdType().equals(CardIssuanceDto.IdentificationReq.IDType.DRIVE_LICENCE)) {
             decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
             dto.setDriverLocal(findShinhanDriverLocalCode(dto.getDriverLocal()));
         } else {
@@ -491,7 +491,7 @@ public class IssuanceService {
     }
 
     // 1400 테이블에 대표자 주민번호 저장
-    private void save1400(UserCorporationDto.IdentificationReq dto, Map<String, String> decryptData) {
+    private void save1400(CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
         CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(dto);
         D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx());
         if (d1400 == null) {
@@ -518,7 +518,7 @@ public class IssuanceService {
     }
 
     // 1000 테이블에 대표자1,2,3 주민번호 저장(d11,15,19)
-    private void save1000(UserCorporationDto.IdentificationReq dto, Map<String, String> decryptData) {
+    private void save1000(CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
         CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(dto);
         D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx());
         if (d1000 == null) {
@@ -543,7 +543,7 @@ public class IssuanceService {
         d1000Repository.save(d1000);
     }
 
-    private CardIssuanceInfo getCardIssuanceInfo(UserCorporationDto.IdentificationReq dto) {
+    private CardIssuanceInfo getCardIssuanceInfo(CardIssuanceDto.IdentificationReq dto) {
         return cardIssuanceInfoRepository.findByIdx(dto.getCardIssuanceInfoIdx()).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
                         "CardIssuanceInfo is not exist(idx=" + dto.getCardIssuanceInfoIdx() + ")")

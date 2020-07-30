@@ -59,4 +59,7 @@ public class CardIssuanceInfo extends BaseTime {
     @Builder.Default
     @Enumerated(EnumType.STRING)
     private CardCompany cardCompany = CardCompany.SHINHAN;
+
+    @Column(columnDefinition = "varchar(100)  DEFAULT '' COMMENT   '카드발급신청 진행상황'")
+    private String issuanceDepth;
 }

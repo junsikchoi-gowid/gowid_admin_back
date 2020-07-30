@@ -1,7 +1,7 @@
 package com.nomadconnection.dapp.api.service.shinhan;
 
 import com.nomadconnection.dapp.api.common.AsyncService;
-import com.nomadconnection.dapp.api.dto.UserCorporationDto;
+import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.CommonPart;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1600;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
@@ -44,7 +44,7 @@ public class CommonService {
         asyncService.run(() -> saveIssuanceProgFailedBg(userIdx, progressType));
     }
 
-    public void saveProgressFailed(UserCorporationDto.ResumeReq request, IssuanceProgressType progressType) {
+    public void saveProgressFailed(CardIssuanceDto.ResumeReq request, IssuanceProgressType progressType) {
         asyncService.run(() -> saveIssuanceProgFailedBg(request, progressType));
     }
 
@@ -54,7 +54,7 @@ public class CommonService {
     }
 
     @Async
-    public void saveIssuanceProgFailedBg(UserCorporationDto.ResumeReq request, IssuanceProgressType progressType) {
+    public void saveIssuanceProgFailedBg(CardIssuanceDto.ResumeReq request, IssuanceProgressType progressType) {
         log.debug("### start saveIssuanceProgFailedBg");
         SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
         userService.saveIssuanceProgFailed(signatureHistory.getUserIdx(), progressType);
@@ -65,7 +65,7 @@ public class CommonService {
         asyncService.run(() -> saveIssuanceProgSuccessBg(userIdx, progressType));
     }
 
-    public void saveProgressSuccess(UserCorporationDto.ResumeReq request, IssuanceProgressType progressType) {
+    public void saveProgressSuccess(CardIssuanceDto.ResumeReq request, IssuanceProgressType progressType) {
         asyncService.run(() -> saveIssuanceProgSuccessBg(request, progressType));
     }
 
@@ -75,7 +75,7 @@ public class CommonService {
     }
 
     @Async
-    public void saveIssuanceProgSuccessBg(UserCorporationDto.ResumeReq request, IssuanceProgressType progressType) {
+    public void saveIssuanceProgSuccessBg(CardIssuanceDto.ResumeReq request, IssuanceProgressType progressType) {
         log.debug("### start saveIssuanceProgSuccessBg");
         SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
         userService.saveIssuanceProgSuccess(signatureHistory.getUserIdx(), progressType);

@@ -2,7 +2,7 @@ package com.nomadconnection.dapp.api.service.shinhan;
 
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
-import com.nomadconnection.dapp.api.dto.UserCorporationDto;
+import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.AwsS3Service;
@@ -90,8 +90,8 @@ public class ShinhanCardService {
      * @return 벤처기업사 목록
      */
     @Transactional(readOnly = true)
-    public List<UserCorporationDto.BusinessType> getBusinessType() {
-        return repoCodeDetail.findAllByCode(CommonCodeType.BUSINESS_1).stream().map(UserCorporationDto.BusinessType::from).collect(Collectors.toList());
+    public List<CardIssuanceDto.BusinessType> getBusinessType() {
+        return repoCodeDetail.findAllByCode(CommonCodeType.BUSINESS_1).stream().map(CardIssuanceDto.BusinessType::from).collect(Collectors.toList());
     }
 
     /**
@@ -102,7 +102,7 @@ public class ShinhanCardService {
      * @param idx_CardInfo CardIssuanceInfo idx
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserCorporationDto.CorporationRes updateCorporation(Long idx_user, UserCorporationDto.RegisterCorporation dto, Long idx_CardInfo) {
+    public CardIssuanceDto.CorporationRes updateCorporation(Long idx_user, CardIssuanceDto.RegisterCorporation dto, Long idx_CardInfo) {
         User user = findUser(idx_user);
 
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
@@ -120,10 +120,10 @@ public class ShinhanCardService {
                 .resUserType(d1000 != null ? d1000.getD009() : null)
         );
 
-        return UserCorporationDto.CorporationRes.from(corp, cardInfo.idx());
+        return CardIssuanceDto.CorporationRes.from(corp, cardInfo.idx());
     }
 
-    private D1400 updateD1400Corp(Long idx_corp, UserCorporationDto.RegisterCorporation dto) {
+    private D1400 updateD1400Corp(Long idx_corp, CardIssuanceDto.RegisterCorporation dto) {
         D1400 d1400 = getD1400(idx_corp);
         if (ObjectUtils.isEmpty(d1400)) {
             return d1400;
@@ -141,7 +141,7 @@ public class ShinhanCardService {
     }
 
 
-    private D1000 updateD1000Corp(Long idx_corp, UserCorporationDto.RegisterCorporation dto) {
+    private D1000 updateD1000Corp(Long idx_corp, CardIssuanceDto.RegisterCorporation dto) {
         D1000 d1000 = getD1000(idx_corp);
         if (ObjectUtils.isEmpty(d1000)) {
             return d1000;
@@ -168,7 +168,7 @@ public class ShinhanCardService {
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserCorporationDto.VentureRes registerVenture(Long idx_user, UserCorporationDto.RegisterVenture dto, Long idx_CardInfo) {
+    public CardIssuanceDto.VentureRes registerVenture(Long idx_user, CardIssuanceDto.RegisterVenture dto, Long idx_CardInfo) {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -187,10 +187,10 @@ public class ShinhanCardService {
 
         updateRiskConfigVenture(user, dto);
 
-        return UserCorporationDto.VentureRes.from(repoCardIssuance.save(cardInfo));
+        return CardIssuanceDto.VentureRes.from(repoCardIssuance.save(cardInfo));
     }
 
-    private RiskConfig updateRiskConfigVenture(User user, UserCorporationDto.RegisterVenture dto) {
+    private RiskConfig updateRiskConfigVenture(User user, CardIssuanceDto.RegisterVenture dto) {
         Optional<RiskConfig> riskConfig = repoRiskConfig.findByCorpAndEnabled(user.corp(), true);
         if (riskConfig.isPresent()) {
             return repoRiskConfig.save(riskConfig.get()
@@ -218,7 +218,7 @@ public class ShinhanCardService {
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserCorporationDto.VentureRes registerStockholder(Long idx_user, UserCorporationDto.RegisterStockholder dto, Long idx_CardInfo) {
+    public CardIssuanceDto.VentureRes registerStockholder(Long idx_user, CardIssuanceDto.RegisterStockholder dto, Long idx_CardInfo) {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -240,10 +240,10 @@ public class ShinhanCardService {
                 .stockRate(dto.getRate())
                 .build());
 
-        return UserCorporationDto.VentureRes.from(repoCardIssuance.save(cardInfo));
+        return CardIssuanceDto.VentureRes.from(repoCardIssuance.save(cardInfo));
     }
 
-    private RiskConfig updateRiskConfigStockholder(User user, UserCorporationDto.RegisterStockholder dto) {
+    private RiskConfig updateRiskConfigStockholder(User user, CardIssuanceDto.RegisterStockholder dto) {
         Optional<RiskConfig> riskConfig = repoRiskConfig.findByCorpAndEnabled(user.corp(), true);
         if (riskConfig.isPresent()) {
             return repoRiskConfig.save(riskConfig.get()
@@ -263,7 +263,7 @@ public class ShinhanCardService {
         }
     }
 
-    private D1400 updateD1400Stockholder(Long idx_corp, UserCorporationDto.RegisterStockholder dto) {
+    private D1400 updateD1400Stockholder(Long idx_corp, CardIssuanceDto.RegisterStockholder dto) {
         D1400 d1400 = getD1400(idx_corp);
         if (ObjectUtils.isEmpty(d1400)) {
             return d1400;
@@ -278,7 +278,7 @@ public class ShinhanCardService {
         );
     }
 
-    private D1000 updateD1000Stockholder(Long idx_corp, UserCorporationDto.RegisterStockholder dto) {
+    private D1000 updateD1000Stockholder(Long idx_corp, CardIssuanceDto.RegisterStockholder dto) {
         D1000 d1000 = getD1000(idx_corp);
         if (ObjectUtils.isEmpty(d1000)) {
             return d1000;
@@ -294,7 +294,7 @@ public class ShinhanCardService {
         );
     }
 
-    private String getCorpOwnerCode(UserCorporationDto.RegisterStockholder dto) {
+    private String getCorpOwnerCode(CardIssuanceDto.RegisterStockholder dto) {
         if (dto.getIsHold25()) {
             return Const.CORP_OWNER_CODE_1;
         } else {
@@ -321,7 +321,7 @@ public class ShinhanCardService {
 	 * @return 등록 정보
 	 */
 	@Transactional(noRollbackFor = FileUploadException.class)
-	public List<UserCorporationDto.StockholderFileRes> registerStockholderFile(Long idx_user, MultipartFile[] file_1, MultipartFile[] file_2, String type, Long idx_CardInfo) throws IOException {
+    public List<CardIssuanceDto.StockholderFileRes> registerStockholderFile(Long idx_user, MultipartFile[] file_1, MultipartFile[] file_2, String type, Long idx_CardInfo) throws IOException {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -343,7 +343,7 @@ public class ShinhanCardService {
             }
         }
 
-        List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
+        List<CardIssuanceDto.StockholderFileRes> resultList = new ArrayList<>();
         int gwUploadCount = 0;
         if (!ObjectUtils.isEmpty(file_1)) {
             resultList.addAll(uploadStockholderFile(file_1, fileType, cardInfo, ++gwUploadCount));
@@ -355,7 +355,7 @@ public class ShinhanCardService {
         return resultList;
     }
 
-    private List<UserCorporationDto.StockholderFileRes> uploadStockholderFile(MultipartFile[] files, StockholderFileType type, CardIssuanceInfo cardInfo, int gwUploadCount) throws IOException {
+    private List<CardIssuanceDto.StockholderFileRes> uploadStockholderFile(MultipartFile[] files, StockholderFileType type, CardIssuanceInfo cardInfo, int gwUploadCount) throws IOException {
         if (files.length > 2) {
             throw BadRequestedException.builder().category(BadRequestedException.Category.EXCESS_UPLOAD_FILE_LENGTH).build();
         }
@@ -364,9 +364,9 @@ public class ShinhanCardService {
         String licenseNo = cardInfo.corp().resCompanyIdentityNo().replaceAll("-", "");
         String sequence = type.getCode() + "00" + gwUploadCount;
 
-        List<UserCorporationDto.StockholderFileRes> resultList = new ArrayList<>();
+        List<CardIssuanceDto.StockholderFileRes> resultList = new ArrayList<>();
         for (MultipartFile file : files) {
-            UserCorporationDto.StockholderFileRes stockholderFileRes = uploadFile(cardInfo, file, licenseNo, sendGwUpload, sequence, type);
+            CardIssuanceDto.StockholderFileRes stockholderFileRes = uploadFile(cardInfo, file, licenseNo, sendGwUpload, sequence, type);
             sendGwUpload = stockholderFileRes.getIsTransferToGw();
             resultList.add(stockholderFileRes);
         }
@@ -374,7 +374,7 @@ public class ShinhanCardService {
         return resultList;
     }
 
-    private UserCorporationDto.StockholderFileRes uploadFile(CardIssuanceInfo cardInfo, MultipartFile file, String licenseNo, boolean sendGwUpload, String sequence, StockholderFileType type) throws IOException {
+    private CardIssuanceDto.StockholderFileRes uploadFile(CardIssuanceInfo cardInfo, MultipartFile file, String licenseNo, boolean sendGwUpload, String sequence, StockholderFileType type) throws IOException {
         String fileName = makeStockholderFileName(file, sendGwUpload, licenseNo, sequence);
         String s3Key = "stockholder/" + cardInfo.idx() + "/" + fileName;
 
@@ -396,7 +396,7 @@ public class ShinhanCardService {
 
             uploadFile.delete();
 
-            return UserCorporationDto.StockholderFileRes.from(repoFile.save(StockholderFile.builder()
+            return CardIssuanceDto.StockholderFileRes.from(repoFile.save(StockholderFile.builder()
                     .cardIssuanceInfo(cardInfo)
                     .corp(cardInfo.corp())
                     .fname(fileName)
@@ -456,7 +456,7 @@ public class ShinhanCardService {
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserCorporationDto.CardRes registerCard(Long idx_user, UserCorporationDto.RegisterCard dto, Long idx_CardInfo) {
+    public CardIssuanceDto.CardRes registerCard(Long idx_user, CardIssuanceDto.RegisterCard dto, Long idx_CardInfo) {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -488,7 +488,7 @@ public class ShinhanCardService {
                 .requestCount(dto.getCount())
                 .build());
 
-        return UserCorporationDto.CardRes.from(repoCardIssuance.save(cardInfo));
+        return CardIssuanceDto.CardRes.from(repoCardIssuance.save(cardInfo));
     }
 
     private RiskConfig updateRiskConfigCard(User user, String grantLimit, String calculatedLimit, String hopeLimit) {
@@ -512,7 +512,7 @@ public class ShinhanCardService {
         }
     }
 
-    private D1000 updateD1000Card(Long idx_corp, String grantLimit, UserCorporationDto.RegisterCard dto) {
+    private D1000 updateD1000Card(Long idx_corp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
         D1000 d1000 = getD1000(idx_corp);
         if (ObjectUtils.isEmpty(d1000)) {
             return d1000;
@@ -527,7 +527,7 @@ public class ShinhanCardService {
         );
     }
 
-    private D1400 updateD1400Card(Long idx_corp, String grantLimit, UserCorporationDto.RegisterCard dto) {
+    private D1400 updateD1400Card(Long idx_corp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
         D1400 d1400 = getD1400(idx_corp);
         if (ObjectUtils.isEmpty(d1400)) {
             return d1400;
@@ -542,7 +542,7 @@ public class ShinhanCardService {
         );
     }
 
-    private D1100 updateD1100Card(Long idx_corp, String grantLimit, UserCorporationDto.RegisterCard dto) {
+    private D1100 updateD1100Card(Long idx_corp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
         D1100 d1100 = getD1100(idx_corp);
         if (ObjectUtils.isEmpty(d1100)) {
             return d1100;
@@ -569,7 +569,7 @@ public class ShinhanCardService {
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserCorporationDto.AccountRes registerAccount(Long idx_user, UserCorporationDto.RegisterAccount dto, Long idx_CardInfo) {
+    public CardIssuanceDto.AccountRes registerAccount(Long idx_user, CardIssuanceDto.RegisterAccount dto, Long idx_CardInfo) {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -589,7 +589,7 @@ public class ShinhanCardService {
                 .bankAccountHolder(account.resAccountHolder())
                 .build());
 
-        return UserCorporationDto.AccountRes.from(repoCardIssuance.save(cardInfo), getBankName(account.organization()));
+        return CardIssuanceDto.AccountRes.from(repoCardIssuance.save(cardInfo), getBankName(account.organization()));
     }
 
     private D1100 updateD1100Account(Long idx_corp, ResAccount account) {
@@ -615,7 +615,7 @@ public class ShinhanCardService {
      * @return 등록 정보
      */
     @Transactional(readOnly = true)
-    public UserCorporationDto.CeoTypeRes getCeoType(Long idx_user) {
+    public CardIssuanceDto.CeoTypeRes getCeoType(Long idx_user) {
         User user = findUser(idx_user);
         if (user.corp() == null) {
             throw EntityNotFoundException.builder().entity("Corp").build();
@@ -631,7 +631,7 @@ public class ShinhanCardService {
                 count = 2;
             }
         }
-        return UserCorporationDto.CeoTypeRes.builder()
+        return CardIssuanceDto.CeoTypeRes.builder()
                 .type(ceoType)
                 .count(count)
                 .build();
@@ -646,7 +646,7 @@ public class ShinhanCardService {
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public UserCorporationDto.CeoRes registerCeo(Long idx_user, UserCorporationDto.RegisterCeo dto, Long idx_CardInfo) {
+    public CardIssuanceDto.CeoRes registerCeo(Long idx_user, CardIssuanceDto.RegisterCeo dto, Long idx_CardInfo) {
         User user = findUser(idx_user);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
         if (!cardInfo.idx().equals(idx_CardInfo)) {
@@ -698,10 +698,10 @@ public class ShinhanCardService {
                     .ceoNumber(ceoNum);
         }
 
-        return UserCorporationDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");
+        return CardIssuanceDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");
     }
 
-    private Integer updateD1000Ceo(D1000 d1000, Long idx_corp, UserCorporationDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
+    private Integer updateD1000Ceo(D1000 d1000, Long idx_corp, CardIssuanceDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
         if (d1000 != null) {
             return ceoNum;
         }
@@ -741,7 +741,7 @@ public class ShinhanCardService {
         return ceoNum;
     }
 
-    private D1100 updateD1100Ceo(Long idx_corp, UserCorporationDto.RegisterCeo dto) {
+    private D1100 updateD1100Ceo(Long idx_corp, CardIssuanceDto.RegisterCeo dto) {
         D1100 d1100 = getD1100(idx_corp);
         if (d1100 != null) {
             d1100 = repoD1100.save(d1100
@@ -753,7 +753,7 @@ public class ShinhanCardService {
         return d1100;
     }
 
-    private Integer updateD1400Ceo(D1400 d1400, UserCorporationDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
+    private Integer updateD1400Ceo(D1400 d1400, CardIssuanceDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
         if (d1400 == null) {
             return ceoNum;
         }
@@ -797,33 +797,33 @@ public class ShinhanCardService {
      * @return 카드발급정보
      */
     @Transactional(readOnly = true)
-    public UserCorporationDto.CardIssuanceInfoRes getCardIssuanceInfoByUser(Long idx_user) {
+    public CardIssuanceDto.CardIssuanceInfoRes getCardIssuanceInfoByUser(Long idx_user) {
         User user = findUser(idx_user);
         CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(user.corp()).orElse(null);
 
-        List<UserCorporationDto.ConsentRes> consentInfo = getConsentRes(idx_user);
+        List<CardIssuanceDto.ConsentRes> consentInfo = getConsentRes(idx_user);
 
         if (cardIssuanceInfo != null) {
-            return UserCorporationDto.CardIssuanceInfoRes.builder()
+            return CardIssuanceDto.CardIssuanceInfoRes.builder()
                     .consentRes(consentInfo)
                     .corporationRes(getCorporationRes(cardIssuanceInfo))
-                    .ventureRes(UserCorporationDto.VentureRes.from(cardIssuanceInfo))
-                    .stockholderRes(UserCorporationDto.StockholderRes.from(cardIssuanceInfo))
-                    .cardRes(UserCorporationDto.CardRes.from(cardIssuanceInfo))
-                    .accountRes(UserCorporationDto.AccountRes.from(cardIssuanceInfo, getBankName(!ObjectUtils.isEmpty(cardIssuanceInfo.bankAccount()) ? cardIssuanceInfo.bankAccount().getBankCode() : null)))
-                    .ceoRes(cardIssuanceInfo.ceoInfos() != null ? cardIssuanceInfo.ceoInfos().stream().map(UserCorporationDto.CeoRes::from).collect(Collectors.toList()) : null)
-                    .stockholderFileRes(cardIssuanceInfo.stockholderFiles() != null ? cardIssuanceInfo.stockholderFiles().stream().map(file -> UserCorporationDto.StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()) : null)
+                    .ventureRes(CardIssuanceDto.VentureRes.from(cardIssuanceInfo))
+                    .stockholderRes(CardIssuanceDto.StockholderRes.from(cardIssuanceInfo))
+                    .cardRes(CardIssuanceDto.CardRes.from(cardIssuanceInfo))
+                    .accountRes(CardIssuanceDto.AccountRes.from(cardIssuanceInfo, getBankName(!ObjectUtils.isEmpty(cardIssuanceInfo.bankAccount()) ? cardIssuanceInfo.bankAccount().getBankCode() : null)))
+                    .ceoRes(cardIssuanceInfo.ceoInfos() != null ? cardIssuanceInfo.ceoInfos().stream().map(CardIssuanceDto.CeoRes::from).collect(Collectors.toList()) : null)
+                    .stockholderFileRes(cardIssuanceInfo.stockholderFiles() != null ? cardIssuanceInfo.stockholderFiles().stream().map(file -> CardIssuanceDto.StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()) : null)
                     .build();
 
         } else {
-            return UserCorporationDto.CardIssuanceInfoRes.builder()
+            return CardIssuanceDto.CardIssuanceInfoRes.builder()
                     .consentRes(consentInfo)
-                    .corporationRes(UserCorporationDto.CorporationRes.from(user.corp(), null)).build();
+                    .corporationRes(CardIssuanceDto.CorporationRes.from(user.corp(), null)).build();
         }
     }
 
-    private List<UserCorporationDto.ConsentRes> getConsentRes(Long idx_user) {
-        List<UserCorporationDto.ConsentRes> consentInfo = new ArrayList<>();
+    private List<CardIssuanceDto.ConsentRes> getConsentRes(Long idx_user) {
+        List<CardIssuanceDto.ConsentRes> consentInfo = new ArrayList<>();
 
         List<BrandConsentDto> consents = repoConsent.findAllByEnabledOrderByConsentOrderAsc(true)
                 .map(BrandConsentDto::from)
@@ -832,7 +832,7 @@ public class ShinhanCardService {
         consents.forEach(item -> {
             ConsentMapping consentMapping = repoConsentMapping.findTopByIdxUserAndIdxConsentOrderByIdxDesc(idx_user, item.getIdx());
 
-            UserCorporationDto.ConsentRes resTemp = UserCorporationDto.ConsentRes.builder()
+            CardIssuanceDto.ConsentRes resTemp = CardIssuanceDto.ConsentRes.builder()
                     .consentIdx(item.getIdx())
                     .title(item.getTitle())
                     .boolConsent(consentMapping != null ? consentMapping.status() : false)
@@ -844,8 +844,8 @@ public class ShinhanCardService {
         return consentInfo;
     }
 
-    private UserCorporationDto.CorporationRes getCorporationRes(CardIssuanceInfo cardIssuanceInfo) {
-        UserCorporationDto.CorporationRes corporationRes = UserCorporationDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx());
+    private CardIssuanceDto.CorporationRes getCorporationRes(CardIssuanceInfo cardIssuanceInfo) {
+        CardIssuanceDto.CorporationRes corporationRes = CardIssuanceDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx());
         if (!ObjectUtils.isEmpty(corporationRes.getBusinessCode())) {
             CommonCodeDetail codeDetailData = repoCodeDetail.getByCode1AndCode5(corporationRes.getBusinessCode().substring(0, 1), corporationRes.getBusinessCode().substring(1));
             corporationRes.setBusinessCodeValue(codeDetailData.value5());
@@ -877,8 +877,8 @@ public class ShinhanCardService {
      * @return 신한 운전면허 지역코드 목록
      */
     @Transactional(readOnly = true)
-    public List<UserCorporationDto.ShinhanDriverLocalCode> getShinhanDriverLocalCodes() {
-        return repoCodeDetail.findAllByCode(CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).stream().map(UserCorporationDto.ShinhanDriverLocalCode::from).collect(Collectors.toList());
+    public List<CardIssuanceDto.ShinhanDriverLocalCode> getShinhanDriverLocalCodes() {
+        return repoCodeDetail.findAllByCode(CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).stream().map(CardIssuanceDto.ShinhanDriverLocalCode::from).collect(Collectors.toList());
     }
 
     /**
@@ -888,7 +888,7 @@ public class ShinhanCardService {
      * @param dto      대표자 타당성 확인 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public void verifyValidCeo(Long idx_user, UserCorporationDto.CeoValidReq dto) {
+    public void verifyValidCeo(Long idx_user, CardIssuanceDto.CeoValidReq dto) {
         User user = findUser(idx_user);
         if (ObjectUtils.isEmpty(user.corp())) {
             throw EntityNotFoundException.builder().entity("Corp").build();
@@ -905,7 +905,7 @@ public class ShinhanCardService {
         verifyCorrespondCeo(user.corp().idx(), dto);
     }
 
-    public void verifyCorrespondCeo(Long idx_corp, UserCorporationDto.CeoValidReq dto) {
+    public void verifyCorrespondCeo(Long idx_corp, CardIssuanceDto.CeoValidReq dto) {
         D1000 d1000 = getD1000(idx_corp);
         if (ObjectUtils.isEmpty(d1000)) {
             throw EntityNotFoundException.builder().entity("D1000").build();
@@ -920,7 +920,7 @@ public class ShinhanCardService {
         }
     }
 
-    private boolean checkCeo(String korName, String engName, String idNum, UserCorporationDto.CeoValidReq dto) {
+    private boolean checkCeo(String korName, String engName, String idNum, CardIssuanceDto.CeoValidReq dto) {
         if (!StringUtils.hasText(idNum)) {
             return false;
         }

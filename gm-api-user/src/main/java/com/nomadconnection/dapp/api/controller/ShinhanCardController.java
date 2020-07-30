@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.nomadconnection.dapp.api.dto.UserCorporationDto;
+import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.api.service.shinhan.ResumeService;
 import com.nomadconnection.dapp.api.service.shinhan.ShinhanCardService;
@@ -58,7 +58,7 @@ public class ShinhanCardController {
 
     @ApiOperation("법인정보 업종종류 조회")
     @GetMapping(URI.CORPORATION_TYPE)
-    public ResponseEntity<List<UserCorporationDto.BusinessType>> getBusinessType(
+    public ResponseEntity<List<CardIssuanceDto.BusinessType>> getBusinessType(
             @ApiIgnore @CurrentUser CustomUser user) {
         if (log.isInfoEnabled()) {
             log.info("([ getBusinessType ]) $user='{}'", user);
@@ -69,10 +69,10 @@ public class ShinhanCardController {
 
     @ApiOperation("법인정보 수정")
     @PutMapping(URI.CORPORATION)
-    public ResponseEntity<UserCorporationDto.CorporationRes> updateCorporation(
+    public ResponseEntity<CardIssuanceDto.CorporationRes> updateCorporation(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
-            @RequestBody @Valid UserCorporationDto.RegisterCorporation dto) {
+            @RequestBody @Valid CardIssuanceDto.RegisterCorporation dto) {
         if (log.isInfoEnabled()) {
             log.info("([ registerCorporation ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
@@ -82,10 +82,10 @@ public class ShinhanCardController {
 
     @ApiOperation("벤처기업정보 등록")
     @PostMapping(URI.VENTURE)
-    public ResponseEntity<UserCorporationDto.VentureRes> registerVenture(
+    public ResponseEntity<CardIssuanceDto.VentureRes> registerVenture(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
-            @RequestBody @Valid UserCorporationDto.RegisterVenture dto) {
+            @RequestBody @Valid CardIssuanceDto.RegisterVenture dto) {
         if (log.isInfoEnabled()) {
             log.info("([ registerVenture ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
@@ -95,10 +95,10 @@ public class ShinhanCardController {
 
     @ApiOperation("주주명부 등록")
     @PostMapping(URI.STOCKHOLDER)
-    public ResponseEntity<UserCorporationDto.VentureRes> registerStockholder(
+    public ResponseEntity<CardIssuanceDto.VentureRes> registerStockholder(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
-            @RequestBody @Valid UserCorporationDto.RegisterStockholder dto) {
+            @RequestBody @Valid CardIssuanceDto.RegisterStockholder dto) {
         if (log.isInfoEnabled()) {
             log.info("([ registerStockholder ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
@@ -111,7 +111,7 @@ public class ShinhanCardController {
             @ApiImplicitParam(name = "fileType", value = "BASIC:주주명부, MAJOR:1대주주명부", dataType = "String")
     })
     @PostMapping(URI.STOCKHOLDER_FILES)
-    public ResponseEntity<List<UserCorporationDto.StockholderFileRes>> uploadStockholderFile(
+    public ResponseEntity<List<CardIssuanceDto.StockholderFileRes>> uploadStockholderFile(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
             @RequestParam String fileType,
@@ -140,10 +140,10 @@ public class ShinhanCardController {
 
     @ApiOperation("카드발급정보 등록")
     @PostMapping(URI.ISSUANCE)
-    public ResponseEntity<UserCorporationDto.CardRes> registerCard(
+    public ResponseEntity<CardIssuanceDto.CardRes> registerCard(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
-            @RequestBody @Valid UserCorporationDto.RegisterCard dto) {
+            @RequestBody @Valid CardIssuanceDto.RegisterCard dto) {
         if (log.isInfoEnabled()) {
             log.info("([ registerStockholder ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
@@ -153,10 +153,10 @@ public class ShinhanCardController {
 
     @ApiOperation("결제계좌 등록")
     @PostMapping(URI.ACCOUNT)
-    public ResponseEntity<UserCorporationDto.AccountRes> registerAccount(
+    public ResponseEntity<CardIssuanceDto.AccountRes> registerAccount(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
-            @RequestBody @Valid UserCorporationDto.RegisterAccount dto) {
+            @RequestBody @Valid CardIssuanceDto.RegisterAccount dto) {
         if (log.isInfoEnabled()) {
             log.info("([ registerAccount ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
@@ -166,7 +166,7 @@ public class ShinhanCardController {
 
     @ApiOperation("대표자 종류")
     @GetMapping(URI.CEO)
-    public ResponseEntity<UserCorporationDto.CeoTypeRes> getCeo(
+    public ResponseEntity<CardIssuanceDto.CeoTypeRes> getCeo(
             @ApiIgnore @CurrentUser CustomUser user) {
         if (log.isInfoEnabled()) {
             log.info("([ getCeo ]) $user='{}'", user);
@@ -177,10 +177,10 @@ public class ShinhanCardController {
 
     @ApiOperation("대표자 등록")
     @PostMapping(URI.CEO)
-    public ResponseEntity<UserCorporationDto.CeoRes> registerCEO(
+    public ResponseEntity<CardIssuanceDto.CeoRes> registerCEO(
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestParam Long idxCardInfo,
-            @RequestBody @Valid UserCorporationDto.RegisterCeo dto) throws IOException {
+            @RequestBody @Valid CardIssuanceDto.RegisterCeo dto) throws IOException {
         if (log.isInfoEnabled()) {
             log.info("([ registerCEO ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
@@ -190,7 +190,7 @@ public class ShinhanCardController {
 
     @ApiOperation("카드발급정보 전체조회")
     @GetMapping(URI.ISSUANCE)
-    public ResponseEntity<UserCorporationDto.CardIssuanceInfoRes> getCardIssuanceByUser(
+    public ResponseEntity<CardIssuanceDto.CardIssuanceInfoRes> getCardIssuanceByUser(
             @ApiIgnore @CurrentUser CustomUser user) {
         if (log.isInfoEnabled()) {
             log.info("([ getCardIssuanceByUser ]) $user='{}'", user);
@@ -212,7 +212,7 @@ public class ShinhanCardController {
 
     @ApiOperation("신한 운전면허 지역코드 조회")
     @GetMapping(URI.SHINHAN_DRIVER_LOCAL_CODE)
-    public ResponseEntity<List<UserCorporationDto.ShinhanDriverLocalCode>> getShinhanDriverLocalCodes(
+    public ResponseEntity<List<CardIssuanceDto.ShinhanDriverLocalCode>> getShinhanDriverLocalCodes(
             @ApiIgnore @CurrentUser CustomUser user) {
         if (log.isInfoEnabled()) {
             log.info("([ getShinhanDriverLocalCodes ]) $user='{}'", user);
@@ -226,7 +226,7 @@ public class ShinhanCardController {
     public ResponseEntity<?> verifyIdentification(
             HttpServletRequest request,
             @ApiIgnore @CurrentUser CustomUser user,
-            @ModelAttribute @Valid UserCorporationDto.IdentificationReq dto) {
+            @ModelAttribute @Valid CardIssuanceDto.IdentificationReq dto) {
         if (log.isInfoEnabled()) {
             log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
         }
@@ -237,9 +237,9 @@ public class ShinhanCardController {
 
     @ApiOperation(value = "법인카드 발급 신청")
     @PostMapping(URI.CARD)
-    public ResponseEntity<UserCorporationDto.IssuanceRes> application(
+    public ResponseEntity<CardIssuanceDto.IssuanceRes> application(
             @ApiIgnore @CurrentUser CustomUser user,
-            @ModelAttribute @Valid UserCorporationDto.IssuanceReq request) {
+            @ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) {
 
         SignatureHistory signatureHistory = issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
         issuanceService.issuance(user.idx(), request, signatureHistory.getIdx());
@@ -250,8 +250,8 @@ public class ShinhanCardController {
     // todo : 에러처리
     @ApiOperation(value = "법인카드 발급 재개")
     @PostMapping(URI.RESUME)
-    public ResponseEntity<UserCorporationDto.ResumeRes> resumeApplication(
-            @RequestBody UserCorporationDto.ResumeReq request) {
+    public ResponseEntity<CardIssuanceDto.ResumeRes> resumeApplication(
+            @RequestBody CardIssuanceDto.ResumeReq request) {
 
         log.debug("## Received 1600");
         if (request != null) {
@@ -269,7 +269,7 @@ public class ShinhanCardController {
     @PostMapping(URI.CEO_CORRESPOND)
     public ResponseEntity<?> verifyCorrespondCeo(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody @Valid UserCorporationDto.CeoValidReq dto) {
+            @RequestBody @Valid CardIssuanceDto.CeoValidReq dto) {
         if (log.isInfoEnabled()) {
             log.info("([ verifyCorrespondCeo ]) $user='{}', $dto='{}'", user, dto);
         }

@@ -1,8 +1,8 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
+import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.ConsentDto;
-import com.nomadconnection.dapp.api.dto.UserCorporationDto;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.consent.Consent;
@@ -115,7 +115,7 @@ public class ConsentService {
     public ResponseEntity consentCard(Long idxUser) {
         return ResponseEntity.ok().body(
                 BusinessResponse.builder()
-                        .data(repoCodeDetail.findAllByCode(CommonCodeType.GOWIDCARDS).stream().map(UserCorporationDto.CardType::from).collect(Collectors.toList()))
+                        .data(repoCodeDetail.findAllByCode(CommonCodeType.GOWIDCARDS).stream().map(CardIssuanceDto.CardType::from).collect(Collectors.toList()))
                         .build());
     }
 

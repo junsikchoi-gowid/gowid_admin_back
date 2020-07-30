@@ -137,7 +137,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(IrDashBoardController.URI.BASE + IrDashBoardController.URI.IRDASHBOARD).permitAll()
                 .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_PW+2).permitAll()
                 .antMatchers(BankController.URI.BASE + BankController.URI.MONTH_BALANCE_EXT).permitAll()
-                .antMatchers(UserCorporationController.URI.BASE + UserCorporationController.URI.RESUME).permitAll()
+				.antMatchers(ShinhanCardController.URI.BASE + ShinhanCardController.URI.RESUME).permitAll()
                 .anyRequest().authenticated();
     }
 }

@@ -3,7 +3,7 @@ package com.nomadconnection.dapp.api.service.shinhan;
 import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.AdminDto;
-import com.nomadconnection.dapp.api.dto.UserCorporationDto;
+import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.CommonPart;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1100;
 import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1800;
@@ -46,14 +46,14 @@ public class ResumeService {
 
     // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
     @Transactional(noRollbackFor = Exception.class)
-    public UserCorporationDto.ResumeRes resumeApplication(UserCorporationDto.ResumeReq request) {
+    public CardIssuanceDto.ResumeRes resumeApplication(CardIssuanceDto.ResumeReq request) {
         issCommonService.saveGwTranForD1600(request);
         log.debug("### saveProgressFailed start");
         issCommonService.saveProgressFailed(request, IssuanceProgressType.P_1600);
         log.debug("### saveProgressFailed end");
         issuanceProgressRepository.flush();
 
-        UserCorporationDto.ResumeRes response = getResumeRes(request);
+        CardIssuanceDto.ResumeRes response = getResumeRes(request);
         issCommonService.saveGwTranForD1600(response);
 
         if (!Const.API_SHINHAN_RESULT_SUCCESS.equals(request.getC009())) {
@@ -71,8 +71,8 @@ public class ResumeService {
         return response;
     }
 
-    private UserCorporationDto.ResumeRes getResumeRes(UserCorporationDto.ResumeReq request) {
-        UserCorporationDto.ResumeRes response = new UserCorporationDto.ResumeRes();
+    private CardIssuanceDto.ResumeRes getResumeRes(CardIssuanceDto.ResumeReq request) {
+        CardIssuanceDto.ResumeRes response = new CardIssuanceDto.ResumeRes();
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1600);
         BeanUtils.copyProperties(request, response);
         BeanUtils.copyProperties(commonPart, response);
@@ -83,7 +83,7 @@ public class ResumeService {
     }
 
     @Async
-    void procResume(UserCorporationDto.ResumeReq request) {
+    void procResume(CardIssuanceDto.ResumeReq request) {
         log.debug("## start thread for 1100/1800 ");
         SignatureHistory signatureHistory = getSignatureHistory(request);
 
@@ -96,7 +96,7 @@ public class ResumeService {
         issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
     }
 
-    private SignatureHistory getSignatureHistory(UserCorporationDto.ResumeReq request) {
+    private SignatureHistory getSignatureHistory(CardIssuanceDto.ResumeReq request) {
         SignatureHistory signatureHistory = issCommonService.getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
         updateApplicationCount(signatureHistory);
         return signatureHistory;
@@ -119,7 +119,7 @@ public class ResumeService {
 
     public void procAdmin1800(AdminDto.Issuance1800Req request) {
         SignatureHistory signatureHistory = getSignatureHistory(request.getUserIdx());
-        UserCorporationDto.ResumeReq request1800 = new UserCorporationDto.ResumeReq();
+        CardIssuanceDto.ResumeReq request1800 = new CardIssuanceDto.ResumeReq();
         request1800.setD001(signatureHistory.getApplicationDate());
         request1800.setD002(signatureHistory.getApplicationNum());
 
@@ -128,7 +128,7 @@ public class ResumeService {
         issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
     }
 
-    private void proc1800(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory, Long idxUser) {
+    private void proc1800(CardIssuanceDto.ResumeReq request, SignatureHistory signatureHistory, Long idxUser) {
         log.debug("## 1800 start");
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1800);
 
@@ -145,7 +145,7 @@ public class ResumeService {
         log.debug("## 1800 end");
     }
 
-    private void proc1100(UserCorporationDto.ResumeReq request, SignatureHistory signatureHistory, Long idxUser) {
+    private void proc1100(CardIssuanceDto.ResumeReq request, SignatureHistory signatureHistory, Long idxUser) {
         // 공통부
         log.debug("## 1100 start");
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1100);
@@ -176,7 +176,7 @@ public class ResumeService {
     }
 
     // 기존 1400/1000 연동으로 부터 법인 식별자 추출
-    private Long getCorpIdxFromLastRequest(UserCorporationDto.ResumeReq request) {
+    private Long getCorpIdxFromLastRequest(CardIssuanceDto.ResumeReq request) {
         Long corpIdx;
 
         D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());

@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @CrossOrigin(allowCredentials = "true")
 @RestController
-@RequestMapping(UserCorporationController.URI.BASE)
+@RequestMapping(BenefitController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
 @Api(tags = "멤버십 혜택", description = BenefitController.URI.BASE)
