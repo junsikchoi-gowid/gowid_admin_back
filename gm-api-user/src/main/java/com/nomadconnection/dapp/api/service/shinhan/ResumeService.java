@@ -100,7 +100,7 @@ public class ResumeService {
         sendApprovedEmail(request);
     }
 
-    private void sendApprovedEmail(UserCorporationDto.ResumeReq request) {
+    private void sendApprovedEmail(CardIssuanceDto.ResumeReq request) {
         D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
         if (StringUtils.isEmpty(d1200.getD001())) {
             log.error("## biz no is empty! email not sent!");
