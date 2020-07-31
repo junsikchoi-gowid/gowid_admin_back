@@ -18,11 +18,8 @@ import java.nio.charset.StandardCharsets;
 public class EmailService {
 
 	private final EmailConfig emailConfig;
-
 	private final JavaMailSenderImpl sender;
-
 	private final ITemplateEngine templateEngine;
-
 	private final EmailRepository repository;
 
 	public void sendApproveEmail(String licenseNo) {

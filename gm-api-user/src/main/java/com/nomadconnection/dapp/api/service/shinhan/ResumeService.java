@@ -46,6 +46,9 @@ public class ResumeService {
     @Value("${encryption.seed128.enable}")
     private boolean ENC_SEED128_ENABLE;
 
+    @Value("${mail.approved.send-enable}")
+    boolean sendEmailEnable;
+
     // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
     @Transactional(noRollbackFor = Exception.class)
     public CardIssuanceDto.ResumeRes resumeApplication(CardIssuanceDto.ResumeReq request) {
@@ -101,6 +104,9 @@ public class ResumeService {
     }
 
     private void sendApprovedEmail(CardIssuanceDto.ResumeReq request) {
+        if (!sendEmailEnable) {
+            return;
+        }
         D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
         if (StringUtils.isEmpty(d1200.getD001())) {
             log.error("## biz no is empty! email not sent!");
@@ -185,8 +191,6 @@ public class ResumeService {
         }
 
         shinhanGwRpc.request1100(requestRpc, idxUser);
-//        issCommonService.saveGwTran(requestRpc);
-//        issCommonService.saveGwTran(shinhanGwRpc.request1100(requestRpc));
         log.debug("## 1100 end");
     }
 

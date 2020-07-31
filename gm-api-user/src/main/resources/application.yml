@@ -101,6 +101,10 @@ stockholder:
   file:
     size: 2097152
 
+mail:
+  approved:
+    send-enable: false
+
 ---
 
 spring:
@@ -153,6 +157,10 @@ stockholder:
   file:
     size: 2097152
 
+mail:
+  approved:
+    send-enable: false
+
 ---
 
 spring:
@@ -204,3 +212,7 @@ encryption:
 stockholder:
   file:
     size: 2097152
+
+mail:
+  approved:
+    send-enable: true
