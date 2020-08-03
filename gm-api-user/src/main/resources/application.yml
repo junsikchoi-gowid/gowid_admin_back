@@ -104,7 +104,8 @@ stockholder:
 mail:
   approved:
     send-enable: false
-
+  receipt:
+    send-enable: false
 ---
 
 spring:
@@ -159,7 +160,9 @@ stockholder:
 
 mail:
   approved:
-    send-enable: false
+    send-enable: true
+  receipt:
+    send-enable: true
 
 ---
 
@@ -215,4 +218,6 @@ stockholder:
 
 mail:
   approved:
+    send-enable: true
+  receipt:
     send-enable: true

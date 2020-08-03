@@ -9,6 +9,7 @@ import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
+import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
@@ -63,9 +64,10 @@ public class IssuanceService {
     private final CommonService issCommonService;
     private final AsyncService asyncService;
     private final UserService userService;
+    private final EmailService emailService;
 
-    @Value("${encryption.keypad.enable}")
-    private boolean ENC_KEYPAD_ENABLE;
+    @Value("${mail.receipt.send-enable}")
+    boolean sendReceiptEmailEnable;
 
     @Value("${encryption.seed128.enable}")
     private boolean ENC_SEED128_ENABLE;
@@ -97,7 +99,6 @@ public class IssuanceService {
         DataPart1200 resultOfD1200 = proc1200(userCorp);
         saveSignatureHistory(signatureHistoryIdx, resultOfD1200);
         userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_1200);
-
 
         // 15xx 서류제출
         userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_15XX);
@@ -156,12 +157,21 @@ public class IssuanceService {
                 Thread.sleep(5000L);
                 if (proc3000(userCorp, resultOfD1200, userIdx)) {
                     issCommonService.saveProgressSuccess(userIdx, IssuanceProgressType.P_IMG);
+                    sendReceiptEmail(resultOfD1200);
                     return;
                 }
             } catch (Exception e) {
                 log.error("[procBpr] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
             }
         }
+    }
+
+    private void sendReceiptEmail(DataPart1200 resultOfD1200) {
+        if (!sendReceiptEmailEnable) {
+            return;
+        }
+        emailService.sendReceiptEmail(resultOfD1200.getD001());
+        log.debug("## receipt email sent. biz no = " + resultOfD1200.getD001());
     }
 
     private boolean proc3000(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {

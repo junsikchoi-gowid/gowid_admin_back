@@ -114,7 +114,7 @@ public class ResumeService {
             return;
         }
         emailService.sendApproveEmail(d1200.getD001());
-        log.debug("## email sent. biz no = " + d1200.getD001());
+        log.debug("## approved email sent. biz no = " + d1200.getD001());
     }
 
     private SignatureHistory getSignatureHistory(CardIssuanceDto.ResumeReq request) {
