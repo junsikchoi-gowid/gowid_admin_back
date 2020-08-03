@@ -43,4 +43,26 @@ public class EmailService {
 		};
 		sender.send(preparator);
 	}
+
+	public void sendReceiptEmail(String licenseNo) {
+		EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			{
+				Context context = new Context();
+				{
+					context.setVariable("licenseNo", emailDto.getLicenseNo());
+					context.setVariable("companyName", emailDto.getCompanyName());
+					context.setVariable("hopeLimit", emailDto.getHopeLimit());
+					context.setVariable("grantLimit", emailDto.getGrantLimit());
+				}
+
+				helper.setFrom(emailConfig.getSender());
+				helper.setTo(emailConfig.getSender());
+				helper.setSubject("[신한카드 접수완료] " + emailDto.getCompanyName());
+				helper.setText(templateEngine.process("mail-template-receipt-approve", context), true);
+			}
+		};
+		sender.send(preparator);
+	}
 }
