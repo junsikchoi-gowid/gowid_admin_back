@@ -21,6 +21,8 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 
 	List<ConnectedMng> findByIdxUser(Long idxUser);
 
+	Optional<ConnectedMng> findTopByIdxUserAndType(Long idxUser, String type);
+
 	@Query(value = "select c.* FROM ConnectedMng c where c.idxUser = :idxUser order by createdAt " ,nativeQuery = true)
 	List<CconnectedMngDto> findIdxUser(@Param("idxUser")Long idxUser);
 
@@ -39,6 +41,7 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 		String getName();
 		String getStartDate();
 		String getEndDate();
+		String getType();
 		String getDesc1();
 		String getDesc2();
 	}

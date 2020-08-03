@@ -4,9 +4,11 @@ import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.ConsentDto;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.consent.Consent;
 import com.nomadconnection.dapp.core.domain.consent.ConsentMapping;
+import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentRepository;
@@ -33,6 +35,7 @@ public class ConsentService {
     private final UserRepository repoUser;
     private final CommonCodeDetailRepository repoCodeDetail;
     private final ConsentMappingRepository repoConsentMapping;
+    private final CardIssuanceInfoRepository repoCardIssuance;
 
 
     /**
@@ -139,6 +142,10 @@ public class ConsentService {
             );
         }
 
+        repoCardIssuance.save(CardIssuanceInfo.builder()
+                .corp(user.corp())
+                .cardCompany(dto.getCompanyCode())
+                .build());
 
         return ResponseEntity.ok().body(BusinessResponse.builder().build());
     }

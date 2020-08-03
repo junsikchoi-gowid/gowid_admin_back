@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.api.service.CodefService;
 import com.nomadconnection.dapp.api.service.UserService;
+import com.nomadconnection.dapp.codef.io.dto.Common;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
@@ -111,6 +112,20 @@ public class CodefController {
 		return service.registerAccount(dto, user.idx());
 	}
 
+	@ApiOperation(value = "인증서 등록(커넥티드아이디 추가등록)", notes = "" +
+			"\n ### Remarks" +
+			"\n")
+	@PostMapping(URI.ACCOUNT_ADD)
+	public ResponseEntity registerAccountAdd(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody Common.Account dto) {
+		if (log.isDebugEnabled()) {
+			log.debug("([Codef RegisterAccount ]) $dto='{}'", dto);
+		}
+		return service.registerAccountAdd(dto, user.idx());
+	}
+
+
 	@ApiOperation(value = "인증서 등록(커넥티드아이디 발급) 국세청 관련 등록 ", notes = " type 을 강제로 nt 로 저장함 " +
 			"\n ### Remarks" +
 			"\n")
@@ -187,4 +202,20 @@ public class CodefController {
 			@RequestParam String connectedId) {
 		return service.deleteAccount2(connectedId);
 	}
+
+	@ApiOperation(value = "인증서 기관 삭제 ", notes = "" +
+			"\n ### Remarks" +
+			"\n organization // 기관코드" +
+			"\n loginType // 로그인타입 (0: 인증서, 1: ID/PW )" )
+	@PostMapping(URI.ACCOUNT_DELETE +3 )
+	public ResponseEntity DeleteAccount2(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestParam String connectedId,
+			@RequestParam String organization,
+			@RequestParam String businessType,
+			@RequestParam String loginType) {
+		return service.ProcDeleteConnectedId(connectedId, organization, loginType, businessType);
+	}
+
+
 }

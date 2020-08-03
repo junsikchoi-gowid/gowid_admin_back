@@ -1,13 +1,15 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.common.Const;
+import com.nomadconnection.dapp.api.config.CronConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.dto.GwUploadDto;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.codef.io.api.ApiCodef;
+import com.nomadconnection.dapp.codef.io.dto.Common;
 import com.nomadconnection.dapp.codef.io.helper.Account;
 import com.nomadconnection.dapp.codef.io.helper.ApiRequest;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
@@ -22,14 +24,15 @@ import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
-import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResConCorpListRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
+import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
 import com.nomadconnection.dapp.core.domain.shinhan.*;
 import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -44,13 +47,21 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.File;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -68,6 +79,7 @@ public class CodefService {
 	private final ResAccountRepository repoResAccount;
 	private final ConnectedMngRepository repoConnectedMng;
 	private final CorpRepository repoCorp;
+	private final Environment environment;
 
 	private final D1000Repository repoD1000;
 	private final D1100Repository repoD1100;
@@ -75,12 +87,12 @@ public class CodefService {
 	private final D1510Repository repoD1510;
 	private final D1520Repository repoD1520;
 	private final D1530Repository repoD1530;
+	private final ResConCorpListRepository repoResConCorpList;
+
 
 	private final CommonCodeDetailRepository repoCommonCodeDetail;
 	private final ImageConverter converter;
-	private final AsyncService asyncService;
 
-	private final CardIssuanceInfoRepository repoCardIssuance;
 	private final GwUploadService gwUploadService;
 
 	private final String urlPath = CommonConstant.getRequestDomain();
@@ -141,19 +153,7 @@ public class CodefService {
 			accountMap1.put("certType",     CommonConstant.CERTTYPE);
 			accountMap1.put("certFile",     dto.getCertFile());
 			list.add(accountMap1);
-		}
-
-//		accountMap1 = new HashMap<>();
-//		accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
-//		accountMap1.put("businessType",	CommonConstant.REVENUETYPE);  // 업무구분코드
-//		accountMap1.put("clientType",  	"A");   // 고객구분(P: 개인, B: 기업)
-//		accountMap1.put("organization",	"0002");// 기관코드
-//		accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
-//		accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
-//		accountMap1.put("certType",     CommonConstant.CERTTYPE);
-//		accountMap1.put("certFile",     dto.getCertFile());
-//
-//		list.add(accountMap1);
+		} 
 
 		bodyMap.put("accountList", list);
 		String strObject = ApiRequest.request(createUrlPath, bodyMap);
@@ -828,45 +828,42 @@ public class CodefService {
 						.build()
 				);
 
+				String finalConnectedId = connectedId;
+				JSONObjectSuccessData.forEach(object -> {
+					JSONObject obj = (JSONObject) object;
+					repoResConCorpList.save(
+							ResConCorpList.builder()
+									.organization(GowidUtils.getEmptyStringToString(obj, "organization"))
+									.businessType(GowidUtils.getEmptyStringToString(obj, "businessType"))
+									.clientType(GowidUtils.getEmptyStringToString(obj, "clientType"))
+									.code(GowidUtils.getEmptyStringToString(obj, "code"))
+									.countryCode(GowidUtils.getEmptyStringToString(obj, "countryCode"))
+									.extraMessage(GowidUtils.getEmptyStringToString(obj, "extraMessage"))
+									.loginType(GowidUtils.getEmptyStringToString(obj, "loginType"))
+									.message(GowidUtils.getEmptyStringToString(obj, "message"))
+									.connectedId(finalConnectedId)
+									.idxCorp(user.corp().idx())
+									.build()
+					);
+				});
 
 				// 은행 추가
-				bodyMap.clear();
-				list.clear();
-				for( String s : CommonConstant.LISTBANK){
-					accountMap1 = new HashMap<>();
-					accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
-					accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
-					accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
-					accountMap1.put("organization",	s);// 기관코드
-					accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
-					accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
-					accountMap1.put("certType",     CommonConstant.CERTTYPE);
-					accountMap1.put("certFile",     dto.getCertFile());
-					list.add(accountMap1);
-				}
-				bodyMap.put("accountList", list);
-				bodyMap.put("connectedId", connectedId);
-				ApiRequest.request(addUrlPath, bodyMap);
+				jsonObject = ApiCodef.registerCodef(
+						Common.Account.builder()
+								.certFile(dto.getCertFile())
+								.password1(dto.getPassword1())
+								.build()
+						, finalConnectedId, CommonConstant.API_DOMAIN, CommonConstant.ADD_ACCOUNT, null, "BANK");
+				ProcAddConnectedId(jsonObject, finalConnectedId, user.corp().idx());
 
 				// 카드사 추가
-				bodyMap.clear();
-				list.clear();
-				for( String s : CommonConstant.LISTCARD){
-					accountMap1 = new HashMap<>();
-					accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
-					accountMap1.put("businessType",	CommonConstant.CARDTYPE);  // 업무구분코드
-					accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
-					accountMap1.put("organization",	s);// 기관코드
-					accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
-					accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
-					accountMap1.put("certType",     CommonConstant.CERTTYPE);
-					accountMap1.put("certFile",     dto.getCertFile());
-					list.add(accountMap1);
-				}
-				bodyMap.put("accountList", list);
-				bodyMap.put("connectedId", connectedId);
-				ApiRequest.request(addUrlPath, bodyMap);
-				bodyMap.clear();
+				jsonObject = ApiCodef.registerCodef(
+						Common.Account.builder()
+								.certFile(dto.getCertFile())
+								.password1(dto.getPassword1())
+								.build()
+						, finalConnectedId, CommonConstant.API_DOMAIN, CommonConstant.ADD_ACCOUNT, null, "CARD");
+				ProcAddConnectedId(jsonObject, finalConnectedId, user.corp().idx());
 
 			}else{
 				if(connectedId != null) {
@@ -1265,7 +1262,7 @@ public class CodefService {
 						.d057(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")    // 신청관리자명
 						.build());
 
-				repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
+				// repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
 			}else{
 
 				if(connectedId != null) {
@@ -1703,7 +1700,9 @@ public class CodefService {
 
 	private boolean ImageCreateAndSend(Integer fileCode, String fileName, String cardCode, String jsonStringData, String corpIdNo)
 	{
+
 		boolean boolConverter = false;
+
 		ImageConvertDto param =
 				ImageConvertDto.builder()
 						.mrdType(fileCode)
@@ -1743,5 +1742,124 @@ public class CodefService {
 			}
 		}
 		return boolConverter;
+	}
+
+
+	@SneakyThrows
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity registerAccountAdd(Common.Account dto, Long idxUser) {
+
+		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
+		ConnectedMng connectedMng = repoConnectedMng.findTopByIdxUserAndType(idxUser,"NT").orElseThrow(
+				() -> new RuntimeException("NtConnectedIdNotFound")
+		);
+
+		User user = repoUser.findById(idxUser).orElseThrow(
+				() -> new RuntimeException("UserNotFound")
+		);
+
+		List<String> listCorp = new ArrayList<>();;
+		repoResConCorpList.findByBusinessTypeAndIdxCorp(CommonConstant.BUSINESSTYPE, user.corp().idx()).forEach(
+				resConCorpList -> {
+					listCorp.add(resConCorpList.organization()); }
+		);
+		JSONObject jsonObject = ApiCodef.registerCodef(dto, connectedMng.connectedId(), CommonConstant.API_DOMAIN, CommonConstant.UPDATE_ACCOUNT, listCorp, CommonConstant.BUSINESSTYPE);
+		ProcAddConnectedId(jsonObject, connectedMng.connectedId(), user.corp().idx());
+		saveConnectedId(dto, jsonObject, connectedMng.connectedId(), user.idx(), user.corp().idx());
+
+		listCorp.clear();
+		repoResConCorpList.findByBusinessTypeAndIdxCorp(CommonConstant.CARDTYPE, user.corp().idx()).forEach(
+				resConCorpList -> {
+					listCorp.add(resConCorpList.organization()); }
+		);
+		jsonObject = ApiCodef.registerCodef(dto, connectedMng.connectedId(), CommonConstant.API_DOMAIN, CommonConstant.UPDATE_ACCOUNT, listCorp, CommonConstant.CARDTYPE);
+		ProcAddConnectedId(jsonObject, connectedMng.connectedId(), user.corp().idx());
+		saveConnectedId(dto, jsonObject, connectedMng.connectedId(), user.idx(), user.corp().idx());
+
+		normal.setKey("CF-00000"); // 이상 유무와 상관없이 처리
+		normal.setStatus(true);
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(normal)
+				.data(null).build());
+	}
+
+	@SneakyThrows
+	@Transactional(rollbackFor = Exception.class)
+	public void ProcAddConnectedId(JSONObject jsonObject, String connectedId, Long idxCorp) {
+		JSONParser jsonParse = new JSONParser();
+		String strResultCode = jsonObject.get("result").toString();
+		String strResultData = jsonObject.get("data").toString();
+
+		String code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
+		if(code.equals("CF-00000") || code.equals("CF-04012")) {
+			JSONArray successList = (JSONArray)(((JSONObject) jsonParse.parse(strResultData)).get("successList"));
+			successList.forEach(object -> {
+				JSONObject obj = (JSONObject) object;
+				repoResConCorpList.save(
+						ResConCorpList.builder()
+								.organization(GowidUtils.getEmptyStringToString(obj, "organization"))
+								.businessType(GowidUtils.getEmptyStringToString(obj, "businessType"))
+								.clientType(GowidUtils.getEmptyStringToString(obj, "clientType"))
+								.code(GowidUtils.getEmptyStringToString(obj, "code"))
+								.countryCode(GowidUtils.getEmptyStringToString(obj, "countryCode"))
+								.extraMessage(GowidUtils.getEmptyStringToString(obj, "extraMessage"))
+								.loginType(GowidUtils.getEmptyStringToString(obj, "loginType"))
+								.message(GowidUtils.getEmptyStringToString(obj, "message"))
+								.connectedId(connectedId)
+								.idxCorp(idxCorp)
+								.build()
+				);
+			});
+		}
+	}
+
+	@SneakyThrows
+	public ResponseEntity ProcDeleteConnectedId(String connectedId, String organization, String loginType, String businessType){
+
+		HashMap<String, Object> bodyMap = new HashMap<>();
+		List<HashMap<String, Object>> list = new ArrayList<>();
+		HashMap<String, Object> accountMap1;
+		String delUrlPath = urlPath + CommonConstant.DELETE_ACCOUNT;
+		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
+
+		accountMap1 = new HashMap<>();
+		accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+		accountMap1.put("businessType",	businessType);  // 업무구분코드
+		accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
+		accountMap1.put("organization",	organization);// 기관코드
+		accountMap1.put("loginType",  	loginType);   // 로그인타입 (0: 인증서, 1: ID/PW)
+		list.add(accountMap1);
+
+		bodyMap.put("accountList", list);
+		bodyMap.put(CommonConstant.CONNECTED_ID, connectedId );
+		String strObject = ApiRequest.request(delUrlPath, bodyMap);
+		JSONParser jsonParse = new JSONParser();
+		JSONObject jsonObject = (JSONObject)jsonParse.parse(strObject);
+		String strResultCode = jsonObject.get("result").toString();
+		String code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().normal(normal).build());
+	}
+
+	@SneakyThrows
+	@Transactional(rollbackFor = Exception.class)
+	public void saveConnectedId(Common.Account dto, JSONObject jsonObject, String connectedId,Long idxUser, Long idxCorp) {
+		JSONParser jsonParse = new JSONParser();
+		String strResultCode = jsonObject.get("result").toString();
+		String code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
+		if(code.equals("CF-00000") || code.equals("CF-04012")) {
+			repoConnectedMng.save(ConnectedMng.builder()
+					.connectedId(connectedId)
+					.idxUser(idxUser)
+					.idxCorp(idxCorp)
+					.name(dto.getName())
+					.startDate(dto.getStartDate())
+					.endDate(dto.getEndDate())
+					.desc1(dto.getDesc1())
+					.desc2(dto.getDesc2())
+					.build()
+			);
+		}
 	}
 }

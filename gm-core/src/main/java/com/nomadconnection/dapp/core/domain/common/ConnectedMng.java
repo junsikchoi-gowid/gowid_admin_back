@@ -28,6 +28,7 @@ public class ConnectedMng extends BaseTime {
 	@Column(nullable = false)
 	private Long idxUser;
 
+	private Long idxCorp;
 	private String name;
 	private String startDate;
 	private String endDate;
