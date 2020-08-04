@@ -702,7 +702,7 @@ public class ShinhanCardService {
     }
 
     private Integer updateD1000Ceo(D1000 d1000, Long idx_corp, CardIssuanceDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
-        if (d1000 != null) {
+        if (d1000 == null) {
             return ceoNum;
         }
 
