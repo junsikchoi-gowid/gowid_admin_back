@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.embed.BankAccount;
+import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicInsert;
@@ -35,6 +36,10 @@ public class CardIssuanceInfo extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "FK_Corp_cardIssuance"))
     private Corp corp; // 소속법인
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_cardIssuance"))
+    private User user; // 소속법인
 
     @Embedded
     private Venture venture; //벤처기업정보

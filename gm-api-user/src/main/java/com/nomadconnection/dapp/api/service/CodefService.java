@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.common.Const;
-import com.nomadconnection.dapp.api.config.CronConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.dto.GwUploadDto;
@@ -24,6 +23,7 @@ import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
+import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
@@ -49,19 +49,13 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.File;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -88,6 +82,7 @@ public class CodefService {
 	private final D1520Repository repoD1520;
 	private final D1530Repository repoD1530;
 	private final ResConCorpListRepository repoResConCorpList;
+	private final CardIssuanceInfoRepository repoCardIssuance;
 
 
 	private final CommonCodeDetailRepository repoCommonCodeDetail;
@@ -1261,7 +1256,13 @@ public class CodefService {
 						.d057(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")    // 신청관리자명
 						.build());
 
-				// repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
+//				repoCardIssuance.save(CardIssuanceInfo.builder().corp(corp).build());
+
+				CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.getTopByUserAndDisabledFalseOrderByIdxDesc(user);
+				if (!ObjectUtils.isEmpty(cardIssuanceInfo)) {
+					repoCardIssuance.save(cardIssuanceInfo.corp(corp));
+				}
+
 			}else{
 
 				if(connectedId != null) {
@@ -1757,7 +1758,7 @@ public class CodefService {
 				() -> new RuntimeException("UserNotFound")
 		);
 
-		List<String> listCorp = new ArrayList<>();;
+		List<String> listCorp = new ArrayList<>();
 		repoResConCorpList.findByBusinessTypeAndIdxCorp(CommonConstant.BUSINESSTYPE, user.corp().idx()).forEach(
 				resConCorpList -> {
 					listCorp.add(resConCorpList.organization()); }

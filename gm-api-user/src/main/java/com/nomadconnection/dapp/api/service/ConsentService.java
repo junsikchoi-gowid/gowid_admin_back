@@ -142,11 +142,12 @@ public class ConsentService {
             );
         }
 
-        repoCardIssuance.save(CardIssuanceInfo.builder()
+        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.save(CardIssuanceInfo.builder()
                 .corp(user.corp())
+                .user(user)
                 .cardCompany(dto.getCompanyCode())
                 .build());
 
-        return ResponseEntity.ok().body(BusinessResponse.builder().build());
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(cardIssuanceInfo).build());
     }
 }
