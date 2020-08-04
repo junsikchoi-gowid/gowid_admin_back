@@ -23,8 +23,12 @@ public class ApiCodef{
         String createUrlPath = apDomain + targetUrl;
 
         ArrayList<String> arrayList = new ArrayList<>();
-        listCorp.forEach( l -> { arrayList.add(l.toString());});
-        String[] istCorpString = arrayList.toArray(new String[listCorp.size()]);
+        String[] istCorpString = new String[0];
+
+        if(listCorp != null) {
+            istCorpString = arrayList.toArray(new String[listCorp.size()]);
+            listCorp.forEach(l -> {arrayList.add(l.toString());});
+        }
 
         if(type.equals(CommonConstant.BUSINESSTYPE) && listCorp == null){
             istCorpString = CommonConstant.LISTBANK;

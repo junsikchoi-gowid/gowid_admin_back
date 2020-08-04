@@ -853,7 +853,7 @@ public class CodefService {
 								.certFile(dto.getCertFile())
 								.password1(dto.getPassword1())
 								.build()
-						, finalConnectedId, CommonConstant.API_DOMAIN, CommonConstant.ADD_ACCOUNT, null, "BANK");
+						, finalConnectedId, CommonConstant.API_DOMAIN, CommonConstant.ADD_ACCOUNT, null, CommonConstant.BUSINESSTYPE);
 				ProcAddConnectedId(jsonObject, finalConnectedId, user.corp().idx());
 
 				// 카드사 추가
@@ -862,7 +862,7 @@ public class CodefService {
 								.certFile(dto.getCertFile())
 								.password1(dto.getPassword1())
 								.build()
-						, finalConnectedId, CommonConstant.API_DOMAIN, CommonConstant.ADD_ACCOUNT, null, "CARD");
+						, finalConnectedId, CommonConstant.API_DOMAIN, CommonConstant.ADD_ACCOUNT, null, CommonConstant.CARDTYPE);
 				ProcAddConnectedId(jsonObject, finalConnectedId, user.corp().idx());
 
 			}else{
