@@ -853,7 +853,7 @@ public class CodefService {
 								.password1(dto.getPassword1())
 								.build()
 						, finalConnectedId, CommonConstant.API_DOMAIN, CommonConstant.ADD_ACCOUNT, null, CommonConstant.BUSINESSTYPE);
-				ProcAddConnectedId(jsonObject, finalConnectedId, user.corp().idx());
+				ProcAddConnectedId(jsonObject, finalConnectedId, null);
 
 				// 카드사 추가
 				jsonObject = ApiCodef.registerCodef(
@@ -862,7 +862,7 @@ public class CodefService {
 								.password1(dto.getPassword1())
 								.build()
 						, finalConnectedId, CommonConstant.API_DOMAIN, CommonConstant.ADD_ACCOUNT, null, CommonConstant.CARDTYPE);
-				ProcAddConnectedId(jsonObject, finalConnectedId, user.corp().idx());
+				ProcAddConnectedId(jsonObject, finalConnectedId, null);
 
 			}else{
 				if(connectedId != null) {
@@ -1806,7 +1806,7 @@ public class CodefService {
 								.loginType(GowidUtils.getEmptyStringToString(obj, "loginType"))
 								.message(GowidUtils.getEmptyStringToString(obj, "message"))
 								.connectedId(connectedId)
-								.idxCorp(idxCorp)
+								// .idxCorp(idxCorp)
 								.build()
 				);
 			});
