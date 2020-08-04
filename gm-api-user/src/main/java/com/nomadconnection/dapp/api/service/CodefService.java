@@ -842,7 +842,6 @@ public class CodefService {
 									.loginType(GowidUtils.getEmptyStringToString(obj, "loginType"))
 									.message(GowidUtils.getEmptyStringToString(obj, "message"))
 									.connectedId(finalConnectedId)
-									.idxCorp(user.corp().idx())
 									.build()
 					);
 				});
