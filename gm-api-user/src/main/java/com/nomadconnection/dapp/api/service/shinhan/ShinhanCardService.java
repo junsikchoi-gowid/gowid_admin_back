@@ -845,6 +845,9 @@ public class ShinhanCardService {
     }
 
     private CardIssuanceDto.CorporationRes getCorporationRes(CardIssuanceInfo cardIssuanceInfo) {
+        if (ObjectUtils.isEmpty(cardIssuanceInfo.corp())) {
+            return null;
+        }
         CardIssuanceDto.CorporationRes corporationRes = CardIssuanceDto.CorporationRes.from(cardIssuanceInfo.corp(), cardIssuanceInfo.idx());
         if (!ObjectUtils.isEmpty(corporationRes.getBusinessCode())) {
             CommonCodeDetail codeDetailData = repoCodeDetail.getByCode1AndCode5(corporationRes.getBusinessCode().substring(0, 1), corporationRes.getBusinessCode().substring(1));
