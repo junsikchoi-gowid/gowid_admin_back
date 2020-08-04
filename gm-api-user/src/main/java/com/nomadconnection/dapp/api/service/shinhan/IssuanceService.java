@@ -336,6 +336,7 @@ public class IssuanceService {
         d1530.setD001(applyDate);   // 접수일자
         d1530.setD002(applyNo);     // 순번
         d1530.setD018(CommonUtil.cutString(d1530.getD018(), 10));   // 발행할 주식 총수 10자 컷
+        d1530.setD024(CommonUtil.cutString(d1530.getD024(), 10));
 
         // 발행할주식의총수_변경일자', '발행할주식의총수_등기일자 빈값일때 => "법인성립연월일"로 입력
         if (StringUtils.isEmpty(d1530.getD019())) {
