@@ -13,9 +13,11 @@ import java.util.Optional;
 @Repository
 public interface RiskConfigRepository extends JpaRepository<RiskConfig, Long> {
 
-    Optional<RiskConfig> findByUserAndEnabled(User user, boolean enabled);
+    Optional<RiskConfig> findByUserAndEnabled(User user, boolean isEnabled);
 
     Optional<RiskConfig> findByCorpAndEnabled(Corp corp, boolean enabled);
+
+    RiskConfig getTopByCorpAndEnabled(Corp corp, boolean enabled);
 
     @Modifying
     @Query(value = "UPDATE RiskConfig r SET r.idxUser = :idxUser, r.idxCorp = :idxCorp WHERE r.idx = :idx", nativeQuery = true)

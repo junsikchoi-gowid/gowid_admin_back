@@ -342,6 +342,7 @@ public class RiskService {
 		return repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD()) + "";
 	}
 
+	@Transactional(readOnly = true)
 	private User findUser(Long idx_user) {
 		return repoUser.findById(idx_user).orElseThrow(
 				() -> UserNotFoundException.builder()
@@ -636,6 +637,18 @@ public class RiskService {
 		repoD1400.save(d1400);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().build());
+	}
+
+	@Transactional(readOnly = true)
+	public ResponseEntity getGrantLimit(Long idxUser) {
+
+		User user = repoUser.findById(idxUser).orElseThrow(
+				() -> UserNotFoundException.builder().build()
+		);
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().data(
+				repoRiskConfig.getTopByCorpAndEnabled(user.corp(),true).grantLimit()
+		).build());
 	}
 }
 

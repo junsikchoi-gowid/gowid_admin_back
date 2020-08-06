@@ -33,12 +33,10 @@ public class RiskController {
 		public static final String SAVE45 = "/save45";			// 리스크
 		public static final String RISKCONFIG = "/riskconfig";			// 리스크
 		public static final String CARD_LIMIT = "/cardLimit";
+		public static final String GRANT_LIMIT = "/grantLimit";
 	}
 
-	private final Boolean boolDebug = true;
 	private final RiskService service;
-	private final AuthService serviceAuth;
-	private final UserService serviceUser;
 
 	@ApiOperation(value = "리스크 저장", notes = "" + "\n")
 	@GetMapping( URI.RISK )
@@ -77,5 +75,16 @@ public class RiskController {
 		}
 
 		return ResponseEntity.ok().body(service.getCardLimit(user.idx()));
+	}
+
+	@ApiOperation(value = "부여 한도 금액 조회")
+	@GetMapping(URI.GRANT_LIMIT)
+	public ResponseEntity<String> getGrantLimit(
+			@ApiIgnore @CurrentUser CustomUser user) {
+		if (log.isInfoEnabled()) {
+			log.info("([ getGrantLimit ]) $user='{}''", user);
+		}
+
+		return service.getGrantLimit(user.idx());
 	}
 }

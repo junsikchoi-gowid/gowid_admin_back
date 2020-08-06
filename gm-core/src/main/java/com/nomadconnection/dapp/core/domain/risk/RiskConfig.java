@@ -17,8 +17,8 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@DynamicUpdate
 @DynamicInsert
+@DynamicUpdate
 public class RiskConfig extends BaseTime {
 
 	@Id
@@ -35,18 +35,42 @@ public class RiskConfig extends BaseTime {
     @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_RiskConfig_User"))
     private User user; // 유저정보
 
-    private boolean ceoGuarantee; // 대표이사 연대보증 여부
-    private double depositGuarantee; // 요구 보증금
-    private boolean depositPayment; // 보증금 납입 여부
-    private boolean cardIssuance; // 카드발급여부
-    private boolean ventureCertification; // 벤처인증여부 (벤처기업확인서 보유여부)
-    private boolean vcInvestment; // 10억원 이상의 vc투자여부
-    private boolean enabled;
-    private Boolean isStockHold25; // 25%이상의 지분을 보유한 개인여부
-    private Boolean isStockholderPersonal; // 1대주주 개인여부
-    private Boolean isStockholderList; // 1대주주 법인의 주주명부 보유여부
+    @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '대표이사 연대보증 여부'")
+    private boolean ceoGuarantee;
 
-	private String hopeLimit; // 희망한도
-	private String calculatedLimit; // 계산한도
-	private String grantLimit; // 부여한도
+    @Column(columnDefinition = "double DEFAULT NULL COMMENT '요구보증금'")
+    private double depositGuarantee;
+
+    @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '보증금 납입 여부'")
+    private boolean depositPayment;
+
+    @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '카드발급여부'")
+    private boolean cardIssuance;
+
+    @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '벤처인증여부 (벤처기업확인서 보유여부)'")
+    private boolean ventureCertification;
+
+    @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '10억원 이상의 vc투자여부'")
+    private boolean vcInvestment;
+
+    @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '사용유무'")
+    private boolean enabled;
+
+    @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '25%이상의 지분을 보유한 개인여부'")
+    private boolean isStockHold25;
+
+    @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '1대주주 개인여부'")
+    private boolean isStockholderPersonal;
+
+    @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '1대주주 법인의 주주명부 보유여부'")
+    private boolean isStockholderList;
+
+    @Column(columnDefinition = "varchar(255) NOT NULL COMMENT '희망한도'")
+	private String hopeLimit;
+
+    @Column(columnDefinition = "varchar(255) NOT NULL COMMENT '계산한도'")
+	private String calculatedLimit;
+
+    @Column(columnDefinition = "varchar(255) NOT NULL COMMENT '부여한도'")
+	private String grantLimit;
 }
