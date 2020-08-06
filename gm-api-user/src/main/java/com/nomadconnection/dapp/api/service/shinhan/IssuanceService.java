@@ -151,18 +151,16 @@ public class IssuanceService {
 
     @Async
     void procBpr(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
-        issCommonService.saveProgressFailed(userIdx, IssuanceProgressType.P_IMG);
-        for (int i = 0; i < 4; i++) {
-            try {
-                Thread.sleep(5000L);
-                if (proc3000(userCorp, resultOfD1200, userIdx)) {
-                    issCommonService.saveProgressSuccess(userIdx, IssuanceProgressType.P_IMG);
-                    sendReceiptEmail(resultOfD1200);
-                    return;
-                }
-            } catch (Exception e) {
-                log.error("[procBpr] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
+        try {
+            Thread.sleep(5000L);
+            issCommonService.saveProgressFailed(userIdx, IssuanceProgressType.P_IMG);
+            if (proc3000(userCorp, resultOfD1200, userIdx)) {
+                issCommonService.saveProgressSuccess(userIdx, IssuanceProgressType.P_IMG);
+                sendReceiptEmail(resultOfD1200);
+                return;
             }
+        } catch (Exception e) {
+            log.error("[procBpr] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
         }
     }
 
@@ -336,7 +334,18 @@ public class IssuanceService {
         d1530.setD001(applyDate);   // 접수일자
         d1530.setD002(applyNo);     // 순번
         d1530.setD018(CommonUtil.cutString(d1530.getD018(), 10));   // 발행할 주식 총수 10자 컷
+
+        // 발행주식현황_종류 10자 컷
+        d1530.setD022(CommonUtil.cutString(d1530.getD022(), 10));
         d1530.setD024(CommonUtil.cutString(d1530.getD024(), 10));
+        d1530.setD026(CommonUtil.cutString(d1530.getD026(), 10));
+        d1530.setD028(CommonUtil.cutString(d1530.getD028(), 10));
+        d1530.setD030(CommonUtil.cutString(d1530.getD030(), 10));
+        d1530.setD032(CommonUtil.cutString(d1530.getD032(), 10));
+        d1530.setD034(CommonUtil.cutString(d1530.getD034(), 10));
+        d1530.setD036(CommonUtil.cutString(d1530.getD036(), 10));
+        d1530.setD038(CommonUtil.cutString(d1530.getD038(), 10));
+        d1530.setD040(CommonUtil.cutString(d1530.getD040(), 10));
 
         // 발행할주식의총수_변경일자', '발행할주식의총수_등기일자 빈값일때 => "법인성립연월일"로 입력
         if (StringUtils.isEmpty(d1530.getD019())) {
@@ -384,6 +393,19 @@ public class IssuanceService {
         // d43(신청관리자이메일주소) => 사용자계정
         d1000.setD043(userCorp.user().email());
 
+        if (!StringUtils.hasText(d1000.getD059())) {
+            d1000.setD059(d1000.getD010());
+            d1000.setD060(d1000.getD012());
+            d1000.setD062(d1000.getD013());
+            d1000.setD065("00000");
+
+            if (ENC_SEED128_ENABLE) {
+                d1000.setD061(Seed128.decryptEcb(d1000.getD011().substring(0, 6)));
+            } else {
+                d1000.setD061(d1000.getD011().substring(0, 6));
+            }
+        }
+
         // 연동
         DataPart1000 requestRpc = new DataPart1000();
         BeanUtils.copyProperties(d1000, requestRpc);
@@ -418,6 +440,19 @@ public class IssuanceService {
 
         d1400.setD061("00");                        // 신청관리자내선번호 => 02 로 하드코딩
         d1400.setD065(userCorp.user().email());     // 신청관리자이메일주소 => 사용자계정
+
+        if (!StringUtils.hasText(d1400.getD019())) {
+            d1400.setD019(d1400.getD032());
+            d1400.setD020(d1400.getD034());
+            d1400.setD022(d1400.getD035());
+            d1400.setD024("00000");
+
+            if (ENC_SEED128_ENABLE) {
+                d1400.setD021(Seed128.decryptEcb(d1400.getD033().substring(0, 6)));
+            } else {
+                d1400.setD021(d1400.getD033().substring(0, 6));
+            }
+        }
 
         // 연동
         DataPart1400 requestRpc = new DataPart1400();
