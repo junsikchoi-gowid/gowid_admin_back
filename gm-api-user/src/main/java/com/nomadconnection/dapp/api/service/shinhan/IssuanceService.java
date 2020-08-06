@@ -398,12 +398,7 @@ public class IssuanceService {
             d1000.setD060(d1000.getD012());
             d1000.setD062(d1000.getD013());
             d1000.setD065("00000");
-
-            if (ENC_SEED128_ENABLE) {
-                d1000.setD061(Seed128.decryptEcb(d1000.getD011().substring(0, 6)));
-            } else {
-                d1000.setD061(d1000.getD011().substring(0, 6));
-            }
+            d1000.setD061(Seed128.decryptEcb(d1000.getD011()).substring(0, 6));
         }
 
         // 연동
@@ -446,12 +441,7 @@ public class IssuanceService {
             d1400.setD020(d1400.getD034());
             d1400.setD022(d1400.getD035());
             d1400.setD024("00000");
-
-            if (ENC_SEED128_ENABLE) {
-                d1400.setD021(Seed128.decryptEcb(d1400.getD033().substring(0, 6)));
-            } else {
-                d1400.setD021(d1400.getD033().substring(0, 6));
-            }
+            d1400.setD021(Seed128.decryptEcb(d1400.getD033()).substring(0, 6));
         }
 
         // 연동
