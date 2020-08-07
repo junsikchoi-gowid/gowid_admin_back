@@ -3,13 +3,18 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.AuthDto;
+import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
+import com.nomadconnection.dapp.core.domain.shinhan.IssuanceProgress;
+import com.nomadconnection.dapp.core.domain.shinhan.IssuanceProgressType;
+import com.nomadconnection.dapp.core.domain.shinhan.IssuanceStatusType;
 import com.nomadconnection.dapp.core.domain.user.Authority;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.domain.user.VerificationCode;
@@ -42,7 +47,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings("unused")
 public class AuthService {
 
 	private final EmailConfig config;
@@ -57,6 +61,7 @@ public class AuthService {
 	private final PasswordEncoder encoder;
 	private final VerificationCodeRepository repoVerificationCode;
 	private final CardIssuanceInfoRepository repoCardIssuance;
+	private final IssuanceProgressRepository issuanceProgressRepository;
 
 	/**
 	 * 아이디(이메일) 존재여부 확인
@@ -332,6 +337,23 @@ public class AuthService {
 						.refreshMapping(refreshMapping)
 						.idxCardIssuance(idxCardIssuance.get())
 						.build())
+				.issuanceProgressRes(issuanceProgress(user))
+				.build();
+	}
+
+	private UserDto.IssuanceProgressRes issuanceProgress(User user) {
+		IssuanceProgress issuanceProgress = issuanceProgressRepository.findById(user.idx()).orElse(
+				IssuanceProgress.builder()
+						.userIdx(user.idx())
+						.corpIdx(!ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null)
+						.progress(IssuanceProgressType.NOT_SIGNED)
+						.status(IssuanceStatusType.SUCCESS)
+						.build()
+		);
+
+		return UserDto.IssuanceProgressRes.builder()
+				.progress(issuanceProgress.getProgress())
+				.status(issuanceProgress.getStatus())
 				.build();
 	}
 
