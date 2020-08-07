@@ -60,10 +60,10 @@ public class RiskConfig extends BaseTime {
     private boolean isStockHold25;
 
     @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '1대주주 개인여부'")
-    private boolean isStockholderPersonal;
+	private Boolean isStockholderPersonal;
 
     @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '1대주주 법인의 주주명부 보유여부'")
-    private boolean isStockholderList;
+	private Boolean isStockholderList;
 
     @Column(columnDefinition = "varchar(255) NOT NULL COMMENT '희망한도'")
 	private String hopeLimit;
