@@ -60,7 +60,7 @@ public class EmailService {
 				helper.setFrom(emailConfig.getSender());
 				helper.setTo(emailConfig.getSender());
 				helper.setSubject("[신한카드 접수완료] " + emailDto.getCompanyName());
-				helper.setText(templateEngine.process("mail-template-receipt-approve", context), true);
+				helper.setText(templateEngine.process("mail-template-issuance-receipt", context), true);
 			}
 		};
 		sender.send(preparator);
