@@ -6,20 +6,33 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CeoType {
-    SINGLE("단일대표", "1"),
-    EACH("각기대표", "2"),
-    PUBLIC("공동대표", "3"),
+    SINGLE("단일대표", "1", "1"),
+    EACH("각기대표", "2", "3"),
+    PUBLIC("공동대표", "3", "2"),
     ;
 
     private String description;
-    private String code;
+    private String shinhanCode;
+    private String lotteCode;
 
-    public static CeoType from(String code) {
-        if (code.equals("3")) {
+    public static CeoType fromShinhan(String shinhanCode) {
+        if (shinhanCode.equals("3")) {
             return PUBLIC;
-        } else if (code.equals("2")) {
+        } else if (shinhanCode.equals("2")) {
             return EACH;
-        } else if (code.equals("1")) {
+        } else if (shinhanCode.equals("1")) {
+            return SINGLE;
+        } else {
+            return null;
+        }
+    }
+
+    public static CeoType fromLotte(String lotteCode) {
+        if (lotteCode.equals("3")) {
+            return EACH;
+        } else if (lotteCode.equals("2")) {
+            return PUBLIC;
+        } else if (lotteCode.equals("1")) {
             return SINGLE;
         } else {
             return null;

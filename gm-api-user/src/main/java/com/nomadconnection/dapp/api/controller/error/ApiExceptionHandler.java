@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.api.controller.error;
 
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.response.ApiResponse;
+import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import org.springframework.http.HttpStatus;

@@ -8,6 +8,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -93,5 +94,13 @@ public class CommonUtil {
             return source.substring(0, length);
         }
         return source;
+    }
+
+    public static String divisionString(String source, int division) {
+        if (StringUtils.isEmpty(source)) {
+            return source;
+        }
+        BigDecimal covertNumber = new BigDecimal(source);
+        return covertNumber.divide(BigDecimal.valueOf(division)).toPlainString();
     }
 }

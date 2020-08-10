@@ -3,7 +3,7 @@ package com.nomadconnection.dapp.api.controller;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.AdminDto;
 import com.nomadconnection.dapp.api.dto.RiskDto;
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.response.ApiResponse;
+import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.AdminService;
 import com.nomadconnection.dapp.api.service.AuthService;

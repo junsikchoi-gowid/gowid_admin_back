@@ -1,8 +1,9 @@
 package com.nomadconnection.dapp.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1600;
+import com.nomadconnection.dapp.api.dto.shinhan.DataPart1600;
 import com.nomadconnection.dapp.api.util.MaskingUtils;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
@@ -34,6 +35,22 @@ public class CardIssuanceDto {
         @ApiModelProperty("사업장 전화번호 (ex. 00-000-0000)")
         @NotEmpty
         private String corNumber;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RegisterCorporationExtend {
+
+        @ApiModelProperty("가상통화 취급여부")
+        private Boolean isVirtualCurrency;
+
+        @ApiModelProperty("상장된 법인여부")
+        private Boolean isListedCompany;
+
+        @ApiModelProperty("상장된 법인코드")
+        private String listedCompanyCode;
     }
 
     @Data
@@ -96,7 +113,6 @@ public class CardIssuanceDto {
     public static class RegisterCard {
 
         @ApiModelProperty("희망한도")
-        @NotEmpty
         private String amount;
 
         @ApiModelProperty("신청수량")
@@ -153,10 +169,6 @@ public class CardIssuanceDto {
         @NotEmpty
         private String ceoSeqNo;
 
-        @ApiModelProperty("신분증검증방법코드")
-        @NotEmpty
-        private String idCode;
-
         @ApiModelProperty("고객한글명")
         @NotEmpty
         private String korName;
@@ -176,8 +188,12 @@ public class CardIssuanceDto {
         @ApiModelProperty("일련번호 : 본인신분증위조방지코드")
         private String driverCode;
 
+        @ApiModelProperty("신분증 종류 (RESIDENT, DRIVER, FOREIGN)")
+        private CertificationType identityType;
+
+
+        //TODO: delete
         @ApiModelProperty("신분증종류 (ID_CARD, DRIVE_LICENCE)")
-        @NotNull
         private IDType idType;
 
         public enum IDType {
@@ -185,19 +201,8 @@ public class CardIssuanceDto {
             DRIVE_LICENCE
         }
 
-//        @Getter
-//        public enum CeoSeqType {
-//            CEO_1("1"),
-//            CEO_2("2"),
-//            CEO_3("3");
-//
-//            private final String code;
-//
-//            CeoSeqType(String code) {
-//                this.code = code;
-//            }
-//        }
-
+        @ApiModelProperty("신분증검증방법코드")
+        private String idCode;
     }
 
     @Data
@@ -235,6 +240,21 @@ public class CardIssuanceDto {
 
         @ApiModelProperty("신분증 종류 (RESIDENT, DRIVER, FOREIGN")
         private CertificationType identityType;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HopeLimitReq {
+
+        @ApiModelProperty("카드발급정보 식별자")
+        @NotNull
+        private Long cardIssuanceInfoIdx;
+
+        @ApiModelProperty("희망한도")
+        @NotEmpty
+        private String hopeLimit;
     }
 
     @Data
@@ -497,8 +517,8 @@ public class CardIssuanceDto {
     @AllArgsConstructor
     public static class CeoTypeRes {
 
-        @ApiModelProperty("대표종류(1:단일, 2:개별, 3:공동)")
-        private String type;
+        @ApiModelProperty("대표종류(SINGLE:단일, EACH:개별, PUBLIC:공동)")
+        private CeoType type;
 
         @ApiModelProperty("대표수")
         private Integer count;
@@ -538,11 +558,14 @@ public class CardIssuanceDto {
         @ApiModelProperty("성별(1:남자, 2:여자)")
         private Long genderCode;
 
-        @ApiModelProperty("대표종류(1:단일, 2:개별, 3:공동)")
-        private String ceoType;
+        @ApiModelProperty("대표종류(SINGLE:단일, EACH:개별, PUBLIC:공동)")
+        private CeoType ceoType;
 
         @ApiModelProperty("휴대폰인증 고유아이디")
         private String deviceId;
+
+        @ApiModelProperty("대표자 입력순서")
+        private Integer ceoNumber;
 
         public static CeoRes from(CeoInfo ceoInfo) {
             if (ceoInfo != null) {
@@ -556,7 +579,8 @@ public class CardIssuanceDto {
                         .phoneNumber(ceoInfo.phoneNumber())
                         .birth(ceoInfo.birth())
                         .genderCode(ceoInfo.genderCode())
-                        .ceoType(ceoInfo.type() != null ? ceoInfo.type().getCode() : null)
+                        .ceoType(ceoInfo.type())
+                        .ceoNumber(ceoInfo.ceoNumber())
                         .build();
             }
             return null;
@@ -613,8 +637,11 @@ public class CardIssuanceDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CardIssuanceInfoRes {
+        private String issuanceDepth;
+        private String cardCompany;
         private List<ConsentRes> consentRes;
         private CorporationRes corporationRes;
+        private CorporationExtendRes corporationExtendRes;
         private VentureRes ventureRes;
         private StockholderRes stockholderRes;
         private CardRes cardRes;
@@ -705,9 +732,9 @@ public class CardIssuanceDto {
         @ApiModelProperty("이름")
         private String name;
 
-        public static BusinessType from(CommonCodeDetail code) {
+        public static CardType from(CommonCodeDetail code) {
             if (code != null) {
-                return BusinessType.builder()
+                return CardType.builder()
                         .code(code.code1())
                         .name(code.value1())
                         .build();
@@ -716,7 +743,52 @@ public class CardIssuanceDto {
         }
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ExchangeType {
 
+        @ApiModelProperty("상장거래소코드")
+        private String code;
+
+        @ApiModelProperty("거래소명")
+        private String name;
+
+        public static ExchangeType from(CommonCodeDetail code) {
+            if (code != null) {
+                return ExchangeType.builder()
+                        .code(code.code1())
+                        .name(code.value1())
+                        .build();
+            }
+            return null;
+        }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class IssuanceCardType {
+
+        @ApiModelProperty("코드")
+        private String code;
+
+        @ApiModelProperty("이름")
+        private String name;
+
+        @ApiModelProperty("카드사코드")
+        private String companyCode;
+
+        public static IssuanceCardType from(CardCompany cardCompany) {
+            return IssuanceCardType.builder()
+                    .code(cardCompany.getCode())
+                    .name(cardCompany.getName())
+                    .companyCode(cardCompany.name())
+                    .build();
+        }
+    }
 
     // 1600
     @EqualsAndHashCode(callSuper = true)
@@ -770,6 +842,42 @@ public class CardIssuanceDto {
         @ApiModelProperty("주민등록번호 앞자리")
         @NotEmpty
         private String identificationNumberFront;
+    }
+
+    @Data
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CorporationExtendRes {
+
+        @ApiModelProperty("카드발급정보 식별자")
+        private Long idx;
+
+        @ApiModelProperty("가상통화 취급여부")
+        private Boolean isVirtualCurrency;
+
+        @ApiModelProperty("상장된 법인여부")
+        private Boolean isListedCompany;
+
+        @ApiModelProperty("상장된 법인코드")
+        private String listedCompanyCode;
+
+        @ApiModelProperty("상장된 법인명")
+        private String listedCompanyName;
+
+        public static CorporationExtendRes from(CardIssuanceInfo cardInfo, String listedCompanyName) {
+            if (cardInfo != null && cardInfo.corpExtend() != null) {
+                return CorporationExtendRes.builder()
+                        .idx(cardInfo.idx())
+                        .isVirtualCurrency(cardInfo.corpExtend().isVirtualCurrency())
+                        .isListedCompany(cardInfo.corpExtend().isListedCompany())
+                        .listedCompanyCode(cardInfo.corpExtend().listedCompanyCode())
+                        .listedCompanyName(listedCompanyName)
+                        .build();
+            }
+            return null;
+        }
     }
 
 }

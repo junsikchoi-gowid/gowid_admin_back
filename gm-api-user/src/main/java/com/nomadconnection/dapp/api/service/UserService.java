@@ -6,6 +6,9 @@ import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
+import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
+import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
 import com.nomadconnection.dapp.core.domain.consent.ConsentMapping;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
@@ -22,9 +25,6 @@ import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
-import com.nomadconnection.dapp.core.domain.shinhan.IssuanceProgress;
-import com.nomadconnection.dapp.core.domain.shinhan.IssuanceProgressType;
-import com.nomadconnection.dapp.core.domain.shinhan.IssuanceStatusType;
 import com.nomadconnection.dapp.core.domain.user.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -733,6 +733,7 @@ public class UserService {
 		return ResponseEntity.ok().body(UserDto.IssuanceProgressRes.builder()
 				.progress(issuanceProgress.getProgress())
 				.status(issuanceProgress.getStatus())
+				.cardCompany(!ObjectUtils.isEmpty(issuanceProgress.getCardCompany()) ? issuanceProgress.getCardCompany().name() : CardCompany.SHINHAN.name())
 				.build());
 	}
 
@@ -748,6 +749,19 @@ public class UserService {
 		}
 	}
 
+	public void saveIssuanceProgress(Long userIdx, IssuanceProgressType progressType, IssuanceStatusType statusType, CardCompany cardCompany) {
+		try {
+			issuanceProgressRepository.save(IssuanceProgress.builder()
+					.userIdx(userIdx)
+					.corpIdx(getCorpIdx(userIdx))
+					.progress(progressType)
+					.cardCompany(cardCompany)
+					.status(statusType).build());
+		} catch (Exception e) {
+			log.warn("[saveIssuanceProgress] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
+		}
+	}
+
 	@Transactional(noRollbackFor = Exception.class)
 	public void saveIssuanceProgFailed(Long userIdx, IssuanceProgressType progressType) {
 		saveIssuanceProgress(userIdx, progressType, IssuanceStatusType.FAILED);
@@ -756,6 +770,16 @@ public class UserService {
 	@Transactional(noRollbackFor = Exception.class)
 	public void saveIssuanceProgSuccess(Long userIdx, IssuanceProgressType progressType) {
 		saveIssuanceProgress(userIdx, progressType, IssuanceStatusType.SUCCESS);
+	}
+
+	@Transactional(noRollbackFor = Exception.class)
+	public void saveIssuanceProgFailed(Long userIdx, IssuanceProgressType progressType, CardCompany cardCompany) {
+		saveIssuanceProgress(userIdx, progressType, IssuanceStatusType.FAILED, cardCompany);
+	}
+
+	@Transactional(noRollbackFor = Exception.class)
+	public void saveIssuanceProgSuccess(Long userIdx, IssuanceProgressType progressType, CardCompany cardCompany) {
+		saveIssuanceProgress(userIdx, progressType, IssuanceStatusType.SUCCESS, cardCompany);
 	}
 
 	private Long getCorpIdx(Long userIdx) {

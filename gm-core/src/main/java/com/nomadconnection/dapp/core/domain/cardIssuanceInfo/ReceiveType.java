@@ -6,10 +6,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ReceiveType {
-    POST("211"),
-    EMAIL("233"),
-    ALL("234"),
+    POST("211", "1"),
+    EMAIL("233", "2"),
+    ALL("234", "3"),
     ;
 
-    private String code;
+    private String shinhanCode;
+    private String lotteCode;
 }

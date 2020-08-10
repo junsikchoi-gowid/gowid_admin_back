@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.repository.common.EmailRepository;
 import com.nomadconnection.dapp.core.dto.EmailDto;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class EmailService {
 		sender.send(preparator);
 	}
 
-	public void sendReceiptEmail(String licenseNo) {
+	public void sendReceiptEmail(String licenseNo, CardCompany cardCompany) {
 		EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
 		MimeMessagePreparator preparator = mimeMessage -> {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
@@ -59,7 +60,7 @@ public class EmailService {
 
 				helper.setFrom(emailConfig.getSender());
 				helper.setTo(emailConfig.getSender());
-				helper.setSubject("[신한카드 접수완료] " + emailDto.getCompanyName());
+				helper.setSubject("[" + cardCompany.getName() + " 접수완료] " + emailDto.getCompanyName());
 				helper.setText(templateEngine.process("mail-template-issuance-receipt", context), true);
 			}
 		};

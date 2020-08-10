@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.shinhan;
 
-import com.nomadconnection.dapp.core.domain.shinhan.SignatureHistory;
+import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

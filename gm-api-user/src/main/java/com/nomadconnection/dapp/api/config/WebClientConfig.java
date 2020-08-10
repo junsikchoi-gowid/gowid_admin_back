@@ -12,13 +12,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${gateway.aws.domain}")
-    private String GATEWAY_AWS_DOMAIN;
+    @Value("${gateway.idc.domain}")
+    private String GATEWAY_IDC_DOMAIN;
 
     @Bean
     public WebClient gwClient() {
         return WebClient.builder()
-                .baseUrl(GATEWAY_AWS_DOMAIN)
+                .baseUrl(GATEWAY_IDC_DOMAIN)
                 .build();
     }
 

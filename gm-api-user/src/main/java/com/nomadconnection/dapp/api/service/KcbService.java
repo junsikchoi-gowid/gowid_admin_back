@@ -6,7 +6,6 @@ import com.nomadconnection.dapp.api.dto.KcbDto;
 import com.nomadconnection.dapp.api.exception.ServerError;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -22,12 +21,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class KcbService {
-
-    @Value("${gateway.idc.host}")
-    private String GATEWAY_IDC_HOST;
-
-    @Value("${gateway.idc.protocol}")
-    private String GATEWAY_IDC_PROTOCOL;
 
     private final WebClient gwClient;
     private final ObjectMapper objectMapper;
@@ -47,8 +40,6 @@ public class KcbService {
 
         ClientResponse clientResponse = gwClient.post()
                 .uri(url)
-                .header("x-host", GATEWAY_IDC_HOST)
-                .header("x-protocol", GATEWAY_IDC_PROTOCOL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromObject(dto))
                 .exchange().block();
@@ -74,8 +65,6 @@ public class KcbService {
 
         ClientResponse clientResponse = gwClient.post()
                 .uri(url)
-                .header("x-host", GATEWAY_IDC_HOST)
-                .header("x-protocol", GATEWAY_IDC_PROTOCOL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromObject(dto))
                 .exchange().block();

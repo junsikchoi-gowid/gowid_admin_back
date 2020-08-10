@@ -6,7 +6,6 @@ import com.nomadconnection.dapp.api.dto.GwUploadDto;
 import com.nomadconnection.dapp.api.exception.ServerError;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -25,12 +24,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class GwUploadService {
 
-    @Value("${gateway.idc.host}")
-    private String GATEWAY_IDC_HOST;
-
-    @Value("${gateway.idc.protocol}")
-    private String GATEWAY_IDC_PROTOCOL;
-
     private final WebClient gwClient;
     private final ObjectMapper objectMapper;
 
@@ -48,8 +41,6 @@ public class GwUploadService {
 
         ClientResponse clientResponse = gwClient.post()
                 .uri(url)
-                .header("x-host", GATEWAY_IDC_HOST)
-                .header("x-protocol", GATEWAY_IDC_PROTOCOL)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(BodyInserters.fromMultipartData(params))
                 .exchange().block();
@@ -73,8 +64,6 @@ public class GwUploadService {
 
         ClientResponse clientResponse = gwClient.delete()
                 .uri(url)
-                .header("x-host", GATEWAY_IDC_HOST)
-                .header("x-protocol", GATEWAY_IDC_PROTOCOL)
                 .exchange().block();
 
         GwUploadDto.Response response = responseDataResolver(clientResponse, GwUploadDto.Response.class);

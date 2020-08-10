@@ -39,7 +39,7 @@ public class CardIssuanceInfo extends BaseTime {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_cardIssuance"))
-    private User user; // 소속법인
+    private User user;
 
     @Embedded
     private Venture venture; //벤처기업정보
@@ -67,4 +67,7 @@ public class CardIssuanceInfo extends BaseTime {
 
     @Column(columnDefinition = "varchar(100)  DEFAULT '' COMMENT   '카드발급신청 진행상황'")
     private String issuanceDepth;
+
+    @Embedded
+    private CorpExtend corpExtend;
 }

@@ -2,12 +2,15 @@ package com.nomadconnection.dapp.api.service.shinhan;
 
 import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.CommonPart;
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.DataPart1600;
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
+import com.nomadconnection.dapp.api.dto.shinhan.CommonPart;
+import com.nomadconnection.dapp.api.dto.shinhan.DataPart1600;
+import com.nomadconnection.dapp.api.dto.shinhan.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.core.domain.common.GatewayTransactionIdx;
+import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
+import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1200Repository;
@@ -15,7 +18,8 @@ import com.nomadconnection.dapp.core.domain.repository.shinhan.GatewayTransactio
 import com.nomadconnection.dapp.core.domain.repository.shinhan.GwTranHistRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.shinhan.*;
+import com.nomadconnection.dapp.core.domain.shinhan.D1200;
+import com.nomadconnection.dapp.core.domain.shinhan.GwTranHist;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.RequiredArgsConstructor;

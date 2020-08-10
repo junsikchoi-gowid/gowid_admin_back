@@ -142,6 +142,8 @@ public class ConsentService {
             );
         }
 
+
+        // CardIssuanceInfo 첫 raw 생성시점
         CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.save(CardIssuanceInfo.builder()
                 .corp(user.corp())
                 .user(user)

@@ -1,7 +1,7 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.core.domain.shinhan.IssuanceProgressType;
-import com.nomadconnection.dapp.core.domain.shinhan.IssuanceStatusType;
+import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
+import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
 import com.nomadconnection.dapp.core.domain.user.MemberAuthority;
 import com.nomadconnection.dapp.core.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
@@ -14,7 +14,6 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-@SuppressWarnings({"unused"})
 public class UserDto {
 
 	@ApiModelProperty("선택약관동의여부")
@@ -192,6 +191,9 @@ public class UserDto {
 
 		@ApiModelProperty("상태. DEFAULT:초기상태(실행전), SUCCESS:성공, FAILED:실패")
 		private IssuanceStatusType status;
+
+		@ApiModelProperty("카드사명")
+		private String cardCompany;
 	}
 
 }

@@ -3,19 +3,23 @@ package com.nomadconnection.dapp.api.service.shinhan;
 import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.*;
-import com.nomadconnection.dapp.api.dto.shinhan.gateway.enums.ShinhanGwApiType;
+import com.nomadconnection.dapp.api.dto.shinhan.*;
+import com.nomadconnection.dapp.api.dto.shinhan.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.UserService;
-import com.nomadconnection.dapp.api.service.rpc.ShinhanGwRpc;
+import com.nomadconnection.dapp.api.service.shinhan.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CertificationType;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
+import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
+import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
@@ -85,12 +89,13 @@ public class IssuanceService {
      * 이미지 전송요청
      */
     @Transactional(noRollbackFor = Exception.class)
-    public void issuance(Long userIdx, CardIssuanceDto.IssuanceReq request, Long signatureHistoryIdx) {
+    public void issuance(Long userIdx, CardIssuanceDto.IssuanceReq request, Long signatureHistoryIdx, String depthKey) {
         paramsLogging(request);
         request.setUserIdx(userIdx);
+        CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(request);
         userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED);
         Corp userCorp = getCorpByUserIdx(userIdx);
-        encryptAndSaveD1100(userCorp.idx(), request);
+        encryptAndSaveD1100(userCorp.idx(), cardIssuanceInfo);
         userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.SIGNED);
         issuanceProgressRepository.flush();
 
@@ -120,6 +125,9 @@ public class IssuanceService {
         // BRP 전송(비동기)
         asyncService.run(() -> procBpr(userCorp, resultOfD1200, userIdx));
 
+        if (StringUtils.hasText(depthKey)) {
+            cardIssuanceInfoRepository.save(cardIssuanceInfo.issuanceDepth(depthKey));
+        }
     }
 
     private void saveSignatureHistory(Long signatureHistoryIdx, DataPart1200 resultOfD1200) {
@@ -168,7 +176,7 @@ public class IssuanceService {
         if (!sendReceiptEmailEnable) {
             return;
         }
-        emailService.sendReceiptEmail(resultOfD1200.getD001());
+        emailService.sendReceiptEmail(resultOfD1200.getD001(), CardCompany.SHINHAN);
         log.debug("## receipt email sent. biz no = " + resultOfD1200.getD001());
     }
 
@@ -181,7 +189,7 @@ public class IssuanceService {
         return false;
     }
 
-    public SignatureHistory getSignatureHistory(Long signatureHistoryIdx) {
+    private SignatureHistory getSignatureHistory(Long signatureHistoryIdx) {
         return signatureHistoryRepository.findById(signatureHistoryIdx).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_SERVER_ERROR,
                         "signatureHistory(" + signatureHistoryIdx + ") is not found")
@@ -189,13 +197,12 @@ public class IssuanceService {
     }
 
     // 1100 데이터 저장
-    private void encryptAndSaveD1100(Long corpIdx, CardIssuanceDto.IssuanceReq request) {
+    private void encryptAndSaveD1100(Long corpIdx, CardIssuanceInfo cardIssuanceInfo) {
         D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
 
-        CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(request);
         d1100.setD025(Seed128.encryptEcb(cardIssuanceInfo.bankAccount().getBankAccount()));
         d1100.setD040(Const.ID_VERIFICATION_NO);
         d1100.setD041(Const.ID_VERIFICATION_NO);
@@ -231,7 +238,7 @@ public class IssuanceService {
         shinhanGwRpc.requestBprTransfer(requestRpc, companyIdentityNo, idxUser);
     }
 
-    DataPart1200 proc1200(Corp userCorp) {
+    private DataPart1200 proc1200(Corp userCorp) {
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1200);
         D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (d1200 == null) {
@@ -467,7 +474,7 @@ public class IssuanceService {
         // 연동
         DataPart1700 requestRpc = new DataPart1700();
         BeanUtils.copyProperties(commonPart, requestRpc);
-        requestRpc.setD001(request.getIdCode());
+        requestRpc.setD001(request.getIdentityType().getShinhanCode());
         requestRpc.setD002(request.getKorName());
         requestRpc.setD004(request.getIssueDate());
         requestRpc.setD006(request.getDriverLocal());
@@ -506,9 +513,9 @@ public class IssuanceService {
      * 1700 신분증 위조확인
      */
     @Transactional(rollbackFor = Exception.class)
-    public void verifyCeoIdentification(HttpServletRequest request, Long idxUser, CardIssuanceDto.IdentificationReq dto) {
+    public void verifyCeoIdentification(HttpServletRequest request, Long idxUser, CardIssuanceDto.IdentificationReq dto, String depthKey) {
         Map<String, String> decryptData;
-        if (dto.getIdType().equals(CardIssuanceDto.IdentificationReq.IDType.DRIVE_LICENCE)) {
+        if (dto.getIdentityType().equals(CertificationType.DRIVER)) {
             decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
             dto.setDriverLocal(findShinhanDriverLocalCode(dto.getDriverLocal()));
         } else {
@@ -522,13 +529,17 @@ public class IssuanceService {
             throw BadRequestedException.builder().category(BadRequestedException.Category.INVALID_CEO_IDENTIFICATION).desc(resultOfD1700.getD009()).build();
         }
 
-        save1400(dto, decryptData);
-        save1000(dto, decryptData);
+        CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(dto);
+        save1400(cardIssuanceInfo, dto, decryptData);
+        save1000(cardIssuanceInfo, dto, decryptData);
+
+        if (StringUtils.hasText(depthKey)) {
+            cardIssuanceInfoRepository.save(cardIssuanceInfo.issuanceDepth(depthKey));
+        }
     }
 
     // 1400 테이블에 대표자 주민번호 저장
-    private void save1400(CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
-        CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(dto);
+    private void save1400(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
         D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx());
         if (d1400 == null) {
             String msg = "data of d1400 is not exist(cardIssuanceInfo.idx =" + cardIssuanceInfo.idx() + ")";
@@ -554,8 +565,7 @@ public class IssuanceService {
     }
 
     // 1000 테이블에 대표자1,2,3 주민번호 저장(d11,15,19)
-    private void save1000(CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
-        CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(dto);
+    private void save1000(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
         D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx());
         if (d1000 == null) {
             String msg = "data of d1000 is not exist(cardIssuanceInfo.idx =" + cardIssuanceInfo.idx() + ")";

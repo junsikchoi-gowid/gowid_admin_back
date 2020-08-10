@@ -74,6 +74,7 @@ public class ErrorCode {
 
 		INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "internal server error"),
 
+		// 신한카드
 		EXTERNAL_ERROR_SHINHAN_1200("EXTERNAL_ERROR_SHINHAN_1200", "external error(shinhan - 1200)"),
 		REJECTED_SHINHAN_1200("REJECTED_SHINHAN_1200", "rejected(shinhan - 1200)"),
 		INTERNAL_ERROR_SHINHAN_1200("INTERNAL_ERROR_SHINHAN_1200", "internal error(shinhan - 1200)"),
@@ -118,7 +119,25 @@ public class ErrorCode {
 
 		EXTERNAL_ERROR_SHINHAN_1800("EXTERNAL_ERROR_SHINHAN_1800", "external error(shinhan - 1800)"),
 		REJECTED_SHINHAN_1800("REJECTED_SHINHAN_1800", "rejected(shinhan - 1800) "),
-		INTERNAL_ERROR_SHINHAN_1800("INTERNAL_ERROR_SHINHAN_1800", "internal error(shinhan - 1800)");
+		INTERNAL_ERROR_SHINHAN_1800("INTERNAL_ERROR_SHINHAN_1800", "internal error(shinhan - 1800)"),
+
+		// 롯데카드
+		EXTERNAL_ERROR_LOTTE_1000("EXTERNAL_ERROR_LOTTE_1000", "external error(lotte - 1000)"),
+		REJECTED_LOTTE_1000("REJECTED_LOTTE_1000", "rejected(lotte - 1000) "),
+		INTERNAL_ERROR_LOTTE_1000("INTERNAL_ERROR_LOTTE_1000", "internal error(lotte - 1000)"),
+
+		EXTERNAL_ERROR_LOTTE_1100("EXTERNAL_ERROR_LOTTE_1100", "external error(lotte - 1100)"),
+		REJECTED_LOTTE_1100("REJECTED_LOTTE_1100", "rejected(lotte - 1100) "),
+		INTERNAL_ERROR_LOTTE_1100("INTERNAL_ERROR_LOTTE_1100", "internal error(lotte - 1100)"),
+
+		EXTERNAL_ERROR_LOTTE_1200("EXTERNAL_ERROR_LOTTE_1200", "external error(lotte - 1200)"),
+		REJECTED_LOTTE_1200("REJECTED_LOTTE_1200", "rejected(lotte - 1200)"),
+		INTERNAL_ERROR_LOTTE_1200("INTERNAL_ERROR_LOTTE_1200", "internal error(lotte - 1200)"),
+
+		EXTERNAL_ERROR_LOTTE_BPR_TRANSFER("EXTERNAL_ERROR_LOTTE_BPR_TRANSFER", "external error(lotte - BPR_TRANSFER)"),
+		REJECTED_LOTTE_BPR_TRANSFER("REJECTED_LOTTE_BPR_TRANSFER", "rejected(lotte - BPR_TRANSFER)"),
+		INTERNAL_ERROR_LOTTE_BPR_TRANSFER("INTERNAL_ERROR_LOTTE_BPR_TRANSFER", "internal error(lotte - BPR_TRANSFER)"),
+		;
 
 		private final String code;
 		private final String desc;

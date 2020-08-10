@@ -48,6 +48,12 @@ gateway:
       1700: /shinhan/d1700
       1800: /shinhan/d1800
       bpr-transfer: /shinhan/transfer/images/
+  lotte:
+    uri:
+      1200: /lotte/d1200
+      1100: /lotte/d1100
+      1000: /lotte/d1000
+      image-transfer: /lotte/transfer/images/
 
 ---
 
@@ -85,11 +91,11 @@ tomcat:
     connection-timeout: 60000
 
 gateway:
-  aws:
-    domain: http://10.10.40.171:8080
   idc:
-    host: 10.10.40.171:8080
-    protocol: http
+    domain: http://10.10.40.171:8080
+#  idc:
+#    host: 10.10.40.171:8080
+#    protocol: http
 
 encryption:
   keypad:
@@ -142,11 +148,11 @@ tomcat:
     connection-timeout: 60000
 
 gateway:
-  aws:
-    domain: http://10.10.40.171:8080
   idc:
-    host: 10.10.40.171:8080
-    protocol: http
+    domain: http://10.10.40.171:8080
+#  idc:
+#    host: 10.10.40.171:8080
+#    protocol: http
 
 encryption:
   keypad:
@@ -200,11 +206,11 @@ tomcat:
     connection-timeout: 60000
 
 gateway:
-  aws:
-    domain: http://10.10.20.171:8080
   idc:
-    host: 10.10.20.171:8080
-    protocol: http
+    domain: http://10.10.20.171:8080
+#  idc:
+#    host: 10.10.20.171:8080
+#    protocol: http
 
 encryption:
   keypad:
