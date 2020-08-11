@@ -1,6 +1,6 @@
-package com.nomadconnection.dapp.core.encryption;
+package com.nomadconnection.dapp.core.encryption.shinhan;
 
-import com.nomadconnection.dapp.core.encryption.core.KISA_SEED_ECB;
+import com.nomadconnection.dapp.core.encryption.shinhan.core.KISA_SEED_ECB;
 import com.nomadconnection.dapp.core.utils.EnvUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

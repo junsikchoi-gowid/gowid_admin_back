@@ -27,7 +27,7 @@ import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
-import com.nomadconnection.dapp.core.encryption.Seed128;
+import com.nomadconnection.dapp.core.encryption.lotte.Lotte_Seed128;
 import com.nomadconnection.dapp.secukeypad.EncryptParam;
 import com.nomadconnection.dapp.secukeypad.SecuKeypad;
 import lombok.RequiredArgsConstructor;
@@ -149,11 +149,14 @@ public class LotteCardService {
 		}
 		String[] corNumber = dto.getCorNumber().split("-");
 		return repoD1100.save(d1100
-						.setCpOgEnm(dto.getEngCorName())           //법인영문명
-//				.setCpBtc(dto.getBusinessCode())         //업종코드
-						.setBzplcDdd(corNumber[0])                  //직장전화지역번호
-						.setBzplcExno(corNumber[1])                  //직장전화국번호
-						.setBzplcTlno(corNumber[2])                  //직장전화고유번호
+				.setTkpDdd(Lotte_Seed128.encryptEcb(corNumber[0]))
+				.setTkpExno(Lotte_Seed128.encryptEcb(corNumber[1]))
+				.setTkpTlno(Lotte_Seed128.encryptEcb(corNumber[2]))
+				.setCpOgEnm(dto.getEngCorName())           //법인영문명
+				.setBzplcDdd(corNumber[0])                  //직장전화지역번호
+				.setBzplcExno(corNumber[1])                  //직장전화국번호
+				.setBzplcTlno(corNumber[2])                  //직장전화고유번호
+
 		);
 	}
 
@@ -442,8 +445,9 @@ public class LotteCardService {
 			return d1100;
 		}
 
+		String encryptEmail = Lotte_Seed128.encryptEcb(user.email());
 		d1100.setBllRvpDc(dto.getReceiveType().getLotteCode())
-				.setMlId(!dto.getReceiveType().getLotteCode().equals("1") ? user.email() : null)
+				.setMlId(!dto.getReceiveType().getLotteCode().equals("1") ? encryptEmail : null)
 				.setCpAkLimAm(CommonUtil.divisionString(grantLimit, 10000))
 				.setGowidCalLimAm(CommonUtil.divisionString(calculatedLimit, 10000))
 				.setBzplcPsno(dto.getZipCode())
@@ -453,6 +457,7 @@ public class LotteCardService {
 				.setTkpPsno(dto.getZipCode())
 				.setTkpPnadd(dto.getAddressBasic())
 				.setTkpBpnoAdd(dto.getAddressDetail())
+				.setTkpMlId(encryptEmail)
 				.setTkpNaddYn("N");
 
 		if (!ObjectUtils.isEmpty(dto.getGreenCount()) && !ObjectUtils.isEmpty(dto.getBlackCount())) {
@@ -513,8 +518,8 @@ public class LotteCardService {
 			bankCode = bankCode.substring(bankCode.length() - 3);
 		}
 		return repoD1100.save(d1100
-				.setAcno(Seed128.encryptEcb(account.resAccount()))
-				.setDpwnm(account.resAccountHolder())
+				.setAcno(Lotte_Seed128.encryptEcb(account.resAccount()))
+				.setDpwnm(Lotte_Seed128.encryptEcb(account.resAccountHolder()))
 				.setFtbc(bankCode)
 		);
 	}
@@ -582,15 +587,16 @@ public class LotteCardService {
 
 		String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
 		String driverNum = dto.getDriverLocal() + decryptData.get(EncryptParam.DRIVER_NUMBER);
+		String encryptIdNum = Lotte_Seed128.encryptEcb(idNum);
 		if ("1".equals(dto.getCeoSeqNo())) {
 			d1100.setIdfKndcNm(dto.getIdentityType().getLotteCode());
-			d1100.setIdfNo2(dto.getIdentityType().equals(CertificationType.DRIVER) ? driverNum : idNum);
-			d1100.setDgRrno(idNum);
-			d1100.setTkpRrno(idNum);
+			d1100.setIdfNo2(dto.getIdentityType().equals(CertificationType.DRIVER) ? Lotte_Seed128.encryptEcb(driverNum) : encryptIdNum);
+			d1100.setDgRrno(encryptIdNum);
+			d1100.setTkpRrno(encryptIdNum);
 		} else if ("2".equals(dto.getCeoSeqNo())) {
-			d1100.setDgRrno2(idNum);
+			d1100.setDgRrno2(encryptIdNum);
 		} else if ("3".equals(dto.getCeoSeqNo())) {
-			d1100.setDgRrno3(idNum);
+			d1100.setDgRrno3(encryptIdNum);
 		} else {
 			log.error("invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
 			throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
@@ -677,24 +683,27 @@ public class LotteCardService {
 			return ceoNum;
 		}
 
+		String encryptName = Lotte_Seed128.encryptEcb(dto.getName());
+		String encryptEngName = Lotte_Seed128.encryptEcb(dto.getEngName());
+
 		if (!StringUtils.hasText(d1100.getCstEnm()) || (ceo != null && ceo.ceoNumber().equals(1))) { // 첫번째 대표자정보
 			d1100 = d1100
-					.setCstNm(dto.getName())
-					.setCstEnm(dto.getEngName())
+					.setCstNm(encryptName)
+					.setCstEnm(encryptEngName)
 					.setNatyC(dto.getNation())
 					.setMaFemDc(String.valueOf(dto.getGenderCode()))
-					.setTkpNm(dto.getName())
-					.setTkpEnm(dto.getEngName())
+					.setTkpNm(encryptName)
+					.setTkpEnm(encryptEngName)
 					.setTkpNatyC(dto.getNation())
-					.setTkpMbzNo(dto.getPhoneNumber().substring(0, 3))
-					.setTkpMexno(dto.getPhoneNumber().substring(3, 7))
-					.setTkpMtlno(dto.getPhoneNumber().substring(7));
+					.setTkpMbzNo(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(0, 3)))
+					.setTkpMexno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(3, 7)))
+					.setTkpMtlno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(7)));
 
 			if (isUpdateRealCeo(cardInfo)) {
 				d1100 = d1100
-						.setRlOwrNm(dto.getName())
-						.setRlOwrEnm(dto.getEngName())
-						.setBird(dto.getBirth())
+						.setRlOwrNm(encryptName)
+						.setRlOwrEnm(encryptEngName)
+						.setBird(Lotte_Seed128.encryptEcb(dto.getBirth()))
 						.setRlOwrNatyC(dto.getNation())
 						.setRlMaFemDc(String.valueOf(dto.getGenderCode()))
 						.setStchShrR("00000");
@@ -705,8 +714,8 @@ public class LotteCardService {
 
 		} else if (!StringUtils.hasText(d1100.getCstEnm2()) || (ceo != null && ceo.ceoNumber().equals(2))) { // 두번째 대표자정보
 			repoD1100.save(d1100
-					.setCstNm2(dto.getName())
-					.setCstEnm2(dto.getEngName())
+					.setCstNm2(encryptName)
+					.setCstEnm2(encryptEngName)
 					.setNatyC2(dto.getNation())
 					.setMaFemDc2(String.valueOf(dto.getGenderCode()))
 			);
@@ -714,8 +723,8 @@ public class LotteCardService {
 
 		} else if (!StringUtils.hasText(d1100.getCstEnm3()) || (ceo != null && ceo.ceoNumber().equals(3))) { // 세번째 대표자정보
 			repoD1100.save(d1100
-					.setCstNm3(dto.getName())
-					.setCstEnm3(dto.getEngName())
+					.setCstNm3(encryptName)
+					.setCstEnm3(encryptEngName)
 					.setNatyC3(dto.getNation())
 					.setMaFemDc3(String.valueOf(dto.getGenderCode()))
 			);
@@ -788,7 +797,7 @@ public class LotteCardService {
 			return false;
 		}
 
-		idNum = Seed128.decryptEcb(idNum);
+		idNum = Lotte_Seed128.decryptEcb(idNum);
 
 		if ((dto.getName().equals(korName) || dto.getName().equals(engName)) && dto.getIdentificationNumberFront().substring(0, 6).equals(idNum.substring(0, 6))) {
 			return true;

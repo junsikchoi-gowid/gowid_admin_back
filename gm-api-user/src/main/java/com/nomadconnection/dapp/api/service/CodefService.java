@@ -38,7 +38,7 @@ import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.ImageConvertDto;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
-import com.nomadconnection.dapp.core.encryption.Seed128;
+import com.nomadconnection.dapp.core.encryption.shinhan.Seed128;
 import com.nomadconnection.dapp.core.utils.ImageConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;

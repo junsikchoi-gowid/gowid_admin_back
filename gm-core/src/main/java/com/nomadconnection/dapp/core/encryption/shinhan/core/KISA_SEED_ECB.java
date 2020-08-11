@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.core.encryption.core;
+package com.nomadconnection.dapp.core.encryption.shinhan.core;
 
 /**
  * @author Copyright (c) 2013 by KISA
@@ -8,7 +8,6 @@ package com.nomadconnection.dapp.core.encryption.core;
  */
 
 
-@SuppressWarnings("ALL")
 public class KISA_SEED_ECB {
 
 
@@ -689,9 +688,7 @@ public class KISA_SEED_ECB {
 		ABCD[ABCD_A] = Common.byte_to_int(pbUserKey, 0 * 4, ENDIAN);
 		ABCD[ABCD_B] = Common.byte_to_int(pbUserKey, 1 * 4, ENDIAN);
 		ABCD[ABCD_C] = Common.byte_to_int(pbUserKey, 2 * 4, ENDIAN);
-		;
 		ABCD[ABCD_D] = Common.byte_to_int(pbUserKey, 3 * 4, ENDIAN);
-		;
 
 		// Reorder for big endian
 		if (Common.BIG_ENDIAN != ENDIAN) {

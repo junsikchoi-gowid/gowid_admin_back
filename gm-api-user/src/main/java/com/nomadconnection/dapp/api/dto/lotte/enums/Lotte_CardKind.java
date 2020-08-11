@@ -61,7 +61,7 @@ public enum Lotte_CardKind {
 						.setCdDc5(cardKind.getCardTypeCode())
 						.setCdGdc5(cardKind.getGradeCode())
 						.setRgAkCt5(count);
-				
+
 			default:
 				return d1100;
 		}

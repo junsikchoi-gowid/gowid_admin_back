@@ -27,7 +27,7 @@ import com.nomadconnection.dapp.core.domain.shinhan.D1100;
 import com.nomadconnection.dapp.core.domain.shinhan.D1200;
 import com.nomadconnection.dapp.core.domain.shinhan.D1400;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
-import com.nomadconnection.dapp.core.encryption.Seed128;
+import com.nomadconnection.dapp.core.encryption.shinhan.Seed128;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;

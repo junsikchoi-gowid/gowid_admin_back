@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.core.encryption.core;
+package com.nomadconnection.dapp.core.encryption.shinhan.core;
 
 /**
  * @author Copyright (c) 2013 by KISA
@@ -6,7 +6,6 @@ package com.nomadconnection.dapp.core.encryption.core;
  * @brief SEED CBC ¾ÏÈ£ ¾Ë°í¸®Áò
  * @remarks http://seed.kisa.or.kr/
  */
-@SuppressWarnings("ALL")
 public class KISA_SEED_CBC {
 
 	// DEFAULT : JAVA = BIG_ENDIAN

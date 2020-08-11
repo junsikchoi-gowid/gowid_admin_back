@@ -30,7 +30,7 @@ import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.shinhan.*;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
-import com.nomadconnection.dapp.core.encryption.Seed128;
+import com.nomadconnection.dapp.core.encryption.shinhan.Seed128;
 import com.nomadconnection.dapp.secukeypad.EncryptParam;
 import com.nomadconnection.dapp.secukeypad.SecuKeypad;
 import lombok.RequiredArgsConstructor;
