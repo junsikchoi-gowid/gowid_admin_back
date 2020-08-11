@@ -4,13 +4,12 @@ import com.nomadconnection.dapp.api.dto.lotte.CommonPart;
 import com.nomadconnection.dapp.api.dto.lotte.enums.LotteGwApiType;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.util.CommonUtil;
-import com.nomadconnection.dapp.core.domain.card.CardCompany;
-import com.nomadconnection.dapp.core.domain.common.GatewayTransactionIdx;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
+import com.nomadconnection.dapp.core.domain.lotte.Lotte_GatewayTransactionIdx;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_GwTranHist;
+import com.nomadconnection.dapp.core.domain.repository.common.SignatureHistoryRepository;
+import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_GatewayTransactionIdxRepository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_GwTranHistRepository;
-import com.nomadconnection.dapp.core.domain.repository.shinhan.GatewayTransactionIdxRepository;
-import com.nomadconnection.dapp.core.domain.repository.shinhan.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -28,7 +27,7 @@ import org.springframework.util.ObjectUtils;
 public class LotteCommonService {
 
 	private final Lotte_GwTranHistRepository repoLotte_gwTranHist;
-	private final GatewayTransactionIdxRepository repoGatewayTransactionIdx;
+	private final Lotte_GatewayTransactionIdxRepository repoGatewayTransactionIdx;
 	private final UserRepository RepoUser;
 	private final SignatureHistoryRepository repoSignatureHistory;
 
@@ -68,15 +67,14 @@ public class LotteCommonService {
 	}
 
 	private String getTransactionId(Integer interfaceId) {
-		GatewayTransactionIdx gatewayTransactionIdx = GatewayTransactionIdx.builder()
+		Lotte_GatewayTransactionIdx gatewayTransactionIdx = Lotte_GatewayTransactionIdx.builder()
 				.interfaceId(interfaceId)
-				.cardCompany(CardCompany.LOTTE)
 				.build();
 		repoGatewayTransactionIdx.save(gatewayTransactionIdx);
 		repoGatewayTransactionIdx.flush();
 
-		long tmpTranId = 20000000000L + gatewayTransactionIdx.getIdx();
-		return "0" + tmpTranId;     // 020000000001, 신한이랑 동일하게 set
+		long tmpTranId = 30000000000L + gatewayTransactionIdx.getIdx();
+		return "0" + tmpTranId;     // 030000000001
 	}
 
 	public SignatureHistory getSignatureHistoryByApplicationInfo(String applicationDate, String applicationNum) {

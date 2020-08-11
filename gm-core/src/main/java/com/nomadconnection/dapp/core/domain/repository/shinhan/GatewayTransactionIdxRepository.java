@@ -1,6 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.shinhan;
 
-import com.nomadconnection.dapp.core.domain.common.GatewayTransactionIdx;
+import com.nomadconnection.dapp.core.domain.shinhan.GatewayTransactionIdx;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -108,8 +108,9 @@ public class Lotte_D1100 extends BaseTime {
 	@Column(columnDefinition = "varchar(2)  DEFAULT '54' COMMENT   '법인규모상세코드'")
 	private String cpSclDtc = "54";
 
-	@Column(columnDefinition = "varchar(2)  DEFAULT '' COMMENT   '법인카드상품구분코드'")
-	private String cocPdDc;
+	@Builder.Default
+	@Column(columnDefinition = "varchar(2)  DEFAULT '01' COMMENT   '법인카드상품구분코드'")
+	private String cocPdDc = "01";
 
 	@Column(columnDefinition = "varchar(7)  DEFAULT '' COMMENT   '카드상품종류코드'")
 	private String unitCdC;
@@ -123,6 +124,74 @@ public class Lotte_D1100 extends BaseTime {
 
 	@Column(columnDefinition = "varchar(1)  DEFAULT '' COMMENT   '카드등급코드'")
 	private String cdGdc;
+
+	@Builder.Default
+	@Column(columnDefinition = "varchar(2)  DEFAULT '01' COMMENT   '법인카드상품구분코드2'")
+	private String cocPdDc2 = "01";
+
+	@Column(columnDefinition = "varchar(7)  DEFAULT '' COMMENT   '카드상품종류코드2'")
+	private String unitCdC2;
+
+	@Column(columnDefinition = "varchar(2)  DEFAULT '' COMMENT   '로고구분코드2'")
+	private String braDc2;
+
+	@Builder.Default
+	@Column(columnDefinition = "varchar(1)  DEFAULT '4' COMMENT   '카드구분코드2'")
+	private String cdDc2 = "4";
+
+	@Column(columnDefinition = "varchar(1)  DEFAULT '' COMMENT   '카드등급코드2'")
+	private String cdGdc2;
+
+	@Builder.Default
+	@Column(columnDefinition = "varchar(2)  DEFAULT '01' COMMENT   '법인카드상품구분코드3'")
+	private String cocPdDc3 = "01";
+
+	@Column(columnDefinition = "varchar(7)  DEFAULT '' COMMENT   '카드상품종류코드3'")
+	private String unitCdC3;
+
+	@Column(columnDefinition = "varchar(2)  DEFAULT '' COMMENT   '로고구분코드3'")
+	private String braDc3;
+
+	@Builder.Default
+	@Column(columnDefinition = "varchar(1)  DEFAULT '4' COMMENT   '카드구분코드3'")
+	private String cdDc3 = "4";
+
+	@Column(columnDefinition = "varchar(1)  DEFAULT '' COMMENT   '카드등급코드3'")
+	private String cdGdc3;
+
+	@Builder.Default
+	@Column(columnDefinition = "varchar(2)  DEFAULT '01' COMMENT   '법인카드상품구분코드4'")
+	private String cocPdDc4 = "01";
+
+	@Column(columnDefinition = "varchar(7)  DEFAULT '' COMMENT   '카드상품종류코드4'")
+	private String unitCdC4;
+
+	@Column(columnDefinition = "varchar(2)  DEFAULT '' COMMENT   '로고구분코드4'")
+	private String braDc4;
+
+	@Builder.Default
+	@Column(columnDefinition = "varchar(1)  DEFAULT '4' COMMENT   '카드구분코드4'")
+	private String cdDc4 = "4";
+
+	@Column(columnDefinition = "varchar(1)  DEFAULT '' COMMENT   '카드등급코드4'")
+	private String cdGdc4;
+
+	@Builder.Default
+	@Column(columnDefinition = "varchar(2)  DEFAULT '01' COMMENT   '법인카드상품구분코드5'")
+	private String cocPdDc5 = "01";
+
+	@Column(columnDefinition = "varchar(7)  DEFAULT '' COMMENT   '카드상품종류코드5'")
+	private String unitCdC5;
+
+	@Column(columnDefinition = "varchar(2)  DEFAULT '' COMMENT   '로고구분코드5'")
+	private String braDc5;
+
+	@Builder.Default
+	@Column(columnDefinition = "varchar(1)  DEFAULT '4' COMMENT   '카드구분코드5'")
+	private String cdDc5 = "4";
+
+	@Column(columnDefinition = "varchar(1)  DEFAULT '' COMMENT   '카드등급코드5'")
+	private String cdGdc5;
 
 	@Builder.Default
 	@Column(columnDefinition = "varchar(2)  DEFAULT '02' COMMENT   '결제방법코드'")
@@ -359,6 +428,18 @@ public class Lotte_D1100 extends BaseTime {
 	@Column(columnDefinition = "varchar(3)  DEFAULT '' COMMENT   '등록요청건수'")
 	private String rgAkCt;
 
+	@Column(columnDefinition = "varchar(3)  DEFAULT '' COMMENT   '등록요청건수2'")
+	private String rgAkCt2;
+
+	@Column(columnDefinition = "varchar(3)  DEFAULT '' COMMENT   '등록요청건수3'")
+	private String rgAkCt3;
+
+	@Column(columnDefinition = "varchar(3)  DEFAULT '' COMMENT   '등록요청건수4'")
+	private String rgAkCt4;
+
+	@Column(columnDefinition = "varchar(3)  DEFAULT '' COMMENT   '등록요청건수5'")
+	private String rgAkCt5;
+
 	@Builder.Default
 	@Column(columnDefinition = "varchar(1)  DEFAULT 'Y' COMMENT   '공인인증여부'")
 	private String aosCtfYn = "Y";
@@ -459,6 +540,7 @@ public class Lotte_D1100 extends BaseTime {
 	@Column(columnDefinition = "varchar(40) DEFAULT '중소기업등' COMMENT '법인단체구분코드명'")
 	private String cpGrupDcNm = "중소기업등";
 
+	@Builder.Default
 	@Column(columnDefinition = "varchar(1) DEFAULT 'Y' COMMENT '거주여부'")
 	private String rceYn = "Y";
 
@@ -539,17 +621,21 @@ public class Lotte_D1100 extends BaseTime {
 	@Column(columnDefinition = "varchar(7) DEFAULT '' COMMENT '고위드계산한도 (만원)'")
 	private String gowidCalLimAm;
 
-	@Column(columnDefinition = "varchar(15) DEFAULT '' COMMENT '기준잔고 (원)'")
-	private String gowidCriBalAm;
+	@Builder.Default
+	@Column(columnDefinition = "varchar(15) DEFAULT '0' COMMENT '기준잔고 (원)'")
+	private String gowidCriBalAm = "0";
 
-	@Column(columnDefinition = "varchar(15) DEFAULT '' COMMENT '45일평균잔고 (원)'")
-	private String gowid45dAvBalAm;
+	@Builder.Default
+	@Column(columnDefinition = "varchar(15) DEFAULT '0' COMMENT '45일평균잔고 (원)'")
+	private String gowid45dAvBalAm = "0";
 
-	@Column(columnDefinition = "varchar(15) DEFAULT '' COMMENT '45일중간잔고 (원)'")
-	private String gowid45dMidBalAm;
+	@Builder.Default
+	@Column(columnDefinition = "varchar(15) DEFAULT '0' COMMENT '45일중간잔고 (원)'")
+	private String gowid45dMidBalAm = "0";
 
-	@Column(columnDefinition = "varchar(15) DEFAULT '' COMMENT '현재잔고 (원)'")
-	private String gowidPsBalAm;
+	@Builder.Default
+	@Column(columnDefinition = "varchar(15) DEFAULT '0' COMMENT '현재잔고 (원)'")
+	private String gowidPsBalAm = "0";
 
 	@Column(columnDefinition = "varchar(1) DEFAULT '' COMMENT '접수 완료 여부'")
 	private String rcpEndYn;

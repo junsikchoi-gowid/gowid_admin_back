@@ -24,11 +24,11 @@ import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1000;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1100;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1200;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
+import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
+import com.nomadconnection.dapp.core.domain.repository.common.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1100Repository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1200Repository;
-import com.nomadconnection.dapp.core.domain.repository.shinhan.IssuanceProgressRepository;
-import com.nomadconnection.dapp.core.domain.repository.shinhan.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -73,23 +73,16 @@ public class LotteIssuanceService {
 		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.SIGNED, CardCompany.LOTTE);
 		repoIssuanceProgress.flush();
 
-		// 1000(법인회원신규여부검증)
-		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1000, CardCompany.LOTTE);
-		DataPart1000 resultOfD1000 = proc1000(userCorp);
-		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1000, CardCompany.LOTTE);
+//		// 1000(법인회원신규여부검증)
+//		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1000, CardCompany.LOTTE);
+//		DataPart1000 resultOfD1000 = proc1000(userCorp);
+//		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1000, CardCompany.LOTTE);
 
 		// 신규(1100) 신청
 		DataPart1100 resultOfD1100 = null;
 		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1100, CardCompany.LOTTE);
-		if ("Y".equals(resultOfD1000.getBzNewYn())) {
-			resultOfD1100 = proc1100(userCorp);
-			saveSignatureHistory(signatureHistoryIdx, resultOfD1100);
-		} else if ("N".equals(resultOfD1000.getBzNewYn())) {
-			CommonUtil.throwBusinessException(ErrorCode.External.REJECTED_LOTTE_1000, "bzNewYn is N");
-		} else {
-			String msg = "bzNewYn is not Y/N. resultOfD1200.getBzNewYn() = " + resultOfD1000.getBzNewYn();
-			CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_LOTTE_1000, msg);
-		}
+		resultOfD1100 = proc1100(userCorp);
+		saveSignatureHistory(signatureHistoryIdx, resultOfD1100);
 		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1100, CardCompany.LOTTE);
 
 		// 1200 전자서명값 제출

@@ -12,6 +12,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -116,8 +117,16 @@ public class CardIssuanceDto {
         private String amount;
 
         @ApiModelProperty("신청수량")
-        @NotNull
+        @Min(1)
         private Long count;
+
+        @ApiModelProperty("그린카드 신청수량")
+        @Min(1)
+        private Long greenCount;
+
+        @ApiModelProperty("블랙카드 신청수량")
+        @Min(1)
+        private Long blackCount;
 
         @ApiModelProperty("명세서 수령방법")
         private ReceiveType receiveType;

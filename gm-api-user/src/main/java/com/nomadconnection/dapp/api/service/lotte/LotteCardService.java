@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.service.lotte;
 
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
+import com.nomadconnection.dapp.api.dto.lotte.enums.Lotte_CardKind;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
@@ -372,6 +373,10 @@ public class LotteCardService {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
 
+		if (ObjectUtils.isEmpty(dto.getGreenCount()) && ObjectUtils.isEmpty(dto.getBlackCount())) {
+			throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "Green or Black, One of them must exist");
+		}
+
 		Double cardLimitNow = repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD());
 		Long calculatedLimitLong = 0L;
 		if (!ObjectUtils.isEmpty(cardLimitNow)) {
@@ -401,7 +406,7 @@ public class LotteCardService {
 				.calculatedLimit(calculatedLimit)
 				.grantLimit(grantLimit)
 				.receiveType(dto.getReceiveType())
-				.requestCount(dto.getCount()));
+				.requestCount(dto.getBlackCount() + dto.getGreenCount()));
 
 		if (StringUtils.hasText(depthKey)) {
 			repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
@@ -436,13 +441,30 @@ public class LotteCardService {
 		if (ObjectUtils.isEmpty(d1100)) {
 			return d1100;
 		}
-		return repoD1100.save(d1100
-				.setBllRvpDc(dto.getReceiveType().getLotteCode())
+
+		d1100.setBllRvpDc(dto.getReceiveType().getLotteCode())
 				.setMlId(!dto.getReceiveType().getLotteCode().equals("1") ? user.email() : null)
 				.setCpAkLimAm(CommonUtil.divisionString(grantLimit, 10000))
-				.setRgAkCt(String.valueOf(dto.getCount()))
 				.setGowidCalLimAm(CommonUtil.divisionString(calculatedLimit, 10000))
-		);
+				.setBzplcPsno(dto.getZipCode())
+				.setBzplcPnadd(dto.getAddressBasic())
+				.setBzplcBpnoAdd(dto.getAddressDetail())
+				.setOffiNaddYn("N")
+				.setTkpPsno(dto.getZipCode())
+				.setTkpPnadd(dto.getAddressBasic())
+				.setTkpBpnoAdd(dto.getAddressDetail())
+				.setTkpNaddYn("N");
+
+		if (!ObjectUtils.isEmpty(dto.getGreenCount()) && !ObjectUtils.isEmpty(dto.getBlackCount())) {
+			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.GREEN, String.valueOf(dto.getGreenCount()), 1);
+			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK, String.valueOf(dto.getBlackCount()), 2);
+		} else if (!ObjectUtils.isEmpty(dto.getGreenCount())) {
+			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.GREEN, String.valueOf(dto.getGreenCount()), 1);
+		} else {
+			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK, String.valueOf(dto.getBlackCount()), 1);
+		}
+
+		return repoD1100.save(d1100);
 	}
 
 	/**

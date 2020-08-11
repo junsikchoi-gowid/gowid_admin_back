@@ -11,7 +11,7 @@ import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
-import com.nomadconnection.dapp.core.domain.repository.shinhan.IssuanceProgressRepository;
+import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;

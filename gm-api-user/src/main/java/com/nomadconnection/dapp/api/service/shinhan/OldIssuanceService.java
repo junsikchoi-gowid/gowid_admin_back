@@ -22,6 +22,8 @@ import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
+import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
+import com.nomadconnection.dapp.core.domain.repository.common.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.shinhan.*;

@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.core.domain.common;
+package com.nomadconnection.dapp.core.domain.shinhan;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
@@ -21,8 +21,4 @@ public class GatewayTransactionIdx extends BaseTime {
 
     @Column(nullable = false, updatable = false)
     private Integer interfaceId;
-
-    @Builder.Default
-    @Enumerated(EnumType.STRING)
-    private CardCompany cardCompany = CardCompany.SHINHAN;
 }
