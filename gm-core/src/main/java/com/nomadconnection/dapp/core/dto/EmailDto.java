@@ -12,13 +12,14 @@ import java.text.NumberFormat;
 @NoArgsConstructor
 public class EmailDto {
 
-	public EmailDto(String licenseNo, String companyName, String hopeLimit, String grantLimit) {
-		long hopeLimitLong = Long.parseLong( StringUtils.isEmpty(hopeLimit) ? "0" : hopeLimit );
-		long grantLimitLong = Long.parseLong( StringUtils.isEmpty(grantLimit) ? "0" : grantLimit );
+	public EmailDto(String licenseNo, String companyName, String hopeLimit, String grantLimit, String email) {
+		long hopeLimitLong = Long.parseLong(StringUtils.isEmpty(hopeLimit) ? "0" : hopeLimit);
+		long grantLimitLong = Long.parseLong(StringUtils.isEmpty(grantLimit) ? "0" : grantLimit);
 		this.licenseNo = licenseNo;
 		this.companyName = companyName;
-		this.hopeLimit =  NumberFormat.getInstance().format(hopeLimitLong);
+		this.hopeLimit = NumberFormat.getInstance().format(hopeLimitLong);
 		this.grantLimit = NumberFormat.getInstance().format(grantLimitLong);
+		this.email = email;
 	}
 
 	private String licenseNo;
@@ -29,4 +30,5 @@ public class EmailDto {
 
 	private String grantLimit;
 
+	private String email;
 }

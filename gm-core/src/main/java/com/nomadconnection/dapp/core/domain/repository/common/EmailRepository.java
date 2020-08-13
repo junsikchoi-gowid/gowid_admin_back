@@ -7,12 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EmailRepository extends JpaRepository<Corp, String>{
+public interface EmailRepository extends JpaRepository<Corp, String> {
 
-	@Query("select new com.nomadconnection.dapp.core.dto.EmailDto(c.resCompanyIdentityNo, c.resCompanyNm, rc.hopeLimit, rc.grantLimit ) " +
-			" from Corp c, RiskConfig rc " +
+	@Query("select new com.nomadconnection.dapp.core.dto.EmailDto(c.resCompanyIdentityNo, c.resCompanyNm, rc.hopeLimit, rc.grantLimit, u.email) " +
+			" from Corp c, RiskConfig rc, User u" +
 			" where replace(c.resCompanyIdentityNo,'-','') = :licenseNo " +
-			"  and c.idx = rc.corp ")
+			"  and c.idx = rc.corp " +
+			"  and c.idx = u.corp "
+	)
 	EmailDto findTopByLicenseNo(String licenseNo);
 
 }

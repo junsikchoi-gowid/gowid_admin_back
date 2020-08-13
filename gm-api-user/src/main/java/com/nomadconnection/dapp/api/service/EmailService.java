@@ -33,12 +33,15 @@ public class EmailService {
 					context.setVariable("companyName", emailDto.getCompanyName());
 					context.setVariable("hopeLimit", emailDto.getHopeLimit());
 					context.setVariable("grantLimit", emailDto.getGrantLimit());
+					context.setVariable("email", emailDto.getEmail());
 				}
 
 				helper.setFrom(emailConfig.getSender());
 				helper.setTo(emailConfig.getSender());
 				helper.setSubject("[신한카드 심사완료] " + emailDto.getCompanyName());
 				helper.setText(templateEngine.process("mail-template-issuance-approve", context), true);
+
+
 			}
 		};
 		sender.send(preparator);
@@ -55,6 +58,7 @@ public class EmailService {
 					context.setVariable("companyName", emailDto.getCompanyName());
 					context.setVariable("hopeLimit", emailDto.getHopeLimit());
 					context.setVariable("grantLimit", emailDto.getGrantLimit());
+					context.setVariable("email", emailDto.getEmail());
 				}
 
 				helper.setFrom(emailConfig.getSender());
