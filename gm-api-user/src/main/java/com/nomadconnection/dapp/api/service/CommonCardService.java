@@ -11,7 +11,6 @@ import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFileType
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.consent.ConsentMapping;
-import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.VentureBusiness;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.StockholderFileRepository;
@@ -81,7 +80,7 @@ public class CommonCardService {
 	@Transactional(noRollbackFor = FileUploadException.class)
 	public List<CardIssuanceDto.StockholderFileRes> registerStockholderFile(Long idx_user, MultipartFile[] file_1, MultipartFile[] file_2, String type, Long idx_CardInfo, String depthKey) throws IOException {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -195,7 +194,7 @@ public class CommonCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public void deleteStockholderFile(Long idx_user, Long idx_file, Long idx_CardInfo, String depthKey) throws IOException {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -222,7 +221,7 @@ public class CommonCardService {
 	@Transactional(readOnly = true)
 	public CardIssuanceDto.CardIssuanceInfoRes getCardIssuanceInfoByUser(Long idx_user) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(user.corp()).orElse(null);
+		CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.getTopByUserAndDisabledFalseOrderByIdxDesc(user);
 
 		List<CardIssuanceDto.ConsentRes> consentInfo = getConsentRes(idx_user);
 
@@ -332,7 +331,7 @@ public class CommonCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public void saveIssuanceDepth(Long idx_user, String depthKey) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
 	}
 
@@ -345,8 +344,8 @@ public class CommonCardService {
 		);
 	}
 
-	private CardIssuanceInfo findCardIssuanceInfo(Corp corp) {
-		return repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(corp).orElseThrow(
+	private CardIssuanceInfo findCardIssuanceInfo(User user) {
+		return repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(user).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("CardIssuanceInfo")
 						.build()

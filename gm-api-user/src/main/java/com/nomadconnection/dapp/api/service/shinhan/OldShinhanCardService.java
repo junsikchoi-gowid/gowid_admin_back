@@ -105,7 +105,7 @@ public class OldShinhanCardService {
 	public CardIssuanceDto.CorporationRes updateCorporation(Long idx_user, CardIssuanceDto.RegisterCorporation dto, Long idx_CardInfo) {
 		User user = findUser(idx_user);
 
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -170,7 +170,7 @@ public class OldShinhanCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public CardIssuanceDto.VentureRes registerVenture(Long idx_user, CardIssuanceDto.RegisterVenture dto, Long idx_CardInfo) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -220,7 +220,7 @@ public class OldShinhanCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public CardIssuanceDto.VentureRes registerStockholder(Long idx_user, CardIssuanceDto.RegisterStockholder dto, Long idx_CardInfo) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -323,7 +323,7 @@ public class OldShinhanCardService {
 	@Transactional(noRollbackFor = FileUploadException.class)
 	public List<CardIssuanceDto.StockholderFileRes> registerStockholderFile(Long idx_user, MultipartFile[] file_1, MultipartFile[] file_2, String type, Long idx_CardInfo) throws IOException {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -433,7 +433,7 @@ public class OldShinhanCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public void deleteStockholderFile(Long idx_user, Long idx_file, Long idx_CardInfo) throws IOException {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -458,7 +458,7 @@ public class OldShinhanCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public CardIssuanceDto.CardRes registerCard(Long idx_user, CardIssuanceDto.RegisterCard dto, Long idx_CardInfo) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -571,7 +571,7 @@ public class OldShinhanCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public CardIssuanceDto.AccountRes registerAccount(Long idx_user, CardIssuanceDto.RegisterAccount dto, Long idx_CardInfo) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -648,7 +648,7 @@ public class OldShinhanCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public CardIssuanceDto.CeoRes registerCeo(Long idx_user, CardIssuanceDto.RegisterCeo dto, Long idx_CardInfo) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -799,7 +799,7 @@ public class OldShinhanCardService {
 	@Transactional(readOnly = true)
 	public CardIssuanceDto.CardIssuanceInfoRes getCardIssuanceInfoByUser(Long idx_user) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(user.corp()).orElse(null);
+		CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.getTopByUserAndDisabledFalseOrderByIdxDesc(user);
 
 		List<CardIssuanceDto.ConsentRes> consentInfo = getConsentRes(idx_user);
 
@@ -898,7 +898,7 @@ public class OldShinhanCardService {
 			throw EntityNotFoundException.builder().entity("Corp").build();
 		}
 
-		CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(user);
 		cardIssuanceInfo.ceoInfos().forEach(ceoInfo -> {
 			if (dto.getPhoneNumber().equals(ceoInfo.phoneNumber())) {
 				throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "ALREADY_AUTH_CEO");
@@ -956,8 +956,8 @@ public class OldShinhanCardService {
 		);
 	}
 
-	private CardIssuanceInfo findCardIssuanceInfo(Corp corp) {
-		return repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(corp).orElseThrow(
+	private CardIssuanceInfo findCardIssuanceInfo(User user) {
+		return repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(user).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("CardIssuanceInfo")
 						.build()

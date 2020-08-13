@@ -317,7 +317,7 @@ public class AuthService {
 		AtomicReference<Long> idxCardIssuance = new AtomicReference<>(0L);
 
 
-		repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(user.corp()).ifPresent(
+		repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(user).ifPresent(
 				cardIssuanceInfo -> { idxCardIssuance.set(cardIssuanceInfo.idx()); }
 		);
 

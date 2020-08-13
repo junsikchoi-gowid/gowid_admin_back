@@ -68,7 +68,7 @@ public class LotteCardService {
 	public CardIssuanceDto.CorporationRes updateCorporation(Long idx_user, CardIssuanceDto.RegisterCorporation dto, Long idx_CardInfo, String depthKey) {
 		User user = findUser(idx_user);
 
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -100,7 +100,7 @@ public class LotteCardService {
 	public CardIssuanceDto.CorporationExtendRes updateCorporationExtend(Long idx_user, CardIssuanceDto.RegisterCorporationExtend dto, Long idx_CardInfo, String depthKey) {
 		User user = findUser(idx_user);
 
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -171,7 +171,7 @@ public class LotteCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public CardIssuanceDto.VentureRes registerVenture(Long idx_user, CardIssuanceDto.RegisterVenture dto, Long idx_CardInfo, String depthKey) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -247,7 +247,7 @@ public class LotteCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public CardIssuanceDto.VentureRes registerStockholder(Long idx_user, CardIssuanceDto.RegisterStockholder dto, Long idx_CardInfo, String depthKey) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -343,7 +343,7 @@ public class LotteCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public CardIssuanceDto.CardRes saveHopeLimit(Long idx_user, CardIssuanceDto.HopeLimitReq dto, String depthKey) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(dto.getCardIssuanceInfoIdx())) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -371,7 +371,7 @@ public class LotteCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public CardIssuanceDto.CardRes registerCard(Long idx_user, CardIssuanceDto.RegisterCard dto, Long idx_CardInfo, String depthKey) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -483,7 +483,7 @@ public class LotteCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public CardIssuanceDto.AccountRes registerAccount(Long idx_user, CardIssuanceDto.RegisterAccount dto, Long idx_CardInfo, String depthKey) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -573,7 +573,7 @@ public class LotteCardService {
 		Lotte_D1100 d1100 = getD1100(user.corp().idx());
 		updateD1100Identification(d1100, dto, decryptData);
 
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (StringUtils.hasText(depthKey)) {
 			repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
 		}
@@ -616,7 +616,7 @@ public class LotteCardService {
 	@Transactional(rollbackFor = Exception.class)
 	public CardIssuanceDto.CeoRes registerCeo(Long idx_user, CardIssuanceDto.RegisterCeo dto, Long idx_CardInfo, String depthKey) {
 		User user = findUser(idx_user);
-		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idx_CardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
@@ -762,7 +762,7 @@ public class LotteCardService {
 			throw EntityNotFoundException.builder().entity("Corp").build();
 		}
 
-		CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(user.corp());
+		CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(user);
 		cardIssuanceInfo.ceoInfos().forEach(ceoInfo -> {
 			if (dto.getPhoneNumber().equals(ceoInfo.phoneNumber())) {
 				throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "ALREADY_AUTH_CEO");
@@ -824,8 +824,8 @@ public class LotteCardService {
 		);
 	}
 
-	private CardIssuanceInfo findCardIssuanceInfo(Corp corp) {
-		return repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(corp).orElseThrow(
+	private CardIssuanceInfo findCardIssuanceInfo(User user) {
+		return repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(user).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("CardIssuanceInfo")
 						.build()

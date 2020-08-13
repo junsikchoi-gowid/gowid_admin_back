@@ -38,7 +38,7 @@ public class CardIssuanceInfo extends BaseTime {
     private Corp corp; // 소속법인
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_cardIssuance"))
+    @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_cardIssuance"), nullable = false)
     private User user;
 
     @Embedded
