@@ -799,7 +799,7 @@ public class ShinhanCardService {
     @Transactional(readOnly = true)
     public CardIssuanceDto.CardIssuanceInfoRes getCardIssuanceInfoByUser(Long idx_user) {
         User user = findUser(idx_user);
-        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByCorpAndDisabledFalseOrderByIdxDesc(user.corp()).orElse(null);
+		CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.getTopByUserAndDisabledFalseOrderByIdxDesc(user);
 
         List<CardIssuanceDto.ConsentRes> consentInfo = getConsentRes(idx_user);
 
