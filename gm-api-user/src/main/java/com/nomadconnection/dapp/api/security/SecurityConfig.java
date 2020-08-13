@@ -135,9 +135,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(ScrapingController.URI.BASE + ScrapingController.URI.SCRAPING_ACCOUNT_HISTORY).permitAll()
                 .antMatchers(ScrapingController.URI.BASE + ScrapingController.URI.SCRAPING_ACCOUNT).permitAll()
                 .antMatchers(IrDashBoardController.URI.BASE + IrDashBoardController.URI.IRDASHBOARD).permitAll()
-                .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_PW+2).permitAll()
+                .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_PW + 2).permitAll()
                 .antMatchers(BankController.URI.BASE + BankController.URI.MONTH_BALANCE_EXT).permitAll()
-				.antMatchers(ShinhanCardController.URI.BASE + ShinhanCardController.URI.RESUME).permitAll()
+                .antMatchers(ShinhanCardController.URI.BASE + ShinhanCardController.URI.RESUME).permitAll()
+                .antMatchers(OldShinhanCardController.URI.BASE + OldShinhanCardController.URI.RESUME).permitAll()
                 .anyRequest().authenticated();
     }
 }

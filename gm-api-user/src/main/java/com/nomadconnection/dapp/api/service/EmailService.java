@@ -34,6 +34,7 @@ public class EmailService {
 					context.setVariable("companyName", emailDto.getCompanyName());
 					context.setVariable("hopeLimit", emailDto.getHopeLimit());
 					context.setVariable("grantLimit", emailDto.getGrantLimit());
+					context.setVariable("email", emailDto.getEmail());
 				}
 
 				helper.setFrom(emailConfig.getSender());
@@ -56,6 +57,7 @@ public class EmailService {
 					context.setVariable("companyName", emailDto.getCompanyName());
 					context.setVariable("hopeLimit", emailDto.getHopeLimit());
 					context.setVariable("grantLimit", emailDto.getGrantLimit());
+					context.setVariable("email", emailDto.getEmail());
 				}
 
 				helper.setFrom(emailConfig.getSender());
