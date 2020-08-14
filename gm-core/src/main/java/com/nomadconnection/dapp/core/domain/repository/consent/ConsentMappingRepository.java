@@ -4,7 +4,11 @@ import com.nomadconnection.dapp.core.domain.consent.ConsentMapping;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ConsentMappingRepository extends JpaRepository<ConsentMapping, Long> {
     ConsentMapping findTopByIdxUserAndIdxConsentOrderByIdxDesc(Long idxUser, Long idxConsent);
+
+    List<ConsentMapping> findAllByIdxUser(Long idxUser);
 }

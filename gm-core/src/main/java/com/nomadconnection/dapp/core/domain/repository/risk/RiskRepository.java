@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -40,4 +41,6 @@ public interface RiskRepository extends JpaRepository<Risk, Long>, AdminCustomRe
     Optional<Risk> findTopByUserAndDateLessThanOrderByDateDesc(User user, String Date);
 
     Page<Risk> findByCorp(Corp corp, Pageable pageable);
+
+    List<Risk> findAllByCorp(Corp corp);
 }

@@ -606,8 +606,9 @@ public class Lotte_D1100 extends BaseTime {
 	@Column(columnDefinition = "varchar(2) DEFAULT '01' COMMENT '실제소유자확인방법코드'")
 	private String rlOwrVdMdc = "01";
 
-	@Column(columnDefinition = "varchar(1) DEFAULT '' COMMENT '실제소유자남녀구분코드'")
-	private String rlMaFemDc;
+	@Builder.Default
+	@Column(columnDefinition = "varchar(1) DEFAULT '9' COMMENT '실제소유자남녀구분코드'")
+	private String rlMaFemDc = "9";
 
 	@Column(columnDefinition = "varchar(1) DEFAULT '' COMMENT '고위드 기업 등급'")
 	private String gowidEtrGdV;

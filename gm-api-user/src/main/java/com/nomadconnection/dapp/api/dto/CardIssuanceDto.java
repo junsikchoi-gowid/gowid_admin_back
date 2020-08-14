@@ -435,6 +435,12 @@ public class CardIssuanceDto {
         @ApiModelProperty("신청수량")
         private Long count;
 
+        @ApiModelProperty("롯데 그린카드 신청수량")
+        private Long lotteGreenCount;
+
+        @ApiModelProperty("롯데 블랙카드 신청수량")
+        private Long lotteBlackCount;
+
         @ApiModelProperty("명세서 수령방법")
         private ReceiveType receiveType;
 
@@ -470,6 +476,8 @@ public class CardIssuanceDto {
                         .calAmount(cardInfo.card().calculatedLimit())
                         .grantAmount(cardInfo.card().grantLimit())
                         .count(cardInfo.card().requestCount())
+                        .lotteGreenCount(cardInfo.card().lotteGreenCount())
+                        .lotteBlackCount(cardInfo.card().lotteBlackCount())
                         .addressBasic(cardInfo.card().addressBasic())
                         .addressDetail(cardInfo.card().addressDetail())
                         .addressKey(cardInfo.card().addressKey())

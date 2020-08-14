@@ -25,9 +25,11 @@ import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1100Reposito
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
+import com.nomadconnection.dapp.core.domain.shinhan.D1000;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.encryption.lotte.Lotte_Seed128;
@@ -58,6 +60,7 @@ public class LotteCardService {
 	private final CeoInfoRepository repoCeo;
 	private final VentureBusinessRepository repoVenture;
 	private final ResAccountRepository repoResAccount;
+	private final D1000Repository repoShinhanD1000;
 
 	private final IssuanceService shinhanIssuanceService;
 
@@ -325,19 +328,19 @@ public class LotteCardService {
 		if (isUpdateRealCeo(cardInfo) && !ObjectUtils.isEmpty(ceoInfo)) {
 			return repoD1100.save(d1100
 					.setRlOwrDdc(getCorpOwnerCode(dto)) // 법인 또는 단쳬의 대표
-					.setRlOwrNm(ceoInfo.name())
-					.setRlOwrEnm(ceoInfo.engName())
-					.setBird(ceoInfo.birth())
+					.setRlOwrNm(Lotte_Seed128.encryptEcb(ceoInfo.name()))
+					.setRlOwrEnm(Lotte_Seed128.encryptEcb(ceoInfo.engName()))
+					.setBird(Lotte_Seed128.encryptEcb(ceoInfo.birth()))
 					.setRlOwrNatyC(ceoInfo.nationality())
-					.setStchShrR("00000")
+					.setStchShrR("000")
 			);
 		}
 
 		return repoD1100.save(d1100
 				.setRlOwrDdc(getCorpOwnerCode(dto))
-				.setRlOwrNm(dto.getName())
-				.setRlOwrEnm(dto.getEngName())
-				.setBird(dto.getBirth())
+				.setRlOwrNm(Lotte_Seed128.encryptEcb(dto.getName()))
+				.setRlOwrEnm(Lotte_Seed128.encryptEcb(dto.getEngName()))
+				.setBird(Lotte_Seed128.encryptEcb(dto.getBirth()))
 				.setRlOwrNatyC(dto.getNation())
 				.setStchShrR(dto.getRate())
 		);
@@ -419,6 +422,8 @@ public class LotteCardService {
 				.calculatedLimit(calculatedLimit)
 				.grantLimit(grantLimit)
 				.receiveType(dto.getReceiveType())
+				.lotteGreenCount(dto.getGreenCount())
+				.lotteBlackCount(dto.getBlackCount())
 				.requestCount(dto.getBlackCount() + dto.getGreenCount()));
 
 		if (StringUtils.hasText(depthKey)) {
@@ -550,7 +555,9 @@ public class LotteCardService {
 		Integer count = 1;
 		CeoType ceoType = CeoType.SINGLE;
 		if (d1100 != null) {
-			ceoType = CeoType.fromLotte(d1100.getDpwnm());
+			// 신한전문에서 대표자 정보 가져오기
+
+			ceoType = CeoType.fromLotte(CeoType.covertShinhanToLotte(getShinhanCeoCode(user)));
 			if (StringUtils.hasText(d1100.getCstNm()) && StringUtils.hasText(d1100.getCstNm2()) && StringUtils.hasText(d1100.getCstNm3())) {
 				count = 3;
 			} else if (StringUtils.hasText(d1100.getCstNm()) && StringUtils.hasText(d1100.getCstNm2()) && !StringUtils.hasText(d1100.getCstNm3())) {
@@ -561,6 +568,14 @@ public class LotteCardService {
 				.type(ceoType)
 				.count(count)
 				.build();
+	}
+
+	private String getShinhanCeoCode(User user) {
+		D1000 shinhanD1000 = repoShinhanD1000.getTopByIdxCorpOrderByIdxDesc(user.corp().idx());
+		if (!ObjectUtils.isEmpty(shinhanD1000)) {
+			return shinhanD1000.getD009();
+		}
+		return "";
 	}
 
 	/**
@@ -605,6 +620,9 @@ public class LotteCardService {
 		String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
 		String driverNum = dto.getDriverLocal() + decryptData.get(EncryptParam.DRIVER_NUMBER);
 		String encryptIdNum = Lotte_Seed128.encryptEcb(idNum);
+
+		d1100.setHsVdPhc(dto.getIdentityType().getLotteCode());
+		d1100.setIdfIsuBurNm(dto.getIdentityType().equals(CertificationType.DRIVER) ? getDriverLocalName(dto.getDriverLocal()) + "경찰청" : "정부24");
 		if ("1".equals(dto.getCeoSeqNo())) {
 			d1100.setIdfKndcNm(dto.getIdentityType().getLotteCode());
 			d1100.setIdfNo2(dto.getIdentityType().equals(CertificationType.DRIVER) ? Lotte_Seed128.encryptEcb(driverNum) : encryptIdNum);
@@ -649,7 +667,7 @@ public class LotteCardService {
 		Integer ceoNum = 0;
 
 		Lotte_D1100 d1100 = getD1100(user.corp().idx());
-		ceoNum = updateD1000Ceo(d1100, user.corp().idx(), cardInfo, dto, ceo, ceoNum);
+		ceoNum = updateD1000Ceo(d1100, cardInfo, dto, ceo, ceoNum);
 
 		if (ObjectUtils.isEmpty(ceo)) {
 			ceo = CeoInfo.builder()
@@ -691,7 +709,7 @@ public class LotteCardService {
 		return CardIssuanceDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");
 	}
 
-	private Integer updateD1000Ceo(Lotte_D1100 d1100, Long idx_corp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
+	private Integer updateD1000Ceo(Lotte_D1100 d1100, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
 		if (d1100 == null) {
 			return ceoNum;
 		}
@@ -719,7 +737,7 @@ public class LotteCardService {
 						.setBird(Lotte_Seed128.encryptEcb(dto.getBirth()))
 						.setRlOwrNatyC(dto.getNation())
 						.setRlMaFemDc(String.valueOf(dto.getGenderCode()))
-						.setStchShrR("00000");
+						.setStchShrR("000");
 			}
 
 			repoD1100.save(d1100);
@@ -865,5 +883,13 @@ public class LotteCardService {
 				.stockholderBirth(ceoInfo.birth())
 				.stockholderNation(ceoInfo.nationality())
 				.stockRate("0000"));
+	}
+
+	private String getDriverLocalName(String code) {
+		return repoCodeDetail.findFirstByValue1OrValue2AndCode(code, code, CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.entity("CommonCodeDetail")
+						.build()
+		).value1();
 	}
 }

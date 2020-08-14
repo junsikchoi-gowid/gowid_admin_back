@@ -27,6 +27,9 @@ public class Card {
     private String zipCode; // 우편번호
     private String addressKey; // 도로명 key값
 
+    private Long lotteGreenCount; // 롯데 그린카드
+    private Long lotteBlackCount; // 롯데 블랙카드
+
     @Enumerated(EnumType.STRING)
     private ReceiveType receiveType; // 명세서 수령방법
 

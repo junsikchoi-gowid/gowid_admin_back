@@ -10,15 +10,26 @@ import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFile;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFileType;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
+import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
+import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
 import com.nomadconnection.dapp.core.domain.consent.ConsentMapping;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.VentureBusiness;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.StockholderFileRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
+import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentRepository;
+import com.nomadconnection.dapp.core.domain.repository.corp.CeoInfoRepository;
+import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.VentureBusinessRepository;
+import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
+import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
+import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
+import com.nomadconnection.dapp.core.domain.risk.Risk;
+import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +61,12 @@ public class CommonCardService {
 	private final StockholderFileRepository repoFile;
 	private final ConsentRepository repoConsent;
 	private final ConsentMappingRepository repoConsentMapping;
+	private final CeoInfoRepository repoCeoInfo;
+	private final ConnectedMngRepository repoConnectedMng;
+	private final IssuanceProgressRepository repoIssuanceProgress;
+	private final CorpRepository repoCorp;
+	private final RiskRepository repoRisk;
+	private final RiskConfigRepository repoRiskConfig;
 
 	private final AwsS3Service s3Service;
 	private final GwUploadService gwUploadService;
@@ -335,9 +352,66 @@ public class CommonCardService {
 		repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
 	}
 
-	// TODO: 모든데이터 초기화
+	// TODO: 모든데이터 초기화 수정
 	@Transactional(rollbackFor = Exception.class)
 	public void deleteAllIssuanceInfo(User user) {
+		Corp corp = user.corp();
+
+		// update gowid.User set idxCorp = null, cardCompany = null where idxCorp = @idxCorp;
+		repoUser.saveAndFlush(user.corp(null).cardCompany(null));
+
+		// select @idxCardIssuanceInfo := idx from gowid.CardIssuanceInfo where idxUser = @idxUser;
+		CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.getTopByUserAndDisabledFalseOrderByIdxDesc(user);
+		if (!ObjectUtils.isEmpty(cardIssuanceInfo)) {
+			// delete FROM gowid.CeoInfo where idxCardIssuanceInfo = @idxCardIssuanceInfo;
+			repoCeoInfo.deleteAll(cardIssuanceInfo.ceoInfos());
+			repoCeoInfo.flush();
+
+			// delete from gowid.CardIssuanceInfo where idxUser = @idxUser;
+			repoCardIssuance.delete(cardIssuanceInfo);
+			repoCardIssuance.flush();
+		}
+
+		// delete from gowid.ConnectedMng where idxUser = @idxUser;
+		List<ConnectedMng> connectedMng = repoConnectedMng.findByIdxUser(user.idx());
+		if (!ObjectUtils.isEmpty(connectedMng)) {
+			repoConnectedMng.deleteAll(repoConnectedMng.findByIdxUser(user.idx()));
+			repoConnectedMng.flush();
+		}
+
+		// delete from gowid.ConsentMapping where idxUser = @idxUser;
+		List<ConsentMapping> consentMappings = repoConsentMapping.findAllByIdxUser(user.idx());
+		if (!ObjectUtils.isEmpty(consentMappings)) {
+			repoConsentMapping.deleteAll(consentMappings);
+			repoConsentMapping.flush();
+		}
+
+		// delete from gowid.IssuanceProgress WHERE userIdx = @idxUser;
+		IssuanceProgress issuanceProgress = getIssuanceProgress(user.idx());
+		if (!ObjectUtils.isEmpty(issuanceProgress)) {
+			repoIssuanceProgress.delete(issuanceProgress);
+			repoIssuanceProgress.flush();
+		}
+
+		// delete from gowid.Corp where idx = @idxCorp;
+		if (!ObjectUtils.isEmpty(corp)) {
+			repoCorp.delete(corp);
+			repoCorp.flush();
+		}
+
+		// delete from gowid.Risk where idxCorp = @idxCorp;
+		List<Risk> risk = repoRisk.findAllByCorp(corp);
+		if (!ObjectUtils.isEmpty(risk)) {
+			repoRisk.deleteAll(risk);
+			repoRisk.flush();
+		}
+
+		// delete from gowid.RiskConfig where idxCorp = @idxCorp;
+		List<RiskConfig> riskConfig = repoRiskConfig.findAllByCorp(corp);
+		if (!ObjectUtils.isEmpty(riskConfig)) {
+			repoRiskConfig.deleteAll(riskConfig);
+			repoRiskConfig.flush();
+		}
 
 	}
 
@@ -365,5 +439,9 @@ public class CommonCardService {
 						.idx(idx_file)
 						.build()
 		);
+	}
+
+	private IssuanceProgress getIssuanceProgress(Long idx_user) {
+		return repoIssuanceProgress.findById(idx_user).orElse(null);
 	}
 }

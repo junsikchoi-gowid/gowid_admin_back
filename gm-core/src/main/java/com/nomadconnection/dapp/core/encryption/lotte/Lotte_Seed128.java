@@ -205,7 +205,7 @@ public class Lotte_Seed128 {
 		// Derive roundkeys from user secret key
 		SEED_KISA.SeedRoundKey(RoundKey, pbUserKey);
 
-		String str = "930412";
+		String str = "orange1144@naver.com";
 		System.out.println("raw :" + str);
 
 		String encDataStr = encryptEcb(str);
