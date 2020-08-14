@@ -195,7 +195,7 @@ public class LotteIssuanceService {
 
 		// 신한 전문 데이터
 		D1000 shinhanD1000 = shinhanRepoD1000.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
-		d1100.setDgTc(CeoType.fromShinhanToLotte(shinhanD1000.getD009()));
+		d1100.setDgTc(CeoType.covertShinhanToLotte(shinhanD1000.getD009()));
 
 		D1530 shinhanD1530 = shinhanRepoD1530.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
 		d1100.setEstbDt(shinhanD1530.getD057());
