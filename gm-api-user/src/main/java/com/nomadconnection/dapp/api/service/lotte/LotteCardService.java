@@ -3,9 +3,12 @@ package com.nomadconnection.dapp.api.service.lotte;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.lotte.enums.Lotte_CardKind;
+import com.nomadconnection.dapp.api.dto.shinhan.DataPart1700;
+import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
+import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
@@ -55,6 +58,8 @@ public class LotteCardService {
 	private final CeoInfoRepository repoCeo;
 	private final VentureBusinessRepository repoVenture;
 	private final ResAccountRepository repoResAccount;
+
+	private final IssuanceService shinhanIssuanceService;
 
 
 	/**
@@ -106,7 +111,7 @@ public class LotteCardService {
 		}
 
 		cardInfo = repoCardIssuance.save(cardInfo.corpExtend(CorpExtend.builder()
-				.isVirtualCurrency(dto.getIsListedCompany())
+				.isVirtualCurrency(dto.getIsVirtualCurrency())
 				.isListedCompany(dto.getIsListedCompany())
 				.listedCompanyCode(dto.getListedCompanyCode())
 				.build())
@@ -262,6 +267,11 @@ public class LotteCardService {
 				.stockholderNation(dto.getNation())
 				.stockRate(dto.getRate())
 				.build());
+
+		CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
+		if (isUpdateRealCeo(cardInfo) && !ObjectUtils.isEmpty(ceoInfo)) {
+			cardInfo = setStockholderByCeoInfo(cardInfo, ceoInfo);
+		}
 
 		updateRiskConfigStockholder(user, dto);
 		updateD1000Stockholder(user.corp().idx(), cardInfo, dto);
@@ -570,6 +580,13 @@ public class LotteCardService {
 			decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER});
 		}
 
+		// 1700(신분증검증)
+		DataPart1700 resultOfD1700 = shinhanIssuanceService.proc1700(idx_user, dto, decryptData);
+
+		if (!resultOfD1700.getD008().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+			throw BadRequestedException.builder().category(BadRequestedException.Category.INVALID_CEO_IDENTIFICATION).desc(resultOfD1700.getD009()).build();
+		}
+
 		Lotte_D1100 d1100 = getD1100(user.corp().idx());
 		updateD1100Identification(d1100, dto, decryptData);
 
@@ -664,11 +681,7 @@ public class LotteCardService {
 		}
 
 		if (isUpdateRealCeo(cardInfo)) {
-			cardInfo.stockholder().stockholderName(dto.getName())
-					.stockholderEngName(dto.getEngName())
-					.stockholderBirth(dto.getBirth())
-					.stockholderNation(dto.getNation())
-					.stockRate("0000");
+			cardInfo = setStockholderByCeoInfo(cardInfo, ceo);
 		}
 
 		if (StringUtils.hasText(depthKey)) {
@@ -843,5 +856,14 @@ public class LotteCardService {
 						.idx(idx_resAccount)
 						.build()
 		);
+	}
+
+	private CardIssuanceInfo setStockholderByCeoInfo(CardIssuanceInfo cardIssuanceInfo, CeoInfo ceoInfo) {
+		return cardIssuanceInfo.stockholder(cardIssuanceInfo.stockholder()
+				.stockholderName(ceoInfo.name())
+				.stockholderEngName(ceoInfo.engName())
+				.stockholderBirth(ceoInfo.birth())
+				.stockholderNation(ceoInfo.nationality())
+				.stockRate("0000"));
 	}
 }

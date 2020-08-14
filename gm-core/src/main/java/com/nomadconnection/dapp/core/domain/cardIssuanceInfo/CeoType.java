@@ -16,11 +16,11 @@ public enum CeoType {
     private String lotteCode;
 
     public static CeoType fromShinhan(String shinhanCode) {
-        if (shinhanCode.equals("3")) {
+        if ("3".equals(shinhanCode)) {
             return PUBLIC;
-        } else if (shinhanCode.equals("2")) {
+        } else if ("2".equals(shinhanCode)) {
             return EACH;
-        } else if (shinhanCode.equals("1")) {
+        } else if ("1".equals(shinhanCode)) {
             return SINGLE;
         } else {
             return null;
@@ -28,14 +28,32 @@ public enum CeoType {
     }
 
     public static CeoType fromLotte(String lotteCode) {
-        if (lotteCode.equals("3")) {
+        if ("3".equals(lotteCode)) {
             return EACH;
-        } else if (lotteCode.equals("2")) {
+        } else if ("2".equals(lotteCode)) {
             return PUBLIC;
-        } else if (lotteCode.equals("1")) {
+        } else if ("1".equals(lotteCode)) {
             return SINGLE;
         } else {
             return null;
         }
+    }
+
+    public static String covertShinhanToLotte(String shinhanCode) {
+        String lotteCode = "";
+
+        switch (shinhanCode) {
+            case "1":
+                lotteCode = "1";
+                break;
+            case "2":
+                lotteCode = "3";
+                break;
+            case "3":
+                lotteCode = "2";
+                break;
+        }
+
+        return lotteCode;
     }
 }

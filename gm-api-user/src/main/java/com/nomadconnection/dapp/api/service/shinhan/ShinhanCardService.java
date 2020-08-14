@@ -113,7 +113,7 @@ public class ShinhanCardService {
         }
 
         cardInfo = repoCardIssuance.save(cardInfo.corpExtend(CorpExtend.builder()
-                .isVirtualCurrency(dto.getIsListedCompany())
+                .isVirtualCurrency(dto.getIsVirtualCurrency())
                 .isListedCompany(dto.getIsListedCompany())
                 .listedCompanyCode(dto.getListedCompanyCode())
                 .build())
@@ -250,6 +250,11 @@ public class ShinhanCardService {
                 .stockholderNation(dto.getNation())
                 .stockRate(dto.getRate())
                 .build());
+
+        CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
+        if (isUpdateRealCeo(cardInfo) && !ObjectUtils.isEmpty(ceoInfo)) {
+            cardInfo = setStockholderByCeoInfo(cardInfo, ceoInfo);
+        }
 
         updateRiskConfigStockholder(user, dto);
         updateD1000Stockholder(user.corp().idx(), cardInfo, dto);
@@ -647,11 +652,7 @@ public class ShinhanCardService {
         }
 
         if (isUpdateRealCeo(cardInfo)) {
-            cardInfo.stockholder().stockholderName(dto.getName())
-                    .stockholderEngName(dto.getEngName())
-                    .stockholderBirth(dto.getBirth())
-                    .stockholderNation(dto.getNation())
-                    .stockRate("0000");
+            cardInfo = setStockholderByCeoInfo(cardInfo, ceo);
         }
 
         if (StringUtils.hasText(depthKey)) {
@@ -904,4 +905,13 @@ public class ShinhanCardService {
 						.build()
 		);
 	}
+
+    private CardIssuanceInfo setStockholderByCeoInfo(CardIssuanceInfo cardIssuanceInfo, CeoInfo ceoInfo) {
+        return cardIssuanceInfo.stockholder(cardIssuanceInfo.stockholder()
+                .stockholderName(ceoInfo.name())
+                .stockholderEngName(ceoInfo.engName())
+                .stockholderBirth(ceoInfo.birth())
+                .stockholderNation(ceoInfo.nationality())
+                .stockRate("0000"));
+    }
 }

@@ -36,11 +36,11 @@ public class LotteCardController {
 		public static final String ACCOUNT = "/account";
 		public static final String ISSUANCE = "/issuance";
 		public static final String CARD = "/card";
+		public static final String CARD_NEW = "/card/new";
 		public static final String CARD_HOPE_LIMIT = "/card/hopeLimit";
 		public static final String CEO = "/ceo";
 		public static final String CEO_ID = "/ceo/identification";
 		public static final String CEO_CORRESPOND = "/ceo/correspond";
-
 	}
 
 	private final LotteCardService service;
@@ -183,15 +183,23 @@ public class LotteCardController {
 		return ResponseEntity.ok().build();
 	}
 
+	@ApiOperation(value = "법인카드 발급 신규대상자 확인")
+	@PostMapping(URI.CARD_NEW)
+	public ResponseEntity<String> verifyNewMember(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) {
+
+		return ResponseEntity.ok().body(issuanceService.verifyNewMemberTest(user.idx())); // TODO: 테스트용도로 일단 세팅
+	}
+
 	@ApiOperation(value = "법인카드 발급 신청")
 	@PostMapping(URI.CARD)
 	public ResponseEntity<CardIssuanceDto.IssuanceRes> application(
 			@ApiIgnore @CurrentUser CustomUser user,
-			@RequestParam(required = false) String depthKey,
 			@ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) {
 
 		SignatureHistory signatureHistory = issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
-		issuanceService.issuance(user.idx(), request, signatureHistory.getIdx(), depthKey);
+		issuanceService.issuance(user.idx(), request, signatureHistory.getIdx());
 
 		return ResponseEntity.ok().build();
 	}

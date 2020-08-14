@@ -27,12 +27,12 @@ public class Lotte_D1100 extends BaseTime {
 	@Column(nullable = false)
 	private Long idxCorp;
 
-	@Column(nullable = false)
+	@Column
 	private String transferDate;
 
 	@Builder.Default
-	@Column(columnDefinition = "varchar(3)  DEFAULT '530' COMMENT   '유치경로코드'")
-	private String arPhc = "530";
+	@Column(columnDefinition = "varchar(3)  DEFAULT '531' COMMENT   '유치경로코드'")
+	private String arPhc = "531";
 
 	@Builder.Default
 	@Column(columnDefinition = "varchar(2)  DEFAULT '01' COMMENT   '카드신청구분코드'")

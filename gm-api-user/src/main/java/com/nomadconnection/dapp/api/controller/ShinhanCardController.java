@@ -189,13 +189,12 @@ public class ShinhanCardController {
     public ResponseEntity<?> verifyIdentification(
             HttpServletRequest request,
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestParam(required = false) String depthKey,
             @ModelAttribute @Valid CardIssuanceDto.IdentificationReq dto) {
         if (log.isInfoEnabled()) {
             log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
         }
 
-        issuanceService.verifyCeoIdentification(request, user.idx(), dto, depthKey);
+        issuanceService.verifyCeoIdentification(request, user.idx(), dto);
         return ResponseEntity.ok().build();
     }
 
@@ -203,11 +202,10 @@ public class ShinhanCardController {
     @PostMapping(URI.CARD)
     public ResponseEntity<CardIssuanceDto.IssuanceRes> application(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestParam(required = false) String depthKey,
             @ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) {
 
         SignatureHistory signatureHistory = issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
-        issuanceService.issuance(user.idx(), request, signatureHistory.getIdx(), depthKey);
+        issuanceService.issuance(user.idx(), request, signatureHistory.getIdx());
 
         return ResponseEntity.ok().build();
     }

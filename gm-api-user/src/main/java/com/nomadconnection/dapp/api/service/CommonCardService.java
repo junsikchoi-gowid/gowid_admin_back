@@ -335,6 +335,11 @@ public class CommonCardService {
 		repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
 	}
 
+	// TODO: 모든데이터 초기화
+	public void deleteAllIssuanceInfo(User user) {
+
+	}
+
 	private User findUser(Long idx_user) {
 		return repoUser.findById(idx_user).orElseThrow(
 				() -> EntityNotFoundException.builder()

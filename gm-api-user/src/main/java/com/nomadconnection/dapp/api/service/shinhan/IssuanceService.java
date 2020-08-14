@@ -91,10 +91,10 @@ public class IssuanceService {
      * 이미지 전송요청
      */
     @Transactional(noRollbackFor = Exception.class)
-    public void issuance(Long userIdx, CardIssuanceDto.IssuanceReq request, Long signatureHistoryIdx, String depthKey) {
+    public void issuance(Long userIdx, CardIssuanceDto.IssuanceReq request, Long signatureHistoryIdx) {
         paramsLogging(request);
         request.setUserIdx(userIdx);
-        CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(request);
+        CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(request.getCardIssuanceInfoIdx());
         userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED);
         Corp userCorp = getCorpByUserIdx(userIdx);
         encryptAndSaveD1100(userCorp.idx(), cardIssuanceInfo);
@@ -126,23 +126,12 @@ public class IssuanceService {
 
         // BRP 전송(비동기)
         asyncService.run(() -> procBpr(userCorp, resultOfD1200, userIdx));
-
-        if (StringUtils.hasText(depthKey)) {
-            cardIssuanceInfoRepository.save(cardIssuanceInfo.issuanceDepth(depthKey));
-        }
     }
 
     private void saveSignatureHistory(Long signatureHistoryIdx, DataPart1200 resultOfD1200) {
         SignatureHistory signatureHistory = getSignatureHistory(signatureHistoryIdx);
         signatureHistory.setApplicationDate(resultOfD1200.getD007());
         signatureHistory.setApplicationNum(resultOfD1200.getD008());
-    }
-
-    private CardIssuanceInfo getCardIssuanceInfo(CardIssuanceDto.IssuanceReq request) {
-        return cardIssuanceInfoRepository.findByIdx(request.getCardIssuanceInfoIdx()).orElseThrow(
-                () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
-                        "CardIssuanceInfo is not exist(idx=" + request.getCardIssuanceInfoIdx() + ")")
-        );
     }
 
     private void paramsLogging(CardIssuanceDto.IssuanceReq request) {
@@ -469,7 +458,7 @@ public class IssuanceService {
     }
 
 
-    private DataPart1700 proc1700(Long idxUser, CardIssuanceDto.IdentificationReq request, Map<String, String> decryptData) {
+    public DataPart1700 proc1700(Long idxUser, CardIssuanceDto.IdentificationReq request, Map<String, String> decryptData) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1700);
 
@@ -515,7 +504,7 @@ public class IssuanceService {
      * 1700 신분증 위조확인
      */
     @Transactional(rollbackFor = Exception.class)
-    public void verifyCeoIdentification(HttpServletRequest request, Long idxUser, CardIssuanceDto.IdentificationReq dto, String depthKey) {
+    public void verifyCeoIdentification(HttpServletRequest request, Long idxUser, CardIssuanceDto.IdentificationReq dto) {
         Map<String, String> decryptData;
         if (dto.getIdentityType().equals(CertificationType.DRIVER)) {
             decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
@@ -531,13 +520,9 @@ public class IssuanceService {
             throw BadRequestedException.builder().category(BadRequestedException.Category.INVALID_CEO_IDENTIFICATION).desc(resultOfD1700.getD009()).build();
         }
 
-        CardIssuanceInfo cardIssuanceInfo = getCardIssuanceInfo(dto);
+        CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(dto.getCardIssuanceInfoIdx());
         save1400(cardIssuanceInfo, dto, decryptData);
         save1000(cardIssuanceInfo, dto, decryptData);
-
-        if (StringUtils.hasText(depthKey)) {
-            cardIssuanceInfoRepository.save(cardIssuanceInfo.issuanceDepth(depthKey));
-        }
     }
 
     // 1400 테이블에 대표자 주민번호 저장
@@ -591,10 +576,11 @@ public class IssuanceService {
         d1000Repository.save(d1000);
     }
 
-    private CardIssuanceInfo getCardIssuanceInfo(CardIssuanceDto.IdentificationReq dto) {
-        return cardIssuanceInfoRepository.findByIdx(dto.getCardIssuanceInfoIdx()).orElseThrow(
-                () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
-                        "CardIssuanceInfo is not exist(idx=" + dto.getCardIssuanceInfoIdx() + ")")
+    private CardIssuanceInfo findCardIssuanceInfo(Long idx) {
+        return cardIssuanceInfoRepository.findByIdx(idx).orElseThrow(
+                () -> EntityNotFoundException.builder()
+                        .entity("CardIssuanceInfo")
+                        .build()
         );
     }
 

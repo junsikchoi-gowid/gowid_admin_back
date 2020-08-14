@@ -27,7 +27,7 @@ public class Lotte_D1200 extends BaseTime {
 	@Column(nullable = false)
 	private Long idxCorp;
 
-	@Column(nullable = false)
+	@Column
 	private String transferDate;
 
 	@Column(columnDefinition = "varchar(14) DEFAULT '' COMMENT '접수일련번호'")
