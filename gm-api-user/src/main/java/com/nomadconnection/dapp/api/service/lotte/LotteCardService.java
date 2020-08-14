@@ -335,10 +335,10 @@ public class LotteCardService {
 
 		return repoD1100.save(d1100
 				.setRlOwrDdc(getCorpOwnerCode(dto))
-				.setRlOwrNm(ceoInfo.name())
-				.setRlOwrEnm(ceoInfo.engName())
-				.setBird(ceoInfo.birth())
-				.setRlOwrNatyC(ceoInfo.nationality())
+				.setRlOwrNm(dto.getName())
+				.setRlOwrEnm(dto.getEngName())
+				.setBird(dto.getBirth())
+				.setRlOwrNatyC(dto.getNation())
 				.setStchShrR(dto.getRate())
 		);
 	}

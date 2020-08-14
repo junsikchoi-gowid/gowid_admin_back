@@ -186,9 +186,10 @@ public class LotteCardController {
 	@ApiOperation(value = "법인카드 발급 신규대상자 확인")
 	@PostMapping(URI.CARD_NEW)
 	public ResponseEntity<String> verifyNewMember(
-			@ApiIgnore @CurrentUser CustomUser user,
-			@ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) {
-
+			@ApiIgnore @CurrentUser CustomUser user) {
+		if (log.isInfoEnabled()) {
+			log.info("([ verifyNewMember ]) $user='{}'", user);
+		}
 		return ResponseEntity.ok().body(issuanceService.verifyNewMemberTest(user.idx())); // TODO: 테스트용도로 일단 세팅
 	}
 
@@ -197,7 +198,9 @@ public class LotteCardController {
 	public ResponseEntity<CardIssuanceDto.IssuanceRes> application(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) {
-
+		if (log.isInfoEnabled()) {
+			log.info("([ application ]) $user='{}', $dto='{}'", user, request);
+		}
 		SignatureHistory signatureHistory = issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
 		issuanceService.issuance(user.idx(), request, signatureHistory.getIdx());
 

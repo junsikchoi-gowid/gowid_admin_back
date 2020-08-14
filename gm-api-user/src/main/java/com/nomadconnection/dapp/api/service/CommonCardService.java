@@ -336,6 +336,7 @@ public class CommonCardService {
 	}
 
 	// TODO: 모든데이터 초기화
+	@Transactional(rollbackFor = Exception.class)
 	public void deleteAllIssuanceInfo(User user) {
 
 	}
