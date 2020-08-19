@@ -172,7 +172,7 @@ public class CustomExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     protected ErrorResponse onEntityNotFoundException(EntityNotFoundException e) {
-        return ErrorResponse.from(ErrorCode.Resource.ENTITY_NOT_FOUND);
+        return ErrorResponse.from(ErrorCode.Resource.ENTITY_NOT_FOUND, e.getEntity());
     }
 
 
