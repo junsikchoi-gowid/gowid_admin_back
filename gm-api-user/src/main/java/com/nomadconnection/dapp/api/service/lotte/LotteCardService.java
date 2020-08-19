@@ -619,14 +619,14 @@ public class LotteCardService {
 		}
 
 		String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
-		String driverNum = dto.getDriverLocal() + decryptData.get(EncryptParam.DRIVER_NUMBER);
+		String driverNum = getDriverLocalNumber(dto.getDriverLocal()) + decryptData.get(EncryptParam.DRIVER_NUMBER);
 		String encryptIdNum = Lotte_Seed128.encryptEcb(idNum);
 
 		d1100.setHsVdPhc(dto.getIdentityType().getLotteCode());
 		d1100.setIdfIsuBurNm(dto.getIdentityType().equals(CertificationType.DRIVER) ? getDriverLocalName(dto.getDriverLocal()) + "경찰청" : "정부24");
 		if ("1".equals(dto.getCeoSeqNo())) {
 			d1100.setIdfKndcNm(dto.getIdentityType().getLotteCode());
-			d1100.setIdfNo2(dto.getIdentityType().equals(CertificationType.DRIVER) ? Lotte_Seed128.encryptEcb(driverNum) : encryptIdNum);
+			d1100.setIdfNo2(dto.getIdentityType().equals(CertificationType.DRIVER) ? Lotte_Seed128.encryptEcb(driverNum) : Lotte_Seed128.encryptEcb(dto.getIssueDate()));
 			d1100.setDgRrno(encryptIdNum);
 			d1100.setTkpRrno(encryptIdNum);
 		} else if ("2".equals(dto.getCeoSeqNo())) {
@@ -892,5 +892,13 @@ public class LotteCardService {
 						.entity("CommonCodeDetail")
 						.build()
 		).value1();
+	}
+
+	private String getDriverLocalNumber(String code) {
+		return repoCodeDetail.findFirstByValue1OrValue2AndCode(code, code, CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.entity("CommonCodeDetail")
+						.build()
+		).value2();
 	}
 }
