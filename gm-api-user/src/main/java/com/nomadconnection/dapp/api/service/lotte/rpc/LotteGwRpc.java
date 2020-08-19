@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LotteGwRpc extends LotteBaseRpc {
 
-	@Value("${gateway.idc.domain}")
+	@Value("${gateway.idc.lotte}")
 	private String GATEWAY_IDC_URL;
 
 	@Value("${gateway.lotte.uri.1000}")

@@ -3,7 +3,11 @@ package com.nomadconnection.dapp.api.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.KcbDto;
+import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.ServerError;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
+import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -22,10 +26,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class KcbService {
 
-    private final WebClient gwClient;
+    private final UserRepository repoUser;
+
+    private final WebClient gwShinhanClient;
+    private final WebClient gwLotteClient;
     private final ObjectMapper objectMapper;
 
-    public KcbDto.Response authenticationSms(KcbDto.Authentication dto) throws IOException {
+    public KcbDto.Response authenticationSms(Long idx_user, KcbDto.Authentication dto) throws IOException {
+        User user = findUser(idx_user);
         String url = UriComponentsBuilder.newInstance()
                 .path("/kcb/sms")
                 .build()
@@ -38,11 +46,20 @@ public class KcbService {
         }
         log.info("[authenticationSms] $url({}), $dto({})", url, dto);
 
-        ClientResponse clientResponse = gwClient.post()
-                .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromObject(dto))
-                .exchange().block();
+        ClientResponse clientResponse;
+        if (CardCompany.LOTTE.equals(user.cardCompany())) {
+            clientResponse = gwLotteClient.post()
+                    .uri(url)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(BodyInserters.fromObject(dto))
+                    .exchange().block();
+        } else {
+            clientResponse = gwShinhanClient.post()
+                    .uri(url)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(BodyInserters.fromObject(dto))
+                    .exchange().block();
+        }
 
         KcbDto.Response response = responseDataResolver(clientResponse, KcbDto.Response.class);
         log.info("[authenticationSms] $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
@@ -55,7 +72,8 @@ public class KcbService {
         return response.setDeviceId(deviceId);
     }
 
-    public KcbDto.Response certSms(KcbDto.Cert dto) throws IOException {
+    public KcbDto.Response certSms(Long idx_user, KcbDto.Cert dto) throws IOException {
+        User user = findUser(idx_user);
         String url = UriComponentsBuilder.newInstance()
                 .path("/kcb/cert")
                 .build()
@@ -63,11 +81,20 @@ public class KcbService {
 
         log.info("[certSms] $url({}), $dto({})", url, dto);
 
-        ClientResponse clientResponse = gwClient.post()
-                .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromObject(dto))
-                .exchange().block();
+        ClientResponse clientResponse;
+        if (CardCompany.LOTTE.equals(user.cardCompany())) {
+            clientResponse = gwLotteClient.post()
+                    .uri(url)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(BodyInserters.fromObject(dto))
+                    .exchange().block();
+        } else {
+            clientResponse = gwShinhanClient.post()
+                    .uri(url)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(BodyInserters.fromObject(dto))
+                    .exchange().block();
+        }
 
         KcbDto.Response response = responseDataResolver(clientResponse, KcbDto.Response.class);
         log.info("[certSms] $response.status({}), $response.result({})", response.getData().getCode(), response.getData().getDesc());
@@ -89,5 +116,14 @@ public class KcbService {
             log.error("[responseDataResolver] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
             throw new IOException();
         }
+    }
+
+    private User findUser(Long idx_user) {
+        return repoUser.findById(idx_user).orElseThrow(
+                () -> EntityNotFoundException.builder()
+                        .entity("User")
+                        .idx(idx_user)
+                        .build()
+        );
     }
 }

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ShinhanGwRpc extends BaseRpc {
 
-    @Value("${gateway.idc.domain}")
+    @Value("${gateway.idc.shinhan}")
     private String GATEWAY_IDC_URL;
 
     @Value("${gateway.shinhan.uri.1200}")

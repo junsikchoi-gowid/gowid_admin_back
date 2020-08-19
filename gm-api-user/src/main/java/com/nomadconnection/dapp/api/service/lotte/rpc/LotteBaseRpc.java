@@ -33,7 +33,6 @@ public class LotteBaseRpc {
 			log.debug("## Request body ==> {}", JsonUtil.generateClassToJson(bodyParams));
 			ResponseEntity<T> response = restTemplate.exchange(gatewayUrl, httpMethod, new HttpEntity<>(bodyParams, headers), responseType);
 			log.info("## Response ==> {}", JsonUtil.generateClassToJson(response));
-
 			return response.getBody();
 
 		} catch (RestClientResponseException e) {

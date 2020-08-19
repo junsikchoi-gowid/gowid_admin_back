@@ -24,5 +24,4 @@ public class CommonPart {
 	protected String transferDate; // 전문전송일시
 	protected String responseCode; // 응답코드
 	protected String spare; // 예비필드
-	protected String totalLength; // 총길이
 }

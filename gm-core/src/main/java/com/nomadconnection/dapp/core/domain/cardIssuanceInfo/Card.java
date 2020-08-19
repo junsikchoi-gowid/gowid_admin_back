@@ -43,5 +43,5 @@ public class Card {
     private Boolean isOverseas = true; // 해외결제 가능여부
 
     @Builder.Default
-    private Integer paymentDay = 15;
+    private Integer paymentDay = 15; // 결제일
 }

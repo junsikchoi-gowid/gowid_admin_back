@@ -17,6 +17,7 @@ import com.nomadconnection.dapp.codef.io.sandbox.bk.KR_BK_1_B_001;
 import com.nomadconnection.dapp.codef.io.sandbox.pb.CORP_REGISTER;
 import com.nomadconnection.dapp.codef.io.sandbox.pb.PROOF_ISSUE;
 import com.nomadconnection.dapp.codef.io.sandbox.pb.STANDARD_FINANCIAL;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
@@ -946,7 +947,7 @@ public class CodefService {
 			repoUser.save(user);
 
 			//파일생성 및 전송
-			ImageCreateAndSend(1510, "15100001", "0306", strResult, corp.resCompanyIdentityNo());
+			ImageCreateAndSend(user.cardCompany(), 1510, "15100001", strResult, corp.resCompanyIdentityNo());
 
 			String strResult1530 = null;
 
@@ -1090,7 +1091,7 @@ public class CodefService {
 				strResult1530 = strResult1530.replaceAll("resConvertibleBondList\" : \\[ \\]", strChange[2]);
 				strResult1530 = strResult1530.replaceAll("resEtcList\" : \\[ \\]", strChange[3]);
 
-				ImageCreateAndSend(1530, "15300001", "0306", strResult1530, corp.resCompanyIdentityNo());
+				ImageCreateAndSend(user.cardCompany(), 1530, "15300001", strResult1530, corp.resCompanyIdentityNo());
 
 				repoD1000.save(D1000.builder()
 						.idxCorp(corp.idx())
@@ -1408,7 +1409,7 @@ public class CodefService {
 						.build());
 
 				//파일생성 및 전송
-				ImageCreateAndSend(1520, 1520 + yyyyMm.substring(0, 4), "0306", strResultTemp, user.corp().resCompanyIdentityNo());
+				ImageCreateAndSend(user.cardCompany(), 1520, 1520 + yyyyMm.substring(0, 4), strResultTemp, user.corp().resCompanyIdentityNo());
 
 			}else if(boolIfFirst.get()){
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
@@ -1536,7 +1537,7 @@ public class CodefService {
 				"\t}\n" +
 				"}";
 
-		ImageCreateAndSend(9991, "99910001", "0306", strResultTemp, user.corp().resCompanyIdentityNo());
+		ImageCreateAndSend(user.cardCompany(), 9991, "99910001", strResultTemp, user.corp().resCompanyIdentityNo());
 
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
@@ -1698,7 +1699,7 @@ public class CodefService {
 		return str.get();
 	}
 
-	private boolean ImageCreateAndSend(Integer fileCode, String fileName, String cardCode, String jsonStringData, String corpIdNo)
+	private boolean ImageCreateAndSend(CardCompany cardCompany, Integer fileCode, String fileName, String jsonStringData, String corpIdNo)
 	{
 
 		boolean boolConverter = false;
@@ -1731,7 +1732,7 @@ public class CodefService {
 
 				for(int i = 0; i < 3 ; i++){
 					Thread.sleep(500);
-					response = gwUploadService.upload(file, cardCode, fileCode.toString(), corpIdNo.replaceAll("-", ""));
+					response = gwUploadService.upload(cardCompany, file, fileCode.toString(), corpIdNo.replaceAll("-", ""));
 					if(response.getResult().getCode().equals("200")){
 						break;
 					}

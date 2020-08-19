@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.GwUploadDto;
 import com.nomadconnection.dapp.api.exception.ServerError;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
@@ -24,13 +25,14 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class GwUploadService {
 
-    private final WebClient gwClient;
+    private final WebClient gwShinhanClient;
+    private final WebClient gwLotteClient;
     private final ObjectMapper objectMapper;
 
-    public GwUploadDto.Response upload(File file, String cardCode, String fileCode, String licenseNo) throws IOException {
-        log.info("[GwUpload] $cardCode({}), $fileCode({}), $licenseNo({})", cardCode, fileCode, licenseNo);
+    public GwUploadDto.Response upload(CardCompany cardCompany, File file, String fileCode, String licenseNo) throws IOException {
+        log.info("[GwUpload] $cardCompany({}), $fileCode({}), $licenseNo({})", cardCompany.name(), fileCode, licenseNo);
         String url = UriComponentsBuilder.newInstance()
-                .path("/upload/" + cardCode)
+                .path("/upload/" + cardCompany.getCode())
                 .build()
                 .toUriString();
 
@@ -39,11 +41,20 @@ public class GwUploadService {
         params.add("licenseNo", licenseNo);
         params.add("fileType", fileCode);
 
-        ClientResponse clientResponse = gwClient.post()
-                .uri(url)
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(BodyInserters.fromMultipartData(params))
-                .exchange().block();
+        ClientResponse clientResponse;
+        if (cardCompany.equals(CardCompany.LOTTE)) {
+            clientResponse = gwLotteClient.post()
+                    .uri(url)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(BodyInserters.fromMultipartData(params))
+                    .exchange().block();
+        } else {
+            clientResponse = gwShinhanClient.post()
+                    .uri(url)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(BodyInserters.fromMultipartData(params))
+                    .exchange().block();
+        }
 
         GwUploadDto.Response response = responseDataResolver(clientResponse, GwUploadDto.Response.class);
         log.info("[GwUpload] $response.status({}), $response.result({}), $response.data({})", response.getResult().getCode(), response.getResult().getDesc(), response.getData());
@@ -56,15 +67,22 @@ public class GwUploadService {
         return response;
     }
 
-    public GwUploadDto.Response delete(String fileName, String cardCode) throws IOException {
+    public GwUploadDto.Response delete(CardCompany cardCompany, String fileName) throws IOException {
         String url = UriComponentsBuilder.newInstance()
-                .path("/files/" + cardCode + "?files=" + fileName)
+                .path("/files/" + cardCompany.getCode() + "?files=" + fileName)
                 .build()
                 .toUriString();
 
-        ClientResponse clientResponse = gwClient.delete()
-                .uri(url)
-                .exchange().block();
+        ClientResponse clientResponse;
+        if (cardCompany.equals(CardCompany.LOTTE)) {
+            clientResponse = gwLotteClient.delete()
+                    .uri(url)
+                    .exchange().block();
+        } else {
+            clientResponse = gwShinhanClient.delete()
+                    .uri(url)
+                    .exchange().block();
+        }
 
         GwUploadDto.Response response = responseDataResolver(clientResponse, GwUploadDto.Response.class);
         log.info("[GwDelete] $response.status({}), $response.result({}), $response.data({})", response.getResult().getCode(), response.getResult().getDesc(), response.getData());

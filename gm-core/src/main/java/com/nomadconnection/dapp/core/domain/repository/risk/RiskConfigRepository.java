@@ -6,9 +6,10 @@ import com.nomadconnection.dapp.core.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -24,5 +25,8 @@ public interface RiskConfigRepository extends JpaRepository<RiskConfig, Long> {
     @Query(value = "UPDATE RiskConfig r SET r.idxUser = :idxUser, r.idxCorp = :idxCorp WHERE r.idx = :idx", nativeQuery = true)
     void modifyRiskConfig(Long idx, Long idxUser, Long idxCorp);
 
-    List<RiskConfig> findAllByCorp(Corp corp);
+    @Transactional
+    @Modifying
+    @Query("delete from RiskConfig  where idxCorp = :idxCorp")
+    void deleteByCorpIdx(@Param("idxCorp") Long idxCorp);
 }

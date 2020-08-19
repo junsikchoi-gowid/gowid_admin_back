@@ -74,6 +74,46 @@ public class DataPart1100 extends CommonPart {
 
 	private String cdGdc; // 카드등급코드
 
+	private String cocPdDc2;
+
+	private String unitCdC2;
+
+	private String braDc2;
+
+	private String cdDc2;
+
+	private String cdGdc2;
+
+	private String cocPdDc3;
+
+	private String unitCdC3;
+
+	private String braDc3;
+
+	private String cdDc3;
+
+	private String cdGdc3;
+
+	private String cocPdDc4;
+
+	private String unitCdC4;
+
+	private String braDc4;
+
+	private String cdDc4;
+
+	private String cdGdc4;
+
+	private String cocPdDc5;
+
+	private String unitCdC5;
+
+	private String braDc5;
+
+	private String cdDc5;
+
+	private String cdGdc5;
+
 	private String sttMdc; // 결제방법코드
 
 	private String ftbc; // 법인규모상세코드
@@ -212,6 +252,14 @@ public class DataPart1100 extends CommonPart {
 
 	private String rgAkCt; // 등록요청건수
 
+	private String rgAkCt2; // 등록요청건수2
+
+	private String rgAkCt3; // 등록요청건수3
+
+	private String rgAkCt4; // 등록요청건수4
+
+	private String rgAkCt5; // 등록요청건수5
+
 	private String aosCtfYn; // 공인인증여부
 
 	private String mobCtfYn; // 모바일인증여부
@@ -318,9 +366,9 @@ public class DataPart1100 extends CommonPart {
 
 	private String gowidCriBalAm; // 기준잔고 (원)
 
-	private String gowid45dAvBalAm; // 45일평균잔고 (원)
+	private String gowid45DAvBalAm; // 45일평균잔고 (원)
 
-	private String gowid45dMidBalAm; // 45일중간잔고 (원)
+	private String gowid45DMidBalAm; // 45일중간잔고 (원)
 
 	private String gowidPsBalAm; // 현재잔고 (원)
 

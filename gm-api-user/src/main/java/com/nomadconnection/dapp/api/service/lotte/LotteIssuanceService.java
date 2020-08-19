@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.api.service.lotte;
 
-import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.lotte.CommonPart;
 import com.nomadconnection.dapp.api.dto.lotte.DataPart1000;
@@ -38,6 +37,7 @@ import com.nomadconnection.dapp.core.domain.shinhan.D1000;
 import com.nomadconnection.dapp.core.domain.shinhan.D1530;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
+import com.nomadconnection.dapp.core.encryption.lotte.Lotte_Seed128;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -61,7 +61,6 @@ public class LotteIssuanceService {
 	private final D1000Repository shinhanRepoD1000;
 	private final D1530Repository shinhanRepoD1530;
 
-	private final AsyncService asyncService;
 	private final UserService userService;
 	private final LotteCommonService commonService;
 	private final LotteGwRpc lotteGwRpc;
@@ -89,8 +88,8 @@ public class LotteIssuanceService {
 		} else {
 			String msg = "bzNewYn is not Y/N. resultOfD1000.getBzNewYn() = " + resultOfD1000.getBzNewYn();
 			CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_LOTTE_1000, msg);
-			return "NONE";
 		}
+		return "NONE";
 	}
 
 	// 테스트 용도
@@ -98,7 +97,7 @@ public class LotteIssuanceService {
 	public String verifyNewMemberTest(Long userIdx) {
 		Corp userCorp = getCorpByUserIdx(userIdx);
 		Lotte_D1000 d1000 = Lotte_D1000.builder().idxCorp(userCorp.idx()).build();
-		d1000.setBzno(userCorp.resCompanyIdentityNo().replaceAll("-", ""));
+		d1000.setBzno(CommonUtil.replaceHyphen(userCorp.resCompanyIdentityNo()));
 		repoD1000.save(d1000);
 		repoD1100.save(Lotte_D1100.builder().idxCorp(userCorp.idx()).build());
 		repoD1200.save(Lotte_D1200.builder().idxCorp(userCorp.idx()).build());
@@ -107,7 +106,6 @@ public class LotteIssuanceService {
 
 	@Transactional(noRollbackFor = Exception.class)
 	public void issuance(Long userIdx, CardIssuanceDto.IssuanceReq request, Long signatureHistoryIdx) {
-		User user = findUser(userIdx);
 		paramsLogging(request);
 		request.setUserIdx(userIdx);
 		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED, CardCompany.LOTTE);
@@ -126,9 +124,9 @@ public class LotteIssuanceService {
 		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
 		DataPart1200 resultOfD1200 = proc1200(userCorp, resultOfD1100);
 		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
-
-		// 이미지 전송(비동기)
-		asyncService.run(() -> procImage(userCorp, resultOfD1200, userIdx));
+//
+//		// 이미지 전송(비동기)
+//		asyncService.run(() -> procImage(userCorp, resultOfD1200, userIdx));
 	}
 
 	@Async
@@ -162,7 +160,8 @@ public class LotteIssuanceService {
 		}
 
 		d1000.setTransferDate(commonPart.getTransferDate());
-		d1000.setBzno(userCorp.resCompanyIdentityNo().replaceAll("-", ""));
+		d1000.setBzno(CommonUtil.replaceHyphen(userCorp.resCompanyIdentityNo()));
+		repoD1000.saveAndFlush(d1000);
 
 		// 연동
 		DataPart1000 requestRpc = new DataPart1000();
@@ -187,26 +186,22 @@ public class LotteIssuanceService {
 		d1100.setBzrgcIssd(CommonUtil.getNowYYYYMMDD());
 
 		// 법인정보
-		d1100.setBzno(userCorp.resCompanyIdentityNo().replaceAll("-", ""));
-		d1100.setCpNo(userCorp.resUserIdentiyNo().replaceAll("-", ""));
-		d1100.setEstbDt(userCorp.resOpenDate());
-		d1100.setDpOwRrno(userCorp.resCompanyIdentityNo().replaceAll("-", ""));
-		d1100.setCpOgNm(userCorp.resCompanyNm());
-
-		// 신한 전문 데이터
-		D1000 shinhanD1000 = shinhanRepoD1000.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
-		d1100.setDgTc(CeoType.covertShinhanToLotte(shinhanD1000.getD009()));
-
-		D1530 shinhanD1530 = shinhanRepoD1530.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
-		d1100.setEstbDt(shinhanD1530.getD057());
+		d1100 = setD1100Corp(d1100, userCorp);
 
 		// Risk정보
-		Risk risk = findRisk(userCorp.user());
-		d1100.setGowidEtrGdV(risk.grade());
-		d1100.setGowid45dAvBalAm(String.valueOf(risk.dma45()));
-		d1100.setGowid45dMidBalAm(String.valueOf(risk.dmm45()));
-		d1100.setGowidPsBalAm(String.valueOf(risk.currentBalance()));
-		d1100.setGowidCriBalAm(String.valueOf(risk.minCashNeed()));
+		d1100 = setD1100Risk(d1100, userCorp.user());
+
+		// TODO: 스크래핑시 데이터 insert로 바뀌어야함
+		{
+			// 신한 전문 데이터
+			D1000 shinhanD1000 = shinhanRepoD1000.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
+			d1100.setDgTc(CeoType.covertShinhanToLotte(shinhanD1000.getD009()));
+
+			D1530 shinhanD1530 = shinhanRepoD1530.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
+			d1100.setEstbDt(shinhanD1530.getD057());
+		}
+
+		repoD1100.saveAndFlush(d1100);
 
 		// 연동
 		DataPart1100 requestRpc = new DataPart1100();
@@ -214,10 +209,32 @@ public class LotteIssuanceService {
 		BeanUtils.copyProperties(commonPart, requestRpc);
 		DataPart1100 responseRpc = lotteGwRpc.request1100(requestRpc, userCorp.user().idx());
 
-		BeanUtils.copyProperties(responseRpc, d1100);
+		d1100.setRcpEndYn(responseRpc.getRcpEndYn());
+		d1100.setRcpMsg(responseRpc.getRcpMsg());
+		d1100.setApfRcpno(responseRpc.getApfRcpno());
 		repoD1100.save(d1100);
 
 		return responseRpc;
+	}
+
+	private Lotte_D1100 setD1100Risk(Lotte_D1100 d1100, User user) {
+		Risk risk = findRisk(user);
+		d1100.setGowidEtrGdV(risk.grade());
+		d1100.setGowid45DAvBalAm(String.valueOf(Math.round(risk.dma45())));
+		d1100.setGowid45DMidBalAm(String.valueOf(Math.round(risk.dmm45())));
+		d1100.setGowidPsBalAm(String.valueOf(Math.round(risk.currentBalance())));
+		d1100.setGowidCriBalAm(String.valueOf(Math.round(risk.minCashNeed())));
+		return d1100;
+	}
+
+	private Lotte_D1100 setD1100Corp(Lotte_D1100 d1100, Corp corp) {
+		String companyIdentityNo = CommonUtil.replaceHyphen(corp.resCompanyIdentityNo());
+		d1100.setBzno(companyIdentityNo);
+		d1100.setCpNo(CommonUtil.replaceHyphen(corp.resUserIdentiyNo()));
+		d1100.setEstbDt(corp.resOpenDate());
+		d1100.setDpOwRrno(Lotte_Seed128.encryptEcb(companyIdentityNo));
+		d1100.setCpOgNm(corp.resCompanyNm());
+		return d1100;
 	}
 
 	private DataPart1200 proc1200(Corp userCorp, DataPart1100 resultOfD1100) {
@@ -230,9 +247,10 @@ public class LotteIssuanceService {
 		String signedPlainString = SignVerificationUtil.verifySignedBinaryStringAndGetPlainString(signatureHistory.getSignedBinaryString());
 
 		d1200.setTransferDate(commonPart.getTransferDate());
-		d1200.setBzno(userCorp.resCompanyIdentityNo().replaceAll("-", ""));
+		d1200.setBzno(resultOfD1100.getBzno());
 		d1200.setApfRcpno(resultOfD1100.getApfRcpno());
 		d1200.setIdentifyValue(CommonUtil.encodeBase64(signedPlainString));
+		repoD1200.saveAndFlush(d1200);
 
 		// 연동
 		DataPart1200 requestRpc = new DataPart1200();

@@ -57,7 +57,7 @@ public class Corp extends BaseTime {
     private String resUserAddr; // 사업장소재지(주소)
     private String resUserIdentiyNo; // 주민(법인)등록번호
     private String resUserNm; // 성명(대표자)
-    private String resUserType; // 대표자 종류
+    private String resUserType; // 대표자 종류 (1: 개별, 2:각자, 3:공동)
 
     @Enumerated(EnumType.STRING)
     private CorpStatus status; // pending/denied/approved

@@ -242,7 +242,7 @@ public class OldIssuanceService {
 		if (d1200 == null) {
 			d1200 = new D1200();
 		}
-		d1200.setD001(userCorp.resCompanyIdentityNo().replaceAll("-", ""));
+		d1200.setD001(CommonUtil.replaceHyphen(userCorp.resCompanyIdentityNo()));
 		d1200.setD002(Const.D1200_MEMBER_TYPE_CODE);
 		d1200.setIdxCorp(userCorp.idx());
 

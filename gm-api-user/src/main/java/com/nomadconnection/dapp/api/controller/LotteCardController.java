@@ -190,7 +190,7 @@ public class LotteCardController {
 		if (log.isInfoEnabled()) {
 			log.info("([ verifyNewMember ]) $user='{}'", user);
 		}
-		return ResponseEntity.ok().body(issuanceService.verifyNewMemberTest(user.idx())); // TODO: 테스트용도로 일단 세팅
+		return ResponseEntity.ok().body(issuanceService.verifyNewMember(user.idx())); // TODO: 테스트용도로 일단 세팅
 	}
 
 	@ApiOperation(value = "법인카드 발급 신청")

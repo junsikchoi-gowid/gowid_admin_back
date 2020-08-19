@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.io.UnsupportedEncodingException;
 
 @Slf4j
 @Component
@@ -21,13 +22,15 @@ public class Lotte_Seed128 {
 	private static int RoundKey[] = new int[32];
 	private static final byte PADDING_VALUE_00 = 0x00; // Null
 
+	static String charset = "EUC-KR";
+
 	@PostConstruct
 	private void initKey() {
 		pbUserKey = new byte[]{(byte) 0x43, (byte) 0x50, (byte) 0x47, (byte) 0x57, (byte) 0x30, (byte) 0x37, (byte) 0x30, (byte) 0x32,
-				(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x00};   // stgKey
+				(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30};   // stgKey
 		if (envUtil.isProd()) {
 			pbUserKey = new byte[]{(byte) 0x43, (byte) 0x50, (byte) 0x47, (byte) 0x57, (byte) 0x30, (byte) 0x37, (byte) 0x30, (byte) 0x32,
-					(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x00};
+					(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30};
 		}
 		SEED_KISA.SeedRoundKey(RoundKey, pbUserKey);
 	}
@@ -39,11 +42,16 @@ public class Lotte_Seed128 {
 	 * @return 암화화 된 문자열
 	 */
 	public static String encryptEcb(String str) {
-		if (StringUtils.isEmpty(str)) {
-			log.warn("## input string is empty! skip encryption!");
-			return str;
+		try {
+			if (StringUtils.isEmpty(str)) {
+				log.warn("## input string is empty! skip encryption!");
+				return str;
+			}
+			return byte2hex(encrypt(str.getBytes(charset)));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
-		return byte2hex(encrypt(str.getBytes()));
+		return "";
 	}
 
 	/**
@@ -80,7 +88,12 @@ public class Lotte_Seed128 {
 	}
 
 	private static String decryptAsString(byte[] encryptBytes) {
-		return new String(decrypt(encryptBytes));
+		try {
+			return new String(decrypt(encryptBytes), charset);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 
 	private static byte[] decrypt(byte[] encryptBytes) {
@@ -200,12 +213,12 @@ public class Lotte_Seed128 {
 		// Round keys for encryption or decryption
 		// User secret key
 		byte pbUserKey[] = new byte[]{(byte) 0x43, (byte) 0x50, (byte) 0x47, (byte) 0x57, (byte) 0x30, (byte) 0x37, (byte) 0x30, (byte) 0x32,
-				(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x00};
+				(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30};
 
 		// Derive roundkeys from user secret key
 		SEED_KISA.SeedRoundKey(RoundKey, pbUserKey);
 
-		String str = "orange1144@naver.com";
+		String str = "고위드";
 		System.out.println("raw :" + str);
 
 		String encDataStr = encryptEcb(str);

@@ -339,7 +339,7 @@ public class OldShinhanCardService {
 			for (StockholderFile file : fileList) {
 				repoFile.delete(file);
 				s3Service.s3FileDelete(file.s3Key());
-				gwUploadService.delete(file.fname(), cardInfo.cardCompany().getCode());
+				gwUploadService.delete(cardInfo.cardCompany(), file.fname());
 			}
 		}
 
@@ -361,7 +361,7 @@ public class OldShinhanCardService {
 		}
 
 		boolean sendGwUpload = false;
-		String licenseNo = cardInfo.corp().resCompanyIdentityNo().replaceAll("-", "");
+		String licenseNo = CommonUtil.replaceHyphen(cardInfo.corp().resCompanyIdentityNo());
 		String sequence = type.getCode() + "00" + gwUploadCount;
 
 		List<CardIssuanceDto.StockholderFileRes> resultList = new ArrayList<>();
@@ -388,7 +388,7 @@ public class OldShinhanCardService {
 			String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
 
 			if (file.getSize() <= STOCKHOLDER_FILE_SIZE && !sendGwUpload) {
-				gwUploadService.upload(uploadFile, cardInfo.cardCompany().getCode(), Const.STOCKHOLDER_GW_FILE_CODE, licenseNo);
+				gwUploadService.upload(cardInfo.cardCompany(), uploadFile, Const.STOCKHOLDER_GW_FILE_CODE, licenseNo);
 				sendGwUpload = true;
 			} else {
 				sendGwUpload = false;
@@ -410,7 +410,7 @@ public class OldShinhanCardService {
 		} catch (Exception e) {
 			uploadFile.delete();
 			s3Service.s3FileDelete(s3Key);
-			gwUploadService.delete(fileName, cardInfo.cardCompany().getCode());
+			gwUploadService.delete(cardInfo.cardCompany(), fileName);
 
 			log.error("[uploadStockholderFile] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
 			throw FileUploadException.builder().category(FileUploadException.Category.UPLOAD_STOCKHOLDER_FILE).build();
@@ -442,7 +442,7 @@ public class OldShinhanCardService {
 		if (file.cardIssuanceInfo().idx() != idx_CardInfo) {
 			throw MismatchedException.builder().category(MismatchedException.Category.STOCKHOLDER_FILE).build();
 		}
-		gwUploadService.delete(file.fname(), cardInfo.cardCompany().getCode());
+		gwUploadService.delete(cardInfo.cardCompany(), file.fname());
 		s3Service.s3FileDelete(file.s3Key());
 		repoFile.delete(file);
 	}

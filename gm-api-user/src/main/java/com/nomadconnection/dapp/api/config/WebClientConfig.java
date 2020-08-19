@@ -12,13 +12,23 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${gateway.idc.domain}")
-    private String GATEWAY_IDC_DOMAIN;
+    @Value("${gateway.idc.shinhan}")
+    private String GATEWAY_IDC_SHINHAN;
+
+    @Value("${gateway.idc.lotte}")
+    private String GATEWAY_IDC_LOTTE;
 
     @Bean
-    public WebClient gwClient() {
+    public WebClient gwShinhanClient() {
         return WebClient.builder()
-                .baseUrl(GATEWAY_IDC_DOMAIN)
+                .baseUrl(GATEWAY_IDC_SHINHAN)
+                .build();
+    }
+
+    @Bean
+    public WebClient gwLotteClient() {
+        return WebClient.builder()
+                .baseUrl(GATEWAY_IDC_LOTTE)
                 .build();
     }
 

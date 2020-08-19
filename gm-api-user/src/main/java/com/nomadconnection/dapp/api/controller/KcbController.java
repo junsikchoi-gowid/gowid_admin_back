@@ -42,7 +42,7 @@ public class KcbController {
             log.info("([ authenticationSms ]) $user='{}', $dto='{}'", user, dto);
         }
 
-        return ResponseEntity.ok().body(service.authenticationSms(dto));
+        return ResponseEntity.ok().body(service.authenticationSms(user.idx(), dto));
     }
 
     @ApiOperation("본인인증 확인")
@@ -54,6 +54,6 @@ public class KcbController {
             log.info("([ cert ]) $user='{}', $dto='{}'", user, dto);
         }
 
-        return ResponseEntity.ok().body(service.certSms(dto));
+        return ResponseEntity.ok().body(service.certSms(user.idx(), dto));
     }
 }

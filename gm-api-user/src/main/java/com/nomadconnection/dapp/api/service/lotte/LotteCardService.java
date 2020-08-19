@@ -81,13 +81,14 @@ public class LotteCardService {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
 
-		Lotte_D1100 d1100 = updateD1100Corp(user.corp().idx(), dto);
+		updateD1100Corp(user.corp().idx(), dto);
+		D1000 shinhanD1000 = repoShinhanD1000.getTopByIdxCorpOrderByIdxDesc(user.corp().idx());
 
 		Corp corp = repoCorp.save(user.corp()
 				.resCompanyEngNm(dto.getEngCorName())
 				.resCompanyNumber(dto.getCorNumber())
 				.resBusinessCode(dto.getBusinessCode())
-				.resUserType(d1100 != null ? d1100.getDgTc() : null)
+				.resUserType(!ObjectUtils.isEmpty(shinhanD1000) ? shinhanD1000.getD009() : null)
 		);
 
 		if (StringUtils.hasText(depthKey)) {
@@ -98,7 +99,7 @@ public class LotteCardService {
 	}
 
 	/**
-	 * 법인정보 등록
+	 * 법인 추가정보 등록
 	 *
 	 * @param idx_user     등록하는 User idx
 	 * @param dto          등록정보
@@ -556,8 +557,8 @@ public class LotteCardService {
 		CeoType ceoType = CeoType.SINGLE;
 		if (d1100 != null) {
 			// 신한전문에서 대표자 정보 가져오기
-
 			ceoType = CeoType.fromLotte(CeoType.covertShinhanToLotte(getShinhanCeoCode(user)));
+
 			if (StringUtils.hasText(d1100.getCstNm()) && StringUtils.hasText(d1100.getCstNm2()) && StringUtils.hasText(d1100.getCstNm3())) {
 				count = 3;
 			} else if (StringUtils.hasText(d1100.getCstNm()) && StringUtils.hasText(d1100.getCstNm2()) && !StringUtils.hasText(d1100.getCstNm3())) {

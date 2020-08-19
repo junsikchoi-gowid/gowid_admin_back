@@ -52,22 +52,6 @@ public class CommonUtil {
         return decryptData.get(fieldName);
     }
 
-    public static String getDecryptKeypad(HttpServletRequest httpServletRequest, String fieldName) {
-        return getDecryptKeypad(httpServletRequest, fieldName, fieldName);
-    }
-
-    public static String getDecryptKeypad(HttpServletRequest httpServletRequest, String fieldName, boolean ENC_KEYPAD_ENABLE) {
-        String returnString = httpServletRequest.getParameter(fieldName);
-        log.debug("## keypad encrypted string[{}] : {}", fieldName, returnString);
-        if (!ENC_KEYPAD_ENABLE) {
-            return returnString;
-        }
-
-        returnString = getDecryptKeypad(httpServletRequest, fieldName, fieldName);
-        log.debug("## keypad decrypted string[{}] : {}", fieldName, returnString);
-        return returnString;
-    }
-
     // 1800(전자서명값 전송)에 사용될 전자서명식별번호
     public static String getDigitalSignatureIdNumber(String bizNo, Long count) {
         if (ObjectUtils.isEmpty(count)) {
@@ -102,5 +86,9 @@ public class CommonUtil {
         }
         BigDecimal covertNumber = new BigDecimal(source);
         return covertNumber.divide(BigDecimal.valueOf(division)).toPlainString();
+    }
+
+    public static String replaceHyphen(String target) {
+        return target.replaceAll("-", "");
     }
 }

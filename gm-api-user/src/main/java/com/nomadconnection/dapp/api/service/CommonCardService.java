@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.exception.*;
+import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFile;
@@ -28,8 +29,6 @@ import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
-import com.nomadconnection.dapp.core.domain.risk.Risk;
-import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -113,7 +112,7 @@ public class CommonCardService {
 			for (StockholderFile file : fileList) {
 				repoFile.delete(file);
 				s3Service.s3FileDelete(file.s3Key());
-				gwUploadService.delete(file.fname(), cardInfo.cardCompany().getCode());
+				gwUploadService.delete(cardInfo.cardCompany(), file.fname());
 			}
 		}
 
@@ -139,7 +138,7 @@ public class CommonCardService {
 		}
 
 		boolean sendGwUpload = false;
-		String licenseNo = cardInfo.corp().resCompanyIdentityNo().replaceAll("-", "");
+		String licenseNo = CommonUtil.replaceHyphen(cardInfo.corp().resCompanyIdentityNo());
 		String sequence = type.getCode() + "00" + gwUploadCount;
 
 		List<CardIssuanceDto.StockholderFileRes> resultList = new ArrayList<>();
@@ -166,7 +165,7 @@ public class CommonCardService {
 			String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
 
 			if (file.getSize() <= STOCKHOLDER_FILE_SIZE && !sendGwUpload) {
-				gwUploadService.upload(uploadFile, cardInfo.cardCompany().getCode(), Const.STOCKHOLDER_GW_FILE_CODE, licenseNo);
+				gwUploadService.upload(cardInfo.cardCompany(), uploadFile, Const.STOCKHOLDER_GW_FILE_CODE, licenseNo);
 				sendGwUpload = true;
 			} else {
 				sendGwUpload = false;
@@ -188,7 +187,7 @@ public class CommonCardService {
 		} catch (Exception e) {
 			uploadFile.delete();
 			s3Service.s3FileDelete(s3Key);
-			gwUploadService.delete(fileName, cardInfo.cardCompany().getCode());
+			gwUploadService.delete(cardInfo.cardCompany(), fileName);
 
 			log.error("[uploadStockholderFile] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
 			throw FileUploadException.builder().category(FileUploadException.Category.UPLOAD_STOCKHOLDER_FILE).build();
@@ -220,7 +219,7 @@ public class CommonCardService {
 		if (file.cardIssuanceInfo().idx() != idx_CardInfo) {
 			throw MismatchedException.builder().category(MismatchedException.Category.STOCKHOLDER_FILE).build();
 		}
-		gwUploadService.delete(file.fname(), cardInfo.cardCompany().getCode());
+		gwUploadService.delete(cardInfo.cardCompany(), file.fname());
 		s3Service.s3FileDelete(file.s3Key());
 		repoFile.delete(file);
 
@@ -357,62 +356,46 @@ public class CommonCardService {
 	public void deleteAllIssuanceInfo(User user) {
 		Corp corp = user.corp();
 
-		// update gowid.User set idxCorp = null, cardCompany = null where idxCorp = @idxCorp;
 		repoUser.saveAndFlush(user.corp(null).cardCompany(null));
+		log.debug("Complete update gowid.User set idxCorp = null, cardCompany = null where idxCorp = @idxCorp");
 
-		// select @idxCardIssuanceInfo := idx from gowid.CardIssuanceInfo where idxUser = @idxUser;
-		CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.getTopByUserAndDisabledFalseOrderByIdxDesc(user);
-		if (!ObjectUtils.isEmpty(cardIssuanceInfo)) {
-			// delete FROM gowid.CeoInfo where idxCardIssuanceInfo = @idxCardIssuanceInfo;
-			repoCeoInfo.deleteAll(cardIssuanceInfo.ceoInfos());
-			repoCeoInfo.flush();
+		List<Long> cardIssuanceInfoIdx = repoCardIssuance.findAllIdxByUserIdx(user.idx());
+		repoCeoInfo.deleteAllByCardIssuanceInfoIdx(cardIssuanceInfoIdx);
+		log.debug("Complete delete FROM gowid.CeoInfo where idxCardIssuanceInfo = @idxCardIssuanceInfo");
 
-			// delete from gowid.CardIssuanceInfo where idxUser = @idxUser;
-			repoCardIssuance.delete(cardIssuanceInfo);
-			repoCardIssuance.flush();
-		}
+		repoCardIssuance.deleteAllByUserIdx(user.idx());
+		log.debug("Complete delete from gowid.CardIssuanceInfo where idxUser = @idxUser");
 
-		// delete from gowid.ConnectedMng where idxUser = @idxUser;
 		List<ConnectedMng> connectedMng = repoConnectedMng.findByIdxUser(user.idx());
 		if (!ObjectUtils.isEmpty(connectedMng)) {
 			repoConnectedMng.deleteAll(repoConnectedMng.findByIdxUser(user.idx()));
 			repoConnectedMng.flush();
 		}
+		log.debug("Complete delete from gowid.ConnectedMng where idxUser = @idxUser");
 
-		// delete from gowid.ConsentMapping where idxUser = @idxUser;
 		List<ConsentMapping> consentMappings = repoConsentMapping.findAllByIdxUser(user.idx());
 		if (!ObjectUtils.isEmpty(consentMappings)) {
 			repoConsentMapping.deleteAll(consentMappings);
 			repoConsentMapping.flush();
 		}
+		log.debug("Complete delete from gowid.ConsentMapping where idxUser = @idxUser");
 
-		// delete from gowid.IssuanceProgress WHERE userIdx = @idxUser;
 		IssuanceProgress issuanceProgress = getIssuanceProgress(user.idx());
 		if (!ObjectUtils.isEmpty(issuanceProgress)) {
 			repoIssuanceProgress.delete(issuanceProgress);
 			repoIssuanceProgress.flush();
 		}
+		log.debug("Complete delete from gowid.IssuanceProgress WHERE userIdx = @idxUser");
 
-		// delete from gowid.Corp where idx = @idxCorp;
-		if (!ObjectUtils.isEmpty(corp)) {
-			repoCorp.delete(corp);
-			repoCorp.flush();
-		}
+		repoRisk.deleteByCorpIdx(corp.idx());
+		log.debug("Complete delete from gowid.Risk where idxCorp = @idxCorp");
 
-		// delete from gowid.Risk where idxCorp = @idxCorp;
-		List<Risk> risk = repoRisk.findAllByCorp(corp);
-		if (!ObjectUtils.isEmpty(risk)) {
-			repoRisk.deleteAll(risk);
-			repoRisk.flush();
-		}
+		repoRiskConfig.deleteByCorpIdx(corp.idx());
+		log.debug("Complete delete from gowid.RiskConfig where idxCorp = @idxCorp");
 
-		// delete from gowid.RiskConfig where idxCorp = @idxCorp;
-		List<RiskConfig> riskConfig = repoRiskConfig.findAllByCorp(corp);
-		if (!ObjectUtils.isEmpty(riskConfig)) {
-			repoRiskConfig.deleteAll(riskConfig);
-			repoRiskConfig.flush();
-		}
-
+		repoCorp.delete(corp);
+		repoCorp.flush();
+		log.debug("Complete delete from gowid.Corp where idx = @idxCorp");
 	}
 
 	private User findUser(Long idx_user) {
