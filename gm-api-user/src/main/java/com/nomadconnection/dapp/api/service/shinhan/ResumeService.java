@@ -100,10 +100,10 @@ public class ResumeService {
         proc1800(request, signatureHistory, signatureHistory.getUserIdx());  // 1800(전자서명값전달)
         issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
 
-        sendApprovedEmail(request);
+        sendApprovedEmail(request, signatureHistory.getCorpIdx());
     }
 
-    private void sendApprovedEmail(CardIssuanceDto.ResumeReq request) {
+    private void sendApprovedEmail(CardIssuanceDto.ResumeReq request, long corpIdx) {
         if (!sendEmailEnable) {
             return;
         }
@@ -113,7 +113,13 @@ public class ResumeService {
             log.error("## application date={}, application num={}", request.getD001(), request.getD002());
             return;
         }
-        emailService.sendApproveEmail(d1200.getD001());
+
+        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
+                () -> new SystemException(ErrorCode.External.INTERNAL_SERVER_ERROR,
+                        "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
+        );
+
+        emailService.sendApproveEmail(d1200.getD001(), d1100.getD039());
         log.debug("## approved email sent. biz no = " + d1200.getD001());
     }
 

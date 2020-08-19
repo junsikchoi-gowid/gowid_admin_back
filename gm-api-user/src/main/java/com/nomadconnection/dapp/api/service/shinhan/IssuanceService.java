@@ -156,19 +156,22 @@ public class IssuanceService {
             issCommonService.saveProgressFailed(userIdx, IssuanceProgressType.P_IMG);
             if (proc3000(userCorp, resultOfD1200, userIdx)) {
                 issCommonService.saveProgressSuccess(userIdx, IssuanceProgressType.P_IMG);
-                sendReceiptEmail(resultOfD1200);
-                return;
+                sendReceiptEmail(resultOfD1200, userCorp);
             }
         } catch (Exception e) {
             log.error("[procBpr] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
         }
     }
 
-    private void sendReceiptEmail(DataPart1200 resultOfD1200) {
+    private void sendReceiptEmail(DataPart1200 resultOfD1200, Corp userCorp) {
         if (!sendReceiptEmailEnable) {
             return;
         }
-        emailService.sendReceiptEmail(resultOfD1200.getD001());
+        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx()).orElseThrow(
+                () -> new SystemException(ErrorCode.External.INTERNAL_SERVER_ERROR,
+                        "data of d1100 is not exist(corpIdx=" + userCorp.idx() + ")")
+        );
+        emailService.sendReceiptEmail(resultOfD1200.getD001(), d1100.getD039());
         log.debug("## receipt email sent. biz no = " + resultOfD1200.getD001());
     }
 
