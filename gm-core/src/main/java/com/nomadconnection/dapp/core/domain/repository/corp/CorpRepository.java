@@ -5,8 +5,11 @@ import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomReposi
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -22,7 +25,10 @@ public interface CorpRepository extends JpaRepository<Corp, Long> , CorpCustomRe
 	@Query(value = "select Corp.idxUser from Corp where idx = :idxCorp limit 1", nativeQuery = true)
 	Long searchIdxUser(Long idxCorp);
 
-
+	@Transactional
+	@Modifying
+	@Query("delete from Corp  where idx = :idxCorp")
+	void deleteCorpByIdx(@Param("idxCorp") Long idxCorp);
 
 	public static interface ScrapingResultDto {
 		Long getIdxCorp();

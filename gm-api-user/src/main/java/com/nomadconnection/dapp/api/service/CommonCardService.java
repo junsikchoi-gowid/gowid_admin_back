@@ -350,8 +350,7 @@ public class CommonCardService {
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
 	}
-
-	// TODO: 모든데이터 초기화 수정
+	
 	@Transactional(rollbackFor = Exception.class)
 	public void deleteAllIssuanceInfo(User user) {
 		Corp corp = user.corp();
@@ -359,23 +358,28 @@ public class CommonCardService {
 		repoUser.saveAndFlush(user.corp(null).cardCompany(null));
 		log.debug("Complete update gowid.User set idxCorp = null, cardCompany = null where idxCorp = @idxCorp");
 
-		List<Long> cardIssuanceInfoIdx = repoCardIssuance.findAllIdxByUserIdx(user.idx());
-		repoCeoInfo.deleteAllByCardIssuanceInfoIdx(cardIssuanceInfoIdx);
-		log.debug("Complete delete FROM gowid.CeoInfo where idxCardIssuanceInfo = @idxCardIssuanceInfo");
+		{
+			List<Long> cardIssuanceInfoIdx = repoCardIssuance.findAllIdxByUserIdx(user.idx());
+			repoCeoInfo.deleteAllByCardIssuanceInfoIdx(cardIssuanceInfoIdx);
+			log.debug("Complete delete FROM gowid.CeoInfo where idxCardIssuanceInfo = @idxCardIssuanceInfo");
 
-		repoCardIssuance.deleteAllByUserIdx(user.idx());
-		log.debug("Complete delete from gowid.CardIssuanceInfo where idxUser = @idxUser");
+			repoFile.deleteAllByCardIssuanceInfoIdx(cardIssuanceInfoIdx);
+			log.debug("Complete delete FROM gowid.StockholderFile where idxCardIssuanceInfo = @idxCardIssuanceInfo");
+
+			repoCardIssuance.deleteAllByUserIdx(user.idx());
+			log.debug("Complete delete from gowid.CardIssuanceInfo where idxUser = @idxUser");
+		}
 
 		List<ConnectedMng> connectedMng = repoConnectedMng.findByIdxUser(user.idx());
 		if (!ObjectUtils.isEmpty(connectedMng)) {
-			repoConnectedMng.deleteAll(repoConnectedMng.findByIdxUser(user.idx()));
+			repoConnectedMng.deleteInBatch(repoConnectedMng.findByIdxUser(user.idx()));
 			repoConnectedMng.flush();
 		}
 		log.debug("Complete delete from gowid.ConnectedMng where idxUser = @idxUser");
 
 		List<ConsentMapping> consentMappings = repoConsentMapping.findAllByIdxUser(user.idx());
 		if (!ObjectUtils.isEmpty(consentMappings)) {
-			repoConsentMapping.deleteAll(consentMappings);
+			repoConsentMapping.deleteInBatch(consentMappings);
 			repoConsentMapping.flush();
 		}
 		log.debug("Complete delete from gowid.ConsentMapping where idxUser = @idxUser");
@@ -393,8 +397,7 @@ public class CommonCardService {
 		repoRiskConfig.deleteByCorpIdx(corp.idx());
 		log.debug("Complete delete from gowid.RiskConfig where idxCorp = @idxCorp");
 
-		repoCorp.delete(corp);
-		repoCorp.flush();
+		repoCorp.deleteCorpByIdx(corp.idx());
 		log.debug("Complete delete from gowid.Corp where idx = @idxCorp");
 	}
 
