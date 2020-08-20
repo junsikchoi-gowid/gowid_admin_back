@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.risk.Risk;
+import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -109,5 +110,23 @@ public class RiskDto {
         public boolean ventureCertification;
         public boolean vcInvestment;
         public boolean enabled;
+
+        public static RiskConfigDto from(RiskConfig riskConfig) {
+            RiskConfigDto riskConfigDto = RiskConfigDto.builder()
+                    .idx(riskConfig.idx())
+                    .idxUser(riskConfig.user().idx())
+                    .idxCorp(riskConfig.corp().idx())
+                    .ceoGuarantee(riskConfig.ceoGuarantee())
+                    .depositGuarantee(riskConfig.depositGuarantee())
+                    .depositPayment(riskConfig.depositPayment())
+                    .cardIssuance(riskConfig.cardIssuance())
+                    .ventureCertification(riskConfig.ventureCertification())
+                    .vcInvestment(riskConfig.vcInvestment())
+                    .enabled(riskConfig.enabled())
+                    .build();
+
+            return riskConfigDto;
+        }
     }
+
 }

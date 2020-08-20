@@ -99,10 +99,11 @@ public class RiskService {
 
 			idxUser = repoCorp.searchIdxUser(idxCorp);
 		}else{
-
-			Long finalIdxUser1 = idxUser;
-			user = findUser(finalIdxUser1);
-
+			user = repoUser.findById(idxUser).orElseThrow(
+					() -> UserNotFoundException.builder()
+							.id(finalIdxUser)
+							.build()
+			);
 			corp = user.corp();
 		}
 
@@ -120,38 +121,22 @@ public class RiskService {
 				, Integer.parseInt(calcDate.substring(6,8))
 		).minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 
-		Optional<RiskConfig> riskConfigOptional = repoRiskConfig.findByUserAndEnabled(user, true);
-		RiskConfig riskconfig ;
+		RiskConfig riskconfig = repoRiskConfig.findByUserAndEnabled(user, true).orElseGet(
+				() -> RiskConfig.builder()
+						.depositGuarantee(0F)
+						.depositPayment(false)
+						.vcInvestment(false)
+						.ventureCertification(false)
+						.cardIssuance(false)
+						.ceoGuarantee(false)
+						.enabled(true)
+						.user(user)
+						.corp(corp)
+						.build()
+		);
 
-		if(riskConfigOptional.isPresent()){
-			riskconfig = RiskConfig.builder()
-					.depositGuarantee(riskConfigOptional.get().depositGuarantee())
-					.depositPayment(riskConfigOptional.get().depositPayment())
-					.vcInvestment(riskConfigOptional.get().vcInvestment())
-					.ventureCertification(riskConfigOptional.get().ventureCertification())
-					.cardIssuance(riskConfigOptional.get().cardIssuance())
-					.ceoGuarantee(riskConfigOptional.get().ceoGuarantee())
-					.user(user)
-					.corp(corp)
-					.build();
-		}else{
-			riskconfig = RiskConfig.builder()
-					.depositGuarantee(0F)
-					.depositPayment(false)
-					.vcInvestment(false)
-					.ventureCertification(false)
-					.cardIssuance(false)
-					.ceoGuarantee(false)
-					.enabled(true)
-					.user(user)
-					.corp(corp)
-					.build();
-		}
-
-		// 최초가입시 가입후 회사정보 변경으로 인한 자동 적용
-		if(riskconfig.user() == null || riskconfig.corp() == null ){
-			repoRiskConfig.modifyRiskConfig(riskconfig.idx(), user.idx(), corp.idx());
-		}
+		riskconfig.user(user);
+		riskconfig.corp(corp);
 
 		Optional<Risk> riskOptional = repoRisk.findByUserAndDate(User.builder().idx(idxUser).build(), calcDate);
 		Risk risk ;
@@ -176,14 +161,6 @@ public class RiskService {
 			risk.ventureCertification(riskconfig.ventureCertification());
 			risk.vcInvestment(riskconfig.vcInvestment());
 		}
-
-//		Corp finalCorp2 = corp;
-//		Corp corpConfig = repoCorp.findById(user.corp().idx()).orElseThrow(
-//				() -> UserNotFoundException.builder().id(finalCorp2.user().idx()).build()
-//		);
-//		corpConfig.riskConfig(riskconfig);
-//		corpConfig.user(user);
-
 
 		risk.user(user);
 		risk.corp(corp);
@@ -334,6 +311,9 @@ public class RiskService {
 
 		repoRisk.save(risk);
 
+		corp.riskConfig(repoRiskConfig.save(riskconfig));
+		repoCorp.save(corp);
+
 		return ResponseEntity.ok().body(BusinessResponse.builder().build());
 	}
 
@@ -343,7 +323,7 @@ public class RiskService {
 	}
 
 	@Transactional(readOnly = true)
-	private User findUser(Long idx_user) {
+	User findUser(Long idx_user) {
 		return repoUser.findById(idx_user).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.id(idx_user)
@@ -373,12 +353,14 @@ public class RiskService {
 
 			idxUser = repoCorp.searchIdxUser(idxCorp);
 		}else{
-
-			Long finalIdxUser1 = idxUser;
-			user = findUser(finalIdxUser1);
-
+			user = repoUser.findById(idxUser).orElseThrow(
+					() -> UserNotFoundException.builder()
+							.id(finalIdxUser)
+							.build()
+			);
 			corp = user.corp();
 		}
+
 
 		if(calcDate == null || calcDate.isEmpty()){
 			calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
@@ -394,38 +376,22 @@ public class RiskService {
 				, Integer.parseInt(calcDate.substring(6,8))
 		).minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 
-		Optional<RiskConfig> riskConfigOptional = repoRiskConfig.findByUserAndEnabled(user, true);
-		RiskConfig riskconfig ;
+		RiskConfig riskconfig = repoRiskConfig.findByUserAndEnabled(user, true).orElseGet(
+				() -> RiskConfig.builder()
+						.depositGuarantee(0F)
+						.depositPayment(false)
+						.vcInvestment(false)
+						.ventureCertification(false)
+						.cardIssuance(false)
+						.ceoGuarantee(false)
+						.enabled(true)
+						.user(user)
+						.corp(corp)
+						.build()
+		);
 
-		if(riskConfigOptional.isPresent()){
-			riskconfig = RiskConfig.builder()
-					.depositGuarantee(riskConfigOptional.get().depositGuarantee())
-					.depositPayment(riskConfigOptional.get().depositPayment())
-					.vcInvestment(riskConfigOptional.get().vcInvestment())
-					.ventureCertification(riskConfigOptional.get().ventureCertification())
-					.cardIssuance(riskConfigOptional.get().cardIssuance())
-					.ceoGuarantee(riskConfigOptional.get().ceoGuarantee())
-					.user(user)
-					.corp(corp)
-					.build();
-		}else{
-			riskconfig = RiskConfig.builder()
-					.depositGuarantee(0F)
-					.depositPayment(false)
-					.vcInvestment(false)
-					.ventureCertification(false)
-					.cardIssuance(false)
-					.ceoGuarantee(false)
-					.enabled(true)
-					.user(user)
-					.corp(corp)
-					.build();
-		}
-
-		// 최초가입시 가입후 회사정보 변경으로 인한 자동 적용
-		if(riskconfig.user() == null || riskconfig.corp() == null ){
-			repoRiskConfig.modifyRiskConfig(riskconfig.idx(), user.idx(), corp.idx());
-		}
+		riskconfig.user(user);
+		riskconfig.corp(corp);
 
 		Optional<Risk> riskOptional = repoRisk.findByUserAndDate(User.builder().idx(idxUser).build(), calcDate);
 		Risk risk ;
@@ -451,14 +417,6 @@ public class RiskService {
 			risk.vcInvestment(riskconfig.vcInvestment());
 
 		}
-
-//		Corp finalCorp2 = corp;
-//		Corp corpConfig = repoCorp.findById(user.corp().idx()).orElseThrow(
-//				() -> UserNotFoundException.builder().id(finalCorp2.user().idx()).build()
-//		);
-//		corpConfig.riskConfig(riskconfig);
-//		corpConfig.user(user);
-
 
 		risk.user(user);
 		risk.corp(corp);
@@ -630,6 +588,9 @@ public class RiskService {
 
 		strGrade = risk.grade();
 
+		corp.riskConfig(repoRiskConfig.save(riskconfig));
+		repoCorp.save(corp);
+
 		repoD1000.save(d1000);
 
 		d1400.setD014(String.valueOf(Math.round(risk.cardLimit())));
@@ -649,6 +610,27 @@ public class RiskService {
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(
 				repoRiskConfig.getTopByCorpAndEnabled(user.corp(),true).grantLimit()
 		).build());
+	}
+
+
+	@Transactional(readOnly = true)
+	public ResponseEntity getRiskConfig(Long idxUser, Long idxCorp) {
+		User user = repoUser.findById(idxUser).orElseThrow(
+				() -> UserNotFoundException.builder().build()
+		);
+
+		if(idxCorp == null){
+			idxCorp = user.corp().idx();
+		}
+
+		Long finalIdxCorp = idxCorp;
+
+		RiskDto.RiskConfigDto riskConfig = repoRiskConfig.findByCorpAndEnabled(Corp.builder().idx(finalIdxCorp).build(), true).map(RiskDto.RiskConfigDto::from)
+				.orElseThrow(
+						() -> CorpNotRegisteredException.builder().account(finalIdxCorp.toString()).build()
+				);
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().data(riskConfig).build());
 	}
 }
 

@@ -65,6 +65,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.nomadconnection.dapp.codef.io.helper.CommonConstant.LOTTE_FILE;
+import static com.nomadconnection.dapp.codef.io.helper.CommonConstant.SHINHAN_FILE;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -1721,6 +1724,8 @@ public class CodefService {
 		}
 
 		//todo 파일전송
+		fileCode = changeCode(cardCompany, fileCode);
+
 		CardIssuanceInfo cardInfo = null;
 		log.debug("boolConverter = {}" , boolConverter);
 		if(boolConverter){
@@ -1743,6 +1748,27 @@ public class CodefService {
 			}
 		}
 		return boolConverter;
+	}
+
+
+	// 0306 신한 0311 롯데
+	private Integer changeCode(CardCompany cardCompany, Integer fileCode) {
+		if(cardCompany.getCode().equals("0306")){
+			log.debug("0306 cardCompany = {}" , cardCompany.getName());
+		}else if(cardCompany.getCode().equals("0311")){
+			log.debug("0311 cardCompany = {}" , cardCompany.getName());
+			if( fileCode.equals(CommonConstant.SHINHAN_FILE[0])){
+				fileCode = Integer.valueOf(LOTTE_FILE[0]);
+			}else if( fileCode.equals(CommonConstant.SHINHAN_FILE[1])){
+				fileCode = Integer.valueOf(LOTTE_FILE[1]);
+			}else if( fileCode.equals(CommonConstant.SHINHAN_FILE[2])){
+				fileCode = Integer.valueOf(LOTTE_FILE[2]);
+			}else if( fileCode.equals(CommonConstant.SHINHAN_FILE[3])){
+				fileCode = Integer.valueOf(LOTTE_FILE[3]);
+			}
+		}
+
+		return fileCode;
 	}
 
 

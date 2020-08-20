@@ -59,11 +59,19 @@ public class RiskController {
 		return service.saveRisk45(user.idx(), null ,calcDate);
 	}
 
-	@ApiOperation(value = "리스크 설정 저장", notes = "" + "\n")
-	@GetMapping( URI.RISKCONFIG )
+	@ApiOperation(value = "RiskConfig 저장", notes = "" + "\n")
+	@PostMapping( URI.RISKCONFIG )
 	public ResponseEntity saveRiskConfig(@RequestParam Long idxUser ,
 									  @ModelAttribute RiskDto.RiskConfigDto riskConfigDto) {
 		return service.saveRiskConfig(riskConfigDto);
+	}
+
+	@ApiOperation(value = "RiskConfig 조회")
+	@GetMapping(URI.RISKCONFIG)
+	public ResponseEntity<String> getRiskConfig(@ApiIgnore @CurrentUser CustomUser user
+			, @RequestParam(required = false) Long idxCorp) {
+
+		return service.getRiskConfig(user.idx(), idxCorp);
 	}
 
 	@ApiOperation(value = "리스크 한도 금액 조회")

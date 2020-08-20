@@ -15,6 +15,8 @@ public class CommonConstant {
 	public static final String[] LISTBANK	= {"0002","0003","0004","0007","0011","0020","0023","0027","0031","0032","0034","0035","0037","0039","0045","0048","0071","0081","0088","0089"};
 	public static final String[] LISTCARD	= {"0301","0302","0303","0304","0305","0306","0307","0309","0311","0313","0315","0316","0320","0321"};
 	public static final String REVENUE	= "0002";
+	public static final Integer[] SHINHAN_FILE = {1510,1520,1530,9991}; // 사업자등록증, 재무제표, 등기부등본, 기타서류
+	public static final Integer[] LOTTE_FILE = {8502,8503,8505,8506}; // 사업자등록증, 재무제표, 등기부등본, 기타서류
 
 	public static final String CONNECTED_ID = "connectedId";												// 유저 식별 연결 아이디
 	public static final String PAGE_NO 		= "pageNo";														// 페이지 번호
