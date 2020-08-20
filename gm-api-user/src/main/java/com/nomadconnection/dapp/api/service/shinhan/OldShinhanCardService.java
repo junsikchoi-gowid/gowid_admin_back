@@ -388,7 +388,7 @@ public class OldShinhanCardService {
 			String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
 
 			if (file.getSize() <= STOCKHOLDER_FILE_SIZE && !sendGwUpload) {
-				gwUploadService.upload(cardInfo.cardCompany(), uploadFile, Const.STOCKHOLDER_GW_FILE_CODE, licenseNo);
+				gwUploadService.upload(cardInfo.cardCompany(), uploadFile, Const.SHINHAN_STOCKHOLDER_GW_FILE_CODE, licenseNo);
 				sendGwUpload = true;
 			} else {
 				sendGwUpload = false;
@@ -419,9 +419,9 @@ public class OldShinhanCardService {
 
 	private String makeStockholderFileName(MultipartFile file, boolean sendGwUpload, String licenseNo, String sequence) {
 		if (file.getSize() > STOCKHOLDER_FILE_SIZE || sendGwUpload) {
-			return licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + sequence + "_back." + FilenameUtils.getExtension(file.getOriginalFilename());
+			return licenseNo + Const.SHINHAN_STOCKHOLDER_GW_FILE_CODE + sequence + "_back." + FilenameUtils.getExtension(file.getOriginalFilename());
 		}
-		return licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + sequence + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+		return licenseNo + Const.SHINHAN_STOCKHOLDER_GW_FILE_CODE + sequence + "." + FilenameUtils.getExtension(file.getOriginalFilename());
 	}
 
 	/**

@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -152,7 +153,8 @@ public class CommonCardService {
 	}
 
 	private CardIssuanceDto.StockholderFileRes uploadFile(CardIssuanceInfo cardInfo, MultipartFile file, String licenseNo, boolean sendGwUpload, String sequence, StockholderFileType type) throws IOException {
-		String fileName = makeStockholderFileName(file, sendGwUpload, licenseNo, sequence);
+		String gwFileCode = getGwFileCode(cardInfo.cardCompany());
+		String fileName = makeStockholderFileName(file, sendGwUpload, licenseNo, sequence, gwFileCode);
 		String s3Key = "stockholder/" + cardInfo.idx() + "/" + fileName;
 
 		File uploadFile = new File(fileName);
@@ -165,7 +167,7 @@ public class CommonCardService {
 			String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
 
 			if (file.getSize() <= STOCKHOLDER_FILE_SIZE && !sendGwUpload) {
-				gwUploadService.upload(cardInfo.cardCompany(), uploadFile, Const.STOCKHOLDER_GW_FILE_CODE, licenseNo);
+				gwUploadService.upload(cardInfo.cardCompany(), uploadFile, gwFileCode, licenseNo);
 				sendGwUpload = true;
 			} else {
 				sendGwUpload = false;
@@ -194,11 +196,22 @@ public class CommonCardService {
 		}
 	}
 
-	private String makeStockholderFileName(MultipartFile file, boolean sendGwUpload, String licenseNo, String sequence) {
+	private String makeStockholderFileName(MultipartFile file, boolean sendGwUpload, String licenseNo, String sequence, String gwFileCode) {
 		if (file.getSize() > STOCKHOLDER_FILE_SIZE || sendGwUpload) {
-			return licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + sequence + "_back." + FilenameUtils.getExtension(file.getOriginalFilename());
+			return licenseNo + gwFileCode + sequence + "_back." + FilenameUtils.getExtension(file.getOriginalFilename());
 		}
-		return licenseNo + Const.STOCKHOLDER_GW_FILE_CODE + sequence + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+		return licenseNo + gwFileCode + sequence + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+	}
+
+	private String getGwFileCode(CardCompany cardCompany) {
+		switch (cardCompany) {
+			case SHINHAN:
+				return Const.SHINHAN_STOCKHOLDER_GW_FILE_CODE;
+			case LOTTE:
+				return Const.LOTTE_STOCKHOLDER_GW_FILE_CODE;
+			default:
+				return "";
+		}
 	}
 
 	/**
@@ -350,8 +363,8 @@ public class CommonCardService {
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
 	}
-	
-	@Transactional(rollbackFor = Exception.class)
+
+	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
 	public void deleteAllIssuanceInfo(User user) {
 		Corp corp = user.corp();
 

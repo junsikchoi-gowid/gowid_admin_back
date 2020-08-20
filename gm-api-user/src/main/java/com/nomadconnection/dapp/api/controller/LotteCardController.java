@@ -46,7 +46,7 @@ public class LotteCardController {
 	private final LotteCardService service;
 	private final LotteIssuanceService issuanceService;
 
-	@ApiOperation("법인정보 등록")
+	@ApiOperation("법인정보 수정")
 	@PutMapping(URI.CORPORATION)
 	public ResponseEntity<CardIssuanceDto.CorporationRes> updateCorporation(
 			@ApiIgnore @CurrentUser CustomUser user,
