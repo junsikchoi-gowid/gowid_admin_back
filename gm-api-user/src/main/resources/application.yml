@@ -53,6 +53,7 @@ gateway:
       1200: /lotte/d1200
       1100: /lotte/d1100
       1000: /lotte/d1000
+      image-zip: /lotte/zip
       image-transfer: /lotte/transfer/images/
 
 ---

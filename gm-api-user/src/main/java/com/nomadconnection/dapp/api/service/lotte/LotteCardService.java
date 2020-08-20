@@ -366,12 +366,44 @@ public class LotteCardService {
 		if (ObjectUtils.isEmpty(card)) {
 			card = Card.builder().build();
 		}
+		cardInfo.card(card.hopeLimit(dto.getHopeLimit()));
+
+		if (StringUtils.hasText(card.grantLimit())) {
+			Long calculatedLimitLong = Long.parseLong(card.calculatedLimit());
+			Long hopeLimitLong = Long.parseLong(card.hopeLimit());
+			card.grantLimit(calculatedLimitLong > hopeLimitLong ? card.hopeLimit() : card.calculatedLimit());
+			updateRiskConfigLimit(user, card.grantLimit(), card.hopeLimit());
+			updateD1100Limit(user, card.grantLimit(), card.hopeLimit());
+		}
 
 		if (StringUtils.hasText(depthKey)) {
 			repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
 		}
 
-		return CardIssuanceDto.CardRes.from(repoCardIssuance.save(cardInfo.card(card.hopeLimit(dto.getHopeLimit()))));
+		return CardIssuanceDto.CardRes.from(repoCardIssuance.save(cardInfo));
+	}
+
+	private RiskConfig updateRiskConfigLimit(User user, String grantLimit, String hopeLimit) {
+		Optional<RiskConfig> riskConfig = repoRiskConfig.findByCorpAndEnabled(user.corp(), true);
+		if (riskConfig.isPresent()) {
+			return repoRiskConfig.save(riskConfig.get()
+					.hopeLimit(hopeLimit)
+					.grantLimit(grantLimit)
+			);
+		}
+
+		return null;
+	}
+
+	private Lotte_D1100 updateD1100Limit(User user, String grantLimit, String hopeLimit) {
+		Lotte_D1100 d1100 = getD1100(user.corp().idx());
+		if (ObjectUtils.isEmpty(d1100)) {
+			return d1100;
+		}
+
+		d1100.setCpAkLimAm(CommonUtil.divisionString(hopeLimit, 10000))
+				.setAkLimAm(CommonUtil.divisionString(grantLimit, 10000));
+		return repoD1100.save(d1100);
 	}
 
 	/**
@@ -409,7 +441,7 @@ public class LotteCardService {
 		String grantLimit = calculatedLimitLong < Long.parseLong(hopeLimit) ? calculatedLimit : hopeLimit;
 
 		updateRiskConfigCard(user, grantLimit, calculatedLimit, hopeLimit);
-		updateD1100Card(user, grantLimit, calculatedLimit, dto);
+		updateD1100Card(user, grantLimit, calculatedLimit, hopeLimit, dto);
 
 		Card card = cardInfo.card();
 		if (ObjectUtils.isEmpty(card)) {
@@ -455,7 +487,7 @@ public class LotteCardService {
 		}
 	}
 
-	private Lotte_D1100 updateD1100Card(User user, String grantLimit, String calculatedLimit, CardIssuanceDto.RegisterCard dto) {
+	private Lotte_D1100 updateD1100Card(User user, String grantLimit, String calculatedLimit, String hopeLimit, CardIssuanceDto.RegisterCard dto) {
 		Lotte_D1100 d1100 = getD1100(user.corp().idx());
 		if (ObjectUtils.isEmpty(d1100)) {
 			return d1100;
@@ -464,7 +496,8 @@ public class LotteCardService {
 		String encryptEmail = Lotte_Seed128.encryptEcb(user.email());
 		d1100.setBllRvpDc(dto.getReceiveType().getLotteCode())
 				.setMlId(!dto.getReceiveType().getLotteCode().equals("1") ? encryptEmail : null)
-				.setCpAkLimAm(CommonUtil.divisionString(grantLimit, 10000))
+				.setCpAkLimAm(CommonUtil.divisionString(hopeLimit, 10000))
+				.setAkLimAm(CommonUtil.divisionString(grantLimit, 10000))
 				.setGowidCalLimAm(CommonUtil.divisionString(calculatedLimit, 10000))
 				.setBzplcPsno(dto.getZipCode())
 				.setBzplcPnadd(dto.getAddressBasic())

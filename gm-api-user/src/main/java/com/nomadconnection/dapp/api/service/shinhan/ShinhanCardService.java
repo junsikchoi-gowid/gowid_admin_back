@@ -376,12 +376,59 @@ public class ShinhanCardService {
         if (ObjectUtils.isEmpty(card)) {
             card = Card.builder().build();
         }
+        cardInfo.card(card.hopeLimit(dto.getHopeLimit()));
+
+        if (StringUtils.hasText(card.grantLimit())) {
+            Long calculatedLimitLong = Long.parseLong(card.calculatedLimit());
+            Long hopeLimitLong = Long.parseLong(card.hopeLimit());
+            card.grantLimit(calculatedLimitLong > hopeLimitLong ? card.hopeLimit() : card.calculatedLimit());
+            updateRiskConfigLimit(user, card.grantLimit(), card.hopeLimit());
+            updateD1000Limit(user, card.grantLimit());
+            updateD1100Limit(user, card.grantLimit());
+            updateD1400Limit(user, card.grantLimit());
+        }
 
         if (StringUtils.hasText(depthKey)) {
             repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
         }
 
-        return CardIssuanceDto.CardRes.from(repoCardIssuance.save(cardInfo.card(card.hopeLimit(dto.getHopeLimit()))));
+        return CardIssuanceDto.CardRes.from(repoCardIssuance.save(cardInfo));
+    }
+
+    private RiskConfig updateRiskConfigLimit(User user, String grantLimit, String hopeLimit) {
+        Optional<RiskConfig> riskConfig = repoRiskConfig.findByCorpAndEnabled(user.corp(), true);
+        if (riskConfig.isPresent()) {
+            return repoRiskConfig.save(riskConfig.get()
+                    .hopeLimit(hopeLimit)
+                    .grantLimit(grantLimit)
+            );
+        }
+
+        return null;
+    }
+
+    private D1000 updateD1000Limit(User user, String grantLimit) {
+        D1000 d1000 = getD1000(user.corp().idx());
+        if (ObjectUtils.isEmpty(d1000)) {
+            return d1000;
+        }
+        return repoD1000.save(d1000.setD050(grantLimit));
+    }
+
+    private D1100 updateD1100Limit(User user, String grantLimit) {
+        D1100 d1100 = getD1100(user.corp().idx());
+        if (ObjectUtils.isEmpty(d1100)) {
+            return d1100;
+        }
+        return repoD1100.save(d1100.setD020(grantLimit));
+    }
+
+    private D1400 updateD1400Limit(User user, String grantLimit) {
+        D1400 d1400 = getD1400(user.corp().idx());
+        if (ObjectUtils.isEmpty(d1400)) {
+            return d1400;
+        }
+        return repoD1400.save(d1400.setD014(grantLimit));
     }
 
     /**

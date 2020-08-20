@@ -42,7 +42,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -124,22 +123,34 @@ public class LotteIssuanceService {
 		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
 		DataPart1200 resultOfD1200 = proc1200(userCorp, resultOfD1100);
 		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
-//
-//		// 이미지 전송(비동기)
-//		asyncService.run(() -> procImage(userCorp, resultOfD1200, userIdx));
+
+		// TODO: 이미지 전송(비동기)
+
 	}
 
-	@Async
-	void procImage(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
-		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_IMG, CardCompany.LOTTE);
+	private void procImageZip(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
+		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
 		for (int i = 0; i < 4; i++) {
 			try {
-				lotteGwRpc.requestImageTransfer(userCorp.resCompanyIdentityNo(), userIdx);     // 이미지 전송요청
-				userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_IMG, CardCompany.LOTTE);
+				lotteGwRpc.requestImageZip(userCorp.resCompanyIdentityNo(), userIdx);
+				userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
+				return;
+			} catch (Exception e) {
+				log.error("[procImageZip] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
+			}
+		}
+	}
+
+	private void procImageTransfer(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
+		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_IMG, CardCompany.LOTTE);
+		for (int i = 0; i < 4; i++) {
+			try {
+				lotteGwRpc.requestImageTransfer(userCorp.resCompanyIdentityNo(), userIdx);
+				userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_IMG, CardCompany.LOTTE);
 				sendReceiptEmail(resultOfD1200);
 				return;
 			} catch (Exception e) {
-				log.error("[procBpr] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
+				log.error("[procImageTransfer] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
 			}
 		}
 	}
@@ -207,14 +218,8 @@ public class LotteIssuanceService {
 		DataPart1100 requestRpc = new DataPart1100();
 		BeanUtils.copyProperties(d1100, requestRpc);
 		BeanUtils.copyProperties(commonPart, requestRpc);
-		DataPart1100 responseRpc = lotteGwRpc.request1100(requestRpc, userCorp.user().idx());
 
-		d1100.setRcpEndYn(responseRpc.getRcpEndYn());
-		d1100.setRcpMsg(responseRpc.getRcpMsg());
-		d1100.setApfRcpno(responseRpc.getApfRcpno());
-		repoD1100.save(d1100);
-
-		return responseRpc;
+		return lotteGwRpc.request1100(requestRpc, userCorp.user().idx(), d1100);
 	}
 
 	private Lotte_D1100 setD1100Risk(Lotte_D1100 d1100, User user) {
@@ -256,12 +261,8 @@ public class LotteIssuanceService {
 		DataPart1200 requestRpc = new DataPart1200();
 		BeanUtils.copyProperties(d1200, requestRpc);
 		BeanUtils.copyProperties(commonPart, requestRpc);
-		DataPart1200 responseRpc = lotteGwRpc.request1200(requestRpc, userCorp.user().idx());
 
-		BeanUtils.copyProperties(responseRpc, d1200);
-		repoD1200.save(d1200);
-
-		return responseRpc;
+		return lotteGwRpc.request1200(requestRpc, userCorp.user().idx(), d1200);
 	}
 
 	/**
