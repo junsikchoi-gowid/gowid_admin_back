@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -90,5 +91,18 @@ public class CommonUtil {
 
     public static String replaceHyphen(String target) {
         return target.replaceAll("-", "");
+    }
+
+    public static String birthLenConvert6To8(String yymmdd) {
+        if (yymmdd.length() != 6) {
+            return yymmdd;
+        }
+        int currentYear = Integer.parseInt(String.valueOf(LocalDate.now().getYear()).substring(2));
+        int year = Integer.parseInt(yymmdd.substring(0, 2));
+        if (year >= currentYear) {
+            return "19" + yymmdd;
+        } else {
+            return "20" + yymmdd;
+        }
     }
 }

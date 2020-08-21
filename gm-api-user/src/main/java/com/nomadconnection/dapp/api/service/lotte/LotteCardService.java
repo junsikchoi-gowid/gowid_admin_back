@@ -333,7 +333,7 @@ public class LotteCardService {
 					.setRlOwrDdc(getCorpOwnerCode(dto)) // 법인 또는 단쳬의 대표
 					.setRlOwrNm(Lotte_Seed128.encryptEcb(ceoInfo.name()))
 					.setRlOwrEnm(Lotte_Seed128.encryptEcb(ceoInfo.engName()))
-					.setBird(Lotte_Seed128.encryptEcb(ceoInfo.birth()))
+					.setBird(Lotte_Seed128.encryptEcb(CommonUtil.birthLenConvert6To8(ceoInfo.birth())))
 					.setRlOwrNatyC(ceoInfo.nationality())
 					.setStchShrR("000")
 			);
@@ -343,7 +343,7 @@ public class LotteCardService {
 				.setRlOwrDdc(getCorpOwnerCode(dto))
 				.setRlOwrNm(Lotte_Seed128.encryptEcb(dto.getName()))
 				.setRlOwrEnm(Lotte_Seed128.encryptEcb(dto.getEngName()))
-				.setBird(Lotte_Seed128.encryptEcb(dto.getBirth()))
+				.setBird(Lotte_Seed128.encryptEcb(CommonUtil.birthLenConvert6To8(dto.getBirth())))
 				.setRlOwrNatyC(dto.getNation())
 				.setStchShrR(dto.getRate())
 		);
@@ -775,7 +775,7 @@ public class LotteCardService {
 				d1100 = d1100
 						.setRlOwrNm(encryptName)
 						.setRlOwrEnm(encryptEngName)
-						.setBird(Lotte_Seed128.encryptEcb(dto.getBirth()))
+						.setBird(Lotte_Seed128.encryptEcb(CommonUtil.birthLenConvert6To8(dto.getBirth())))
 						.setRlOwrNatyC(dto.getNation())
 						.setRlMaFemDc(String.valueOf(dto.getGenderCode()))
 						.setStchShrR("000");

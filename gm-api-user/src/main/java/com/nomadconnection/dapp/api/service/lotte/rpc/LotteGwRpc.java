@@ -62,7 +62,7 @@ public class LotteGwRpc extends LotteBaseRpc {
 		DataPart1000 responseData = mapper.convertValue(response.getData(), DataPart1000.class);
 		commonService.saveGwTran(responseData, idxUser);
 
-		if (!responseData.getResponseCode().equals(Const.API_LOTTE_RESULT_SUCCESS)) {
+		if (!responseData.getResponseCode().equals(Const.API_LOTTE_RESULT_SUCCESS) && !responseData.getResponseCode().equals(Const.API_LOTTE_D1000_RESULT_SUCCESS2)) {
 			throw new SystemException(ErrorCode.External.REJECTED_LOTTE_1000, responseData.getResponseCode() + "/" + responseData.getSpare());
 		}
 
@@ -89,7 +89,7 @@ public class LotteGwRpc extends LotteBaseRpc {
 
 		commonService.saveGwTran(responseData, idxUser);
 
-		if (!responseData.getResponseCode().equals(Const.API_LOTTE_RESULT_SUCCESS) && !responseData.getResponseCode().equals(Const.API_LOTTE_D1000_RESULT_SUCCESS2)) {
+		if (!responseData.getResponseCode().equals(Const.API_LOTTE_RESULT_SUCCESS)) {
 			throw new SystemException(ErrorCode.External.REJECTED_LOTTE_1100, responseData.getResponseCode() + "/" + responseData.getRcpMsg());
 		}
 
