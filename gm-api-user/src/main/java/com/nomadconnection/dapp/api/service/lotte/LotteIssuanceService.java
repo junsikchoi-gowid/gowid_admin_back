@@ -244,13 +244,12 @@ public class LotteIssuanceService {
 		d1200.setTransferDate(commonPart.getTransferDate());
 		d1200.setBzno(resultOfD1100.getBzno());
 		d1200.setApfRcpno(resultOfD1100.getApfRcpno());
-		d1200.setIdentifyValue(CommonUtil.encodeBase64(signedPlainString));
-		repoD1200.saveAndFlush(d1200);
 
 		// 연동
 		DataPart1200 requestRpc = new DataPart1200();
 		BeanUtils.copyProperties(d1200, requestRpc);
 		BeanUtils.copyProperties(commonPart, requestRpc);
+		requestRpc.setIdentifyValue(CommonUtil.encodeBase64(signedPlainString));
 
 		return lotteGwRpc.request1200(requestRpc, userCorp.user().idx(), d1200);
 	}

@@ -36,9 +36,6 @@ public class Lotte_D1200 extends BaseTime {
 	@Column(columnDefinition = "varchar(13) DEFAULT '' COMMENT '사업자등록번호'")
 	private String bzno;
 
-	@Column(columnDefinition = "varchar(4000) DEFAULT '' COMMENT '전자서명값'")
-	private String identifyValue;
-
 	@Column(columnDefinition = "varchar(1) DEFAULT '' COMMENT '접수 완료 여부'")
 	private String receiptYn;
 
