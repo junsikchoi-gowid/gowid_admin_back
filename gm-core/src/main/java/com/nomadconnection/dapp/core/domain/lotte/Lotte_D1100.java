@@ -119,8 +119,8 @@ public class Lotte_D1100 extends BaseTime {
 	private String braDc;
 
 	@Builder.Default
-	@Column(columnDefinition = "varchar(1)  DEFAULT '2' COMMENT   '카드구분코드'")
-	private String cdDc = "2";
+	@Column(columnDefinition = "varchar(1)  DEFAULT '4' COMMENT   '카드구분코드'")
+	private String cdDc = "4";
 
 	@Column(columnDefinition = "varchar(1)  DEFAULT '' COMMENT   '카드등급코드'")
 	private String cdGdc;

@@ -7,11 +7,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Lotte_CardKind {
-	GREEN("01", "C313333", "02", "2", "3"),
-	BLACK("01", "C313334", "02", "2", "3"),
-	GREEN_TRAFFIC("01", "C313438", "02", "2", "3"),
-	BLACK_TRAFFIC("01", "C313437", "02", "2", "3"),
-	HI_PASS("01", "C313469", "02", "2", "1"),
+	GREEN("01", "C313333", "02", "4", "3"),
+	BLACK("01", "C313334", "02", "4", "3"),
+	GREEN_TRAFFIC("01", "C313438", "02", "4", "3"),
+	BLACK_TRAFFIC("01", "C313437", "02", "4", "3"),
+	HI_PASS("01", "C313469", "02", "4", "1"),
 	;
 
 	private String productCode;

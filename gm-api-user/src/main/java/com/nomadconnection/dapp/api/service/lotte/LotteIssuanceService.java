@@ -238,7 +238,7 @@ public class LotteIssuanceService {
 		d1100.setCpNo(CommonUtil.replaceHyphen(corp.resUserIdentiyNo()));
 		d1100.setEstbDt(corp.resOpenDate());
 		d1100.setDpOwRrno(Lotte_Seed128.encryptEcb(companyIdentityNo));
-		d1100.setCpOgNm(corp.resCompanyNm());
+		d1100.setCpOgNm(CommonUtil.cutString(corp.resCompanyNm(), 20));
 		return d1100;
 	}
 
