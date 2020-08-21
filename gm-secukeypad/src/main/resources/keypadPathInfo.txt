@@ -1,6 +1,32 @@
-#resources 폴더, nprotect.properties는 외부에 존재해야 함.
-'SecuKeypadApplication.class' 에서 PropertiesPath 에 대한 value
-'nprotect.properties' 에서 'keypad.resources.path' 에 대한 value
+### 설정파일 관련 ###
+- 각각 stg, prod 서버에 resources 폴더, nprotect.properties 파일 외부에 존재함.
+- 'SecuKeypadApplication.class' 에서 PropertiesPath 에 대한 value는 nprotect.properties 파일의 절대경로값 값
+- 'nprotect.properties' 에서 'keypad.resources.path' 에 대한 value는 resources 폴더의 절대경로 값
 
-stage -> /home/webapp/appconfig/nprotect.properties
-      -> /home/webapp/appconfig/resources
+### 암복호화 관련 ###
+- 한 화면(페이지)에 키패드 암호화 대상이 여러개가 있으면 모두 한 덩어리의 json 형태로 넘어온다.
+- 복화화 대상 파라미터명은 'IDNum', 'DrNum' 이다, 이 카값들은 프론트와 맞춰서 EncryptParam 에 추가한다.
+ex) 한개의 암호화된 값 ('주민등록번호'만)
+    {
+        "__E2E_KEYPAD__": "공통1",
+        "__E2E_UNIQUE__": "공통2",
+        "__KH_${input_random_hash}": "IDNum의 고유값1",
+        "__KI_IDNum": "IDNum의 고유값2",
+        "__KU_${input_random_hash}": "IDNum의 고유값3",
+        "IDNum": "IDNum의 아무값"
+    }
+ex) 두개의 암호화된값 (주민등록번호, 운전면허증)
+    {
+        "__E2E_KEYPAD__": "공통1",
+        "__E2E_UNIQUE__": "공통2",
+        "__KH_${input_random_hash}": "IDNum의 고유값1",
+        "__KI_IDNum": "IDNum의 고유값2",
+        "__KU_${input_random_hash}": "IDNum의 고유값3",
+        "__KI_IDNum": "Input별4"
+        "__E2E_KEYPAD__": "공통1",
+        "__E2E_UNIQUE__": "공통2",
+        "__KH_${input_random_hash}": "DrNum의 고유값1",
+        "__KI_DrNum": "DrNum의 고유값2",
+        "__KU_${input_random_hash}": "DrNum의 고유값3",
+        "DrNum": "DrNum의 아무값"
+    }

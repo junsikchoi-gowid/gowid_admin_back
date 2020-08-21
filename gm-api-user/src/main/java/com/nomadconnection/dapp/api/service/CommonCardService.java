@@ -7,6 +7,7 @@ import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CeoInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFile;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFileType;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
@@ -442,5 +443,16 @@ public class CommonCardService {
 
 	private IssuanceProgress getIssuanceProgress(Long idx_user) {
 		return repoIssuanceProgress.findById(idx_user).orElse(null);
+	}
+
+	// TODO: 실소유자 입력 안받으면 아예 대표자 정보로 대체하는걸로 수정하는 방안 검토필요.
+	public boolean isRealOwnerConvertCeo(CardIssuanceInfo cardInfo, CeoInfo ceoInfo) {
+		return isStockholderUpdateCeo(cardInfo) && !ObjectUtils.isEmpty(ceoInfo) && !StringUtils.hasText(cardInfo.stockholder().stockRate());
+	}
+
+	public boolean isStockholderUpdateCeo(CardIssuanceInfo cardInfo) {
+		return !ObjectUtils.isEmpty(cardInfo.stockholder())
+				&& Boolean.FALSE.equals(cardInfo.stockholder().isStockHold25())
+				&& Boolean.FALSE.equals(cardInfo.stockholder().isStockholderPersonal());
 	}
 }

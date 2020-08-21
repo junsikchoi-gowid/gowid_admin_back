@@ -4,6 +4,8 @@ public class Const {
     public static final String API_GW_RESULT_SUCCESS = "200";
     public static final String API_SHINHAN_RESULT_SUCCESS = "00";
     public static final String API_LOTTE_RESULT_SUCCESS = "0000";
+    public static final String API_LOTTE_D1000_RESULT_SUCCESS2 = "0002";
+    public static final String API_LOTTE_RECEIVE_SUCCESS = "Y";
     public static final String API_GW_OKNAME_SUCCESS = "B000";
     public static final String CARD_RECEIVE_ADDRESS_CODE = "1";
     public static final String API_GW_IMAGE_NOT_EXIST_ERROR_CODE = "90004";

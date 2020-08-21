@@ -5,6 +5,7 @@ import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
+import com.nomadconnection.dapp.api.service.CommonCardService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
@@ -62,6 +63,7 @@ public class ShinhanCardService {
 	private final ResAccountRepository repoResAccount;
     private final D1400Repository repoD1400;
 
+    private final CommonCardService commonCardService;
 
     /**
      * 법인정보 등록
@@ -252,7 +254,7 @@ public class ShinhanCardService {
                 .build());
 
         CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
-        if (isUpdateRealCeo(cardInfo) && !ObjectUtils.isEmpty(ceoInfo)) {
+        if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
             cardInfo = setStockholderByCeoInfo(cardInfo, ceoInfo);
         }
 
@@ -294,7 +296,7 @@ public class ShinhanCardService {
         }
 
         CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
-        if (isUpdateRealCeo(cardInfo) && !ObjectUtils.isEmpty(ceoInfo)) {
+        if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
             return repoD1400.save(d1400.setD018(Const.SHINHAN_REGISTER_BRANCH_CODE)
                     .setD019(ceoInfo.name())
                     .setD020(ceoInfo.engName())
@@ -322,7 +324,7 @@ public class ShinhanCardService {
         }
 
         CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
-        if (isUpdateRealCeo(cardInfo) && !ObjectUtils.isEmpty(ceoInfo)) {
+        if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
             return repoD1000.save(d1000.setD044(Const.SHINHAN_REGISTER_BRANCH_CODE)
                     .setD059(ceoInfo.name())
                     .setD060(ceoInfo.engName())
@@ -698,7 +700,7 @@ public class ShinhanCardService {
                     .ceoNumber(ceoNum);
         }
 
-        if (isUpdateRealCeo(cardInfo)) {
+        if (commonCardService.isStockholderUpdateCeo(cardInfo)) {
             cardInfo = setStockholderByCeoInfo(cardInfo, ceo);
         }
 
@@ -723,7 +725,7 @@ public class ShinhanCardService {
                     .setD041(dto.getPhoneNumber().substring(3, 7))      //신청관리자휴대전화국번호
                     .setD042(dto.getPhoneNumber().substring(7));         //신청관리자휴대전화고유번호
 
-            if (isUpdateRealCeo(cardInfo)) {
+            if (commonCardService.isStockholderUpdateCeo(cardInfo)) {
                 d1000 = d1000.setD059(dto.getName())
                         .setD060(dto.getEngName())
                         .setD061(dto.getBirth())
@@ -758,12 +760,6 @@ public class ShinhanCardService {
         return ceoNum;
     }
 
-    private boolean isUpdateRealCeo(CardIssuanceInfo cardInfo) {
-        return !ObjectUtils.isEmpty(cardInfo.stockholder())
-                && Boolean.FALSE.equals(cardInfo.stockholder().isStockHold25())
-                && Boolean.FALSE.equals(cardInfo.stockholder().isStockholderPersonal());
-    }
-
     private D1100 updateD1100Ceo(Long idx_corp, CardIssuanceDto.RegisterCeo dto) {
         D1100 d1100 = getD1100(idx_corp);
         if (d1100 != null) {
@@ -791,7 +787,7 @@ public class ShinhanCardService {
                     .setD063(dto.getPhoneNumber().substring(3, 7))      //신청관리자휴대전화국번호
                     .setD064(dto.getPhoneNumber().substring(7));         //신청관리자휴대전화고유번호
 
-            if (isUpdateRealCeo(cardInfo)) {
+            if (commonCardService.isStockholderUpdateCeo(cardInfo)) {
                 d1400 = d1400.setD019(dto.getName())
                         .setD020(dto.getEngName())
                         .setD021(dto.getBirth())

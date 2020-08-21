@@ -89,11 +89,11 @@ public class LotteGwRpc extends LotteBaseRpc {
 
 		commonService.saveGwTran(responseData, idxUser);
 
-		if (!responseData.getResponseCode().equals(Const.API_LOTTE_RESULT_SUCCESS)) {
+		if (!responseData.getResponseCode().equals(Const.API_LOTTE_RESULT_SUCCESS) && !responseData.getResponseCode().equals(Const.API_LOTTE_D1000_RESULT_SUCCESS2)) {
 			throw new SystemException(ErrorCode.External.REJECTED_LOTTE_1100, responseData.getResponseCode() + "/" + responseData.getRcpMsg());
 		}
 
-		if (!responseData.getRcpEndYn().equals(Const.API_LOTTE_RESULT_SUCCESS)) {
+		if (!responseData.getRcpEndYn().equals(Const.API_LOTTE_RECEIVE_SUCCESS)) {
 			throw new SystemException(ErrorCode.External.REJECTED_LOTTE_1100, responseData.getRcpEndYn() + "/" + responseData.getRcpMsg());
 		}
 
@@ -123,7 +123,7 @@ public class LotteGwRpc extends LotteBaseRpc {
 			throw new SystemException(ErrorCode.External.REJECTED_LOTTE_1200, responseData.getResponseCode() + "/" + responseData.getMessage());
 		}
 
-		if (!responseData.getReceiptYn().equals(Const.API_LOTTE_RESULT_SUCCESS)) {
+		if (!responseData.getReceiptYn().equals(Const.API_LOTTE_RECEIVE_SUCCESS)) {
 			throw new SystemException(ErrorCode.External.REJECTED_LOTTE_1200, responseData.getReceiptYn() + "/" + responseData.getMessage());
 		}
 

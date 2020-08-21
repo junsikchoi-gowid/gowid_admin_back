@@ -8,6 +8,7 @@ import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
+import com.nomadconnection.dapp.api.service.CommonCardService;
 import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
@@ -63,6 +64,7 @@ public class LotteCardService {
 	private final D1000Repository repoShinhanD1000;
 
 	private final IssuanceService shinhanIssuanceService;
+	private final CommonCardService commonCardService;
 
 
 	/**
@@ -273,7 +275,7 @@ public class LotteCardService {
 				.build());
 
 		CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
-		if (isUpdateRealCeo(cardInfo) && !ObjectUtils.isEmpty(ceoInfo)) {
+		if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
 			cardInfo = setStockholderByCeoInfo(cardInfo, ceoInfo);
 		}
 
@@ -326,7 +328,7 @@ public class LotteCardService {
 		}
 
 		CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
-		if (isUpdateRealCeo(cardInfo) && !ObjectUtils.isEmpty(ceoInfo)) {
+		if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
 			return repoD1100.save(d1100
 					.setRlOwrDdc(getCorpOwnerCode(dto)) // 법인 또는 단쳬의 대표
 					.setRlOwrNm(Lotte_Seed128.encryptEcb(ceoInfo.name()))
@@ -737,7 +739,7 @@ public class LotteCardService {
 					.ceoNumber(ceoNum);
 		}
 
-		if (isUpdateRealCeo(cardInfo)) {
+		if (commonCardService.isStockholderUpdateCeo(cardInfo)) {
 			cardInfo = setStockholderByCeoInfo(cardInfo, ceo);
 		}
 
@@ -769,7 +771,7 @@ public class LotteCardService {
 					.setTkpMexno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(3, 7)))
 					.setTkpMtlno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(7)));
 
-			if (isUpdateRealCeo(cardInfo)) {
+			if (commonCardService.isStockholderUpdateCeo(cardInfo)) {
 				d1100 = d1100
 						.setRlOwrNm(encryptName)
 						.setRlOwrEnm(encryptEngName)
@@ -803,12 +805,6 @@ public class LotteCardService {
 
 
 		return ceoNum;
-	}
-
-	private boolean isUpdateRealCeo(CardIssuanceInfo cardInfo) {
-		return !ObjectUtils.isEmpty(cardInfo.stockholder())
-				&& Boolean.FALSE.equals(cardInfo.stockholder().isStockHold25())
-				&& Boolean.FALSE.equals(cardInfo.stockholder().isStockholderPersonal());
 	}
 
 	private String getBankName(String bankCode) {

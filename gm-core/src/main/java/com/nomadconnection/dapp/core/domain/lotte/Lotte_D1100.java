@@ -210,8 +210,8 @@ public class Lotte_D1100 extends BaseTime {
 	private String sttD = "15";
 
 	@Builder.Default
-	@Column(columnDefinition = "varchar(1)  DEFAULT '1' COMMENT   '결제일구분코드'")
-	private String sttDDc = "1";
+	@Column(columnDefinition = "varchar(1)  DEFAULT '3' COMMENT   '결제일구분코드'")
+	private String sttDDc = "3";
 
 	@Builder.Default
 	@Column(columnDefinition = "varchar(1)  DEFAULT 'Y' COMMENT   '법인책임계약여부'")
