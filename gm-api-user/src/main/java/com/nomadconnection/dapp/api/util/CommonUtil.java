@@ -94,7 +94,7 @@ public class CommonUtil {
     }
 
     public static String birthLenConvert6To8(String yymmdd) {
-        if (yymmdd.length() != 6) {
+        if (!StringUtils.hasText(yymmdd) || yymmdd.length() != 6) {
             return yymmdd;
         }
         int currentYear = Integer.parseInt(String.valueOf(LocalDate.now().getYear()).substring(2));
