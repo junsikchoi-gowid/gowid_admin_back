@@ -1,10 +1,7 @@
 package com.nomadconnection.dapp.api.service.lotte;
 
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
-import com.nomadconnection.dapp.api.dto.lotte.CommonPart;
-import com.nomadconnection.dapp.api.dto.lotte.DataPart1000;
-import com.nomadconnection.dapp.api.dto.lotte.DataPart1100;
-import com.nomadconnection.dapp.api.dto.lotte.DataPart1200;
+import com.nomadconnection.dapp.api.dto.lotte.*;
 import com.nomadconnection.dapp.api.dto.lotte.enums.LotteGwApiType;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
@@ -124,35 +121,28 @@ public class LotteIssuanceService {
 		DataPart1200 resultOfD1200 = proc1200(userCorp, resultOfD1100);
 		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
 
-		// TODO: 이미지 전송(비동기)
-
-	}
-
-	private void procImageZip(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
+		// 이미지 zip파일 생성요청
 		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
-		for (int i = 0; i < 4; i++) {
-			try {
-				lotteGwRpc.requestImageZip(userCorp.resCompanyIdentityNo(), userIdx);
-				userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
-				return;
-			} catch (Exception e) {
-				log.error("[procImageZip] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
-			}
-		}
+		procImageZip(resultOfD1200);
+		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
+
+		// 이미지 전송요청
+		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_IMG, CardCompany.LOTTE);
+		procImageTransfer(resultOfD1200);
+		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_IMG, CardCompany.LOTTE);
 	}
 
-	private void procImageTransfer(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
-		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_IMG, CardCompany.LOTTE);
-		for (int i = 0; i < 4; i++) {
-			try {
-				lotteGwRpc.requestImageTransfer(userCorp.resCompanyIdentityNo(), userIdx);
-				userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_IMG, CardCompany.LOTTE);
-				sendReceiptEmail(resultOfD1200);
-				return;
-			} catch (Exception e) {
-				log.error("[procImageTransfer] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
-			}
-		}
+	private void procImageZip(DataPart1200 resultOfD1200) {
+		ImageZipReq requestRpc = new ImageZipReq();
+		requestRpc.setEnrollmentDate(CommonUtil.getNowYYYYMMDD());
+		requestRpc.setLicenseNo(resultOfD1200.getBzno());
+		requestRpc.setRegistrationNo(resultOfD1200.getApfRcpno());
+		lotteGwRpc.requestImageZip(requestRpc);
+	}
+
+	private void procImageTransfer(DataPart1200 resultOfD1200) {
+		lotteGwRpc.requestImageTransfer(resultOfD1200.getBzno());
+		sendReceiptEmail(resultOfD1200);
 	}
 
 	private void sendReceiptEmail(DataPart1200 resultOfD1200) {
@@ -286,7 +276,7 @@ public class LotteIssuanceService {
 	}
 
 	private SignatureHistory getSignatureHistory(DataPart1100 resultOfD1100) {
-		SignatureHistory signatureHistory = commonService.getSignatureHistoryByApplicationInfo(resultOfD1100.getTransferDate(), resultOfD1100.getApfRcpno());
+		SignatureHistory signatureHistory = commonService.getSignatureHistoryByApplicationInfo(resultOfD1100.getTransferDate().substring(0, 8), resultOfD1100.getApfRcpno());
 		updateApplicationCount(signatureHistory);
 		return signatureHistory;
 	}
@@ -302,7 +292,7 @@ public class LotteIssuanceService {
 
 	private void saveSignatureHistory(Long signatureHistoryIdx, DataPart1100 resultOfD1100) {
 		SignatureHistory signatureHistory = getSignatureHistory(signatureHistoryIdx);
-		signatureHistory.setApplicationDate(resultOfD1100.getTransferDate());
+		signatureHistory.setApplicationDate(resultOfD1100.getTransferDate().substring(0, 8));
 		signatureHistory.setApplicationNum(resultOfD1100.getApfRcpno());
 	}
 

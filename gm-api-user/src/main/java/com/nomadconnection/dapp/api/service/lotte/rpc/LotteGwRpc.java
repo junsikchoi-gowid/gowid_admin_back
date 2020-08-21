@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.dto.lotte.DataPart1000;
 import com.nomadconnection.dapp.api.dto.lotte.DataPart1100;
 import com.nomadconnection.dapp.api.dto.lotte.DataPart1200;
+import com.nomadconnection.dapp.api.dto.lotte.ImageZipReq;
 import com.nomadconnection.dapp.api.dto.lotte.enums.LotteGwApiType;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.lotte.LotteCommonService;
@@ -40,8 +41,8 @@ public class LotteGwRpc extends LotteBaseRpc {
 	@Value("${gateway.lotte.uri.image-zip}")
 	private String GATEWAY_LOTTE_URI_IMAGE_ZIP;
 
-	@Value("${gateway.lotte.uri.image-transfer}")
-	private String GATEWAY_LOTTE_URI_IMAGE_TRANSFER;
+	@Value("${gateway.lotte.uri.image-send}")
+	private String GATEWAY_LOTTE_URI_IMAGE_SEND;
 
 	private final LotteCommonService commonService;
 
@@ -130,21 +131,17 @@ public class LotteGwRpc extends LotteBaseRpc {
 		return responseData;
 	}
 
-	public void requestImageZip(String licenseNo, Long idxUser) {
-		commonService.saveGwTran(null, idxUser);
-
-		ApiResponse response = requestGateWayByJson(GATEWAY_IDC_URL + GATEWAY_LOTTE_URI_IMAGE_ZIP + "/" + licenseNo
-				, HttpMethod.POST, null, null, ApiResponse.class, LotteGwApiType.IMAGE_ZIP);
+	public void requestImageZip(ImageZipReq request) {
+		ApiResponse<String> response = requestGateWayByJson(GATEWAY_IDC_URL + GATEWAY_LOTTE_URI_IMAGE_ZIP
+				, HttpMethod.POST, null, request, ApiResponse.class, LotteGwApiType.IMAGE_ZIP);
 
 		if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
 			throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_LOTTE_IMAGE_ZIP, "gateway error");
 		}
 	}
 
-	public void requestImageTransfer(String licenseNo, Long idxUser) {
-		commonService.saveGwTran(null, idxUser);
-
-		ApiResponse response = requestGateWayByJson(GATEWAY_IDC_URL + GATEWAY_LOTTE_URI_IMAGE_TRANSFER + "/" + licenseNo
+	public void requestImageTransfer(String licenseNo) {
+		ApiResponse response = requestGateWayByJson(GATEWAY_IDC_URL + GATEWAY_LOTTE_URI_IMAGE_SEND + "/" + licenseNo
 				, HttpMethod.POST, null, null, ApiResponse.class, LotteGwApiType.IMAGE_TRANSFER);
 
 		if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
