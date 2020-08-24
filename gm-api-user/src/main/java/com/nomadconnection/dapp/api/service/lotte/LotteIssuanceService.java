@@ -79,7 +79,10 @@ public class LotteIssuanceService {
 			repoD1200.save(Lotte_D1200.builder().idxCorp(userCorp.idx()).build());
 			return "SUCCESS";
 		} else if ("N".equals(resultOfD1000.getBzNewYn())) {
-			commonCardService.deleteAllIssuanceInfo(userCorp.user());
+			Lotte_D1100 d1100 = repoD1100.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
+			if (d1100 == null && CardCompany.LOTTE.equals(userCorp.user().cardCompany())) {
+				commonCardService.deleteAllIssuanceInfo(userCorp.user());
+			}
 			return "FAIL";
 		} else {
 			String msg = "bzNewYn is not Y/N. resultOfD1000.getBzNewYn() = " + resultOfD1000.getBzNewYn();
