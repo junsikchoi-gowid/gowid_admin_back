@@ -140,7 +140,7 @@ public class LotteCardService {
 
 		return repoD1100.save(d1100
 				.setVtCurTtEnpYn(dto.getIsVirtualCurrency() ? "Y" : "N")
-				.setListStexC(dto.getIsListedCompany() ? dto.getListedCompanyCode() : null)
+				//.setListStexC(dto.getIsListedCompany() ? dto.getListedCompanyCode() : null)
 		);
 	}
 
