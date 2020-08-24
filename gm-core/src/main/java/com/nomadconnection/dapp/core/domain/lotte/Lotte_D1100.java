@@ -284,16 +284,16 @@ public class Lotte_D1100 extends BaseTime {
 	private String mtlno;
 
 	@Builder.Default
-	@Column(columnDefinition = "varchar(5)  DEFAULT '20901' COMMENT   '유치자부서코드'")
-	private String atrOgc = "20901";
+	@Column(columnDefinition = "varchar(5)  DEFAULT '21001' COMMENT   '유치자부서코드'")
+	private String atrOgc = "21001";
 
 	@Builder.Default
 	@Column(columnDefinition = "varchar(7)  DEFAULT 'CS84047' COMMENT   '유치자사원번호'")
 	private String atrEno = "CS84047";
 
 	@Builder.Default
-	@Column(columnDefinition = "varchar(5)  DEFAULT '20901' COMMENT   '당사담당자부서코드'")
-	private String tcoCgpOgc = "20901";
+	@Column(columnDefinition = "varchar(5)  DEFAULT '21001' COMMENT   '당사담당자부서코드'")
+	private String tcoCgpOgc = "21001";
 
 	@Builder.Default
 	@Column(columnDefinition = "varchar(7)  DEFAULT 'CS84047' COMMENT   '당사담당자사원번호'")

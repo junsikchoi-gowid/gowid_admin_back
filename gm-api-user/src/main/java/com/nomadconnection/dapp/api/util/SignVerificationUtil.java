@@ -41,4 +41,9 @@ public class SignVerificationUtil {
         // log.debug("### 사용자 인증서 DN : " + cert.getSubject());
         // log.debug("### 사용자 인증서 serial : " + cert.getSerial());
     }
+
+    public static void main(String[] args) {
+        String text = "";
+        System.out.printf(verifySignedBinaryStringAndGetPlainString(text));
+    }
 }
