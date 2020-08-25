@@ -208,7 +208,7 @@ public class RiskService {
 			risk.grade("C");
 			risk.gradeLimitPercentage(5);
 			risk.minStartCash(500000000);
-			risk.minCashNeed(100000000);
+			risk.minCashNeed(50000000);
 		}
 
 		// currentBalance

@@ -1673,7 +1673,6 @@ public class CodefService {
 				break;
 			}else{
 				str = "1";
-				break;
 			}
 		}
 		return str;
