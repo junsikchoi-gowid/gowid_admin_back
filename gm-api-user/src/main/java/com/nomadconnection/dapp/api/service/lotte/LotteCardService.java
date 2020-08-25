@@ -592,7 +592,7 @@ public class LotteCardService {
 		CeoType ceoType = CeoType.SINGLE;
 		if (d1100 != null) {
 			// 신한전문에서 대표자 정보 가져오기
-			ceoType = CeoType.fromLotte(CeoType.covertShinhanToLotte(getShinhanCeoCode(user)));
+			ceoType = CeoType.fromLotte(CeoType.convertShinhanToLotte(getShinhanCeoCode(user)));
 
 			if (StringUtils.hasText(d1100.getCstNm()) && StringUtils.hasText(d1100.getCstNm2()) && StringUtils.hasText(d1100.getCstNm3())) {
 				count = 3;

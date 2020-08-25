@@ -85,8 +85,8 @@ public class CommonUtil {
         if (StringUtils.isEmpty(source)) {
             return source;
         }
-        BigDecimal covertNumber = new BigDecimal(source);
-        return covertNumber.divide(BigDecimal.valueOf(division)).toPlainString();
+        BigDecimal convertNumber = new BigDecimal(source);
+        return convertNumber.divide(BigDecimal.valueOf(division)).toPlainString();
     }
 
     public static String replaceHyphen(String target) {

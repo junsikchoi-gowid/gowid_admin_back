@@ -39,7 +39,7 @@ public enum CeoType {
         }
     }
 
-    public static String covertShinhanToLotte(String shinhanCode) {
+    public static String convertShinhanToLotte(String shinhanCode) {
         String lotteCode = "";
 
         switch (shinhanCode) {
