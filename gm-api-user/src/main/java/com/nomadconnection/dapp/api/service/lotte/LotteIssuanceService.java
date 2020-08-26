@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service.lotte;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.lotte.*;
 import com.nomadconnection.dapp.api.dto.lotte.enums.LotteGwApiType;
+import com.nomadconnection.dapp.api.dto.lotte.enums.LotteUserStatus;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
@@ -67,7 +68,7 @@ public class LotteIssuanceService {
 	boolean sendReceiptEmailEnable;
 
 	@Transactional(noRollbackFor = Exception.class)
-	public String verifyNewMember(Long userIdx) {
+	public StatusDto verifyNewMember(Long userIdx) {
 		// 1000(법인회원신규여부검증)
 		Corp userCorp = getCorpByUserIdx(userIdx);
 		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1000, CardCompany.LOTTE);
@@ -77,18 +78,18 @@ public class LotteIssuanceService {
 		if ("Y".equals(resultOfD1000.getBzNewYn())) {
 			repoD1100.save(Lotte_D1100.builder().idxCorp(userCorp.idx()).build());
 			repoD1200.save(Lotte_D1200.builder().idxCorp(userCorp.idx()).build());
-			return "SUCCESS";
+			return StatusDto.builder().status(LotteUserStatus.SUCCESS).build();
 		} else if ("N".equals(resultOfD1000.getBzNewYn())) {
 			Lotte_D1100 d1100 = repoD1100.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
 			if (d1100 == null && CardCompany.LOTTE.equals(userCorp.user().cardCompany())) {
 				commonCardService.deleteAllIssuanceInfo(userCorp.user());
 			}
-			return "FAIL";
+			return StatusDto.builder().status(LotteUserStatus.FAIL).build();
 		} else {
 			String msg = "bzNewYn is not Y/N. resultOfD1000.getBzNewYn() = " + resultOfD1000.getBzNewYn();
 			CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_LOTTE_1000, msg);
 		}
-		return "NONE";
+		return StatusDto.builder().status(LotteUserStatus.NONE).build();
 	}
 
 	// 테스트 용도

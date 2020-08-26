@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
+import com.nomadconnection.dapp.api.dto.lotte.StatusDto;
 import com.nomadconnection.dapp.api.service.lotte.LotteCardService;
 import com.nomadconnection.dapp.api.service.lotte.LotteIssuanceService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
@@ -185,7 +186,7 @@ public class LotteCardController {
 
 	@ApiOperation(value = "법인카드 발급 신규대상자 확인")
 	@PostMapping(URI.CARD_NEW)
-	public ResponseEntity<String> verifyNewMember(
+	public ResponseEntity<StatusDto> verifyNewMember(
 			@ApiIgnore @CurrentUser CustomUser user) {
 		if (log.isInfoEnabled()) {
 			log.info("([ verifyNewMember ]) $user='{}'", user);
