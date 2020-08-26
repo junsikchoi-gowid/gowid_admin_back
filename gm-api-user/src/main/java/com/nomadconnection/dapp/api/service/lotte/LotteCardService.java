@@ -329,12 +329,16 @@ public class LotteCardService {
 
 		CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
 		if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
+
+			String corpOwnerCode = getCorpOwnerCode(dto);
 			return repoD1100.save(d1100
-					.setRlOwrDdc(getCorpOwnerCode(dto)) // 법인 또는 단쳬의 대표
+					.setRlOwrDdc(corpOwnerCode) // 법인 또는 단쳬의 대표
 					.setRlOwrNm(Lotte_Seed128.encryptEcb(ceoInfo.name()))
 					.setRlOwrEnm(Lotte_Seed128.encryptEcb(ceoInfo.engName()))
 					.setBird(Lotte_Seed128.encryptEcb(CommonUtil.birthLenConvert6To8(ceoInfo.birth())))
 					.setRlOwrNatyC(ceoInfo.nationality())
+					.setRlOwrVdMdc((corpOwnerCode.equals(Const.LOTTE_CORP_OWNER_CODE_5)) ? Const.LOTTE_CORP_rlOwrVdMdc_CODE_09 : Const.LOTTE_CORP_rlOwrVdMdc_CODE_01)
+					.setRlOwrDc((corpOwnerCode.equals(Const.LOTTE_CORP_OWNER_CODE_5)) ? Const.LOTTE_CORP_rlOwrDc_CODE_4 : Const.LOTTE_CORP_rlOwrDc_CODE_1)
 					.setStchShrR("000")
 			);
 		}

@@ -23,4 +23,9 @@ public class Const {
     public static final String LOTTE_CORP_OWNER_CODE_1 = "11";
     public static final String LOTTE_CORP_OWNER_CODE_2 = "21";
     public static final String LOTTE_CORP_OWNER_CODE_5 = "31";
+    public static final String LOTTE_CORP_rlOwrVdMdc_CODE_09 = "09";
+    public static final String LOTTE_CORP_rlOwrVdMdc_CODE_01 = "01";
+    public static final String LOTTE_CORP_rlOwrDc_CODE_4 = "4";
+    public static final String LOTTE_CORP_rlOwrDc_CODE_1 = "1";
+
 }
