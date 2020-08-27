@@ -327,28 +327,29 @@ public class LotteCardService {
 			return d1100;
 		}
 
-		String corpOwnerCode = getCorpOwnerCode(dto);
-
 		CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
 		if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
 			return repoD1100.save(d1100
-					.setRlOwrDdc(corpOwnerCode) // 법인 또는 단쳬의 대표
+					.setRlOwrDdc(Const.LOTTE_CORP_OWNER_CODE_5) // 법인 또는 단쳬의 대표
 					.setRlOwrNm(Lotte_Seed128.encryptEcb(ceoInfo.name()))
 					.setRlOwrEnm(Lotte_Seed128.encryptEcb(ceoInfo.engName()))
 					.setBird(Lotte_Seed128.encryptEcb(CommonUtil.birthLenConvert6To8(ceoInfo.birth())))
 					.setRlOwrNatyC(ceoInfo.nationality())
-					.setRlOwrVdMdc((corpOwnerCode.equals(Const.LOTTE_CORP_OWNER_CODE_5)) ? Const.LOTTE_CORP_rlOwrVdMdc_CODE_09 : Const.LOTTE_CORP_rlOwrVdMdc_CODE_01)
-					.setRlOwrDc((corpOwnerCode.equals(Const.LOTTE_CORP_OWNER_CODE_5)) ? Const.LOTTE_CORP_rlOwrDc_CODE_4 : Const.LOTTE_CORP_rlOwrDc_CODE_1)
+					.setRlOwrVdMdc(Const.LOTTE_CORP_rlOwrVdMdc_CODE_09)
+					.setRlOwrDc(Const.LOTTE_CORP_rlOwrDc_CODE_4)
 					.setStchShrR("000")
 			);
 		}
 
+		String corpOwnerCode = getCorpOwnerCode(dto);
 		return repoD1100.save(d1100
 				.setRlOwrDdc(corpOwnerCode)
 				.setRlOwrNm(Lotte_Seed128.encryptEcb(dto.getName()))
 				.setRlOwrEnm(Lotte_Seed128.encryptEcb(dto.getEngName()))
 				.setBird(Lotte_Seed128.encryptEcb(CommonUtil.birthLenConvert6To8(dto.getBirth())))
 				.setRlOwrNatyC(dto.getNation())
+				.setRlOwrVdMdc(Const.LOTTE_CORP_OWNER_CODE_5.equals(corpOwnerCode) ? Const.LOTTE_CORP_rlOwrVdMdc_CODE_09 : Const.LOTTE_CORP_rlOwrVdMdc_CODE_01)
+				.setRlOwrDc(Const.LOTTE_CORP_OWNER_CODE_5.equals(corpOwnerCode) ? Const.LOTTE_CORP_rlOwrDc_CODE_4 : Const.LOTTE_CORP_rlOwrDc_CODE_1)
 				.setStchShrR(dto.getRate())
 		);
 	}
@@ -780,15 +781,14 @@ public class LotteCardService {
 					.setTkpMtlno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(7)));
 
 			if (commonCardService.isStockholderUpdateCeo(cardInfo)) {
-				String corpOwnerCode = d1100.getRlOwrDdc();
 				d1100 = d1100
 						.setRlOwrNm(encryptName)
 						.setRlOwrEnm(encryptEngName)
 						.setBird(Lotte_Seed128.encryptEcb(CommonUtil.birthLenConvert6To8(dto.getBirth())))
 						.setRlOwrNatyC(dto.getNation())
 						.setRlMaFemDc(String.valueOf(dto.getGenderCode()))
-						.setRlOwrVdMdc(Const.LOTTE_CORP_OWNER_CODE_5.equals(corpOwnerCode) ? Const.LOTTE_CORP_rlOwrVdMdc_CODE_09 : Const.LOTTE_CORP_rlOwrVdMdc_CODE_01)
-						.setRlOwrDc(Const.LOTTE_CORP_OWNER_CODE_5.equals(corpOwnerCode) ? Const.LOTTE_CORP_rlOwrDc_CODE_4 : Const.LOTTE_CORP_rlOwrDc_CODE_1)
+						.setRlOwrVdMdc(Const.LOTTE_CORP_rlOwrVdMdc_CODE_09)
+						.setRlOwrDc(Const.LOTTE_CORP_rlOwrDc_CODE_4)
 						.setStchShrR("000");
 			}
 

@@ -220,16 +220,17 @@ public class LotteIssuanceService {
 		Risk risk = findRisk(user);
 		d1100.setGowidEtrGdV(risk.grade());
 
-		String gowid45DAvBalAm = String.valueOf(Math.round(risk.dma45()));
+		String gowid45DAvBalAm = String.valueOf(Math.round(Math.floor(risk.dma45())));
 		d1100.setGowid45DAvBalAm(gowid45DAvBalAm);
 
-		String gowid45DMidBalAm = String.valueOf(Math.round(risk.dmm45()));
+		String gowid45DMidBalAm = String.valueOf(Math.round(Math.floor(risk.dmm45())));
 		d1100.setGowid45DMidBalAm(gowid45DMidBalAm);
 
-		String gowidPsBalAm = String.valueOf(Math.round(risk.currentBalance()));
+		String gowidPsBalAm = String.valueOf(Math.round(Math.floor(risk.actualBalance())));
 		d1100.setGowidPsBalAm(gowidPsBalAm);
 
-		d1100.setGowidCriBalAm(getGowidCriBalAm(gowid45DAvBalAm, gowid45DMidBalAm, gowidPsBalAm));
+		//d1100.setGowidCriBalAm(getGowidCriBalAm(gowid45DAvBalAm, gowid45DMidBalAm, gowidPsBalAm));
+		d1100.setGowidCriBalAm(String.valueOf(Math.round(Math.floor(risk.cashBalance()))));
 		return d1100;
 	}
 

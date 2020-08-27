@@ -444,9 +444,8 @@ public class CommonCardService {
 		return repoIssuanceProgress.findById(idx_user).orElse(null);
 	}
 
-	// TODO: 실소유자 입력 안받으면 아예 대표자 정보로 대체하는걸로 수정하는 방안 검토필요.
 	public boolean isRealOwnerConvertCeo(CardIssuanceInfo cardInfo, CeoInfo ceoInfo) {
-		return isStockholderUpdateCeo(cardInfo) && !ObjectUtils.isEmpty(ceoInfo) && !StringUtils.hasText(cardInfo.stockholder().stockRate());
+		return isStockholderUpdateCeo(cardInfo) && !ObjectUtils.isEmpty(ceoInfo);
 	}
 
 	public boolean isStockholderUpdateCeo(CardIssuanceInfo cardInfo) {
