@@ -280,7 +280,7 @@ public class LotteCardService {
 		}
 
 		updateRiskConfigStockholder(user, dto);
-		updateD1000Stockholder(user.corp().idx(), cardInfo, dto);
+		updateD1100Stockholder(user.corp().idx(), cardInfo, dto);
 
 		if (StringUtils.hasText(depthKey)) {
 			repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
@@ -321,16 +321,16 @@ public class LotteCardService {
 		}
 	}
 
-	private Lotte_D1100 updateD1000Stockholder(Long idx_corp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterStockholder dto) {
+	private Lotte_D1100 updateD1100Stockholder(Long idx_corp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterStockholder dto) {
 		Lotte_D1100 d1100 = getD1100(idx_corp);
 		if (ObjectUtils.isEmpty(d1100)) {
 			return d1100;
 		}
 
+		String corpOwnerCode = getCorpOwnerCode(dto);
+
 		CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
 		if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
-
-			String corpOwnerCode = getCorpOwnerCode(dto);
 			return repoD1100.save(d1100
 					.setRlOwrDdc(corpOwnerCode) // 법인 또는 단쳬의 대표
 					.setRlOwrNm(Lotte_Seed128.encryptEcb(ceoInfo.name()))
@@ -344,7 +344,7 @@ public class LotteCardService {
 		}
 
 		return repoD1100.save(d1100
-				.setRlOwrDdc(getCorpOwnerCode(dto))
+				.setRlOwrDdc(corpOwnerCode)
 				.setRlOwrNm(Lotte_Seed128.encryptEcb(dto.getName()))
 				.setRlOwrEnm(Lotte_Seed128.encryptEcb(dto.getEngName()))
 				.setBird(Lotte_Seed128.encryptEcb(CommonUtil.birthLenConvert6To8(dto.getBirth())))
@@ -516,15 +516,19 @@ public class LotteCardService {
 				.setTkpNaddYn("N");
 
 		if (!ObjectUtils.isEmpty(dto.getGreenCount()) && !ObjectUtils.isEmpty(dto.getBlackCount())) {
-			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.GREEN, String.valueOf(dto.getGreenCount()), 1);
-			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK, String.valueOf(dto.getBlackCount()), 2);
+			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.GREEN, getCardReqCount(dto.getGreenCount()), 1);
+			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK, getCardReqCount(dto.getBlackCount()), 2);
 		} else if (!ObjectUtils.isEmpty(dto.getGreenCount())) {
-			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.GREEN, String.valueOf(dto.getGreenCount()), 1);
+			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.GREEN, getCardReqCount(dto.getGreenCount()), 1);
 		} else {
-			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK, String.valueOf(dto.getBlackCount()), 1);
+			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK, getCardReqCount(dto.getBlackCount()), 1);
 		}
 
 		return repoD1100.save(d1100);
+	}
+
+	private String getCardReqCount(Long count) { // 롯데카드 신청수량이 N개인 경우 N-1개로 세팅
+		return String.valueOf(count - 1);
 	}
 
 	/**
@@ -712,7 +716,7 @@ public class LotteCardService {
 		Integer ceoNum = 0;
 
 		Lotte_D1100 d1100 = getD1100(user.corp().idx());
-		ceoNum = updateD1000Ceo(d1100, cardInfo, dto, ceo, ceoNum);
+		ceoNum = updateD1100Ceo(d1100, cardInfo, dto, ceo, ceoNum);
 
 		if (ObjectUtils.isEmpty(ceo)) {
 			ceo = CeoInfo.builder()
@@ -754,7 +758,7 @@ public class LotteCardService {
 		return CardIssuanceDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");
 	}
 
-	private Integer updateD1000Ceo(Lotte_D1100 d1100, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
+	private Integer updateD1100Ceo(Lotte_D1100 d1100, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
 		if (d1100 == null) {
 			return ceoNum;
 		}
@@ -776,12 +780,15 @@ public class LotteCardService {
 					.setTkpMtlno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(7)));
 
 			if (commonCardService.isStockholderUpdateCeo(cardInfo)) {
+				String corpOwnerCode = d1100.getRlOwrDdc();
 				d1100 = d1100
 						.setRlOwrNm(encryptName)
 						.setRlOwrEnm(encryptEngName)
 						.setBird(Lotte_Seed128.encryptEcb(CommonUtil.birthLenConvert6To8(dto.getBirth())))
 						.setRlOwrNatyC(dto.getNation())
 						.setRlMaFemDc(String.valueOf(dto.getGenderCode()))
+						.setRlOwrVdMdc(Const.LOTTE_CORP_OWNER_CODE_5.equals(corpOwnerCode) ? Const.LOTTE_CORP_rlOwrVdMdc_CODE_09 : Const.LOTTE_CORP_rlOwrVdMdc_CODE_01)
+						.setRlOwrDc(Const.LOTTE_CORP_OWNER_CODE_5.equals(corpOwnerCode) ? Const.LOTTE_CORP_rlOwrDc_CODE_4 : Const.LOTTE_CORP_rlOwrDc_CODE_1)
 						.setStchShrR("000");
 			}
 
@@ -921,7 +928,7 @@ public class LotteCardService {
 				.stockholderEngName(ceoInfo.engName())
 				.stockholderBirth(ceoInfo.birth())
 				.stockholderNation(ceoInfo.nationality())
-				.stockRate("0000"));
+				.stockRate("000"));
 	}
 
 	private String getDriverLocalName(String code) {

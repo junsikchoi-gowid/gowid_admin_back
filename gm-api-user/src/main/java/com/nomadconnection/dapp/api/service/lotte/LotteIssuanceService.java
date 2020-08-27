@@ -219,11 +219,23 @@ public class LotteIssuanceService {
 	private Lotte_D1100 setD1100Risk(Lotte_D1100 d1100, User user) {
 		Risk risk = findRisk(user);
 		d1100.setGowidEtrGdV(risk.grade());
-		d1100.setGowid45DAvBalAm(String.valueOf(Math.round(risk.dma45())));
-		d1100.setGowid45DMidBalAm(String.valueOf(Math.round(risk.dmm45())));
-		d1100.setGowidPsBalAm(String.valueOf(Math.round(risk.currentBalance())));
-		d1100.setGowidCriBalAm(String.valueOf(Math.round(risk.minCashNeed())));
+
+		String gowid45DAvBalAm = String.valueOf(Math.round(risk.dma45()));
+		d1100.setGowid45DAvBalAm(gowid45DAvBalAm);
+
+		String gowid45DMidBalAm = String.valueOf(Math.round(risk.dmm45()));
+		d1100.setGowid45DMidBalAm(gowid45DMidBalAm);
+
+		String gowidPsBalAm = String.valueOf(Math.round(risk.currentBalance()));
+		d1100.setGowidPsBalAm(gowidPsBalAm);
+
+		d1100.setGowidCriBalAm(getGowidCriBalAm(gowid45DAvBalAm, gowid45DMidBalAm, gowidPsBalAm));
 		return d1100;
+	}
+
+	private String getGowidCriBalAm(String dma45, String dmm45, String currentBalance) {
+		String step1Num = CommonUtil.getLowerStringNumber(dma45, dmm45);
+		return CommonUtil.getLowerStringNumber(step1Num, currentBalance);
 	}
 
 	private Lotte_D1100 setD1100Corp(Lotte_D1100 d1100, Corp corp) {

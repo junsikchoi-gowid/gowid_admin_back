@@ -105,4 +105,20 @@ public class CommonUtil {
             return "20" + yymmdd;
         }
     }
+
+    public static String getLowerStringNumber(String num1, String num2) {
+        if (!StringUtils.hasText(num1) || !StringUtils.hasText(num2)) {
+            return "0";
+        }
+        Long number1 = Long.parseLong(num1);
+        Long number2 = Long.parseLong(num2);
+        switch (number1.compareTo(number2)) {
+            case 1:
+                return num2;
+            case 0:
+            case -1:
+                return num1;
+        }
+        return "0";
+    }
 }
