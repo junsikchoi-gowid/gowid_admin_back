@@ -214,12 +214,12 @@ public class LotteCardService {
 		}
 
 		String verifiedVentureYn = "N";
-		if (ObjectUtils.isEmpty(dto.getIsVerifiedVenture()) && dto.getIsVerifiedVenture()) {
+		if (!ObjectUtils.isEmpty(dto.getIsVerifiedVenture()) && dto.getIsVerifiedVenture()) {
 			verifiedVentureYn = "Y";
 		}
 
 		String vcYn = "N";
-		if (ObjectUtils.isEmpty(dto.getIsVC()) && dto.getIsVC()) {
+		if (!ObjectUtils.isEmpty(dto.getIsVC()) && dto.getIsVC()) {
 			vcYn = "Y";
 		}
 
@@ -714,10 +714,13 @@ public class LotteCardService {
 			}
 		}
 
-		Integer ceoNum = 0;
+		// TODO: 신한 전문 데이터 -> 스크래핑시 데이터 insert로 바뀌어야함
+		D1000 shinhanD1000 = repoShinhanD1000.getTopByIdxCorpOrderByIdxDesc(user.corp().idx());
+		String ceoTypeCode = CeoType.convertShinhanToLotte(shinhanD1000.getD009()); // 대표자 유형
 
+		Integer ceoNum = 0;
 		Lotte_D1100 d1100 = getD1100(user.corp().idx());
-		ceoNum = updateD1100Ceo(d1100, cardInfo, dto, ceo, ceoNum);
+		ceoNum = updateD1100Ceo(d1100, cardInfo, dto, ceo, ceoNum, ceoTypeCode);
 
 		if (ObjectUtils.isEmpty(ceo)) {
 			ceo = CeoInfo.builder()
@@ -731,7 +734,7 @@ public class LotteCardService {
 					.genderCode(dto.getGenderCode())
 					.birth(dto.getBirth())
 					.certificationType(dto.getIdentityType())
-					.type(!ObjectUtils.isEmpty(d1100) ? CeoType.fromLotte(d1100.getDpwnm()) : null)
+					.type(!ObjectUtils.isEmpty(d1100) ? CeoType.fromLotte(ceoTypeCode) : null)
 					.ceoNumber(ceoNum)
 					.build();
 		} else {
@@ -744,7 +747,7 @@ public class LotteCardService {
 					.genderCode(dto.getGenderCode())
 					.birth(dto.getBirth())
 					.certificationType(dto.getIdentityType())
-					.type(!ObjectUtils.isEmpty(d1100) ? CeoType.fromLotte(d1100.getDpwnm()) : null)
+					.type(!ObjectUtils.isEmpty(d1100) ? CeoType.fromLotte(ceoTypeCode) : null)
 					.ceoNumber(ceoNum);
 		}
 
@@ -759,7 +762,7 @@ public class LotteCardService {
 		return CardIssuanceDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");
 	}
 
-	private Integer updateD1100Ceo(Lotte_D1100 d1100, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
+	private Integer updateD1100Ceo(Lotte_D1100 d1100, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum, String ceoTypeCode) {
 		if (d1100 == null) {
 			return ceoNum;
 		}
@@ -767,6 +770,7 @@ public class LotteCardService {
 		String encryptName = Lotte_Seed128.encryptEcb(dto.getName());
 		String encryptEngName = Lotte_Seed128.encryptEcb(dto.getEngName());
 
+		d1100.setDgTc(ceoTypeCode);
 		if (!StringUtils.hasText(d1100.getCstEnm()) || (ceo != null && ceo.ceoNumber().equals(1))) { // 첫번째 대표자정보
 			d1100 = d1100
 					.setCstNm(encryptName)
@@ -813,7 +817,6 @@ public class LotteCardService {
 			);
 			ceoNum = 3;
 		}
-
 
 		return ceoNum;
 	}

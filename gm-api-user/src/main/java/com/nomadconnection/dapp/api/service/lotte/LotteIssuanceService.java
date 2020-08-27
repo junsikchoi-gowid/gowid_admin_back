@@ -14,7 +14,6 @@ import com.nomadconnection.dapp.api.service.lotte.rpc.LotteGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CeoType;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
@@ -31,7 +30,6 @@ import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1530Repository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.risk.Risk;
-import com.nomadconnection.dapp.core.domain.shinhan.D1000;
 import com.nomadconnection.dapp.core.domain.shinhan.D1530;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -198,10 +196,6 @@ public class LotteIssuanceService {
 
 		// TODO: 스크래핑시 데이터 insert로 바뀌어야함
 		{
-			// 신한 전문 데이터
-			D1000 shinhanD1000 = shinhanRepoD1000.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
-			d1100.setDgTc(CeoType.convertShinhanToLotte(shinhanD1000.getD009()));
-
 			D1530 shinhanD1530 = shinhanRepoD1530.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
 			d1100.setEstbDt(shinhanD1530.getD057());
 		}

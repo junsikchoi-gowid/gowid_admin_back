@@ -271,8 +271,8 @@ public class Lotte_D1100 extends BaseTime {
 	private String cpPdeOjC = "0";
 
 	@Builder.Default
-	@Column(columnDefinition = "varchar(3)  DEFAULT '001' COMMENT   '카드수령지구분코드'")
-	private String addc = "001";
+	@Column(columnDefinition = "varchar(3)  DEFAULT '110' COMMENT   '카드수령지구분코드'")
+	private String addc = "110";
 
 	@Column(columnDefinition = "varchar(32)  DEFAULT '' COMMENT   '이동사업자번호'")
 	private String mbzNo;
@@ -324,8 +324,8 @@ public class Lotte_D1100 extends BaseTime {
 	private String mnbrNatyC = "KR";
 
 	@Builder.Default
-	@Column(columnDefinition = "varchar(3)  DEFAULT '001' COMMENT   '청구지고객주소구분코드'")
-	private String bilplcCaddc = "001";
+	@Column(columnDefinition = "varchar(3)  DEFAULT '110' COMMENT   '청구지고객주소구분코드'")
+	private String bilplcCaddc = "110";
 
 	@Builder.Default
 	@Column(columnDefinition = "varchar(1)  DEFAULT 'N' COMMENT   '즉발여부'")
