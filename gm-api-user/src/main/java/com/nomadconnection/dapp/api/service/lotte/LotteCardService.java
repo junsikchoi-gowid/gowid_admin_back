@@ -601,8 +601,18 @@ public class LotteCardService {
 		CeoType ceoType = CeoType.SINGLE;
 		if (d1100 != null) {
 			// 신한전문에서 대표자 정보 가져오기
-			ceoType = CeoType.fromLotte(CeoType.convertShinhanToLotte(getShinhanCeoCode(user)));
+			D1000 shinhanD1000 = repoShinhanD1000.getTopByIdxCorpOrderByIdxDesc(user.corp().idx());
+			ceoType = CeoType.fromLotte(CeoType.convertShinhanToLotte(getShinhanCeoCode(shinhanD1000)));
 
+			// TODO: 스크래핑단계에서 롯데전용이 생기면 삭제 예정
+			// 신한전문으로 1차검증
+			if (StringUtils.hasText(shinhanD1000.getD010()) && StringUtils.hasText(shinhanD1000.getD014()) && StringUtils.hasText(shinhanD1000.getD018())) {
+				count = 3;
+			} else if (StringUtils.hasText(shinhanD1000.getD010()) && StringUtils.hasText(shinhanD1000.getD014()) && !StringUtils.hasText(shinhanD1000.getD018())) {
+				count = 2;
+			}
+
+			// 롯데전문으로 2차검증
 			if (StringUtils.hasText(d1100.getCstNm()) && StringUtils.hasText(d1100.getCstNm2()) && StringUtils.hasText(d1100.getCstNm3())) {
 				count = 3;
 			} else if (StringUtils.hasText(d1100.getCstNm()) && StringUtils.hasText(d1100.getCstNm2()) && !StringUtils.hasText(d1100.getCstNm3())) {
@@ -615,8 +625,8 @@ public class LotteCardService {
 				.build();
 	}
 
-	private String getShinhanCeoCode(User user) {
-		D1000 shinhanD1000 = repoShinhanD1000.getTopByIdxCorpOrderByIdxDesc(user.corp().idx());
+
+	private String getShinhanCeoCode(D1000 shinhanD1000) {
 		if (!ObjectUtils.isEmpty(shinhanD1000)) {
 			return shinhanD1000.getD009();
 		}
@@ -707,20 +717,22 @@ public class LotteCardService {
 		}
 
 		CeoInfo ceo = null;
+		Integer ceoNum = 0;
 		if (!ObjectUtils.isEmpty(dto.getCeoIdx())) {
 			ceo = findCeoInfo(dto.getCeoIdx());
 			if (!cardInfo.ceoInfos().contains(ceo)) {
 				throw MismatchedException.builder().category(MismatchedException.Category.CEO).build();
 			}
+			if (ceo.ceoNumber() > 0) {
+				ceoNum = ceo.ceoNumber();
+			}
 		}
 
-		// TODO: 신한 전문 데이터 -> 스크래핑시 데이터 insert로 바뀌어야함
 		D1000 shinhanD1000 = repoShinhanD1000.getTopByIdxCorpOrderByIdxDesc(user.corp().idx());
-		String ceoTypeCode = CeoType.convertShinhanToLotte(shinhanD1000.getD009()); // 대표자 유형
+		String ceoTypeCode = CeoType.convertShinhanToLotte(getShinhanCeoCode(shinhanD1000)); // 대표자 유형
 
-		Integer ceoNum = 0;
 		Lotte_D1100 d1100 = getD1100(user.corp().idx());
-		ceoNum = updateD1100Ceo(d1100, cardInfo, dto, ceo, ceoNum, ceoTypeCode);
+		ceoNum = updateD1100Ceo(d1100, cardInfo, dto, ceoNum, ceoTypeCode);
 
 		if (ObjectUtils.isEmpty(ceo)) {
 			ceo = CeoInfo.builder()
@@ -762,7 +774,7 @@ public class LotteCardService {
 		return CardIssuanceDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");
 	}
 
-	private Integer updateD1100Ceo(Lotte_D1100 d1100, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum, String ceoTypeCode) {
+	private Integer updateD1100Ceo(Lotte_D1100 d1100, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, Integer ceoNum, String ceoTypeCode) {
 		if (d1100 == null) {
 			return ceoNum;
 		}
@@ -771,7 +783,7 @@ public class LotteCardService {
 		String encryptEngName = Lotte_Seed128.encryptEcb(dto.getEngName());
 
 		d1100.setDgTc(ceoTypeCode);
-		if (!StringUtils.hasText(d1100.getCstEnm()) || (ceo != null && ceo.ceoNumber().equals(1))) { // 첫번째 대표자정보
+		if (!StringUtils.hasText(d1100.getCstEnm()) || ceoNum == 1) { // 첫번째 대표자정보
 			d1100 = d1100
 					.setCstNm(encryptName)
 					.setCstEnm(encryptEngName)
@@ -799,7 +811,7 @@ public class LotteCardService {
 			repoD1100.save(d1100);
 			ceoNum = 1;
 
-		} else if (!StringUtils.hasText(d1100.getCstEnm2()) || (ceo != null && ceo.ceoNumber().equals(2))) { // 두번째 대표자정보
+		} else if (!StringUtils.hasText(d1100.getCstEnm2()) || ceoNum == 2) { // 두번째 대표자정보
 			repoD1100.save(d1100
 					.setCstNm2(encryptName)
 					.setCstEnm2(encryptEngName)
@@ -808,7 +820,7 @@ public class LotteCardService {
 			);
 			ceoNum = 2;
 
-		} else if (!StringUtils.hasText(d1100.getCstEnm3()) || (ceo != null && ceo.ceoNumber().equals(3))) { // 세번째 대표자정보
+		} else if (!StringUtils.hasText(d1100.getCstEnm3()) || ceoNum == 3) { // 세번째 대표자정보
 			repoD1100.save(d1100
 					.setCstNm3(encryptName)
 					.setCstEnm3(encryptEngName)

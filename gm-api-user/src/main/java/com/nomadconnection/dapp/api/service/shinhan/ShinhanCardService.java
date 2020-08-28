@@ -656,20 +656,22 @@ public class ShinhanCardService {
         }
 
         CeoInfo ceo = null;
+        Integer ceoNum = 0;
         if (!ObjectUtils.isEmpty(dto.getCeoIdx())) {
             ceo = findCeoInfo(dto.getCeoIdx());
             if (!cardInfo.ceoInfos().contains(ceo)) {
                 throw MismatchedException.builder().category(MismatchedException.Category.CEO).build();
             }
+            if (ceo.ceoNumber() > 0) {
+                ceoNum = ceo.ceoNumber();
+            }
         }
 
-        Integer ceoNum = 0;
-
         D1000 d1000 = getD1000(user.corp().idx());
-        ceoNum = updateD1000Ceo(d1000, user.corp().idx(), cardInfo, dto, ceo, ceoNum);
+        ceoNum = updateD1000Ceo(d1000, user.corp().idx(), cardInfo, dto, ceoNum);
 
         D1400 d1400 = getD1400(user.corp().idx());
-        ceoNum = updateD1400Ceo(d1400, cardInfo, dto, ceo, ceoNum);
+        ceoNum = updateD1400Ceo(d1400, cardInfo, dto, ceoNum);
 
         if (ObjectUtils.isEmpty(ceo)) {
             ceo = CeoInfo.builder()
@@ -711,12 +713,12 @@ public class ShinhanCardService {
         return CardIssuanceDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");
     }
 
-    private Integer updateD1000Ceo(D1000 d1000, Long idx_corp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
+    private Integer updateD1000Ceo(D1000 d1000, Long idx_corp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, Integer ceoNum) {
         if (d1000 == null) {
             return ceoNum;
         }
 
-        if (!StringUtils.hasText(d1000.getD012()) || (ceo != null && ceo.ceoNumber().equals(1))) { // 첫번째 대표자정보
+        if (!StringUtils.hasText(d1000.getD012()) || (ceoNum == 1)) { // 첫번째 대표자정보
             d1000 = d1000.setD010(dto.getName())                     //대표자명1
                     .setD012(dto.getEngName())                  //대표자영문명1
                     .setD013(dto.getNation())                   //대표자국적코드1
@@ -739,7 +741,7 @@ public class ShinhanCardService {
 
             updateD1100Ceo(idx_corp, dto);
 
-        } else if (!StringUtils.hasText(d1000.getD016()) || (ceo != null && ceo.ceoNumber().equals(2))) { // 두번째 대표자정보
+        } else if (!StringUtils.hasText(d1000.getD016()) || ceoNum == 2) { // 두번째 대표자정보
             repoD1000.save(d1000
                     .setD014(dto.getName())         //대표자명2
                     .setD016(dto.getEngName())      //대표자영문명2
@@ -747,7 +749,7 @@ public class ShinhanCardService {
             );
             ceoNum = 2;
 
-        } else if (!StringUtils.hasText(d1000.getD020()) || (ceo != null && ceo.ceoNumber().equals(3))) { // 세번째 대표자정보
+        } else if (!StringUtils.hasText(d1000.getD020()) || ceoNum == 3) { // 세번째 대표자정보
             repoD1000.save(d1000
                     .setD018(dto.getName())         //대표자명3
                     .setD020(dto.getEngName())      //대표자영문명3
@@ -772,12 +774,12 @@ public class ShinhanCardService {
         return d1100;
     }
 
-    private Integer updateD1400Ceo(D1400 d1400, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, CeoInfo ceo, Integer ceoNum) {
+    private Integer updateD1400Ceo(D1400 d1400, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, Integer ceoNum) {
         if (d1400 == null) {
             return ceoNum;
         }
 
-        if (!StringUtils.hasText(d1400.getD035()) || (ceo != null && ceo.ceoNumber().equals(1))) { // 첫번째 대표자정보
+        if (!StringUtils.hasText(d1400.getD035()) || ceoNum == 1) { // 첫번째 대표자정보
             d1400 = d1400
                     .setD032(dto.getName())                     //대표자명1
                     .setD034(dto.getEngName())                  //대표자영문명1
@@ -798,7 +800,7 @@ public class ShinhanCardService {
             repoD1400.save(d1400);
             ceoNum = 1;
 
-        } else if (!StringUtils.hasText(d1400.getD039()) || (ceo != null && ceo.ceoNumber().equals(2))) { // 두번째 대표자정보
+        } else if (!StringUtils.hasText(d1400.getD039()) || ceoNum == 2) { // 두번째 대표자정보
             repoD1400.save(d1400
                     .setD036(dto.getName())         //대표자명2
                     .setD038(dto.getEngName())      //대표자영문명2
@@ -806,7 +808,7 @@ public class ShinhanCardService {
             );
             ceoNum = 2;
 
-        } else if (!StringUtils.hasText(d1400.getD043()) || (ceo != null && ceo.ceoNumber().equals(3))) { // 세번째 대표자정보
+        } else if (!StringUtils.hasText(d1400.getD043()) || ceoNum == 3) { // 세번째 대표자정보
             repoD1400.save(d1400
                     .setD040(dto.getName())         //대표자명3
                     .setD042(dto.getEngName())      //대표자영문명3
