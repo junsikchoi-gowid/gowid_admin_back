@@ -375,6 +375,11 @@ public class OldIssuanceService {
 			requestRpc.setD055(Seed128.decryptEcb(d1530.getD055()));
 		}
 
+		// 대표이사_직위1,2,3 10자 컷
+		requestRpc.setD045(CommonUtil.cutString(requestRpc.getD045(), 10));
+		requestRpc.setD049(CommonUtil.cutString(requestRpc.getD049(), 10));
+		requestRpc.setD053(CommonUtil.cutString(requestRpc.getD053(), 10));
+
 		// 연동 및 저장
 		shinhanGwRpc.request1530(requestRpc, userCorp.user().idx());
 	}
