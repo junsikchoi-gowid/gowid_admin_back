@@ -339,8 +339,8 @@ public class Lotte_D1100 extends BaseTime {
 	private String akLimCpMlimYn = "N";
 
 	@Builder.Default
-	@Column(columnDefinition = "varchar(40)  DEFAULT 'YYYYYYYYYYYYYY' COMMENT   '개인신용정보동의내용'")
-	private String psnlCrifAgCn = "YYYYYYYYYYYYYY";
+	@Column(columnDefinition = "varchar(40)  DEFAULT 'YYYYYYYYYYYYYYY' COMMENT   '개인신용정보동의내용'")
+	private String psnlCrifAgCn = "YYYYYYYYYYYYYYY";
 
 	@Column(columnDefinition = "varchar(1)  DEFAULT '' COMMENT   '직장신주소여부'")
 	private String offiNaddYn;
