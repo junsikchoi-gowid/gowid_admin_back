@@ -26,7 +26,6 @@ import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1000Reposito
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1100Repository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1200Repository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
-import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1530Repository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.risk.Risk;
@@ -53,7 +52,6 @@ public class LotteIssuanceService {
 	private final Lotte_D1200Repository repoD1200;
 	private final SignatureHistoryRepository repoSignatureHistory;
 	private final RiskRepository repoRisk;
-	private final D1000Repository shinhanRepoD1000;
 	private final D1530Repository shinhanRepoD1530;
 
 	private final UserService userService;
@@ -112,9 +110,8 @@ public class LotteIssuanceService {
 		repoIssuanceProgress.flush();
 
 		// 신규(1100) 신청
-		DataPart1100 resultOfD1100 = null;
 		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1100, CardCompany.LOTTE);
-		resultOfD1100 = proc1100(userCorp);
+		DataPart1100 resultOfD1100 = proc1100(userCorp);
 		saveSignatureHistory(signatureHistoryIdx, resultOfD1100);
 		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1100, CardCompany.LOTTE);
 
