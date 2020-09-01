@@ -5,7 +5,9 @@ import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
@@ -54,6 +56,7 @@ public class RiskService {
 	private final UserRepository repoUser;
 	private final RiskConfigRepository repoRiskConfig;
 	private final ResAccountRepository repoResAccount;
+	private final IssuanceProgressRepository repoIssuanceProgress;
 
 	private final D1000Repository repoD1000;
 	private final D1100Repository repoD1100;
@@ -185,7 +188,7 @@ public class RiskService {
 			risk.grade("C");
 			risk.gradeLimitPercentage(5);
 			risk.minStartCash(500000000);
-			risk.minCashNeed(100000000);
+			risk.minCashNeed(50000000);
 		}
 
 		// currentBalance
@@ -307,6 +310,12 @@ public class RiskService {
 			risk.cardRestart(true);
 		}else{
 			risk.cardRestart(false);
+		}
+
+		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(user.idx()).orElse(null);
+		if(issuanceProgress != null && issuanceProgress.getProgress().equals("P_1800") && issuanceProgress.getStatus().equals("SUCCESS")){
+			riskconfig.cardIssuance(true);
+			risk.cardIssuance(true);
 		}
 
 		repoRisk.save(risk);
@@ -565,28 +574,17 @@ public class RiskService {
 			risk.cardRestart(false);
 		}
 
+		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(user.idx()).orElse(null);
+		if(issuanceProgress != null && issuanceProgress.getProgress().equals("P_1800") && issuanceProgress.getStatus().equals("SUCCESS")){
+			riskconfig.cardIssuance(true);
+			risk.cardIssuance(true);
+		}
+
 		repoRisk.save(risk);
 
 
 		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(corp.idx());
 		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(corp.idx());
-
-		String strVentureCertification;
-		String strVcInvestment;
-		String strGrade;
-		if(riskconfig.ventureCertification()) {
-			strVentureCertification = "1";
-		}else{
-			strVentureCertification = "0";
-		}
-
-		if(riskconfig.vcInvestment()){
-			strVcInvestment = "1";
-		}else{
-			strVcInvestment = "0";
-		}
-
-		strGrade = risk.grade();
 
 		corp.riskConfig(repoRiskConfig.save(riskconfig));
 		repoCorp.save(corp);

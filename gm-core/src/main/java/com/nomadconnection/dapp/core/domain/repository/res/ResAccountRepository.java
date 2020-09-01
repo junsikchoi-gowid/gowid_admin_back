@@ -21,7 +21,13 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             " from ResAccount R" +
             " where connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser ) " +
             " order by field(resAccountDeposit , 10,11,12,13,14,30,20,40), resAccountNickName ASC, resAccountName ASC ")
-    List<ResAccount> findConnectedId(Long idxUser);
+    List<ResAccount> findResAccount(Long idxUser);
+
+    @Query(value = " select R " +
+            " from ResAccount R" +
+            " where connectedId = :connectedId " +
+            " order by field(resAccountDeposit , 10,11,12,13,14,30,20,40), resAccountNickName ASC, resAccountName ASC ")
+    List<ResAccount> findConnectedId(String connectedId);
 
     @Query(value = " select      " +
             " R.resAccountDeposit,     " +

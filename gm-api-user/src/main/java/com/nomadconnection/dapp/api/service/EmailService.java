@@ -41,6 +41,8 @@ public class EmailService {
 				helper.setTo(emailConfig.getSender());
 				helper.setSubject("[신한카드 심사완료] " + emailDto.getCompanyName());
 				helper.setText(templateEngine.process("mail-template-issuance-approve", context), true);
+
+
 			}
 		};
 		sender.send(preparator);

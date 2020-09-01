@@ -191,7 +191,7 @@ public class CodefService {
 			);
 
 			if(getScrapingAccount(idx)){
-				resAccount = repoResAccount.findConnectedId(idx).stream()
+				resAccount = repoResAccount.findResAccount(idx).stream()
 						.map(account -> BankDto.ResAccountDto.from(account, true))
 						.collect(Collectors.toList());
 			}
@@ -232,7 +232,7 @@ public class CodefService {
 				);
 
 				if (getScrapingAccount(idx)) {
-					resAccount = repoResAccount.findConnectedId(idx).stream()
+					resAccount = repoResAccount.findResAccount(idx).stream()
 							.map(account -> BankDto.ResAccountDto.from(account, true))
 							.collect(Collectors.toList());
 				}
@@ -500,7 +500,7 @@ public class CodefService {
 			);
 
 			if(getScrapingAccount(idx)){
-				resAccount = repoResAccount.findConnectedId(idx).stream().collect(Collectors.toList());
+				resAccount = repoResAccount.findResAccount(idx).stream().collect(Collectors.toList());
 			}
 
 		}else if(code.equals("CF-04004")){
@@ -519,7 +519,7 @@ public class CodefService {
 				);
 
 				if(getScrapingAccount(idx)){
-					resAccount = repoResAccount.findConnectedId(idx).stream().collect(Collectors.toList());
+					resAccount = repoResAccount.findResAccount(idx).stream().collect(Collectors.toList());
 				}
 
 			}else{
@@ -1296,6 +1296,11 @@ public class CodefService {
 		jsonArrayResCEOList.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 			if(GowidUtils.getEmptyStringToString(obj, "resPosition").charAt(0) != '!' ){
+				if(GowidUtils.getEmptyStringToString(obj, "resPosition").equals("공동대표이사")) {
+					str.add("공동대표");
+				}else{
+					str.add(GowidUtils.getEmptyStringToString(obj, "resPosition"));
+				}
 				str.add(GowidUtils.getEmptyStringToString(obj, "resPosition"));
 				str.add(GowidUtils.getEmptyStringToString(obj, "resUserNm"));
 				str.add(GowidUtils.getEmptyStringToString(obj, "resUserIdentiyNo"));
@@ -1665,19 +1670,19 @@ public class CodefService {
 	}
 
 	private String getJSONArrayCeoType(JSONArray jsonArray) {
-		String str = null;
+		String str = "1";
 
 		// 1: 단일대표 2: 개별대표 3: 공동대표
+		int cnt = 0;
 		for(Object item: jsonArray){
 			JSONObject obj = (JSONObject) item;
-
 			log.debug("resPosition = [{}]", GowidUtils.getEmptyStringToString(obj, "resPosition"));
 			if(GowidUtils.getEmptyStringToString(obj, "resPosition").equals("공동대표이사")) {
-				str = "3";
-				break;
-			}else{
-				str = "1";
-				break;
+				cnt ++;
+				if( cnt > 1 ){
+					str = "3";
+					break;
+				}
 			}
 		}
 		return str;
@@ -1806,9 +1811,13 @@ public class CodefService {
 		normal.setKey("CF-00000"); // 이상 유무와 상관없이 처리
 		normal.setStatus(true);
 
+		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(connectedMng.connectedId()).stream()
+				.map(account -> BankDto.ResAccountDto.from(account, true))
+				.collect(Collectors.toList());
+
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(normal)
-				.data(null).build());
+				.data(resAccount).build());
 	}
 
 	@SneakyThrows
