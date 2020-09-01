@@ -190,11 +190,15 @@ public class ShinhanGwRpc extends BaseRpc {
         DataPart1000 responseData = mapper.convertValue(response.getData(), DataPart1000.class);
         issCommonService.saveGwTran(responseData, idxUser);
 
+        // TODO : 9/3(목) 아래 주석으로 대체
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)
                 && !(responseData.getC009().equals(Const.API_SHINHAN_RESULT_1000_1400_SUCCESS_CODE) && responseData.getC013().equals(Const.API_SHINHAN_RESULT_1000_1400_SUCCESS_MSG))
         ) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1000, responseData.getC009() + "/" + responseData.getC013());
         }
+        //        if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS) && !responseData.getC009().equals(Const.API_SHINHAN_RESULT_1000_1400_SUCCESS_CODE)) {
+//            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1000, responseData.getC009() + "/" + responseData.getC013());
+//        }
 
         return responseData;
     }
@@ -213,11 +217,15 @@ public class ShinhanGwRpc extends BaseRpc {
         DataPart1400 responseData = mapper.convertValue(response.getData(), DataPart1400.class);
         issCommonService.saveGwTran(responseData, idxUser);
 
+        // TODO : 9/3(목) 아래 주석으로 대체
         if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)
                 && !(responseData.getC009().equals(Const.API_SHINHAN_RESULT_1000_1400_SUCCESS_CODE) && responseData.getC013().equals(Const.API_SHINHAN_RESULT_1000_1400_SUCCESS_MSG))
         ) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1400, responseData.getC009() + "/" + responseData.getC013());
         }
+        //        if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS) && !responseData.getC009().equals(Const.API_SHINHAN_RESULT_1000_1400_SUCCESS_CODE)) {
+//            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1400, responseData.getC009() + "/" + responseData.getC013());
+//        }
 
         return responseData;
     }
