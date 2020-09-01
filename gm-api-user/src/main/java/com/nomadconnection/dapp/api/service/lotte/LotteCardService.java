@@ -139,7 +139,7 @@ public class LotteCardService {
 		}
 
 		return repoD1100.save(d1100
-				.setVtCurTtEnpYn(dto.getIsVirtualCurrency() ? "Y" : "N")
+						.setVtCurTtEnpYn(dto.getIsVirtualCurrency() ? "Y" : "N")
 				//.setListStexC(dto.getIsListedCompany() ? dto.getListedCompanyCode() : null)
 		);
 	}
@@ -870,14 +870,26 @@ public class LotteCardService {
 	}
 
 	public void verifyCorrespondCeo(Long idx_corp, CardIssuanceDto.CeoValidReq dto) {
-		Lotte_D1100 d1100 = getD1100(idx_corp);
-		if (ObjectUtils.isEmpty(d1100)) {
-			throw EntityNotFoundException.builder().entity("Lotte_D1100").build();
+		D1000 shinhanD1000 = repoShinhanD1000.getTopByIdxCorpOrderByIdxDesc(idx_corp);
+		if (ObjectUtils.isEmpty(shinhanD1000)) {
+			throw EntityNotFoundException.builder().entity("shinhanD1000").build();
 		}
 
-		boolean isValidCeoInfo = !checkCeo(d1100.getCstNm(), d1100.getCstEnm(), d1100.getDgRrno(), dto)
-				&& !checkCeo(d1100.getCstNm2(), d1100.getCstEnm2(), d1100.getDgRrno2(), dto)
-				&& !checkCeo(d1100.getCstNm3(), d1100.getCstEnm3(), d1100.getDgRrno3(), dto);
+		boolean isValidCeoInfo = !checkCeo(shinhanD1000.getD010(), shinhanD1000.getD012(), shinhanD1000.getD011(), dto)
+				&& !checkCeo(shinhanD1000.getD014(), shinhanD1000.getD016(), shinhanD1000.getD015(), dto)
+				&& !checkCeo(shinhanD1000.getD018(), shinhanD1000.getD020(), shinhanD1000.getD019(), dto);
+
+		// TODO: 스크래핑시 롯데전문으로 받는 로직으로 바뀌면 아래와 같이 코드 수정
+//		{
+//			Lotte_D1100 d1100 = getD1100(idx_corp);
+//			if (ObjectUtils.isEmpty(d1100)) {
+//				throw EntityNotFoundException.builder().entity("Lotte_D1100").build();
+//			}
+//
+//			boolean isValidCeoInfo = !checkCeo(d1100.getCstNm(), d1100.getCstEnm(), d1100.getDgRrno(), dto)
+//					&& !checkCeo(d1100.getCstNm2(), d1100.getCstEnm2(), d1100.getDgRrno2(), dto)
+//					&& !checkCeo(d1100.getCstNm3(), d1100.getCstEnm3(), d1100.getDgRrno3(), dto);
+//		}
 
 		if (isValidCeoInfo) {
 			throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "MISMATCH_CEO");
