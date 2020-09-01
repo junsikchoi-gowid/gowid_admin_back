@@ -190,7 +190,9 @@ public class ShinhanGwRpc extends BaseRpc {
         DataPart1000 responseData = mapper.convertValue(response.getData(), DataPart1000.class);
         issCommonService.saveGwTran(responseData, idxUser);
 
-        if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+        if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)
+                && !(responseData.getC009().equals(Const.API_SHINHAN_RESULT_1000_1400_SUCCESS_CODE) && responseData.getC013().equals(Const.API_SHINHAN_RESULT_1000_1400_SUCCESS_MSG))
+        ) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1000, responseData.getC009() + "/" + responseData.getC013());
         }
 
@@ -211,7 +213,9 @@ public class ShinhanGwRpc extends BaseRpc {
         DataPart1400 responseData = mapper.convertValue(response.getData(), DataPart1400.class);
         issCommonService.saveGwTran(responseData, idxUser);
 
-        if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
+        if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)
+                && !(responseData.getC009().equals(Const.API_SHINHAN_RESULT_1000_1400_SUCCESS_CODE) && responseData.getC013().equals(Const.API_SHINHAN_RESULT_1000_1400_SUCCESS_MSG))
+        ) {
             throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1400, responseData.getC009() + "/" + responseData.getC013());
         }
 

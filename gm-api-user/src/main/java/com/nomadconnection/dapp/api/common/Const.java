@@ -28,4 +28,8 @@ public class Const {
     public static final String LOTTE_CORP_rlOwrDc_CODE_4 = "4";
     public static final String LOTTE_CORP_rlOwrDc_CODE_1 = "1";
 
+    // 1000, 1400 일때 03 + "1차 서류 심사중 일 때만  발송처리  처리 가능합니다." 일 경우 성공처리.
+    public static final String API_SHINHAN_RESULT_1000_1400_SUCCESS_CODE = "03";
+    public static final String API_SHINHAN_RESULT_1000_1400_SUCCESS_MSG = "1차 서류 심사중 일 때만  발송처리  처리 가능합니다.";
+
 }
