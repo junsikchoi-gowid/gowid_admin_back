@@ -1296,12 +1296,12 @@ public class CodefService {
 		jsonArrayResCEOList.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 			if(GowidUtils.getEmptyStringToString(obj, "resPosition").charAt(0) != '!' ){
+
 				if(GowidUtils.getEmptyStringToString(obj, "resPosition").equals("공동대표이사")) {
 					str.add("공동대표");
 				}else{
 					str.add(GowidUtils.getEmptyStringToString(obj, "resPosition"));
 				}
-				str.add(GowidUtils.getEmptyStringToString(obj, "resPosition"));
 				str.add(GowidUtils.getEmptyStringToString(obj, "resUserNm"));
 				str.add(GowidUtils.getEmptyStringToString(obj, "resUserIdentiyNo"));
 				str.add(GowidUtils.getEmptyStringToString(obj, "resUserAddr"));
