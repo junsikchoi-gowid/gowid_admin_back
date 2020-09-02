@@ -121,11 +121,11 @@ public class CardIssuanceDto {
         private Long count;
 
         @ApiModelProperty("그린카드 신청수량")
-        @Min(1)
+        @Min(0)
         private Long greenCount;
 
         @ApiModelProperty("블랙카드 신청수량")
-        @Min(1)
+        @Min(0)
         private Long blackCount;
 
         @ApiModelProperty("명세서 수령방법")
