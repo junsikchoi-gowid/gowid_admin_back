@@ -16,14 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 
 
 @Slf4j
@@ -44,6 +37,8 @@ public class CodefController {
 		public static final String ACCOUNT_CREATE = "/account/create";            							//
 		// 인증서 등록(커넥티드아이디 발급)
 		public static final String ACCOUNT_ADD = "/account/add";            								// 인증서 추가
+		public static final String REFERENCE_ADD_ACCOUNT = "/account/reference-add";  						// 인증서 추가 레퍼런스 추가
+
 		public static final String ACCOUNT_CREATE_NT = "/account/create/nt";         						// 인증서 추가 국세청 추가로 인한 수정
 		public static final String ACCOUNT_UPDATE = "/account/update";            							// 인증서 수정
 		public static final String ACCOUNT_DELETE = "/account/delete";            							// 인증서 삭제
@@ -122,8 +117,23 @@ public class CodefController {
 		if (log.isDebugEnabled()) {
 			log.debug("([Codef RegisterAccount ]) $dto='{}'", dto);
 		}
-		return service.registerAccountAdd(dto, user.idx());
+		return service.registerAccountAddCreate(dto, user.idx());
 	}
+
+	@ApiOperation(value = "인증서 등록(레퍼런스 추가)", notes = "" +
+			"\n ### Remarks" +
+			"\n")
+	@PostMapping(URI.REFERENCE_ADD_ACCOUNT)
+	public ResponseEntity registerAccountReferenceAdd(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody Common.Account dto,
+			@RequestParam String connectedId) {
+		if (log.isDebugEnabled()) {
+			log.debug("([Codef RegisterAccount ]) $dto='{}'", dto);
+		}
+		return service.registerAccountReferenceAdd(dto, user.idx(), connectedId);
+	}
+
 
 
 	@ApiOperation(value = "인증서 등록(커넥티드아이디 발급) 국세청 관련 등록 ", notes = " type 을 강제로 nt 로 저장함 " +

@@ -813,9 +813,6 @@ public class ScrapingService {
         }
 
         List<ConnectedMng> connectedMng = getConnectedMng(idx);
-
-        log.debug("start scrapingRegister1Year $idxResBatchParent={}", idxResBatch);
-
         Long finalIdx = idx;
         connectedMng.forEach(mngItem -> {
             String connId = mngItem.connectedId();

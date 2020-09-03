@@ -77,6 +77,11 @@ public class CommonConstant {
 	public static final String UPDATE_ACCOUNT = "/v1/account/update";            							// 계정 수정
 	public static final String DELETE_ACCOUNT = "/v1/account/delete";            							// 계정 삭제
 
+	public static final String REFERENCE_ADD_ACCOUNT = "/v1/account/reference-add";  									// 레퍼런스 계정 추가
+	public static final String REFERENCE_UPDATE_ACCOUNT = "/v1/account/reference-update";  								// 레퍼런스 계정 수정
+
+
+
 	public static final String COUNTRYCODE = "KR"; // 국가코드 KR
 	public static final String BUSINESSTYPE = "BK"; // 업무구분코드 BK
 	public static final String CARDTYPE = "CD"; // 업무구분코드 CD

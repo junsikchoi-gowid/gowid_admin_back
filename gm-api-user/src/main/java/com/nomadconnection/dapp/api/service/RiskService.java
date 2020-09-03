@@ -313,7 +313,7 @@ public class RiskService {
 		}
 
 		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(user.idx()).orElse(null);
-		if(issuanceProgress != null && issuanceProgress.getProgress().equals("P_1800") && issuanceProgress.getStatus().equals("SUCCESS")){
+		if(issuanceProgress != null && issuanceProgress.getProgress().name().equals("P_1800") && issuanceProgress.getStatus().name().equals("SUCCESS")){
 			riskconfig.cardIssuance(true);
 			risk.cardIssuance(true);
 		}
@@ -575,7 +575,7 @@ public class RiskService {
 		}
 
 		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(user.idx()).orElse(null);
-		if(issuanceProgress != null && issuanceProgress.getProgress().equals("P_1800") && issuanceProgress.getStatus().equals("SUCCESS")){
+		if(issuanceProgress != null && issuanceProgress.getProgress().name().equals("P_1800") && issuanceProgress.getStatus().name().equals("SUCCESS")){
 			riskconfig.cardIssuance(true);
 			risk.cardIssuance(true);
 		}

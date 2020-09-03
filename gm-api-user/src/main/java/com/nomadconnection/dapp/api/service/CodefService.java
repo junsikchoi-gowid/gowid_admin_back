@@ -50,11 +50,13 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.EntityExistsException;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -126,6 +128,7 @@ public class CodefService {
 		List<HashMap<String, Object>> list = new ArrayList<>();
 		HashMap<String, Object> accountMap1;
 		String createUrlPath = urlPath + CommonConstant.CREATE_ACCOUNT;
+		// String createUrlPath = urlPath + CommonConstant.REFERENCE_UPDATE_ACCOUNT;
 		List<BankDto.ResAccountDto> resAccount = null;
 
 		for( String s : CommonConstant.LISTBANK){
@@ -280,7 +283,6 @@ public class CodefService {
 						}
 
 						String code = strResult[0].get("code").toString();
-
 						if (code.equals("CF-00000") || code.equals("CF-04012")) {
 
 							JSONObject jsonData = strResult[1];
@@ -297,6 +299,7 @@ public class CodefService {
 									idxTemp = idxLongTemp.get().idx();
 								}
 								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+
 								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
 									startDate = obj.get("resAccountStartDate").toString();
 								}
@@ -1795,7 +1798,7 @@ public class CodefService {
 				resConCorpList -> {
 					listCorp.add(resConCorpList.organization()); }
 		);
-		JSONObject jsonObject = ApiCodef.registerCodef(dto, connectedMng.connectedId(), CommonConstant.API_DOMAIN, CommonConstant.UPDATE_ACCOUNT, listCorp, CommonConstant.BUSINESSTYPE);
+		JSONObject jsonObject = ApiCodef.registerCodef(dto, connectedMng.connectedId(), CommonConstant.API_DOMAIN, CommonConstant.REFERENCE_UPDATE_ACCOUNT, null, CommonConstant.BUSINESSTYPE);
 		ProcAddConnectedId(jsonObject, connectedMng.connectedId(), user.corp().idx());
 		saveConnectedId(dto, jsonObject, connectedMng.connectedId(), user.idx(), user.corp().idx());
 
@@ -1804,7 +1807,7 @@ public class CodefService {
 				resConCorpList -> {
 					listCorp.add(resConCorpList.organization()); }
 		);
-		jsonObject = ApiCodef.registerCodef(dto, connectedMng.connectedId(), CommonConstant.API_DOMAIN, CommonConstant.UPDATE_ACCOUNT, listCorp, CommonConstant.CARDTYPE);
+		jsonObject = ApiCodef.registerCodef(dto, connectedMng.connectedId(), CommonConstant.API_DOMAIN, CommonConstant.REFERENCE_UPDATE_ACCOUNT, null, CommonConstant.CARDTYPE);
 		ProcAddConnectedId(jsonObject, connectedMng.connectedId(), user.corp().idx());
 		saveConnectedId(dto, jsonObject, connectedMng.connectedId(), user.idx(), user.corp().idx());
 
@@ -1897,5 +1900,370 @@ public class CodefService {
 					.build()
 			);
 		}
+	}
+
+	@SneakyThrows
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity registerAccountAddCreate(Common.Account dto, Long idxUser) {
+
+		User user = repoUser.findById(idxUser).orElseThrow(
+				() -> UserNotFoundException.builder().build()
+		);
+		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
+		HashMap<String, Object> bodyMap = new HashMap<>();
+		List<HashMap<String, Object>> list = new ArrayList<>();
+		HashMap<String, Object> accountMap1;
+		String createUrlPath = urlPath + CommonConstant.CREATE_ACCOUNT;
+		List<BankDto.ResAccountDto> resAccount = null;
+
+		for( String s : CommonConstant.LISTBANK){
+			accountMap1 = new HashMap<>();
+			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
+			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("organization",	s);// 기관코드
+			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
+			accountMap1.put("certType",     CommonConstant.CERTTYPE);
+			accountMap1.put("certFile",     dto.getCertFile());
+			list.add(accountMap1);
+		}
+
+		bodyMap.put("accountList", list);
+		String strObject = ApiRequest.request(createUrlPath, bodyMap);
+
+		JSONParser jsonParse = new JSONParser();
+		JSONObject jsonObject = (JSONObject)jsonParse.parse(strObject);
+
+		String strResultCode = jsonObject.get("result").toString();
+		String strResultData = jsonObject.get("data").toString();
+
+		String code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
+		normal.setKey(code);
+		String connectedId;
+
+		if(code.equals("CF-00000") || code.equals("CF-04012")) {
+			connectedId = (((JSONObject) jsonParse.parse(strResultData)).get("connectedId")).toString();
+
+			repoConnectedMng.save(ConnectedMng.builder()
+					.connectedId(connectedId)
+					.idxUser(idxUser)
+					.name(dto.getName())
+					.startDate(dto.getStartDate())
+					.endDate(dto.getEndDate())
+					.desc1(dto.getDesc1())
+					.desc2(dto.getDesc2())
+					.idxCorp(user.corp().idx())
+					.build()
+			);
+
+			if(getScrapingAccount(idxUser)){
+				resAccount = repoResAccount.findResAccount(idxUser).stream()
+						.map(account -> BankDto.ResAccountDto.from(account, true))
+						.collect(Collectors.toList());
+			}
+
+		}else{
+			// 삭제처리
+			try {
+				JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
+				JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
+				connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
+				log.debug("([ registerAccountAddCreate ]) connectedId='{}'", connectedId);
+				deleteAccount2(connectedId);
+				deleteConnectedId(connectedId);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			// 재등록
+			strObject = ApiRequest.request(createUrlPath, bodyMap);
+
+			jsonParse = new JSONParser();
+			jsonObject = (JSONObject)jsonParse.parse(strObject);
+			strResultCode = jsonObject.get("result").toString();
+			strResultData = jsonObject.get("data").toString();
+
+			code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
+
+			if(code.equals("CF-00000") || code.equals("CF-04012")) {
+				connectedId = (((JSONObject) jsonParse.parse(strResultData)).get("connectedId")).toString();
+
+				repoConnectedMng.save(ConnectedMng.builder()
+						.connectedId(connectedId)
+						.idxUser(idxUser)
+						.name(dto.getName())
+						.startDate(dto.getStartDate())
+						.endDate(dto.getEndDate())
+						.desc1(dto.getDesc1())
+						.desc2(dto.getDesc2())
+						.build()
+				);
+
+				if (getScrapingAccountBank(connectedId)) {
+					resAccount = repoResAccount.findResAccount(idxUser).stream()
+							.map(account -> BankDto.ResAccountDto.from(account, true))
+							.collect(Collectors.toList());
+				}
+			}else{
+				try {
+					JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
+					JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
+					connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
+					deleteAccount2(connectedId);
+					deleteConnectedId(connectedId);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+			normal.setStatus(false);
+			normal.setKey(code);
+			normal.setValue((((JSONObject)jsonParse.parse(strResultCode)).get("message")).toString());
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(normal)
+				.data(resAccount).build());
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public boolean getScrapingAccountBank(String connId) {
+		String code ;
+		try {
+			for (String s : CommonConstant.LISTBANK) {
+				JSONObject[] strResult = getApiResult(KR_BK_1_B_001.krbk1b001(connId, s));
+				code = strResult[0].get("code").toString();
+				if (code.equals("CF-00000") || code.equals("CF-04012")) {
+
+					JSONObject jsonData = strResult[1];
+					JSONArray jsonArrayResDepositTrust = (JSONArray) jsonData.get("resDepositTrust");
+					JSONArray jsonArrayResForeignCurrency = (JSONArray) jsonData.get("resForeignCurrency");
+					JSONArray jsonArrayResFund = (JSONArray) jsonData.get("resFund");
+					JSONArray jsonArrayResLoan = (JSONArray) jsonData.get("resLoan");
+
+					jsonArrayResDepositTrust.forEach(item -> {
+						JSONObject obj = (JSONObject) item;
+						Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+						Long idxTemp = null;
+						if(idxLongTemp.isPresent()){
+							idxTemp = idxLongTemp.get().idx();
+						}
+						String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+
+						if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+							startDate = obj.get("resAccountStartDate").toString();
+						}
+
+						if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
+							repoResAccount.save(ResAccount.builder()
+									.idx(idxTemp)
+									.connectedId(connId)
+									.organization(s)
+									.type("DepositTrust")
+									.resAccount(GowidUtils.getEmptyStringToString(obj, "resAccount"))
+									.resAccountDisplay(GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
+									.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
+									.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
+									.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
+									.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
+									.resAccountStartDate(startDate)
+									.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
+									.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate"))
+									.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName"))
+									.build()
+							);
+						}
+					});
+
+					jsonArrayResLoan.forEach(item -> {
+						JSONObject obj = (JSONObject) item;
+						Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+						Long idxTemp = null;
+						if(idxLongTemp.isPresent()){
+							idxTemp = idxLongTemp.get().idx();
+						}
+						String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+						if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+							startDate = obj.get("resAccountStartDate").toString();
+						}
+						if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
+							repoResAccount.save(ResAccount.builder()
+									.idx(idxTemp)
+									.connectedId(connId)
+									.organization(s)
+									.type("Loan")
+									.resAccount(obj.get("resAccount").toString())
+									.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay"))
+									.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
+									.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
+									.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
+									.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
+									.resAccountStartDate(startDate)
+									.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
+									.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName"))
+									.resAccountLoanExecNo(GowidUtils.getEmptyStringToString(obj,"resAccountLoanExecNo"))
+									.build()
+							);
+						}
+					});
+
+					jsonArrayResForeignCurrency.forEach(item -> {
+						JSONObject obj = (JSONObject) item;
+						Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+						Long idxTemp = null;
+						if(idxLongTemp.isPresent()){
+							idxTemp = idxLongTemp.get().idx();
+						}
+						String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+						if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+							startDate = obj.get("resAccountStartDate").toString();
+						}
+						if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
+							repoResAccount.save(ResAccount.builder()
+									.idx(idxTemp)
+									.connectedId(connId)
+									.organization(s)
+									.type("ResForeignCurrency")
+									.resAccount(obj.get("resAccount").toString())
+									.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay"))
+									.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
+									.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
+									.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
+									.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
+									.resAccountStartDate(startDate)
+									.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
+									.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate").toString())
+									.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName").toString())
+									.build()
+							);
+						}
+					});
+
+					jsonArrayResFund.forEach(item -> {
+						JSONObject obj = (JSONObject) item;
+						Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+						Long idxTemp = null;
+						if(idxLongTemp.isPresent()){
+							idxTemp = idxLongTemp.get().idx();
+						}
+						String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
+						if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+							startDate = obj.get("resAccountStartDate").toString();
+						}
+						if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
+							repoResAccount.save(ResAccount.builder()
+									.idx(idxTemp)
+									.connectedId(connId)
+									.organization(s)
+									.type("ResFund")
+									.resAccount(obj.get("resAccount").toString())
+									.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay").toString())
+									.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
+									.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit").toString())
+									.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName").toString())
+									.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency").toString())
+									.resAccountStartDate(startDate)
+									.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate").toString())
+									.resAccountInvestedCost(GowidUtils.getEmptyStringToString(obj,"resAccountInvestedCost").toString())
+									.resEarningsRate(GowidUtils.getEmptyStringToString(obj,"resEarningsRate").toString())
+									.build()
+							);
+						}
+					});
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	@Async
+	@Transactional(noRollbackFor = Exception.class)
+	void deleteConnectedId(String cId) {
+
+		try {
+			if(!cId.isEmpty()){
+				repoConnectedMng.deleteConnectedQuery(cId);
+			}
+		} catch (Exception e) {
+			log.error("[deleteConnectedId] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
+		}
+	}
+
+	@SneakyThrows
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity registerAccountReferenceAdd(Common.Account dto, Long idxUser, String connectedId) {
+
+		User user = repoUser.findById(idxUser).orElseThrow(
+				() -> UserNotFoundException.builder().build()
+		);
+
+		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
+		HashMap<String, Object> bodyMap = new HashMap<>();
+		List<HashMap<String, Object>> list = new ArrayList<>();
+		HashMap<String, Object> accountMap1;
+		String createUrlPath = urlPath + CommonConstant.REFERENCE_ADD_ACCOUNT;
+		List<BankDto.ResAccountDto> resAccount = null;
+
+		for (String s : CommonConstant.LISTBANK) {
+			accountMap1 = new HashMap<>();
+			accountMap1.put("countryCode", CommonConstant.COUNTRYCODE);  // 국가코드
+			accountMap1.put("businessType", CommonConstant.BUSINESSTYPE);  // 업무구분코드
+			accountMap1.put("clientType", "B");   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("organization", s);// 기관코드
+			accountMap1.put("loginType", "0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+			accountMap1.put("password", RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
+			accountMap1.put("certType", CommonConstant.CERTTYPE);
+			accountMap1.put("certFile", dto.getCertFile());
+			list.add(accountMap1);
+		}
+
+		bodyMap.put("accountList", list);
+		bodyMap.put("connectedId", connectedId);
+		bodyMap.put("countryCode", CommonConstant.COUNTRYCODE);  // 국가코드
+		bodyMap.put("businessType", CommonConstant.BUSINESSTYPE);  // 업무구분코드
+		bodyMap.put("clientType", "B");   // 고객구분(P: 개인, B: 기업)
+		bodyMap.put("organization", "0002");// 기관코드
+
+		String strObject = ApiRequest.request(createUrlPath, bodyMap);
+
+		JSONParser jsonParse = new JSONParser();
+		JSONObject jsonObject = (JSONObject) jsonParse.parse(strObject);
+
+		String strResultCode = jsonObject.get("result").toString();
+		String strResultData = jsonObject.get("data").toString();
+
+		String code = (((JSONObject) jsonParse.parse(strResultCode)).get("code")).toString();
+		normal.setKey(code);
+
+		if (code.equals("CF-00000") || code.equals("CF-04012")) {
+			connectedId = (((JSONObject) jsonParse.parse(strResultData)).get("connectedId")).toString();
+
+			repoConnectedMng.save(ConnectedMng.builder()
+					.connectedId(connectedId)
+					.idxUser(idxUser)
+					.name(dto.getName())
+					.startDate(dto.getStartDate())
+					.endDate(dto.getEndDate())
+					.desc1(dto.getDesc1())
+					.desc2(dto.getDesc2())
+					.idxCorp(user.corp().idx())
+					.build()
+			);
+
+			if (getScrapingAccount(idxUser)) {
+				resAccount = repoResAccount.findResAccount(idxUser).stream()
+						.map(account -> BankDto.ResAccountDto.from(account, true))
+						.collect(Collectors.toList());
+			}
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(normal)
+				.data(resAccount).build());
 	}
 }
