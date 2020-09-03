@@ -140,12 +140,12 @@ public class LotteGwRpc extends LotteBaseRpc {
 		}
 	}
 
-	public void requestImageTransfer(String licenseNo) {
-		ApiResponse response = requestGateWayByJson(GATEWAY_IDC_URL + GATEWAY_LOTTE_URI_IMAGE_SEND + "/" + licenseNo
-				, HttpMethod.POST, null, null, ApiResponse.class, LotteGwApiType.IMAGE_TRANSFER);
-
-		if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
-			throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_LOTTE_IMAGE_TRANSFER, "gateway error");
-		}
-	}
+//	public void requestImageTransfer(String licenseNo) {
+//		ApiResponse response = requestGateWayByJson(GATEWAY_IDC_URL + GATEWAY_LOTTE_URI_IMAGE_SEND + "/" + licenseNo
+//				, HttpMethod.POST, null, null, ApiResponse.class, LotteGwApiType.IMAGE_TRANSFER);
+//
+//		if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
+//			throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_LOTTE_IMAGE_TRANSFER, "gateway error");
+//		}
+//	}
 }

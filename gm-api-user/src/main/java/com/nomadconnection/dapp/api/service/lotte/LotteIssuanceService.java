@@ -124,11 +124,6 @@ public class LotteIssuanceService {
 		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
 		procImageZip(resultOfD1200);
 		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
-
-		// 이미지 전송요청
-		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_IMG, CardCompany.LOTTE);
-		procImageTransfer(resultOfD1200);
-		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_IMG, CardCompany.LOTTE);
 	}
 
 	private void procImageZip(DataPart1200 resultOfD1200) {
@@ -139,10 +134,10 @@ public class LotteIssuanceService {
 		lotteGwRpc.requestImageZip(requestRpc);
 	}
 
-	private void procImageTransfer(DataPart1200 resultOfD1200) {
-		lotteGwRpc.requestImageTransfer(resultOfD1200.getBzno());
-		sendReceiptEmail(resultOfD1200);
-	}
+//	private void procImageTransfer(DataPart1200 resultOfD1200) {
+//		lotteGwRpc.requestImageTransfer(resultOfD1200.getBzno());
+//		sendReceiptEmail(resultOfD1200);
+//	}
 
 	private void sendReceiptEmail(DataPart1200 resultOfD1200) {
 		if (!sendReceiptEmailEnable) {
