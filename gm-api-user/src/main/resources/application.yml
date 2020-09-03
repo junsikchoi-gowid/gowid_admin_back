@@ -108,6 +108,11 @@ encryption:
 stockholder:
   file:
     size: 2097152
+    type:
+      - jpg
+      - jpeg
+      - tif
+      - tiff
 
 mail:
   approved:
@@ -166,6 +171,11 @@ encryption:
 stockholder:
   file:
     size: 2097152
+    type:
+      - jpg
+      - jpeg
+      - tif
+      - tiff
 
 mail:
   approved:
@@ -225,6 +235,11 @@ encryption:
 stockholder:
   file:
     size: 2097152
+    type:
+      - jpg
+      - jpeg
+      - tif
+      - tiff
 
 mail:
   approved:

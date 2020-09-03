@@ -73,6 +73,8 @@ public class CommonCardService {
 
 	@Value("${stockholder.file.size}")
 	private Long STOCKHOLDER_FILE_SIZE;
+	@Value("${stockholder.file.type}")
+	private List<String> STOCKHOLDER_FILE_TYPE;
 
 	/**
 	 * 법인정보 업종종류 조회
@@ -166,7 +168,8 @@ public class CommonCardService {
 		try {
 			String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
 
-			if (file.getSize() <= STOCKHOLDER_FILE_SIZE && !sendGwUpload) {
+
+			if (file.getSize() <= STOCKHOLDER_FILE_SIZE && STOCKHOLDER_FILE_TYPE.contains(FilenameUtils.getExtension(fileName))) {
 				gwUploadService.upload(cardInfo.cardCompany(), uploadFile, gwFileCode, licenseNo);
 				sendGwUpload = true;
 			} else {
