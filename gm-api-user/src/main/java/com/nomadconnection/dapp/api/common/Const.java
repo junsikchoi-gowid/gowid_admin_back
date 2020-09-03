@@ -34,4 +34,6 @@ public class Const {
     // TODO : 9/3(목) 저녁때 API_SHINHAN_RESULT_1000_1400_SUCCESS_CODE=47 일때만 성공으로 변경작업 필요, 위 두줄은 제거.
 //    public static final String API_SHINHAN_RESULT_1000_1400_SUCCESS_CODE = "09";
 
+    public static final String SLACK_NOTI_USER_EMAIL = "[USER_EMAIL]";
+
 }

@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
 @Setter
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true)
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public class CustomUser extends org.springframework.security.core.userdetails.User {
 
     private Long idx;
-
+    private String email;
     private String name;
     private String uriProfileImage;
 
@@ -37,9 +37,7 @@ public class CustomUser extends org.springframework.security.core.userdetails.Us
         );
         idx = user.idx();
         name = user.name();
-        //
-        //	todo: set profile image uri
-        //
+        email = user.email();
     }
 
     @Override

@@ -115,6 +115,11 @@ mail:
     send-enable: false
   receipt:
     send-enable: false
+
+slack:
+  url: https://hooks.slack.com/services/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
+  enable: true
+
 ---
 
 spring:
@@ -175,6 +180,10 @@ mail:
   receipt:
     send-enable: false
 
+slack:
+  url: https://hooks.slack.com/services/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
+  enable: true
+
 ---
 
 spring:
@@ -234,3 +243,7 @@ mail:
     send-enable: true
   receipt:
     send-enable: true
+
+slack:
+  url: https://hooks.slack.com/services/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
+  enable: true
