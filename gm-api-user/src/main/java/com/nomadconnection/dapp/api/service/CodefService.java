@@ -1673,22 +1673,29 @@ public class CodefService {
 	}
 
 	private String getJSONArrayCeoType(JSONArray jsonArray) {
-		String str = "1";
+		String typeValue = "1";
 
 		// 1: 단일대표 2: 개별대표 3: 공동대표
-		int cnt = 0;
+		int Co_representative_cnt = 0;
+		int Each_representative_cnt = 0;
 		for(Object item: jsonArray){
 			JSONObject obj = (JSONObject) item;
 			log.debug("resPosition = [{}]", GowidUtils.getEmptyStringToString(obj, "resPosition"));
 			if(GowidUtils.getEmptyStringToString(obj, "resPosition").equals("공동대표이사")) {
-				cnt ++;
-				if( cnt > 1 ){
-					str = "3";
+				Co_representative_cnt ++;
+				if( Co_representative_cnt > 1 ){
+					typeValue = "3";
+					break;
+				}
+			}else if(GowidUtils.getEmptyStringToString(obj, "resPosition").equals("대표이사")) {
+				Each_representative_cnt ++;
+				if( Each_representative_cnt > 1 ){
+					typeValue = "2";
 					break;
 				}
 			}
 		}
-		return str;
+		return typeValue;
 	}
 
 	private String saveResRegistrationDateList(JSONArray jsonArrayResRegistrationDateList) {
