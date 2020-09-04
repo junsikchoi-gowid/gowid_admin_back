@@ -117,7 +117,7 @@ mail:
     send-enable: false
 
 slack:
-  url: https://hooks.slack.com/services/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
+  url: https://hooks.slack.com/services/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
   enable: true
 
 ---
@@ -181,7 +181,7 @@ mail:
     send-enable: false
 
 slack:
-  url: https://hooks.slack.com/services/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
+  url: https://hooks.slack.com/services/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
   enable: true
 
 ---
