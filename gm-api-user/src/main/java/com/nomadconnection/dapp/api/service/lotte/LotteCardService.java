@@ -962,7 +962,7 @@ public class LotteCardService {
 	}
 
 	private String getDriverLocalName(String code) {
-		return repoCodeDetail.findFirstByValue1OrValue2AndCode(code, code, CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).orElseThrow(
+		return repoCodeDetail.findFirstByCode1AndCode(code, CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("CommonCodeDetail")
 						.build()
@@ -970,7 +970,7 @@ public class LotteCardService {
 	}
 
 	private String getDriverLocalNumber(String code) {
-		return repoCodeDetail.findFirstByValue1OrValue2AndCode(code, code, CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).orElseThrow(
+		return repoCodeDetail.findFirstByCode1AndCode(code, CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("CommonCodeDetail")
 						.build()
