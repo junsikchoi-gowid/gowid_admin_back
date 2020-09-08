@@ -648,6 +648,7 @@ public class LotteCardService {
 		Map<String, String> decryptData;
 		if (dto.getIdentityType().equals(CertificationType.DRIVER)) {
 			decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
+			dto.setDriverLocal(commonCardService.findShinhanDriverLocalCode(dto.getDriverLocal()));
 		} else {
 			decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER});
 		}

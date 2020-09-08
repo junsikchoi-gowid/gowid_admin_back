@@ -9,6 +9,7 @@ import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
+import com.nomadconnection.dapp.api.service.CommonCardService;
 import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.service.shinhan.rpc.ShinhanGwRpc;
@@ -70,6 +71,7 @@ public class IssuanceService {
     private final AsyncService asyncService;
     private final UserService userService;
     private final EmailService emailService;
+    private final CommonCardService commonCardService;
 
     @Value("${mail.receipt.send-enable}")
     boolean sendReceiptEmailEnable;
@@ -515,7 +517,7 @@ public class IssuanceService {
         Map<String, String> decryptData;
         if (dto.getIdentityType().equals(CertificationType.DRIVER)) {
             decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
-            dto.setDriverLocal(findShinhanDriverLocalCode(dto.getDriverLocal()));
+            dto.setDriverLocal(commonCardService.findShinhanDriverLocalCode(dto.getDriverLocal()));
         } else {
             decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER});
         }
@@ -610,11 +612,4 @@ public class IssuanceService {
         return signatureHistoryRepository.save(signatureHistory);
     }
 
-    private String findShinhanDriverLocalCode(String code) {
-        return commonCodeDetailRepository.findFirstByValue1OrValue2AndCode(code, code, CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).orElseThrow(
-                () -> EntityNotFoundException.builder()
-                        .entity("CommonCodeDetail")
-                        .build()
-        ).code1();
-    }
 }

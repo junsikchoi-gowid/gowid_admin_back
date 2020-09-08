@@ -456,4 +456,12 @@ public class CommonCardService {
 				&& Boolean.FALSE.equals(cardInfo.stockholder().isStockHold25())
 				&& Boolean.FALSE.equals(cardInfo.stockholder().isStockholderPersonal());
 	}
+
+	public String findShinhanDriverLocalCode(String code) {
+		return repoCodeDetail.findFirstByValue1OrValue2AndCode(code, code, CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).orElseThrow(
+			() -> EntityNotFoundException.builder()
+				.entity("CommonCodeDetail")
+				.build()
+		).code1();
+	}
 }
