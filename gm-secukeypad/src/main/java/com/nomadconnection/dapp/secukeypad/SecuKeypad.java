@@ -41,6 +41,7 @@ public class SecuKeypad {
         }
     }
 
+    @SuppressWarnings(value = "unchecked")
     public static void loggingKeyPadSession(HttpServletRequest request) {
         HttpSession session = request.getSession();
         Map<String, String> map3 = (Map<String, String>) session.getAttribute(PluginFreeConst.PLUGINFREE_SESSION_KEY);
@@ -49,13 +50,13 @@ public class SecuKeypad {
         builder.append("Print PluginFree Session Start....................................\n");
 
         if (map3 != null) {
-            Set set = map3.keySet();
+            Set<String> set = map3.keySet();
             List<String> list3 = new ArrayList<String>(set);
             Collections.sort(list3);
 
             for (String key : list3) {
-                Object value1 = map3.get(key);
-                builder.append("\t" + key + " : " + value1 + "\n");
+                String value1 = map3.get(key);
+                builder.append("\t").append(key).append(" : ").append(value1).append("\n");
             }
 
         } else {
