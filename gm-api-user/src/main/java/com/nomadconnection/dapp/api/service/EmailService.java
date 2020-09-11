@@ -48,7 +48,7 @@ public class EmailService {
 		sender.send(preparator);
 	}
 
-	public void sendApproveEmail(String licenseNo, String issuanceCount) {
+	public void sendApproveEmail(String licenseNo, String issuanceCount, String targetStatus) {
 		EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
 		MimeMessagePreparator preparator = mimeMessage -> {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
@@ -61,11 +61,12 @@ public class EmailService {
 					context.setVariable("grantLimit", emailDto.getGrantLimit());
 					context.setVariable("email", emailDto.getEmail());
 					context.setVariable("issuanceCount", issuanceCount);
+					context.setVariable("targetStatus", targetStatus);
 				}
 
 				helper.setFrom(emailConfig.getSender());
 				helper.setTo(emailConfig.getSender());
-				helper.setSubject("[신한카드 심사완료] " + emailDto.getCompanyName());
+				helper.setSubject("[Gowid] 신한카드 심사완료 " + emailDto.getCompanyName());
 				helper.setText(templateEngine.process("mail-template-issuance-approve2", context), true);
 			}
 		};

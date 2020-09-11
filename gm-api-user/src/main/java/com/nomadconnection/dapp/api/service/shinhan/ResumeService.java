@@ -130,7 +130,7 @@ public class ResumeService {
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
 
-        emailService.sendApproveEmail(d1200.getD001(), d1100.getD039());
+        emailService.sendApproveEmail(d1200.getD001(), d1100.getD039(), d1200.getD003());
         log.debug("## approved email sent. biz no = " + d1200.getD001());
     }
 
