@@ -124,6 +124,9 @@ public class LotteIssuanceService {
 		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
 		procImageZip(resultOfD1200);
 		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
+
+		// 이메일 전송
+		sendReceiptEmail(resultOfD1200, userCorp);
 	}
 
 	private void procImageZip(DataPart1200 resultOfD1200) {
@@ -134,17 +137,18 @@ public class LotteIssuanceService {
 		lotteGwRpc.requestImageZip(requestRpc);
 	}
 
-//	private void procImageTransfer(DataPart1200 resultOfD1200) {
-//		lotteGwRpc.requestImageTransfer(resultOfD1200.getBzno());
-//		sendReceiptEmail(resultOfD1200);
-//	}
-
-	private void sendReceiptEmail(DataPart1200 resultOfD1200) {
+	private void sendReceiptEmail(DataPart1200 resultOfD1200, Corp userCorp) {
 		if (!sendReceiptEmailEnable) {
 			return;
 		}
-		emailService.sendReceiptEmail(resultOfD1200.getBzno(), CardCompany.LOTTE);
+		Lotte_D1100 d1100 = repoD1100.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
+		String[] issuanceCounts = {getLotteCardsCount(d1100.getRgAkCt()), getLotteCardsCount(d1100.getRgAkCt2())};
+		emailService.sendReceiptEmail(resultOfD1200.getBzno(), issuanceCounts, CardCompany.LOTTE, null);
 		log.debug("## receipt email sent. biz no = " + resultOfD1200.getBzno());
+	}
+
+	private String getLotteCardsCount(String count) {
+		return Integer.toString(Integer.parseInt(count) + 1);
 	}
 
 	private DataPart1000 proc1000(Corp userCorp) {

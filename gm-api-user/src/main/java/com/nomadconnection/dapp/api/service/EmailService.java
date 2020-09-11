@@ -48,29 +48,6 @@ public class EmailService {
 		sender.send(preparator);
 	}
 
-	public void sendReceiptEmail(String licenseNo, CardCompany cardCompany) {
-		EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
-		MimeMessagePreparator preparator = mimeMessage -> {
-			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
-			{
-				Context context = new Context();
-				{
-					context.setVariable("licenseNo", emailDto.getLicenseNo());
-					context.setVariable("companyName", emailDto.getCompanyName());
-					context.setVariable("hopeLimit", emailDto.getHopeLimit());
-					context.setVariable("grantLimit", emailDto.getGrantLimit());
-					context.setVariable("email", emailDto.getEmail());
-				}
-
-				helper.setFrom(emailConfig.getSender());
-				helper.setTo(emailConfig.getSender());
-				helper.setSubject("[" + cardCompany.getName() + " 접수완료] " + emailDto.getCompanyName());
-				helper.setText(templateEngine.process("mail-template-issuance-receipt", context), true);
-			}
-		};
-		sender.send(preparator);
-	}
-
 	public void sendApproveEmail(String licenseNo, String issuanceCount) {
 		EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
 		MimeMessagePreparator preparator = mimeMessage -> {
@@ -95,7 +72,7 @@ public class EmailService {
 		sender.send(preparator);
 	}
 
-	public void sendReceiptEmail(String licenseNo, String issuanceCount) {
+	public void sendReceiptEmail(String licenseNo, String[] issuanceCounts, CardCompany cardCompany, String targetStatus) {
 		EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
 		MimeMessagePreparator preparator = mimeMessage -> {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
@@ -107,13 +84,15 @@ public class EmailService {
 					context.setVariable("hopeLimit", emailDto.getHopeLimit());
 					context.setVariable("grantLimit", emailDto.getGrantLimit());
 					context.setVariable("email", emailDto.getEmail());
-					context.setVariable("issuanceCount", issuanceCount);
+					context.setVariable("issuanceCount", issuanceCounts);
+                    context.setVariable("targetStatus", targetStatus);
+					context.setVariable("cardCompany", cardCompany.getName());
 				}
 
 				helper.setFrom(emailConfig.getSender());
 				helper.setTo(emailConfig.getSender());
-				helper.setSubject("[신한카드 접수완료] " + emailDto.getCompanyName());
-				helper.setText(templateEngine.process("mail-template-issuance-receipt2", context), true);
+				helper.setSubject("[Gowid] " + cardCompany.getName() + " 접수완료 " + emailDto.getCompanyName());
+				helper.setText(templateEngine.process("mail-template-issuance-receipt", context), true);
 			}
 		};
 		sender.send(preparator);
