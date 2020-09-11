@@ -87,7 +87,8 @@ public class EmailService {
 					context.setVariable("email", emailDto.getEmail());
 					context.setVariable("issuanceCount", issuanceCounts);
                     context.setVariable("targetStatus", targetStatus);
-					context.setVariable("cardCompany", cardCompany.getName());
+					context.setVariable("cardCompanyCode", cardCompany.getCode());
+					context.setVariable("cardCompanyName", cardCompany.getName());
 				}
 
 				helper.setFrom(emailConfig.getSender());

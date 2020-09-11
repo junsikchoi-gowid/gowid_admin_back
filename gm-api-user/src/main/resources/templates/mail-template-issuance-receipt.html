@@ -161,7 +161,7 @@
                                     style="
                                         border-bottom: 1px solid #e6e6e6; padding-top: 0; padding-right: 0; padding-bottom: 16px; padding-left: 0; font-family: NotoSansKR; font-weight: 700; font-stretch: normal; font-style: normal; line-height: 24px; letter-spacing: -0.3px; color: #333333; "
                                 >
-                                    [Gowid] <span th:text="${cardCompany}"></span> 접수완료
+                                    [Gowid] <span th:text="${cardCompanyName}"></span> 접수완료
                                 </td>
                             </tr>
                             <tr>
@@ -173,12 +173,12 @@
                                     사업자번호 : <span th:text="${licenseNo}"></span><br/>
                                     부여한도 : <span th:text="${grantLimit}"></span><br/>
                                     희망한도 : <span th:text="${hopeLimit}"></span><br/>
-                                    <div th:switch="${cardCompany}">
-                                        <div th:case="신한카드">
+                                    <div th:switch="${cardCompanyCode}">
+                                        <div th:case="0306">
                                             발급매수 : <span th:text="${issuanceCount[0]}"></span><br/>
                                             신규대상여부 : <span th:text="${targetStatus}"></span><br/>
                                         </div>
-                                        <div th:case="롯데카드">
+                                        <div th:case="0311">
                                             발급매수<br/>
                                              -일반용 : <span th:text="${issuanceCount[0]}"></span><br/>
                                              -임원용 : <span th:text="${issuanceCount[1]}"></span><br/>
