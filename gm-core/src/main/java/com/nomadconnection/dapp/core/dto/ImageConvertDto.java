@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.core.dto;
 
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,10 +12,11 @@ import lombok.Setter;
 public class ImageConvertDto {
 
 	@Builder
-    public ImageConvertDto(Integer mrdType, String fileName, String data) {
+    public ImageConvertDto(Integer mrdType, String fileName, String data, CardCompany cardCompany) {
         this.mrdType = mrdType;
         this.fileName = fileName;
         this.data = data;
+        this.cardCompany = cardCompany;
     }
 
 	@ApiModelProperty("솔루션 code(default: 500)")
@@ -30,10 +32,14 @@ public class ImageConvertDto {
     @ApiModelProperty("이미지 변환 대상 JSON 데이터")
     private String data;
 
+	@Setter
 	@ApiModelProperty("확장자")
 	private String exportType = "tif";
 
 	@ApiModelProperty("프로토콜")
 	private String protocol = "sync";
+
+	@ApiModelProperty("카드회사")
+	private CardCompany cardCompany;
 
 }
