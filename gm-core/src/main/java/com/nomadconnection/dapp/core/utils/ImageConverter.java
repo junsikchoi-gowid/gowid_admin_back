@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.utils;
 
 import com.nomadconnection.dapp.core.config.CrownixConfig;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.dto.ImageConvertDto;
 import lombok.RequiredArgsConstructor;
 import m2soft.ers.invoker.InvokerException;
@@ -68,7 +69,6 @@ public class ImageConverter {
 	}
 
 	public String convertJsonToImage(ImageConvertDto params) throws Exception {
-
         setParameters(params);
         response = invoker.invoke();    // convert
         isSuccess(response);
@@ -77,10 +77,9 @@ public class ImageConverter {
 
 	private void setParameters(ImageConvertDto params) {
         String targetData = params.getData();
-
         isNotNullData(targetData);
         String mrdParam = getMrdParam(targetData);
-
+		setLotteImageExtension(params);
         invoker.addParameter(ImageConvertParam.OPCODE, params.getOpCode());
         invoker.addParameter(ImageConvertParam.MRD_NAME, getMrdPath(params.getMrdType()));
         invoker.addParameter(ImageConvertParam.MRD_PARAM, mrdParam);
@@ -125,6 +124,12 @@ public class ImageConverter {
         if (StringUtils.isEmpty(targetData)) {
             throw new NullPointerException(targetData);
         }
+    }
+
+    private void setLotteImageExtension(ImageConvertDto params){
+	    if(CardCompany.isLotte(params.getCardCompany())){
+		    params.setExportType("jpg");
+	    }
     }
 
 }
