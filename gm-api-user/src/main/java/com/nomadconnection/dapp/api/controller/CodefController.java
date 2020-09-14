@@ -43,6 +43,7 @@ public class CodefController {
 		public static final String ACCOUNT_UPDATE = "/account/update";            							// 인증서 수정
 		public static final String ACCOUNT_DELETE = "/account/delete";            							// 인증서 삭제
 		public static final String ACCOUNT_REGISTER_CORP = "/account/register/corp";         				// 법인 정보 등록 및 등기부등본 스크래핑
+		public static final String ACCOUNT_REGISTER_CORP_MANUAL = "/account/register/corp/manual";         				// 등기부등본 스크래핑
 
 
 		public static final String SCRAPING ="/scraping"; 													// 스크래핑
@@ -127,11 +128,14 @@ public class CodefController {
 	public ResponseEntity registerAccountReferenceAdd(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody Common.Account dto,
-			@RequestParam String connectedId) {
+			@RequestParam String connectedId,
+			@RequestParam String sourceOrganization,
+			@RequestParam String targetOrganization
+	) {
 		if (log.isDebugEnabled()) {
 			log.debug("([Codef RegisterAccount ]) $dto='{}'", dto);
 		}
-		return service.registerAccountReferenceAdd(dto, user.idx(), connectedId);
+		return service.registerAccountReferenceAdd(dto, user.idx(), connectedId, sourceOrganization, targetOrganization);
 	}
 
 
@@ -149,7 +153,7 @@ public class CodefController {
 		return service.RegisterAccountNt(dto, user.idx());
 	}
 
-	@ApiOperation(value = "법인 정보 최초 수정 등록 및 등기부등본 스크래핑", notes = "  " +
+	@ApiOperation(value = "재무제표 스크래핑 및 이미지 저장 ", notes = "  " +
 			"\n ### Remarks" +
 			"\n")
 	@PostMapping(URI.ACCOUNT_REGISTER_CORP)
@@ -162,6 +166,22 @@ public class CodefController {
 		}
 		return service.RegisterCorpInfo(dto, user.idx(), idxCardInfo);
 	}
+
+	@ApiOperation(value = "재무제표 - 수동 저장 및 이미지 전송", notes = "  " +
+			"\n ### Remarks" +
+			"\n")
+	@PostMapping(URI.ACCOUNT_REGISTER_CORP_MANUAL)
+	public ResponseEntity RegisterCorpInfo(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody ConnectedMngDto.CorpInfo dto,
+			@RequestParam(required = false) String connectedId){
+		if (log.isDebugEnabled()) {
+			log.debug("([ RegisterCorpInfo ]) $dto='{}'", dto);
+		}
+		return service.RegisterCorpInfo(dto, user.idx(), connectedId);
+	}
+
+
 
 	@ApiOperation(value = "인증서 등록(커넥티드아이디 발급) test", notes = "" +
 			"\n ### Remarks" +

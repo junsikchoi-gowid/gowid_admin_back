@@ -1314,6 +1314,109 @@ public class CodefService {
 		return str;
 	}
 
+	@SneakyThrows
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity RegisterCorpInfo(ConnectedMngDto.CorpInfo dto, Long idxUser, String connectedId){
+
+		User user = repoUser.findById(idxUser).orElseThrow(
+				() -> UserNotFoundException.builder().build()
+		);
+
+		String resCompanyIdentityNo = user.corp().resCompanyIdentityNo();
+
+		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
+		normal.setStatus(true);
+
+		List<String> listYyyyMm = getFindClosingStandards(dto.getResClosingStandards().trim());
+
+		// 국세청 - 증명발급 표준재무재표
+		String finalConnectedId = connectedId;
+		String strResult;
+		AtomicReference<Boolean> boolIfFirst = new AtomicReference<>(true);
+		listYyyyMm.forEach(yyyyMm -> {
+			JSONObject[] jsonObjectStandardFinancial = new JSONObject[0];
+			String strResultTemp = null;
+			try {
+
+				strResultTemp = STANDARD_FINANCIAL.standard_financial(
+						"0001",
+						finalConnectedId,
+						yyyyMm,
+						"0",
+						"04",
+						"01",
+						"40",
+						"",
+						resCompanyIdentityNo.replaceAll("-", "").trim() // 사업자번호
+				);
+
+				jsonObjectStandardFinancial = getApiResult(strResultTemp);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			String jsonObjectStandardFinancialCode = jsonObjectStandardFinancial[0].get("code").toString();
+			if (jsonObjectStandardFinancialCode.equals("CF-00000")) {
+				JSONObject jsonData2 = jsonObjectStandardFinancial[1];
+
+				JSONArray resBalanceSheet = (JSONArray) jsonData2.get("resBalanceSheet");
+				JSONArray resIncomeStatement = (JSONArray) jsonData2.get("resIncomeStatement");
+
+				AtomicReference<String> strCode228 = new AtomicReference<>();
+				AtomicReference<String> strCode001 = new AtomicReference<>();
+				AtomicReference<String> strCode334 = new AtomicReference<>();
+				AtomicReference<String> strCode382 = new AtomicReference<>();
+
+				resBalanceSheet.forEach(item -> {
+					JSONObject obj = (JSONObject) item;
+					if (GowidUtils.getEmptyStringToString(obj, "_code").equals("228")) {
+						strCode228.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
+					}
+					if (GowidUtils.getEmptyStringToString(obj, "_code").equals("334")) {
+						strCode334.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
+					}
+					if (GowidUtils.getEmptyStringToString(obj, "_code").equals("382")) {
+						strCode382.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
+					}
+				});
+
+				resIncomeStatement.forEach(item -> {
+					JSONObject obj = (JSONObject) item;
+					if (GowidUtils.getEmptyStringToString(obj, "_code").equals("001")) {
+						strCode001.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
+					}
+				});
+
+				repoD1520.save(D1520.builder()
+						.idxCorp(user.corp().idx())
+						.c007(CommonUtil.getNowYYYYMMDD())
+						.d003(user.corp().resCompanyIdentityNo().replaceAll("-", "")) // 사업자등록번호
+						.d004(user.corp().resIssueNo().replaceAll("-", "")) // 발급(승인)번호
+						.d005(user.corp().resUserIdentiyNo().replaceAll("-", "")) // 주민번호
+						.d006(user.corp().resCompanyNm()) // 상호(사업장명)
+						.d007("Y") // 발급가능여부
+						.d008(GowidUtils.getEmptyStringToString(jsonData2, "commStartDate")) // 시작일자
+						.d009(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate")) // 종료일자
+						.d010(GowidUtils.getEmptyStringToString(jsonData2, "resUserNm")) // 성명
+						.d011(GowidUtils.getEmptyStringToString(jsonData2, "resUserAddr")) // 주소
+						.d012(GowidUtils.getEmptyStringToString(jsonData2, "resBusinessItems")) // 종목
+						.d013(GowidUtils.getEmptyStringToString(jsonData2, "resBusinessTypes")) // 업태
+						.d014(GowidUtils.getEmptyStringToString(jsonData2, "resReportingDate")) // 작성일자
+						.d015(GowidUtils.getEmptyStringToString(jsonData2, "resAttrYear")) // 귀속연도
+						.d016(strCode228.get()) // 총자산   대차대조표 상의 자본총계(없으면 등기부등본상의 자본금의 액)
+						.d017(strCode001.get()) // 매출   손익계산서 상의 매출액
+						.d018(strCode334.get()) // 납입자본금   대차대조표 상의 자본금
+						.d019(strCode382.get()) // 자기자본금   대차대조표 상의 자본 총계
+						.d020(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate")) // 재무조사일   종료일자 (없으면 등기부등본상의 회사성립연월일)
+						.build());
+
+				//파일생성 및 전송
+				ImageCreateAndSend(user.cardCompany(), 1520, 1520 + yyyyMm.substring(0, 4), strResultTemp, user.corp().resCompanyIdentityNo());
+			}
+		});
+		return null;
+	}
+
 
 	@SneakyThrows
 	@Transactional(rollbackFor = Exception.class)
@@ -1720,11 +1823,12 @@ public class CodefService {
 
 	private boolean ImageCreateAndSend(CardCompany cardCompany, Integer fileCode, String fileName, String jsonStringData, String corpIdNo)
 	{
+		log.info("([ ImageCreateAndSend ] start ) ");
 
 		boolean boolConverter = false;
-
 		ImageConvertDto param =
 				ImageConvertDto.builder()
+						.cardCompany(cardCompany)
 						.mrdType(fileCode)
 						.data(jsonStringData)
 						.fileName(corpIdNo.replaceAll("-", "").concat(fileName))
@@ -1732,34 +1836,42 @@ public class CodefService {
 		try {
 			ImageConvertRespDto resultConverter = converter.convertJsonToImage(param);
 			boolConverter = resultConverter.isSuccess();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException(e.toString());
-		}
 
-		//todo 파일전송
-		fileCode = changeCode(cardCompany, fileCode);
+			fileCode = changeCode(cardCompany, fileCode);
 
-		CardIssuanceInfo cardInfo = null;
-		log.debug("boolConverter = {}" , boolConverter);
-		if(boolConverter){
-			File file = new File(Const.REPORTING_SERVER + param.getFileName() + ".tif");
-			log.debug("$file.getName = {}", file.getName());
-			try {
-				log.debug("$file.getName = {}", file.getName());
+			log.info("([ ImageCreateAndSend ]) $isShinhan='{}', $getCardCompany='{}'", CardCompany.isShinhan(param.getCardCompany()), param.getCardCompany());
+
+			StringBuffer filePath = new StringBuffer(Const.REPORTING_SERVER);
+
+			if(boolConverter && CardCompany.isShinhan(param.getCardCompany())){
+				File file = new File(filePath.append(param.getFileName()).append(".").append(param.getExportType()).toString());
 				GwUploadDto.Response response;
 
-				for(int i = 0; i < 3 ; i++){
+				for (int i = 0; i < 3; i++) {
 					Thread.sleep(500);
 					response = gwUploadService.upload(cardCompany, file, fileCode.toString(), corpIdNo.replaceAll("-", ""));
-					if(response.getResult().getCode().equals("200")){
+					if (response.getResult().getCode().equals("200")) {
 						break;
 					}
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new RuntimeException(e.toString());
+			}else if(boolConverter && CardCompany.isLotte(param.getCardCompany())){
+				for( int iPage = 1 ; iPage <= resultConverter.getTotalPageCount(); iPage++ ) {
+
+					File file = new File(filePath.append(param.getFileName()).append("_").append(iPage).append(".").append(param.getExportType()).toString());
+					GwUploadDto.Response response;
+
+					for (int i = 0; i < 3; i++) {
+						Thread.sleep(500);
+						response = gwUploadService.upload(cardCompany, file, fileCode.toString(), corpIdNo.replaceAll("-", ""));
+						if (response.getResult().getCode().equals("200")) {
+							break;
+						}
+					}
+				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e.toString());
 		}
 		return boolConverter;
 	}
@@ -2202,7 +2314,7 @@ public class CodefService {
 
 	@SneakyThrows
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity registerAccountReferenceAdd(Common.Account dto, Long idxUser, String connectedId) {
+	public ResponseEntity registerAccountReferenceAdd(Common.Account dto, Long idxUser, String connectedId, String sourceOrganization,String targetOrganization) {
 
 		User user = repoUser.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().build()
@@ -2215,25 +2327,28 @@ public class CodefService {
 		String createUrlPath = urlPath + CommonConstant.REFERENCE_ADD_ACCOUNT;
 		List<BankDto.ResAccountDto> resAccount = null;
 
-		for (String s : CommonConstant.LISTBANK) {
-			accountMap1 = new HashMap<>();
-			accountMap1.put("countryCode", CommonConstant.COUNTRYCODE);  // 국가코드
-			accountMap1.put("businessType", CommonConstant.BUSINESSTYPE);  // 업무구분코드
-			accountMap1.put("clientType", "B");   // 고객구분(P: 개인, B: 기업)
-			accountMap1.put("organization", s);// 기관코드
-			accountMap1.put("loginType", "0");   // 로그인타입 (0: 인증서, 1: ID/PW)
-			accountMap1.put("password", RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
-			accountMap1.put("certType", CommonConstant.CERTTYPE);
-			accountMap1.put("certFile", dto.getCertFile());
-			list.add(accountMap1);
-		}
+		// 추가할 정보
+		accountMap1 = new HashMap<>();
+		accountMap1.put("countryCode", CommonConstant.COUNTRYCODE);  // 국가코드
+		accountMap1.put("businessType", CommonConstant.BUSINESSTYPE);  // 업무구분코드
+		accountMap1.put("organization", targetOrganization);// 기관코드
+		accountMap1.put("clientType", "B");   // 고객구분(P: 개인, B: 기업)
+		accountMap1.put("birthDate", "");
+		accountMap1.put("identity", "");
+		accountMap1.put("userName", "");
+		accountMap1.put("loginTypeLevel", "");
+		accountMap1.put("clientTypeLevel", "");
+		accountMap1.put("withdrawAccountNo", "");
+		accountMap1.put("withdrawAccountPassword", "");
+		list.add(accountMap1);
 
-		bodyMap.put("accountList", list);
+		// 기준 정보
 		bodyMap.put("connectedId", connectedId);
 		bodyMap.put("countryCode", CommonConstant.COUNTRYCODE);  // 국가코드
 		bodyMap.put("businessType", CommonConstant.BUSINESSTYPE);  // 업무구분코드
+		bodyMap.put("organization", sourceOrganization);// 기관코드
 		bodyMap.put("clientType", "B");   // 고객구분(P: 개인, B: 기업)
-		bodyMap.put("organization", "0002");// 기관코드
+		bodyMap.put("accountList", list);
 
 		String strObject = ApiRequest.request(createUrlPath, bodyMap);
 
@@ -2245,28 +2360,6 @@ public class CodefService {
 
 		String code = (((JSONObject) jsonParse.parse(strResultCode)).get("code")).toString();
 		normal.setKey(code);
-
-		if (code.equals("CF-00000") || code.equals("CF-04012")) {
-			connectedId = (((JSONObject) jsonParse.parse(strResultData)).get("connectedId")).toString();
-
-			repoConnectedMng.save(ConnectedMng.builder()
-					.connectedId(connectedId)
-					.idxUser(idxUser)
-					.name(dto.getName())
-					.startDate(dto.getStartDate())
-					.endDate(dto.getEndDate())
-					.desc1(dto.getDesc1())
-					.desc2(dto.getDesc2())
-					.idxCorp(user.corp().idx())
-					.build()
-			);
-
-			if (getScrapingAccount(idxUser)) {
-				resAccount = repoResAccount.findResAccount(idxUser).stream()
-						.map(account -> BankDto.ResAccountDto.from(account, true))
-						.collect(Collectors.toList());
-			}
-		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(normal)
