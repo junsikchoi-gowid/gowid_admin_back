@@ -1856,7 +1856,7 @@ public class CodefService {
 				}
 			}else if(boolConverter && CardCompany.isLotte(param.getCardCompany())){
 				for( int iPage = 1 ; iPage <= resultConverter.getTotalPageCount(); iPage++ ) {
-
+					filePath = new StringBuffer(Const.REPORTING_SERVER);
 					File file = new File(filePath.append(param.getFileName()).append("_").append(iPage).append(".").append(param.getExportType()).toString());
 					GwUploadDto.Response response;
 
