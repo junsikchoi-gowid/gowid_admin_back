@@ -38,6 +38,7 @@ import com.nomadconnection.dapp.core.domain.shinhan.*;
 import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.ImageConvertDto;
+import com.nomadconnection.dapp.core.dto.ImageConvertRespDto;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.encryption.shinhan.Seed128;
 import com.nomadconnection.dapp.core.utils.ImageConverter;
@@ -1729,10 +1730,8 @@ public class CodefService {
 						.fileName(corpIdNo.replaceAll("-", "").concat(fileName))
 						.build();
 		try {
-			String resultConverter = converter.convertJsonToImage(param);
-			if(!resultConverter.isEmpty()){
-				boolConverter = true;
-			}
+			ImageConvertRespDto resultConverter = converter.convertJsonToImage(param);
+			boolConverter = resultConverter.isSuccess();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e.toString());

@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.core.utils;
 import com.nomadconnection.dapp.core.config.CrownixConfig;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.dto.ImageConvertDto;
+import com.nomadconnection.dapp.core.dto.ImageConvertRespDto;
 import lombok.RequiredArgsConstructor;
 import m2soft.ers.invoker.InvokerException;
 import m2soft.ers.invoker.http.ReportingServerInvoker;
@@ -68,11 +69,14 @@ public class ImageConverter {
 		invoker.setReadTimeout(180);
 	}
 
-	public String convertJsonToImage(ImageConvertDto params) throws Exception {
+	public ImageConvertRespDto convertJsonToImage(ImageConvertDto params) throws Exception {
         setParameters(params);
         response = invoker.invoke();    // convert
-        isSuccess(response);
-        return response;
+
+		return ImageConvertRespDto.builder()
+				.isSuccess(isSuccess(response))
+				.totalPageCount(invoker.getTotalPage())
+				.build();
     }
 
 	private void setParameters(ImageConvertDto params) {
@@ -114,10 +118,11 @@ public class ImageConverter {
         return "/rdata [" + targetData + "]";
     }
 
-    public void isSuccess(String response) throws Exception {
+    private boolean isSuccess(String response) throws Exception {
         if (!response.startsWith("1")) {
             throw new InvokerException(response);
         }
+        return true;
     }
 
     private void isNotNullData(String targetData) {
