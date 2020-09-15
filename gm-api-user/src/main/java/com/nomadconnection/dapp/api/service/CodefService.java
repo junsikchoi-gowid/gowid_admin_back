@@ -1843,7 +1843,7 @@ public class CodefService {
 
 			StringBuffer filePath = new StringBuffer(Const.REPORTING_SERVER);
 
-			if(boolConverter && CardCompany.isShinhan(param.getCardCompany())){
+			if((boolConverter && CardCompany.isShinhan(param.getCardCompany())) || (boolConverter && resultConverter.getTotalPageCount() < 2) ){
 				File file = new File(filePath.append(param.getFileName()).append(".").append(param.getExportType()).toString());
 				GwUploadDto.Response response;
 
