@@ -1627,6 +1627,7 @@ public class CodefService {
 		d1400.setD060(d1400.getD050());        //신청관리자전화고유번호
 		repoD1400.save(d1400);
 
+		// 기업주소 입력변경으로 인하여 해당로직 필요여부 논의 필요
 		repoCorp.save(user.corp()
 				.resCompanyEngNm(dto.getResCompanyEngNm())
 				.resCompanyNumber(dto.getResCompanyPhoneNumber())

@@ -87,6 +87,10 @@ public class ShinhanCardService {
         Corp corp = repoCorp.save(user.corp()
                 .resCompanyEngNm(dto.getEngCorName())
                 .resCompanyNumber(dto.getCorNumber())
+                .resCompanyZipCode(dto.getCorZipCode())
+                .resCompanyAddr(dto.getCorAddr())
+                .resCompanyAddrDt(dto.getCorAddrDt())
+                .resCompanyBuildingCode(dto.getCorBuildingCode())
                 .resBusinessCode(dto.getBusinessCode())
                 .resUserType(d1000 != null ? d1000.getD009() : null)
         );

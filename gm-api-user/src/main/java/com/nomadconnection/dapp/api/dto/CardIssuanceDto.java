@@ -36,6 +36,22 @@ public class CardIssuanceDto {
         @ApiModelProperty("사업장 전화번호 (ex. 00-000-0000)")
         @NotEmpty
         private String corNumber;
+
+        @ApiModelProperty("사업장우편번호")
+        @NotEmpty
+        private String corZipCode;
+
+        @ApiModelProperty("사업장우편번호주소")
+        @NotEmpty
+        private String corAddr;
+
+        @ApiModelProperty("사업장우편번호외주소")
+        @NotEmpty
+        private String corAddrDt;
+
+        @ApiModelProperty("도로명참조키값")
+        @NotEmpty
+        private String corBuildingCode;
     }
 
     @Data
@@ -144,7 +160,7 @@ public class CardIssuanceDto {
         @Length(max = 5)
         private String zipCode;
 
-        @ApiModelProperty("도로명 참조키캆")
+        @ApiModelProperty("도로명 참조키값")
         @NotEmpty
         private String addressKey;
     }
@@ -284,6 +300,18 @@ public class CardIssuanceDto {
         @ApiModelProperty("사업자등록번호")
         private String companyIdentityNo;
 
+        @ApiModelProperty("사업장우편번호")
+        private String companyZipCode;
+
+        @ApiModelProperty("사업장우편번호주소")
+        private String companyAddr;
+
+        @ApiModelProperty("사업장우편번호외주소")
+        private String companyAddrDt;
+
+        @ApiModelProperty("도로명참조키값")
+        private String companyBuildingCode;
+
         @ApiModelProperty("법인등록번호")
         private String corporationNo;
 
@@ -315,6 +343,10 @@ public class CardIssuanceDto {
                         .name(corp.resCompanyNm())
                         .engCorName(corp.resCompanyEngNm())
                         .companyIdentityNo(corp.resCompanyIdentityNo())
+                        .companyZipCode(corp.resCompanyZipCode())
+                        .companyAddr(corp.resCompanyAddr())
+                        .companyAddrDt(corp.resCompanyAddrDt())
+                        .companyBuildingCode(corp.resCompanyBuildingCode())
                         .corporationNo(corp.resUserIdentiyNo())
                         .businessType(corp.resBusinessItems())
                         .businessCode(corp.resBusinessCode())

@@ -89,6 +89,10 @@ public class LotteCardService {
 		Corp corp = repoCorp.save(user.corp()
 				.resCompanyEngNm(dto.getEngCorName())
 				.resCompanyNumber(dto.getCorNumber())
+				.resCompanyZipCode(dto.getCorZipCode())
+				.resCompanyAddr(dto.getCorAddr())
+				.resCompanyAddrDt(dto.getCorAddrDt())
+				.resCompanyBuildingCode(dto.getCorBuildingCode())
 				.resBusinessCode(dto.getBusinessCode())
 				.resUserType(!ObjectUtils.isEmpty(shinhanD1000) ? shinhanD1000.getD009() : null)
 		);
