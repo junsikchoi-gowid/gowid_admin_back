@@ -858,15 +858,6 @@ public class CodefService {
 						, finalConnectedId, CommonConstant.API_DOMAIN, CommonConstant.ADD_ACCOUNT, null, CommonConstant.BUSINESSTYPE);
 				ProcAddConnectedId(jsonObject, finalConnectedId, null);
 
-				// 카드사 추가
-				jsonObject = ApiCodef.registerCodef(
-						Common.Account.builder()
-								.certFile(dto.getCertFile())
-								.password1(dto.getPassword1())
-								.build()
-						, finalConnectedId, CommonConstant.API_DOMAIN, CommonConstant.ADD_ACCOUNT, null, CommonConstant.CARDTYPE);
-				ProcAddConnectedId(jsonObject, finalConnectedId, null);
-
 			}else{
 				if(connectedId != null) {
 					deleteAccount2(connectedId); // 삭제
@@ -913,6 +904,8 @@ public class CodefService {
 				"",
 				"" // 사업자번호
 		);
+
+        log.info( " RegisterAccountNt $strResult = {} " , strResult);
 
 		JSONObject[] jsonObjectProofIssue = getApiResult(strResult);
 
@@ -978,6 +971,8 @@ public class CodefService {
 					"",
 					"N"
 			);
+
+            log.info( " RegisterAccountNt strResult1530 = {} " , strResult1530);
 
 			JSONObject[] jsonObjectCorpRegister = getApiResult(strResult1530);
 			String jsonObjectCorpRegisterCode = jsonObjectCorpRegister[0].get("code").toString();
@@ -1177,19 +1172,19 @@ public class CodefService {
 						.d006(GowidUtils.getEmptyStringToString(jsonData2, "commCompetentRegistryOffice"))// 관할등기소
 						.d007(GowidUtils.getEmptyStringToString(jsonData2, "resPublishRegistryOffice"))// 발행등기소
 						.d008(GowidUtils.getEmptyStringToString(jsonData2, "resPublishDate"))// 발행일자
-						.d009(listResCompanyNmList.get(0))// 상호
-						.d010(StringUtils.isEmpty(listResCompanyNmList.get(1))?ResCorpEstablishDate:listResCompanyNmList.get(1))// 상호_변경일자
-						.d011(StringUtils.isEmpty(listResCompanyNmList.get(2))?ResCorpEstablishDate:listResCompanyNmList.get(2))// 상호_등기일자
-						.d012(listResUserAddrList.get(0))// 본점주소
-						.d013(StringUtils.isEmpty(listResUserAddrList.get(1))?ResCorpEstablishDate:listResUserAddrList.get(1))// 본점주소_변경일자
-						.d014(StringUtils.isEmpty(listResUserAddrList.get(2))?ResCorpEstablishDate:listResUserAddrList.get(2))// 본점주소_등기일자
-						.d015(listResOneStocAmtList.get(0))// 1주의금액
-						.d016(StringUtils.isEmpty(listResOneStocAmtList.get(1))?ResCorpEstablishDate:listResOneStocAmtList.get(1))// 1주의금액_변경일자
-						.d017(StringUtils.isEmpty(listResOneStocAmtList.get(2))?ResCorpEstablishDate:listResOneStocAmtList.get(2))// 1주의금액_등기일자
-						.d018(listResTCntStockIssueList.get(0))// 발행할주식의총수
-						.d019(StringUtils.isEmpty(listResTCntStockIssueList.get(1))?ResCorpEstablishDate:listResTCntStockIssueList.get(1))// 발행할주식의총수_변경일자
-						.d020(StringUtils.isEmpty(listResTCntStockIssueList.get(2))?ResCorpEstablishDate:listResTCntStockIssueList.get(2))// 발행할주식의총수_등기일자
-						.d021(listResStockList.get(0).toString())// 발행주식현황_총수
+						.d009(ifNullreplaceObject(listResCompanyNmList,0, ResCorpEstablishDate))// 상호
+						.d010(ifNullreplaceObject(listResCompanyNmList,1, ResCorpEstablishDate)) // 상호_변경일자//
+						.d011(ifNullreplaceObject(listResCompanyNmList,2, ResCorpEstablishDate)) // 상호_등기일자
+						.d012(ifNullreplaceObject(listResUserAddrList,0, ""))// 본점주소
+						.d013(ifNullreplaceObject(listResUserAddrList,1, ResCorpEstablishDate))// 본점주소_변경일자
+						.d014(ifNullreplaceObject(listResUserAddrList,2, ResCorpEstablishDate))// 본점주소_등기일자
+						.d015(ifNullreplaceObject(listResOneStocAmtList, 0 ,""))// 1주의금액
+						.d016(ifNullreplaceObject(listResOneStocAmtList, 1,ResCorpEstablishDate))// 1주의금액_변경일자
+						.d017(ifNullreplaceObject(listResOneStocAmtList, 2,ResCorpEstablishDate))// 1주의금액_등기일자
+						.d018(ifNullreplaceObject(listResTCntStockIssueList,0,""))// 발행할주식의총수
+						.d019(ifNullreplaceObject(listResTCntStockIssueList,1,ResCorpEstablishDate))// 발행할주식의총수_변경일자
+						.d020(ifNullreplaceObject(listResTCntStockIssueList,2,ResCorpEstablishDate))// 발행할주식의총수_등기일자
+						.d021(ifNullreplaceObject(listResStockList, 0, ""))// 발행주식현황_총수
 						.d022(listD.size()>=1?listD.get(0):"")// 발행주식현황_종류1
 						.d023(listD.size()>=2?listD.get(1).substring(listD.get(1).indexOf(" ")+1 , listD.get(1).length()).trim():"")// 발행주식현황_종류1_수량
 						.d024(listD.size()>=3?listD.get(2):"")// 발행주식현황_종류2
@@ -1210,9 +1205,9 @@ public class CodefService {
 						.d039(listD.size()>=18?listD.get(17).substring(listD.get(17).indexOf(" ")+1 , listD.get(17).length()).trim():"")// 발행주식현황_종류9_수량
 						.d040(listD.size()>=19?listD.get(18):"")// 발행주식현황_종류10
 						.d041(listD.size()>=20?listD.get(19).substring(listD.get(19).indexOf(" ")+1 , listD.get(19).length()).trim():"")// 발행주식현황_종류10_수량
-						.d042(listResStockList.get(1).toString())// 발행주식현황_자본금의액
-						.d043(StringUtils.isEmpty(listResStockList.get(3))?ResCorpEstablishDate:listResStockList.get(3).toString())// 발행주식현황_변경일자
-						.d044(StringUtils.isEmpty(listResStockList.get(4))?ResCorpEstablishDate:listResStockList.get(4).toString())// 발행주식현황_등기일자
+						.d042(ifNullreplaceObject(listResStockList,1, ""))// 발행주식현황_자본금의액
+						.d043(ifNullreplaceObject(listResStockList, 3, ResCorpEstablishDate))// 발행주식현황_변경일자
+						.d044(ifNullreplaceObject(listResStockList, 4, ResCorpEstablishDate))// 발행주식현황_등기일자
 						.d045(listResCeoList.size()>=1?listResCeoList.get(0):"")// 대표이사_직위1
 						.d046(listResCeoList.size()>=2?listResCeoList.get(1):"")// 대표이사_성명1
 						.d047(listResCeoList.size()>=3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")// 대표이사_주민번호1
@@ -1295,6 +1290,16 @@ public class CodefService {
 				.data(null).build());
 	}
 
+
+
+	private String ifNullreplaceObject(List<?> listResStockList, int i, String strReturn) {
+		if( listResStockList.size() > i ){
+			return listResStockList.get(i).toString().isEmpty() ? strReturn : listResStockList.get(i).toString();
+		}
+		return strReturn;
+	}
+
+
 	private List<String> getJSONArrayCeo(JSONArray jsonArrayResCEOList) {
 		List<String> str = new ArrayList<>();
 		jsonArrayResCEOList.forEach(item -> {
@@ -1349,6 +1354,8 @@ public class CodefService {
 						"",
 						resCompanyIdentityNo.replaceAll("-", "").trim() // 사업자번호
 				);
+
+                log.info( " RegisterAccountNt strResultTemp = {} " , strResultTemp);
 
 				jsonObjectStandardFinancial = getApiResult(strResultTemp);
 			} catch (Exception e) {
@@ -1462,6 +1469,8 @@ public class CodefService {
 						"",
 						resCompanyIdentityNo.replaceAll("-", "").trim() // 사업자번호
 				);
+
+                log.info( " RegisterAccountNt strResultTemp = {} " , strResultTemp);
 
 				jsonObjectStandardFinancial = getApiResult(strResultTemp);
 			} catch (Exception e) {

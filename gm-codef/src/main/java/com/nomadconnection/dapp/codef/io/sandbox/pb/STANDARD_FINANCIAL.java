@@ -34,8 +34,6 @@ public class STANDARD_FINANCIAL {
         // API 요청
         String result = ApiRequest.request(urlPath, bodyMap);
 
-        System.out.println(result);
-
         return result;
     }
 }

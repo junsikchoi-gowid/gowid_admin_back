@@ -31,9 +31,6 @@ public class PROOF_ISSUE {
         // API 요청
         String result = ApiRequest.request(urlPath, bodyMap);
 
-        // 응답결과 확인
-        System.out.println(result);
-
         return result;
     }
 }

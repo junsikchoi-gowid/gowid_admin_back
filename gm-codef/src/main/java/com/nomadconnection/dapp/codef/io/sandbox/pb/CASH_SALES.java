@@ -31,7 +31,6 @@ public class CASH_SALES {
         // API 요청
         String result = ApiRequest.request(urlPath, bodyMap);
 
-
         return result;
     }
 }
