@@ -49,10 +49,7 @@ public class BankController {
 
 	}
 
-	private final Boolean boolDebug = true;
 	private final BankService service;
-	private final AuthService serviceAuth;
-	private final UserService serviceUser;
 
 	@ApiOperation(value = "계좌정보", notes = "" + "\n")
 	@GetMapping( URI.ACCOUNT_LIST )
@@ -60,8 +57,8 @@ public class BankController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestParam(required = false) Long idxCorp,
 			@RequestParam(required = false) Boolean isMasking) {
-		if (log.isDebugEnabled()) {
-			// log.debug("([TransactionList]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			 log.info("([ AccountList ]) $user='{}' $idxCorp='{}' $isMasking='{}'", user, idxCorp, isMasking);
 		}
 		return service.accountList(user.idx(), idxCorp, isMasking);
 	}
@@ -70,8 +67,8 @@ public class BankController {
 	@GetMapping( URI.TRANSACTION_LIST )
 	public ResponseEntity TransactionList(@ApiIgnore @CurrentUser CustomUser user, @ModelAttribute BankDto.TransactionList dto
 			,@RequestParam Integer page, @RequestParam Integer pageSize , @RequestParam(required = false)  Long idxCorp) {
-		if (log.isDebugEnabled()) {
-			log.debug("([TransactionList]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ TransactionList ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.transactionList(dto, user.idx(), page, pageSize, idxCorp);
 	}
@@ -79,8 +76,8 @@ public class BankController {
 	@ApiOperation(value = "(기간별) 일별 입출금 잔고", notes = "" + "\n")
 	@GetMapping( URI.DAY_BALANCE )
 	public ResponseEntity DayBalance(@ApiIgnore @CurrentUser CustomUser user,@ModelAttribute BankDto.DayBalance dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([DayBalance]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ DayBalance ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.dayBalance(dto, user.idx());
 	}
@@ -88,8 +85,8 @@ public class BankController {
 	@ApiOperation(value = "(기간별) 월별 입출금 잔고", notes = "" + "\n")
 	@GetMapping( URI.MONTH_BALANCE )
 	public ResponseEntity MonthBalance(@ApiIgnore @CurrentUser CustomUser user,@ModelAttribute BankDto.MonthBalance dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([MonthBalance]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ MonthBalance ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.monthBalance(dto, user.idx());
 	}
@@ -101,8 +98,8 @@ public class BankController {
 									   @RequestParam String startDate,
 									   @RequestParam String endDate,
 									   @RequestParam String companyId) {
-		if (log.isDebugEnabled()) {
-			log.debug("([MonthBalance]) $dto='{}'", id);
+		if (log.isInfoEnabled()) {
+			log.info("([ MonthBalance ]) $id='{}'", id);
 		}
 		return service.findMonthHistory_External(id , pw, startDate , endDate , companyId);
 	}
@@ -110,8 +107,8 @@ public class BankController {
 	@ApiOperation(value = "입출금 합계", notes = "" + "\n")
 	@GetMapping( URI.MONTH_INOUTSUM )
 	public ResponseEntity MonthInOutSum(@ApiIgnore @CurrentUser CustomUser user,@ModelAttribute BankDto.MonthInOutSum dto, @RequestParam(required = false) Long idxCorp) {
-		if (log.isDebugEnabled()) {
-			log.debug("([MonthInOutSum]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ MonthInOutSum ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.monthInOutSum(dto, user.idx(), idxCorp);
 	}
@@ -120,14 +117,18 @@ public class BankController {
 	@GetMapping( URI.BURN_RATE )
 	public ResponseEntity BurnRate(@ApiIgnore @CurrentUser CustomUser user,
 								@RequestParam(required = false) Long idxCorp) {
+		if (log.isInfoEnabled()) {
+			log.info("([ BurnRate ]) $user='{}' $idxCorp='{}'", user, idxCorp);
+		}
+
 		return service.burnRate(user.idx(), idxCorp);
 	}
 
 	@ApiOperation(value = "계좌 별명수정", notes = "" + "\n")
 	@PostMapping( URI.NICKNAME )
 	public ResponseEntity Nickname(@ApiIgnore @CurrentUser CustomUser user,@RequestBody BankDto.Nickname dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([Nickname]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ Nickname ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.nickname(dto, user.idx());
 	}
@@ -135,32 +136,45 @@ public class BankController {
 	@ApiOperation(value = "계좌 + 거래내역 스크래핑", notes = "" + "\n")
 	@GetMapping( URI.CHECK_ACCOUNT )
 	public ResponseEntity CheckAccount(@ApiIgnore @CurrentUser CustomUser user) throws IOException, InterruptedException {
+		if (log.isInfoEnabled()) {
+			log.info("([ CheckAccount ]) $user='{}'", user);
+		}
 		return service.checkAccount(user.idx());
 	}
 
 	@ApiOperation(value = " 거래내역 스크래핑", notes = "" + "\n")
 	@GetMapping( URI.CHECK_ACCOUNTLIST )
 	public ResponseEntity CheckAccountList(@ApiIgnore @CurrentUser CustomUser user) throws IOException, InterruptedException {
+		if (log.isInfoEnabled()) {
+			log.info("([ CheckAccountList ]) $user='{}'", user);
+		}
 		return service.checkAccountList(user.idx());
 	}
 
 	@ApiOperation(value = "계좌 + 거래내역 스크래핑 45일간만", notes = "" + "\n")
 	@GetMapping( URI.CHECK_ACCOUNTLIST45 )
 	public ResponseEntity checkAccountList45(@ApiIgnore @CurrentUser CustomUser user) throws IOException, InterruptedException {
+		if (log.isInfoEnabled()) {
+			log.info("([ checkAccountList45 ]) $user='{}'", user);
+		}
 		return service.checkAccountList45(user.idx());
 	}
 
 	@ApiOperation(value = "새로고침", notes = "" + "\n")
 	@GetMapping( URI.CHECK_REFRESH )
 	public ResponseEntity checkRefresh(@ApiIgnore @CurrentUser CustomUser user, @RequestParam(required = false) Long idxCorp) {
-
+		if (log.isInfoEnabled()) {
+			log.info("([ checkRefresh ]) $user='{}' $idxCorp='{}'", user, idxCorp);
+		}
 		return service.refresh(user.idx(), idxCorp);
 	}
 
 	@ApiOperation(value = "스크래핑 상태확인 및 리스크 저장 확인", notes = "" + "\n")
 	@GetMapping( URI.CHECK_S_R )
 	public ResponseEntity check_scraping_risk(@ApiIgnore @CurrentUser CustomUser user, @RequestParam(required = false) Long idxCorp) {
-
+		if (log.isInfoEnabled()) {
+			log.info("([ check_scraping_risk ]) $user='{}' $idxCorp='{}'", user, idxCorp);
+		}
 		return service.check_scraping_risk(user.idx(), idxCorp);
 	}
 }

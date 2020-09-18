@@ -67,12 +67,11 @@ public class AuthController {
     })
     @GetMapping(URI.EXISTS)
     public ResponseEntity<?> exists(@RequestParam String account) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ exists ]) $account='{}'", account);
+        if (log.isInfoEnabled()) {
+            log.info("([ exists ]) $account='{}'", account);
         }
 
         if (!service.isPresent(account)) {
-            // return ResponseEntity.notFound().build();
             return ResponseEntity.ok().body(
                     BusinessResponse.builder()
                             .normal(BusinessResponse.Normal.builder()
@@ -89,33 +88,6 @@ public class AuthController {
 
     //==================================================================================================================
     //
-    //	인증코드(4 digits, SMS/EMAIL) 발송 요청
-    //
-    //==================================================================================================================
-
-//    @ApiOperation(value = "인증코드(4 digits, SMS/EMAIL) 발송 요청", notes = "" +
-//            "\n ### Remarks" +
-//            "\n" +
-//            "\n - 인증문자는 미구현(개발 시 이메일주소를 당분간 사용)" +
-//            "\n")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "key", value = "연락처(폰) or 이메일")
-//    })
-//    @GetMapping(URI.VERIFICATION_CODE)
-//    public ResponseEntity<?> verificationCode(
-//            @ApiIgnore @CurrentUser CustomUser user,
-//            @RequestParam String key) {
-//        if (log.isDebugEnabled()) {
-//            log.debug("([ verificationCode ]) $user='{}', $key='{}'", user, key);
-//        }
-//        if (!service.sendVerificationCode(key)) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//        return ResponseEntity.ok().build();
-//    }
-
-    //==================================================================================================================
-    //
     //	인증코드(4 digits, EMAIL) 발송 요청
     //
     //==================================================================================================================
@@ -129,12 +101,11 @@ public class AuthController {
     @GetMapping(URI.SEND_VERIFICATION_CODE)
     public ResponseEntity<?> sendVerificationCode(@Email(message = "잘못된 이메일 형식입니다.") @RequestParam String email,
                                                   @RequestParam String type) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ sendVerificationCode ]) $email='{}'", email);
+        if (log.isInfoEnabled()) {
+            log.info("([ sendVerificationCode ]) $email='{}' $type='{}'", email, type);
         }
         try {
             if (!service.sendVerificationCode(email, type)) {
-                // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 return ResponseEntity.ok().body(BusinessResponse.builder().normal(
                         BusinessResponse.Normal.builder()
                                 .status(false)
@@ -144,11 +115,10 @@ public class AuthController {
             }
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
-                log.error("([ sendVerificationCode ]) FAILED TO SEND VERIFICATION CODE, $email='{}', $exception='{} => {}'",
+                log.error("([ sendVerificationCode ]) FAILED TO SEND VERIFICATION CODE, $email='{}' $exception='{} => {}'",
                         email,
                         e.getClass().getSimpleName(), e.getMessage(), e);
             }
-            // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             return ResponseEntity.ok().body(BusinessResponse.builder().normal(
                     BusinessResponse.Normal.builder()
                             .status(false)
@@ -183,8 +153,8 @@ public class AuthController {
     )
     @GetMapping(URI.CHECK_VERIFICATION_CODE)
     public ResponseEntity<?> checkVerificationCode(@RequestParam String key, @RequestParam String code, @RequestParam Boolean deleteFlag) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ checkVerificationCode ]) $key='{}', $code='{}'", key, code);
+        if (log.isInfoEnabled()) {
+            log.info("([ checkVerificationCode ]) $key='{}' $code='{}'", key, code);
         }
         if (!service.checkVerificationCode(key, code, deleteFlag)) {
             return ResponseEntity.ok()
@@ -208,8 +178,8 @@ public class AuthController {
             "\n")
     @GetMapping(URI.ACCOUNT)
     public List<String> getAccount(@ModelAttribute AccountDto.FindAccount dto) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ getAccount ]) $dto.account.find='{}'", dto);
+        if (log.isInfoEnabled()) {
+            log.info("([ getAccount ]) $dto='{}'", dto);
         }
         return service.findAccount(dto.getName(), dto.getMdn());
     }
@@ -235,32 +205,12 @@ public class AuthController {
     public ResponseEntity<?> sendPasswordResetEmail(
             @RequestParam String email
     ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ sendPasswordResetEmail ]) $email='{}'", email);
+        if (log.isInfoEnabled()) {
+            log.info("([ sendPasswordResetEmail ]) $email='{}'", email);
         }
         service.sendPasswordResetEmail(email);
-        // return ResponseEntity.ok().build();
         return ResponseEntity.ok().body(ErrorResponse.from("","정상처리"));
     }
-
-//
-//    //	비밀번호 재설정 - 새 비밀번호 설정: 인증키, 새 비밀번호
-//    @ApiOperation(value = "비밀번호 재설정 - 새 비밀번호 설정", notes = "" +
-//            "\n ### Remarks" +
-//            "\n" +
-//            "\n - <mark>액세스토큰 불필요</mark>" +
-//            "\n - <mark>인증키</mark>" +
-//            "\n")
-//    @PutMapping(URI.PASSWORD)
-//    public ResponseEntity putPassword(
-//            @RequestBody AccountDto.PasswordReset dto
-//    ) {
-//        if (log.isDebugEnabled()) {
-//            log.debug("([ putPassword ]) $dto='{}'", dto);
-//        }
-//        service.resetPassword(dto.getKey(), dto.getPassword());
-//        return ResponseEntity.ok().build();
-//    }
 
     //==================================================================================================================
     //
@@ -284,8 +234,8 @@ public class AuthController {
     public TokenDto.TokenSet issueTokenSet(
             @RequestBody AccountDto dto
     ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ issueTokenSet ]) $dto='{}'", dto);
+        if (log.isInfoEnabled()) {
+            log.info("([ issueTokenSet ]) $dto='{}'", dto);
         }
         return service.issueTokenSet(dto);
     }
@@ -306,8 +256,8 @@ public class AuthController {
     public TokenDto.TokenSet issueTokenSetOut(
             @RequestBody AccountDto dto
     ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ issueTokenSet ]) $dto='{}'", dto);
+        if (log.isInfoEnabled()) {
+            log.info("([ issueTokenSet ]) $dto='{}'", dto);
         }
         return service.issueTokenSetOut(dto);
     }
@@ -328,8 +278,8 @@ public class AuthController {
             @RequestParam String email,
             @RequestParam String jwt
     ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ reissueAccessToken ]) $email='{}'", email);
+        if (log.isInfoEnabled()) {
+            log.info("([ reissueAccessToken ]) $email='{}'", email);
         }
         return service.reissueAccessToken(email, jwt);
     }
@@ -354,44 +304,9 @@ public class AuthController {
     public AuthDto.AuthInfo getAuthInfo(
             @ApiIgnore @CurrentUser CustomUser user
     ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ getAuthInfo ]) $user='{}'", user);
+        if (log.isInfoEnabled()) {
+            log.info("([ getAuthInfo ]) $user='{}'", user);
         }
         return service.info(user.idx());
     }
-
-    //==================================================================================================================
-    //
-    //	인증코드(4 digits, EMAIL) 발송 요청
-    //
-    //==================================================================================================================
-
-//    @ApiOperation(value = "인증코드(4 digits, EMAIL) 발송 요청", notes = "" +
-//            "\n ### Remarks" +
-//            "\n" +
-//            "\n - <mark>액세스토큰 불필요</mark>" +
-//            "\n - 인증메일 발송 실패: <mark>500(INTERNAL SERVER ERROR)</mark>" +
-//            "\n")
-//    @PostMapping(URI.SEND_VERIFICATION_CODE)
-//    public ResponseEntity sendMailVerificationCode(@RequestBody AccountDto dto) {
-//        if (log.isDebugEnabled()) {
-//            log.debug("([ sendVerificationCode ]) $email='{}'", dto.getEmail());
-//        }
-//        try {
-//            if (!service.sendEmailVerificationCode(dto)) {
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//            }
-//        } catch (Exception e) {
-//            if (log.isErrorEnabled()) {
-//                log.error("([ sendVerificationCode ]) FAILED TO SEND VERIFICATION CODE, $email='{}', $exception='{} => {}'",
-//                        dto.getEmail(),
-//                        e.getClass().getSimpleName(), e.getMessage(), e);
-//            }
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//        return ResponseEntity.ok().body(BusinessResponse.builder()
-//                .normal(BusinessResponse.Normal.builder()
-//                        .build())
-//                .build());
-//    }
 }

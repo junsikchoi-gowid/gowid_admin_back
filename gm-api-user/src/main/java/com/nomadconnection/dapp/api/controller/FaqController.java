@@ -49,8 +49,8 @@ public class FaqController {
             @ModelAttribute BrandFaqDto dto,
             Pageable pageable
     ) {
-        if (log.isDebugEnabled()) {
-            log.debug("BFaqDtoController FaqList $dto={}", dto);
+        if (log.isInfoEnabled()) {
+            log.info("([ getConsents ]) BFaqDtoController FaqList $dto={}", dto);
         }
 
         return service.faqs(dto, pageable);
@@ -68,8 +68,8 @@ public class FaqController {
     public ResponseEntity faqSave(
             @RequestBody BrandFaqDto dto
     ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ postConsent ]) $dto='{}' ", dto);
+        if (log.isInfoEnabled()) {
+            log.info("([ faqSave ]) $dto='{}'", dto);
         }
 
         return service.faqSave(dto);
@@ -88,8 +88,8 @@ public class FaqController {
             @ApiIgnore @CurrentUser org.springframework.security.core.userdetails.User user,
             @RequestParam List<Long> faqIds
     ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ postConsent ]) $faqIds='{}' ", faqIds);
+        if (log.isInfoEnabled()) {
+            log.info("([ faqDel ]) $faqIds='{}'", faqIds);
         }
 
         return service.faqDel(faqIds, user);

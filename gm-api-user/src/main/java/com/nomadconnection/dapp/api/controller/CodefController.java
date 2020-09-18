@@ -50,10 +50,7 @@ public class CodefController {
 
 	}
 
-	private final Boolean boolDebug = true;
 	private final CodefService service;
-	private final AuthService serviceAuth;
-	private final UserService serviceUser;
 
 	@ApiOperation(value = "인증서 목록 조회", notes = "" +
 			"\n ### Remarks" +
@@ -102,8 +99,8 @@ public class CodefController {
 	public ResponseEntity RegisterAccount(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody ConnectedMngDto.Account dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([Codef RegisterAccount ]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ Codef RegisterAccount ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.registerAccount(dto, user.idx());
 	}
@@ -115,8 +112,8 @@ public class CodefController {
 	public ResponseEntity registerAccountAdd(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody Common.Account dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([Codef RegisterAccount ]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ Codef registerAccountAdd ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.registerAccountAddCreate(dto, user.idx());
 	}
@@ -132,8 +129,8 @@ public class CodefController {
 			@RequestParam String sourceOrganization,
 			@RequestParam String targetOrganization
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([Codef RegisterAccount ]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ Codef registerAccountReferenceAdd ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.registerAccountReferenceAdd(dto, user.idx(), connectedId, sourceOrganization, targetOrganization);
 	}
@@ -147,8 +144,8 @@ public class CodefController {
 	public ResponseEntity RegisterAccountNt(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody ConnectedMngDto.AccountNt dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([Codef RegisterAccount ]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ Codef RegisterAccountNt ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.RegisterAccountNt(dto, user.idx());
 	}
@@ -161,8 +158,8 @@ public class CodefController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody ConnectedMngDto.CorpInfo dto,
 			@RequestParam(required = false) Long idxCardInfo){
-		if (log.isDebugEnabled()) {
-			log.debug("([ RegisterCorpInfo ]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ Codef RegisterCorpInfo ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.RegisterCorpInfo(dto, user.idx(), idxCardInfo);
 	}
@@ -175,8 +172,8 @@ public class CodefController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody ConnectedMngDto.CorpInfo dto,
 			@RequestParam(required = false) String connectedId){
-		if (log.isDebugEnabled()) {
-			log.debug("([ RegisterCorpInfo ]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ Codef RegisterCorpInfo ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.RegisterCorpInfo(dto, user.idx(), connectedId);
 	}
@@ -190,8 +187,8 @@ public class CodefController {
 	public ResponseEntity RegisterAccount2(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody ConnectedMngDto.Account2 dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([Codef RegisterAccount ]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ Codef RegisterAccount ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.registerAccount2(dto, user.idx());
 	}
@@ -204,8 +201,8 @@ public class CodefController {
 	public ResponseEntity UpdateAccount(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody ConnectedMngDto.Account dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([Codef UpdateAccount ]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([Codef UpdateAccount ]) $dto='{}'", dto);
 		}
 		return service.updateAccount(dto, user.idx());
 	}
@@ -217,8 +214,8 @@ public class CodefController {
 	public ResponseEntity DeleteAccount(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody ConnectedMngDto.DeleteAccount dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([Codef DeleteAccount ]) $dto='{}'", dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ Codef DeleteAccount ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.deleteAccount(dto, user.idx());
 	}

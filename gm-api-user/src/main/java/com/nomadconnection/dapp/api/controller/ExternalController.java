@@ -27,7 +27,6 @@ public class ExternalController {
 		public static final String DATA = "/data";			// 리스크
 	}
 
-	private final Boolean boolDebug = true;
 	private final ExternalService service;
 
 	@ApiOperation(value = "리스크 설정 저장", notes = "" + "\n")

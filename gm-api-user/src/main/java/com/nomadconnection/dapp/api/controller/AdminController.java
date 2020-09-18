@@ -68,10 +68,7 @@ public class AdminController {
 		public static final String ERROR_ID = "/error/id";    // 에러내역
 	}
 
-	private final Boolean boolDebug = true;
 	private final AdminService service;
-	private final AuthService serviceAuth;
-	private final UserService serviceUser;
 
 	/*
 	@GetMapping( URI.RISK + 1 )
@@ -104,8 +101,8 @@ public class AdminController {
 	@ApiPageable
 	public ResponseEntity riskList(@ModelAttribute AdminCustomRepository.SearchRiskDto riskDto
 			, @ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ riskList ]) $user='{}'", user.idx());
+		if (log.isInfoEnabled()) {
+			log.info("([ riskList ]) $user='{}'", user);
 		}
 		return service.riskList(riskDto, user.idx(), pageable);
 	}
@@ -113,8 +110,8 @@ public class AdminController {
 	@ApiOperation(value = "현재 잔고" , notes = "" + "\n" + "")
     @GetMapping( URI.RISK_ID_NOWBALANCE )
     public ResponseEntity riskIdNowbalance(@ApiIgnore @CurrentUser CustomUser user, @RequestParam(required = false) Long idxCorp) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ riskIdNowbalance ]) $user='{}'", user.idx());
+        if (log.isInfoEnabled()) {
+            log.info("([ riskIdNowbalance ]) $user='{}'", user);
         }
         return service.riskIdNowbalance( user.idx(), idxCorp);
     }
@@ -125,8 +122,8 @@ public class AdminController {
 	@PostMapping( URI.RISK_ID_LEVEL_CHANGE )
 	public ResponseEntity riskIdLevelChange(@ApiIgnore @CurrentUser CustomUser user,
 											@RequestBody RiskDto.RiskConfigDto dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ riskIdLevelChange ]) $user='{}'", user.idx());
+		if (log.isInfoEnabled()) {
+			log.info("([ riskIdLevelChange ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.riskIdLevelChange(user.idx(), dto);
 	}
@@ -135,8 +132,8 @@ public class AdminController {
 	@PostMapping( URI.RISK_ID_E_STOP )
 	public ResponseEntity saveEmergencyStop(@ApiIgnore @CurrentUser CustomUser user,
 											@RequestBody AdminDto.StopDto dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ saveEmergencyStop ]) $user='{}'", user.idx());
+		if (log.isInfoEnabled()) {
+			log.info("([ saveEmergencyStop ]) $user='{}' $dto='{}'", user, dto);
 		}
 		return service.saveEmergencyStop(user.idx(), dto.idxCorp, dto.booleanValue);
 	}
@@ -145,8 +142,8 @@ public class AdminController {
 	@PostMapping( URI.RISK_ID_A_STOP )
 	public ResponseEntity savePause(@ApiIgnore @CurrentUser CustomUser user,
 									@RequestBody AdminDto.StopDto dto) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ savePause ]) $user='{}'", user.idx());
+		if (log.isInfoEnabled()) {
+			log.info("([ savePause ]) $user='{} $dto='{}'", user, dto);
 		}
 		return service.savePause(user.idx(),  dto.idxCorp, dto.booleanValue);
 	}
@@ -189,8 +186,8 @@ public class AdminController {
 			, @ApiIgnore @CurrentUser CustomUser user
 			, @RequestParam Long idxCorp
 			, @PageableDefault Pageable pageable) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ riskListSelected ]) $user='{}'", user.idx());
+		if (log.isInfoEnabled()) {
+			log.info("([ riskListSelected ]) $user='{}'", user);
 		}
 		return service.riskListSelected(riskDto, user.idx(), idxCorp, pageable);
 	}
@@ -229,8 +226,8 @@ public class AdminController {
 	@ApiPageable
 	public ResponseEntity corpList(@ModelAttribute CorpCustomRepository.SearchCorpDto CorpDto
 			, @ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ corpList ]) $user='{}'", user.idx());
+		if (log.isInfoEnabled()) {
+			log.info("([ corpList ]) $user='{}'", user);
 		}
 		return service.corpList(CorpDto, user.idx(), pageable);
 	}
@@ -240,8 +237,8 @@ public class AdminController {
 	)
 	@GetMapping( URI.CORP_ID )
 	public ResponseEntity corpId(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxCorp ) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ corpId ]) $user='{}'", user.idx());
+		if (log.isInfoEnabled()) {
+			log.info("([ corpId ]) $user='{}'", user);
 		}
 		return service.corpId(user.idx(), idxCorp);
 	}
@@ -255,8 +252,8 @@ public class AdminController {
 	@ApiPageable
 	public ResponseEntity cashList(@ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable
 			, @RequestParam(required = false) String corpName, @RequestParam(required = false) String updateStatus  ) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ cashList ]) $user='{}'", user.idx());
+		if (log.isInfoEnabled()) {
+			log.info("([ cashList ]) $user='{}'", user);
 		}
 		return service.cashList(user.idx(), corpName, updateStatus,pageable);
 	}
@@ -268,8 +265,8 @@ public class AdminController {
 	@GetMapping( URI.CASH_ID_LIST )
 	public ResponseEntity cashIdList(@ApiIgnore @CurrentUser CustomUser user
 			, @RequestParam(required = false) Long idxCorp) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ cashIdList ]) $user='{}'", user.idx());
+		if (log.isInfoEnabled()) {
+			log.info("([ cashIdList ]) $user='{}'", user);
 		}
 		return service.cashIdList(user.idx(), idxCorp);
 	}
@@ -283,8 +280,8 @@ public class AdminController {
 	@ApiPageable
 	public ResponseEntity scrapingList(@ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable,
 		@RequestParam(required = false) Long idxCorp) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ scrapingList ]) $user='{}'", user.idx());
+		if (log.isInfoEnabled()) {
+			log.info("([ scrapingList ]) $user='{}'", user);
 		}
 		return service.scrapingList(user.idx(), pageable);
 	}
@@ -295,8 +292,8 @@ public class AdminController {
 	)
 	@GetMapping( URI.SCRAPING_UPDATE )
 	public ResponseEntity scrapingUpdate(@ApiIgnore @CurrentUser CustomUser user,  @RequestParam(required = false) Long idxCorp) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ scrapingUpdate ]) $user='{}'", user.idx());
+		if (log.isInfoEnabled()) {
+			log.info("([ scrapingUpdate ]) $user='{}'", user);
 		}
 		return service.scrapingUpdate(user.idx(), idxCorp);
 	}
@@ -320,8 +317,8 @@ public class AdminController {
 	public ResponseEntity errorList(@ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable
 			, @ModelAttribute ResBatchListCustomRepository.ErrorSearchDto dto
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ errorList ]) $user='{}'", user.idx());
+		if (log.isInfoEnabled()) {
+			log.info("([ errorList ]) $user='{}'", user);
 		}
 		return service.errorList(user.idx(), pageable, dto);
 	}
@@ -336,9 +333,9 @@ public class AdminController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody @Valid AdminDto.Issuance1800Req request) {
 
-		log.info("### ADMIN 1800 START ###");
-		log.debug("request => {}", request.toString());
-		log.debug("login user => {}", user.toString());
+		if (log.isInfoEnabled()) {
+			log.info("([ issuance1800 ]) $user='{}' $dto='{}'", user, request);
+		}
 
 		if (!service.isGowidAdmin(user.idx())) {
 			throw new BadRequestException(ErrorCode.Api.NO_PERMISSION);

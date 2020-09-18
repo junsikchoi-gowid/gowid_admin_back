@@ -78,6 +78,10 @@ public class UserController {
 	public TokenDto.TokenSet registerUser(
 			@RequestBody UserDto.UserRegister dto
 	) {
+		if (log.isInfoEnabled()) {
+			log.info("([ registerUser ]) $dto='{}'", dto);
+		}
+
 		service.registerUser(dto);
 		return serviceAuth.issueTokenSet(AccountDto.builder()
 				.email(dto.getEmail())
@@ -103,8 +107,8 @@ public class UserController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody UserDto.MemberRegister dto
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ postMembers ]) $user='{}', $dto='{}'", user, dto);
+		if (log.isInfoEnabled()) {
+			log.info("([ postMembers ]) $user='{}' $dto='{}'", user, dto);
 		}
 		service.inviteMember(user.idx(), dto);
 		return ResponseEntity.ok().build();
@@ -126,8 +130,8 @@ public class UserController {
 	public UserDto getUserInfo(
 			@ApiIgnore @CurrentUser CustomUser user
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ getUserInfo ]) $user='{}'", user);
+		if (log.isInfoEnabled()) {
+			log.info("([ getUserInfo ]) $user='{}'", user);
 		}
 		return service.getUserInfo(user.idx());
 	}
@@ -153,8 +157,8 @@ public class UserController {
 			@PathVariable Long member,
 			@RequestParam Long dept
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ putUserDept ]) $user='{}', $member.idx='{}', $dept.idx='{}'", user, member, dept);
+		if (log.isInfoEnabled()) {
+			log.info("([ putUserDept ]) $user='{}' $member.idx='{}' $dept.idx='{}'", user, member, dept);
 		}
 		service.updateDept(user.idx(), member, dept);
 		return ResponseEntity.ok().build();
@@ -179,8 +183,8 @@ public class UserController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@PathVariable Long member
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ deleteUserDept ]) $user='{}', $member.idx='{}'", user, member);
+		if (log.isInfoEnabled()) {
+			log.info("([ deleteUserDept ]) $user='{}' $member.idx='{}'", user, member);
 		}
 		service.removeDept(user.idx(), member);
 		return ResponseEntity.ok().build();
@@ -202,7 +206,9 @@ public class UserController {
 	@PostMapping(URI.REGISTRATION_USER)
 	public ResponseEntity<?> registerBrandUser(
 			@RequestBody UserDto.RegisterBrandUser dto) {
-		log.debug("registerBrandUser controller ");
+		if (log.isInfoEnabled()) {
+			log.info("([ registerBrandUser ]) $dto='{}'", dto);
+		}
 
 		return service.registerBrandUser(dto);
 	}
@@ -217,7 +223,9 @@ public class UserController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody UserDto.RegisterBrandCorp dto
 	) {
-		log.debug("registerUserCorp controller ");
+		if (log.isInfoEnabled()) {
+			log.info("([ registerBrandCorp ]) $user='{}' $dto='{}'", user, dto);
+		}
 
 		return service.registerBrandCorp(user.idx(), dto);
 	}
@@ -230,7 +238,9 @@ public class UserController {
 	public ResponseEntity getBrandCorp(
 			@ApiIgnore @CurrentUser CustomUser user
 	) {
-		log.debug("getBrandCorp controller ");
+		if (log.isInfoEnabled()) {
+			log.info("([ getBrandCorp ]) $user='{}'", user);
+		}
 
 		return service.getBrandCorp(user.idx());
 	}
@@ -252,8 +262,8 @@ public class UserController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody UserDto.registerUserUpdate dto
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ registerUserUpdate ]) $member.idx='{}'", user);
+		if (log.isInfoEnabled()) {
+			log.info("([ registerUserUpdate ]) $user='{}' $dto='{}'", user, dto);
 		}
 
 		return service.registerUserUpdate(dto, user.idx());
@@ -266,11 +276,10 @@ public class UserController {
 	@PostMapping(URI.REGISTRATION_PW)
 	public ResponseEntity registerUserPasswordUpdate(
 			@ApiIgnore @CurrentUser CustomUser user,
-			@RequestBody UserDto.registerUserPasswordUpdate dto,
-			@PathVariable Long member
+			@RequestBody UserDto.registerUserPasswordUpdate dto
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ registerUserUpdate ]) $member.idx='{}'", member , user);
+		if (log.isInfoEnabled()) {
+			log.info("([ registerUserPasswordUpdate ]) $user='{}' $dto='{}'", user, dto);
 		}
 
 		return service.registerUserPasswordUpdate(dto, user.idx());
@@ -285,6 +294,9 @@ public class UserController {
 			@RequestParam Long idxUser,
 			@RequestBody UserDto.registerUserPasswordUpdate dto
 	) {
+		if (log.isInfoEnabled()) {
+			log.info("([ registerUserPasswordUpdate2 ]) $idxUser='{}' $dto='{}'", idxUser, dto);
+		}
 
 		return service.registerUserPasswordUpdate(dto, idxUser);
 	}
@@ -298,6 +310,9 @@ public class UserController {
 			@RequestParam Long idxUser,
 			@RequestBody UserDto.RegisterUserConsent dto
 	) {
+		if (log.isInfoEnabled()) {
+			log.info("([ registerUserConsent ]) $idxUser='{}' $dto='{}'", idxUser, dto);
+		}
 
 		return service.registerUserConsent(dto, idxUser);
 	}
@@ -307,6 +322,10 @@ public class UserController {
 	public ResponseEntity<UserDto.IssuanceProgressRes> registerUserConsent(
 			@ApiIgnore @CurrentUser CustomUser user
 	) {
+		if (log.isInfoEnabled()) {
+			log.info("([ registerUserConsent ]) $user='{}'", user);
+		}
+
 		return service.issuanceProgress(user.idx());
 	}
 

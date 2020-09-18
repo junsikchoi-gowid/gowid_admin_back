@@ -39,7 +39,7 @@ public class KcbController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid KcbDto.Authentication dto) throws IOException {
         if (log.isInfoEnabled()) {
-            log.info("([ authenticationSms ]) $user='{}', $dto='{}'", user, dto);
+            log.info("([ authenticationSms ]) $user='{}' $dto='{}'", user, dto);
         }
 
         return ResponseEntity.ok().body(service.authenticationSms(user.idx(), dto));
@@ -51,7 +51,7 @@ public class KcbController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid KcbDto.Cert dto) throws IOException {
         if (log.isInfoEnabled()) {
-            log.info("([ cert ]) $user='{}', $dto='{}'", user, dto);
+            log.info("([ cert ]) $user='{}' $dto='{}'", user, dto);
         }
 
         return ResponseEntity.ok().body(service.certSms(user.idx(), dto));

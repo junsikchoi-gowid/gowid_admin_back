@@ -51,14 +51,12 @@ public class DeptController {
 			"\n - 없음" +
 			"\n")
 	@GetMapping(URI.DEPTS)
-//	public List<DeptDto> getDepts(
 	public List<DeptCustomRepository.DeptWithMemberCountDto> getDepts(
 			@ApiIgnore @CurrentUser CustomUser user
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ getDepts ]) $user='{}'", user);
+		if (log.isInfoEnabled()) {
+			log.info("([ getDepts ]) $user='{}'", user);
 		}
-//		return service.getDepts(user.idx());
 		return service.depts(user.idx());
 	}
 
@@ -78,8 +76,8 @@ public class DeptController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestParam String dept
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ postDepts ]) $user='{}', $dept='{}'", user, dept);
+		if (log.isInfoEnabled()) {
+			log.info("([ postDepts ]) $user='{}' $dept='{}'", user, dept);
 		}
 		return service.addDept(user.idx(), dept);
 	}
@@ -104,8 +102,8 @@ public class DeptController {
 			@PathVariable Long dept,
 			@RequestParam String name
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ putDept ]) $user='{}', $dept.idx='{}', $dept.name='{}'", user, dept, name);
+		if (log.isInfoEnabled()) {
+			log.info("([ putDept ]) $user='{}' $dept='{}' $name='{}'", user, dept, name);
 		}
 		if (user.getAuthorities().stream().map(GrantedAuthority::getAuthority).map(Role::valueOf).noneMatch(Role::isUpdatableDeptName)) {
 			throw NotAllowedException.builder().build();
@@ -133,8 +131,8 @@ public class DeptController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@PathVariable Long dept
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ deleteDept ]) $user='{}', $dept.idx='{}'", user, dept);
+		if (log.isInfoEnabled()) {
+			log.info("([ deleteDept ]) $user='{}' $dept='{}'", user, dept);
 		}
 		service.deleteDept(user.idx(), dept);
 		return ResponseEntity.ok().build();
@@ -159,8 +157,8 @@ public class DeptController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestParam(required = false) Long dept
 	) {
-		if (log.isDebugEnabled()) {
-			log.debug("([ getMembers ]) $user='{}', $dept.idx='{}'", user, dept);
+		if (log.isInfoEnabled()) {
+			log.info("([ getMembers ]) $user='{}' $dept='{}'", user, dept);
 		}
 		return service.getDeptMembers(user.idx(), dept);
 	}

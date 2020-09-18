@@ -22,7 +22,7 @@ public class SchedulerService {
 
     @Scheduled(cron="${spring.cron.time}")
     private void schedule() {
-        log.error("schedule start");
+        log.debug("schedule start");
         if( cronConfig.getEnabled().equals("true")){
             repoUser.findByAuthentication_Enabled(true).forEach( user -> {
                 List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(user.idx());
@@ -41,7 +41,7 @@ public class SchedulerService {
 
     @Scheduled(cron="${spring.cron.endtime}")
     private void schedule_end() {
-        log.error("schedule end");
+        log.debug("schedule end");
         if( cronConfig.getEnabled().equals("true")){
             repoResBatch.endBatch();
         }

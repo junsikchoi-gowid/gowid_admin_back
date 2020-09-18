@@ -42,6 +42,9 @@ public class RiskController {
 	@GetMapping( URI.RISK )
 	public ResponseEntity saveRisk(@ApiIgnore @CurrentUser CustomUser user
 			, @RequestParam(required = false) String calcDate) {
+		if (log.isInfoEnabled()) {
+			log.info("([ saveRisk ]) $user='{}' $calcDate='{}'", user, calcDate);
+		}
 		return service.saveRisk(user.idx(), null ,calcDate);
 	}
 
@@ -49,6 +52,9 @@ public class RiskController {
 	@GetMapping( URI.RISKCORP )
 	public ResponseEntity saveRiskCorp(@ApiIgnore @CurrentUser CustomUser user
 			, @RequestParam(required = false) Long idxCorp, @RequestParam(required = false) String calcDate) {
+		if (log.isInfoEnabled()) {
+			log.info("([ saveRiskCorp ]) $user='{}' $idxCorp='{}' $calcDate='{}'", user, idxCorp, calcDate);
+		}
 		return service.saveRisk(user.idx(), idxCorp ,calcDate);
 	}
 
@@ -56,6 +62,9 @@ public class RiskController {
 	@GetMapping( URI.SAVE45)
 	public ResponseEntity saveRisk45(@ApiIgnore @CurrentUser CustomUser user
 			, @RequestParam(required = false) String calcDate) {
+		if (log.isInfoEnabled()) {
+			log.info("([ saveRisk45 ]) $user='{}' $calcDate='{}'", user, calcDate);
+		}
 		return service.saveRisk45(user.idx(), null ,calcDate);
 	}
 
@@ -63,6 +72,9 @@ public class RiskController {
 	@PostMapping( URI.RISKCONFIG )
 	public ResponseEntity saveRiskConfig(@RequestParam Long idxUser ,
 									  @ModelAttribute RiskDto.RiskConfigDto riskConfigDto) {
+		if (log.isInfoEnabled()) {
+			log.info("([ saveRiskConfig ]) $idxUser='{}' $dto='{}'", idxUser, riskConfigDto);
+		}
 		return service.saveRiskConfig(riskConfigDto);
 	}
 
@@ -70,7 +82,9 @@ public class RiskController {
 	@GetMapping(URI.RISKCONFIG)
 	public ResponseEntity<String> getRiskConfig(@ApiIgnore @CurrentUser CustomUser user
 			, @RequestParam(required = false) Long idxCorp) {
-
+		if (log.isInfoEnabled()) {
+			log.info("([ getRiskConfig ]) $user='{}' $idxCorp='{}'", user, idxCorp);
+		}
 		return service.getRiskConfig(user.idx(), idxCorp);
 	}
 

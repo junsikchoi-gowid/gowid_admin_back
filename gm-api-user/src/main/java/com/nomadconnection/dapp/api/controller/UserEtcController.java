@@ -34,10 +34,7 @@ public class UserEtcController {
         public static final String ALARM = "/alarm";
     }
 
-
-    private final Boolean boolDebug = true;
     private final UserService service;
-    private final AuthService serviceAuth;
 
     @ApiOperation(value = "아이디(이메일) 찾기", notes = "" +
             "\n ### Remarks" +
@@ -46,8 +43,8 @@ public class UserEtcController {
             "\n")
     @GetMapping(URI.ACCOUNT)
     public ResponseEntity Account(@ModelAttribute BrandDto.FindAccount dto) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ getAccount ]) $dto.account.find='{}'", dto);
+        if (log.isInfoEnabled()) {
+            log.info("([ getAccount ]) $dto.account.find='{}'", dto);
         }
         return service.findAccount(dto.getName(), dto.getMdn());
     }
@@ -59,8 +56,8 @@ public class UserEtcController {
     public ResponseEntity CompanyCard(
             @ApiIgnore @CurrentUser CustomUser user,
             @ModelAttribute BrandDto.CompanyCard dto) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ getAccount ]) $dto.account.find='{}'", dto);
+        if (log.isInfoEnabled()) {
+            log.info("([ getAccount ]) $dto.account.find='{}'", dto);
         }
         return service.companyCard(dto, user.idx());
     }

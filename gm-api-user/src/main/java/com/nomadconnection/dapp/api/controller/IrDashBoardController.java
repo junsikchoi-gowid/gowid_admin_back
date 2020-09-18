@@ -30,7 +30,6 @@ public class IrDashBoardController {
 		public static final String IRDASHBOARD_SAVE = "/IrDashBoard/save";			// 리스크
 	}
 
-	private final Boolean boolDebug = true;
 	private final IrDashBoardService service;
 
 	@ApiOperation(value = "리스트", notes = " sortBy = asc, desc " + "\n")

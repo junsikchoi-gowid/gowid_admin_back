@@ -59,7 +59,7 @@ public class ShinhanCardController {
             @RequestParam(required = false) String depthKey,
             @RequestBody @Valid CardIssuanceDto.RegisterCorporation dto) {
         if (log.isInfoEnabled()) {
-            log.info("([ updateCorporation ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+            log.info("([ updateCorporation ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.updateCorporation(user.idx(), dto, idxCardInfo, depthKey));
@@ -73,7 +73,7 @@ public class ShinhanCardController {
             @RequestParam(required = false) String depthKey,
             @RequestBody @Valid CardIssuanceDto.RegisterCorporationExtend dto) {
         if (log.isInfoEnabled()) {
-            log.info("([ updateCorporationExtend ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+            log.info("([ updateCorporationExtend ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.updateCorporationExtend(user.idx(), dto, idxCardInfo, depthKey));
@@ -87,7 +87,7 @@ public class ShinhanCardController {
             @RequestParam(required = false) String depthKey,
             @RequestBody @Valid CardIssuanceDto.RegisterVenture dto) {
         if (log.isInfoEnabled()) {
-            log.info("([ registerVenture ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+            log.info("([ registerVenture ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.registerVenture(user.idx(), dto, idxCardInfo, depthKey));
@@ -101,7 +101,7 @@ public class ShinhanCardController {
             @RequestParam(required = false) String depthKey,
             @RequestBody @Valid CardIssuanceDto.RegisterStockholder dto) {
         if (log.isInfoEnabled()) {
-            log.info("([ registerStockholder ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+            log.info("([ registerStockholder ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.registerStockholder(user.idx(), dto, idxCardInfo, depthKey));
@@ -114,7 +114,7 @@ public class ShinhanCardController {
             @RequestParam(required = false) String depthKey,
             @RequestBody @Valid CardIssuanceDto.HopeLimitReq dto) {
         if (log.isInfoEnabled()) {
-            log.info("([ saveHopeLimit ]) $user='{}', $dto='{}'", user, dto);
+            log.info("([ saveHopeLimit ]) $user='{}' $dto='{}'", user, dto);
         }
 
         return ResponseEntity.ok().body(service.saveHopeLimit(user.idx(), dto, depthKey));
@@ -128,7 +128,7 @@ public class ShinhanCardController {
             @RequestParam(required = false) String depthKey,
             @RequestBody @Valid CardIssuanceDto.RegisterCard dto) {
         if (log.isInfoEnabled()) {
-            log.info("([ registerStockholder ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+            log.info("([ registerStockholder ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.registerCard(user.idx(), dto, idxCardInfo, depthKey));
@@ -142,7 +142,7 @@ public class ShinhanCardController {
             @RequestParam(required = false) String depthKey,
             @RequestBody @Valid CardIssuanceDto.RegisterAccount dto) {
         if (log.isInfoEnabled()) {
-            log.info("([ registerAccount ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+            log.info("([ registerAccount ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.registerAccount(user.idx(), dto, idxCardInfo, depthKey));
@@ -167,7 +167,7 @@ public class ShinhanCardController {
             @RequestParam(required = false) String depthKey,
             @RequestBody @Valid CardIssuanceDto.RegisterCeo dto) {
         if (log.isInfoEnabled()) {
-            log.info("([ registerCEO ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+            log.info("([ registerCEO ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
         return ResponseEntity.ok().body(service.registerCeo(user.idx(), dto, idxCardInfo, depthKey));
@@ -191,7 +191,7 @@ public class ShinhanCardController {
             @ApiIgnore @CurrentUser CustomUser user,
             @ModelAttribute @Valid CardIssuanceDto.IdentificationReq dto) {
         if (log.isInfoEnabled()) {
-            log.info("([ verifyIdentification ]) $user='{}', $dto='{}'", user, dto);
+            log.info("([ verifyIdentification ]) $user='{}' $dto='{}'", user, dto);
         }
 
         issuanceService.verifyCeoIdentification(request, user.idx(), dto);
@@ -203,6 +203,9 @@ public class ShinhanCardController {
     public ResponseEntity<CardIssuanceDto.IssuanceRes> application(
             @ApiIgnore @CurrentUser CustomUser user,
             @ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) {
+        if (log.isInfoEnabled()) {
+            log.info("([ application ]) $user='{}' $dto='{}'", user, request);
+        }
 
         SignatureHistory signatureHistory = issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
         issuanceService.issuance(user.idx(), request, signatureHistory.getIdx());
@@ -214,12 +217,17 @@ public class ShinhanCardController {
     @PostMapping(URI.RESUME)
     public ResponseEntity<CardIssuanceDto.ResumeRes> resumeApplication(
             @RequestBody CardIssuanceDto.ResumeReq request) {
+        if (log.isInfoEnabled()) {
+            log.info("([ resumeApplication ]) $dto='{}'", request);
+        }
 
-        log.debug("## Received 1600");
-        if (request != null) {
-            log.debug("## request 1600 => " + request.toString());
-        } else {
-            log.warn("## request data of 1600 is empty!");
+        if (log.isDebugEnabled()) {
+            log.debug("## Received 1600");
+            if (request != null) {
+                log.debug("## request 1600 => " + request.toString());
+            } else {
+                log.warn("## request data of 1600 is empty!");
+            }
         }
 
         return ResponseEntity.ok().body(
@@ -234,7 +242,7 @@ public class ShinhanCardController {
             @RequestParam(required = false) String depthKey,
             @RequestBody @Valid CardIssuanceDto.CeoValidReq dto) {
         if (log.isInfoEnabled()) {
-            log.info("([ verifyCorrespondCeo ]) $user='{}', $dto='{}'", user, dto);
+            log.info("([ verifyCorrespondCeo ]) $user='{}' $dto='{}'", user, dto);
         }
 
         service.verifyValidCeo(user.idx(), dto, depthKey);

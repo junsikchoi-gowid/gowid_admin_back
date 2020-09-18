@@ -28,7 +28,6 @@ public class BenefitController {
 		public static final String BASE = "/benefit/v1";
 		public static final String BENEFITS = "/benefits";
 		public static final String BENEFIT = "/benefits/{idxBenefit}";
-		public static final String APPLICATION = "/application";
 	}
 
 	private final BenefitService service;
@@ -50,7 +49,7 @@ public class BenefitController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@PathVariable Long idxBenefit) {
 		if (log.isInfoEnabled()) {
-			log.info("([ getBenefit ]) $user='{}', $idx_benefit='{}'", user, idxBenefit);
+			log.info("([ getBenefit ]) $user='{}' $idx_benefit='{}'", user, idxBenefit);
 		}
 
 		return ResponseEntity.ok().body(service.getBenefit(idxBenefit));

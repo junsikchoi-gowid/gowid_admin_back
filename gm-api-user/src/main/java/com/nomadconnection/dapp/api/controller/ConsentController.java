@@ -48,8 +48,8 @@ public class ConsentController {
     })
     @GetMapping(URI.CONSENT)
     public ResponseEntity consents(@RequestParam(required = false) String typeCode) {
-        if (log.isDebugEnabled()) {
-            log.debug("getConsents List");
+        if (log.isInfoEnabled()) {
+            log.info("([ consents ]) $typeCode='{}'", typeCode);
         }
 
         return service.consents(typeCode);
@@ -68,8 +68,8 @@ public class ConsentController {
             @ApiIgnore @CurrentUser org.springframework.security.core.userdetails.User user,
             @RequestBody BrandConsentDto dto
     ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ postConsent ]) $user='{}', $dto='{}' ", user, dto);
+        if (log.isInfoEnabled()) {
+            log.info("([ consentSave ]) $user='{}' $dto='{}'", user, dto);
         }
 
         return service.postConsent(user, dto);
@@ -88,8 +88,8 @@ public class ConsentController {
             @ApiIgnore @CurrentUser org.springframework.security.core.userdetails.User user,
             @PathVariable Long consent
     ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ postConsent ]) $user='{}', $dto='{}' ", user, consent);
+        if (log.isInfoEnabled()) {
+            log.info("([ putConsentDel ]) $user='{}' $consent='{}'", user, consent);
         }
 
         return service.consentDel(user, consent);
@@ -101,8 +101,8 @@ public class ConsentController {
     public ResponseEntity consentCard(
             @ApiIgnore @CurrentUser CustomUser user
     ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ postConsent ]) $user='{}', $dto='{}' ", user);
+        if (log.isInfoEnabled()) {
+            log.info("([ consentCard ]) $user='{}'", user);
         }
 
         return service.consentCard(user.idx());
@@ -115,8 +115,8 @@ public class ConsentController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody ConsentDto.RegisterCardUserConsent dto
     ) {
-        if (log.isDebugEnabled()) {
-            log.debug("([ postConsent ]) $user='{}', $dto='{}' ", user);
+        if (log.isInfoEnabled()) {
+            log.info("([ ConsentCardSave ]) $user='{}' $dto='{}'", user, dto);
         }
 
         return service.consentCardSave(user.idx(), dto);

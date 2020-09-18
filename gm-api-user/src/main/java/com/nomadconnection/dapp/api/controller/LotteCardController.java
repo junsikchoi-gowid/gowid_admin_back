@@ -55,7 +55,7 @@ public class LotteCardController {
 			@RequestParam(required = false) String depthKey,
 			@RequestBody @Valid CardIssuanceDto.RegisterCorporation dto) {
 		if (log.isInfoEnabled()) {
-			log.info("([ updateCorporation ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+			log.info("([ updateCorporation ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
 		}
 
 		return ResponseEntity.ok().body(service.updateCorporation(user.idx(), dto, idxCardInfo, depthKey));
@@ -69,7 +69,7 @@ public class LotteCardController {
 			@RequestParam(required = false) String depthKey,
 			@RequestBody @Valid CardIssuanceDto.RegisterCorporationExtend dto) {
 		if (log.isInfoEnabled()) {
-			log.info("([ updateCorporationExtend ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+			log.info("([ updateCorporationExtend ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
 		}
 
 		return ResponseEntity.ok().body(service.updateCorporationExtend(user.idx(), dto, idxCardInfo, depthKey));
@@ -83,7 +83,7 @@ public class LotteCardController {
 			@RequestParam(required = false) String depthKey,
 			@RequestBody @Valid CardIssuanceDto.RegisterVenture dto) {
 		if (log.isInfoEnabled()) {
-			log.info("([ registerVenture ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+			log.info("([ registerVenture ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
 		}
 
 		return ResponseEntity.ok().body(service.registerVenture(user.idx(), dto, idxCardInfo, depthKey));
@@ -97,7 +97,7 @@ public class LotteCardController {
 			@RequestParam(required = false) String depthKey,
 			@RequestBody @Valid CardIssuanceDto.RegisterStockholder dto) {
 		if (log.isInfoEnabled()) {
-			log.info("([ registerStockholder ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+			log.info("([ registerStockholder ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
 		}
 
 		return ResponseEntity.ok().body(service.registerStockholder(user.idx(), dto, idxCardInfo, depthKey));
@@ -110,7 +110,7 @@ public class LotteCardController {
 			@RequestParam(required = false) String depthKey,
 			@RequestBody @Valid CardIssuanceDto.HopeLimitReq dto) {
 		if (log.isInfoEnabled()) {
-			log.info("([ saveHopeLimit ]) $user='{}', $dto='{}'", user, dto);
+			log.info("([ saveHopeLimit ]) $user='{}' $dto='{}'", user, dto);
 		}
 
 		return ResponseEntity.ok().body(service.saveHopeLimit(user.idx(), dto, depthKey));
@@ -124,7 +124,7 @@ public class LotteCardController {
 			@RequestParam(required = false) String depthKey,
 			@RequestBody @Valid CardIssuanceDto.RegisterCard dto) {
 		if (log.isInfoEnabled()) {
-			log.info("([ registerStockholder ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+			log.info("([ registerStockholder ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
 		}
 
 		return ResponseEntity.ok().body(service.registerCard(user.idx(), dto, idxCardInfo, depthKey));
@@ -138,7 +138,7 @@ public class LotteCardController {
 			@RequestParam(required = false) String depthKey,
 			@RequestBody @Valid CardIssuanceDto.RegisterAccount dto) {
 		if (log.isInfoEnabled()) {
-			log.info("([ registerAccount ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+			log.info("([ registerAccount ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
 		}
 
 		return ResponseEntity.ok().body(service.registerAccount(user.idx(), dto, idxCardInfo, depthKey));
@@ -163,7 +163,7 @@ public class LotteCardController {
 			@RequestParam(required = false) String depthKey,
 			@RequestBody @Valid CardIssuanceDto.RegisterCeo dto) {
 		if (log.isInfoEnabled()) {
-			log.info("([ registerCEO ]) $user='{}', $dto='{}', $idx_cardInfo='{}'", user, dto, idxCardInfo);
+			log.info("([ registerCEO ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
 		}
 
 		return ResponseEntity.ok().body(service.registerCeo(user.idx(), dto, idxCardInfo, depthKey));
@@ -177,7 +177,7 @@ public class LotteCardController {
 			@RequestParam(required = false) String depthKey,
 			@ModelAttribute @Valid CardIssuanceDto.IdentificationReq dto) {
 		if (log.isInfoEnabled()) {
-			log.info("([ saveCeoIdentification ]) $user='{}', $dto='{}'", user, dto);
+			log.info("([ saveCeoIdentification ]) $user='{}' $dto='{}'", user, dto);
 		}
 
 		service.saveCeoIdentification(request, user.idx(), dto, depthKey);
@@ -200,7 +200,7 @@ public class LotteCardController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) {
 		if (log.isInfoEnabled()) {
-			log.info("([ application ]) $user='{}', $dto='{}'", user, request);
+			log.info("([ application ]) $user='{}' $dto='{}'", user, request);
 		}
 		SignatureHistory signatureHistory = issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
 		issuanceService.issuance(user.idx(), request, signatureHistory.getIdx());
@@ -215,7 +215,7 @@ public class LotteCardController {
 			@RequestParam(required = false) String depthKey,
 			@RequestBody @Valid CardIssuanceDto.CeoValidReq dto) {
 		if (log.isInfoEnabled()) {
-			log.info("([ verifyCorrespondCeo ]) $user='{}', $dto='{}'", user, dto);
+			log.info("([ verifyCorrespondCeo ]) $user='{}' $dto='{}'", user, dto);
 		}
 
 		service.verifyValidCeo(user.idx(), dto, depthKey);

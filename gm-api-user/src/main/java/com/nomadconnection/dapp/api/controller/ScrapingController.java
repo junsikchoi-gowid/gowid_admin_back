@@ -36,14 +36,13 @@ public class ScrapingController {
 
     }
 
-    private final Boolean boolDebug = true;
     private final ScrapingService service;
 
     @ApiOperation(value = "최근 1년 거래내역 가져오기", notes = "" + "\n")
     @GetMapping(URI.SCRAPING_ACCOUNT)
     public ResponseEntity scrapingRegister(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxCorp) {
-        if (log.isDebugEnabled()) {
-            log.debug("([AccountTransactionList ]) $dto='{}'", idxCorp);
+        if (log.isInfoEnabled()) {
+            log.info("([ scrapingRegister ]) $user='{}' $idxCorp='{}'", user, idxCorp);
         }
         return service.scrapingRegister1YearAll2(user.idx(), idxCorp);
     }
@@ -51,8 +50,8 @@ public class ScrapingController {
     @ApiOperation(value = "10년간 데이터 가져오기", notes = "" + "\n")
     @GetMapping(URI.SCRAPING_ACCOUNT_HISTORY)
     public boolean scrapingRegisterAll(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxUser) {
-        if (log.isDebugEnabled()) {
-            log.debug("([AccountTransactionList ]) $dto='{}'", idxUser);
+        if (log.isInfoEnabled()) {
+            log.info("([ scrapingRegisterAll ]) $user='{}' $idxUser='{}'", user, idxUser);
         }
         return service.aWaitScraping10Years(user.idx(), idxUser);
     }
@@ -61,6 +60,9 @@ public class ScrapingController {
     @GetMapping( URI.STOP )
     public ResponseEntity scrapingProcessKillUser(@ApiIgnore @CurrentUser CustomUser user,
                                               @RequestParam(required = false) Long idxUser) {
+        if (log.isInfoEnabled()) {
+            log.info("([ scrapingProcessKillUser ]) $user='{}' $idxUser='{}'", user, idxUser);
+        }
         return service.scrapingProcessKill(user.idx(), idxUser, "user");
     }
 
@@ -68,6 +70,9 @@ public class ScrapingController {
     @GetMapping( URI.STOP_CORP )
     public ResponseEntity scrapingProcessKillCorp(@ApiIgnore @CurrentUser CustomUser user,
                                               @RequestParam(required = false) Long idxCorp) {
+        if (log.isInfoEnabled()) {
+            log.info("([ scrapingProcessKillCorp ]) $user='{}' $idxCorp='{}'", user, idxCorp);
+        }
         return service.scrapingProcessKill(user.idx(), idxCorp, "corp");
     }
 

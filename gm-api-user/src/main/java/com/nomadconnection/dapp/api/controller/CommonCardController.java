@@ -66,7 +66,7 @@ public class CommonCardController {
 			@RequestPart MultipartFile[] file_1,
 			@RequestPart MultipartFile[] file_2) throws IOException {
 		if (log.isInfoEnabled()) {
-			log.info("([ uploadStockholderFile ]) $user='{}', $file_1='{}', $file_2='{}', $idx_cardInfo='{}'", user, file_1, file_2, idxCardInfo);
+			log.info("([ uploadStockholderFile ]) $user='{}' $file_1='{}' $file_2='{}' $idx_cardInfo='{}'", user, file_1, file_2, idxCardInfo);
 		}
 
 		return ResponseEntity.ok().body(service.registerStockholderFile(user.idx(), file_1, file_2, fileType, idxCardInfo, depthKey));
@@ -80,7 +80,7 @@ public class CommonCardController {
 			@RequestParam Long idxCardInfo,
 			@PathVariable Long idxFile) throws IOException {
 		if (log.isInfoEnabled()) {
-			log.info("([ deleteStockholderFile ]) $user='{}', $idx_file='{}', $idx_cardInfo='{}'", user, idxFile, idxCardInfo);
+			log.info("([ deleteStockholderFile ]) $user='{}' $idx_file='{}' $idx_cardInfo='{}'", user, idxFile, idxCardInfo);
 		}
 
 		service.deleteStockholderFile(user.idx(), idxFile, idxCardInfo, depthKey);
@@ -137,7 +137,7 @@ public class CommonCardController {
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestParam String depthKey) {
 		if (log.isInfoEnabled()) {
-			log.info("([ saveIssuanceDepth ]) $user='{}', $depthKey='{}'", user, depthKey);
+			log.info("([ saveIssuanceDepth ]) $user='{}' $depthKey='{}'", user, depthKey);
 		}
 
 		service.saveIssuanceDepth(user.idx(), depthKey);
