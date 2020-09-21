@@ -40,4 +40,10 @@
         <appender-ref ref="DAILY_ROLLING"/>
     </root>
 
+    <logger name="com.zaxxer.hikari.pool.PoolBase" level="ERROR"/>
+    <logger name="com.zaxxer.hikari.pool.HikariPool" level="ERROR"/>
+    <logger name="com.zaxxer.hikari.HikariConfig" level="ERROR"/>
+    <logger name="com.zaxxer.hikari.HikariDataSource" level="ERROR"/>
+    <logger name="c.n.d.j.a.CustomAuthenticationFilter" level="ERROR"/>
+
 </configuration>
