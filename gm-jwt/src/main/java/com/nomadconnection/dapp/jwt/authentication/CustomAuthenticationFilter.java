@@ -34,15 +34,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 		try {
 			String bearerToken = request.getHeader(jwt.config().getHeader());
-			{
-				if (log.isDebugEnabled()) {
-					log.debug("([ doFilterInternal ]) $uri='{}', $bearer='{}'", request.getRequestURI(), bearerToken);
-				}
-			}
 			if (!Strings.isEmpty(bearerToken)) {
-				if (log.isDebugEnabled()) {
-					log.debug("([ doFilterInternal ]) $uri='{}', $bearer='{}'", request.getRequestURI(), bearerToken);
-				}
 				String token = jwt.fromBearerToken(bearerToken).orElseThrow(
 						() -> AccessTokenNotFoundException.builder()
 								.header(jwt.config().getHeader())
@@ -54,9 +46,6 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 					if (!(TokenDto.TokenType.JWT_FOR_ACCESS.equals(dto.getTokenType())
 							|| TokenDto.TokenType.JWT_OUTER_ACCESS.equals(dto.getTokenType()))
 						) {
-						if (log.isDebugEnabled()) {
-							log.debug("([ doFilterInternal ]) INVALID JWT TYPE( {} ), $jwt='{}'", dto.getTokenType(), token);
-						}
 						throw UnacceptableJwtException.builder()
 								.jwt(token)
 								.tokenType(dto.getTokenType())

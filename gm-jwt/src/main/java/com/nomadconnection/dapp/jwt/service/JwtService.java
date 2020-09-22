@@ -45,13 +45,7 @@ public class JwtService {
 							.parseClaimsJws(jwt)
 							.getBody()
 			);
-		} catch (UnsupportedJwtException | SignatureException | IllegalArgumentException e) {
-			if (log.isErrorEnabled()) {
-				log.error("([ parse ]) $error='failed to parse, jwt', $jwt='{}', $exception='{} => {}'",
-						jwt,
-						e.getClass().getSimpleName(),
-						e.getMessage());
-			}
+		} catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
 			throw UnacceptableJwtException.builder().jwt(jwt).build();
 		}
 	}
