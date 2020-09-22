@@ -48,23 +48,23 @@ public class CustomExceptionHandler {
     //
     //==================================================================================================================
 
-    @ExceptionHandler(AccessTokenNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ErrorResponse onAccessTokenNotFoundException(AccessTokenNotFoundException e) {
-        return ErrorResponse.from(ErrorCode.Authentication.ACCESS_TOKEN_NOT_FOUND);
-    }
-
-    @ExceptionHandler(UnacceptableJwtException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ErrorResponse onUnacceptableJwtException(UnacceptableJwtException e) {
-        return ErrorResponse.from(ErrorCode.Authentication.UNACCEPTABLE_JWT_USED);
-    }
-
-    @ExceptionHandler(JwtSubjectMismatchedException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ErrorResponse onJwtSubjectMismatchedException(JwtSubjectMismatchedException e) {
-        return ErrorResponse.from(ErrorCode.Authentication.JWT_SUBJECT_MISMATCHED);
-    }
+//    @ExceptionHandler(AccessTokenNotFoundException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    protected ErrorResponse onAccessTokenNotFoundException(AccessTokenNotFoundException e) {
+//        return ErrorResponse.from(ErrorCode.Authentication.ACCESS_TOKEN_NOT_FOUND);
+//    }
+//
+//    @ExceptionHandler(UnacceptableJwtException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    protected ErrorResponse onUnacceptableJwtException(UnacceptableJwtException e) {
+//        return ErrorResponse.from(ErrorCode.Authentication.UNACCEPTABLE_JWT_USED);
+//    }
+//
+//    @ExceptionHandler(JwtSubjectMismatchedException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    protected ErrorResponse onJwtSubjectMismatchedException(JwtSubjectMismatchedException e) {
+//        return ErrorResponse.from(ErrorCode.Authentication.JWT_SUBJECT_MISMATCHED);
+//    }
 
     //==================================================================================================================
     //
@@ -72,29 +72,29 @@ public class CustomExceptionHandler {
     //
     //==================================================================================================================
 
-    @ExceptionHandler(UnauthorizedException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected ErrorResponse onUnauthorizedException(UnauthorizedException e) {
-        return ErrorResponse.from(ErrorCode.Authority.UNAUHTORIZED);
-    }
-
-    @ExceptionHandler(CorpNotRegisteredException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ErrorResponse onCorpNotRegisteredException(CorpNotRegisteredException e) {
-        return ErrorResponse.from(ErrorCode.Authority.CORP_NOT_REGISTERED);
-    }
-
-    @ExceptionHandler(NotAllowedException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ErrorResponse onNotAllowedException(NotAllowedException e) {
-        return ErrorResponse.from(ErrorCode.Authority.NOT_ALLOWED);
-    }
-
-    @ExceptionHandler(NotAllowedMemberAuthorityException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ErrorResponse onNotAllowedMemberAuthorityException(NotAllowedMemberAuthorityException e) {
-        return ErrorResponse.from(ErrorCode.Authority.NOT_ALLOWED_MEMBER_AUTHORITY);
-    }
+//    @ExceptionHandler(UnauthorizedException.class)
+//    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+//    protected ErrorResponse onUnauthorizedException(UnauthorizedException e) {
+//        return ErrorResponse.from(ErrorCode.Authority.UNAUHTORIZED);
+//    }
+//
+//    @ExceptionHandler(CorpNotRegisteredException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    protected ErrorResponse onCorpNotRegisteredException(CorpNotRegisteredException e) {
+//        return ErrorResponse.from(ErrorCode.Authority.CORP_NOT_REGISTERED);
+//    }
+//
+//    @ExceptionHandler(NotAllowedException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    protected ErrorResponse onNotAllowedException(NotAllowedException e) {
+//        return ErrorResponse.from(ErrorCode.Authority.NOT_ALLOWED);
+//    }
+//
+//    @ExceptionHandler(NotAllowedMemberAuthorityException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    protected ErrorResponse onNotAllowedMemberAuthorityException(NotAllowedMemberAuthorityException e) {
+//        return ErrorResponse.from(ErrorCode.Authority.NOT_ALLOWED_MEMBER_AUTHORITY);
+//    }
 
     //==================================================================================================================
     //

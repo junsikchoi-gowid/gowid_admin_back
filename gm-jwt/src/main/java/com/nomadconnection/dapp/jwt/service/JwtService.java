@@ -45,7 +45,7 @@ public class JwtService {
 							.parseClaimsJws(jwt)
 							.getBody()
 			);
-		} catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
+		} catch (UnsupportedJwtException | SignatureException | IllegalArgumentException e) {
 			if (log.isErrorEnabled()) {
 				log.error("([ parse ]) $error='failed to parse, jwt', $jwt='{}', $exception='{} => {}'",
 						jwt,
