@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.dto.GwUploadDto;
+import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.util.CommonUtil;
@@ -1321,107 +1322,85 @@ public class CodefService {
 
 	@SneakyThrows
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity RegisterCorpInfo(ConnectedMngDto.CorpInfo dto, Long idxUser, String connectedId){
+	public ResponseEntity RegisterCorpInfoManual(ConnectedMngDto.CorpInfoManual dto, Long idxUser){
+		User user = repoUser.findById(idxUser).orElseThrow(() -> UserNotFoundException.builder().build());
+		Corp corp = repoCorp.findById(dto.getIdxCorp()).orElseThrow(() -> CorpNotRegisteredException.builder().build());
 
-		User user = repoUser.findById(idxUser).orElseThrow(
-				() -> UserNotFoundException.builder().build()
-		);
-
-		String resCompanyIdentityNo = user.corp().resCompanyIdentityNo();
-
-		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
-		normal.setStatus(true);
-
-		List<String> listYyyyMm = getFindClosingStandards(dto.getResClosingStandards().trim());
+		String resCompanyIdentityNo = corp.resCompanyIdentityNo();
 
 		// 국세청 - 증명발급 표준재무재표
-		String finalConnectedId = connectedId;
-		String strResult;
-		AtomicReference<Boolean> boolIfFirst = new AtomicReference<>(true);
-		listYyyyMm.forEach(yyyyMm -> {
-			JSONObject[] jsonObjectStandardFinancial = new JSONObject[0];
-			String strResultTemp = null;
-			try {
+		JSONParser parser = new JSONParser();
+		JSONObject[] jsonObjects = getApiResult(STANDARD_FINANCIAL.standard_financial(
+				"0001",
+				dto.getConnectedId(),
+				dto.getResClosingStandards(),
+				"0",
+				"04",
+				"01",
+				"40",
+				"",
+				resCompanyIdentityNo.replaceAll("-", "").trim() // 사업자번호
+		));
 
-				strResultTemp = STANDARD_FINANCIAL.standard_financial(
-						"0001",
-						finalConnectedId,
-						yyyyMm,
-						"0",
-						"04",
-						"01",
-						"40",
-						"",
-						resCompanyIdentityNo.replaceAll("-", "").trim() // 사업자번호
-				);
+		if (jsonObjects[0].get("code").toString().equals("CF-00000")) {
+			JSONArray resBalanceSheet = (JSONArray) jsonObjects[1].get("resBalanceSheet");
+			JSONArray resIncomeStatement = (JSONArray) jsonObjects[1].get("resIncomeStatement");
 
-                log.info( " RegisterAccountNt strResultTemp = {} " , strResultTemp);
+			AtomicReference<String> strCode228 = new AtomicReference<>();
+			AtomicReference<String> strCode001 = new AtomicReference<>();
+			AtomicReference<String> strCode334 = new AtomicReference<>();
+			AtomicReference<String> strCode382 = new AtomicReference<>();
 
-				jsonObjectStandardFinancial = getApiResult(strResultTemp);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			resBalanceSheet.forEach(item -> {
+				JSONObject obj = (JSONObject) item;
+				if (GowidUtils.getEmptyStringToString(obj, "_code").equals("228")) {
+					strCode228.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
+				}
+				if (GowidUtils.getEmptyStringToString(obj, "_code").equals("334")) {
+					strCode334.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
+				}
+				if (GowidUtils.getEmptyStringToString(obj, "_code").equals("382")) {
+					strCode382.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
+				}
+			});
 
-			String jsonObjectStandardFinancialCode = jsonObjectStandardFinancial[0].get("code").toString();
-			if (jsonObjectStandardFinancialCode.equals("CF-00000")) {
-				JSONObject jsonData2 = jsonObjectStandardFinancial[1];
+			resIncomeStatement.forEach(item -> {
+				JSONObject obj = (JSONObject) item;
+				if (GowidUtils.getEmptyStringToString(obj, "_code").equals("001")) {
+					strCode001.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
+				}
+			});
 
-				JSONArray resBalanceSheet = (JSONArray) jsonData2.get("resBalanceSheet");
-				JSONArray resIncomeStatement = (JSONArray) jsonData2.get("resIncomeStatement");
+			repoD1520.save(D1520.builder()
+					.idxCorp(user.corp().idx())
+					.c007(CommonUtil.getNowYYYYMMDD())
+					.d003(user.corp().resCompanyIdentityNo().replaceAll("-", "")) // 사업자등록번호
+					.d004(user.corp().resIssueNo().replaceAll("-", "")) // 발급(승인)번호
+					.d005(user.corp().resUserIdentiyNo().replaceAll("-", "")) // 주민번호
+					.d006(user.corp().resCompanyNm()) // 상호(사업장명)
+					.d007("Y") // 발급가능여부
+					.d008(GowidUtils.getEmptyStringToString(jsonObjects[1], "commStartDate")) // 시작일자
+					.d009(GowidUtils.getEmptyStringToString(jsonObjects[1], "commEndDate")) // 종료일자
+					.d010(GowidUtils.getEmptyStringToString(jsonObjects[1], "resUserNm")) // 성명
+					.d011(GowidUtils.getEmptyStringToString(jsonObjects[1], "resUserAddr")) // 주소
+					.d012(GowidUtils.getEmptyStringToString(jsonObjects[1], "resBusinessItems")) // 종목
+					.d013(GowidUtils.getEmptyStringToString(jsonObjects[1], "resBusinessTypes")) // 업태
+					.d014(GowidUtils.getEmptyStringToString(jsonObjects[1], "resReportingDate")) // 작성일자
+					.d015(GowidUtils.getEmptyStringToString(jsonObjects[1], "resAttrYear")) // 귀속연도
+					.d016(strCode228.get()) // 총자산   대차대조표 상의 자본총계(없으면 등기부등본상의 자본금의 액)
+					.d017(strCode001.get()) // 매출   손익계산서 상의 매출액
+					.d018(strCode334.get()) // 납입자본금   대차대조표 상의 자본금
+					.d019(strCode382.get()) // 자기자본금   대차대조표 상의 자본 총계
+					.d020(GowidUtils.getEmptyStringToString(jsonObjects[1], "commEndDate")) // 재무조사일   종료일자 (없으면 등기부등본상의 회사성립연월일)
+					.build());
 
-				AtomicReference<String> strCode228 = new AtomicReference<>();
-				AtomicReference<String> strCode001 = new AtomicReference<>();
-				AtomicReference<String> strCode334 = new AtomicReference<>();
-				AtomicReference<String> strCode382 = new AtomicReference<>();
+			//파일생성 및 전송
+			ImageCreateAndSend(user.cardCompany(), 1520, 1520 + dto.getResClosingStandards(), jsonObjects.toString(), user.corp().resCompanyIdentityNo());
+		}
 
-				resBalanceSheet.forEach(item -> {
-					JSONObject obj = (JSONObject) item;
-					if (GowidUtils.getEmptyStringToString(obj, "_code").equals("228")) {
-						strCode228.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
-					}
-					if (GowidUtils.getEmptyStringToString(obj, "_code").equals("334")) {
-						strCode334.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
-					}
-					if (GowidUtils.getEmptyStringToString(obj, "_code").equals("382")) {
-						strCode382.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
-					}
-				});
-
-				resIncomeStatement.forEach(item -> {
-					JSONObject obj = (JSONObject) item;
-					if (GowidUtils.getEmptyStringToString(obj, "_code").equals("001")) {
-						strCode001.set(GowidUtils.getEmptyStringToString(obj, "_amt"));
-					}
-				});
-
-				repoD1520.save(D1520.builder()
-						.idxCorp(user.corp().idx())
-						.c007(CommonUtil.getNowYYYYMMDD())
-						.d003(user.corp().resCompanyIdentityNo().replaceAll("-", "")) // 사업자등록번호
-						.d004(user.corp().resIssueNo().replaceAll("-", "")) // 발급(승인)번호
-						.d005(user.corp().resUserIdentiyNo().replaceAll("-", "")) // 주민번호
-						.d006(user.corp().resCompanyNm()) // 상호(사업장명)
-						.d007("Y") // 발급가능여부
-						.d008(GowidUtils.getEmptyStringToString(jsonData2, "commStartDate")) // 시작일자
-						.d009(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate")) // 종료일자
-						.d010(GowidUtils.getEmptyStringToString(jsonData2, "resUserNm")) // 성명
-						.d011(GowidUtils.getEmptyStringToString(jsonData2, "resUserAddr")) // 주소
-						.d012(GowidUtils.getEmptyStringToString(jsonData2, "resBusinessItems")) // 종목
-						.d013(GowidUtils.getEmptyStringToString(jsonData2, "resBusinessTypes")) // 업태
-						.d014(GowidUtils.getEmptyStringToString(jsonData2, "resReportingDate")) // 작성일자
-						.d015(GowidUtils.getEmptyStringToString(jsonData2, "resAttrYear")) // 귀속연도
-						.d016(strCode228.get()) // 총자산   대차대조표 상의 자본총계(없으면 등기부등본상의 자본금의 액)
-						.d017(strCode001.get()) // 매출   손익계산서 상의 매출액
-						.d018(strCode334.get()) // 납입자본금   대차대조표 상의 자본금
-						.d019(strCode382.get()) // 자기자본금   대차대조표 상의 자본 총계
-						.d020(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate")) // 재무조사일   종료일자 (없으면 등기부등본상의 회사성립연월일)
-						.build());
-
-				//파일생성 및 전송
-				ImageCreateAndSend(user.cardCompany(), 1520, 1520 + yyyyMm.substring(0, 4), strResultTemp, user.corp().resCompanyIdentityNo());
-			}
-		});
-		return null;
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(BusinessResponse.Normal.builder().build())
+				.data(jsonObjects.toString()).build());
 	}
 
 
