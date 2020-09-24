@@ -168,8 +168,8 @@ public class CommonCardService {
 		try {
 			String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
 
-
-			if (file.getSize() <= STOCKHOLDER_FILE_SIZE && Arrays.asList(STOCKHOLDER_FILE_TYPE).contains(FilenameUtils.getExtension(fileName))) {
+			if (file.getSize() <= STOCKHOLDER_FILE_SIZE && Arrays.asList(STOCKHOLDER_FILE_TYPE)
+					.contains(FilenameUtils.getExtension(fileName).toLowerCase())) {
 				gwUploadService.upload(cardInfo.cardCompany(), uploadFile, gwFileCode, licenseNo);
 				sendGwUpload = true;
 			} else {
