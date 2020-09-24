@@ -246,5 +246,20 @@ public class ConnectedMngDto {
 		@NotEmpty
 		private String resCompanyPhoneNumber;
 	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public class CorpInfoManual {
+		@ApiModelProperty("결산기준(년월)")
+		private String resClosingStandards;
+
+		@ApiModelProperty("connectedId")
+		private String connectedId;
+
+		@ApiModelProperty("idxCorp")
+		private Long idxCorp;
+	}
 }
 

@@ -170,12 +170,11 @@ public class CodefController {
 	@PostMapping(URI.ACCOUNT_REGISTER_CORP_MANUAL)
 	public ResponseEntity RegisterCorpInfo(
 			@ApiIgnore @CurrentUser CustomUser user,
-			@RequestBody ConnectedMngDto.CorpInfo dto,
-			@RequestParam(required = false) String connectedId){
+			@RequestBody ConnectedMngDto.CorpInfoManual dto ){
 		if (log.isInfoEnabled()) {
 			log.info("([ Codef RegisterCorpInfo ]) $user='{}' $dto='{}'", user, dto);
 		}
-		return service.RegisterCorpInfo(dto, user.idx(), connectedId);
+		return service.RegisterCorpInfoManual(dto, user.idx() );
 	}
 
 
