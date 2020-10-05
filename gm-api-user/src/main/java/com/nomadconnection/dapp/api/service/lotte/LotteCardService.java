@@ -521,12 +521,13 @@ public class LotteCardService {
 				.setTkpNaddYn("N");
 
 		if (!ObjectUtils.isEmpty(dto.getGreenCount()) && !ObjectUtils.isEmpty(dto.getBlackCount())) {
-			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.GREEN, getCardReqCount(dto.getGreenCount()), 1);
-			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK, getCardReqCount(dto.getBlackCount()), 2);
-		} else if (!ObjectUtils.isEmpty(dto.getGreenCount())) {
-			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.GREEN, getCardReqCount(dto.getGreenCount()), 1);
-		} else {
-			d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK, getCardReqCount(dto.getBlackCount()), 1);
+			int seq = 1;
+			if (dto.getGreenCount() > 0) {
+				d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.GREEN, getCardReqCount(dto.getGreenCount()), seq);
+				seq++;
+			} else if (dto.getGreenCount() > 0) {
+				d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK, getCardReqCount(dto.getBlackCount()), seq);
+			}
 		}
 
 		return repoD1100.save(d1100);
