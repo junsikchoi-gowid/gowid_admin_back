@@ -39,6 +39,9 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import static com.nomadconnection.dapp.core.domain.common.IssuanceProgressType.*;
+import static com.nomadconnection.dapp.core.domain.common.IssuanceStatusType.SUCCESS;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -313,7 +316,7 @@ public class RiskService {
 		}
 
 		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(user.idx()).orElse(null);
-		if(issuanceProgress != null && issuanceProgress.getProgress().name().equals("P_1800") && issuanceProgress.getStatus().name().equals("SUCCESS")){
+		if(issuanceProgress != null && isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())){
 			riskconfig.cardIssuance(true);
 			risk.cardIssuance(true);
 		}
@@ -575,7 +578,7 @@ public class RiskService {
 		}
 
 		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(user.idx()).orElse(null);
-		if(issuanceProgress != null && issuanceProgress.getProgress().name().equals("P_1800") && issuanceProgress.getStatus().name().equals("SUCCESS")){
+		if(issuanceProgress != null && isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())){
 			riskconfig.cardIssuance(true);
 			risk.cardIssuance(true);
 		}
@@ -630,6 +633,11 @@ public class RiskService {
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(riskConfig).build());
 	}
+
+	private boolean isIssuanceSuccess(String progress, String status){
+		return (P_1800.equals(progress) || LP_ZIP.equals(progress)) && SUCCESS.equals(status);
+	}
+
 }
 
 
