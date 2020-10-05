@@ -37,6 +37,7 @@ public class UserController {
 		public static final String INFO = "/info";
 		public static final String REGISTRATION_CONSENT = "/registration/consent";
 		public static final String ISSUANCE_PROGRESS = "/issuance-progress";
+		public static final String LIMIT_REVIEW = "/limit-review";
 	}
 
 	private final UserService service;
@@ -329,5 +330,16 @@ public class UserController {
 		return service.issuanceProgress(user.idx());
 	}
 
+	@ApiOperation(value = "한도 재심사 요청 ", notes = "### Remarks ")
+	@PostMapping(URI.LIMIT_REVIEW)
+	public ResponseEntity limitReview(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody UserDto.LimitReview dto
+	) {
+		if (log.isInfoEnabled()) {
+			log.info("([ limitReview ]) $user='{}' $dto='{}'", user, dto);
+		}
 
+		return service.limitReview(dto);
+	}
 }

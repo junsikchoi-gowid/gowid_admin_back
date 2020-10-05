@@ -196,4 +196,27 @@ public class UserDto {
 		private String cardCompany;
 	}
 
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class LimitReview {
+		@ApiModelProperty("카드한도")
+		private Long cardLimit;
+
+		@ApiModelProperty("계좌정보")
+		private String accountInfo;
+
+		@ApiModelProperty("기타사항")
+		private String etc;
+
+		@ApiModelProperty("휴대폰안내")
+		private Boolean enablePhone;
+
+		@ApiModelProperty("이메일안내")
+		private Boolean enableEmail;
+
+		@ApiModelProperty("이메일")
+		private String email;
+	}
 }
