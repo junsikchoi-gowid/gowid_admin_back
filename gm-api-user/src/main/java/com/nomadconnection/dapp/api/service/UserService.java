@@ -207,7 +207,7 @@ public class UserService {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 			helper.setFrom(config.getSender());
 			helper.setTo(dto.getEmail());
-			helper.setSubject("[MyCard] 멤버초대");
+			helper.setSubject("[Gowid] 멤버초대");
 			helper.setText("Email: " + dto.getEmail() + ", VerificationCode: " + code, false);
 		};
 		sender.send(preparator);
@@ -526,7 +526,7 @@ public class UserService {
 					}
 					helper.setFrom(config.getSender());
 					helper.setTo(config.getSender());
-					helper.setSubject("신한 법인카드 발급 신청");
+					helper.setSubject("[Gowid] 신한 법인카드 발급 신청");
 					helper.setText(templateEngine.process("issuance-gowid", context), true);
 				}
 			};
@@ -543,7 +543,7 @@ public class UserService {
 					}
 					helper.setFrom(config.getSender());
 					helper.setTo(user.email());
-					helper.setSubject("Gowid 신한 법인카드 발급 안내");
+					helper.setSubject("[Gowid] 신한 법인카드 발급 안내");
 					helper.setText(templateEngine.process("issuance-user", context), true);
 				}
 			};
@@ -791,5 +791,65 @@ public class UserService {
 			return null;
 		}
 		return !ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null;
+	}
+
+	/**
+	 * 사용자 정보 조회
+	 *
+	 * @param dto
+	 */
+
+	public ResponseEntity limitReview(UserDto.LimitReview dto) {
+		//	메일 발송
+
+		String guidance = "";
+		if (dto.getEnablePhone() && dto.getEnableEmail()) {
+			guidance = "휴대폰 / 이메일";
+		} else if (dto.getEnableEmail()) {
+			guidance = "이메일";
+		} else if (dto.getEnablePhone()) {
+            guidance = "휴대폰";
+        }
+
+		final String finalGuidance = guidance;
+
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			{
+				Context context = new Context();
+				{
+					context.setVariable("cardLimit", GowidUtils.getEmptyStringToString(dto.getCardLimit()));
+					context.setVariable("accountInfo", GowidUtils.getEmptyStringToString(dto.getAccountInfo()));
+					context.setVariable("etc", GowidUtils.getEmptyStringToString(dto.getEtc()));
+					context.setVariable("guidance", GowidUtils.getEmptyStringToString(finalGuidance));
+				}
+				helper.setFrom(config.getSender());
+				helper.setTo(dto.getEmail());
+				helper.setSubject("[Gowid] 한도 재심사 요청 안내");
+				helper.setText(templateEngine.process("limit-review", context), true);
+			}
+		};
+		sender.send(preparator);
+
+		MimeMessagePreparator preparatorSupport = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			{
+				Context context = new Context();
+				{
+					context.setVariable("email", GowidUtils.getEmptyStringToString(dto.getEmail()));
+					context.setVariable("cardLimit", GowidUtils.getEmptyStringToString(dto.getCardLimit()));
+					context.setVariable("accountInfo", GowidUtils.getEmptyStringToString(dto.getAccountInfo()));
+					context.setVariable("etc", GowidUtils.getEmptyStringToString(dto.getEtc()));
+					context.setVariable("guidance", GowidUtils.getEmptyStringToString(finalGuidance));
+				}
+				helper.setFrom(config.getSender());
+				helper.setTo(config.getSender());
+				helper.setSubject("[Gowid] 한도 재심사 요청 안내");
+				helper.setText(templateEngine.process("limit-review-support", context), true);
+			}
+		};
+		sender.send(preparatorSupport);
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().build());
 	}
 }

@@ -125,7 +125,7 @@ public class AuthService {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 			helper.setFrom(config.getSender());
 			helper.setTo(email);
-			helper.setSubject("[MyCard] 비밀번호 재설정");
+			helper.setSubject("[Gowid] 비밀번호 재설정");
 			helper.setText("인증키: " + token.getJwt(), false);
 		};
 		sender.send(preparator);
