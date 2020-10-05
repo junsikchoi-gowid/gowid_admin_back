@@ -251,7 +251,7 @@ public class ConnectedMngDto {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
-	public class CorpInfoManual {
+	public static class CorpInfoManual {
 		@ApiModelProperty("결산기준(년월)")
 		private String resClosingStandards;
 
