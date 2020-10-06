@@ -525,7 +525,7 @@ public class LotteCardService {
 			if (dto.getGreenCount() > 0) {
 				d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.GREEN, getCardReqCount(dto.getGreenCount()), seq);
 				seq++;
-			} else if (dto.getGreenCount() > 0) {
+			} else if (dto.getBlackCount() > 0) {
 				d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK, getCardReqCount(dto.getBlackCount()), seq);
 			}
 		}
