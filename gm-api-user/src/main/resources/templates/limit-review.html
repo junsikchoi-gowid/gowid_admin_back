@@ -1,5 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:th="http://www.w3.org/1999/xhtml"
+>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Gowid</title>
@@ -205,7 +208,8 @@
                         color: #333333;
                       "
                     >
-                      안녕하세요, <b>[[회원이름]]</b>님.<br />
+                      안녕하세요,
+                      <b><span th:text="${userName}"></span></b>님.<br />
                       스타트업을 위한 법인카드 서비스를 제공하는 고위드입니다.
                     </td>
                   </tr>
@@ -258,9 +262,9 @@
                         border-radius: 8px;
                         background-color: #e5f5bf;
                         padding-top: 24px;
-                        padding-right: 0;
+                        padding-right: 16px;
                         padding-bottom: 24px;
-                        padding-left: 0;
+                        padding-left: 16px;
                         text-align: center;
                       "
                     >
@@ -287,7 +291,8 @@
                           text-align: center;
                           color: #333333;
                         "
-                        >기존에 사용하는 카드 한도: [<span th:text="${cardLimit}"></span>]</span
+                        >기존에 사용하는 카드 한도:
+                        <span th:text="${cardLimit}"></span> 만원</span
                       >
                       <br />
                       <span
@@ -302,7 +307,8 @@
                           color: #333333;
                         "
                       >
-                        연결되지 않은 계좌 정보: [<span th:text="${accountInfo}"></span>]</span
+                        연결되지 않은 계좌 정보:
+                        <span th:text="${accountInfo}"></span></span
                       ><br />
 
                       <span
@@ -316,7 +322,7 @@
                           text-align: center;
                           color: #333333;
                         "
-                        >기타 사항: [<span th:text="${etc}"></span>]</span
+                        >기타 사항: <span th:text="${etc}"></span></span
                       ><br />
                       <span
                         style="
@@ -329,7 +335,8 @@
                           text-align: center;
                           color: #333333;
                         "
-                        >안내 받을 수단: [<span th:text="${guidance}"></span>]</span
+                        >안내 받을 수단:
+                        <span th:text="${guidance}"></span></span
                       ><br />
                     </td>
                   </tr>

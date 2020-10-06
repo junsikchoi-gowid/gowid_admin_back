@@ -340,6 +340,6 @@ public class UserController {
 			log.info("([ limitReview ]) $user='{}' $dto='{}'", user, dto);
 		}
 
-		return service.limitReview(dto);
+		return service.limitReview(user.idx(), dto);
 	}
 }
