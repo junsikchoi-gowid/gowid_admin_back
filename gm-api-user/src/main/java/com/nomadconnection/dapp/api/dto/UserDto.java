@@ -216,7 +216,10 @@ public class UserDto {
 		@ApiModelProperty("이메일안내")
 		private Boolean enableEmail;
 
-		@ApiModelProperty("이메일")
-		private String email;
+		@ApiModelProperty("법인명")
+		private String companyName;
+
+		@ApiModelProperty("희망한도")
+		private String hopeLimit;
 	}
 }

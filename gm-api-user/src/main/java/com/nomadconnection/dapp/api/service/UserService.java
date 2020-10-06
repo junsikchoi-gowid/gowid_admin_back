@@ -799,7 +799,7 @@ public class UserService {
 	 * @param dto
 	 */
 
-	public ResponseEntity limitReview(UserDto.LimitReview dto) {
+	public ResponseEntity limitReview(Long idxUser, UserDto.LimitReview dto) {
 		//	메일 발송
 
 		String guidance = "";
@@ -812,19 +812,23 @@ public class UserService {
         }
 
 		final String finalGuidance = guidance;
+		User user = repo.findById(idxUser).orElseThrow(
+				() -> UserNotFoundException.builder().build()
+		);
 
 		MimeMessagePreparator preparator = mimeMessage -> {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 			{
 				Context context = new Context();
 				{
+					context.setVariable("userName",  GowidUtils.getEmptyStringToString(user.name()));
 					context.setVariable("cardLimit", GowidUtils.getEmptyStringToString(dto.getCardLimit()));
 					context.setVariable("accountInfo", GowidUtils.getEmptyStringToString(dto.getAccountInfo()));
 					context.setVariable("etc", GowidUtils.getEmptyStringToString(dto.getEtc()));
 					context.setVariable("guidance", GowidUtils.getEmptyStringToString(finalGuidance));
 				}
 				helper.setFrom(config.getSender());
-				helper.setTo(dto.getEmail());
+				helper.setTo(user.email());
 				helper.setSubject("[Gowid] 한도 재심사 요청 안내");
 				helper.setText(templateEngine.process("limit-review", context), true);
 			}
@@ -836,11 +840,13 @@ public class UserService {
 			{
 				Context context = new Context();
 				{
-					context.setVariable("email", GowidUtils.getEmptyStringToString(dto.getEmail()));
+					context.setVariable("email", GowidUtils.getEmptyStringToString(user.email()));
 					context.setVariable("cardLimit", GowidUtils.getEmptyStringToString(dto.getCardLimit()));
 					context.setVariable("accountInfo", GowidUtils.getEmptyStringToString(dto.getAccountInfo()));
 					context.setVariable("etc", GowidUtils.getEmptyStringToString(dto.getEtc()));
 					context.setVariable("guidance", GowidUtils.getEmptyStringToString(finalGuidance));
+					context.setVariable("companyName", GowidUtils.getEmptyStringToString(dto.getCompanyName()));
+					context.setVariable("hopeLimit", GowidUtils.getEmptyStringToString(dto.getHopeLimit()));
 				}
 				helper.setFrom(config.getSender());
 				helper.setTo(config.getSender());
