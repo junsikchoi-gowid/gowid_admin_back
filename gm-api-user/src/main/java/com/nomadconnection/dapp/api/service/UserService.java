@@ -800,8 +800,6 @@ public class UserService {
 	 */
 
 	public ResponseEntity limitReview(Long idxUser, UserDto.LimitReview dto) {
-		//	메일 발송
-
 		String guidance = "";
 		if (dto.getEnablePhone() && dto.getEnableEmail()) {
 			guidance = "휴대폰 / 이메일";
@@ -849,7 +847,8 @@ public class UserService {
 					context.setVariable("hopeLimit", GowidUtils.getEmptyStringToString(dto.getHopeLimit()));
 				}
 				helper.setFrom(config.getSender());
-				helper.setTo(config.getSender());
+				String[] receivers = {config.getSender(), config.getRiskteam()};
+				helper.setTo(receivers);
 				helper.setSubject("[Gowid] 한도 재심사 요청 안내");
 				helper.setText(templateEngine.process("limit-review-support", context), true);
 			}
