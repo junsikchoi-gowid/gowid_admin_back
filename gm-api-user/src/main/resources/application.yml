@@ -66,6 +66,7 @@ spring:
     endtime: 0 0 6 * * *
   mail:
     sender: gowid <support@gowid.com>
+    riskteam: gowid <risk@gowid.com>
     host: email-smtp.us-west-2.amazonaws.com
     port: 587
     username: AKIAXD7XVDFHCXKO7DE5
@@ -130,6 +131,7 @@ spring:
     endtime: 0 0 6 * * *
   mail:
     sender: gowid <support@gowid.com>
+    riskteam: gowid <risk@gowid.com>
     host: email-smtp.us-west-2.amazonaws.com
     port: 587
     username: AKIAXD7XVDFHCXKO7DE5
@@ -194,6 +196,7 @@ spring:
     endtime: 0 0 6 * * *
   mail:
     sender: gowid <support@gowid.com>
+    riskteam: gowid <risk@gowid.com>
     host: email-smtp.us-west-2.amazonaws.com
     port: 587
     username: AKIAXD7XVDFHCXKO7DE5
