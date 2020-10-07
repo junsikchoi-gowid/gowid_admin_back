@@ -1,0 +1,765 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!--[if !mso]><!-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--<![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gowid</title>
+    <style type="text/css">
+      body {
+        margin: 0 !important;
+        padding: 0;
+        background-color: #f8f8f8;
+      }
+      table {
+        border-spacing: 0;
+        font-family: "Noto Sans KR", sans-serif !important;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 24px;
+        letter-spacing: -0.18px;
+        color: #333333;
+      }
+      td {
+        padding: 0;
+      }
+      img {
+        border: 0;
+      }
+      div[style*="margin: 16px 0"] {
+        margin: 0 !important;
+      }
+      p {
+        margin: 0;
+      }
+      .wrapper {
+        width: 100%;
+        padding: 40px 0 32px;
+        table-layout: fixed;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        background-color: #f8f8f8;
+      }
+      .webkit {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .outer {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 600px;
+      }
+      .padding-top-24 {
+        padding-top: 24px;
+      }
+      .padding-bottom-8 {
+        padding-bottom: 8px;
+      }
+      .content-style {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 600px;
+      }
+      .section-title {
+        font-size: 16px;
+        font-weight: bold;
+        line-height: 1.5;
+        letter-spacing: -0.27px;
+        color: #333333;
+      }
+      .title {
+        padding-top: 40px;
+        padding-bottom: 16px;
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 24px;
+        letter-spacing: -0.33px;
+        color: #333333;
+      }
+      .divide {
+        width: 100%;
+        height: 1px;
+        margin: 0;
+        border: none;
+        background-color: #e6e6e6;
+      }
+      .h1 {
+        margin-bottom: 16px;
+        font-size: 16px;
+        font-weight: bold;
+        line-height: 16px;
+        letter-spacing: -0.21px;
+        color: #333333;
+      }
+      .content-end {
+        padding-top: 16px;
+      }
+      .footer {
+        padding-top: 32px;
+      }
+      .padding-right-8 {
+        padding-right: 8px;
+      }
+      .footer-table {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 288px;
+
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 20px;
+        letter-spacing: -0.15px;
+        text-align: center;
+        color: #787878;
+      }
+      .footer-border {
+        line-height: 14px;
+        padding-left: 8px;
+        border-right-width: 1px;
+        border-right-style: solid;
+        border-right-color: #e6e6e6;
+      }
+      .footer-text-dark {
+        margin: 0 auto;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 20px;
+        letter-spacing: -0.15px;
+        text-align: center;
+        color: #333333;
+      }
+      .footer-text-dark a {
+        text-decoration: none;
+        color: #333333;
+      }
+      .footer-gowid {
+        font-weight: 600;
+      }
+      .footer-consent {
+        margin: 0 auto;
+      }
+      .footer-consent a {
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 20px;
+        letter-spacing: -0.15px;
+        text-align: center;
+        color: #787878;
+      }
+      .footer-consent a:visited {
+        color: #787878;
+      }
+      .box-title {
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 1.5;
+        letter-spacing: -0.2px;
+        color: #333333;
+      }
+      .box-content {
+        margin-bottom: 8px;
+        padding: 8px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    </style>
+    <!--[if (gte mso 9)|(IE)]>
+      <style type="text/css">
+        table {
+          border-collapse: collapse !important;
+        }
+      </style>
+    <![endif]-->
+  </head>
+  <body
+    style="
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      margin-right: 0 !important;
+      margin-left: 0 !important;
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-right: 0;
+      padding-left: 0;
+      background-color: #f8f8f8;
+    "
+  >
+    <center
+      class="wrapper"
+      style="
+        width: 100%;
+        padding-top: 40px;
+        padding-bottom: 32px;
+        padding-right: 0;
+        padding-left: 0;
+        table-layout: fixed;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        background-color: #f8f8f8;
+      "
+    >
+      <div
+        class="webkit"
+        style="
+          max-width: 600px;
+          margin-top: 0;
+          margin-bottom: 0;
+          margin-right: auto;
+          margin-left: auto;
+        "
+      >
+        <!--[if (gte mso 9)|(IE)]>
+        <table width="600" align="center" style="border-spacing:0;font-family:'Noto Sans KR', sans-serif !important;font-size:14px;font-weight:400;line-height:24px;letter-spacing:-0.18px;color:#333333;" >
+        <tr>
+        <td style="padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;" >
+        <![endif]-->
+        <table
+          class="outer"
+          align="center"
+          style="
+            border-spacing: 0;
+            font-family: 'Noto Sans KR', sans-serif !important;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 24px;
+            letter-spacing: -0.18px;
+            color: #333333;
+            margin-top: 0;
+            margin-bottom: 0;
+            margin-right: auto;
+            margin-left: auto;
+            width: 100%;
+            max-width: 600px;
+          "
+        >
+          <!-- 본문 영역 -->
+          <tr>
+            <td
+              style="
+                padding-top: 0;
+                padding-bottom: 0;
+                padding-right: 0;
+                padding-left: 0;
+              "
+            >
+              <table
+                class="content-style"
+                align="cener"
+                style="
+                  border-spacing: 0;
+                  font-family: 'Noto Sans KR', sans-serif !important;
+                  font-size: 14px;
+                  font-weight: 400;
+                  line-height: 24px;
+                  letter-spacing: -0.18px;
+                  color: #333333;
+                  margin-top: 0;
+                  margin-bottom: 0;
+                  margin-right: auto;
+                  margin-left: auto;
+                  width: 100%;
+                  max-width: 600px;
+                  padding-top: 40px;
+                  padding-bottom: 40px;
+                  padding-right: 32px;
+                  padding-left: 32px;
+                  border-radius: 16px;
+                  border-width: 1px;
+                  border-style: solid;
+                  border-color: #e6e6e6;
+                  background-color: #ffffff;
+                "
+              >
+                <tr>
+                  <td
+                    class="logo-section"
+                    style="
+                      padding-top: 0;
+                      padding-bottom: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <img
+                      src="https://www.gowid.com/img/gowid-png.png"
+                      alt="gowid"
+                      style="width: 67px; height: 25px; vertical-align: top"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    class="title-section"
+                    style="
+                      padding-top: 0;
+                      padding-bottom: 24px;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <p
+                      class="title"
+                      style="
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        margin-right: 0;
+                        margin-left: 0;
+                        padding-top: 40px;
+                        padding-bottom: 16px;
+                        font-size: 20px;
+                        font-weight: 600;
+                        line-height: 24px;
+                        letter-spacing: -0.33px;
+                        color: #333333;
+                        border-bottom: 1px solid #e6e6e6;
+                      "
+                    >
+                      발주서
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="section-title">담당자 정보</td>
+                </tr>
+                <tr>
+                  <td style="padding-top: 16px; padding-bottom: 24px">
+                    <table
+                      class="outer"
+                      align="center"
+                      style="
+                        border-spacing: 0;
+                        font-family: 'Noto Sans KR', sans-serif !important;
+                        font-size: 14px;
+                        font-weight: 400;
+                        line-height: 24px;
+                        letter-spacing: -0.18px;
+                        color: #333333;
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        margin-right: auto;
+                        margin-left: auto;
+                        width: 100%;
+                        max-width: 600px;
+                      "
+                    >
+                      <tr>
+                        <div style="display: flex">
+                          <div style="width: 100%">이름 :</div>
+                          <div style="width: 100%"><span th:text="${customerName}"> (*담당자 이름)</span></div>
+                        </div>
+                      </tr>
+                      <tr>
+                        <div style="display: flex">
+                          <div style="width: 100%">전화번호 :</div>
+                          <div style="width: 100%"><span th:text="${customerMdn}"> (*담당자 연락처)</span></div>
+                        </div>
+                      </tr>
+                      <tr>
+                        <div style="display: flex">
+                          <div style="width: 100%">법인명 :</div>
+                          <div style="width: 100%"><span th:text="${companyName}"> (*법인명)</span></div>
+                        </div>
+                      </tr>
+                      <tr>
+                        <div style="display: flex">
+                          <div style="width: 100%">부서명 :</div>
+                          <div style="width: 100%"><span th:text="${customerDeptName}"> (*부서명)</span></div>
+                        </div>
+                      </tr>
+                      <tr>
+                        <div style="display: flex">
+                          <div style="width: 100%">주소 :</div>
+                          <div style="width: 100%"><span th:text="${companyAddr}"> (*주소)</span></div>
+                        </div>
+                      </tr>
+                      <tr>
+                        <div style="display: flex">
+                          <div style="width: 100%">이메일주소 :</div>
+                          <div style="width: 100%"><span th:text="${customerEmail}"> (*담당자 이메일)</span></div>
+                        </div>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="section-title">결제 정보</td>
+                </tr>
+                <tr>
+                  <td style="padding-top: 16px; padding-bottom: 24px">
+                    <table
+                      class="outer"
+                      align="center"
+                      style="
+                        border-spacing: 0;
+                        font-family: 'Noto Sans KR', sans-serif !important;
+                        font-size: 14px;
+                        font-weight: 400;
+                        line-height: 24px;
+                        letter-spacing: -0.18px;
+                        color: #333333;
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        margin-right: auto;
+                        margin-left: auto;
+                        width: 100%;
+                        max-width: 600px;
+                      "
+                    >
+                      <tr>
+                        <div style="display: flex">
+                          <div style="width: 100%">제품 :</div>
+                          <div style="width: 100%"><span th:text="${benefitName}"> (*제품명)</span></div>
+                        </div>
+                      </tr>
+                      <tr>
+                        <div style="display: flex">
+                          <div style="width: 100%">결제일시 :</div>
+                          <div style="width: 100%"><span th:text="${paidAt}"> (*결제 일시)</span></div>
+                        </div>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style="
+                      padding-bottom: 24px;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <table
+                      style="
+                        border-radius: 8px;
+                        background-color: #e5f5bf;
+                        padding: 16px 20px;
+                        width: 100%;
+                        max-width: 600px;
+                      "
+                    >
+                      <div th:each="paymentItem : ${paymentItems}">
+                        <tr>
+                          <td
+                                  style="
+                              font-family: NotoSansKR;
+                              font-size: 16px;
+                              font-weight: 500;
+                              line-height: 1.5;
+                              letter-spacing: -0.2px;
+                              color: #333333;
+                            "
+                          >
+                            <span th:text="${paymentItem.benefitItem.type}"> (*상품명)</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>수량 : <span style="font-weight: 600" th:text="${paymentItem.quantity}">(*수량)</span></td>
+                          <td
+                                  style="
+                              font-family: NotoSansKR;
+                              font-size: 14px;
+                              line-height: 1.71;
+                              letter-spacing: -0.18px;
+                              text-align: right;
+                              color: #969696;
+                            "
+                          >
+                            ₩ <span th:text="${#numbers.formatInteger(paymentItem.price, 3, 'COMMA')}"> (*금액)</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="height: 16px"></td>
+                        </tr>
+                      </div>
+                      <tr>
+                        <td>최종 결제 금액</td>
+                        <td
+                          style="
+                            font-size: 32px;
+                            font-weight: bold;
+                            line-height: 1.25;
+                            letter-spacing: -0.6px;
+                            color: #5bc500;
+                            text-align: right;
+                          "
+                        >
+                          ₩ <span th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA')}"> (*최종 결제 금액)</span>
+                        </td>
+                      </tr>
+                      <tr></tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer 영역 -->
+          <tr>
+            <td
+              class="footer"
+              style="
+                padding-bottom: 0;
+                padding-right: 0;
+                padding-left: 0;
+                padding-top: 32px;
+              "
+            >
+              <table
+                class="footer-table"
+                align="center"
+                style="
+                  border-spacing: 0;
+                  font-family: 'Noto Sans KR', sans-serif !important;
+                  margin-top: 0;
+                  margin-bottom: 0;
+                  margin-right: auto;
+                  margin-left: auto;
+                  width: 100%;
+                  max-width: 288px;
+                  font-size: 12px;
+                  font-weight: 400;
+                  line-height: 20px;
+                  letter-spacing: -0.15px;
+                  text-align: center;
+                  color: #787878;
+                "
+              >
+                <tr>
+                  <td
+                    class="padding-bottom-8"
+                    style="
+                      padding-top: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                      padding-bottom: 8px;
+                    "
+                  >
+                    <table
+                      class="footer-text-dark"
+                      align="center"
+                      style="
+                        border-spacing: 0;
+                        margin-top: 0;
+                        margin-right: auto;
+                        margin-bottom: 0;
+                        margin-left: auto;
+                        font-family: 'Noto Sans KR', sans-serif !important;
+                        font-size: 12px;
+                        font-weight: 400;
+                        line-height: 20px;
+                        letter-spacing: -0.15px;
+                        text-align: center;
+                        color: #333333;
+                      "
+                    >
+                      <tr>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                            font-weight: 600;
+                          "
+                        >
+                          <a
+                            href="https://gowid.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="footer-gowid"
+                          >
+                            (주)고위드 </a
+                          ><span
+                            class="footer-border"
+                            style="
+                              padding-left: 8px;
+                              border-right-width: 1px;
+                              border-right-style: solid;
+                              border-right-color: #e6e6e6;
+                            "
+                          ></span>
+                        </td>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                        >
+                          <a
+                            href="mailto:support@gowid.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="text-decoration: none; color: #333333"
+                            >support@gowid.com</a
+                          >
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    class="padding-bottom-8"
+                    style="
+                      padding-top: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                      padding-bottom: 8px;
+                    "
+                  >
+                    <table
+                      class="footer-consent"
+                      align="center"
+                      style="
+                        border-spacing: 0;
+                        margin-top: 0;
+                        margin-right: auto;
+                        margin-left: auto;
+                        margin-bottom: 0;
+                        font-family: 'Noto Sans KR', sans-serif !important;
+                        font-size: 14px;
+                        font-weight: 400;
+                        line-height: 24px;
+                        letter-spacing: -0.18px;
+                        color: #333333;
+                      "
+                    >
+                      <tr>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                        >
+                          <a
+                            href="https://gowid.com/support/private"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="
+                              text-decoration: none;
+                              font-size: 12px;
+                              font-weight: 400;
+                              line-height: 20px;
+                              letter-spacing: -0.15px;
+                              text-align: center;
+                              color: #787878;
+                            "
+                            >개인정보처리방침<span
+                              class="footer-border"
+                              style="
+                                padding-left: 8px;
+                                border-right-width: 1px;
+                                border-right-style: solid;
+                                border-right-color: #e6e6e6;
+                              "
+                            ></span
+                          ></a>
+                        </td>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                        >
+                          <a
+                            href="https://gowid.com/support/terms"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="
+                              text-decoration: none;
+                              font-size: 12px;
+                              font-weight: 400;
+                              line-height: 20px;
+                              letter-spacing: -0.15px;
+                              text-align: center;
+                              color: #787878;
+                            "
+                            >고위드 이용약관<span
+                              class="footer-border"
+                              style="
+                                padding-left: 8px;
+                                border-right-width: 1px;
+                                border-right-style: solid;
+                                border-right-color: #e6e6e6;
+                              "
+                            ></span
+                          ></a>
+                        </td>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                        >
+                          <a
+                            href="https://gowid.com/support/unsubscribe"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="
+                              text-decoration: none;
+                              font-size: 12px;
+                              font-weight: 400;
+                              line-height: 20px;
+                              letter-spacing: -0.15px;
+                              text-align: center;
+                              color: #787878;
+                            "
+                            >수신거부</a
+                          >
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    style="
+                      padding-top: 0;
+                      padding-bottom: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                    "
+                  >
+                    <p
+                      style="
+                        margin-top: 0;
+                        margin-bottom: 0;
+                        margin-right: 0;
+                        margin-left: 0;
+                      "
+                    >
+                      서울특별시 강남구 도산대로 317 호림아트센터 14층
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        <!--[if (gte mso 9)|(IE)]>
+        </td>
+        </tr>
+        </table>
+        <![endif]-->
+      </div>
+    </center>
+  </body>
+</html>

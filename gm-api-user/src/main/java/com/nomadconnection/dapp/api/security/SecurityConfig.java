@@ -138,6 +138,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_PW + 2).permitAll()
                 .antMatchers(BankController.URI.BASE + BankController.URI.MONTH_BALANCE_EXT).permitAll()
                 .antMatchers(ShinhanCardController.URI.BASE + ShinhanCardController.URI.RESUME).permitAll()
+                .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFITS).permitAll()
+                .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFIT).permitAll()
 //                .antMatchers(OldShinhanCardController.URI.BASE + OldShinhanCardController.URI.RESUME).permitAll() //TODO: 롯데카드 비대면 prod에 merge 후 삭제예정
                 .anyRequest().authenticated();
     }
