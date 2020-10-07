@@ -186,6 +186,11 @@ slack:
   url: https://hooks.slack.com/services/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
   enable: true
 
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: debug
+
 ---
 
 spring:
