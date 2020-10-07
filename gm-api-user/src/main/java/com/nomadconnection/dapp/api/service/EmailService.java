@@ -5,15 +5,19 @@ import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.repository.common.EmailRepository;
 import com.nomadconnection.dapp.core.dto.EmailDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -98,5 +102,41 @@ public class EmailService {
 			}
 		};
 		sender.send(preparator);
+	}
+
+	/**
+	 * Send Benefit Payment Result Mail
+	 *
+	 * @param mailAttribute	Mail Attribute Map
+	 * @param emailTo		Send To
+	 * @param mailSubject	Mail Subject
+	 * @param mailTemplate	Mail Template (success: benefit-payment-success, order: benefit-payment-order, fail: benefit-payment-failed)
+	 */
+	public boolean sendBenefitResultMail(Map<String, Object> mailAttribute, String emailFrom, String emailTo, String mailSubject, String mailTemplate) {
+
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			{
+				Context context = new Context();
+				{
+					mailAttribute.forEach((attibuteName, attibuteValue)
+							-> context.setVariable(attibuteName, attibuteValue));
+				}
+				helper.setFrom(emailFrom);
+				helper.setCc(emailFrom);
+				helper.setTo(ObjectUtils.isEmpty(emailTo) ? emailConfig.getSender() : emailTo);
+				helper.setSubject(mailSubject);
+				helper.setText(templateEngine.process(mailTemplate, context), true);
+			}
+		};
+
+		try {
+			sender.send(preparator);
+		}catch(Exception e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
+
+		return true;
 	}
 }

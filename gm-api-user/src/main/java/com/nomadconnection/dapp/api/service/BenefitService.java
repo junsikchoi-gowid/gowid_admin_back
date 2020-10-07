@@ -2,12 +2,21 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.BenefitDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
-import com.nomadconnection.dapp.core.domain.etc.Benefit;
-import com.nomadconnection.dapp.core.domain.repository.etc.BenefitRepository;
+import com.nomadconnection.dapp.core.domain.benefit.*;
+import com.nomadconnection.dapp.core.domain.repository.benefit.BenefitItemRepository;
+import com.nomadconnection.dapp.core.domain.repository.benefit.BenefitPaymentHistoryRepository;
+import com.nomadconnection.dapp.core.domain.repository.benefit.BenefitPaymentItemRepository;
+import com.nomadconnection.dapp.core.domain.repository.benefit.BenefitRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.user.User;
+import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,8 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,94 +34,307 @@ public class BenefitService {
 
 	private final UserRepository repoUser;
 	private final BenefitRepository repoBenefit;
+	private final BenefitItemRepository repoBenefitItem;
+	private final BenefitPaymentHistoryRepository repoBenefitPaymentHistory;
+	private final BenefitPaymentItemRepository repoBenefitPaymentItem;
 
+	private final UserService userService;
 	private final AwsS3Service s3Service;
+	private final EmailService emailService;
+	private final AdminService adminService;
+
+	private final String GOWID_BENEFIT_EMAIL_ADDR = "commerce@gowid.com";
 
 	/**
-	 * 베네핏 생성
+	 * 베네핏 목록 조회
 	 *
-	 * @param idx_user 생성 User idx
-	 * @param dto      생성정보
-	 * @return 베네핏 정보
+	 * @return 베네핏 정보 목록
 	 */
-	@Transactional(rollbackFor = Exception.class)
-	public BenefitDto.BenefitRes createBenefit(Long idx_user, BenefitDto.BenefitReq dto) {
-		User user = findUser(idx_user);
-		// TODO: ROLE 필터
+	@Transactional(readOnly = true)
+	public ResponseEntity getBenefits(Pageable pageable) {
 
-		return BenefitDto.BenefitRes.from(repoBenefit.save(Benefit.builder()
-				.title(dto.getTitle())
-				.content(dto.getContent())
-				.summary(dto.getSummary())
-				.build()));
+		log.debug(">>>>> getBenefits.start");
+		Page<BenefitDto.BenefitRes> resBenefitPage = repoBenefit.findAllByDisabledFalseOrderByPriority(pageable).map(BenefitDto.BenefitRes::from);
+
+		return ResponseEntity.ok().body(
+				BusinessResponse.builder().data(resBenefitPage).build()
+		);
 	}
 
+
 	/**
-	 * 베네핏 파일 등록
+	 * 베네핏 항목 조회
 	 *
-	 * @param file        등록정보
-	 * @param idx_benefit Benefit idx
-	 * @return 베네핏 정보
+	 * @param idxBenefit 조회할 Benefit ID
+	 * @return 베네핏 항목
+	 */
+	@Transactional(readOnly = true)
+	public ResponseEntity getBenefit(Long idxBenefit) {
+
+		log.debug(">>>>> getBenefit.start");
+		return ResponseEntity.ok().body(
+				BusinessResponse.builder().data(
+						BenefitDto.BenefitRes.from(
+								findBenefit(idxBenefit)
+						)
+				).build()
+		);
+	}
+
+
+	/**
+	 * Benefit 결제 이력 저장
+	 *
+	 * @param dto	Benefit 결제 정보
+	 * @param userIdx	사용자 ID
+	 * @return 저장 결과
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public BenefitDto.BenefitRes uploadFile(MultipartFile file, Long idx_benefit) {
-		Benefit benefit = findBenefit(idx_benefit);
-		String fileName = UUID.randomUUID().toString();
-		try {
-			File uploadFile = new File(fileName);
-			FileOutputStream fos = new FileOutputStream(uploadFile);
-			fos.write(file.getBytes());
-			fos.close();
-			String s3Key = "benefit/" + idx_benefit + "/" + fileName;
-			String s3Link = s3Service.s3FileUpload(uploadFile, s3Key);
-			uploadFile.delete();
+	public ResponseEntity saveBenefitPaymentHistory(BenefitDto.BenefitPaymentHistoryReq dto, Long userIdx) {
 
-			return BenefitDto.BenefitRes.from(repoBenefit.save(benefit.fname(fileName)
-					.orgfname(file.getOriginalFilename())
-					.size(file.getSize()))
-					.s3Key(s3Key)
-					.s3Link(s3Link)
-			);
-		} catch (IOException e) {
-			e.printStackTrace();
+		log.info(">>>>> saveBenefitPaymentLog.start");
+
+		// 0. 해당 User 있는지 확인
+		User user = userService.getUser(userIdx);
+		log.debug("     >>> user check OK!");
+
+		// 1. 해당 Benefit이 있는지 확인
+		Benefit benefit = findBenefit(dto.getIdxBenefit());
+		log.debug("     >>> user benefit OK!");
+
+		// benefit 결제 내역 저장(benefitPaymentHistory, benefitPaymentItem)
+		BenefitPaymentHistory benefitPaymentHistory = saveBenefitPaymentHistory(user, benefit, dto);
+		List<BenefitPaymentItem> paymentItemList = saveBenefitPaymentItems(benefitPaymentHistory, dto);
+
+		/**
+		 * TODO: [FRUITSON] 메일 템플릿 수정 및 메일 전송 FLOW 확인 필요
+		 */
+		// 2. 결과 메일 전송
+		Map<String, Object> mailAttribute = this.getMailAttribute(benefitPaymentHistory, paymentItemList);
+		if(dto.getErrCode()) {
+
+			// 2.1. 결제 결과가 성공일 경우
+			// 2.1.1. 고객사에게 메일 전송
+			boolean isSuccessSendPaymentMail = emailService.sendBenefitResultMail(mailAttribute,
+																					BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
+																					dto.getCustomerEmail(),
+																					BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_EMAIL_TITLE.getValue(),
+																					BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_TEMPLATE.getValue());
+
+			// 2.1.2. 발주서 메일 전송
+			boolean isSuccessSendOrderMail = emailService.sendBenefitResultMail(mailAttribute,
+																					BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
+																					null,	// TODO: [FRUITSON] 플랜잇 메일 주소로 변경
+																					BenefitPaymentEmailType.BENEFIT_PAYMENT_ORDER_EMAIL_TITLE.getValue(),
+																					BenefitPaymentEmailType.BENEFIT_PAYMENT_ORDER_TEMPLATE.getValue());
+
+			// 메일 결과 저장
+			benefitPaymentHistory.sendPaymentMailErrCode(isSuccessSendPaymentMail ? 0 : 1).sendOrderMailErrCode(isSuccessSendOrderMail ? 0 : 1);
+
+		}else {
+			// 3. 결제 결과가 실패일 경우
+			// 3.1. 결과 실패 메일 전송
+			emailService.sendBenefitResultMail(mailAttribute,
+												BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
+												BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
+												BenefitPaymentEmailType.BENEFIT_PAYMENT_FAILED_EMAIL_TITLE.getValue(),
+												BenefitPaymentEmailType.BENEFIT_PAYMENT_FAILED_TEMPLATE.getValue());
 		}
-		return null;
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(BusinessResponse.Normal.builder()
+						.status(true)
+						.build())
+				.build());
 	}
 
 	/**
-	 * 베네핏 목록
+	 * Benefit 결제 이력 저장(to DB)
 	 *
-	 * @return 베네핏 정보 목록
+	 * @param user	사용자 정보
+	 * @param benefit	Benefit 정보
+	 * @param dto	Benefit 결제 정보
+	 * @return	Benefit 결제 정보
 	 */
-	@Transactional(readOnly = true)
-	public List<BenefitDto.BenefitRes> getBenefits() {
-		return repoBenefit.findAllByDisabledFalse().stream().map(BenefitDto.BenefitRes::from).collect(Collectors.toList());
+	BenefitPaymentHistory saveBenefitPaymentHistory(User user, Benefit benefit, BenefitDto.BenefitPaymentHistoryReq dto) {
+
+		BenefitPaymentHistory benefitPaymentHistory = BenefitPaymentHistory.builder()
+				.user(user)
+				.customerName(dto.getCustomerName())
+				.customerMdn(dto.getCustomerMdn())
+				.customerEmail(dto.getCustomerEmail())
+				.customerDeptName(dto.getCustomerDeptName())
+				.companyName(dto.getCompanyName())
+				.companyAddr(dto.getCompanyAddr())
+				.standardPrice(dto.getStandardPrice())
+				.totalPrice(dto.getTotalPrice())
+				.errCode(dto.getErrCode() ?  0 : 1)
+				.errMessage(dto.getErrMessage())
+				.paidAt(dto.getPaidAt())
+				.receiptUrl(dto.getReceiptUrl())
+				.impUid(dto.getImpUid())
+				.benefit(benefit)
+				.cardNum(dto.getCardNum())
+				.status(dto.getErrCode() ? BenefitStatusType.SUCCESS.getValue() : BenefitStatusType.FAILED.getValue())
+				.sendOrderMailErrCode(0)
+				.sendPaymentMailErrCode(0)
+				.build();
+		repoBenefitPaymentHistory.save(benefitPaymentHistory);
+
+		return benefitPaymentHistory;
 	}
 
 	/**
-	 * 베네핏 목록
+	 * Benefit 결제 Item 저장(to DB)
 	 *
-	 * @return 베네핏 정보 목록
+	 * @param benefitPaymentHistory	Benefit 결제 이력 정보
+	 * @param dto Benefit 결제 정보
+	 * @return	결제된 Benefit 항목 List
 	 */
-	@Transactional(readOnly = true)
-	public BenefitDto.BenefitRes getBenefit(Long idx_benefit) {
-		return BenefitDto.BenefitRes.from(findBenefit(idx_benefit));
+	List<BenefitPaymentItem> saveBenefitPaymentItems(BenefitPaymentHistory benefitPaymentHistory, BenefitDto.BenefitPaymentHistoryReq dto) {
+
+		List<BenefitPaymentItem> paymentItemList = new ArrayList<>();
+		dto.getItems().forEach(item -> {
+			BenefitPaymentItem benefitItem = BenefitPaymentItem.builder()
+					.benefitItem(findBenefitItem(item.getIdxBenefitItem()))
+					.benefitPaymentHistory(benefitPaymentHistory)
+					.quantity(item.getQuantity())
+					.price(item.getPrice())
+					.build();
+
+			repoBenefitPaymentItem.save(benefitItem);
+			paymentItemList.add(benefitItem);
+		});
+		return paymentItemList;
 	}
 
-	private User findUser(Long idx_user) {
-		return repoUser.findById(idx_user).orElseThrow(
+	/**
+	 * Benefit 결제 메일 전송을 위한 Attribute Map 셋팅
+	 *
+	 * @param benefitPaymentHistory	benefit 결제 정보
+	 * @param paymentItems 구매 항목 목록
+	 * @return Benefit 결제 메일 Attribute Map
+	 */
+	Map<String, Object> getMailAttribute(BenefitPaymentHistory benefitPaymentHistory, List<BenefitPaymentItem> paymentItems) {
+
+		Map<String, Object> mailAttributMap = new HashMap<>();
+
+		mailAttributMap.put("customerName", benefitPaymentHistory.customerName());			// 고객명
+		mailAttributMap.put("customerMdn", benefitPaymentHistory.customerMdn());			// 고객 연락처
+		mailAttributMap.put("customerEmail", benefitPaymentHistory.customerEmail());		// 고객 이메일
+		mailAttributMap.put("customerDeptName", benefitPaymentHistory.customerDeptName());	// 부서명
+
+		mailAttributMap.put("companyName", benefitPaymentHistory.companyName());			// 회사명
+		mailAttributMap.put("companyAddr", benefitPaymentHistory.companyAddr());			// 회사주소
+
+		mailAttributMap.put("benefitName", benefitPaymentHistory.benefit().name());		    // Benefit 이름
+		mailAttributMap.put("paidAt", benefitPaymentHistory.paidAt());						// 결제일
+
+		mailAttributMap.put("paymentItems", paymentItems);									// 결제 항목
+		mailAttributMap.put("totalPrice", benefitPaymentHistory.totalPrice());				// 최종 결제 금액
+
+		mailAttributMap.put("errMessage", benefitPaymentHistory.errMessage());				// 오류 메세지 (null 가능)
+
+		return mailAttributMap;
+	}
+
+
+	/**
+	 * Benefit 결제 목록 조회
+	 *
+	 * @param userIdx User ID
+	 * @param pageable Pageable
+	 * @return Benefit 결제 목록
+	 */
+	@Transactional(readOnly = true)
+	public ResponseEntity getBenefitPaymentHistories(Long userIdx, Pageable pageable) {
+
+		log.debug(">>>>> getBenefitPaymentHistories.start");
+
+		User user = userService.getUser(userIdx);
+		Page<BenefitDto.BenefitPaymentHistoryRes> resBenefitPaymentHistoryPage;
+
+		// 해당 사용자가 gowid admin이면 모든 이력 조회, 아니면 해당 사용자의 성공 이력만 조회
+		if(adminService.isGowidAdmin(userIdx)) {
+			resBenefitPaymentHistoryPage = repoBenefitPaymentHistory.findAll(pageable)
+					.map(BenefitDto.BenefitPaymentHistoryRes::from);
+		}else {
+			resBenefitPaymentHistoryPage = repoBenefitPaymentHistory.findAllByUserAndStatusOrderByPaidAtDesc(user,
+												pageable,
+												BenefitStatusType.SUCCESS.getValue())
+											.map(BenefitDto.BenefitPaymentHistoryRes::from);
+		}
+
+		return ResponseEntity.ok().body(
+				BusinessResponse.builder().data(resBenefitPaymentHistoryPage).build()
+		);
+	}
+
+	/**
+	 * Benefit 결제 내용 상세 조회
+	 *
+	 * @param idxBenefitPaymentHistory Benefit 결제 ID
+	 * @return Benefit 결제 상내 내용
+	 */
+	@Transactional(readOnly = true)
+	public ResponseEntity getBenefitPaymentHistory(Long idxBenefitPaymentHistory) {
+
+		log.debug(">>>>> getBenefitPaymentHistory.start");
+
+		return ResponseEntity.ok().body(
+				BusinessResponse.builder().data(
+						BenefitDto.BenefitPaymentHistoryRes.from(
+								findBenefitPaymentHistory(idxBenefitPaymentHistory)
+						)
+				).build()
+		);
+	}
+
+	/**
+	 * Benefit 엔티티 조회
+	 *
+	 * @param idxBenefit Benefit ID
+	 * @return Benefit 정보
+	 */
+	Benefit findBenefit(Long idxBenefit) {
+		return repoBenefit.findById(idxBenefit).orElseThrow(
 				() -> EntityNotFoundException.builder()
-						.entity("User")
-						.idx(idx_user)
+						.entity("Benefit")
+						.idx(idxBenefit)
 						.build()
 		);
 	}
 
-	private Benefit findBenefit(Long idx_benefit) {
-		return repoBenefit.findById(idx_benefit).orElseThrow(
+	/**
+	 * BenefitPaymentHistory 항목 조회
+	 *
+	 * @param idxBenefitPaymentHistory BenefitPaymentHistory ID
+	 * @return BenefitPaymentHistory 엔티티보
+	 */
+	@Transactional(readOnly = true)
+	BenefitPaymentHistory findBenefitPaymentHistory(Long idxBenefitPaymentHistory) {
+
+		return repoBenefitPaymentHistory.findById(idxBenefitPaymentHistory).orElseThrow(
 				() -> EntityNotFoundException.builder()
-						.entity("Benefit")
-						.idx(idx_benefit)
+						.entity("BenefitPaymentHistory")
+						.idx(idxBenefitPaymentHistory)
+						.build()
+		);
+	}
+
+	/**
+	 * Benefit Item 항목 조회
+	 *
+	 * @param idxBenefitItem 식별자(BenefitItem)
+	 * @return BenefitItem 항목
+	 */
+	@Transactional(readOnly = true)
+	BenefitItem findBenefitItem(long idxBenefitItem) {
+
+		return repoBenefitItem.findById(idxBenefitItem).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.entity("BenefitItem")
+						.idx(idxBenefitItem)
 						.build()
 		);
 	}

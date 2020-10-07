@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.domain.user;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
+import com.nomadconnection.dapp.core.domain.benefit.BenefitPaymentHistory;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.consent.Consent;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
@@ -96,5 +97,8 @@ public class User extends BaseTime {
     )
 	@Builder.Default
 	private List<Consent> consents = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user")
+	private List<BenefitPaymentHistory> benefitPaymentHistories;
 
 }
