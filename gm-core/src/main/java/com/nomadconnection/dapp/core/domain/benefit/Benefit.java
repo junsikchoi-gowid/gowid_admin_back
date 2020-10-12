@@ -1,13 +1,11 @@
 package com.nomadconnection.dapp.core.domain.benefit;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
-import com.nomadconnection.dapp.core.domain.consent.Consent;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -87,6 +85,9 @@ public class Benefit extends BaseTime {
 
 	@Column(columnDefinition = "TINYINT", nullable = false)
 	private Integer activePayment;
+
+	@Column(columnDefinition = "TINYINT", nullable = false)
+	private Integer applyLink;
 
 	@OneToMany(mappedBy = "benefit")
 	private List<BenefitPaymentHistory> benefitPaymentHistories;

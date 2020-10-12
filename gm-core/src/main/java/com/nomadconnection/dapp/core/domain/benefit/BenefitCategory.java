@@ -29,7 +29,6 @@ public class BenefitCategory extends BaseTime {
 	@Column(nullable = false)
 	private String categoryName;
 
-
-
+	private Integer priority;
 
 }

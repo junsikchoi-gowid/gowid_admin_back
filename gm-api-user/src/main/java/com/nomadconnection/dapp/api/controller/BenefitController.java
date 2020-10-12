@@ -3,7 +3,6 @@ package com.nomadconnection.dapp.api.controller;
 import com.nomadconnection.dapp.api.dto.BenefitDto;
 import com.nomadconnection.dapp.api.service.BenefitService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
-import com.nomadconnection.dapp.core.domain.benefit.Benefit;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -17,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
-
-import java.util.List;
 
 @Slf4j
 @CrossOrigin(allowCredentials = "true")
@@ -41,6 +38,9 @@ public class BenefitController {
 		// Benefit Payment
 		public static final String BENEFIT_PAYMENTS = "/payments";
 		public static final String BENEFIT_PAYMENT = "/payments/{idx}";
+
+		// Benefit Category
+		public static final String BENEFIT_CATEGORIES = "/categories";
 	}
 
 	private final BenefitService service;
@@ -110,5 +110,15 @@ public class BenefitController {
 			log.info("([ getBenefitPaymentHistory ]) $user='{}'", user);
 		}
 		return service.getBenefitPaymentHistory(idx);
+	}
+
+
+	@ApiOperation("베네핏 카테고리 목록 조회")
+	@GetMapping(URI.BENEFIT_CATEGORIES)
+	public ResponseEntity getBenefitCategories() {
+		if (log.isInfoEnabled()) {
+			log.info("([ getBenefitCategories ])");
+		}
+		return service.getBenefitCategories();
 	}
 }

@@ -3,28 +3,21 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.dto.BenefitDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.core.domain.benefit.*;
-import com.nomadconnection.dapp.core.domain.repository.benefit.BenefitItemRepository;
-import com.nomadconnection.dapp.core.domain.repository.benefit.BenefitPaymentHistoryRepository;
-import com.nomadconnection.dapp.core.domain.repository.benefit.BenefitPaymentItemRepository;
-import com.nomadconnection.dapp.core.domain.repository.benefit.BenefitRepository;
-import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
+import com.nomadconnection.dapp.core.domain.repository.benefit.*;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,18 +25,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BenefitService {
 
-	private final UserRepository repoUser;
 	private final BenefitRepository repoBenefit;
 	private final BenefitItemRepository repoBenefitItem;
 	private final BenefitPaymentHistoryRepository repoBenefitPaymentHistory;
 	private final BenefitPaymentItemRepository repoBenefitPaymentItem;
+	private final BenefitCategoryRepository repoBenefitCategory;
 
 	private final UserService userService;
-	private final AwsS3Service s3Service;
 	private final EmailService emailService;
 	private final AdminService adminService;
-
-	private final String GOWID_BENEFIT_EMAIL_ADDR = "commerce@gowid.com";
 
 	/**
 	 * 베네핏 목록 조회
@@ -58,6 +48,25 @@ public class BenefitService {
 
 		return ResponseEntity.ok().body(
 				BusinessResponse.builder().data(resBenefitPage).build()
+		);
+	}
+
+
+	/**
+	 * 베네핏 카테고리 목록 조회
+	 *
+	 * @return 베네핏 카테고리 목록
+	 */
+	@Transactional(readOnly = true)
+	public ResponseEntity getBenefitCategories() {
+
+		log.debug(">>>>> getBenefitCategories.start");
+		List<BenefitDto.BenefitCategoryRes> resBenefitCategories = repoBenefitCategory.findAllByCategoryGroupCodeIsNullOrderByPriorityAsc()
+																						.stream().map(BenefitDto.BenefitCategoryRes::from)
+																						.collect(Collectors.toList());;
+
+		return ResponseEntity.ok().body(
+				BusinessResponse.builder().data(resBenefitCategories).build()
 		);
 	}
 

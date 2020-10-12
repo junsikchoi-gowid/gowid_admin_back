@@ -2,11 +2,13 @@ package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.benefit.*;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,11 +84,9 @@ public class BenefitDto {
 		private String cardNum;
 
 		@ApiModelProperty("결제 승인 시간")
-		@NotEmpty
 		private String paidAt;
 
 		@ApiModelProperty("매출전표 URL")
-		@NotEmpty
 		private String receiptUrl;
 
 		@ApiModelProperty("거래 고유 번호")
@@ -204,6 +204,9 @@ public class BenefitDto {
 		@ApiModelProperty("결제 필요 여부")
 		private Integer activePayment;
 
+		@ApiModelProperty("Modal 여부")
+		private Integer applyLink;
+
 		@ApiModelProperty("Benefit 세부 항목(제품군)")
 		private List<BenefitDto.BenefitItemRes> benefitItems;
 
@@ -239,6 +242,7 @@ public class BenefitDto {
 						.activeApplying(benefit.activeApplying())
 						.activeAbTest(benefit.activeAbTest())
 						.activePayment(benefit.activePayment())
+						.applyLink(benefit.applyLink())
 						.benefitItems(benefit.benefitItems().stream().map(BenefitItemRes::from).collect(Collectors.toList()))
 						.benefitCategory(BenefitDto.BenefitCategoryRes.from(benefit.benefitCategory()))
 						.build();
@@ -406,6 +410,9 @@ public class BenefitDto {
 		@ApiModelProperty("카테고리 이름")
 		private String categoryName;
 
+		@ApiModelProperty("노출 우선순위")
+		private Integer priority;
+
 		public static BenefitCategoryRes from(BenefitCategory benefitCategory) {
 			if (benefitCategory != null) {
 				return BenefitCategoryRes.builder()
@@ -413,6 +420,7 @@ public class BenefitDto {
 						.categoryGroupCode(benefitCategory.categoryGroupCode())
 						.categoryCode(benefitCategory.categoryCode())
 						.categoryName(benefitCategory.categoryName())
+						.priority(benefitCategory.priority())
 						.build();
 			}
 			return null;
