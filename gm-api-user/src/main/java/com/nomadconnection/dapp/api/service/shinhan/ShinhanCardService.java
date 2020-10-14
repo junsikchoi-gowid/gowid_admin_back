@@ -257,14 +257,17 @@ public class ShinhanCardService {
                 .stockRate(dto.getRate())
                 .build());
 
-        CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
-        if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
-            cardInfo = setStockholderByCeoInfo(cardInfo, ceoInfo);
+        List<CeoInfo> ceoInfos = repoCeo.getByCardIssuanceInfo(cardInfo);
+        for (CeoInfo ceoInfo : ceoInfos) {
+            if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
+                cardInfo = setStockholderByCeoInfo(cardInfo, ceoInfo);
+                break;
+            }
         }
 
         updateRiskConfigStockholder(user, dto);
-        updateD1000Stockholder(user.corp().idx(), cardInfo, dto);
-        updateD1400Stockholder(user.corp().idx(), cardInfo, dto);
+        updateD1000Stockholder(user.corp().idx(), cardInfo, ceoInfos, dto);
+        updateD1400Stockholder(user.corp().idx(), cardInfo, ceoInfos, dto);
 
         if (StringUtils.hasText(depthKey)) {
             repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
@@ -293,22 +296,23 @@ public class ShinhanCardService {
         }
     }
 
-    private D1400 updateD1400Stockholder(Long idx_corp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterStockholder dto) {
+    private D1400 updateD1400Stockholder(Long idx_corp, CardIssuanceInfo cardInfo, List<CeoInfo> ceoInfos, CardIssuanceDto.RegisterStockholder dto) {
         D1400 d1400 = getD1400(idx_corp);
         if (ObjectUtils.isEmpty(d1400)) {
             return d1400;
         }
 
-        CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
-        if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
-            return repoD1400.save(d1400.setD018(Const.SHINHAN_REGISTER_BRANCH_CODE)
-                    .setD019(ceoInfo.name())
-                    .setD020(ceoInfo.engName())
-                    .setD021(ceoInfo.birth())
-                    .setD022(ceoInfo.nationality())
-                    .setD023(getCorpOwnerCode(dto))
-                    .setD024("00000")
-            );
+        for (CeoInfo ceoInfo : ceoInfos) {
+            if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
+                return repoD1400.save(d1400.setD018(Const.SHINHAN_REGISTER_BRANCH_CODE)
+                        .setD019(ceoInfo.name())
+                        .setD020(ceoInfo.engName())
+                        .setD021(ceoInfo.birth())
+                        .setD022(ceoInfo.nationality())
+                        .setD023(getCorpOwnerCode(dto))
+                        .setD024("00000")
+                );
+            }
         }
 
         return repoD1400.save(d1400.setD018(Const.SHINHAN_REGISTER_BRANCH_CODE)
@@ -321,23 +325,24 @@ public class ShinhanCardService {
         );
     }
 
-    private D1000 updateD1000Stockholder(Long idx_corp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterStockholder dto) {
+    private D1000 updateD1000Stockholder(Long idx_corp, CardIssuanceInfo cardInfo, List<CeoInfo> ceoInfos, CardIssuanceDto.RegisterStockholder dto) {
         D1000 d1000 = getD1000(idx_corp);
         if (ObjectUtils.isEmpty(d1000)) {
             return d1000;
         }
 
-        CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
-        if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
-            return repoD1000.save(d1000.setD044(Const.SHINHAN_REGISTER_BRANCH_CODE)
-                    .setD059(ceoInfo.name())
-                    .setD060(ceoInfo.engName())
-                    .setD061(ceoInfo.birth())
-                    .setD062(ceoInfo.nationality())
-                    .setD064(getCorpOwnerCode(dto))
-                    .setD065("00000")
-                    .setD066("KR".equalsIgnoreCase(dto.getNation()) ? "N" : "Y")
-            );
+        for (CeoInfo ceoInfo : ceoInfos) {
+            if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
+                return repoD1000.save(d1000.setD044(Const.SHINHAN_REGISTER_BRANCH_CODE)
+                        .setD059(ceoInfo.name())
+                        .setD060(ceoInfo.engName())
+                        .setD061(ceoInfo.birth())
+                        .setD062(ceoInfo.nationality())
+                        .setD064(getCorpOwnerCode(dto))
+                        .setD065("00000")
+                        .setD066("KR".equalsIgnoreCase(dto.getNation()) ? "N" : "Y")
+                );
+            }
         }
 
         return repoD1000.save(d1000.setD044(Const.SHINHAN_REGISTER_BRANCH_CODE)
@@ -964,6 +969,6 @@ public class ShinhanCardService {
                 .stockholderEngName(ceoInfo.engName())
                 .stockholderBirth(ceoInfo.birth())
                 .stockholderNation(ceoInfo.nationality())
-                .stockRate("0000"));
+                .stockRate("00000"));
     }
 }

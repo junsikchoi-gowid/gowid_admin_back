@@ -13,7 +13,7 @@ import java.util.List;
 
 @Repository
 public interface CeoInfoRepository extends JpaRepository<CeoInfo, Long> {
-	CeoInfo getByCardIssuanceInfo(CardIssuanceInfo cardIssuanceInfo);
+	List<CeoInfo> getByCardIssuanceInfo(CardIssuanceInfo cardIssuanceInfo);
 
 	@Transactional
 	@Modifying

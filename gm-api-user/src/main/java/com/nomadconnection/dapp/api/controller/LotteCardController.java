@@ -124,7 +124,7 @@ public class LotteCardController {
 			@RequestParam(required = false) String depthKey,
 			@RequestBody @Valid CardIssuanceDto.RegisterCard dto) {
 		if (log.isInfoEnabled()) {
-			log.info("([ registerStockholder ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
+			log.info("([ registerCard ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
 		}
 
 		return ResponseEntity.ok().body(service.registerCard(user.idx(), dto, idxCardInfo, depthKey));
