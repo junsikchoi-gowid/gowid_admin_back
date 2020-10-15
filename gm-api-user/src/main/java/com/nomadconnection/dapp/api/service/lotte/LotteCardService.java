@@ -609,29 +609,12 @@ public class LotteCardService {
 			throw EntityNotFoundException.builder().entity("Corp").build();
 		}
 		Lotte_D1100 d1100 = getD1100(user.corp().idx());
-		Integer count = 1;
+		Integer count = user.corp().ceoCount();
 		CeoType ceoType = CeoType.SINGLE;
 		if (d1100 != null) {
 			// 신한전문에서 대표자 정보 가져오기
 			D1000 shinhanD1000 = repoShinhanD1000.getTopByIdxCorpOrderByIdxDesc(user.corp().idx());
 			ceoType = CeoType.fromLotte(CeoType.convertShinhanToLotte(getShinhanCeoCode(shinhanD1000)));
-
-			if (ceoType.equals(CeoType.PUBLIC)) {
-				// TODO: 스크래핑단계에서 롯데전용이 생기면 삭제 예정
-				// 신한전문으로 1차검증
-				if (StringUtils.hasText(shinhanD1000.getD010()) && StringUtils.hasText(shinhanD1000.getD014()) && StringUtils.hasText(shinhanD1000.getD018())) {
-					count = 3;
-				} else if (StringUtils.hasText(shinhanD1000.getD010()) && StringUtils.hasText(shinhanD1000.getD014()) && !StringUtils.hasText(shinhanD1000.getD018())) {
-					count = 2;
-				}
-
-				// 롯데전문으로 2차검증
-				if (StringUtils.hasText(d1100.getCstNm()) && StringUtils.hasText(d1100.getCstNm2()) && StringUtils.hasText(d1100.getCstNm3())) {
-					count = 3;
-				} else if (StringUtils.hasText(d1100.getCstNm()) && StringUtils.hasText(d1100.getCstNm2()) && !StringUtils.hasText(d1100.getCstNm3())) {
-					count = 2;
-				}
-			}
 		}
 		return CardIssuanceDto.CeoTypeRes.builder()
 				.type(ceoType)

@@ -633,18 +633,10 @@ public class ShinhanCardService {
             throw EntityNotFoundException.builder().entity("Corp").build();
         }
         D1000 d1000 = getD1000(user.corp().idx());
-        Integer count = 1;
+        Integer count = user.corp().ceoCount();
         CeoType ceoType = CeoType.SINGLE;
         if (d1000 != null) {
             ceoType = CeoType.fromShinhan(d1000.getD009());
-
-            if (ceoType.equals(CeoType.PUBLIC)) {
-                if (StringUtils.hasText(d1000.getD010()) && StringUtils.hasText(d1000.getD014()) && StringUtils.hasText(d1000.getD018())) {
-                    count = 3;
-                } else if (StringUtils.hasText(d1000.getD010()) && StringUtils.hasText(d1000.getD014()) && !StringUtils.hasText(d1000.getD018())) {
-                    count = 2;
-                }
-            }
         }
         return CardIssuanceDto.CeoTypeRes.builder()
                 .type(ceoType)
