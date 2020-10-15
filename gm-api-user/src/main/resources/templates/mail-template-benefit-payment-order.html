@@ -324,7 +324,7 @@
                 </tr>
 
                 <tr>
-                  <td class="section-title">담당자 정보</td>
+                  <td class="section-title"><b>담당자 정보</b></td>
                 </tr>
                 <tr>
                   <td style="padding-top: 16px; padding-bottom: 24px">
@@ -350,44 +350,64 @@
                       <tr>
                         <div style="display: flex">
                           <div style="width: 100%">이름 :</div>
-                          <div style="width: 100%"><span th:text="${customerName}"> (*담당자 이름)</span></div>
+                          <div style="width: 100%">
+                            <span th:text="${customerName}">
+                              (*담당자 이름)</span
+                            >
+                          </div>
                         </div>
                       </tr>
                       <tr>
                         <div style="display: flex">
                           <div style="width: 100%">전화번호 :</div>
-                          <div style="width: 100%"><span th:text="${customerMdn}"> (*담당자 연락처)</span></div>
+                          <div style="width: 100%">
+                            <span th:text="${customerMdn}">
+                              (*담당자 연락처)</span
+                            >
+                          </div>
                         </div>
                       </tr>
                       <tr>
                         <div style="display: flex">
                           <div style="width: 100%">법인명 :</div>
-                          <div style="width: 100%"><span th:text="${companyName}"> (*법인명)</span></div>
+                          <div style="width: 100%">
+                            <span th:text="${companyName}"> (*법인명)</span>
+                          </div>
                         </div>
                       </tr>
                       <tr>
                         <div style="display: flex">
                           <div style="width: 100%">부서명 :</div>
-                          <div style="width: 100%"><span th:text="${customerDeptName}"> (*부서명)</span></div>
+                          <div style="width: 100%">
+                            <span th:text="${customerDeptName}">
+                              (*부서명)</span
+                            >
+                          </div>
                         </div>
                       </tr>
                       <tr>
                         <div style="display: flex">
                           <div style="width: 100%">주소 :</div>
-                          <div style="width: 100%"><span th:text="${companyAddr}"> (*주소)</span></div>
+                          <div style="width: 100%">
+                            <span th:text="${companyAddr}"> (*주소)</span>
+                          </div>
                         </div>
                       </tr>
                       <tr>
                         <div style="display: flex">
                           <div style="width: 100%">이메일주소 :</div>
-                          <div style="width: 100%"><span th:text="${customerEmail}"> (*담당자 이메일)</span></div>
+                          <div style="width: 100%">
+                            <span th:text="${customerEmail}">
+                              (*담당자 이메일)</span
+                            >
+                          </div>
                         </div>
                       </tr>
                     </table>
                   </td>
                 </tr>
                 <tr>
-                  <td class="section-title">결제 정보</td>
+                  <td class="section-title"><b>결제 정보</b></td>
                 </tr>
                 <tr>
                   <td style="padding-top: 16px; padding-bottom: 24px">
@@ -413,13 +433,17 @@
                       <tr>
                         <div style="display: flex">
                           <div style="width: 100%">제품 :</div>
-                          <div style="width: 100%"><span th:text="${benefitName}"> (*제품명)</span></div>
+                          <div style="width: 100%">
+                            <span th:text="${benefitName}"> (*제품명)</span>
+                          </div>
                         </div>
                       </tr>
                       <tr>
                         <div style="display: flex">
                           <div style="width: 100%">결제일시 :</div>
-                          <div style="width: 100%"><span th:text="${paidAt}"> (*결제 일시)</span></div>
+                          <div style="width: 100%">
+                            <span th:text="${paidAt}"> (*결제 일시)</span>
+                          </div>
                         </div>
                       </tr>
                     </table>
@@ -445,7 +469,7 @@
                       <div th:each="paymentItem : ${paymentItems}">
                         <tr>
                           <td
-                                  style="
+                            style="
                               font-family: NotoSansKR;
                               font-size: 16px;
                               font-weight: 500;
@@ -454,13 +478,22 @@
                               color: #333333;
                             "
                           >
-                            <span th:text="${paymentItem.benefitItem.type}"> (*상품명)</span>
+                            <span th:text="${paymentItem.benefitItem.name}">
+                              (*상품명)</span
+                            >
                           </td>
                         </tr>
                         <tr>
-                          <td>수량 : <span style="font-weight: 600" th:text="${paymentItem.quantity}">(*수량)</span></td>
+                          <td>
+                            수량 :
+                            <span
+                              style="font-weight: 600"
+                              th:text="${paymentItem.quantity}"
+                              >(*수량)</span
+                            >
+                          </td>
                           <td
-                                  style="
+                            style="
                               font-family: NotoSansKR;
                               font-size: 14px;
                               line-height: 1.71;
@@ -469,7 +502,12 @@
                               color: #969696;
                             "
                           >
-                            ₩ <span th:text="${#numbers.formatInteger(paymentItem.price, 3, 'COMMA')}"> (*금액)</span>
+                            ₩
+                            <span
+                              th:text="${#numbers.formatInteger(paymentItem.price, 3, 'COMMA')}"
+                            >
+                              (*금액)</span
+                            >
                           </td>
                         </tr>
                         <tr>
@@ -480,7 +518,7 @@
                         <td>최종 결제 금액</td>
                         <td
                           style="
-                            font-size: 32px;
+                            font-size: 24px;
                             font-weight: bold;
                             line-height: 1.25;
                             letter-spacing: -0.6px;
@@ -488,7 +526,12 @@
                             text-align: right;
                           "
                         >
-                          ₩ <span th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA')}"> (*최종 결제 금액)</span>
+                          ₩
+                          <span
+                            th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA')}"
+                          >
+                            (*최종 결제 금액)</span
+                          >
                         </td>
                       </tr>
                       <tr></tr>
@@ -520,7 +563,7 @@
                   margin-right: auto;
                   margin-left: auto;
                   width: 100%;
-                  max-width: 288px;
+                  min-width: 360px;
                   font-size: 12px;
                   font-weight: 400;
                   line-height: 20px;
@@ -555,6 +598,7 @@
                         letter-spacing: -0.15px;
                         text-align: center;
                         color: #333333;
+                        max-width: 360px;
                       "
                     >
                       <tr>
@@ -600,6 +644,37 @@
                             rel="noopener noreferrer"
                             style="text-decoration: none; color: #333333"
                             >support@gowid.com</a
+                          >
+                          <span
+                            class="footer-border"
+                            style="
+                              padding-left: 8px;
+                              border-right-width: 1px;
+                              border-right-style: solid;
+                              border-right-color: #e6e6e6;
+                            "
+                          ></span>
+                        </td>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                        >
+                          <span
+                            style="
+                              text-decoration: none;
+                              font-size: 12px;
+                              font-weight: 400;
+                              line-height: 20px;
+                              letter-spacing: -0.15px;
+                              text-align: center;
+                              color: #333333;
+                            "
+                            >대표전화 : 02-6105-8101</span
                           >
                         </td>
                       </tr>
@@ -731,23 +806,193 @@
                 </tr>
                 <tr>
                   <td
+                    class="padding-bottom-8"
                     style="
                       padding-top: 0;
-                      padding-bottom: 0;
                       padding-right: 0;
                       padding-left: 0;
+                      padding-bottom: 8px;
                     "
                   >
-                    <p
+                    <table
+                      class="footer-consent"
+                      align="center"
                       style="
+                        border-spacing: 0;
                         margin-top: 0;
+                        margin-right: auto;
+                        margin-left: auto;
                         margin-bottom: 0;
-                        margin-right: 0;
-                        margin-left: 0;
+                        font-family: 'Noto Sans KR', sans-serif !important;
+                        font-size: 14px;
+                        font-weight: 400;
+                        line-height: 24px;
+                        letter-spacing: -0.18px;
+                        color: #333333;
                       "
                     >
-                      서울특별시 강남구 도산대로 317 호림아트센터 14층
-                    </p>
+                      <tr>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                        >
+                          <span
+                            style="
+                              text-decoration: none;
+                              font-size: 12px;
+                              font-weight: 400;
+                              line-height: 20px;
+                              letter-spacing: -0.15px;
+                              text-align: center;
+                              color: #787878;
+                            "
+                            >상호 : 주식회사 고위드</span
+                          >
+                          <span
+                            class="footer-border"
+                            style="
+                              padding-left: 8px;
+                              border-right-width: 1px;
+                              border-right-style: solid;
+                              border-right-color: #e6e6e6;
+                            "
+                          ></span>
+                        </td>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                        >
+                          <span
+                            style="
+                              text-decoration: none;
+                              font-size: 12px;
+                              font-weight: 400;
+                              line-height: 20px;
+                              letter-spacing: -0.15px;
+                              text-align: center;
+                              color: #787878;
+                            "
+                            >대표자 : 김항기</span
+                          >
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    class="padding-bottom-8"
+                    style="
+                      padding-top: 0;
+                      padding-right: 0;
+                      padding-left: 0;
+                      padding-bottom: 8px;
+                    "
+                  >
+                    <table
+                      class="footer-consent"
+                      align="center"
+                      style="
+                        border-spacing: 0;
+                        margin-top: 0;
+                        margin-right: auto;
+                        margin-left: auto;
+                        margin-bottom: 0;
+                        font-family: 'Noto Sans KR', sans-serif !important;
+                        font-size: 14px;
+                        font-weight: 400;
+                        line-height: 24px;
+                        letter-spacing: -0.18px;
+                        color: #333333;
+                      "
+                    >
+                      <tr>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                          colspan="2"
+                        >
+                          <span
+                            style="
+                              text-decoration: none;
+                              font-size: 12px;
+                              font-weight: 400;
+                              line-height: 20px;
+                              letter-spacing: -0.15px;
+                              text-align: center;
+                              color: #787878;
+                            "
+                            >통신판매업신고 : 제 2020-서울강남-01863 호</span
+                          >
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                          colspan="2"
+                        >
+                          <span
+                            style="
+                              text-decoration: none;
+                              font-size: 12px;
+                              font-weight: 400;
+                              line-height: 20px;
+                              letter-spacing: -0.15px;
+                              text-align: center;
+                              color: #787878;
+                            "
+                            >사업자등록번호: 261-81-25793</span
+                          >
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          class="padding-right-8"
+                          style="
+                            padding-top: 0;
+                            padding-bottom: 0;
+                            padding-left: 0;
+                            padding-right: 8px;
+                          "
+                          colspan="2"
+                        >
+                          <span
+                            style="
+                              text-decoration: none;
+                              font-size: 12px;
+                              font-weight: 400;
+                              line-height: 20px;
+                              letter-spacing: -0.15px;
+                              text-align: center;
+                              color: #787878;
+                            "
+                            >주소 : 서울특별시 강남구 도산대로 317, 14층
+                            (신사동, 호림아트센터 1빌딩)</span
+                          >
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>

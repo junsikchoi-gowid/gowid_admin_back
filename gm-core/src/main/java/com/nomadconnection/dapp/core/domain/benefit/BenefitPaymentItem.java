@@ -30,4 +30,16 @@ public class BenefitPaymentItem {
 	private Integer quantity;
 
 	private Long price;
+
+	public BenefitItem getBenefitItem() {
+		return this.benefitItem;
+	}
+
+	public Integer getQuantity() {
+		return this.quantity;
+	}
+
+	public Long getPrice() {
+		return this.price;
+	}
 }
