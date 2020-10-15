@@ -243,5 +243,8 @@ public class CodefController {
 		return service.ProcDeleteConnectedId(connectedId, organization, loginType, businessType);
 	}
 
-
+	@PostMapping(URI.BASE + "/testCorp")
+	public ResponseEntity testCorp(@RequestParam String str) {
+		return service.testCorp(str);
+	}
 }

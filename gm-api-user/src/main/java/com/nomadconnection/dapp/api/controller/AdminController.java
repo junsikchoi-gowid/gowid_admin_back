@@ -6,8 +6,6 @@ import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.AdminService;
-import com.nomadconnection.dapp.api.service.AuthService;
-import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.service.shinhan.ResumeService;
 import com.nomadconnection.dapp.core.annotation.ApiPageable;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
@@ -44,14 +42,10 @@ public class AdminController {
 
 		public static final String RISK = "/risk";        // 카드 리스크
 		public static final String RISK_ID_NOWBALANCE = "/risk_id_nowbalance";        // 카드 현재 잔고
-		public static final String RISK_ID_CALC = "/risk/id/calc";        // 11 한도 재계산 - 리스크 저장
-		public static final String RISK_ID_LEVEL_CHANGE = "/risk/id/level_change";        // 1 등급 변경
-		public static final String RISK_ID_E_STOP = "/risk/id/e_stop";        // 3 긴급중지
-		public static final String RISK_ID_A_STOP = "/risk/id/a_stop";        // 4 일시정지
-		public static final String RISK_ID_LIST1 = "/risk/id/list1";        // 13 CSV다운로드
-		public static final String RISK_ID_LIST2 = "/risk/id/list2";        // 5 한도기록
-		public static final String RISK_ID_LIST3 = "/risk/id/list3";        // 5 잔고기록
-		public static final String RISK_ID_CALC2 = "/risk/id/calc2";        // 12 날짜별 리스크 재계산 - 리스크 저장
+		public static final String RISK_ID_LEVEL_CHANGE = "/risk/id/level_change";        // 등급 변경
+		public static final String RISK_ID_EMERGENCY_STOP = "/risk/id/e_stop";        // 긴급중지
+		public static final String RISK_ID_PAUSE = "/risk/id/a_stop";        // 긴급중지
+		public static final String RISK_ID_LIST_SELECTED = "/risk/id/list1";        // CSV다운로드 및 리스트 2번째 화면
 
 		public static final String CORP = "/corp";            // 법인 정보
 		public static final String CORP_ID = "/corp/id";    // 법인 정보
@@ -61,24 +55,28 @@ public class AdminController {
 
 		public static final String SCRAPING = "/scraping";        // 계좌 스크래핑
 		public static final String SCRAPING_UPDATE = "/scraping/update";        // 계좌 스크래핑 update
-
 		public static final String ISSUANCE_1800 = "/issuance/1800";        // 1800 수동전송
-
 		public static final String ERROR = "/error";    // 에러내역
-		public static final String ERROR_ID = "/error/id";    // 에러내역
+
+		public static final String ORIGINAL_LIST = "/risk/original"; // GET 한도 기록 (리스트)
+		public static final String CARD_COMP_TRANS_INFO = "/risk/card_com_trans_info"; // GET 카드사 전달 (리스트)
+		public static final String ORIGINAL_LIST_GRANT = "/risk/original/grant"; // POST 카드 승인버튼 (리스트)
+
+		public static final String CORP_LIST = "/corp/list" ;  // GET	법인정보
+
+		public static final String SCRAP_CORP_LIST = "/scrap/corp/list" ;  // GET	계좌스크래핑 - 법인 목록
+		public static final String SCRAP_CORP = "/scrap/corp" ;  // POST	법인별스크래핑
+
+		public static final String SCRAP_ACCOUNT_LIST = "/scrap/account/list" ;  // GET	계좌스크래핑 - 계좌 목록
+		public static final String SCRAP_ACCOUNT = "/scrap/account" ;  // POST	계좌별 스크래핑
+
+		public static final String CORP_INFO = "/corp/info" ;   // GET	법인별 - 리스크 관련 상세정보
+		public static final String RISK_CONFIG_STOP = "/risk/config/stop" ; // POST	긴급중지 여부
+		public static final String RISK_GRANT = "/risk/grant" ;   // POST	승인 여부
+
 	}
 
 	private final AdminService service;
-
-	/*
-	@GetMapping( URI.RISK + 1 )
-	@ApiPageable
-	public boolean genVid() throws Exception{
-
-		return service.getVid();
-	}
-
-	*/
 
 	@ApiOperation(value = "카드 리스크"
 			, notes = "" + "\n"
@@ -129,7 +127,7 @@ public class AdminController {
 	}
 
 	@ApiOperation(value = "긴급중지" , notes = "" + "\n booleanValue true / false ")
-	@PostMapping( URI.RISK_ID_E_STOP )
+	@PostMapping( URI.RISK_ID_EMERGENCY_STOP )
 	public ResponseEntity saveEmergencyStop(@ApiIgnore @CurrentUser CustomUser user,
 											@RequestBody AdminDto.StopDto dto) {
 		if (log.isInfoEnabled()) {
@@ -139,7 +137,7 @@ public class AdminController {
 	}
 
 	@ApiOperation(value = "일시정지" , notes = "" + "\n booleanValue true / false ")
-	@PostMapping( URI.RISK_ID_A_STOP )
+	@PostMapping( URI.RISK_ID_PAUSE )
 	public ResponseEntity savePause(@ApiIgnore @CurrentUser CustomUser user,
 									@RequestBody AdminDto.StopDto dto) {
 		if (log.isInfoEnabled()) {
@@ -180,7 +178,7 @@ public class AdminController {
 			+ " recentBalance;    // 최근 잔고 \n"
 			+ " errCode; // 에러코드 일부값 \n"
 	)
-	@GetMapping( URI.RISK_ID_LIST1 )
+	@GetMapping( URI.RISK_ID_LIST_SELECTED )
 	@ApiPageable
 	public ResponseEntity riskListSelected(@ModelAttribute AdminCustomRepository.SearchRiskDto riskDto
 			, @ApiIgnore @CurrentUser CustomUser user
@@ -345,6 +343,149 @@ public class AdminController {
 		log.info("### ADMIN 1800 END ###");
 		return ResponseEntity.ok().body(ApiResponse.ApiResult.builder().code(Const.API_SHINHAN_RESULT_SUCCESS).build());
 	}
+
+	@ApiOperation(value = "카드 리스크(신규) - 한도기록"
+			, notes = "" + "\n"
+			+ "Sort 방식 " + "\n"
+			+ "idxCorp  " + "\n"
+	)
+	@GetMapping( URI.ORIGINAL_LIST )
+	@ApiPageable
+	public ResponseEntity originalList(@ModelAttribute AdminCustomRepository.RiskOriginal riskOriginal
+			, @ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable) {
+		if (log.isInfoEnabled()) {
+			log.info("([ originalList ]) $dto='{}'", riskOriginal);
+		}
+		return service.originalList(riskOriginal, user.idx(), pageable);
+	}
+
+	@ApiOperation(value = "카드 리스크(신규) - 카드사 전달"
+			, notes = "" + "\n"
+			+ "Sort 방식 " + "\n"
+			+ "idxCorp  " + "\n"
+	)
+	@GetMapping( URI.CARD_COMP_TRANS_INFO )
+	@ApiPageable
+	public ResponseEntity cardList(@ModelAttribute AdminCustomRepository.RiskOriginal riskOriginal
+			, @ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable) {
+		if (log.isInfoEnabled()) {
+			log.info("([ cardComTransInfo ]) $dto='{}'", riskOriginal);
+		}
+		return service.cardComTransInfo(riskOriginal, user.idx(), pageable);
+	}
+
+	@ApiOperation(value = "카드 승인버튼 (리스트)" , notes = "" + "\n")
+	@PostMapping( URI.ORIGINAL_LIST_GRANT )
+	public ResponseEntity originalListGrant(@ApiIgnore @CurrentUser CustomUser user,
+											@RequestBody RiskDto.CardList dto) {
+		if (log.isInfoEnabled()) {
+			log.info("([ originalListGrant ]) $user='{}' $dto='{}'", user, dto);
+		}
+		return service.originalListGrant(user.idx(), dto);
+	}
+
+
+
+	@ApiOperation(value = "법인 목록"
+			, notes = "" + "\n"
+			+ "Sort 방식 " + "\n"
+			+ "idxCorp  " + "\n"
+	)
+	@GetMapping( URI.CORP_LIST )
+	@ApiPageable
+	public ResponseEntity adminCorpList(@ModelAttribute CorpCustomRepository.SearchCorpListDto dto
+			, @ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable) {
+		if (log.isInfoEnabled()) {
+			log.info("([ adminCorpList ]) $dto='{}'", dto);
+		}
+		return service.adminCorpList(dto, user.idx(), pageable);
+	}
+
+	@ApiOperation(value = "계좌스크래핑 - 계좌 목록"
+			, notes = "" + "\n"
+			+ "Sort 방식 " + "\n"
+			+ "idxCorp  " + "\n"
+	)
+	@GetMapping( URI.SCRAP_CORP_LIST )
+	@ApiPageable
+	public ResponseEntity scrapCorpList(@ModelAttribute CorpCustomRepository.ScrapCorpDto dto
+			, @ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable) {
+		if (log.isInfoEnabled()) {
+			log.info("([ scrapCorpList ]) $dto='{}'", dto);
+		}
+		return service.scrapCorpList(dto, user.idx(), pageable);
+	}
+
+	@ApiOperation(value = "법인별스크래핑 " , notes = "" + "\n")
+	@PostMapping( URI.SCRAP_CORP )
+	public ResponseEntity scrapCorp(@ApiIgnore @CurrentUser CustomUser user,
+									@RequestParam(required = false) Long idxCorp ) {
+		if (log.isInfoEnabled()) {
+			log.info("([ scrapCorp ]) $user='{}' $idxCorp='{}'", user, idxCorp);
+		}
+		return service.scrapCorp(user.idx(), idxCorp);
+	}
+
+
+	@ApiOperation(value = "계좌스크래핑 - 계좌 목록"
+			, notes = "" + "\n"
+			+ "Sort 방식 " + "\n"
+			+ "idxCorp  " + "\n"
+	)
+	@GetMapping( URI.SCRAP_ACCOUNT_LIST )
+	@ApiPageable
+	public ResponseEntity scrapAccountList(@ModelAttribute ResBatchListCustomRepository.ScrapAccountDto dto
+			, @ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable) {
+		if (log.isInfoEnabled()) {
+			log.info("([ scrapAccountList ]) $dto='{}'", dto);
+		}
+		return service.scrapAccountList(dto, user.idx(), pageable);
+	}
+
+	@ApiOperation(value = "계좌별스크래핑 " , notes = "" + "\n")
+	@PostMapping( URI.SCRAP_ACCOUNT )
+	public ResponseEntity scrapAccount(@ApiIgnore @CurrentUser CustomUser user,
+									@RequestParam(required = false) String account ) {
+		if (log.isInfoEnabled()) {
+			log.info("([ scrapAccount ]) $user='{}' $account='{}'", user, account);
+		}
+		return service.scrapAccount(user.idx(), account);
+	}
+
+	@ApiOperation(value = "법인별 - 리스크 관련 상세정보"
+			, notes = "" + "\n"
+			+ "Sort 방식 " + "\n"
+			+ "idxCorp  " + "\n"
+	)
+	@GetMapping( URI.CORP_INFO )
+	public ResponseEntity corpInfo(@RequestParam(required = false) Long idxCorp
+			, @ApiIgnore @CurrentUser CustomUser user) {
+		if (log.isInfoEnabled()) {
+			log.info("([ scrapAccountList ]) $dto='{}'", idxCorp);
+		}
+		return service.corpInfo(idxCorp, user.idx());
+	}
+
+	@ApiOperation(value = "카드 긴급중지 여부" , notes = "" + "\n booleanValue true / false ")
+	@PostMapping( URI.RISK_CONFIG_STOP )
+	public ResponseEntity riskConfigStop(@ApiIgnore @CurrentUser CustomUser user,
+									@RequestBody AdminDto.StopDto dto) {
+		if (log.isInfoEnabled()) {
+			log.info("([ riskConfigStop ]) $user='{} $dto='{}'", user, dto);
+		}
+		return service.riskConfigStop(user.idx(),  dto);
+	}
+
+	@ApiOperation(value = "카드사 전송 승인 여부" , notes = "" + "\n booleanValue true / false ")
+	@PostMapping( URI.RISK_GRANT )
+	public ResponseEntity cardComTransInfoGrant(@ApiIgnore @CurrentUser CustomUser user,
+									@RequestBody AdminDto.cardComTransInfoGrant dto) {
+		if (log.isInfoEnabled()) {
+			log.info("([ cardComTransInfoGrant ]) $user='{} $dto='{}'", user, dto);
+		}
+		return service.cardComTransInfoGrant(user.idx(), dto);
+	}
+
 }
 
 

@@ -15,7 +15,7 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Risk extends BaseTime {
+public class RiskTrans extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,13 +53,9 @@ public class Risk extends BaseTime {
     private double recentBalance;    // 최근 잔고
     private String errCode; // 에러코드 일부값
     private String cardType; // 카드타입
-    // private boolean transFlag; // 카드사 데이터 전송여부
+    private Long idxCorp; // 법인
+    private String resCompanyNm; // 법인명
+    private Long idxUser; // 유저
+    private String cardCompany; // 카드별 회사
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "FK_Corp_Risk"))
-    private Corp corp; // 법인
-
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_Risk"))
-    private User user; // 유저
 }

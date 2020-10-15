@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +20,7 @@ public interface ResBatchListCustomRepository {
         @ApiModelProperty("법인 idx")
         public Long idxCorp;
 
-        @ApiModelProperty("법인명 ")
+        @ApiModelProperty("법인명")
         private String corpName;
 
         @ApiModelProperty("transactionId")
@@ -62,5 +63,96 @@ public interface ResBatchListCustomRepository {
         private String transactionId;
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class batchListDto {
+        @ApiModelProperty("법인 idx")
+        private Long idxCorp;
+
+        @ApiModelProperty("법인명")
+        private String corpName;
+
+        @ApiModelProperty("타입")
+        private String cardType;
+
+        @ApiModelProperty("카드사")
+        private CardCompany cardCompany;
+
+        @ApiModelProperty("등급")
+        private String grade;
+
+        @ApiModelProperty("업데이트")
+        private String updateDate;
+    }
+
     Page<ErrorResultDto> errorList(ErrorSearchDto dto, Pageable pageable);
+
+
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class ScrapAccountDto {
+        @ApiModelProperty("법인 idx")
+        public String idxCorp;
+
+        @ApiModelProperty("법인명")
+        public String corpName;
+
+        @ApiModelProperty("은행")
+        public String bankName;
+
+        @ApiModelProperty("계좌종류")
+        public String accountType;
+
+        @ApiModelProperty("스크래핑결과")
+        public String errorYn;
+
+        @ApiModelProperty("업데이트일자")
+        private String updatedAt;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class ScrapAccountListDto {
+        @ApiModelProperty("법인ID")
+        private Long idxCorp;
+
+        @ApiModelProperty("법인명")
+        private String idxCorpName;
+
+        @ApiModelProperty("은행코드")
+        private String bankCode;
+
+        @ApiModelProperty("은행명")
+        private String bankName;
+
+        @ApiModelProperty("계좌 종류")
+        private String accountType;
+
+        @ApiModelProperty("계좌 종류")
+        private String accountTypeName;
+
+        @ApiModelProperty("계좌번호")
+        private String resAccount;
+
+        @ApiModelProperty("계좌번호 View")
+        private String resAccountDisplay;
+
+        @ApiModelProperty("스크래핑 결과")
+        private String errorMessage;
+
+        @ApiModelProperty("transaction ID")
+        private String transactionId;
+
+        @ApiModelProperty("updatedAt")
+        private LocalDateTime updatedAt;
+    }
+
+    Page<ScrapAccountListDto> scrapAccountList(ScrapAccountDto scrapAccountDto, Pageable pageable);
 }
