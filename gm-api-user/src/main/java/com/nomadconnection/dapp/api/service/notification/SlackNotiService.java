@@ -40,14 +40,14 @@ public class SlackNotiService {
 
         repoSlack.save(SlackNotification.builder().
                 user(map.get("User")).
-                screenName(map.get("LastScreenName")).
-                cardIssuer(map.get("CardIssuer")).
-                hopeLimit(map.get("hopelimit")).
+                screenName(map.get("Last Screen Name")).
+                cardIssuer(map.get("Card Issuer")).
+                hopeLimit(map.get("hope limit")).
                 company(map.get("Company")).
-                ceoType(map.get("Ceotype")).
+                ceoType(map.get("Ceo type")).
                 ceoAccount(map.get("#ofAccount")).
-                totalBalance(map.get("TotalBalance")).
-                calculatedLimit(map.get("Calculatedlimit"))
+                totalBalance(map.get("Total Balance")).
+                calculatedLimit(map.get("Calculated limit"))
                 .build()
         );
     }
