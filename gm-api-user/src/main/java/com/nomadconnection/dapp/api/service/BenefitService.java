@@ -115,25 +115,31 @@ public class BenefitService {
 		BenefitPaymentHistory benefitPaymentHistory = saveBenefitPaymentHistory(user, benefit, dto);
 		List<BenefitPaymentItem> paymentItemList = saveBenefitPaymentItems(benefitPaymentHistory, dto);
 
-		/**
-		 * TODO: [FRUITSON] 메일 템플릿 수정 및 메일 전송 FLOW 확인 필요
-		 */
 		// 2. 결과 메일 전송
 		Map<String, Object> mailAttribute = this.getMailAttribute(benefitPaymentHistory, paymentItemList);
 		if(dto.getErrCode()) {
 
 			// 2.1. 결제 결과가 성공일 경우
 			// 2.1.1. 고객사에게 메일 전송
-			boolean isSuccessSendPaymentMail = emailService.sendBenefitResultMail(mailAttribute,
-																					BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
-																					dto.getCustomerEmail(),
-																					BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_EMAIL_TITLE.getValue(),
-																					BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_TEMPLATE.getValue());
+			//     - 사용자 메일과 입력한 구매자 메일이 동일할 경우 구매자 메일 전송
+			//     - 사용자 메일과 입력한 구매자 메일이 다를 경우 둘 다에게 메일 전송
+			boolean isSuccessSendPaymentMail = (user.email().equals(dto.getCustomerEmail())) ?
+				emailService.sendBenefitResultMail(mailAttribute,
+						BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
+						dto.getCustomerEmail(),
+						BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_EMAIL_TITLE.getValue(),
+						BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_TEMPLATE.getValue())
+				:
+				emailService.sendBenefitResultMail(mailAttribute,
+						BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
+						new String[]{dto.getCustomerEmail(), user.email()},
+						BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_EMAIL_TITLE.getValue(),
+						BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_TEMPLATE.getValue());
 
 			// 2.1.2. 발주서 메일 전송
 			boolean isSuccessSendOrderMail = emailService.sendBenefitResultMail(mailAttribute,
 																					BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
-																					null,	// TODO: [FRUITSON] 플랜잇 메일 주소로 변경
+																					BenefitPaymentEmailType.BENEFIT_VENDOR_PLANIT_EMAIL_ADDR.getValue(),
 																					BenefitPaymentEmailType.BENEFIT_PAYMENT_ORDER_EMAIL_TITLE.getValue(),
 																					BenefitPaymentEmailType.BENEFIT_PAYMENT_ORDER_TEMPLATE.getValue());
 
@@ -184,7 +190,7 @@ public class BenefitService {
 				.impUid(dto.getImpUid())
 				.benefit(benefit)
 				.cardNum(dto.getCardNum())
-				.status(dto.getErrCode() ? BenefitStatusType.SUCCESS.getValue() : BenefitStatusType.FAILED.getValue())
+				.status(dto.getErrCode() ? BenefitPaymentStatusType.SUCCESS.getValue() : BenefitPaymentStatusType.FAILED.getValue())
 				.sendOrderMailErrCode(0)
 				.sendPaymentMailErrCode(0)
 				.build();
@@ -270,7 +276,7 @@ public class BenefitService {
 		}else {
 			resBenefitPaymentHistoryPage = repoBenefitPaymentHistory.findAllByUserAndStatusOrderByPaidAtDesc(user,
 												pageable,
-												BenefitStatusType.SUCCESS.getValue())
+												BenefitPaymentStatusType.SUCCESS.getValue())
 											.map(BenefitDto.BenefitPaymentHistoryRes::from);
 		}
 

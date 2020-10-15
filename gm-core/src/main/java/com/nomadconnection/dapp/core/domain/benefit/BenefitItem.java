@@ -5,7 +5,6 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -37,4 +36,7 @@ public class BenefitItem extends BaseTime {
 
 	private Integer minQuantity;
 
+	public String getName() {
+		return this.name;
+	}
 }

@@ -104,6 +104,10 @@ public class EmailService {
 		sender.send(preparator);
 	}
 
+	public boolean sendBenefitResultMail(Map<String, Object> mailAttribute, String emailFrom, String emailTo, String mailSubject, String mailTemplate) {
+		return this.sendBenefitResultMail(mailAttribute, emailFrom, new String[]{ObjectUtils.isEmpty(emailTo) ? emailFrom : emailTo}, mailSubject, mailTemplate);
+	}
+
 	/**
 	 * Send Benefit Payment Result Mail
 	 *
@@ -112,7 +116,7 @@ public class EmailService {
 	 * @param mailSubject	Mail Subject
 	 * @param mailTemplate	Mail Template (success: benefit-payment-success, order: benefit-payment-order, fail: benefit-payment-failed)
 	 */
-	public boolean sendBenefitResultMail(Map<String, Object> mailAttribute, String emailFrom, String emailTo, String mailSubject, String mailTemplate) {
+	public boolean sendBenefitResultMail(Map<String, Object> mailAttribute, String emailFrom, String[] emailTo, String mailSubject, String mailTemplate) {
 
 		MimeMessagePreparator preparator = mimeMessage -> {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
@@ -123,8 +127,8 @@ public class EmailService {
 							-> context.setVariable(attibuteName, attibuteValue));
 				}
 				helper.setFrom(emailFrom);
+				helper.setTo(ObjectUtils.isEmpty(emailTo) ? new String[]{emailFrom} : emailTo);
 				helper.setCc(emailFrom);
-				helper.setTo(ObjectUtils.isEmpty(emailTo) ? emailConfig.getSender() : emailTo);
 				helper.setSubject(mailSubject);
 				helper.setText(templateEngine.process(mailTemplate, context), true);
 			}
