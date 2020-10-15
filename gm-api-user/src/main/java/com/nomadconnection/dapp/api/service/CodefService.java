@@ -58,7 +58,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.EntityExistsException;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -70,7 +69,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.nomadconnection.dapp.codef.io.helper.CommonConstant.LOTTE_FILE;
-import static com.nomadconnection.dapp.codef.io.helper.CommonConstant.SHINHAN_FILE;
 
 @Slf4j
 @Service
@@ -1108,10 +1106,6 @@ public class CodefService {
 						.d009(d009) // 1: 단일대표 2: 개별대표 3: 공동대표
 						.d010(listResCeoList.size()>=2?listResCeoList.get(1):"")// 대표이사_성명1
 						.d011(listResCeoList.size()>=3?Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-","")):"")// 대표이사_주민번호1
-						.d014(listResCeoList.size()>=6?listResCeoList.get(5):"")// 대표이사_성명2
-						.d015(listResCeoList.size()>=7?Seed128.encryptEcb(listResCeoList.get(6).replaceAll("-","")):"")// 대표이사_주민번호2
-						.d018(listResCeoList.size()>=10?listResCeoList.get(9):"")// 대표이사_성명3
-						.d019(listResCeoList.size()>=11?Seed128.encryptEcb(listResCeoList.get(10).replaceAll("-","")):"")// 대표이사_주민번호3
 						.d029(null)
 						.d030(null)
 						.d031(null)
@@ -1247,10 +1241,6 @@ public class CodefService {
 						.d031(d009)    // 대표자코드
 						.d032(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")    // 대표자명1
 						.d033(listResCeoList.size() >= 3 ? Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-", "")) : "")    // 대표자주민등록번호1
-						.d036(listResCeoList.size() >= 6 ? listResCeoList.get(5) : "")    // 대표자명2
-						.d037(listResCeoList.size() >= 7 ? Seed128.encryptEcb(listResCeoList.get(6).replaceAll("-", "")) : "")    // 대표자주민등록번호2
-						.d040(listResCeoList.size() >= 10 ? listResCeoList.get(9) : "")    // 대표자명3
-						.d041(listResCeoList.size() >= 11 ? Seed128.encryptEcb(listResCeoList.get(10).replaceAll("-", "")) : "")    // 대표자주민등록번호3
 						.d051(null)    // 팩스전화지역번호
 						.d052(null)    // 팩스전화국번호
 						.d053(null)    // 팩스전화고유번호

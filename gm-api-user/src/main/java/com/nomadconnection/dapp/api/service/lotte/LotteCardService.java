@@ -44,6 +44,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -278,13 +279,16 @@ public class LotteCardService {
 				.stockRate(dto.getRate())
 				.build());
 
-		CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
-		if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
-			cardInfo = setStockholderByCeoInfo(cardInfo, ceoInfo);
+		List<CeoInfo> ceoInfos = repoCeo.getByCardIssuanceInfo(cardInfo);
+		for (CeoInfo ceoInfo : ceoInfos) {
+			if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
+				cardInfo = setStockholderByCeoInfo(cardInfo, ceoInfo);
+				break;
+			}
 		}
 
 		updateRiskConfigStockholder(user, dto);
-		updateD1100Stockholder(user.corp().idx(), cardInfo, dto);
+		updateD1100Stockholder(user.corp().idx(), cardInfo, ceoInfos, dto);
 
 		if (StringUtils.hasText(depthKey)) {
 			repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
@@ -325,24 +329,26 @@ public class LotteCardService {
 		}
 	}
 
-	private Lotte_D1100 updateD1100Stockholder(Long idx_corp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterStockholder dto) {
+	private Lotte_D1100 updateD1100Stockholder(Long idx_corp, CardIssuanceInfo cardInfo, List<CeoInfo> ceoInfos,
+											   CardIssuanceDto.RegisterStockholder dto) {
 		Lotte_D1100 d1100 = getD1100(idx_corp);
 		if (ObjectUtils.isEmpty(d1100)) {
 			return d1100;
 		}
 
-		CeoInfo ceoInfo = repoCeo.getByCardIssuanceInfo(cardInfo);
-		if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
-			return repoD1100.save(d1100
-					.setRlOwrDdc(Const.LOTTE_CORP_OWNER_CODE_5) // 법인 또는 단쳬의 대표
-					.setRlOwrNm(Lotte_Seed128.encryptEcb(ceoInfo.name()))
-					.setRlOwrEnm(Lotte_Seed128.encryptEcb(ceoInfo.engName()))
-					.setBird(Lotte_Seed128.encryptEcb(CommonUtil.birthLenConvert6To8(ceoInfo.birth())))
-					.setRlOwrNatyC(ceoInfo.nationality())
-					.setRlOwrVdMdc(Const.LOTTE_CORP_rlOwrVdMdc_CODE_09)
-					.setRlOwrDc(Const.LOTTE_CORP_rlOwrDc_CODE_4)
-					.setStchShrR("000")
-			);
+		for (CeoInfo ceoInfo : ceoInfos) {
+			if (commonCardService.isRealOwnerConvertCeo(cardInfo, ceoInfo)) {
+				return repoD1100.save(d1100
+						.setRlOwrDdc(Const.LOTTE_CORP_OWNER_CODE_5) // 법인 또는 단쳬의 대표
+						.setRlOwrNm(Lotte_Seed128.encryptEcb(ceoInfo.name()))
+						.setRlOwrEnm(Lotte_Seed128.encryptEcb(ceoInfo.engName()))
+						.setBird(Lotte_Seed128.encryptEcb(CommonUtil.birthLenConvert6To8(ceoInfo.birth())))
+						.setRlOwrNatyC(ceoInfo.nationality())
+						.setRlOwrVdMdc(Const.LOTTE_CORP_rlOwrVdMdc_CODE_09)
+						.setRlOwrDc(Const.LOTTE_CORP_rlOwrDc_CODE_4)
+						.setStchShrR("000")
+				);
+			}
 		}
 
 		String corpOwnerCode = getCorpOwnerCode(dto);
