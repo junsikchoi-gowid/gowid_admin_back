@@ -1056,8 +1056,17 @@ public class CodefService {
 
 				String ResCorpEstablishDate = saveJSONArray20(jsonArrayResCorpEstablishDateList);
 				String d009 = getJSONArrayCeoType(jsonArrayResCEOList);
-
 				corp.resUserType(d009);
+
+				if (listResCeoList.size()>=4) {
+					corp.ceoCount(1);
+				}
+				if (listResCeoList.size()>=8) {
+					corp.ceoCount(2);
+				}
+				if (listResCeoList.size()>=12) {
+					corp.ceoCount(3);
+				}
 
 				//파일생성 및 전송
 
