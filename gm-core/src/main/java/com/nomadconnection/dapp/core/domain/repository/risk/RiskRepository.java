@@ -46,6 +46,11 @@ public interface RiskRepository extends JpaRepository<Risk, Long>, AdminCustomRe
 
     @Transactional
     @Modifying
+    @Query("update Risk set endFlag = :cardIssuance  where idxCrop = :idxCorp")
+    int updateRiskIdxCorpCardIssuance(boolean cardIssuance, Long idxCorp);
+
+    @Transactional
+    @Modifying
     @Query("delete from Risk  where idxCorp = :idxCorp")
     void deleteByCorpIdx(@Param("idxCorp") Long idxCorp);
 }

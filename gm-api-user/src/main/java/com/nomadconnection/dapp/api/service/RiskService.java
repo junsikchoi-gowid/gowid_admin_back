@@ -28,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.thymeleaf.ITemplateEngine;
 
 import java.time.LocalDate;
@@ -62,11 +63,7 @@ public class RiskService {
 	private final IssuanceProgressRepository repoIssuanceProgress;
 
 	private final D1000Repository repoD1000;
-	private final D1100Repository repoD1100;
 	private final D1400Repository repoD1400;
-	private final D1510Repository repoD1510;
-	private final D1520Repository repoD1520;
-	private final D1530Repository repoD1530;
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity saveRiskConfig(RiskDto.RiskConfigDto riskConfig){
@@ -113,7 +110,7 @@ public class RiskService {
 			corp = user.corp();
 		}
 
-		if(calcDate == null || calcDate.isEmpty()){
+		if(StringUtils.isEmpty(calcDate)){
 			calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 		}
 
@@ -194,8 +191,6 @@ public class RiskService {
 			risk.minCashNeed(50000000);
 		}
 
-		// currentBalance
-
 		if(cRisk45days.size() > 0 ){
 			risk.currentBalance(cRisk45days.get(0).getCurrentBalance());
 			risk.errCode(cRisk45days.get(0).getErrCode());
@@ -205,7 +200,6 @@ public class RiskService {
 
 
 		// Error
-
 		risk.error(repoRisk.findErrCount(idxUser));
 
 		// 45DMA
@@ -241,16 +235,6 @@ public class RiskService {
 		cashBalance.add(risk.actualBalance());
 		risk.cashBalance(Collections.min(cashBalance));
 
-		// CardAvailable
-//		if(risk.cashBalance() >= risk.minCashNeed()){
-//			risk.cardAvailable(true);
-//		}else{
-//			risk.cardAvailable(false);
-//		}
-
-		boolean isEnoughBalance = risk.cashBalance() >= risk.minCashNeed();
-		risk.cardAvailable(isEnoughBalance);
-
 		// CardLimitCalculation
 		risk.cardLimitCalculation( risk.cashBalance() * risk.gradeLimitPercentage()/100);
 
@@ -259,13 +243,6 @@ public class RiskService {
 
 		// CardLimit
 		risk.cardLimit(Math.max(risk.depositGuarantee(),risk.realtimeLimit()));
-
-		// EmergencyStop
-//		if(risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow()){
-//			risk.emergencyStop(true);
-//		}else{
-//			risk.emergencyStop(false);
-//		}
 
 		boolean needToStop = risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow();
 		risk.emergencyStop(needToStop);
@@ -374,7 +351,7 @@ public class RiskService {
 		}
 
 
-		if(calcDate == null || calcDate.isEmpty()){
+		if(StringUtils.isEmpty(calcDate)){
 			calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 		}
 
@@ -503,16 +480,6 @@ public class RiskService {
 		cashBalance.add(risk.actualBalance());
 		risk.cashBalance(Collections.min(cashBalance));
 
-		// CardAvailable
-//		if(risk.cashBalance() >= risk.minCashNeed()){
-//			risk.cardAvailable(true);
-//		}else{
-//			risk.cardAvailable(false);
-//		}
-
-		boolean isEnoughBalance = risk.cashBalance() >= risk.minCashNeed();
-		risk.cardAvailable(isEnoughBalance);
-
 		// CardLimitCalculation
 		risk.cardLimitCalculation( risk.cashBalance() * risk.gradeLimitPercentage()/100);
 
@@ -523,12 +490,6 @@ public class RiskService {
 		risk.cardLimit(Math.max(risk.depositGuarantee(),risk.realtimeLimit()));
 
 		// EmergencyStop
-//		if(risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow()){
-//			risk.emergencyStop(true);
-//		}else{
-//			risk.emergencyStop(false);
-//		}
-
 		boolean needToStop = risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow();
 		risk.emergencyStop(needToStop);
 

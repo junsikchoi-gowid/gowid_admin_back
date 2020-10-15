@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.res;
 
+import com.nomadconnection.dapp.core.domain.repository.querydsl.ResBatchListCustomRepository;
 import com.nomadconnection.dapp.core.domain.res.ResBatchList;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 
 
 @Repository
-public interface ResBatchListRepository extends JpaRepository<ResBatchList, Long>  {
+public interface ResBatchListRepository extends JpaRepository<ResBatchList, Long>, ResBatchListCustomRepository{
     ResBatchList findFirstByAccountOrderByUpdatedAtDesc(String ResAccount);
 
     @Query(
@@ -87,4 +88,6 @@ public interface ResBatchListRepository extends JpaRepository<ResBatchList, Long
         String getErrCode();
         String getTransactionId();
     }
+
+    int countByErrCodeNotAndResBatchTypeAndIdxResBatch(String errCode, String resBatchType, Long idxResBatch);
 }

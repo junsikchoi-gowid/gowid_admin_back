@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
@@ -249,6 +250,10 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
     @Modifying
     @Query("update ResBatch set endFlag = 1 where idxUser = :idxUser and endFlag = 0 ")
     int updateProcessIdx(@Param("idxUser") Long idxUser);
+
+    @Transactional
+    @Query("select max(idx) from ResBatch where idxUser = :idxUser")
+    Long getMaxIdx(Long idxUser);
 
     public static interface CResBatchDto {
         String getMin();

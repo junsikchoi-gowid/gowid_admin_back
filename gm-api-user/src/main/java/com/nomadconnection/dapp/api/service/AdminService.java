@@ -2,15 +2,23 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.AdminDto;
+import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.CorpDto;
 import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
+import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
+import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
+import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepository;
+import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepositoryImpl;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.ResBatchListCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
@@ -26,20 +34,25 @@ import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.jwt.service.JwtService;
+import io.netty.util.internal.StringUtil;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.thymeleaf.ITemplateEngine;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -62,6 +75,7 @@ public class AdminService {
     private final ResBatchListRepository repoResBatchList;
     private final ResAccountHistoryRepository resAccountHistoryRepository;
     private final RiskConfigRepository repoRiskConfig;
+    private final CardIssuanceInfoRepository repoCardIssuance;
 
 
     private Boolean isGowidMaster(Long idxUser) {
@@ -129,12 +143,6 @@ public class AdminService {
 
         Page<AdminDto.RiskDto> resAccountPage = repoRisk.riskList(riskDto, idxUser, pageable).map(AdminDto.RiskDto::from);
 
-        if (!isMaster) {
-            for (AdminDto.RiskDto x : resAccountPage.getContent()) {
-                x.setIdxCorpName("#" + x.idxCorp);
-            }
-        }
-
         return ResponseEntity.ok().body(
                 BusinessResponse.builder().data(resAccountPage).build()
         );
@@ -158,11 +166,17 @@ public class AdminService {
 
         Page<CorpCustomRepository.SearchCorpResultDto> page = repoCorp.corpList(corpDto, idxUser, pageable);
 
-        if (!isMaster) {
-            for (CorpCustomRepository.SearchCorpResultDto x : page.getContent()) {
-                x.setResCompanyNm("#" + x.idx);
-            }
-        }
+        page.forEach(
+                searchCorpResultDto -> {
+                    if(repoResBatchList.countByErrCodeNotAndResBatchTypeAndIdxResBatch(
+                            "CF-00000",
+                            "1",
+                            repoResBatch.getMaxIdx(searchCorpResultDto.idx)) > 0 ){
+                        searchCorpResultDto.setBoolError(true);
+                    }else{
+                        searchCorpResultDto.setBoolError(false);
+                    }
+                });
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(page).build());
     }
@@ -209,9 +223,7 @@ public class AdminService {
             }
         }
 
-        repoRisk.save(risk);
-
-        return ResponseEntity.ok().body(BusinessResponse.builder().build());
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(repoRisk.save(risk)).build());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -251,26 +263,43 @@ public class AdminService {
         return ResponseEntity.ok().body(BusinessResponse.builder().data(result).build());
     }
 
+    @Transactional(readOnly = true)
     public ResponseEntity corpId(Long idx, Long idxCorp) {
 
-        CorpDto corp = repoCorp.findById(idxCorp).map(CorpDto::from).orElseThrow(
+        CorpDto corpDto = repoCorp.findById(idxCorp).map(CorpDto::from).orElseThrow(
                 () -> CorpNotRegisteredException.builder().build()
         );
 
-        //todo 권한별 데이터 변경
-        System.out.println( intGowidMaster(idx) );
-        System.out.println( intGowidMaster(idx) < 2 );
-        System.out.println( idxCorp != null );
-        if (intGowidMaster(idx) < 2 && idxCorp != null) {
-            corp.setResCompanyNm(null);
-            corp.setResCompanyIdentityNo(null);
-            corp.setResUserNm(null);
-            //todo 공동사업자 1 , 주민(사업자) 등록번호
-            //todo 공동사업자 2 , 주민(사업자) 등록번호
-            //todo 발급번호
-        }
+        Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+                () -> CorpNotRegisteredException.builder().build());
 
-        return ResponseEntity.ok().body(BusinessResponse.builder().data(corp).build());
+        User user = repoUser.findTopByCorp(corp).orElseThrow(
+                () -> CorpNotRegisteredException.builder().build());
+
+        CardIssuanceInfo cardIssuance = repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(user).orElseGet(
+                () -> CardIssuanceInfo.builder().issuanceDepth("0").build()
+        );
+
+        RiskDto.RiskConfigDto riskConfig = repoRiskConfig.findByCorpAndEnabled(corp, true).map(RiskDto.RiskConfigDto::from)
+                .orElseGet(
+                        () -> RiskDto.RiskConfigDto.builder().build()
+                );
+
+
+        AdminDto.corpInfoDetailId corpInfo = AdminDto.corpInfoDetailId.builder()
+                .corpDto(corpDto)
+                .cardCompany(user.cardCompany())
+                .depth(cardIssuance.issuanceDepth())
+                .hopeLimit(riskConfig.hopeLimit)
+                .grantLimit(riskConfig.grantLimit)
+                .userName(user.name())
+                .userNumber(user.mdn())
+                .userEmail(user.email())
+                .smsFlag(user.isSendSms())
+                .emailFlag(user.isSendEmail())
+                .build();
+
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(corpInfo).build());
     }
 
     /**
@@ -374,12 +403,6 @@ public class AdminService {
 
         Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto.getCorpName(), dto.getErrorCode(), dto.getTransactionId(), toDay, dto.getIdxCorp(), pageable).map(AdminDto.ErrorResultDto::from);
 
-        if (!isMaster) {
-            for (AdminDto.ErrorResultDto errorResultDto : list) {
-                errorResultDto.setCorpName("#" + errorResultDto.idxCorp);
-            }
-        }
-
         return ResponseEntity.ok().body(BusinessResponse.builder().data(list).normal(BusinessResponse.Normal.builder().status(true).build()).build());
     }
 
@@ -394,5 +417,142 @@ public class AdminService {
         }
         x.setBurnRate(BurnRate);
         x.setRunWay(intMonth);
+    }
+
+    public ResponseEntity originalList(AdminCustomRepository.RiskOriginal riskOriginal, Long idxUser, Pageable pageable) {
+
+        Boolean isMaster = isGowidMaster(idxUser);
+
+        Page<AdminDto.RiskNewDto> resAccountPage = repoRisk.riskList(riskOriginal, idxUser, pageable).map(AdminDto.RiskNewDto::from);
+
+        return ResponseEntity.ok().body(
+                BusinessResponse.builder().data(resAccountPage).build()
+        );
+    }
+
+    public ResponseEntity cardComTransInfo(AdminCustomRepository.RiskOriginal riskOriginal, Long idxUser, Pageable pageable) {
+
+        Boolean isMaster = isGowidMaster(idxUser);
+
+        Page<AdminDto.RiskDto> resAccountPage = repoRisk.riskTransList(riskOriginal, idxUser, pageable).map(AdminDto.RiskTransDto::from);
+
+        return ResponseEntity.ok().body(
+                BusinessResponse.builder().data(resAccountPage).build()
+        );
+    }
+
+    public ResponseEntity originalListGrant(Long idxUser, RiskDto.CardList dto) {
+
+        Boolean isMaster = isGowidMaster(idxUser);
+
+        if(!isMaster){
+            throw UnauthorizedException.builder().build();
+        }
+
+        for( Long idxCorp : dto.getIdxCorp()){
+            repoRisk.updateRiskIdxCorpCardIssuance(dto.boolCardGrant, idxCorp);
+        }
+
+        return ResponseEntity.ok().body(BusinessResponse.builder().normal(BusinessResponse.Normal.builder().status(true).build()).build());
+    }
+
+    public ResponseEntity adminCorpList(CorpCustomRepository.SearchCorpListDto dto, Long idxUser, Pageable pageable) {
+        Boolean isMaster = isGowidMaster(idxUser);
+
+        Page<CorpCustomRepository.SearchCorpResultDto> page = repoCorp.adminCorpList(dto, idxUser, pageable);
+
+//        page.forEach(
+//                searchCorpResultDto -> {
+//                    if(repoResBatchList.countByErrCodeNotAndResBatchTypeAndIdxResBatch(
+//                            "CF-00000",
+//                            "1",
+//                            repoResBatch.getMaxIdx(searchCorpResultDto.idx)) > 0 ){
+//                        searchCorpResultDto.setBoolError(true);
+//                    }else{
+//                        searchCorpResultDto.setBoolError(false);
+//                    }
+//                });
+
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(page).build());
+    }
+
+    public ResponseEntity scrapCorpList(CorpCustomRepository.ScrapCorpDto dto, Long idxUser, Pageable pageable) {
+        Boolean isMaster = isGowidMaster(idxUser);
+
+        if(StringUtils.isEmpty(dto.getUpdatedAt())){
+            dto.setUpdatedAt(LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+        }
+
+        Page<CorpCustomRepository.ScrapCorpListDto> page = repoCorp.scrapCorpList(dto, pageable);
+
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(page).build());
+    }
+
+    public ResponseEntity scrapCorp(Long idx, Long idxCorp) {
+
+        // return ResponseEntity.ok().body(BusinessResponse.builder().data(list).normal(BusinessResponse.Normal.builder().status(true).build()).build());
+        return null;
+    }
+
+    public ResponseEntity scrapAccountList(ResBatchListCustomRepository.ScrapAccountDto dto, Long idxUser, Pageable pageable) {
+        Boolean isMaster = isGowidMaster(idxUser);
+
+        Page<ResBatchListCustomRepository.ScrapAccountListDto> page = repoResBatchList.scrapAccountList(dto, pageable);
+
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(page).build());
+    }
+
+    public ResponseEntity scrapAccount(Long idx, String account) {
+        // return ResponseEntity.ok().body(BusinessResponse.builder().data(list).normal(BusinessResponse.Normal.builder().status(true).build()).build());
+        return null;
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity corpInfo(Long idxCorp, Long idxUser) {
+        Boolean isMaster = isGowidMaster(idxUser);
+        AdminDto.corpInfoDetail data = new AdminDto.corpInfoDetail();
+
+        data.setCardCompany(repoCorp.findById(idxCorp).get().user().cardCompany());
+
+        if (isMaster) {
+            String date = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
+            repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), date).ifPresent(
+                    risk -> {
+                        data.setDepositGuarantee(risk.depositGuarantee());
+                        data.setDma45(risk.dma45());
+                        data.setDmm45(risk.dmm45());
+                        data.setCashBalance(risk.cashBalance());
+                        data.setCurrentBalance(risk.currentBalance());
+                        data.setMinCashNeed(risk.minCashNeed());
+                        data.setCardLimitNow(risk.cardLimitNow());
+                        data.setCardRestartCount(risk.cardRestartCount());
+                        data.setCardType(risk.cardType());
+                        data.setCardIssuance(risk.cardIssuance());
+                        data.setGrade(risk.grade());
+                        data.setEmergencyStop(risk.emergencyStop());
+                        data.setRealtimeLimit(risk.realtimeLimit());
+                    }
+            );
+
+            repoRiskConfig.findByCorpAndEnabled(Corp.builder().idx(idxCorp).build(),true).ifPresent(
+                    riskConfig -> {
+                        data.setHopeLimit(riskConfig.hopeLimit());
+                        data.setCalculatedLimit(riskConfig.calculatedLimit());
+                        data.setGrantLimit(riskConfig.grantLimit());
+                    }
+            );
+        }
+
+        return ResponseEntity.ok().body(BusinessResponse.builder().data(data).build());
+    }
+
+    public ResponseEntity riskConfigStop(Long idx, AdminDto.StopDto dto) {
+        // return ResponseEntity.ok().body(BusinessResponse.builder().data(list).normal(BusinessResponse.Normal.builder().status(true).build()).build());
+        return null;
+    }
+
+    public ResponseEntity cardComTransInfoGrant(Long idx, AdminDto.cardComTransInfoGrant dto) {
+        // return ResponseEntity.ok().body(BusinessResponse.builder().data(list).normal(BusinessResponse.Normal.builder().status(true).build()).build());
+        return null;
     }
 }

@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -110,6 +111,9 @@ public class RiskDto {
         public boolean ventureCertification;
         public boolean vcInvestment;
         public boolean enabled;
+        public String hopeLimit;
+        public String grantLimit;
+        public String calculatedLimit;
 
         public static RiskConfigDto from(RiskConfig riskConfig) {
             RiskConfigDto riskConfigDto = RiskConfigDto.builder()
@@ -123,10 +127,21 @@ public class RiskDto {
                     .ventureCertification(riskConfig.ventureCertification())
                     .vcInvestment(riskConfig.vcInvestment())
                     .enabled(riskConfig.enabled())
+                    .hopeLimit(riskConfig.hopeLimit())
+                    .grantLimit(riskConfig.grantLimit())
+                    .calculatedLimit(riskConfig.calculatedLimit())
                     .build();
 
             return riskConfigDto;
         }
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CardList {
+        public boolean boolCardGrant;
+        public List<Long> idxCorp;
+    }
 }
