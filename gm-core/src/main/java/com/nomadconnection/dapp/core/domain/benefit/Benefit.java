@@ -44,9 +44,11 @@ public class Benefit extends BaseTime {
 	@Column(nullable = false)
 	private String basicInfoDesc;
 
+	@Lob
 	@Column(nullable = false)
 	private String basicInfoDetail;
 
+	@Lob
 	@Column(nullable = false)
 	private String basicInfoGuide;
 
@@ -61,8 +63,10 @@ public class Benefit extends BaseTime {
 
 	private String authInfoDesc;
 
+	@Lob
 	private String authInfoDetail;
 
+	@Lob
 	private String authInfoGuide;
 
 	private String authInfoExtraInfoLabel;
