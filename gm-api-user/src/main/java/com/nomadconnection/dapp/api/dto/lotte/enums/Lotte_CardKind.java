@@ -66,4 +66,37 @@ public enum Lotte_CardKind {
 				return d1100;
 		}
 	}
+
+	public static Lotte_D1100 initCardKindInLotte_D1100(Lotte_D1100 d1100) {
+		return d1100.setCocPdDc("")
+				.setUnitCdC("")
+				.setBraDc("")
+				.setCdDc("")
+				.setCdGdc("")
+				.setRgAkCt("")
+				.setCocPdDc2("")
+				.setUnitCdC2("")
+				.setBraDc2("")
+				.setCdDc2("")
+				.setCdGdc2("")
+				.setRgAkCt2("")
+				.setCocPdDc3("")
+				.setUnitCdC3("")
+				.setBraDc3("")
+				.setCdDc3("")
+				.setCdGdc3("")
+				.setRgAkCt3("")
+				.setCocPdDc4("")
+				.setUnitCdC4("")
+				.setBraDc4("")
+				.setCdDc4("")
+				.setCdGdc4("")
+				.setRgAkCt4("")
+				.setCocPdDc5("")
+				.setUnitCdC5("")
+				.setBraDc5("")
+				.setCdDc5("")
+				.setCdGdc5("")
+				.setRgAkCt5("");
+	}
 }

@@ -526,6 +526,8 @@ public class LotteCardService {
 				.setTkpMlId(encryptEmail)
 				.setTkpNaddYn("N");
 
+		d1100 = Lotte_CardKind.initCardKindInLotte_D1100(d1100);
+
 		if (!ObjectUtils.isEmpty(dto.getGreenCount()) && !ObjectUtils.isEmpty(dto.getBlackCount())) {
 			int seq = 1;
 			if (dto.getGreenCount() > 0) {
