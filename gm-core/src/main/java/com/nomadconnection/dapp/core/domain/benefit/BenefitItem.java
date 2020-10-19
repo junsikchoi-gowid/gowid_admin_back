@@ -34,6 +34,8 @@ public class BenefitItem extends BaseTime {
 
 	private Long discount;
 
+	private Long purchase;
+
 	private Integer minQuantity;
 
 	public String getName() {

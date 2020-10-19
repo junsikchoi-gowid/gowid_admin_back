@@ -114,9 +114,10 @@ public class BenefitService {
 		// benefit 결제 내역 저장(benefitPaymentHistory, benefitPaymentItem)
 		BenefitPaymentHistory benefitPaymentHistory = saveBenefitPaymentHistory(user, benefit, dto);
 		List<BenefitPaymentItem> paymentItemList = saveBenefitPaymentItems(benefitPaymentHistory, dto);
+		List<BenefitDto.BenefitPaymentItemRes> paymentItemListRes = paymentItemList.stream().map(BenefitDto.BenefitPaymentItemRes::from).collect(Collectors.toList());
 
 		// 2. 결과 메일 전송
-		Map<String, Object> mailAttribute = this.getMailAttribute(benefitPaymentHistory, paymentItemList);
+		Map<String, Object> mailAttribute = this.getMailAttribute(benefitPaymentHistory, paymentItemListRes);
 		if(dto.getErrCode()) {
 
 			// 2.1. 결제 결과가 성공일 경우
@@ -230,7 +231,7 @@ public class BenefitService {
 	 * @param paymentItems 구매 항목 목록
 	 * @return Benefit 결제 메일 Attribute Map
 	 */
-	Map<String, Object> getMailAttribute(BenefitPaymentHistory benefitPaymentHistory, List<BenefitPaymentItem> paymentItems) {
+	Map<String, Object> getMailAttribute(BenefitPaymentHistory benefitPaymentHistory, List<BenefitDto.BenefitPaymentItemRes> paymentItems) {
 
 		Map<String, Object> mailAttributMap = new HashMap<>();
 
@@ -247,6 +248,7 @@ public class BenefitService {
 
 		mailAttributMap.put("paymentItems", paymentItems);									// 결제 항목
 		mailAttributMap.put("totalPrice", benefitPaymentHistory.totalPrice());				// 최종 결제 금액
+		mailAttributMap.put("totalPurchase", paymentItems.stream().mapToLong(o -> o.getPurchase()).sum());				// 최종 구매 금액(발주서)
 
 		mailAttributMap.put("errMessage", benefitPaymentHistory.errMessage());				// 오류 메세지 (null 가능)
 

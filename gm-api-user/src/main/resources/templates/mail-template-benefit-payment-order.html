@@ -504,7 +504,7 @@
                           >
                             ₩
                             <span
-                              th:text="${#numbers.formatInteger(paymentItem.price, 3, 'COMMA')}"
+                              th:text="${#numbers.formatInteger(paymentItem.purchase, 3, 'COMMA')}"
                             >
                               (*금액)</span
                             >
@@ -528,7 +528,7 @@
                         >
                           ₩
                           <span
-                            th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA')}"
+                            th:text="${#numbers.formatInteger(totalPurchase, 3, 'COMMA')}"
                           >
                             (*최종 결제 금액)</span
                           >

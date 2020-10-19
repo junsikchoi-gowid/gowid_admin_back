@@ -344,13 +344,17 @@ public class BenefitDto {
 		@ApiModelProperty("금액")
 		private Long price;
 
+		@ApiModelProperty("매입금액")
+		private Long purchase;
+
 		public static BenefitPaymentItemRes from(BenefitPaymentItem benefitPaymentItem) {
 			if (benefitPaymentItem != null) {
 				return BenefitPaymentItemRes.builder()
 						.idx(benefitPaymentItem.idx())
-						.benefitItem(BenefitDto.BenefitItemRes.from(benefitPaymentItem.benefitItem()))
+						.benefitItem(BenefitItemRes.from(benefitPaymentItem.benefitItem()))
 						.quantity(benefitPaymentItem.quantity())
 						.price(benefitPaymentItem.price())
+						.purchase(benefitPaymentItem.benefitItem().purchase() * benefitPaymentItem.quantity())
 						.build();
 			}
 			return null;
