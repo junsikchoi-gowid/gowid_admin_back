@@ -111,57 +111,72 @@ public class BenefitService {
 		Benefit benefit = findBenefit(dto.getIdxBenefit());
 		log.debug("     >>> user benefit OK!");
 
-		// benefit 결제 내역 저장(benefitPaymentHistory, benefitPaymentItem)
-		BenefitPaymentHistory benefitPaymentHistory = saveBenefitPaymentHistory(user, benefit, dto);
-		List<BenefitPaymentItem> paymentItemList = saveBenefitPaymentItems(benefitPaymentHistory, dto);
-		List<BenefitDto.BenefitPaymentItemRes> paymentItemListRes = paymentItemList.stream().map(BenefitDto.BenefitPaymentItemRes::from).collect(Collectors.toList());
+		try {
 
-		// 2. 결과 메일 전송
-		Map<String, Object> mailAttribute = this.getMailAttribute(benefitPaymentHistory, paymentItemListRes);
-		if(dto.getErrCode()) {
 
-			// 2.1. 결제 결과가 성공일 경우
-			// 2.1.1. 고객사에게 메일 전송
-			//     - 사용자 메일과 입력한 구매자 메일이 동일할 경우 구매자 메일 전송
-			//     - 사용자 메일과 입력한 구매자 메일이 다를 경우 둘 다에게 메일 전송
-			boolean isSuccessSendPaymentMail = (user.email().equals(dto.getCustomerEmail())) ?
+			log.debug(">>>>>>>>>>>>>>>>>>>>>> 1.");
+			// benefit 결제 내역 저장(benefitPaymentHistory, benefitPaymentItem)
+			BenefitPaymentHistory benefitPaymentHistory = saveBenefitPaymentHistory(user, benefit, dto);
+			log.debug(">>>>>>>>>>>>>>>>>>>>>> 2.");
+			List<BenefitPaymentItem> paymentItemList = saveBenefitPaymentItems(benefitPaymentHistory, dto);
+			log.debug(">>>>>>>>>>>>>>>>>>>>>> 3.");
+			List<BenefitDto.BenefitPaymentItemRes> paymentItemListRes = paymentItemList.stream().map(BenefitDto.BenefitPaymentItemRes::from).collect(Collectors.toList());
+			log.debug(">>>>>>>>>>>>>>>>>>>>>> 4.");
+
+			// 2. 결과 메일 전송
+			Map<String, Object> mailAttribute = this.getMailAttribute(benefitPaymentHistory, paymentItemListRes);
+			log.debug(">>>>>>>>>>>>>>>>>>>>>> 5.");
+			if (dto.getErrCode()) {
+				log.debug(">>>>>>>>>>>>>>>>>>>>>> 6.");
+				// 2.1. 결제 결과가 성공일 경우
+				// 2.1.1. 고객사에게 메일 전송
+				//     - 사용자 메일과 입력한 구매자 메일이 동일할 경우 구매자 메일 전송
+				//     - 사용자 메일과 입력한 구매자 메일이 다를 경우 둘 다에게 메일 전송
+				boolean isSuccessSendPaymentMail = (user.email().equals(dto.getCustomerEmail())) ?
+						emailService.sendBenefitResultMail(mailAttribute,
+								BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
+								dto.getCustomerEmail(),
+								BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_EMAIL_TITLE.getValue(),
+								BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_TEMPLATE.getValue())
+						:
+						emailService.sendBenefitResultMail(mailAttribute,
+								BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
+								new String[]{dto.getCustomerEmail(), user.email()},
+								BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_EMAIL_TITLE.getValue(),
+								BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_TEMPLATE.getValue());
+
+				// 2.1.2. 발주서 메일 전송
+				boolean isSuccessSendOrderMail = emailService.sendBenefitResultMail(mailAttribute,
+
+						BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
+						BenefitPaymentEmailType.BENEFIT_VENDOR_PLANIT_EMAIL_ADDR.getValue(),
+						BenefitPaymentEmailType.BENEFIT_PAYMENT_ORDER_EMAIL_TITLE.getValue(),
+						BenefitPaymentEmailType.BENEFIT_PAYMENT_ORDER_TEMPLATE.getValue());
+
+				// 메일 결과 저장
+				benefitPaymentHistory.sendPaymentMailErrCode(isSuccessSendPaymentMail ? 0 : 1).sendOrderMailErrCode(isSuccessSendOrderMail ? 0 : 1);
+
+			} else {
+
+				log.debug(">>>>>>>>>>>>>>>>>>>>>> 7.");
+				// 3. 결제 결과가 실패일 경우
+				// 3.1. 결과 실패 메일 전송
 				emailService.sendBenefitResultMail(mailAttribute,
 						BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
-						dto.getCustomerEmail(),
-						BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_EMAIL_TITLE.getValue(),
-						BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_TEMPLATE.getValue())
-				:
-				emailService.sendBenefitResultMail(mailAttribute,
 						BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
-						new String[]{dto.getCustomerEmail(), user.email()},
-						BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_EMAIL_TITLE.getValue(),
-						BenefitPaymentEmailType.BENEFIT_PAYMENT_SUCCESS_TEMPLATE.getValue());
+						BenefitPaymentEmailType.BENEFIT_PAYMENT_FAILED_EMAIL_TITLE.getValue(),
+						BenefitPaymentEmailType.BENEFIT_PAYMENT_FAILED_TEMPLATE.getValue());
+			}
 
-			// 2.1.2. 발주서 메일 전송
-			boolean isSuccessSendOrderMail = emailService.sendBenefitResultMail(mailAttribute,
-																					BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
-																					BenefitPaymentEmailType.BENEFIT_VENDOR_PLANIT_EMAIL_ADDR.getValue(),
-																					BenefitPaymentEmailType.BENEFIT_PAYMENT_ORDER_EMAIL_TITLE.getValue(),
-																					BenefitPaymentEmailType.BENEFIT_PAYMENT_ORDER_TEMPLATE.getValue());
-
-			// 메일 결과 저장
-			benefitPaymentHistory.sendPaymentMailErrCode(isSuccessSendPaymentMail ? 0 : 1).sendOrderMailErrCode(isSuccessSendOrderMail ? 0 : 1);
-
-		}else {
-			// 3. 결제 결과가 실패일 경우
-			// 3.1. 결과 실패 메일 전송
-			emailService.sendBenefitResultMail(mailAttribute,
-												BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
-												BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
-												BenefitPaymentEmailType.BENEFIT_PAYMENT_FAILED_EMAIL_TITLE.getValue(),
-												BenefitPaymentEmailType.BENEFIT_PAYMENT_FAILED_TEMPLATE.getValue());
+			return ResponseEntity.ok().body(BusinessResponse.builder()
+					.normal(BusinessResponse.Normal.builder()
+							.status(true)
+							.build())
+					.build());
+		}catch(Exception e) {
+			log.error(e.getMessage(), e);
+			return null;
 		}
-
-		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.normal(BusinessResponse.Normal.builder()
-						.status(true)
-						.build())
-				.build());
 	}
 
 	/**
