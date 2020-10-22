@@ -6,9 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.ObjectUtils;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -165,8 +167,14 @@ public class BenefitDto {
 		@ApiModelProperty("(기본정보) Action에 대한 Button Label")
 		private String basicInfoButtonLabel;
 
+		@ApiModelProperty("(기본정보) Action에 대한 Button Label List")
+		private List<String> basicInfoButtonLabelList;
+
 		@ApiModelProperty("(기본정보) Action에 대한 Button Link URL")
 		private String basicInfoButtonLink;
+
+		@ApiModelProperty("(기본정보) Action에 대한 Button Link URL List")
+		private List<String> basicInfoButtonLinkList;
 
 		@ApiModelProperty("(로그인 후) 설명")
 		private String authInfoDesc;
@@ -186,14 +194,26 @@ public class BenefitDto {
 		@ApiModelProperty("(로그인 후) Action에 대한 Button Label")
 		private String authInfoButtonLabel;
 
+		@ApiModelProperty("(로그인 후) Action에 대한 Button Label List")
+		private List<String> authInfoButtonLabelList;
+
 		@ApiModelProperty("(로그인 후) Action에 대한 Button Link URL")
 		private String authInfoButtonLink;
+
+		@ApiModelProperty("(로그인 후) Action에 대한 Button Link URL List")
+		private List<String> authInfoButtonLinkList;
 
 		@ApiModelProperty("문의 Email")
 		private String email;
 
+		@ApiModelProperty("Email 목록")
+		private List<String> emailList;
+
 		@ApiModelProperty("문의 전화번호")
 		private String tel;
+
+		@ApiModelProperty("Tel 목록")
+		private List<String> telList;
 
 		@ApiModelProperty("서비스 오픈 여부")
 		private Integer activeApplying;
@@ -229,16 +249,22 @@ public class BenefitDto {
 						.basicInfoExtraInfoLabel(benefit.basicInfoExtraInfoLabel())
 						.basicInfoExtraInfoLink(benefit.basicInfoExtraInfoLink())
 						.basicInfoButtonLabel(benefit.basicInfoButtonLabel())
+						.basicInfoButtonLabelList(ObjectUtils.isEmpty(benefit.basicInfoButtonLabel()) ? null : Arrays.asList(benefit.basicInfoButtonLabel().split(",")))
 						.basicInfoButtonLink(benefit.basicInfoButtonLink())
+						.basicInfoButtonLinkList(ObjectUtils.isEmpty(benefit.basicInfoButtonLink()) ? null : Arrays.asList(benefit.basicInfoButtonLink().split(",")))
 						.authInfoDesc(benefit.authInfoDesc())
 						.authInfoDetail(benefit.authInfoDetail())
 						.authInfoGuide(benefit.authInfoGuide())
 						.authInfoExtraInfoLabel(benefit.authInfoExtraInfoLabel())
 						.authInfoExtraInfoLink(benefit.authInfoExtraInfoLink())
 						.authInfoButtonLabel(benefit.authInfoButtonLabel())
+						.authInfoButtonLabelList(ObjectUtils.isEmpty(benefit.authInfoButtonLabel()) ? null : Arrays.asList(benefit.authInfoButtonLabel().split(",")))
 						.authInfoButtonLink(benefit.authInfoButtonLink())
+						.authInfoButtonLinkList(ObjectUtils.isEmpty(benefit.authInfoButtonLink()) ? null : Arrays.asList(benefit.authInfoButtonLink().split(",")))
 						.email(benefit.email())
+						.emailList(ObjectUtils.isEmpty(benefit.email()) ? null : Arrays.asList(benefit.email().replaceAll(" ", "").split(",")))
 						.tel(benefit.tel())
+						.telList(ObjectUtils.isEmpty(benefit.tel()) ? null : Arrays.asList(benefit.tel().replaceAll(" ", "").split(",")))
 						.activeApplying(benefit.activeApplying())
 						.activeAbTest(benefit.activeAbTest())
 						.activePayment(benefit.activePayment())
