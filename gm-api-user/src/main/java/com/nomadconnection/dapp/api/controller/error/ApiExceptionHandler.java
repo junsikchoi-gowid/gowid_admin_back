@@ -1,6 +1,8 @@
 package com.nomadconnection.dapp.api.controller.error;
 
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
+import com.nomadconnection.dapp.api.exception.CodefApiException;
+import com.nomadconnection.dapp.api.exception.CorpAlreadyExistException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import org.springframework.http.HttpStatus;
@@ -34,4 +36,29 @@ public class ApiExceptionHandler {
                         .build())
                 .build();
     }
+
+    @ExceptionHandler(CodefApiException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    protected ApiResponse<?> handleCodefApiException(CodefApiException e) {
+
+        return ApiResponse.builder()
+            .result(ApiResponse.ApiResult.builder()
+                .code(e.getCode())
+                .desc(e.getMessage())
+                .build())
+            .build();
+    }
+
+    @ExceptionHandler(CorpAlreadyExistException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    protected ApiResponse<?> handleCorpAlreadyExistException(CorpAlreadyExistException e) {
+
+        return ApiResponse.builder()
+                .result(ApiResponse.ApiResult.builder()
+                        .code(e.getCode())
+                        .desc(e.getMessage())
+                        .build())
+                .build();
+    }
+
 }

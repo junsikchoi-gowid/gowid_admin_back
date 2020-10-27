@@ -38,6 +38,7 @@ public class UserController {
 		public static final String REGISTRATION_CONSENT = "/registration/consent";
 		public static final String ISSUANCE_PROGRESS = "/issuance-progress";
 		public static final String LIMIT_REVIEW = "/limit-review";
+		public static final String INIT_USER_INFO = "/init/user";
 	}
 
 	private final UserService service;
@@ -89,6 +90,22 @@ public class UserController {
 				.password(dto.getPassword())
 				.build());
 	}
+
+    @ApiOperation(value = "사용자정보 초기화", notes = "" +
+            "\n ### Remarks" +
+            "\n" +
+            "\n - " +
+            "\n")
+    @DeleteMapping(URI.INIT_USER_INFO)
+    public ResponseEntity<?> initUserInfo(
+            @ApiIgnore @CurrentUser CustomUser user
+    ) {
+        if (log.isInfoEnabled()) {
+            log.info("([ initUserInfo ]) $user='{}'", user);
+        }
+        service.initUserInfo(user.idx());
+        return ResponseEntity.ok().build();
+    }
 
 	//==================================================================================================================
 	//

@@ -46,4 +46,9 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 		String getDesc2();
 	}
 
+	@Transactional
+	@Modifying
+	@Query("delete from ConnectedMng  where idxuser = :idxUser")
+	void deleteAllByUserIdx(@Param("idxUser") Long idxUser);
+
 }

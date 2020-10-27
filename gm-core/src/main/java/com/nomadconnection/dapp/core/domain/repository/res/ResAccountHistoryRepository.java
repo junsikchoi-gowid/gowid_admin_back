@@ -16,7 +16,11 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
     @Query("delete from ResAccountHistory c where c.resAccount = :resAccount and c.resAccountTrDate between :startDate and :endDate")
     void deleteResAccountTrDate(@Param("resAccount") String resAccount, @Param("startDate") String startDate, @Param("endDate") String endDate );
 
-
+    // 데이터, 리스크 팀과 협의 후 추가
+//    @Transactional
+//    @Modifying
+//    @Query("delete from ResAccountHistory c where c.connectedId = :connectedId")
+//    int deleteConnectedQuery(@Param("connectedId") String connectedId);
 
     public static interface CMonthInOutSumDto {
         Long getSumResAccountIn();

@@ -31,7 +31,6 @@ public class CodefController {
 	public static class URI {
 		public static final String BASE = "/codef/v1";
 
-		public static final String ACCOUNT_CONNECTED_LIST = "/account/connectedId-list";       				// 커넥티드아이디 목록 조회
 		public static final String ACCOUNT_LIST= "/account/list";            								// 인증서 목록 조회
 		public static final String ACCOUNT_LIST_CORP= "/account/listcorp";            						// 인증서 목록 조회 (법인)
 		public static final String ACCOUNT_CREATE = "/account/create";            							//
@@ -89,9 +88,6 @@ public class CodefController {
 		return service.findConnectedIdListCorp(user.idx(), idxCorp );
 	}
 
-
-
-
 	@ApiOperation(value = "인증서 등록(커넥티드아이디 발급)", notes = "" +
 			"\n ### Remarks" +
 			"\n")
@@ -136,7 +132,7 @@ public class CodefController {
 	}
 
 
-
+	@Deprecated
 	@ApiOperation(value = "인증서 등록(커넥티드아이디 발급) 국세청 관련 등록 ", notes = " type 을 강제로 nt 로 저장함 " +
 			"\n ### Remarks" +
 			"\n")
@@ -150,6 +146,7 @@ public class CodefController {
 		return service.RegisterAccountNt(dto, user.idx());
 	}
 
+	@Deprecated
 	@ApiOperation(value = "재무제표 스크래핑 및 이미지 저장 ", notes = "  " +
 			"\n ### Remarks" +
 			"\n")
@@ -192,20 +189,6 @@ public class CodefController {
 		return service.registerAccount2(dto, user.idx());
 	}
 
-	/*
-	@ApiOperation(value = "인증서 수정", notes = "" +
-			"\n ### Remarks" +
-			"\n")
-	@PostMapping(URI.ACCOUNT_UPDATE)
-	public ResponseEntity UpdateAccount(
-			@ApiIgnore @CurrentUser CustomUser user,
-			@RequestBody ConnectedMngDto.Account dto) {
-		if (log.isInfoEnabled()) {
-			log.info("([Codef UpdateAccount ]) $dto='{}'", dto);
-		}
-		return service.updateAccount(dto, user.idx());
-	}
-*/
 	@ApiOperation(value = "인증서 삭제", notes = "" +
 			"\n ### Remarks" +
 			"\n")

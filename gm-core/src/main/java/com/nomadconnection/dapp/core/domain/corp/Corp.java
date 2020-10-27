@@ -10,7 +10,8 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
-@Data
+@Getter
+@Setter
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @Entity

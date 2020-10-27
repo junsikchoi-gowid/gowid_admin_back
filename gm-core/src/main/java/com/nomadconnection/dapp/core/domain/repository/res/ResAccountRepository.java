@@ -5,8 +5,11 @@ import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -340,4 +343,9 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
     )
     Page<CashResultDto> cashList(String searchCorpName, Boolean updateStatus, Pageable pageable);
 
+    // 데이터, 리스크 팀과 협의 후 추가
+//    @Transactional
+//    @Modifying
+//    @Query("delete from ResAccount c where c.connectedId = :connectedId")
+//    int deleteConnectedQuery(@Param("connectedId") String connectedId);
 }

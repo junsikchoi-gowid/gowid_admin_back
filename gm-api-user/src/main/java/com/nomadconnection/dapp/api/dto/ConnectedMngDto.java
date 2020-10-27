@@ -184,7 +184,6 @@ public class ConnectedMngDto {
 
 		@ApiModelProperty("사업자번호")
 		private String identity;
-
 	}
 
 	@Data

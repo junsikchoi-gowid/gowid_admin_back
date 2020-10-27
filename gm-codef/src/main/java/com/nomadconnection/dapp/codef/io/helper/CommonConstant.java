@@ -81,13 +81,27 @@ public class CommonConstant {
 	public static final String REFERENCE_UPDATE_ACCOUNT = "/v1/account/reference-update";  								// 레퍼런스 계정 수정
 
 
-
 	public static final String COUNTRYCODE = "KR"; // 국가코드 KR
 	public static final String BUSINESSTYPE = "BK"; // 업무구분코드 BK
 	public static final String CARDTYPE = "CD"; // 업무구분코드 CD
 	public static final String REVENUETYPE = "NT"; // 업무구분코드 NT
+
+	// 삭제예정
 	public static final String CLIENTTYPE = "A"; // 고객구분(P: 개인, B: 기업) 통합 A
+
+	public static final String CLIENTTYPE_A = "A"; // 고객구분(P: 개인, B: 기업) 통합 A
+	public static final String CLIENTTYPE_B = "B"; // 고객구분(P: 개인, B: 기업) 기업 B
+	public static final String CLIENTTYPE_P = "P"; // 고객구분(P: 개인, B: 기업) 개인 P
 	public static final String CERTTYPE = "pfx";
+
+	public static final String ORGANIZATION_REVENUE = "0002";
+
+	public static final String LOGINTYPE_CERT = "0";
+	public static final String LOGINTYPE_ID = "1";
+
+
+
+
 
 
 	/**

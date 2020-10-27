@@ -141,6 +141,7 @@ public class ErrorCode {
 		EXTERNAL_ERROR_LOTTE_IMAGE_TRANSFER("EXTERNAL_ERROR_LOTTE_IMAGE_TRANSFER", "external error(lotte - IMAGE_TRANSFER)"),
 		REJECTED_LOTTE_IMAGE_TRANSFER("REJECTED_LOTTE_IMAGE_TRANSFER", "rejected(lotte - IMAGE_TRANSFER)"),
 		INTERNAL_ERROR_LOTTE_IMAGE_TRANSFER("INTERNAL_ERROR_LOTTE_IMAGE_TRANSFER", "internal error(lotte - IMAGE_TRANSFER)"),
+
 		;
 
 		private final String code;
@@ -153,7 +154,8 @@ public class ErrorCode {
 		VALIDATION_FAILED("VALIDATION_FAILED", "validation failed"),
 		NOT_FOUND("NOT_FOUND", "not found"),
 		NO_PERMISSION("NO_PERMISSION", "no permission"),
-		SUCCESS("SUCCESS", null);
+		SUCCESS("SUCCESS", null),
+		ALREADY_EXIST("ALREADY_EXIST", "already exist");
 
 		private final String code;
 		private final String desc;

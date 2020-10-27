@@ -5,6 +5,7 @@ import com.nomadconnection.dapp.api.dto.*;
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
+import com.nomadconnection.dapp.api.v2.service.scraping.FullTextService;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
@@ -14,16 +15,22 @@ import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
 import com.nomadconnection.dapp.core.domain.corp.Dept;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
+import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
+import com.nomadconnection.dapp.core.domain.repository.corp.CeoInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.DeptRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ReceptionRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResAccountHistoryRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
+import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.AlarmRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
+import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.user.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
@@ -58,19 +65,26 @@ public class UserService {
 	private final EmailConfig config;
 	private final JavaMailSenderImpl sender;
 	private final PasswordEncoder encoder;
-	private final UserRepository repo;
-	private final RiskConfigRepository repoRiskConfig;
-	private final ConsentMappingRepository repoConsentMapping;
 	private final ReceptionRepository receptionRepository;
-	private final CorpRepository repoCorp;
 	private final DeptRepository repoDept;
-	private final AuthorityRepository repoAuthority;
 	private final VerificationCodeRepository repoVerificationCode;
 	private final AlarmRepository repoAlarm;
 	private final ITemplateEngine templateEngine;
+	private final AuthorityRepository repoAuthority;
+	private final UserRepository repo;
+	private final CorpRepository repoCorp;
+	private final CardIssuanceInfoRepository repoCardIssuanceInfo;
+	private final ConnectedMngRepository repoConnectdMng;
+	private final ConsentMappingRepository repoConsentMapping;
 	private final IssuanceProgressRepository issuanceProgressRepository;
+	private final RiskRepository repoRisk;
+	private final RiskConfigRepository repoRiskConfig;
+	private final CeoInfoRepository repoCeoInfo;
+	private final ResAccountRepository repoResAccount;
+	private final ResAccountHistoryRepository repoResAccountHistry;
 
 	private final JwtService jwt;
+    private final FullTextService fullTextService;
 
 	/**
 	 * 사용자 엔터티 조회
@@ -78,7 +92,7 @@ public class UserService {
 	 * @param idxUser 식별자(사용자)
 	 * @return 사용자 엔터티
 	 */
-	User getUser(Long idxUser) {
+	public User getUser(Long idxUser) {
 		return repo.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().id(idxUser).build()
 		);
@@ -250,6 +264,37 @@ public class UserService {
 		}
 		User member = getUser(idxMember);
 		member.dept(null);
+	}
+
+	/**
+	 * User 정보 초기화
+	 *
+	 * @param idxUser 식별자(사용자)
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public void initUserInfo(Long idxUser) {
+		User user = getUser(idxUser);
+		Long idxCorp = user.corp().idx();
+        List<Long> listIdxCardInfo = repoCardIssuanceInfo.findAllIdxByUserIdx(idxUser);
+        repoCeoInfo.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
+        repoCardIssuanceInfo.deleteAllByUserIdx(idxUser);
+        // 데이터, 리스크 팀과 협의 후 추가
+//        List<ConnectedMng> listConnectedMng = repoConnectdMng.findByIdxUser(idxUser);
+//        for (ConnectedMng connectedMng : listConnectedMng) {
+//			repoResAccount.deleteConnectedQuery(connectedMng.connectedId());
+//			repoResAccountHistry.deleteConnectedQuery(connectedMng.connectedId());
+//		}
+        repoConnectdMng.deleteAllByUserIdx(idxUser);
+        repoConsentMapping.deleteAllByUserIdx(idxUser);
+        issuanceProgressRepository.deleteAllByUserIdx(idxUser);
+        fullTextService.deleteAllShinhanFulltext(idxCorp);
+        fullTextService.deleteAllLotteFulltext(idxCorp);
+        repoRisk.deleteByCorpIdx(idxCorp);
+        repoRiskConfig.deleteByCorpIdx(idxCorp);
+		repoCorp.deleteCorpByIdx(idxCorp);
+		user.corp(null);
+		user.cardCompany(null);
+		repo.save(user);
 	}
 
 
@@ -735,6 +780,10 @@ public class UserService {
 				.status(issuanceProgress.getStatus())
 				.cardCompany(!ObjectUtils.isEmpty(issuanceProgress.getCardCompany()) ? issuanceProgress.getCardCompany().name() : CardCompany.SHINHAN.name())
 				.build());
+	}
+
+	public void saveUser(User user) {
+		repo.save(user);
 	}
 
 	public void saveIssuanceProgress(Long userIdx, IssuanceProgressType progressType, IssuanceStatusType statusType) {
