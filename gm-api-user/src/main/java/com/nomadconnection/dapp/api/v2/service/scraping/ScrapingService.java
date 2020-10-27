@@ -22,8 +22,10 @@ import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
+import com.nomadconnection.dapp.core.domain.repository.res.ResBatchListRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResConCorpListRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
+import com.nomadconnection.dapp.core.domain.res.ResBatchList;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
 import com.nomadconnection.dapp.core.domain.shinhan.D1000;
 import com.nomadconnection.dapp.core.domain.shinhan.D1400;
@@ -60,6 +62,7 @@ public class ScrapingService {
 	private final ResConCorpListRepository repoResConCorpList;
 	private final CommonCodeDetailRepository commonCodeDetailRepository;
     private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
+    private final ResBatchListRepository repoResBatchList;
 
     private final UserService userService;
 	private final ScrapingResultService scrapingResultService;
@@ -106,46 +109,27 @@ public class ScrapingService {
 		String connectedId = scrapingResultService.getConnectedId();
 
 		if(code.equals(ResponseCode.CF00000.getCode()) || code.equals(ResponseCode.CF04012.getCode())) {
-			JSONArray JSONObjectSuccessData = (JSONArray) responseCreateAccount[1].get("successList");
-			boolean boolConId = false;
+			repoConnectedMng.save(ConnectedMng.builder()
+					.connectedId(connectedId)
+					.idxUser(user.idx())
+					.name(dto.getName())
+					.startDate(dto.getStartDate())
+					.endDate(dto.getEndDate())
+					.desc1(dto.getDesc1())
+					.desc2(dto.getDesc2())
+					.type(CommonConstant.REVENUETYPE)
+					.build()
+			);
 
-			for(Object item: JSONObjectSuccessData){
-				JSONObject obj = (JSONObject) item;
-				if(GowidUtils.getEmptyStringToString(obj, "clientType").equals(CommonConstant.CLIENTTYPE_A)
-						&& GowidUtils.getEmptyStringToString(obj, "organization").equals(CommonConstant.ORGANIZATION_REVENUE)){
-					boolConId = true;
-					break;
-				}
-			}
-
-			if(boolConId){
-				repoConnectedMng.save(ConnectedMng.builder()
-						.connectedId(connectedId)
-						.idxUser(user.idx())
-						.name(dto.getName())
-						.startDate(dto.getStartDate())
-						.endDate(dto.getEndDate())
-						.desc1(dto.getDesc1())
-						.desc2(dto.getDesc2())
-						.type(CommonConstant.REVENUETYPE)
-						.build()
-				);
-
-				JSONArray successList = (JSONArray) responseCreateAccount[1].get("successList");
-				saveConnectedId(successList, connectedId);
-			}else{
-				if(connectedId != null) {
-					deleteAccount(connectedId, user.email());
-				}
-				log.error("[createAccount] $user={}, $code={}, $message={} ", user.email(), code, message);
-				throw new CodefApiException(ResponseCode.findByCode(code));
-			}
+			JSONArray successList = (JSONArray) responseCreateAccount[1].get("successList");
+			saveConnectedId(successList, connectedId);
 		}else {
 			log.error("[createAccount] $user={}, $code={}, $message={} ", user.email(), code, message);
 			throw new CodefApiException(ResponseCode.findByCode(code));
 		}
 	}
 
+	@Deprecated
 	public ResponseEntity deleteAccount(String connectedId, String user) throws Exception {
 		HashMap<String, Object> body = new HashMap<>();
 		List<HashMap<String, Object>> accounts = new ArrayList<>();
@@ -215,7 +199,12 @@ public class ScrapingService {
 			saveConnectedId(successList, connectedId);
 		} else {
 			if(connectedId != null) {
-				deleteAccount(connectedId, user.email());
+				repoResBatchList.save(ResBatchList.builder()
+						.connectedId(connectedId)
+						.errCode(code)
+						.errMessage(message)
+						.idxUser(user.idx())
+						.build());
 			}
 			log.error("[addAccount] $user={}, $code={}, $message={} ", user.email(), code, message);
 			throw new CodefApiException(ResponseCode.findByCode(code));
@@ -276,7 +265,12 @@ public class ScrapingService {
 			imageService.sendCorpLicenseImage(user.cardCompany(), response, licenseNo);
 		} else {
 			if(connectedId != null) {
-				deleteAccount(connectedId, user.email());
+				repoResBatchList.save(ResBatchList.builder()
+						.connectedId(connectedId)
+						.errCode(code)
+						.errMessage(message)
+						.idxUser(user.idx())
+						.build());
 			}
 			log.error("[scrapCorpLicense] $user={}, $code={}, $message={} ", user.email(), code, message);
 			throw new CodefApiException(ResponseCode.findByCode(code));
@@ -295,6 +289,7 @@ public class ScrapingService {
 		String code = scrapingResultService.getCode();
 		String message = scrapingResultService.getMessage();
 		String connectedId = scrapingResultService.getConnectedId();
+		String transactionId = scrapingResultService.getTransactionId();
 
 		if (isScrapingSuccess(code)) {
 			JSONObject jsonDataCorpRegister = corpRegisterJson[1];
@@ -323,12 +318,28 @@ public class ScrapingService {
 				log.info("[scrapCorpRegistration] $user={}, $response={} ", user.email(), response);
 
 			} else if (!resIssueYn.equals("1")) {
-				deleteAccount(connectedId, user.email());
-				log.error("[scrapCorpRegistration] $user={}, $resIssueYn={} ", user.email(), resIssueYn);
+				if(connectedId != null) {
+					repoResBatchList.save(ResBatchList.builder()
+							.connectedId(connectedId)
+							.transactionId(transactionId)
+							.errCode(code)
+							.errMessage(message)
+							.idxUser(user.idx())
+							.build());
+				}
+				log.error("[scrapCorpRegistration] $user={}, $resIssueYn={} $transactionId={} ", user.email(), resIssueYn, transactionId);
 				throw new CodefApiException(ResponseCode.findByCode(code));
 			}
 		} else {
-			deleteAccount(connectedId, user.email());
+			if(connectedId != null) {
+				repoResBatchList.save(ResBatchList.builder()
+						.connectedId(connectedId)
+						.transactionId(transactionId)
+						.errCode(code)
+						.errMessage(message)
+						.idxUser(user.idx())
+						.build());
+			}
 			log.error("[scrapCorpRegistration] $user={}, $code={}, $message={} ", user.email(), code, message);
 			throw new CodefApiException(ResponseCode.findByCode(code));
 		}
@@ -336,13 +347,22 @@ public class ScrapingService {
 		corpRegisterJson = scrapingResultService.getApiResult(response);
 		code = scrapingResultService.getCode();
 		message = scrapingResultService.getMessage();
+		transactionId = scrapingResultService.getTransactionId();
 
 		if (isScrapingSuccess(code)) {
 			JSONObject jsonDataCorpRegister = corpRegisterJson[1];
 
 			if (!jsonDataCorpRegister.get("resIssueYN").toString().equals("1")) {
-				deleteAccount(connectedId, user.email());
-				log.error("[scrapCorpRegistration] $user={}, $resIssueYn={} ", user.email(), jsonDataCorpRegister.get("resIssueYN").toString());
+				if(connectedId != null) {
+					repoResBatchList.save(ResBatchList.builder()
+							.connectedId(connectedId)
+							.errCode(code)
+							.errMessage(message)
+							.idxUser(user.idx())
+							.build());
+				}
+				log.error("[scrapCorpRegistration] $user={}, $resIssueYn={} $transactionId={} ", user.email(),
+						jsonDataCorpRegister.get("resIssueYN").toString(), transactionId);
 				throw new CodefApiException(ResponseCode.findByCode(code));
 			}
 
@@ -373,7 +393,14 @@ public class ScrapingService {
 				cardIssuanceInfoRepository.save(cardIssuanceInfo.corp(corp));
 			}
 		} else {
-			deleteAccount(connectedId, user.email());
+			if(connectedId != null) {
+				repoResBatchList.save(ResBatchList.builder()
+						.connectedId(connectedId)
+						.errCode(code)
+						.errMessage(message)
+						.idxUser(user.idx())
+						.build());
+			}
 			log.error("[scrapCorpRegistration] $user={}, $code={}, $message={} ", user.email(), code, message);
 			throw new CodefApiException(ResponseCode.findByCode(code));
 		}

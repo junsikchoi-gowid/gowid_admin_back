@@ -19,6 +19,7 @@ public class ScrapingResultService {
 	private String code;
 	private String message;
 	private String connectedId;
+	private String transactionId;
 
 	public JSONObject[] getApiResult(String str) throws ParseException {
 		JSONObject[] result = new JSONObject[2];
@@ -32,6 +33,8 @@ public class ScrapingResultService {
 		setCode(result[0].get("code").toString());
 		setMessage(result[0].get("message").toString());
 		setConnectedId(result[1].getOrDefault("connectedId", "").toString());
+		setTransactionId(result[0].get("transactionId").toString());
+
 
 		return result;
 	}
@@ -45,6 +48,7 @@ public class ScrapingResultService {
 		setCode(result[0].get("code").toString());
 		setMessage(result[0].get("message").toString());
 		setConnectedId(result[1].get("connectedId").toString());
+		setTransactionId(result[0].get("transactionId").toString());
 
 		return result;
 	}
