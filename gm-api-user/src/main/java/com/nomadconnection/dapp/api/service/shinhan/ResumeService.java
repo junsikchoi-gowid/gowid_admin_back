@@ -175,12 +175,24 @@ public class ResumeService {
         DataPart1800 requestRpc = DataPart1800.builder()
                 .d001(getDigitalSignatureIdNumber(request.getD001(), request.getD002(), signatureHistory.getApplicationCount()))
                 .d002(Const.ELEC_SIGNATURE_CERTI_PROD_CODE)
-                .d003(CommonUtil.encodeBase64(signedPlainString))
                 .build();
+
+        String signedValue = CommonUtil.encodeBase64(signedPlainString);
+        setSignedValue(requestRpc, signedValue);
+
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         shinhanGwRpc.request1800(requestRpc, idxUser);
         log.debug("## 1800 end");
+    }
+
+    private void setSignedValue(DataPart1800 dataPart1800, String signedValue){
+        if(signedValue.length() > 4000) {
+            String extraSignedValue = signedValue.substring(4000);
+            signedValue = signedValue.substring(0, 4000);
+            dataPart1800.setD004(extraSignedValue);
+        }
+        dataPart1800.setD003(signedValue);
     }
 
     private void proc1100(CardIssuanceDto.ResumeReq request, SignatureHistory signatureHistory, Long idxUser) {
