@@ -35,9 +35,20 @@
 
     </appender>
 
+    <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <!-- Optionally add an encoder -->
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <root level="${logging.level.root}">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="DAILY_ROLLING"/>
+        <appender-ref ref="Sentry"/>
     </root>
 
     <logger name="com.zaxxer.hikari.pool.PoolBase" level="ERROR"/>

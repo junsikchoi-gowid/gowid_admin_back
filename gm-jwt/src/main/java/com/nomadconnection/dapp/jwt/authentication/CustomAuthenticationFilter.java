@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import com.nomadconnection.dapp.jwt.exception.AccessTokenNotFoundException;
 import com.nomadconnection.dapp.jwt.exception.UnacceptableJwtException;
 import com.nomadconnection.dapp.jwt.service.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -61,6 +62,15 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 				}
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
+		} catch (ExpiredJwtException e){
+			SecurityContextHolder.clearContext();
+		} catch (UnacceptableJwtException e){
+			if (log.isErrorEnabled()) {
+				log.error("([ doFilterInternal ]) $error='Could not set user authentication in security context', $exception='{} => {}'",
+					e.getClass().getSimpleName(),
+					e.getMessage());
+			}
+			SecurityContextHolder.clearContext();
 		} catch (Exception e) {
 			if (log.isErrorEnabled()) {
 				log.error("([ doFilterInternal ]) $error='Could not set user authentication in security context', $exception='{} => {}'",
