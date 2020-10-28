@@ -3,7 +3,6 @@ package com.nomadconnection.dapp.core.domain.benefit;
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.util.List;
@@ -23,9 +22,6 @@ public class Benefit extends BaseTime {
 	private Long idx;
 
 	@Column(nullable = false)
-	private String vendor;
-
-	@Column(nullable = false)
 	private String name;
 
 	@Lob
@@ -40,6 +36,10 @@ public class Benefit extends BaseTime {
 
 	@Column(nullable = false)
 	private String imageUrl;
+
+	private String detailImageUrl;
+
+	private String detailMobileImageUrl;
 
 	@Column(nullable = false)
 	private String basicInfoDesc;
@@ -56,11 +56,6 @@ public class Benefit extends BaseTime {
 
 	private String basicInfoExtraInfoLink;
 
-	@ColumnDefault("신청하기")
-	private String basicInfoButtonLabel;
-
-	private String basicInfoButtonLink;
-
 	private String authInfoDesc;
 
 	@Lob
@@ -73,19 +68,8 @@ public class Benefit extends BaseTime {
 
 	private String authInfoExtraInfoLink;
 
-	private String authInfoButtonLabel;
-
-	private String authInfoButtonLink;
-
-	private String email;
-
-	private String tel;
-
 	@Column(columnDefinition = "TINYINT", nullable = false)
 	private Integer activeApplying;
-
-	@Column(columnDefinition = "TINYINT", nullable = false)
-	private Integer activeAbTest;
 
 	@Column(columnDefinition = "TINYINT", nullable = false)
 	private Integer activePayment;
@@ -98,6 +82,9 @@ public class Benefit extends BaseTime {
 
 	@OneToMany(mappedBy = "benefit")
 	private List<BenefitItem> benefitItems;
+
+	@OneToMany(mappedBy = "benefit")
+	private List<BenefitProvider> benefitProviders;
 
 	@ManyToOne(targetEntity = BenefitCategory.class, fetch = FetchType.LAZY)
 	@JoinColumn(name = "idxBenefitCategory", foreignKey = @ForeignKey(name = "FK_BenefitCategory_Benefit"))

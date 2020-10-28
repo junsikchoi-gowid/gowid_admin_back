@@ -6,11 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.util.ObjectUtils;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -131,16 +129,13 @@ public class BenefitDto {
 		@ApiModelProperty("식별자")
 		private Long idx;
 
-		@ApiModelProperty("Vendor")
-		private String vendor;
-
 		@ApiModelProperty("Benefit 이름")
 		private String name;
 
 		@ApiModelProperty("Catchphrase")
 		private String catchphrase;
 
-		@ApiModelProperty("우선순")
+		@ApiModelProperty("우선순위")
 		private Integer priority;
 
 		@ApiModelProperty("hover Message")
@@ -148,6 +143,12 @@ public class BenefitDto {
 
 		@ApiModelProperty("Imager URL")
 		private String imageUrl;
+
+		@ApiModelProperty("Detail Image URL")
+		private String detailImageUrl;
+
+		@ApiModelProperty("Detail Image URL(Mobile 용)")
+		private String detailMobileImageUrl;
 
 		@ApiModelProperty("(기본정보) 설명")
 		private String basicInfoDesc;
@@ -164,18 +165,6 @@ public class BenefitDto {
 		@ApiModelProperty("(기본정보) 상세보기 Button Link URL")
 		private String basicInfoExtraInfoLink;
 
-		@ApiModelProperty("(기본정보) Action에 대한 Button Label")
-		private String basicInfoButtonLabel;
-
-		@ApiModelProperty("(기본정보) Action에 대한 Button Label List")
-		private List<String> basicInfoButtonLabelList;
-
-		@ApiModelProperty("(기본정보) Action에 대한 Button Link URL")
-		private String basicInfoButtonLink;
-
-		@ApiModelProperty("(기본정보) Action에 대한 Button Link URL List")
-		private List<String> basicInfoButtonLinkList;
-
 		@ApiModelProperty("(로그인 후) 설명")
 		private String authInfoDesc;
 
@@ -191,35 +180,8 @@ public class BenefitDto {
 		@ApiModelProperty("(로그인 후) 상세보기 Button Link URL")
 		private String authInfoExtraInfoLink;
 
-		@ApiModelProperty("(로그인 후) Action에 대한 Button Label")
-		private String authInfoButtonLabel;
-
-		@ApiModelProperty("(로그인 후) Action에 대한 Button Label List")
-		private List<String> authInfoButtonLabelList;
-
-		@ApiModelProperty("(로그인 후) Action에 대한 Button Link URL")
-		private String authInfoButtonLink;
-
-		@ApiModelProperty("(로그인 후) Action에 대한 Button Link URL List")
-		private List<String> authInfoButtonLinkList;
-
-		@ApiModelProperty("문의 Email")
-		private String email;
-
-		@ApiModelProperty("Email 목록")
-		private List<String> emailList;
-
-		@ApiModelProperty("문의 전화번호")
-		private String tel;
-
-		@ApiModelProperty("Tel 목록")
-		private List<String> telList;
-
 		@ApiModelProperty("서비스 오픈 여부")
 		private Integer activeApplying;
-
-		@ApiModelProperty("AB 테스트 여부")
-		private Integer activeAbTest;
 
 		@ApiModelProperty("결제 필요 여부")
 		private Integer activePayment;
@@ -233,44 +195,36 @@ public class BenefitDto {
 		@ApiModelProperty("Benefit 카테고리")
 		private BenefitDto.BenefitCategoryRes benefitCategory;
 
+		@ApiModelProperty("Benefit 제공 업체 목록")
+		private List<BenefitDto.BenefitProviderRes> benefitProviders;
+
 		public static BenefitRes from(Benefit benefit) {
 			if (benefit != null) {
 				return BenefitRes.builder()
 						.idx(benefit.idx())
-						.vendor(benefit.vendor())
 						.name(benefit.name())
 						.catchphrase(benefit.catchphrase())
 						.priority(benefit.priority())
 						.hoverMessage(benefit.hoverMessage())
 						.imageUrl(benefit.imageUrl())
+						.detailImageUrl(benefit.detailImageUrl())
+						.detailMobileImageUrl(benefit.detailMobileImageUrl())
 						.basicInfoDesc(benefit.basicInfoDesc())
 						.basicInfoDetail(benefit.basicInfoDetail())
 						.basicInfoGuide(benefit.basicInfoGuide())
 						.basicInfoExtraInfoLabel(benefit.basicInfoExtraInfoLabel())
 						.basicInfoExtraInfoLink(benefit.basicInfoExtraInfoLink())
-						.basicInfoButtonLabel(benefit.basicInfoButtonLabel())
-						.basicInfoButtonLabelList(ObjectUtils.isEmpty(benefit.basicInfoButtonLabel()) ? null : Arrays.asList(benefit.basicInfoButtonLabel().split(",")))
-						.basicInfoButtonLink(benefit.basicInfoButtonLink())
-						.basicInfoButtonLinkList(ObjectUtils.isEmpty(benefit.basicInfoButtonLink()) ? null : Arrays.asList(benefit.basicInfoButtonLink().split(",")))
 						.authInfoDesc(benefit.authInfoDesc())
 						.authInfoDetail(benefit.authInfoDetail())
 						.authInfoGuide(benefit.authInfoGuide())
 						.authInfoExtraInfoLabel(benefit.authInfoExtraInfoLabel())
 						.authInfoExtraInfoLink(benefit.authInfoExtraInfoLink())
-						.authInfoButtonLabel(benefit.authInfoButtonLabel())
-						.authInfoButtonLabelList(ObjectUtils.isEmpty(benefit.authInfoButtonLabel()) ? null : Arrays.asList(benefit.authInfoButtonLabel().split(",")))
-						.authInfoButtonLink(benefit.authInfoButtonLink())
-						.authInfoButtonLinkList(ObjectUtils.isEmpty(benefit.authInfoButtonLink()) ? null : Arrays.asList(benefit.authInfoButtonLink().split(",")))
-						.email(benefit.email())
-						.emailList(ObjectUtils.isEmpty(benefit.email()) ? null : Arrays.asList(benefit.email().replaceAll(" ", "").split(",")))
-						.tel(benefit.tel())
-						.telList(ObjectUtils.isEmpty(benefit.tel()) ? null : Arrays.asList(benefit.tel().replaceAll(" ", "").split(",")))
 						.activeApplying(benefit.activeApplying())
-						.activeAbTest(benefit.activeAbTest())
 						.activePayment(benefit.activePayment())
 						.applyLink(benefit.applyLink())
 						.benefitItems(benefit.benefitItems().stream().map(BenefitItemRes::from).collect(Collectors.toList()))
 						.benefitCategory(BenefitDto.BenefitCategoryRes.from(benefit.benefitCategory()))
+						.benefitProviders(benefit.benefitProviders().stream().map(BenefitProviderRes::from).collect(Collectors.toList()))
 						.build();
 			}
 			return null;
@@ -451,6 +405,49 @@ public class BenefitDto {
 						.categoryCode(benefitCategory.categoryCode())
 						.categoryName(benefitCategory.categoryName())
 						.priority(benefitCategory.priority())
+						.build();
+			}
+			return null;
+		}
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class BenefitProviderRes {
+
+		@ApiModelProperty("식별자")
+		private Long idx;
+
+		@ApiModelProperty("이름")
+		private String name;
+
+		@ApiModelProperty("이메일")
+		private String email;
+
+		@ApiModelProperty("연락처")
+		private String tel;
+
+		@ApiModelProperty("기타 연락 채널")
+		private String channel;
+
+		@ApiModelProperty("신청버튼 라벨")
+		private String applyLabel;
+
+		@ApiModelProperty("신청버튼 URL")
+		private String applyUrl;
+
+		public static BenefitProviderRes from(BenefitProvider benefitProvider) {
+			if (benefitProvider != null) {
+				return BenefitProviderRes.builder()
+						.idx(benefitProvider.idx())
+						.name(benefitProvider.name())
+						.email(benefitProvider.email())
+						.tel(benefitProvider.tel())
+						.channel(benefitProvider.channel())
+						.applyLabel(benefitProvider.applyLabel())
+						.applyUrl(benefitProvider.applyUrl())
 						.build();
 			}
 			return null;
