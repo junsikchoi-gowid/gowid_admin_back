@@ -324,7 +324,7 @@ public class FullTextService {
 			.idxCorp(corp.idx())
 			.c007(CommonUtil.getNowYYYYMMDD())
 			.d003(replaceHyphen(corp.resCompanyIdentityNo())) // 사업자등록번호
-			.d004(replaceHyphen(corp.resIssueNo())) // 발급(승인)번호
+			.d004(replaceHyphen(GowidUtils.getEmptyStringToString(jsonData2, "resIssueNo"))) // 발급(승인)번호
 			.d005(replaceHyphen(corp.resUserIdentiyNo())) // 주민번호
 			.d006(corp.resCompanyNm()) // 상호(사업장명)
 			.d007("Y") // 발급가능여부
