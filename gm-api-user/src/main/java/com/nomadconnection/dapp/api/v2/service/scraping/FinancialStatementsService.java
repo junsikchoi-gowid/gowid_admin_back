@@ -97,7 +97,6 @@ public class FinancialStatementsService {
 	}
 
 	private String requestStandardFinancialScraping(String connectedId, String yyyyMm, String licenseNo) throws InterruptedException, ParseException, IOException {
-		String code;
 		String scrapingResult = standard_financial(
 			"0001",
 			connectedId,
@@ -109,12 +108,6 @@ public class FinancialStatementsService {
 			"",
 			replaceHyphen(licenseNo).trim()
 		);
-		scrapingResultService.getApiResult(scrapingResult);
-		code = scrapingResultService.getCode();
-
-		if(!isScrapingSuccess(code)){
-			throw new CodefApiException(ResponseCode.findByCode(code));
-		}
 		log.info( " FinancialStatements strResultTemp = {} " , scrapingResult);
 		return scrapingResult;
 	}

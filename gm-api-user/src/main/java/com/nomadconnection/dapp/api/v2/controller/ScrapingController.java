@@ -31,6 +31,9 @@ public class ScrapingController {
 	public ApiResponse<?> createNt(
 		@ApiIgnore @CurrentUser CustomUser user,
 		@RequestBody AccountNt dto) throws Exception {
+		if (log.isInfoEnabled()) {
+			log.info("([ createNt ]) $user='{}', $dto='{}'", user, dto);
+		}
 		Long userIdx = user.idx();
 		scrapingService.scrap(userIdx, dto);
 
@@ -48,6 +51,9 @@ public class ScrapingController {
 		@ApiIgnore @CurrentUser CustomUser user,
 		@RequestBody ConnectedMngDto.CorpInfo dto
 	) throws Exception {
+		if (log.isInfoEnabled()) {
+			log.info("([ scrapFinancialStatements ]) $user='{}', $dto='{}'", user, dto);
+		}
 		Long userIdx = user.idx();
 		financialStatementsService.scrap(userIdx, dto);
 
