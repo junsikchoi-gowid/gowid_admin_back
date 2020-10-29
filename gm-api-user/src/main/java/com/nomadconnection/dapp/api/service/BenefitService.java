@@ -117,7 +117,7 @@ public class BenefitService {
 		List<BenefitDto.BenefitPaymentItemRes> paymentItemListRes = paymentItemList.stream().map(BenefitDto.BenefitPaymentItemRes::from).collect(Collectors.toList());
 
 		// 2. 결과 메일 전송
-		Map<String, Object> mailAttribute = this.getMailAttribute(benefitPaymentHistory, paymentItemListRes);
+		Map<String, Object> mailAttribute = this.getMailAttribute(benefit, benefitPaymentHistory, paymentItemListRes);
 		if(dto.getErrCode()) {
 
 			// 2.1. 결제 결과가 성공일 경우
@@ -140,7 +140,7 @@ public class BenefitService {
 			// 2.1.2. 발주서 메일 전송
 			boolean isSuccessSendOrderMail = emailService.sendBenefitResultMail(mailAttribute,
 																					BenefitPaymentEmailType.BENEFIT_GOWID_EMAIL_ADDR.getValue(),
-																					BenefitPaymentEmailType.BENEFIT_VENDOR_PLANIT_EMAIL_ADDR.getValue(),
+																					benefit.benefitProviders().get(0).sendOrderEmail(),
 																					BenefitPaymentEmailType.BENEFIT_PAYMENT_ORDER_EMAIL_TITLE.getValue(),
 																					BenefitPaymentEmailType.BENEFIT_PAYMENT_ORDER_TEMPLATE.getValue());
 
@@ -227,11 +227,13 @@ public class BenefitService {
 	/**
 	 * Benefit 결제 메일 전송을 위한 Attribute Map 셋팅
 	 *
-	 * @param benefitPaymentHistory	benefit 결제 정보
+	 *
+	 * @param benefit
+	 * @param benefitPaymentHistory    benefit 결제 정보
 	 * @param paymentItems 구매 항목 목록
 	 * @return Benefit 결제 메일 Attribute Map
 	 */
-	Map<String, Object> getMailAttribute(BenefitPaymentHistory benefitPaymentHistory, List<BenefitDto.BenefitPaymentItemRes> paymentItems) {
+	Map<String, Object> getMailAttribute(Benefit benefit, BenefitPaymentHistory benefitPaymentHistory, List<BenefitDto.BenefitPaymentItemRes> paymentItems) {
 
 		Map<String, Object> mailAttributMap = new HashMap<>();
 
@@ -251,6 +253,9 @@ public class BenefitService {
 		mailAttributMap.put("totalPurchase", paymentItems.stream().mapToLong(o -> o.getPurchase()).sum());				// 최종 구매 금액(발주서)
 
 		mailAttributMap.put("errMessage", benefitPaymentHistory.errMessage());				// 오류 메세지 (null 가능)
+
+		mailAttributMap.put("providerEmail", benefit.benefitProviders().get(0).email());	// 제공 업체 email
+		mailAttributMap.put("providerTel", benefit.benefitProviders().get(0).tel());		// 제공 업체 전화번호
 
 		return mailAttributMap;
 	}

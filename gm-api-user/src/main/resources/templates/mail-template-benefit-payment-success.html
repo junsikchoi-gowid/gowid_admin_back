@@ -545,22 +545,25 @@
                       "
                     >
                       <b style="font-size: 14px">
-                        약 2영업일 이내 제품 라이센스 키를 담당자 이메일로
+                        업체에서 구매 내역 확인 후 제품 라이센스를 담당자 이메일로
                         보내드릴 예정입니다. <br />
-                        라이센스 키 발급 및 기타 사용 문의는 아래
-                        (주)플랜잇파트너스로 부탁드립니다.
+                        라이센스 발급 및 기타 사용 문의는 아래
+                        연락처로 부탁드립니다.
                       </b>
 
                       <br /><br />
 
                       <b
                         >이메일 :
-                        <a href="mailto:support@planit.ai" target="_blank"
-                          >support@planit.ai</a
-                        >
+                        <a th:href="'mailto:' + ${providerEmail}">
+                          <span th:text="${providerEmail}">
+                              (*제공 업체 이메일)</span>
+                        </a>
                       </b>
                       <br />
-                      <b>전화 : 02-569-8601</b>
+                      <b>전화 : <span th:text="${providerTel}">
+                              (*제공 업체 연락처)</span>
+                      </b>
                     </p>
                   </td>
                 </tr>

@@ -21,8 +21,6 @@ public enum BenefitPaymentEmailType {
 
 	BENEFIT_GOWID_EMAIL_ADDR("ecommerce@gowid.com"),
 
-	//  메일 주소
-	BENEFIT_VENDOR_PLANIT_EMAIL_ADDR("youngjookim@planit.ai")
 	;
 
 	private String value;
