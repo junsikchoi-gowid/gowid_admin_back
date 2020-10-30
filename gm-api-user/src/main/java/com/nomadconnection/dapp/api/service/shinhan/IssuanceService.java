@@ -468,7 +468,7 @@ public class IssuanceService {
     }
 
 
-    public DataPart1700 proc1700(Long idxUser, CardIssuanceDto.IdentificationReq request, Map<String, String> decryptData) {
+    private DataPart1700 proc1700(Long idxUser, CardIssuanceDto.IdentificationReq request, Map<String, String> decryptData) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1700);
 
@@ -523,16 +523,22 @@ public class IssuanceService {
             decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER});
         }
 
-        // 1700(신분증검증)
-        DataPart1700 resultOfD1700 = proc1700(idxUser, dto, decryptData);
-
-        if (!resultOfD1700.getD008().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw BadRequestedException.builder().category(BadRequestedException.Category.INVALID_CEO_IDENTIFICATION).desc(resultOfD1700.getD009()).build();
-        }
-
+        verifyCeo(idxUser, dto, decryptData);
         CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(dto.getCardIssuanceInfoIdx());
         save1400(cardIssuanceInfo, dto, decryptData);
         save1000(cardIssuanceInfo, dto, decryptData);
+    }
+
+    public void verifyCeo(Long idxUser, CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData){
+        // 1700(신분증검증)
+        DataPart1700 resultOfD1700 = proc1700(idxUser, dto, decryptData);
+        String code = resultOfD1700.getD008();
+        String message = resultOfD1700.getD009();
+
+        if (!Const.API_SHINHAN_RESULT_SUCCESS.equals(code)) {
+            code = changeOldDriverLicenseErrorCode(code, message);
+            throw BadRequestedException.builder().category(BadRequestedException.Category.INVALID_CEO_IDENTIFICATION).desc(code).build();
+        }
     }
 
     // 1400 테이블에 대표자 주민번호 저장
@@ -611,6 +617,15 @@ public class IssuanceService {
                 .build();
 
         return signatureHistoryRepository.save(signatureHistory);
+    }
+
+    private String changeOldDriverLicenseErrorCode(String code, String message){
+        final String OLD_DRIVER_LICENSE_CODE = "999";
+        final String OLD_DRIVER_LICENSE_MSG = "예전 면허";
+        if(message.contains(OLD_DRIVER_LICENSE_MSG)){
+            code = OLD_DRIVER_LICENSE_CODE;
+        }
+        return code;
     }
 
     public void send1520(Long userIdx){

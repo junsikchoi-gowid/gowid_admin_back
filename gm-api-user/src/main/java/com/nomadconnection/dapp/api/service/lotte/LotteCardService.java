@@ -3,8 +3,6 @@ package com.nomadconnection.dapp.api.service.lotte;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.lotte.enums.Lotte_CardKind;
-import com.nomadconnection.dapp.api.dto.shinhan.DataPart1700;
-import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
@@ -650,13 +648,7 @@ public class LotteCardService {
 			decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER});
 		}
 
-		// 1700(신분증검증)
-		DataPart1700 resultOfD1700 = shinhanIssuanceService.proc1700(idx_user, dto, decryptData);
-
-		if (!resultOfD1700.getD008().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-			throw BadRequestedException.builder().category(BadRequestedException.Category.INVALID_CEO_IDENTIFICATION).desc(resultOfD1700.getD009()).build();
-		}
-
+		shinhanIssuanceService.verifyCeo(idx_user, dto, decryptData);
 		Lotte_D1100 d1100 = getD1100(user.corp().idx());
 		updateD1100Identification(d1100, dto, decryptData);
 
