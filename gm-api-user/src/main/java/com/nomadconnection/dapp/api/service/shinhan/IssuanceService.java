@@ -613,4 +613,20 @@ public class IssuanceService {
         return signatureHistoryRepository.save(signatureHistory);
     }
 
+    public void send1520(Long userIdx){
+        User user = userService.getUser(userIdx);
+        Corp corp = user.corp();
+        DataPart1200 resultOfD1200 = proc1200(corp);
+        proc1520(corp, resultOfD1200.getD007(), resultOfD1200.getD008());
+        //TODO: if IssuanceProgress Status=FAILED then update SUCCESS
+    }
+
+    public void sendImage(Long userIdx){
+        User user = userService.getUser(userIdx);
+        Corp corp = user.corp();
+        DataPart1200 resultOfD1200 = proc1200(corp);
+        asyncService.run(() -> procBpr(corp, resultOfD1200, userIdx));
+        //TODO: if IssuanceProgress Status=FAILED then update SUCCESS
+    }
+
 }
