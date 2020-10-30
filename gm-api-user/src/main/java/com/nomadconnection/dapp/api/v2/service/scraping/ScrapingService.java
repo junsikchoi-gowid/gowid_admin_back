@@ -207,7 +207,6 @@ public class ScrapingService {
 						.build());
 			}
 			log.error("[addAccount] $user={}, $code={}, $message={} ", user.email(), code, message);
-			throw new CodefApiException(ResponseCode.findByCode(code));
 		}
 	}
 
