@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import static com.nomadconnection.dapp.api.util.CommonUtil.replaceHyphen;
 
@@ -68,6 +69,7 @@ public class ImageService {
 
 	private GwUploadDto.Response sendImage(CardCompany cardCompany,File file, String fileCode, String licenseNo) throws InterruptedException, IOException {
 		GwUploadDto.Response response = null;
+		fileCode = changeCode(cardCompany, fileCode);
 		for (int i = 0; i < 3; i++) {
 			Thread.sleep(500);
 			response = gwUploadService.upload(cardCompany, file, fileCode, replaceHyphen(licenseNo));
@@ -183,6 +185,24 @@ public class ImageService {
 			.replaceAll("resTypeStockContentList\" : \\[ \\]", noContents[1])
 			.replaceAll("resConvertibleBondList\" : \\[ \\]", noContents[2])
 			.replaceAll("resEtcList\" : \\[ \\]", noContents[3]);
+	}
+
+	// 0306 신한 0311 롯데
+	private String changeCode(CardCompany cardCompany, String fileCode) {
+		HashMap<String, String> fileCodeMap = new HashMap<>();
+		fileCodeMap.put("1510","8502");
+		fileCodeMap.put("1520","8503");
+		fileCodeMap.put("1530","8505");
+		fileCodeMap.put("9991","8506");
+
+		if(CardCompany.isLotte(cardCompany)){
+			log.debug("0311 cardCompany = {}" , cardCompany.getName());
+			fileCode = fileCodeMap.getOrDefault(fileCode, fileCode);
+		} else if(CardCompany.isShinhan(cardCompany)){
+			log.debug("0306 cardCompany = {}" , cardCompany.getName());
+		}
+
+		return fileCode;
 	}
 
 }
