@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.dto.EmailDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -15,6 +16,6 @@ public interface EmailRepository extends JpaRepository<Corp, String> {
 			"  and c.idx = rc.corp " +
 			"  and c.idx = u.corp "
 	)
-	EmailDto findTopByLicenseNo(String licenseNo);
+	EmailDto findTopByLicenseNo(@Param("licenseNo") String licenseNo);
 
 }
