@@ -491,7 +491,11 @@ public class IssuanceService {
         DataPart1700 requestRpc = new DataPart1700();
         BeanUtils.copyProperties(commonPart, requestRpc);
         requestRpc.setD001(request.getIdentityType().getShinhanCode());
-        requestRpc.setD002(request.getKorName());
+        if (request.getNation().equals("KR")) {
+            requestRpc.setD002(request.getKorName());
+        } else {
+            requestRpc.setD002(request.getEngName());
+        }
         requestRpc.setD004(request.getIssueDate());
         requestRpc.setD006(request.getDriverLocal());
         requestRpc.setD007(request.getDriverCode());
