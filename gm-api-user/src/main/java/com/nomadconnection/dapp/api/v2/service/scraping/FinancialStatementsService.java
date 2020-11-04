@@ -17,20 +17,17 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.nomadconnection.dapp.api.util.CommonUtil.replaceHyphen;
-import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.isNotAvailableScrapingTime;
 import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.isScrapingSuccess;
 import static com.nomadconnection.dapp.codef.io.sandbox.pb.STANDARD_FINANCIAL.standard_financial;
 
@@ -68,40 +65,25 @@ public class FinancialStatementsService {
 		Long corpIdx = corp.idx();
 		String licenseNo = corp.resCompanyIdentityNo();
 		String connectedId = connectedMngService.getConnectedId(user.idx());
-		String resClosingStandards = StringUtils.isEmpty(dto.getResClosingStandards()) ? "12" : dto.getResClosingStandards();
-		List<String> listYyyyMm = getFindClosingStandards(resClosingStandards);
+		List<String> listYyyyMm = getFindClosingStandards(dto.getResClosingStandards().trim());
+		AtomicReference<Boolean> isFirst = new AtomicReference<>(true);
 
 		// 국세청 - 증명발급 표준재무재표
 		for(String yyyyMm : listYyyyMm){
 			String standardFinancialResult  = requestStandardFinancialScraping(connectedId, yyyyMm, licenseNo);
 			JSONObject[] jsonObjectStandardFinancial = scrapingResultService.getApiResult(standardFinancialResult);
-			String code = scrapingResultService.getCode();
-			String message = scrapingResultService.getMessage();
 
-			if(corpService.isNewCorp(Integer.parseInt(resClosingStandards), LocalDate.parse(corp.resOpenDate(), DateTimeFormatter.ofPattern("yyyyMMdd")))){
-				D1530 d1530 = fullTextService.findFirstByIdxCorpIn1530(corpIdx);
-				fullTextService.saveDefault1520(d1530, corp);
-				log.error("[scrapFinancialStatements] It is a new corporation. $user='{}'", user.email());
-				break;
-			}
-
-			if(isScrapingSuccess(code)) {
+			if(isScrapingSuccess(scrapingResultService.getCode())) {
 				JSONObject scrapingResult = jsonObjectStandardFinancial[1];
 				D1520 d1520 = fullTextService.build1520(corp, scrapingResult);
 				fullTextService.save1520(d1520);
 				imageService.sendFinancialStatementsImage(user.cardCompany(), yyyyMm, standardFinancialResult, licenseNo);
-			} else if(isNotAvailableScrapingTime(code)) {
-				log.error("[scrapFinancialStatements] It is not the time allowed for scraping. $user='{}'", user.email());
-				break;
-			} else {
-				log.error("[scrapFinancialStatements] scraping failed. $user={}, $code={}, $message={} ", user.email(), code, message);
-				throw new CodefApiException(ResponseCode.findByCode(code));
+			} else if(isFirst.get()){
+				D1530 d1530 = fullTextService.findFirstByIdxCorpIn1530(corpIdx);
+				fullTextService.saveDefault1520(d1530, corp);
 			}
+			isFirst.set(false);
 		}
-
-		fullTextService.save1100(corp);
-		D1400 d1400 = fullTextService.findFirstByIdxCorpIn1400(corpIdx);
-		fullTextService.save1400(d1400, dto);
 
 		// TODO: 기업주소 입력변경으로 인하여 해당로직 필요여부 논의 필요
 		corpService.save(user.corp()
@@ -109,9 +91,6 @@ public class FinancialStatementsService {
 			.resCompanyNumber(dto.getResCompanyPhoneNumber())
 			.resBusinessCode(dto.getResBusinessCode())
 		);
-
-		D1000 d1000 = fullTextService.findFirstByIdxCorpIn1000(corpIdx);
-		fullTextService.save1000(d1000, dto);
 
 		// 지급보증 파일생성 및 전송
 		imageService.sendGuaranteeImage(corp, user.cardCompany(), licenseNo);

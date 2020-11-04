@@ -2,7 +2,6 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.CorpDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
-import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
@@ -12,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,24 +62,4 @@ public class CorpService {
 				.map(CorpDto.CorpMember::from)
 				.collect(Collectors.toList());
 	}
-
-	// 재무제표에서 신설법인 판단
-	public boolean isNewCorp(int closingStandards, LocalDate openDate) {
-		LocalDate today = LocalDate.now();
-		int year = closingStandards==12 ? today.getYear()-1 : today.getYear();
-		LocalDate closingStandardsDate = LocalDate.of(year, closingStandards, today.getDayOfMonth());
-
-		LocalDate preBaseStartDate = closingStandardsDate.plusMonths(1).withDayOfMonth(1);
-		LocalDate preBaseEndDate = closingStandardsDate.plusMonths(4).with(TemporalAdjusters.lastDayOfMonth());
-		boolean isPreSearchType = CommonUtil.isBetween(today, preBaseStartDate, preBaseEndDate);
-
-		LocalDate startDate = LocalDate.of(today.getYear(), 01, 01);
-		LocalDate endDate = today;
-		if (isPreSearchType) {
-			startDate = startDate.minusYears(1);
-		}
-
-		return CommonUtil.isBetween(openDate, startDate, endDate);
-	}
-
 }
