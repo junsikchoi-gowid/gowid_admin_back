@@ -48,17 +48,24 @@ public class FinancialStatementsService {
 	private final ScrapingResultService scrapingResultService;
 
 	@Transactional(rollbackFor = Exception.class)
-	public void scrap(Long userIdx, ConnectedMngDto.CorpInfo financialStatementsParam) throws Exception {
+	public void scrap(Long userIdx, ConnectedMngDto.CorpInfo dto) throws Exception {
 		User user = userService.getUser(userIdx);
-		scrapFinancialStatements(user, financialStatementsParam); // 국세청 - 표준재무제표
+		scrapFinancialStatements(user, dto); // 국세청 - 표준재무제표
+		saveFullText(user.corp(), dto);
 	}
 
-	private void scrapFinancialStatements(User user, ConnectedMngDto.CorpInfo financialStatementsParam) throws Exception {
+	@Transactional(rollbackFor = Exception.class)
+	public void scrapByHand(Long userIdx, ConnectedMngDto.CorpInfo dto) throws Exception {
+		User user = userService.getUser(userIdx);
+		scrapFinancialStatements(user, dto); // 국세청 - 표준재무제표
+	}
+
+	private void scrapFinancialStatements(User user, ConnectedMngDto.CorpInfo dto) throws Exception {
 		Corp corp = user.corp();
 		Long corpIdx = corp.idx();
 		String licenseNo = corp.resCompanyIdentityNo();
 		String connectedId = connectedMngService.getConnectedId(user.idx());
-		List<String> listYyyyMm = getFindClosingStandards(financialStatementsParam.getResClosingStandards().trim());
+		List<String> listYyyyMm = getFindClosingStandards(dto.getResClosingStandards().trim());
 		AtomicReference<Boolean> isFirst = new AtomicReference<>(true);
 
 		// 국세청 - 증명발급 표준재무재표
@@ -78,22 +85,25 @@ public class FinancialStatementsService {
 			isFirst.set(false);
 		}
 
-		fullTextService.save1100(corp);
-		D1400 d1400 = fullTextService.findFirstByIdxCorpIn1400(corpIdx);
-		fullTextService.save1400(d1400, financialStatementsParam);
-
 		// TODO: 기업주소 입력변경으로 인하여 해당로직 필요여부 논의 필요
 		corpService.save(user.corp()
-			.resCompanyEngNm(financialStatementsParam.getResCompanyEngNm())
-			.resCompanyNumber(financialStatementsParam.getResCompanyPhoneNumber())
-			.resBusinessCode(financialStatementsParam.getResBusinessCode())
+			.resCompanyEngNm(dto.getResCompanyEngNm())
+			.resCompanyNumber(dto.getResCompanyPhoneNumber())
+			.resBusinessCode(dto.getResBusinessCode())
 		);
-
-		D1000 d1000 = fullTextService.findFirstByIdxCorpIn1000(corpIdx);
-		fullTextService.save1000(d1000, financialStatementsParam);
 
 		// 지급보증 파일생성 및 전송
 		imageService.sendGuaranteeImage(corp, user.cardCompany(), licenseNo);
+	}
+
+	private void saveFullText(Corp corp, ConnectedMngDto.CorpInfo dto) {
+		Long corpIdx = corp.idx();
+
+		fullTextService.save1100(corp);
+		D1400 d1400 = fullTextService.findFirstByIdxCorpIn1400(corpIdx);
+		fullTextService.save1400(d1400, dto);
+		D1000 d1000 = fullTextService.findFirstByIdxCorpIn1000(corpIdx);
+		fullTextService.save1000(d1000, dto);
 	}
 
 	private String requestStandardFinancialScraping(String connectedId, String yyyyMm, String licenseNo) throws InterruptedException, ParseException, IOException {

@@ -48,6 +48,7 @@ gateway:
       1700: /shinhan/d1700
       1800: /shinhan/d1800
       bpr-transfer: /shinhan/transfer/images/
+      bpr-single-transfer: /shinhan/transfer/image/
   lotte:
     uri:
       1200: /lotte/d1200

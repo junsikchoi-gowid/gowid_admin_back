@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.v2.controller;
 
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
+import com.nomadconnection.dapp.api.service.lotte.LotteIssuanceService;
 import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.api.v2.dto.ImageReqDto;
 import com.nomadconnection.dapp.api.v2.service.scraping.FinancialStatementsService;
@@ -21,14 +22,14 @@ import org.springframework.web.bind.annotation.*;
 public class RecoveryController {
 
 	private final FinancialStatementsService financialStatementsService;
-	private final IssuanceService issuanceService;
+	private final IssuanceService shinhanIssuanceService;
+	private final LotteIssuanceService lotteIssuanceService;
 
 	@ApiOperation(value = "재무제표 수동 스크래핑")
 	@PostMapping("/scrap/financial/{userIdx}")
 	public ApiResponse<?> scrapFinancialStatements(@PathVariable Long userIdx,
 	                                               @RequestBody ConnectedMngDto.CorpInfo dto) throws Exception {
-
-		financialStatementsService.scrap(userIdx, dto);
+		financialStatementsService.scrapByHand(userIdx, dto);
 		return ApiResponse.builder()
 			.result(ApiResponse.ApiResult.builder()
 				.code(ResponseCode.CF00000.getCode())
@@ -38,21 +39,20 @@ public class RecoveryController {
 	}
 
 	@ApiOperation(value = "이미지 수동 전송")
-	@PostMapping("/image/financial/{userIdx}")
-	public ApiResponse<?> sendImage(@PathVariable Long userIdx, @RequestBody ImageReqDto dto) throws Exception {
+	@PostMapping("/image/{userIdx}")
+	public ApiResponse<?> sendImage(@PathVariable Long userIdx, @RequestBody ImageReqDto dto) {
 		if(CardCompany.isShinhan(dto.getCardCompany())){
-			issuanceService.sendImage(userIdx);
+			shinhanIssuanceService.sendImageByHand(userIdx, dto.getImageFileType().getFileType());
+		} else if(CardCompany.isLotte(dto.getCardCompany())){
+			lotteIssuanceService.procImageZipByHand(userIdx);
 		}
-
-		//      3. check GW Image Logic
-		//      4. check Shinhan / Lotte ( Shinhan : BPR / Lotte : zip )
 		return ApiResponse.OK(null);
 	}
 
 	@ApiOperation(value = "재무제표 전문 수동 발송")
 	@PostMapping("/fulltext/financial/{userIdx}")
-	public ApiResponse<?> sendFinancial(@PathVariable Long userIdx) throws Exception {
-		issuanceService.send1520(userIdx);
+	public ApiResponse<?> sendFinancial(@PathVariable Long userIdx) {
+		shinhanIssuanceService.send1520ByHand(userIdx);
 		return ApiResponse.OK(null);
 	}
 

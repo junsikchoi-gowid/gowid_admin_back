@@ -163,6 +163,17 @@ public class IssuanceService {
         }
     }
 
+    void procBprByHand(DataPart1200 resultOfD1200, Long userIdx, int fileType) {
+        try {
+            DataPart3000 resultOfD3000 = proc3000(resultOfD1200, userIdx);                    // 3000(이미지 제출여부)
+            if ("Y".equals(resultOfD3000.getD001())) {
+                procBrpTransferByHand(resultOfD3000, resultOfD1200.getD001(), userIdx, fileType);
+            }
+        } catch (Exception e) {
+            log.error("[sendShinhanImage] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
+        }
+    }
+
     private void sendReceiptEmail(DataPart1200 resultOfD1200, Corp userCorp) {
         if (!sendReceiptEmailEnable) {
             return;
@@ -232,6 +243,11 @@ public class IssuanceService {
     private void procBrpTransfer(DataPart3000 resultOfD3000, String companyIdentityNo, Long idxUser) {
         BprTransferReq requestRpc = new BprTransferReq(resultOfD3000);
         shinhanGwRpc.requestBprTransfer(requestRpc, companyIdentityNo, idxUser);
+    }
+
+    private void procBrpTransferByHand(DataPart3000 resultOfD3000, String licenseNo, Long idxUser, int fileType) {
+        BprTransferReq requestRpc = new BprTransferReq(resultOfD3000);
+        shinhanGwRpc.requestBprSingleTransfer(requestRpc, licenseNo, idxUser, fileType);
     }
 
     private DataPart1200 proc1200(Corp userCorp) {
@@ -467,7 +483,6 @@ public class IssuanceService {
         shinhanGwRpc.request1400(requestRpc, userCorp.user().idx());
     }
 
-
     private DataPart1700 proc1700(Long idxUser, CardIssuanceDto.IdentificationReq request, Map<String, String> decryptData) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1700);
@@ -628,20 +643,26 @@ public class IssuanceService {
         return code;
     }
 
-    public void send1520(Long userIdx){
-        User user = userService.getUser(userIdx);
-        Corp corp = user.corp();
-        DataPart1200 resultOfD1200 = proc1200(corp);
-        proc1520(corp, resultOfD1200.getD007(), resultOfD1200.getD008());
-        //TODO: if IssuanceProgress Status=FAILED then update SUCCESS
+    @Transactional(rollbackFor = Exception.class)
+    public void send1520ByHand(Long userIdx) {
+        Corp corp = getCorpByUserIdx(userIdx);
+        DataPart1200 resultOfD1200 = makeDataPart1200(corp.idx());
     }
 
-    public void sendImage(Long userIdx){
-        User user = userService.getUser(userIdx);
-        Corp corp = user.corp();
-        DataPart1200 resultOfD1200 = proc1200(corp);
-        asyncService.run(() -> procBpr(corp, resultOfD1200, userIdx));
-        //TODO: if IssuanceProgress Status=FAILED then update SUCCESS
+    @Transactional(rollbackFor = Exception.class)
+    public void sendImageByHand(Long userIdx, int fileType){
+        Corp corp = getCorpByUserIdx(userIdx);
+        DataPart1200 resultOfD1200 = makeDataPart1200(corp.idx());
+
+        procBprByHand(resultOfD1200, userIdx, fileType);
+    }
+
+    private DataPart1200 makeDataPart1200(Long corpIdx){
+        D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx);
+        DataPart1200 resultOfD1200 = new DataPart1200();
+        BeanUtils.copyProperties(d1200, resultOfD1200);
+
+        return resultOfD1200;
     }
 
 }

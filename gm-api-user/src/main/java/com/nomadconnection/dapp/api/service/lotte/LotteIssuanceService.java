@@ -137,6 +137,18 @@ public class LotteIssuanceService {
 		lotteGwRpc.requestImageZip(requestRpc);
 	}
 
+	@Transactional(rollbackFor = Exception.class)
+	public void procImageZipByHand(Long userIdx){
+		Corp corp = getCorpByUserIdx(userIdx);
+		Lotte_D1200 lotteD1200 = repoD1200.getTopByIdxCorpOrderByIdxDesc(corp.idx());
+
+		ImageZipReq requestRpc = new ImageZipReq();
+		requestRpc.setEnrollmentDate(CommonUtil.getNowYYYYMMDD());
+		requestRpc.setLicenseNo(lotteD1200.getBzno());
+		requestRpc.setRegistrationNo(lotteD1200.getApfRcpno());
+		lotteGwRpc.requestImageZip(requestRpc);
+	}
+
 	private void sendReceiptEmail(DataPart1200 resultOfD1200, Corp userCorp) {
 		if (!sendReceiptEmailEnable) {
 			return;

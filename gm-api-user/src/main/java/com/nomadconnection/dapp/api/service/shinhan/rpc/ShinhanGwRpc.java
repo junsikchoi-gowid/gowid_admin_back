@@ -55,6 +55,9 @@ public class ShinhanGwRpc extends BaseRpc {
     @Value("${gateway.shinhan.uri.bpr-transfer}")
     private String GATEWAY_SHINHAN_URI_BPR_TRANSFER;
 
+    @Value("${gateway.shinhan.uri.bpr-single-transfer}")
+    private String GATEWAY_SHINHAN_URI_BPR_SINGLE_TRANSFER;
+
     private final CommonService issCommonService;
 
 
@@ -107,6 +110,16 @@ public class ShinhanGwRpc extends BaseRpc {
 
         ApiResponse<BprTransferRes> response = requestGateWayByJson(GATEWAY_IDC_URL + GATEWAY_SHINHAN_URI_BPR_TRANSFER + "/" + licenseNo
                 , HttpMethod.POST, null, request, ApiResponse.class, ShinhanGwApiType.BPR_TRANSFER);
+
+        if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_BPR_TRANSFER, "gateway error");
+        }
+    }
+
+    public void requestBprSingleTransfer(BprTransferReq request, String licenseNo, Long idxUser, int fileType) {
+        issCommonService.saveGwTran(request, idxUser);
+        ApiResponse<BprTransferRes> response = requestGateWayByJson(GATEWAY_IDC_URL + GATEWAY_SHINHAN_URI_BPR_SINGLE_TRANSFER + "/" + licenseNo + "/" + fileType
+            , HttpMethod.POST, null, request, ApiResponse.class, ShinhanGwApiType.BPR_TRANSFER);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
             throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_BPR_TRANSFER, "gateway error");
