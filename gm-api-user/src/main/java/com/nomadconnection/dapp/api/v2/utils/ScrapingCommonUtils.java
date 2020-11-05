@@ -10,6 +10,10 @@ public final class ScrapingCommonUtils {
 		return ResponseCode.CF00000.getCode().equals(code);
 	}
 
+	public static boolean isNotAvailableScrapingTime(final String code){
+		return ResponseCode.CF12041.getCode().equals(code);
+	}
+
 	public static String ifNullReplaceObject(List<?> listResStockList, int i, String strReturn) {
 		if( listResStockList.size() > i ){
 			return listResStockList.get(i).toString().isEmpty() ? strReturn : listResStockList.get(i).toString();
