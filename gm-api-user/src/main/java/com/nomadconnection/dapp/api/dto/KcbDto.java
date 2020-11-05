@@ -53,7 +53,7 @@ public class KcbDto {
         @NotEmpty
         private String dateOfBirth;
 
-        @ApiModelProperty("성별(1:남자, 2:여자)")
+        @ApiModelProperty("성별(1,3:남자, 2,4:여자, 5,6,7,8:외국인)")
         @NotEmpty
         private String genderCode;
 
