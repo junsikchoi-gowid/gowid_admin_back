@@ -161,7 +161,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
                         risk.errCode.as("errCode"),
                         risk.cardType.as("cardType"),
                         risk.dma45.as("dma45"),
-                        risk.dma45.as("dmm45"),
+                        risk.dmm45.as("dmm45"),
                         risk.corp.riskConfig.hopeLimit.as("hopeLimit"),
                         risk.date.as("baseDate")
                         // risk.transFlag.as("transFlag")
