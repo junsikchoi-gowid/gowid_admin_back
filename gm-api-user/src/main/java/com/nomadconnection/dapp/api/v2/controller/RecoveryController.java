@@ -26,15 +26,11 @@ public class RecoveryController {
 	private final LotteIssuanceService lotteIssuanceService;
 
 	@ApiOperation(value = "재무제표 수동 스크래핑")
-	@PostMapping("/scrap/financial/{userIdx}")
-	public ApiResponse<?> scrapFinancialStatements(@PathVariable Long userIdx,
-	                                               @RequestBody ConnectedMngDto.CorpInfo dto) throws Exception {
-		financialStatementsService.scrapByHand(userIdx, dto);
+	@PostMapping("/scrap/financial/{userIdx}/{resClosingStandards}")
+	public ApiResponse<?> scrapFinancialStatements(@PathVariable Long userIdx, @PathVariable String resClosingStandards) throws Exception {
+		ApiResponse.ApiResult response = financialStatementsService.scrap(userIdx, resClosingStandards);
 		return ApiResponse.builder()
-			.result(ApiResponse.ApiResult.builder()
-				.code(ResponseCode.CF00000.getCode())
-				.desc(ResponseCode.CF00000.getMessage())
-				.build())
+			.result(response)
 			.build();
 	}
 

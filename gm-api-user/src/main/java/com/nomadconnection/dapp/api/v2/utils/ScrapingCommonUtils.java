@@ -6,6 +6,8 @@ import java.util.List;
 
 public final class ScrapingCommonUtils {
 
+	public static String DEFAULT_CLOSING_STANDARDS_MONTH = "12";
+
 	public static boolean isScrapingSuccess(final String code){
 		return ResponseCode.CF00000.getCode().equals(code);
 	}
