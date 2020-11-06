@@ -55,13 +55,10 @@ public class ScrapingController {
 			log.info("([ scrapFinancialStatements ]) $user='{}', $dto='{}'", user, dto);
 		}
 		Long userIdx = user.idx();
-		financialStatementsService.scrap(userIdx, dto);
+		ApiResponse.ApiResult response = financialStatementsService.scrapAndSaveFullText(userIdx, dto);
 
 		return ApiResponse.builder()
-			.result(ApiResponse.ApiResult.builder()
-				.code(ResponseCode.CF00000.getCode())
-				.desc(ResponseCode.CF00000.getMessage())
-				.build())
+			.result(response)
 			.build();
 	}
 }

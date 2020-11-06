@@ -43,6 +43,7 @@ public class ApiResponse<T> {
 
         private String code;
         private String desc;
+        private String extraMessage;
 
         ApiResult(Throwable throwable, HttpStatus status) {
             this(throwable.getMessage(), status);

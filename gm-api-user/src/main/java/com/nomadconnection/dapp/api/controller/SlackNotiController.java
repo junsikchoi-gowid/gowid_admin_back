@@ -37,6 +37,7 @@ public class SlackNotiController {
             @ApiIgnore @CurrentUser CustomUser user,
             @RequestBody @Valid SlackNotiDto.NotiReq req) {
         slackNotiService.sendSlackNotification(req, user);
+        slackNotiService.saveProgress(req.getText());
         return ResponseEntity.ok().build();
     }
 

@@ -19,15 +19,14 @@ import java.io.IOException;
 public class SlackNotiRpc {
 
     private final ObjectMapper objectMapper;
-    private final SlackNotiConfig slackNotiConfig;
 
-    public void send(Object object) {
+    public void send(Object object, String slackWebHookUrl) {
         RestTemplate restTemplate = new RestTemplate();
         try {
             String payload = writeValueAsString(object);
-            log.debug("## Request [POST] {}", slackNotiConfig.getUrl());
+            log.debug("## Request [POST] {}", slackWebHookUrl);
             log.info("## Request body (payload) = [{}]", payload);
-            restTemplate.postForEntity(slackNotiConfig.getUrl(), payload, String.class);
+            restTemplate.postForEntity(slackWebHookUrl, payload, String.class);
         } catch (RestClientResponseException e) {
             try {
                 log.error("## Response ==> {}", JsonUtil.generateClassToJson(e.getResponseBodyAsString()));

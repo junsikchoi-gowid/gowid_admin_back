@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service.shinhan;
 import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
+import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.dto.shinhan.*;
 import com.nomadconnection.dapp.api.dto.shinhan.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.BadRequestedException;
@@ -12,9 +13,12 @@ import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.CommonCardService;
 import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.UserService;
+import com.nomadconnection.dapp.api.service.notification.SlackNotiService;
 import com.nomadconnection.dapp.api.service.shinhan.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
+import com.nomadconnection.dapp.api.v2.service.scraping.FinancialStatementsService;
+import com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CertificationType;
@@ -22,7 +26,6 @@ import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
-import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
@@ -48,6 +51,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
+import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.RecoveryNotiReq.getSlackRecoveryMessage;
+import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.isScrapingSuccess;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -63,7 +69,6 @@ public class IssuanceService {
     private final D1100Repository d1100Repository;
     private final SignatureHistoryRepository signatureHistoryRepository;
     private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
-    private final CommonCodeDetailRepository commonCodeDetailRepository;
     private final IssuanceProgressRepository issuanceProgressRepository;
 
     private final ShinhanGwRpc shinhanGwRpc;
@@ -72,6 +77,8 @@ public class IssuanceService {
     private final UserService userService;
     private final EmailService emailService;
     private final CommonCardService commonCardService;
+    private final FinancialStatementsService financialStatementsService;
+    private final SlackNotiService slackNotiService;
 
     @Value("${mail.receipt.send-enable}")
     boolean sendReceiptEmailEnable;
@@ -92,7 +99,7 @@ public class IssuanceService {
      * 이미지 전송요청
      */
     @Transactional(noRollbackFor = Exception.class)
-    public void issuance(Long userIdx, CardIssuanceDto.IssuanceReq request, Long signatureHistoryIdx) {
+    public void issuance(Long userIdx, CardIssuanceDto.IssuanceReq request, Long signatureHistoryIdx) throws Exception {
         paramsLogging(request);
         request.setUserIdx(userIdx);
         CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(request.getCardIssuanceInfoIdx());
@@ -272,7 +279,7 @@ public class IssuanceService {
         return responseRpc;
     }
 
-    private void proc15xx(Corp userCorp, String applyDate, String applyNo) {
+    private void proc15xx(Corp userCorp, String applyDate, String applyNo) throws Exception {
         // 1510(사업자등록증 스크래핑데이터)
         proc1510(userCorp, applyDate, applyNo);
 
@@ -315,12 +322,15 @@ public class IssuanceService {
         shinhanGwRpc.request1510(requestRpc, userCorp.user().idx());
     }
 
-    private void proc1520(Corp userCorp, String applyDate, String applyNo) {
-
+    private void proc1520(Corp userCorp, String applyDate, String applyNo) throws Exception {
         List<D1520> d1520s = d1520Repository.findTop2ByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (CollectionUtils.isEmpty(d1520s)) {
-            String msg = "data of d1520 is not exist(corpIdx=" + userCorp.idx() + ")";
-            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1520, msg);
+            log.error("data of d1520 is not exist(corpIdx=" + userCorp.idx() + ")");
+            ApiResponse.ApiResult response = financialStatementsService.scrap(userCorp.user().idx(), ScrapingCommonUtils.DEFAULT_CLOSING_STANDARDS_MONTH);
+            if(!isScrapingSuccess(response.getCode())){
+                slackNotiService.sendSlackNotification(getSlackRecoveryMessage(userCorp, response), slackNotiService.getSlackRecoveryUrl());
+                return;
+            }
         }
 
         for (D1520 d1520 : d1520s) {

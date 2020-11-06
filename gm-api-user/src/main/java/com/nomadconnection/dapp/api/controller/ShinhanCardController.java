@@ -202,7 +202,7 @@ public class ShinhanCardController {
     @PostMapping(URI.CARD)
     public ResponseEntity<CardIssuanceDto.IssuanceRes> application(
             @ApiIgnore @CurrentUser CustomUser user,
-            @ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) {
+            @ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) throws Exception {
         if (log.isInfoEnabled()) {
             log.info("([ application ]) $user='{}' $dto='{}'", user, request);
         }

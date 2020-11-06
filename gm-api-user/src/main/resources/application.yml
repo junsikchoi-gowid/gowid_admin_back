@@ -119,7 +119,8 @@ mail:
     send-enable: false
 
 slack:
-  url: https://hooks.slack.com/services/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
+  progress-url: https://hooks.slack.com/services/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
+  recovery-url: https://hooks.slack.com/services/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
   enable: true
 
 ---
@@ -184,7 +185,8 @@ mail:
     send-enable: false
 
 slack:
-  url: https://hooks.slack.com/services/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
+  progress-url: https://hooks.slack.com/services/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
+  recovery-url: https://hooks.slack.com/services/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
   enable: true
 
 logging:
@@ -258,5 +260,6 @@ mail:
     send-enable: true
 
 slack:
-  url: https://hooks.slack.com/services/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
+  progress-url: https://hooks.slack.com/services/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
+  recovery-url: https://hooks.slack.com/services/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
   enable: true

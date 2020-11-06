@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "slack")
 public class SlackNotiConfig {
 
-	private String url;
+	private String progressUrl;
+	private String recoveryUrl;
 	private Boolean enable;
 }
