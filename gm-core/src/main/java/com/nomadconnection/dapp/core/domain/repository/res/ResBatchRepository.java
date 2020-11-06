@@ -102,7 +102,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a\n" +
             "cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b\n" +
             "cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c\n" +
-            ") a where a.y >  date_format(date_add(now(), INTERVAL - 1 year), '%Y%m')\n" +
+            ") a where a.y > date_format(date_add(now(), INTERVAL - 1 year), '%Y%m')\n" +
             ") L\n" +
             "join ResAccount R \n" +
             "join ConnectedMng cm on R.connectedId = cm.connectedId and idxUser = :idxUser\n" +
@@ -127,19 +127,19 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             ", comm.errCode as errCode " +
             " from ( select \n" +
             "case  \n" +
-            "when organization = 0003 then 201301\n" +
-            "when organization = 0007 then date_format(date_add(now(), INTERVAL - 5 year), '%Y%m%d')\n" +
-            "when organization = 0020 then date_format(date_add(now(), INTERVAL - 12 month), '%Y%m%d')\n" +
-            "when organization = 0027 then date_format(date_add(now(), INTERVAL - 6 month), '%Y%m%d')\n" +
-            "when organization = 0048 then date_format(date_add(now(), INTERVAL - 5 year), '%Y%m%d')\n" +
-            "when organization = 0081 then date_format(date_add(now(), INTERVAL - 12 month), '%Y%m%d')\n" +
-            "else A.resAccountStartDate\n" +
-            "end AS resAccountStartDate\n" +
-            ", A.startDay\n" +
-            ", A.endDay\n" +
-            ", A.resAccount\n" +
-            ", A.connectedId\n" +
-            ", A.organization       \n" +
+            "when organization = 0003 then 20130101 \n" +
+            "when organization = 0007 then date_format(date_add(now(), INTERVAL - 5 year), '%Y%m%d') \n" +
+            "when organization = 0020 then date_format(date_add(now(), INTERVAL - 12 month), '%Y%m%d') \n" +
+            "when organization = 0027 then date_format(date_add(now(), INTERVAL - 6 month), '%Y%m%d') \n" +
+            "when organization = 0048 then date_format(date_add(now(), INTERVAL - 5 year), '%Y%m%d') \n" +
+            "when organization = 0081 then date_format(date_add(now(), INTERVAL - 12 month), '%Y%m%d') \n" +
+            "else A.resAccountStartDate \n" +
+            "end AS resAccountStartDate \n" +
+            ", A.startDay \n" +
+            ", A.endDay \n" +
+            ", A.resAccount \n" +
+            ", A.connectedId \n" +
+            ", A.organization \n" +
             ", A.resAccountDeposit \n" +
             ", A.resAccountCurrency \n" +
             ", A.nowMonth \n" +
@@ -151,12 +151,12 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "main.*, " +
             " if(Date_Format(now() , '%Y%m') = Date_Format(main.startDay, '%Y%m'), 1, 0 ) as nowMonth, \n" +
             " if(Date_Format(now() ,'%d') = '01', 1,0 ) as nowMonthFirst  from " +
-            "(select if(y = Date_Format(resAccountStartDate , '%Y%m'), resAccountStartDate, concat(L.y,'01')) startDay\n" +
-            ", if(y = Date_Format(now() , '%Y%m'), Date_Format(now() , '%Y%m%d'), date_format(last_day(concat(L.y,'01')),'%Y%m%d')) as endDay\n" +
-            ", R.resAccountStartDate\n" +
-            ", R.resAccount\n" +
-            ", R.connectedId\n" +
-            ", R.organization       \n" +
+            "(select if(y = Date_Format(resAccountStartDate , '%Y%m'), resAccountStartDate, concat(L.y,'01')) startDay \n" +
+            ", if(y = Date_Format(now() , '%Y%m'), Date_Format(now() , '%Y%m%d'), date_format(last_day(concat(L.y,'01')),'%Y%m%d')) as endDay \n" +
+            ", R.resAccountStartDate \n" +
+            ", R.resAccount \n" +
+            ", R.connectedId \n" +
+            ", R.organization \n" +
             ", R.resAccountDeposit \n" +
             ", R.resAccountCurrency \n" +
             "from (\n" +
@@ -166,15 +166,15 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a\n" +
             "cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b\n" +
             "cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c\n" +
-            ") a where a.y >  date_format(date_add(now(), INTERVAL - 45 day), '%Y%m')\n" +
+            ") a where a.y >= date_format(date_add(now(), INTERVAL - 45 day), '%Y%m')\n" +
             ") L\n" +
             "join ResAccount R \n" +
             "join ConnectedMng cm on R.connectedId = cm.connectedId and idxUser = :idxUser\n" +
             ") main\n" +
             ") A \n" +
-            ") comm where ((errCode is null or errCode != 'CF-00000') and Date_Format(startDay , '%Y%m') >= Date_Format(resAccountStartDate , '%Y%m')) " +
+            ") comm where ((errCode is null or errCode != 'CF-00000') and Date_Format(startDay , '%Y%m') >= Date_Format(resAccountStartDate , '%Y%m'))   " +
             "or (true and nowMonth = 1) \n" +
-            "or (true and Date_Format(startDay , '%Y%m') >= date_format(date_add(now(), INTERVAL - 1 month), '%Y%m') and nowMonthFirst = 1) \n"+
+            "or (true and Date_Format(startDay , '%Y%m') >= date_format(date_add(now(), INTERVAL - 45 day), '%Y%m') and nowMonthFirst = 1) \n"+
             "order by startDay desc, endDay desc",nativeQuery = true)
     List<ResBatchRepository.CResYears> findStart45DateMonth(Long idxUser);
 
