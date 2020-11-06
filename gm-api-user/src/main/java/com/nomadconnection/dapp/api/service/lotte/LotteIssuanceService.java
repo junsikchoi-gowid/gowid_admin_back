@@ -26,10 +26,8 @@ import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1000Reposito
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1100Repository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1200Repository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
-import com.nomadconnection.dapp.core.domain.repository.shinhan.D1530Repository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.risk.Risk;
-import com.nomadconnection.dapp.core.domain.shinhan.D1530;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.encryption.lotte.Lotte_Seed128;
@@ -52,7 +50,6 @@ public class LotteIssuanceService {
 	private final Lotte_D1200Repository repoD1200;
 	private final SignatureHistoryRepository repoSignatureHistory;
 	private final RiskRepository repoRisk;
-	private final D1530Repository shinhanRepoD1530;
 
 	private final UserService userService;
 	private final LotteCommonService commonService;
@@ -198,15 +195,9 @@ public class LotteIssuanceService {
 
 		// 법인정보
 		d1100 = setD1100Corp(d1100, userCorp);
-
 		// Risk정보
 		d1100 = setD1100Risk(d1100, userCorp.user());
-
-		// TODO: 스크래핑시 데이터 insert로 바뀌어야함
-		{
-			D1530 shinhanD1530 = shinhanRepoD1530.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
-			d1100.setEstbDt(shinhanD1530.getD057());
-		}
+		d1100.setEstbDt(userCorp.resOpenDate());
 
 		repoD1100.saveAndFlush(d1100);
 
