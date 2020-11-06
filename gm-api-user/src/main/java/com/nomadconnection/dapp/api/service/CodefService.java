@@ -2010,11 +2010,15 @@ public class CodefService {
 
 	@SneakyThrows
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity registerAccountAddCreate(Common.Account dto, Long idxUser) {
+	public ResponseEntity registerAccountAddCreate(Common.Account dto, Long idxUser){
 
-		User user = repoUser.findById(idxUser).orElseThrow(
-				() -> UserNotFoundException.builder().build()
-		);
+		User user = repoUser.findById(idxUser).orElseThrow(() -> UserNotFoundException.builder().build());
+
+		Long idxCorp =  0L;
+		if(user.corp() != null && user.corp().idx() != null){
+			idxCorp = user.corp().idx();
+		}
+
 		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
 		HashMap<String, Object> bodyMap = new HashMap<>();
 		List<HashMap<String, Object>> list = new ArrayList<>();
@@ -2022,12 +2026,12 @@ public class CodefService {
 		String createUrlPath = urlPath + CommonConstant.CREATE_ACCOUNT;
 		List<BankDto.ResAccountDto> resAccount = null;
 
-		for( String s : CommonConstant.LISTBANK){
+		for( String bank : CommonConstant.LISTBANK){
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
 			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
-			accountMap1.put("organization",	s);// 기관코드
+			accountMap1.put("organization",	bank);// 기관코드
 			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
 			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
 			accountMap1.put("certType",     CommonConstant.CERTTYPE);
@@ -2059,7 +2063,7 @@ public class CodefService {
 					.endDate(dto.getEndDate())
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
-					.idxCorp(user.corp().idx())
+					.idxCorp(idxCorp)
 					.build()
 			);
 
