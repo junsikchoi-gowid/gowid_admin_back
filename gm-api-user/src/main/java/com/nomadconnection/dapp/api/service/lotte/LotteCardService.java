@@ -69,16 +69,16 @@ public class LotteCardService {
 	/**
 	 * 법인정보 등록
 	 *
-	 * @param idx_user     등록하는 User idx
+	 * @param idxUser     등록하는 User idx
 	 * @param dto          등록정보
-	 * @param idx_CardInfo CardIssuanceInfo idx
+	 * @param idxCardInfo CardIssuanceInfo idx
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public CardIssuanceDto.CorporationRes updateCorporation(Long idx_user, CardIssuanceDto.RegisterCorporation dto, Long idx_CardInfo, String depthKey) {
-		User user = findUser(idx_user);
+	public CardIssuanceDto.CorporationRes updateCorporation(Long idxUser, CardIssuanceDto.RegisterCorporation dto, Long idxCardInfo, String depthKey) {
+		User user = findUser(idxUser);
 
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-		if (!cardInfo.idx().equals(idx_CardInfo)) {
+		if (!cardInfo.idx().equals(idxCardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
 
@@ -106,16 +106,16 @@ public class LotteCardService {
 	/**
 	 * 법인 추가정보 등록
 	 *
-	 * @param idx_user     등록하는 User idx
+	 * @param idxUser     등록하는 User idx
 	 * @param dto          등록정보
-	 * @param idx_CardInfo CardIssuanceInfo idx
+	 * @param idxCardInfo CardIssuanceInfo idx
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public CardIssuanceDto.CorporationExtendRes updateCorporationExtend(Long idx_user, CardIssuanceDto.RegisterCorporationExtend dto, Long idx_CardInfo, String depthKey) {
-		User user = findUser(idx_user);
+	public CardIssuanceDto.CorporationExtendRes updateCorporationExtend(Long idxUser, CardIssuanceDto.RegisterCorporationExtend dto, Long idxCardInfo, String depthKey) {
+		User user = findUser(idxUser);
 
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-		if (!cardInfo.idx().equals(idx_CardInfo)) {
+		if (!cardInfo.idx().equals(idxCardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
 
@@ -135,8 +135,8 @@ public class LotteCardService {
 		return CardIssuanceDto.CorporationExtendRes.from(cardInfo, getListedCompanyName(dto.getListedCompanyCode()));
 	}
 
-	private Lotte_D1100 updateD1100CorpExtend(Long idx_corp, CardIssuanceDto.RegisterCorporationExtend dto) {
-		Lotte_D1100 d1100 = getD1100(idx_corp);
+	private Lotte_D1100 updateD1100CorpExtend(Long idxCorp, CardIssuanceDto.RegisterCorporationExtend dto) {
+		Lotte_D1100 d1100 = getD1100(idxCorp);
 		if (ObjectUtils.isEmpty(d1100)) {
 			return d1100;
 		}
@@ -156,8 +156,8 @@ public class LotteCardService {
 	}
 
 
-	private Lotte_D1100 updateD1100Corp(Long idx_corp, CardIssuanceDto.RegisterCorporation dto) {
-		Lotte_D1100 d1100 = getD1100(idx_corp);
+	private Lotte_D1100 updateD1100Corp(Long idxCorp, CardIssuanceDto.RegisterCorporation dto) {
+		Lotte_D1100 d1100 = getD1100(idxCorp);
 		if (ObjectUtils.isEmpty(d1100)) {
 			return d1100;
 		}
@@ -177,16 +177,16 @@ public class LotteCardService {
 	/**
 	 * 벤처기업정보 등록
 	 *
-	 * @param idx_user     등록하는 User idx
+	 * @param idxUser     등록하는 User idx
 	 * @param dto          등록정보
-	 * @param idx_CardInfo CardIssuanceInfo idx
+	 * @param idxCardInfo CardIssuanceInfo idx
 	 * @return 등록 정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public CardIssuanceDto.VentureRes registerVenture(Long idx_user, CardIssuanceDto.RegisterVenture dto, Long idx_CardInfo, String depthKey) {
-		User user = findUser(idx_user);
+	public CardIssuanceDto.VentureRes registerVenture(Long idxUser, CardIssuanceDto.RegisterVenture dto, Long idxCardInfo, String depthKey) {
+		User user = findUser(idxUser);
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-		if (!cardInfo.idx().equals(idx_CardInfo)) {
+		if (!cardInfo.idx().equals(idxCardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
 
@@ -210,8 +210,8 @@ public class LotteCardService {
 		return CardIssuanceDto.VentureRes.from(repoCardIssuance.save(cardInfo));
 	}
 
-	private Lotte_D1100 updateD1100Venture(Long idx_corp, CardIssuanceDto.RegisterVenture dto) {
-		Lotte_D1100 d1100 = getD1100(idx_corp);
+	private Lotte_D1100 updateD1100Venture(Long idxCorp, CardIssuanceDto.RegisterVenture dto) {
+		Lotte_D1100 d1100 = getD1100(idxCorp);
 		if (ObjectUtils.isEmpty(d1100)) {
 			return d1100;
 		}
@@ -253,16 +253,16 @@ public class LotteCardService {
 	/**
 	 * 주주정보 등록
 	 *
-	 * @param idx_user     등록하는 User idx
+	 * @param idxUser     등록하는 User idx
 	 * @param dto          등록정보
-	 * @param idx_CardInfo CardIssuanceInfo idx
+	 * @param idxCardInfo CardIssuanceInfo idx
 	 * @return 등록 정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public CardIssuanceDto.VentureRes registerStockholder(Long idx_user, CardIssuanceDto.RegisterStockholder dto, Long idx_CardInfo, String depthKey) {
-		User user = findUser(idx_user);
+	public CardIssuanceDto.VentureRes registerStockholder(Long idxUser, CardIssuanceDto.RegisterStockholder dto, Long idxCardInfo, String depthKey) {
+		User user = findUser(idxUser);
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-		if (!cardInfo.idx().equals(idx_CardInfo)) {
+		if (!cardInfo.idx().equals(idxCardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
 
@@ -327,9 +327,9 @@ public class LotteCardService {
 		}
 	}
 
-	private Lotte_D1100 updateD1100Stockholder(Long idx_corp, CardIssuanceInfo cardInfo, List<CeoInfo> ceoInfos,
+	private Lotte_D1100 updateD1100Stockholder(Long idxCorp, CardIssuanceInfo cardInfo, List<CeoInfo> ceoInfos,
 											   CardIssuanceDto.RegisterStockholder dto) {
-		Lotte_D1100 d1100 = getD1100(idx_corp);
+		Lotte_D1100 d1100 = getD1100(idxCorp);
 		if (ObjectUtils.isEmpty(d1100)) {
 			return d1100;
 		}
@@ -365,13 +365,13 @@ public class LotteCardService {
 	/**
 	 * 카드 희망한도 저장
 	 *
-	 * @param idx_user 등록하는 User idx
+	 * @param idxUser 등록하는 User idx
 	 * @param dto      등록정보
 	 * @return 등록 정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public CardIssuanceDto.CardRes saveHopeLimit(Long idx_user, CardIssuanceDto.HopeLimitReq dto, String depthKey) {
-		User user = findUser(idx_user);
+	public CardIssuanceDto.CardRes saveHopeLimit(Long idxUser, CardIssuanceDto.HopeLimitReq dto, String depthKey) {
+		User user = findUser(idxUser);
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(dto.getCardIssuanceInfoIdx())) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
@@ -424,16 +424,16 @@ public class LotteCardService {
 	/**
 	 * 카드발급정보 등록
 	 *
-	 * @param idx_user     등록하는 User idx
+	 * @param idxUser     등록하는 User idx
 	 * @param dto          등록정보
-	 * @param idx_CardInfo CardIssuanceInfo idx
+	 * @param idxCardInfo CardIssuanceInfo idx
 	 * @return 등록 정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public CardIssuanceDto.CardRes registerCard(Long idx_user, CardIssuanceDto.RegisterCard dto, Long idx_CardInfo, String depthKey) {
-		User user = findUser(idx_user);
+	public CardIssuanceDto.CardRes registerCard(Long idxUser, CardIssuanceDto.RegisterCard dto, Long idxCardInfo, String depthKey) {
+		User user = findUser(idxUser);
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-		if (!cardInfo.idx().equals(idx_CardInfo)) {
+		if (!cardInfo.idx().equals(idxCardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
 
@@ -441,7 +441,7 @@ public class LotteCardService {
 			throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "Green or Black, One of them must exist");
 		}
 
-		Double cardLimitNow = repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD());
+		Double cardLimitNow = repoRisk.findCardLimitNowFirst(idxUser, CommonUtil.getNowYYYYMMDD());
 		Long calculatedLimitLong = 0L;
 		if (!ObjectUtils.isEmpty(cardLimitNow)) {
 			calculatedLimitLong = Long.parseLong(String.valueOf(Math.round(cardLimitNow)));
@@ -547,16 +547,16 @@ public class LotteCardService {
 	/**
 	 * 결제 계좌정보 등록
 	 *
-	 * @param idx_user     등록하는 User idx
+	 * @param idxUser     등록하는 User idx
 	 * @param dto          등록정보
-	 * @param idx_CardInfo CardIssuanceInfo idx
+	 * @param idxCardInfo CardIssuanceInfo idx
 	 * @return 등록 정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public CardIssuanceDto.AccountRes registerAccount(Long idx_user, CardIssuanceDto.RegisterAccount dto, Long idx_CardInfo, String depthKey) {
-		User user = findUser(idx_user);
+	public CardIssuanceDto.AccountRes registerAccount(Long idxUser, CardIssuanceDto.RegisterAccount dto, Long idxCardInfo, String depthKey) {
+		User user = findUser(idxUser);
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-		if (!cardInfo.idx().equals(idx_CardInfo)) {
+		if (!cardInfo.idx().equals(idxCardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
 
@@ -580,8 +580,8 @@ public class LotteCardService {
 		return CardIssuanceDto.AccountRes.from(repoCardIssuance.save(cardInfo), getBankName(account.organization()));
 	}
 
-	private Lotte_D1100 updateD1100Account(Long idx_corp, ResAccount account) {
-		Lotte_D1100 d1100 = getD1100(idx_corp);
+	private Lotte_D1100 updateD1100Account(Long idxCorp, ResAccount account) {
+		Lotte_D1100 d1100 = getD1100(idxCorp);
 		if (ObjectUtils.isEmpty(d1100) || ObjectUtils.isEmpty(account)) {
 			return d1100;
 		}
@@ -599,12 +599,12 @@ public class LotteCardService {
 	/**
 	 * 대표자 정보
 	 *
-	 * @param idx_user 조회하는 User idx
+	 * @param idxUser 조회하는 User idx
 	 * @return 등록 정보
 	 */
 	@Transactional(readOnly = true)
-	public CardIssuanceDto.CeoTypeRes getCeoType(Long idx_user) {
-		User user = findUser(idx_user);
+	public CardIssuanceDto.CeoTypeRes getCeoType(Long idxUser) {
+		User user = findUser(idxUser);
 		if (user.corp() == null) {
 			throw EntityNotFoundException.builder().entity("Corp").build();
 		}
@@ -633,12 +633,12 @@ public class LotteCardService {
 	/**
 	 * 대표자 신분증 저장
 	 *
-	 * @param idx_user 등록하는 User idx
+	 * @param idxUser 등록하는 User idx
 	 * @param dto      등록정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public void saveCeoIdentification(HttpServletRequest request, Long idx_user, CardIssuanceDto.IdentificationReq dto, String depthKey) {
-		User user = findUser(idx_user);
+	public void saveCeoIdentification(HttpServletRequest request, Long idxUser, CardIssuanceDto.IdentificationReq dto, String depthKey) {
+		User user = findUser(idxUser);
 
 		Map<String, String> decryptData;
 		if (dto.getIdentityType().equals(CertificationType.DRIVER)) {
@@ -648,13 +648,71 @@ public class LotteCardService {
 			decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER});
 		}
 
-		shinhanIssuanceService.verifyCeo(idx_user, dto, decryptData);
+		shinhanIssuanceService.verifyCeo(idxUser, dto, decryptData);
 		Lotte_D1100 d1100 = getD1100(user.corp().idx());
 		updateD1100Identification(d1100, dto, decryptData);
 
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (StringUtils.hasText(depthKey)) {
 			repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+		}
+	}
+
+	/**
+	 * 관리책임자 변경
+	 *
+	 * @param idxUser     등록하는 User idx
+	 * @param dto          등록정보
+	 * @param idxCardInfo CardIssuanceInfo idx
+	 * @return 등록 정보
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public void updateManager(Long idxUser, CardIssuanceDto.UpdateManager dto, Long idxCardInfo, String depthKey) {
+		User user = findUser(idxUser);
+		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
+		if (!cardInfo.idx().equals(idxCardInfo)) {
+			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
+		}
+
+		Lotte_D1100 d1100 = getD1100(user.corp().idx());
+		String idNum = null;
+
+		if ("0".equals(dto.getCeoNumber())) {
+			idNum = d1100.getTkpRrno();
+		} else if ("1".equals(dto.getCeoNumber())) {
+			idNum = d1100.getDgRrno();
+		} else if ("2".equals(dto.getCeoNumber())) {
+			idNum = d1100.getDgRrno2();
+		} else if ("3".equals(dto.getCeoNumber())) {
+			idNum = d1100.getDgRrno3();
+		}
+
+		updateD1100Manager(d1100, user, dto, idNum);
+
+		if (StringUtils.hasText(depthKey)) {
+			repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+		}
+	}
+
+	private void updateD1100Manager(Lotte_D1100 d1100, User user, CardIssuanceDto.UpdateManager dto, String idNum) {
+		if (d1100 != null) {
+			String[] corNumber = user.corp().resCompanyNumber().split("-");
+			String[] phoneNumber = dto.getPhoneNumber().split("-");
+			repoD1100.save(d1100
+					.setTkpNm(dto.getName()) // 수령자명
+					.setTkpEnm(dto.getEngName()) // 수령자영문명
+					.setTkpRrno(idNum) // 수령자주민번호
+					.setTkpDpnm(dto.getDepartment()) // 수령자부서명
+					.setTkpPsiNm(dto.getTitle()) // 수령자직위명
+					.setTkpNatyC(dto.getNation()) // 수령자국적코드
+					.setTkpMlId(user.email()) // 수령자이메일
+					.setTkpDdd(corNumber[0]) // 수령자전화지역번호
+					.setTkpExno(corNumber[1]) // 수령자전화국번
+					.setTkpTlno(corNumber[2]) // 수령자전화개별번호
+					.setTkpMbzNo(phoneNumber[0]) // 수령자이동사업자번호
+					.setTkpMexno(phoneNumber[1]) // 수령자이동전화국번
+					.setTkpMtlno(phoneNumber[2]) // 수령자이동전화개별번호
+			);
 		}
 	}
 
@@ -675,7 +733,9 @@ public class LotteCardService {
 
 		d1100.setHsVdPhc(dto.getIdentityType().getLotteCode());
 		d1100.setIdfIsuBurNm(idfIsuBurNm);
-		if ("1".equals(dto.getCeoSeqNo())) {
+		if ("0".equals(dto.getCeoSeqNo())) {
+			d1100.setTkpRrno(encryptIdNum);
+		} else if ("1".equals(dto.getCeoSeqNo())) {
 			d1100.setIdfKndcNm(dto.getIdentityType().getLotteCode());
 			d1100.setIdfNo2(idfNo2);
 			d1100.setDgRrno(encryptIdNum);
@@ -695,16 +755,16 @@ public class LotteCardService {
 	/**
 	 * 대표자 등록
 	 *
-	 * @param idx_user     등록하는 User idx
+	 * @param idxUser     등록하는 User idx
 	 * @param dto          등록정보
-	 * @param idx_CardInfo CardIssuanceInfo idx
+	 * @param idxCardInfo CardIssuanceInfo idx
 	 * @return 등록 정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public CardIssuanceDto.CeoRes registerCeo(Long idx_user, CardIssuanceDto.RegisterCeo dto, Long idx_CardInfo, String depthKey) {
-		User user = findUser(idx_user);
+	public CardIssuanceDto.CeoRes registerCeo(Long idxUser, CardIssuanceDto.RegisterCeo dto, Long idxCardInfo, String depthKey) {
+		User user = findUser(idxUser);
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-		if (!cardInfo.idx().equals(idx_CardInfo)) {
+		if (!cardInfo.idx().equals(idxCardInfo)) {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
 
@@ -836,12 +896,12 @@ public class LotteCardService {
 	/**
 	 * 대표자 타당성 확인
 	 *
-	 * @param idx_user 조회하는 User idx
+	 * @param idxUser 조회하는 User idx
 	 * @param dto      대표자 타당성 확인 정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public void verifyValidCeo(Long idx_user, CardIssuanceDto.CeoValidReq dto, String depthKey) {
-		User user = findUser(idx_user);
+	public void verifyValidCeo(Long idxUser, CardIssuanceDto.CeoValidReq dto, String depthKey) {
+		User user = findUser(idxUser);
 		if (ObjectUtils.isEmpty(user.corp())) {
 			throw EntityNotFoundException.builder().entity("Corp").build();
 		}
@@ -861,8 +921,8 @@ public class LotteCardService {
 		}
 	}
 
-	public void verifyCorrespondCeo(Long idx_corp, CardIssuanceDto.CeoValidReq dto) {
-		D1000 shinhanD1000 = repoShinhanD1000.getTopByIdxCorpOrderByIdxDesc(idx_corp);
+	public void verifyCorrespondCeo(Long idxCorp, CardIssuanceDto.CeoValidReq dto) {
+		D1000 shinhanD1000 = repoShinhanD1000.getTopByIdxCorpOrderByIdxDesc(idxCorp);
 		if (ObjectUtils.isEmpty(shinhanD1000)) {
 			throw EntityNotFoundException.builder().entity("shinhanD1000").build();
 		}
@@ -873,7 +933,7 @@ public class LotteCardService {
 
 		// TODO: 스크래핑시 롯데전문으로 받는 로직으로 바뀌면 아래와 같이 코드 수정
 //		{
-//			Lotte_D1100 d1100 = getD1100(idx_corp);
+//			Lotte_D1100 d1100 = getD1100(idxCorp);
 //			if (ObjectUtils.isEmpty(d1100)) {
 //				throw EntityNotFoundException.builder().entity("Lotte_D1100").build();
 //			}
@@ -902,20 +962,20 @@ public class LotteCardService {
 	}
 
 
-	private User findUser(Long idx_user) {
-		return repoUser.findById(idx_user).orElseThrow(
+	private User findUser(Long idxUser) {
+		return repoUser.findById(idxUser).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("User")
-						.idx(idx_user)
+						.idx(idxUser)
 						.build()
 		);
 	}
 
-	private CeoInfo findCeoInfo(Long idx_ceo) {
-		return repoCeo.findById(idx_ceo).orElseThrow(
+	private CeoInfo findCeoInfo(Long idxCeo) {
+		return repoCeo.findById(idxCeo).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("CeoInfo")
-						.idx(idx_ceo)
+						.idx(idxCeo)
 						.build()
 		);
 	}
@@ -928,15 +988,15 @@ public class LotteCardService {
 		);
 	}
 
-	private Lotte_D1100 getD1100(Long idx_corp) {
-		return repoD1100.getTopByIdxCorpOrderByIdxDesc(idx_corp);
+	private Lotte_D1100 getD1100(Long idxCorp) {
+		return repoD1100.getTopByIdxCorpOrderByIdxDesc(idxCorp);
 	}
 
-	private ResAccount findResAccount(Long idx_resAccount) {
-		return repoResAccount.findById(idx_resAccount).orElseThrow(
+	private ResAccount findResAccount(Long idxResAccount) {
+		return repoResAccount.findById(idxResAccount).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("ResAccount")
-						.idx(idx_resAccount)
+						.idx(idxResAccount)
 						.build()
 		);
 	}

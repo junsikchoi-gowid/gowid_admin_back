@@ -44,6 +44,7 @@ public class ShinhanCardController {
         public static final String CEO_ID = "/ceo/identification";
         public static final String SHINHAN_DRIVER_LOCAL_CODE = "/driver-local-code";
         public static final String CEO_CORRESPOND = "/ceo/correspond";
+        public static final String MANAGER = "/manager";
 
     }
 
@@ -171,6 +172,22 @@ public class ShinhanCardController {
         }
 
         return ResponseEntity.ok().body(service.registerCeo(user.idx(), dto, idxCardInfo, depthKey));
+    }
+
+    @ApiOperation("관리책임자 업데이트")
+    @PostMapping(URI.MANAGER)
+    public ResponseEntity<CardIssuanceDto.CeoRes> updateManager(
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestParam Long idxCardInfo,
+            @RequestParam(required = false) String depthKey,
+            @RequestBody @Valid CardIssuanceDto.UpdateManager dto) {
+        if (log.isInfoEnabled()) {
+            log.info("([ updateManager ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
+        }
+
+        service.updateManager(user.idx(), dto, idxCardInfo, depthKey);
+
+        return ResponseEntity.ok().build();
     }
 
     @ApiOperation("신한 운전면허 지역코드 조회")

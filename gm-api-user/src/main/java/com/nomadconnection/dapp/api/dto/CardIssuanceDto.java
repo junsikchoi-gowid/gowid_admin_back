@@ -190,7 +190,7 @@ public class CardIssuanceDto {
         @NotNull
         private Long cardIssuanceInfoIdx;
 
-        @ApiModelProperty("대표자시퀀스번호(1, 2, 3)")
+        @ApiModelProperty("대표자시퀀스번호(1, 2, 3), 관리책임자(0)")
         @NotEmpty
         private String ceoSeqNo;
 
@@ -271,8 +271,41 @@ public class CardIssuanceDto {
         @ApiModelProperty("성별(1:남자, 2:여자)")
         private Long genderCode;
 
-        @ApiModelProperty("신분증 종류 (RESIDENT, DRIVER, FOREIGN")
+        @ApiModelProperty("신분증 종류 (RESIDENT, DRIVER, FOREIGN)")
         private CertificationType identityType;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateManager {
+        @ApiModelProperty("책임자(한글)")
+        @NotEmpty
+        private String name;
+
+        @ApiModelProperty("책임자(영문)")
+        @NotEmpty
+        private String engName;
+
+        @ApiModelProperty("휴대폰번호")
+        @NotEmpty
+        private String phoneNumber;
+
+        @ApiModelProperty("부서명")
+        @NotEmpty
+        private String department;
+
+        @ApiModelProperty("직위명")
+        @NotEmpty
+        private String title;
+
+        @ApiModelProperty("국적코드") // KR
+        @NotNull
+        private String nation;
+
+        @ApiModelProperty("대표자번호 (관리책임자 : 0, 대표자 :1,2,3)")
+        private String ceoNumber;
     }
 
     @Data

@@ -42,6 +42,7 @@ public class LotteCardController {
 		public static final String CEO = "/ceo";
 		public static final String CEO_ID = "/ceo/identification";
 		public static final String CEO_CORRESPOND = "/ceo/correspond";
+		public static final String MANAGER = "/manager";
 	}
 
 	private final LotteCardService service;
@@ -167,6 +168,22 @@ public class LotteCardController {
 		}
 
 		return ResponseEntity.ok().body(service.registerCeo(user.idx(), dto, idxCardInfo, depthKey));
+	}
+
+	@ApiOperation("관리책임자 업데이트")
+	@PostMapping(URI.MANAGER)
+	public ResponseEntity<CardIssuanceDto.CeoRes> updateManager(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestParam Long idxCardInfo,
+			@RequestParam(required = false) String depthKey,
+			@RequestBody @Valid CardIssuanceDto.UpdateManager dto) {
+		if (log.isInfoEnabled()) {
+			log.info("([ updateManager ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
+		}
+
+		service.updateManager(user.idx(), dto, idxCardInfo, depthKey);
+
+		return ResponseEntity.ok().build();
 	}
 
 	@ApiOperation(value = "신분증 본인 확인")

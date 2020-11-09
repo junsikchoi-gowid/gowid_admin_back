@@ -68,16 +68,16 @@ public class ShinhanCardService {
     /**
      * 법인정보 등록
      *
-     * @param idx_user     등록하는 User idx
+     * @param idxUser     등록하는 User idx
      * @param dto          등록정보
-     * @param idx_CardInfo CardIssuanceInfo idx
+     * @param idxCardInfo CardIssuanceInfo idx
      */
     @Transactional(rollbackFor = Exception.class)
-    public CardIssuanceDto.CorporationRes updateCorporation(Long idx_user, CardIssuanceDto.RegisterCorporation dto, Long idx_CardInfo, String depthKey) {
-        User user = findUser(idx_user);
+    public CardIssuanceDto.CorporationRes updateCorporation(Long idxUser, CardIssuanceDto.RegisterCorporation dto, Long idxCardInfo, String depthKey) {
+        User user = findUser(idxUser);
 
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-        if (!cardInfo.idx().equals(idx_CardInfo)) {
+        if (!cardInfo.idx().equals(idxCardInfo)) {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
@@ -105,16 +105,16 @@ public class ShinhanCardService {
     /**
      * 법인정보 등록
      *
-     * @param idx_user     등록하는 User idx
+     * @param idxUser     등록하는 User idx
      * @param dto          등록정보
-     * @param idx_CardInfo CardIssuanceInfo idx
+     * @param idxCardInfo CardIssuanceInfo idx
      */
     @Transactional(rollbackFor = Exception.class)
-    public CardIssuanceDto.CorporationExtendRes updateCorporationExtend(Long idx_user, CardIssuanceDto.RegisterCorporationExtend dto, Long idx_CardInfo, String depthKey) {
-        User user = findUser(idx_user);
+    public CardIssuanceDto.CorporationExtendRes updateCorporationExtend(Long idxUser, CardIssuanceDto.RegisterCorporationExtend dto, Long idxCardInfo, String depthKey) {
+        User user = findUser(idxUser);
 
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-        if (!cardInfo.idx().equals(idx_CardInfo)) {
+        if (!cardInfo.idx().equals(idxCardInfo)) {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
@@ -140,8 +140,8 @@ public class ShinhanCardService {
         return commonCodeDetail.value1();
     }
 
-    private D1400 updateD1400Corp(Long idx_corp, CardIssuanceDto.RegisterCorporation dto) {
-        D1400 d1400 = getD1400(idx_corp);
+    private D1400 updateD1400Corp(Long idxCorp, CardIssuanceDto.RegisterCorporation dto) {
+        D1400 d1400 = getD1400(idxCorp);
         if (ObjectUtils.isEmpty(d1400)) {
             return d1400;
         }
@@ -158,8 +158,8 @@ public class ShinhanCardService {
     }
 
 
-    private D1000 updateD1000Corp(Long idx_corp, CardIssuanceDto.RegisterCorporation dto) {
-        D1000 d1000 = getD1000(idx_corp);
+    private D1000 updateD1000Corp(Long idxCorp, CardIssuanceDto.RegisterCorporation dto) {
+        D1000 d1000 = getD1000(idxCorp);
         if (ObjectUtils.isEmpty(d1000)) {
             return d1000;
         }
@@ -179,16 +179,16 @@ public class ShinhanCardService {
     /**
      * 벤처기업정보 등록
      *
-     * @param idx_user     등록하는 User idx
+     * @param idxUser     등록하는 User idx
      * @param dto          등록정보
-     * @param idx_CardInfo CardIssuanceInfo idx
+     * @param idxCardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public CardIssuanceDto.VentureRes registerVenture(Long idx_user, CardIssuanceDto.RegisterVenture dto, Long idx_CardInfo, String depthKey) {
-        User user = findUser(idx_user);
+    public CardIssuanceDto.VentureRes registerVenture(Long idxUser, CardIssuanceDto.RegisterVenture dto, Long idxCardInfo, String depthKey) {
+        User user = findUser(idxUser);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-        if (!cardInfo.idx().equals(idx_CardInfo)) {
+        if (!cardInfo.idx().equals(idxCardInfo)) {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
@@ -233,16 +233,16 @@ public class ShinhanCardService {
     /**
      * 주주정보 등록
      *
-     * @param idx_user     등록하는 User idx
+     * @param idxUser     등록하는 User idx
      * @param dto          등록정보
-     * @param idx_CardInfo CardIssuanceInfo idx
+     * @param idxCardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public CardIssuanceDto.VentureRes registerStockholder(Long idx_user, CardIssuanceDto.RegisterStockholder dto, Long idx_CardInfo, String depthKey) {
-        User user = findUser(idx_user);
+    public CardIssuanceDto.VentureRes registerStockholder(Long idxUser, CardIssuanceDto.RegisterStockholder dto, Long idxCardInfo, String depthKey) {
+        User user = findUser(idxUser);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-        if (!cardInfo.idx().equals(idx_CardInfo)) {
+        if (!cardInfo.idx().equals(idxCardInfo)) {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
@@ -296,8 +296,8 @@ public class ShinhanCardService {
         }
     }
 
-    private D1400 updateD1400Stockholder(Long idx_corp, CardIssuanceInfo cardInfo, List<CeoInfo> ceoInfos, CardIssuanceDto.RegisterStockholder dto) {
-        D1400 d1400 = getD1400(idx_corp);
+    private D1400 updateD1400Stockholder(Long idxCorp, CardIssuanceInfo cardInfo, List<CeoInfo> ceoInfos, CardIssuanceDto.RegisterStockholder dto) {
+        D1400 d1400 = getD1400(idxCorp);
         if (ObjectUtils.isEmpty(d1400)) {
             return d1400;
         }
@@ -325,9 +325,9 @@ public class ShinhanCardService {
         );
     }
 
-    private D1000 updateD1000Stockholder(Long idx_corp, CardIssuanceInfo cardInfo, List<CeoInfo> ceoInfos,
+    private D1000 updateD1000Stockholder(Long idxCorp, CardIssuanceInfo cardInfo, List<CeoInfo> ceoInfos,
                                          CardIssuanceDto.RegisterStockholder dto) {
-        D1000 d1000 = getD1000(idx_corp);
+        D1000 d1000 = getD1000(idxCorp);
         if (ObjectUtils.isEmpty(d1000)) {
             return d1000;
         }
@@ -372,13 +372,13 @@ public class ShinhanCardService {
     /**
      * 카드 희망한도 저장
      *
-     * @param idx_user 등록하는 User idx
+     * @param idxUser 등록하는 User idx
      * @param dto      등록정보
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public CardIssuanceDto.CardRes saveHopeLimit(Long idx_user, CardIssuanceDto.HopeLimitReq dto, String depthKey) {
-        User user = findUser(idx_user);
+    public CardIssuanceDto.CardRes saveHopeLimit(Long idxUser, CardIssuanceDto.HopeLimitReq dto, String depthKey) {
+        User user = findUser(idxUser);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
         if (!cardInfo.idx().equals(dto.getCardIssuanceInfoIdx())) {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
@@ -446,20 +446,20 @@ public class ShinhanCardService {
     /**
      * 카드발급정보 등록
      *
-     * @param idx_user     등록하는 User idx
+     * @param idxUser     등록하는 User idx
      * @param dto          등록정보
-     * @param idx_CardInfo CardIssuanceInfo idx
+     * @param idxCardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public CardIssuanceDto.CardRes registerCard(Long idx_user, CardIssuanceDto.RegisterCard dto, Long idx_CardInfo, String depthKey) {
-        User user = findUser(idx_user);
+    public CardIssuanceDto.CardRes registerCard(Long idxUser, CardIssuanceDto.RegisterCard dto, Long idxCardInfo, String depthKey) {
+        User user = findUser(idxUser);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-        if (!cardInfo.idx().equals(idx_CardInfo)) {
+        if (!cardInfo.idx().equals(idxCardInfo)) {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
-        Double cardLimitNow = repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD());
+        Double cardLimitNow = repoRisk.findCardLimitNowFirst(idxUser, CommonUtil.getNowYYYYMMDD());
         Long calculatedLimitLong = 0L;
         if (!ObjectUtils.isEmpty(cardLimitNow)) {
             calculatedLimitLong = Long.parseLong(String.valueOf(Math.round(cardLimitNow)));
@@ -520,8 +520,8 @@ public class ShinhanCardService {
         }
     }
 
-    private D1000 updateD1000Card(Long idx_corp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
-        D1000 d1000 = getD1000(idx_corp);
+    private D1000 updateD1000Card(Long idxCorp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
+        D1000 d1000 = getD1000(idxCorp);
         if (ObjectUtils.isEmpty(d1000)) {
             return d1000;
         }
@@ -535,8 +535,8 @@ public class ShinhanCardService {
         );
     }
 
-    private D1400 updateD1400Card(Long idx_corp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
-        D1400 d1400 = getD1400(idx_corp);
+    private D1400 updateD1400Card(Long idxCorp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
+        D1400 d1400 = getD1400(idxCorp);
         if (ObjectUtils.isEmpty(d1400)) {
             return d1400;
         }
@@ -550,8 +550,8 @@ public class ShinhanCardService {
         );
     }
 
-    private D1100 updateD1100Card(Long idx_corp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
-        D1100 d1100 = getD1100(idx_corp);
+    private D1100 updateD1100Card(Long idxCorp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
+        D1100 d1100 = getD1100(idxCorp);
         if (ObjectUtils.isEmpty(d1100)) {
             return d1100;
         }
@@ -571,16 +571,16 @@ public class ShinhanCardService {
     /**
      * 결제 계좌정보 등록
      *
-     * @param idx_user     등록하는 User idx
+     * @param idxUser     등록하는 User idx
      * @param dto          등록정보
-     * @param idx_CardInfo CardIssuanceInfo idx
+     * @param idxCardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public CardIssuanceDto.AccountRes registerAccount(Long idx_user, CardIssuanceDto.RegisterAccount dto, Long idx_CardInfo, String depthKey) {
-        User user = findUser(idx_user);
+    public CardIssuanceDto.AccountRes registerAccount(Long idxUser, CardIssuanceDto.RegisterAccount dto, Long idxCardInfo, String depthKey) {
+        User user = findUser(idxUser);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-        if (!cardInfo.idx().equals(idx_CardInfo)) {
+        if (!cardInfo.idx().equals(idxCardInfo)) {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
@@ -604,8 +604,8 @@ public class ShinhanCardService {
         return CardIssuanceDto.AccountRes.from(repoCardIssuance.save(cardInfo), getBankName(account.organization()));
     }
 
-    private D1100 updateD1100Account(Long idx_corp, ResAccount account) {
-        D1100 d1100 = getD1100(idx_corp);
+    private D1100 updateD1100Account(Long idxCorp, ResAccount account) {
+        D1100 d1100 = getD1100(idxCorp);
         if (ObjectUtils.isEmpty(d1100) || ObjectUtils.isEmpty(account)) {
             return d1100;
         }
@@ -623,12 +623,12 @@ public class ShinhanCardService {
     /**
      * 대표자 정보
      *
-     * @param idx_user 조회하는 User idx
+     * @param idxUser 조회하는 User idx
      * @return 등록 정보
      */
     @Transactional(readOnly = true)
-    public CardIssuanceDto.CeoTypeRes getCeoType(Long idx_user) {
-        User user = findUser(idx_user);
+    public CardIssuanceDto.CeoTypeRes getCeoType(Long idxUser) {
+        User user = findUser(idxUser);
         if (user.corp() == null) {
             throw EntityNotFoundException.builder().entity("Corp").build();
         }
@@ -645,18 +645,96 @@ public class ShinhanCardService {
     }
 
     /**
-     * 대표자 등록
+     * 관리책임자 변경
      *
-     * @param idx_user     등록하는 User idx
+     * @param idxUser     등록하는 User idx
      * @param dto          등록정보
-     * @param idx_CardInfo CardIssuanceInfo idx
+     * @param idxCardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public CardIssuanceDto.CeoRes registerCeo(Long idx_user, CardIssuanceDto.RegisterCeo dto, Long idx_CardInfo, String depthKey) {
-        User user = findUser(idx_user);
+    public void updateManager(Long idxUser, CardIssuanceDto.UpdateManager dto, Long idxCardInfo, String depthKey) {
+        User user = findUser(idxUser);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-        if (!cardInfo.idx().equals(idx_CardInfo)) {
+        if (!cardInfo.idx().equals(idxCardInfo)) {
+            throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
+        }
+
+        D1000 d1000 = getD1000(user.corp().idx());
+        String idNum = null;
+        if ("0".equals(dto.getCeoNumber())) {
+            idNum = d1000.getD034();
+        } else if ("1".equals(dto.getCeoNumber())) {
+            idNum = d1000.getD011();
+        } else if ("2".equals(dto.getCeoNumber())) {
+            idNum = d1000.getD015();
+        } else if ("3".equals(dto.getCeoNumber())) {
+            idNum = d1000.getD019();
+        }
+
+        updateD1000Manager(d1000, user, dto, idNum);
+        updateD1400Manager(user, dto, idNum);
+
+        if (StringUtils.hasText(depthKey)) {
+            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+        }
+    }
+
+    private void updateD1000Manager(D1000 d1000, User user, CardIssuanceDto.UpdateManager dto, String idNum) {
+        if (d1000 != null) {
+            String[] corNumber = user.corp().resCompanyNumber().split("-");
+            String[] phoneNumber = dto.getPhoneNumber().split("-");
+            repoD1000.save(d1000
+                    .setD032(dto.getDepartment()) // 신청관리자부서명
+                    .setD033(dto.getTitle()) // 신청관리자직위명
+                    .setD034(idNum) // 신청관리자주민번호
+                    .setD035(dto.getName()) // 신청관리자명
+                    .setD036(corNumber[0]) // 신청관리자전화지역번호
+                    .setD037(corNumber[1]) // 신청관리자전화국번호
+                    .setD038(corNumber[2]) // 신청관리자전화고유번호
+                    .setD040(phoneNumber[0]) // 신청관리자휴대전화식별번호
+                    .setD041(phoneNumber[1]) // 신청관리자휴대전화국번호
+                    .setD042(phoneNumber[2]) // 신청관리자휴대전화고유번호
+                    .setD043(user.email()) // 신청관리자이메일주소
+
+            );
+        }
+    }
+
+    private void updateD1400Manager(User user, CardIssuanceDto.UpdateManager dto, String idNum) {
+        D1400 d1400 = getD1400(user.corp().idx());
+        if (d1400 != null) {
+            String[] corNumber = user.corp().resCompanyNumber().split("-");
+            String[] phoneNumber = dto.getPhoneNumber().split("-");
+            repoD1400.save(d1400
+                    .setD054(dto.getDepartment()) // 신청관리자부서명
+                    .setD055(dto.getTitle()) // 신청관리자직위명
+                    .setD056(idNum) // 신청관리자주민번호
+                    .setD057(dto.getName()) // 신청관리자명
+                    .setD058(corNumber[0]) // 신청관리자전화지역번호
+                    .setD059(corNumber[1]) // 신청관리자전화국번호
+                    .setD060(corNumber[2]) // 신청관리자전화고유번호
+                    .setD062(phoneNumber[0]) // 신청관리자휴대전화식별번호
+                    .setD063(phoneNumber[1]) // 신청관리자휴대전화국번호
+                    .setD064(phoneNumber[2]) // 신청관리자휴대전화고유번호
+                    .setD065(user.email()) // 신청관리자이메일주소
+            );
+        }
+    }
+
+    /**
+     * 대표자 등록
+     *
+     * @param idxUser     등록하는 User idx
+     * @param dto          등록정보
+     * @param idxCardInfo CardIssuanceInfo idx
+     * @return 등록 정보
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public CardIssuanceDto.CeoRes registerCeo(Long idxUser, CardIssuanceDto.RegisterCeo dto, Long idxCardInfo, String depthKey) {
+        User user = findUser(idxUser);
+        CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
+        if (!cardInfo.idx().equals(idxCardInfo)) {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
@@ -718,7 +796,7 @@ public class ShinhanCardService {
         return CardIssuanceDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");
     }
 
-    private Integer updateD1000Ceo(D1000 d1000, Long idx_corp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, Integer ceoNum) {
+    private Integer updateD1000Ceo(D1000 d1000, Long idxCorp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, Integer ceoNum) {
         if (d1000 == null) {
             return ceoNum;
         }
@@ -744,7 +822,7 @@ public class ShinhanCardService {
             repoD1000.save(d1000);
             ceoNum = 1;
 
-            updateD1100Ceo(idx_corp, dto);
+            updateD1100Ceo(idxCorp, dto);
 
         } else if (!StringUtils.hasText(d1000.getD016()) || ceoNum == 2) { // 두번째 대표자정보
             repoD1000.save(d1000
@@ -767,8 +845,8 @@ public class ShinhanCardService {
         return ceoNum;
     }
 
-    private D1100 updateD1100Ceo(Long idx_corp, CardIssuanceDto.RegisterCeo dto) {
-        D1100 d1100 = getD1100(idx_corp);
+    private D1100 updateD1100Ceo(Long idxCorp, CardIssuanceDto.RegisterCeo dto) {
+        D1100 d1100 = getD1100(idxCorp);
         if (d1100 != null) {
             d1100 = repoD1100.save(d1100
                     .setD035(dto.getPhoneNumber().substring(0, 3))
@@ -846,12 +924,12 @@ public class ShinhanCardService {
     /**
      * 대표자 타당성 확인
      *
-     * @param idx_user 조회하는 User idx
+     * @param idxUser 조회하는 User idx
      * @param dto      대표자 타당성 확인 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public void verifyValidCeo(Long idx_user, CardIssuanceDto.CeoValidReq dto, String depthKey) {
-        User user = findUser(idx_user);
+    public void verifyValidCeo(Long idxUser, CardIssuanceDto.CeoValidReq dto, String depthKey) {
+        User user = findUser(idxUser);
         if (ObjectUtils.isEmpty(user.corp())) {
             throw EntityNotFoundException.builder().entity("Corp").build();
         }
@@ -871,8 +949,8 @@ public class ShinhanCardService {
         }
     }
 
-    public void verifyCorrespondCeo(Long idx_corp, CardIssuanceDto.CeoValidReq dto) {
-        D1000 d1000 = getD1000(idx_corp);
+    public void verifyCorrespondCeo(Long idxCorp, CardIssuanceDto.CeoValidReq dto) {
+        D1000 d1000 = getD1000(idxCorp);
         if (ObjectUtils.isEmpty(d1000)) {
             throw EntityNotFoundException.builder().entity("D1000").build();
         }
@@ -900,20 +978,20 @@ public class ShinhanCardService {
     }
 
 
-    private User findUser(Long idx_user) {
-        return repoUser.findById(idx_user).orElseThrow(
+    private User findUser(Long idxUser) {
+        return repoUser.findById(idxUser).orElseThrow(
                 () -> EntityNotFoundException.builder()
                         .entity("User")
-                        .idx(idx_user)
+                        .idx(idxUser)
                         .build()
         );
     }
 
-    private CeoInfo findCeoInfo(Long idx_ceo) {
-        return repoCeo.findById(idx_ceo).orElseThrow(
+    private CeoInfo findCeoInfo(Long idxCeo) {
+        return repoCeo.findById(idxCeo).orElseThrow(
                 () -> EntityNotFoundException.builder()
                         .entity("CeoInfo")
-                        .idx(idx_ceo)
+                        .idx(idxCeo)
                         .build()
         );
     }
@@ -926,32 +1004,32 @@ public class ShinhanCardService {
         );
     }
 
-    private D1000 getD1000(Long idx_corp) {
-        return repoD1000.getTopByIdxCorpOrderByIdxDesc(idx_corp);
+    private D1000 getD1000(Long idxCorp) {
+        return repoD1000.getTopByIdxCorpOrderByIdxDesc(idxCorp);
     }
 
-    private D1100 getD1100(Long idx_corp) {
-        return repoD1100.getTopByIdxCorpOrderByIdxDesc(idx_corp);
+    private D1100 getD1100(Long idxCorp) {
+        return repoD1100.getTopByIdxCorpOrderByIdxDesc(idxCorp);
     }
 
-    private D1400 getD1400(Long idx_corp) {
-        return repoD1400.getTopByIdxCorpOrderByIdxDesc(idx_corp);
+    private D1400 getD1400(Long idxCorp) {
+        return repoD1400.getTopByIdxCorpOrderByIdxDesc(idxCorp);
 	}
 
-	private StockholderFile findStockholderFile(Long idx_file) {
-		return repoFile.findById(idx_file).orElseThrow(
+	private StockholderFile findStockholderFile(Long idxFile) {
+		return repoFile.findById(idxFile).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("StockholderFile")
-						.idx(idx_file)
+						.idx(idxFile)
 						.build()
 		);
 	}
 
-	private ResAccount findResAccount(Long idx_resAccount) {
-		return repoResAccount.findById(idx_resAccount).orElseThrow(
+	private ResAccount findResAccount(Long idxResAccount) {
+		return repoResAccount.findById(idxResAccount).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("ResAccount")
-						.idx(idx_resAccount)
+						.idx(idxResAccount)
 						.build()
 		);
 	}

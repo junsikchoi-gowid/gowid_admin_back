@@ -579,10 +579,11 @@ public class IssuanceService {
         String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
         idNum = Seed128.encryptEcb(idNum);
 
-        if ("1".equals(dto.getCeoSeqNo())) {
+        if ("0".equals(dto.getCeoSeqNo())) {
+            d1400.setD056(idNum);       // 신청관리자주민등록번호
+        } else if ("1".equals(dto.getCeoSeqNo())) {
             d1400.setD006(idNum);
             d1400.setD033(idNum);       // 대표자주민등록번호1
-            d1400.setD056(idNum);       // 신청관리자주민등록번호
         } else if ("2".equals(dto.getCeoSeqNo())) {
             d1400.setD037(idNum);       // 대표자주민등록번호2
         } else if ("3".equals(dto.getCeoSeqNo())) {
@@ -605,9 +606,10 @@ public class IssuanceService {
         String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
         idNum = Seed128.encryptEcb(idNum);
 
-        if ("1".equals(dto.getCeoSeqNo())) {
+        if ("0".equals(dto.getCeoSeqNo())) {
+            d1000.setD034(idNum);      // 신청관리자주민등록번호
+        } else if ("1".equals(dto.getCeoSeqNo())) {
             d1000.setD011(idNum);
-            d1000.setD034(idNum);
         } else if ("2".equals(dto.getCeoSeqNo())) {
             d1000.setD015(idNum);
         } else if ("3".equals(dto.getCeoSeqNo())) {
