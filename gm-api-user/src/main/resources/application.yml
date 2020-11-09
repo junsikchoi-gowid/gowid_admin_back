@@ -204,7 +204,7 @@ spring:
   profiles: prod
   cron:
     enabled: true
-    time: 0 0 2 * * MON-FRI
+    time: 0 15 2 * * MON-FRI
     endtime: 0 0 6 * * MON-FRI
   mail:
     sender: gowid <support@gowid.com>
