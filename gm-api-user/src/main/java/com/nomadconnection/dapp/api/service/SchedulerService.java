@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 
 import java.net.InetAddress;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -43,7 +47,8 @@ public class SchedulerService {
                 }
 
                 if(boolSchedule) {
-                    service.scraping10Years(user.idx());
+                    // service.scraping10Years(user.idx());
+                    service.runExecutor(user.idx());
                 }
             });
         }

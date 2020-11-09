@@ -12,13 +12,23 @@ import java.util.concurrent.Executor;
 @EnableAsync
 public class SpringAsyncConfig {
 
-    @Bean(name = "threadPoolTaskExecutor")
-    public Executor threadPoolTaskExecutor() {
+//    @Bean(name = "threadPoolTaskExecutor")
+//    public Executor threadPoolTaskExecutor() {
+//        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+//        taskExecutor.setCorePoolSize(5);
+//        taskExecutor.setMaxPoolSize(5);
+//        taskExecutor.setThreadNamePrefix("Executor-");
+//        taskExecutor.initialize();
+//        return taskExecutor;
+//    }
+
+    @Bean(name = "executor1")
+    public Executor setExecutor1() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(20);
-        taskExecutor.setMaxPoolSize(60);
-        taskExecutor.setQueueCapacity(100);
-        taskExecutor.setThreadNamePrefix("Executor-");
+
+        taskExecutor.setCorePoolSize(10);
+        taskExecutor.setMaxPoolSize(10);
+        taskExecutor.setThreadNamePrefix("executor1-");
         taskExecutor.initialize();
         return taskExecutor;
     }

@@ -40,6 +40,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.*;
 
 @Slf4j
 @Service
@@ -1259,22 +1260,6 @@ public class ScrapingService {
         });
     }
 
-    @Async
-    public void scraping10Years(Long idx) {
-        log.debug("scraping10Years");
-        log.debug("scraping10Years parallelStream() $user={}", idx);
-        ResBatch idxLog = startBatchLog(idx);
-        try {
-            scrapingAccountHistory10year(idx, idxLog.idx());
-        } catch (Exception e) {
-            log.debug("scraping10Years Exception");
-            e.printStackTrace();
-        } finally {
-            endBatchLog(idxLog.idx());
-        }
-    }
-
-
     /**
      * 매일 밤 스크립트 처리
      *
@@ -2461,5 +2446,32 @@ public class ScrapingService {
         // 가져와야 할 계좌( 오류난 목록의 일자 )를 가져온다.
 
 
+    }
+
+    @Async("executor1")
+    public void runExecutor(Long idxUser){
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        Callable task = () -> scraping10Years(idxUser);
+        Future futureResult = executor.submit(task) ;
+
+        try {
+            futureResult.get(50, TimeUnit.MINUTES);
+        }catch (Exception e){
+            log.info(e.toString());
+        }
+    }
+
+    public Object scraping10Years(Long idx) {
+        ResBatch idxLog = startBatchLog(idx);
+        try {
+            scrapingAccountHistory10year(idx, idxLog.idx());
+        } catch (Exception e) {
+            log.debug("scraping10Years Exception");
+            e.printStackTrace();
+        } finally {
+            endBatchLog(idxLog.idx());
+        }
+        return null;
     }
 }
