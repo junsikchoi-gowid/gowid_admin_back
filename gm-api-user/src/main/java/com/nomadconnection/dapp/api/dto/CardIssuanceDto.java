@@ -293,11 +293,9 @@ public class CardIssuanceDto {
         private String phoneNumber;
 
         @ApiModelProperty("부서명")
-        @NotEmpty
         private String department;
 
         @ApiModelProperty("직위명")
-        @NotEmpty
         private String title;
 
         @ApiModelProperty("국적코드") // KR
