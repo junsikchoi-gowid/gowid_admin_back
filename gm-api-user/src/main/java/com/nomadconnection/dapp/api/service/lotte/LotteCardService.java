@@ -740,6 +740,7 @@ public class LotteCardService {
 		} else if ("1".equals(dto.getCeoSeqNo())) {
 			d1100.setIdfKndcNm(dto.getIdentityType().getLotteCode());
 			d1100.setIdfNo2(idfNo2);
+			d1100.setTkpRrno(encryptIdNum);
 			d1100.setDgRrno(encryptIdNum);
 		} else if ("2".equals(dto.getCeoSeqNo())) {
 			d1100.setDgRrno2(encryptIdNum);

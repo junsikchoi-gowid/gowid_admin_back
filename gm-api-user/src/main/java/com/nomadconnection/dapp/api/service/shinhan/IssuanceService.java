@@ -501,10 +501,7 @@ public class IssuanceService {
         DataPart1700 requestRpc = new DataPart1700();
         BeanUtils.copyProperties(commonPart, requestRpc);
         requestRpc.setD001(request.getIdentityType().getShinhanCode());
-        requestRpc.setD002(request.getKorName());
-        if (!"KR".equals(request.getNation())) {
-            requestRpc.setD002(request.getEngName().replace(" ", ""));
-        }
+        requestRpc.setD002(request.getName().replace(" ", ""));
         requestRpc.setD004(request.getIssueDate());
         requestRpc.setD006(request.getDriverLocal());
         requestRpc.setD007(request.getDriverCode());
@@ -584,6 +581,7 @@ public class IssuanceService {
         } else if ("1".equals(dto.getCeoSeqNo())) {
             d1400.setD006(idNum);
             d1400.setD033(idNum);       // 대표자주민등록번호1
+            d1400.setD056(idNum);       // 신청관리자주민등록번호
         } else if ("2".equals(dto.getCeoSeqNo())) {
             d1400.setD037(idNum);       // 대표자주민등록번호2
         } else if ("3".equals(dto.getCeoSeqNo())) {
@@ -610,6 +608,7 @@ public class IssuanceService {
             d1000.setD034(idNum);      // 신청관리자주민등록번호
         } else if ("1".equals(dto.getCeoSeqNo())) {
             d1000.setD011(idNum);
+            d1000.setD034(idNum);
         } else if ("2".equals(dto.getCeoSeqNo())) {
             d1000.setD015(idNum);
         } else if ("3".equals(dto.getCeoSeqNo())) {

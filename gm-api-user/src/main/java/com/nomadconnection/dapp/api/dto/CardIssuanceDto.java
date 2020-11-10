@@ -194,17 +194,9 @@ public class CardIssuanceDto {
         @NotEmpty
         private String ceoSeqNo;
 
-        @ApiModelProperty("고객한글명")
+        @ApiModelProperty("고객명")
         @NotEmpty
-        private String korName;
-
-        @ApiModelProperty("고객영문명")
-        @NotEmpty
-        private String engName;
-
-        @ApiModelProperty("국적")
-        @NotEmpty
-        private String nation;
+        private String name;
 
         @ApiModelProperty("주민등록번호-앞(성별포함)")
         private String identificationNumberFront;
