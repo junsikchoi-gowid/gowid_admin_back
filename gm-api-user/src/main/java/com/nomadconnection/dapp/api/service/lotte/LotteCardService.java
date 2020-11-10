@@ -46,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.nomadconnection.dapp.api.util.CommonUtil.getValueOrDefault;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -702,8 +704,8 @@ public class LotteCardService {
 					.setTkpNm(dto.getName()) // 수령자명
 					.setTkpEnm(dto.getEngName()) // 수령자영문명
 					.setTkpRrno(idNum) // 수령자주민번호
-					.setTkpDpnm(dto.getDepartment()) // 수령자부서명
-					.setTkpPsiNm(dto.getTitle()) // 수령자직위명
+					.setTkpDpnm(getValueOrDefault(dto.getDepartment(), "대표이사")) // 수령자부서명
+					.setTkpPsiNm(getValueOrDefault(dto.getTitle(), "대표이사")) // 수령자직위명
 					.setTkpNatyC(dto.getNation()) // 수령자국적코드
 					.setTkpMlId(user.email()) // 수령자이메일
 					.setTkpDdd(corNumber[0]) // 수령자전화지역번호

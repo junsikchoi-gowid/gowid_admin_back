@@ -44,6 +44,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.nomadconnection.dapp.api.util.CommonUtil.getValueOrDefault;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -685,8 +687,8 @@ public class ShinhanCardService {
             String[] corNumber = user.corp().resCompanyNumber().split("-");
             String[] phoneNumber = dto.getPhoneNumber().split("-");
             repoD1000.save(d1000
-                    .setD032(dto.getDepartment()) // 신청관리자부서명
-                    .setD033(dto.getTitle()) // 신청관리자직위명
+                    .setD032(getValueOrDefault(dto.getDepartment(), "대표이사")) // 신청관리자부서명
+                    .setD033(getValueOrDefault(dto.getTitle(), "대표이사")) // 신청관리자직위명
                     .setD034(idNum) // 신청관리자주민번호
                     .setD035(dto.getName()) // 신청관리자명
                     .setD036(corNumber[0]) // 신청관리자전화지역번호
@@ -707,8 +709,8 @@ public class ShinhanCardService {
             String[] corNumber = user.corp().resCompanyNumber().split("-");
             String[] phoneNumber = dto.getPhoneNumber().split("-");
             repoD1400.save(d1400
-                    .setD054(dto.getDepartment()) // 신청관리자부서명
-                    .setD055(dto.getTitle()) // 신청관리자직위명
+                    .setD054(getValueOrDefault(dto.getDepartment(), "대표이사")) // 신청관리자부서명
+                    .setD055(getValueOrDefault(dto.getTitle(), "대표이사")) // 신청관리자직위명
                     .setD056(idNum) // 신청관리자주민번호
                     .setD057(dto.getName()) // 신청관리자명
                     .setD058(corNumber[0]) // 신청관리자전화지역번호

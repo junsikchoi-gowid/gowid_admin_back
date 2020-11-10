@@ -126,4 +126,8 @@ public class CommonUtil {
         return  (baseDate.isEqual(startDate) || baseDate.isAfter(startDate))
             && (baseDate.isEqual(endDate) || baseDate.isBefore(endDate));
     }
+
+    public static String getValueOrDefault(String value, String defaultValue) {
+        return StringUtils.isEmpty(value) ? defaultValue : value;
+    }
 }
