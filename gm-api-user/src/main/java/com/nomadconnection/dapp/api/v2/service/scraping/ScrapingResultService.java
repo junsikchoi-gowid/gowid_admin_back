@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.v2.service.scraping;
 
+import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import lombok.Getter;
 import lombok.Setter;
 import org.json.simple.JSONObject;
@@ -46,6 +47,10 @@ public class ScrapingResultService {
 		setExtraMessage(result[0].getOrDefault("extraMessage","").toString());
 		setTransactionId(result[0].getOrDefault("transactionId","").toString());
 		setConnectedId(result[1].getOrDefault("connectedId", "").toString());
+	}
+
+	public ApiResponse.ApiResult getCodeAndMessage(){
+		return ApiResponse.ApiResult.builder().code(code).desc(message).extraMessage(extraMessage).build();
 	}
 
 }

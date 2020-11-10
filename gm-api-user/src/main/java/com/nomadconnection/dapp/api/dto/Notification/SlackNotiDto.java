@@ -1,11 +1,14 @@
 package com.nomadconnection.dapp.api.dto.Notification;
 
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
+import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.Optional;
 
 public class SlackNotiDto {
 
@@ -58,9 +61,65 @@ public class SlackNotiDto {
                 .append("Extra Message : ").append(extraMessage).append("\n")
                 .toString();
         }
-
     }
 
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ScrapingNotiReq {
+        private String email;
+        private String cardIssuer;
+        private String company;
+        private Long idxCorp;
+        private String scrapingType;
+        private String code;
+        private String message;
+        private String extraMessage;
 
+
+        public static String getScrapingSlackMessage(User user, ApiResponse.ApiResult response, ScrapingType scrapingType){
+            Corp corp = user.corp();
+            boolean existCorp = Optional.ofNullable(corp).isPresent();
+            if(existCorp){
+                return ScrapingNotiReq.builder()
+                    .email(user.email())
+                    .cardIssuer(user.cardCompany().getName())
+                    .scrapingType(scrapingType.getDesc())
+                    .company(corp.resCompanyNm())
+                    .idxCorp(corp.idx())
+                    .code(response.getCode())
+                    .message(response.getDesc())
+                    .extraMessage(response.getExtraMessage())
+                    .build()
+                    .toString();
+            }
+
+            return ScrapingNotiReq.builder()
+                .email(user.email())
+                .cardIssuer(user.cardCompany().getName())
+                .scrapingType(scrapingType.getDesc())
+                .code(response.getCode())
+                .message(response.getDesc())
+                .extraMessage(response.getExtraMessage())
+                .build()
+                .toString();
+        }
+
+        @Override
+        public String toString() {
+            return new StringBuilder()
+                .append("User : ").append(email).append("\n")
+                .append("Card Issuer : ").append(cardIssuer).append("\n")
+                .append("Company : ").append(company).append("\n")
+                .append("IdxCorp : ").append(idxCorp).append("\n")
+                .append("ScrapingType : ").append(scrapingType).append("\n")
+                .append("Code : ").append(code).append("\n")
+                .append("Message : ").append(message).append("\n")
+                .append("Extra Message : ").append(extraMessage).append("\n")
+                .toString();
+        }
+
+    }
 
 }

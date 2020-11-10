@@ -5,6 +5,8 @@ import com.nomadconnection.dapp.api.exception.CodefApiException;
 import com.nomadconnection.dapp.api.exception.CorpAlreadyExistException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.service.UserService;
+import com.nomadconnection.dapp.api.service.notification.SlackNotiService;
+import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
 import com.nomadconnection.dapp.codef.io.api.ApiCodef;
 import com.nomadconnection.dapp.codef.io.dto.Common;
 import com.nomadconnection.dapp.codef.io.helper.ApiRequest;
@@ -49,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.ScrapingNotiReq.getScrapingSlackMessage;
 import static com.nomadconnection.dapp.api.util.CommonUtil.replaceHyphen;
 import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.isScrapingSuccess;
 
@@ -68,6 +71,7 @@ public class ScrapingService {
 	private final ScrapingResultService scrapingResultService;
 	private final ImageService imageService;
     private final FullTextService fullTextService;
+    private final SlackNotiService slackNotiService;
 
     private final String URL_PATH = CommonConstant.getRequestDomain();
 
@@ -125,6 +129,7 @@ public class ScrapingService {
 			saveConnectedId(successList, connectedId);
 		}else {
 			log.error("[createAccount] $user={}, $code={}, $message={} ", user.email(), code, message);
+			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(), ScrapingType.CREATE_ACCOUNT), slackNotiService.getSlackProgressUrl());
 			throw new CodefApiException(ResponseCode.findByCode(code));
 		}
 	}
@@ -272,6 +277,7 @@ public class ScrapingService {
 						.build());
 			}
 			log.error("[scrapCorpLicense] $user={}, $code={}, $message={} ", user.email(), code, message);
+			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(), ScrapingType.CORP_LICENSE), slackNotiService.getSlackProgressUrl());
 			throw new CodefApiException(ResponseCode.findByCode(code));
 		}
 	}
@@ -340,6 +346,7 @@ public class ScrapingService {
 						.build());
 			}
 			log.error("[scrapCorpRegistration] $user={}, $code={}, $message={} ", user.email(), code, message);
+			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(), ScrapingType.CORP_REGISTRATION), slackNotiService.getSlackProgressUrl());
 			throw new CodefApiException(ResponseCode.findByCode(code));
 		}
 

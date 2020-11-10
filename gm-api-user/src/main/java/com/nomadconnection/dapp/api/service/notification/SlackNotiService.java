@@ -71,4 +71,9 @@ public class SlackNotiService {
     public String getSlackRecoveryUrl(){
         return slackNotiConfig.getRecoveryUrl();
     }
+
+    public String getSlackProgressUrl(){
+        return slackNotiConfig.getProgressUrl();
+    }
+
 }

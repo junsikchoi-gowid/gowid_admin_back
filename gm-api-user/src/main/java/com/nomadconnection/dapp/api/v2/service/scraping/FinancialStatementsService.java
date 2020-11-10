@@ -89,7 +89,7 @@ public class FinancialStatementsService {
 			String code = scrapingResultService.getCode();
 			String message = scrapingResultService.getMessage();
 			String extraMessage = scrapingResultService.getExtraMessage();
-			response = ApiResponse.ApiResult.builder().code(code).desc(message).extraMessage(extraMessage).build();
+			response = scrapingResultService.getCodeAndMessage();
 			ScrapingLogDto logDto = ScrapingLogDto.builder().email(user.email()).code(code).message(message).extraMessage(extraMessage).build();
 
 			if(corpService.isNewCorp(Integer.parseInt(resClosingStandards), LocalDate.parse(corp.resOpenDate(), DateTimeFormatter.ofPattern("yyyyMMdd")))){
