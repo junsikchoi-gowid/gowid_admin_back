@@ -172,7 +172,7 @@ public class LotteCardController {
 
 	@ApiOperation("관리책임자 업데이트")
 	@PostMapping(URI.MANAGER)
-	public ResponseEntity<CardIssuanceDto.CeoRes> updateManager(
+	public ResponseEntity<?> updateManager(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestParam Long idxCardInfo,
 			@RequestParam(required = false) String depthKey,
@@ -182,7 +182,6 @@ public class LotteCardController {
 		}
 
 		service.updateManager(user.idx(), dto, idxCardInfo, depthKey);
-
 		return ResponseEntity.ok().build();
 	}
 
@@ -225,6 +224,7 @@ public class LotteCardController {
 		return ResponseEntity.ok().build();
 	}
 
+	@Deprecated
 	@ApiOperation(value = "대표자 일치 확인")
 	@PostMapping(URI.CEO_CORRESPOND)
 	public ResponseEntity<?> verifyCorrespondCeo(

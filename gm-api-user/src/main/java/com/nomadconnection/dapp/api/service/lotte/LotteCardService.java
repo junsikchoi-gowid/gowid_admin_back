@@ -699,7 +699,6 @@ public class LotteCardService {
 	private void updateD1100Manager(Lotte_D1100 d1100, User user, CardIssuanceDto.UpdateManager dto, String idNum) {
 		if (d1100 != null) {
 			String[] corNumber = user.corp().resCompanyNumber().split("-");
-			String[] phoneNumber = dto.getPhoneNumber().split("-");
 			repoD1100.save(d1100
 					.setTkpNm(dto.getName()) // 수령자명
 					.setTkpEnm(dto.getEngName()) // 수령자영문명
@@ -711,9 +710,9 @@ public class LotteCardService {
 					.setTkpDdd(corNumber[0]) // 수령자전화지역번호
 					.setTkpExno(corNumber[1]) // 수령자전화국번
 					.setTkpTlno(corNumber[2]) // 수령자전화개별번호
-					.setTkpMbzNo(phoneNumber[0]) // 수령자이동사업자번호
-					.setTkpMexno(phoneNumber[1]) // 수령자이동전화국번
-					.setTkpMtlno(phoneNumber[2]) // 수령자이동전화개별번호
+                    .setTkpMbzNo(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(0, 3))) // 수령자이동사업자번호
+                    .setTkpMexno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(3, 7))) // 수령자이동전화국번
+                    .setTkpMtlno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(7))) // 수령자이동전화개별번호
 			);
 		}
 	}
@@ -740,8 +739,8 @@ public class LotteCardService {
 		} else if ("1".equals(dto.getCeoSeqNo())) {
 			d1100.setIdfKndcNm(dto.getIdentityType().getLotteCode());
 			d1100.setIdfNo2(idfNo2);
-			d1100.setTkpRrno(encryptIdNum);
-			d1100.setDgRrno(encryptIdNum);
+            d1100.setTkpRrno(encryptIdNum);
+            d1100.setDgRrno(encryptIdNum);
 		} else if ("2".equals(dto.getCeoSeqNo())) {
 			d1100.setDgRrno2(encryptIdNum);
 		} else if ("3".equals(dto.getCeoSeqNo())) {
@@ -901,6 +900,7 @@ public class LotteCardService {
 	 * @param idxUser 조회하는 User idx
 	 * @param dto      대표자 타당성 확인 정보
 	 */
+	@Deprecated
 	@Transactional(rollbackFor = Exception.class)
 	public void verifyValidCeo(Long idxUser, CardIssuanceDto.CeoValidReq dto, String depthKey) {
 		User user = findUser(idxUser);

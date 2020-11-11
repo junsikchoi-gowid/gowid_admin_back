@@ -929,6 +929,7 @@ public class ShinhanCardService {
      * @param idxUser 조회하는 User idx
      * @param dto      대표자 타당성 확인 정보
      */
+    @Deprecated
     @Transactional(rollbackFor = Exception.class)
     public void verifyValidCeo(Long idxUser, CardIssuanceDto.CeoValidReq dto, String depthKey) {
         User user = findUser(idxUser);
