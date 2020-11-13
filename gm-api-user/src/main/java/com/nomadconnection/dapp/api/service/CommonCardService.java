@@ -269,6 +269,7 @@ public class CommonCardService {
 					.cardRes(CardIssuanceDto.CardRes.from(cardIssuanceInfo))
 					.accountRes(CardIssuanceDto.AccountRes.from(cardIssuanceInfo, getBankName(!ObjectUtils.isEmpty(cardIssuanceInfo.bankAccount()) ? cardIssuanceInfo.bankAccount().getBankCode() : null)))
 					.ceoRes(cardIssuanceInfo.ceoInfos() != null ? cardIssuanceInfo.ceoInfos().stream().map(CardIssuanceDto.CeoRes::from).collect(Collectors.toList()) : null)
+					.managerRes(CardIssuanceDto.ManagerRes.from(cardIssuanceInfo.managerInfo()))
 					.stockholderFileRes(cardIssuanceInfo.stockholderFiles() != null ? cardIssuanceInfo.stockholderFiles().stream().map(file -> CardIssuanceDto.StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()) : null)
 					.build();
 

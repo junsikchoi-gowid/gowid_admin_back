@@ -70,4 +70,8 @@ public class CardIssuanceInfo extends BaseTime {
 
     @Embedded
     private CorpExtend corpExtend;
+
+    @OneToOne(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private ManagerInfo managerInfo;
 }

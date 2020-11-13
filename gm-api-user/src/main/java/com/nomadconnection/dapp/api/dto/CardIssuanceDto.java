@@ -271,7 +271,7 @@ public class CardIssuanceDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UpdateManager {
+    public static class RegisterManager {
         @ApiModelProperty("책임자(한글)")
         @NotEmpty
         private String name;
@@ -289,6 +289,12 @@ public class CardIssuanceDto {
 
         @ApiModelProperty("직위명")
         private String title;
+
+        @ApiModelProperty("생년월일(yyMMdd)")
+        private String birth;
+
+        @ApiModelProperty("성별(1:남자, 2:여자)")
+        private Long genderCode;
 
         @ApiModelProperty("국적코드") // KR
         @NotNull
@@ -716,6 +722,52 @@ public class CardIssuanceDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class ManagerRes {
+        @ApiModelProperty("카드발급정보 식별자")
+        private Long idx;
+
+        @ApiModelProperty("관리자 식별자")
+        private Long managerIdx;
+
+        @ApiModelProperty("대표자(한글)")
+        private String name;
+
+        @ApiModelProperty("대표자(영문)")
+        private String engName;
+
+        @ApiModelProperty("휴대폰번호")
+        private String phoneNumber;
+
+        @ApiModelProperty("생년월일(yyMMdd)")
+        private String birth;
+
+        @ApiModelProperty("성별(1:남자, 2:여자)")
+        private Long genderCode;
+
+        @ApiModelProperty("국적코드")
+        private String nation;
+
+        public static ManagerRes from(ManagerInfo managerInfo) {
+            if (managerInfo != null) {
+                return ManagerRes.builder()
+                        .idx(managerInfo.cardIssuanceInfo().idx())
+                        .managerIdx(managerInfo.idx())
+                        .nation(managerInfo.nation())
+                        .name(managerInfo.name())
+                        .engName(managerInfo.engName())
+                        .phoneNumber(managerInfo.phoneNumber())
+                        .birth(managerInfo.birth())
+                        .genderCode(managerInfo.genderCode())
+                        .build();
+            }
+            return null;
+        }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class CardIssuanceInfoRes {
         private String issuanceDepth;
         private String cardCompany;
@@ -728,6 +780,7 @@ public class CardIssuanceDto {
         private AccountRes accountRes;
         private List<CeoRes> ceoRes;
         private List<StockholderFileRes> stockholderFileRes;
+        private ManagerRes managerRes;
     }
 
     @Data

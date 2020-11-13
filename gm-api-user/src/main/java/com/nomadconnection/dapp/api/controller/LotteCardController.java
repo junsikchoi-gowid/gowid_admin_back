@@ -172,17 +172,16 @@ public class LotteCardController {
 
 	@ApiOperation("관리책임자 업데이트")
 	@PostMapping(URI.MANAGER)
-	public ResponseEntity<?> updateManager(
+	public ResponseEntity<CardIssuanceDto.ManagerRes> registerManager(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestParam Long idxCardInfo,
 			@RequestParam(required = false) String depthKey,
-			@RequestBody @Valid CardIssuanceDto.UpdateManager dto) {
+			@RequestBody @Valid CardIssuanceDto.RegisterManager dto) {
 		if (log.isInfoEnabled()) {
-			log.info("([ updateManager ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
+			log.info("([ registerManager ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
 		}
 
-		service.updateManager(user.idx(), dto, idxCardInfo, depthKey);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok().body(service.registerManager(user.idx(), dto, idxCardInfo, depthKey));
 	}
 
 	@ApiOperation(value = "신분증 본인 확인")

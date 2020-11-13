@@ -19,6 +19,7 @@ import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssu
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CeoInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
+import com.nomadconnection.dapp.core.domain.repository.corp.ManagerRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.VentureBusinessRepository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1100Repository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
@@ -63,6 +64,7 @@ public class LotteCardService {
 	private final VentureBusinessRepository repoVenture;
 	private final ResAccountRepository repoResAccount;
 	private final D1000Repository repoShinhanD1000;
+	private final ManagerRepository repoManager;
 
 	private final IssuanceService shinhanIssuanceService;
 	private final CommonCardService commonCardService;
@@ -669,7 +671,7 @@ public class LotteCardService {
 	 * @return 등록 정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public void updateManager(Long idxUser, CardIssuanceDto.UpdateManager dto, Long idxCardInfo, String depthKey) {
+	public CardIssuanceDto.ManagerRes registerManager(Long idxUser, CardIssuanceDto.RegisterManager dto, Long idxCardInfo, String depthKey) {
 		User user = findUser(idxUser);
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
 		if (!cardInfo.idx().equals(idxCardInfo)) {
@@ -691,12 +693,24 @@ public class LotteCardService {
 
 		updateD1100Manager(d1100, user, dto, idNum);
 
+		ManagerInfo manager = ManagerInfo.builder()
+				.cardIssuanceInfo(cardInfo)
+				.engName(dto.getEngName())
+				.name(dto.getName())
+				.nation(dto.getNation())
+				.phoneNumber(dto.getPhoneNumber())
+				.genderCode(dto.getGenderCode())
+				.birth(dto.getBirth())
+				.build();
+
 		if (StringUtils.hasText(depthKey)) {
 			repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
 		}
+
+		return CardIssuanceDto.ManagerRes.from(repoManager.save(manager));
 	}
 
-	private void updateD1100Manager(Lotte_D1100 d1100, User user, CardIssuanceDto.UpdateManager dto, String idNum) {
+	private void updateD1100Manager(Lotte_D1100 d1100, User user, CardIssuanceDto.RegisterManager dto, String idNum) {
 		if (d1100 != null) {
 			String[] corNumber = user.corp().resCompanyNumber().split("-");
 			repoD1100.save(d1100

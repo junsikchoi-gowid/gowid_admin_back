@@ -17,6 +17,7 @@ import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.Stockhol
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CeoInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
+import com.nomadconnection.dapp.core.domain.repository.corp.ManagerRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.VentureBusinessRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
@@ -60,6 +61,7 @@ public class ShinhanCardService {
     private final D1100Repository repoD1100;
     private final CommonCodeDetailRepository repoCodeDetail;
     private final CeoInfoRepository repoCeo;
+    private final ManagerRepository repoManager;
     private final VentureBusinessRepository repoVenture;
     private final StockholderFileRepository repoFile;
 	private final ResAccountRepository repoResAccount;
@@ -655,7 +657,7 @@ public class ShinhanCardService {
      * @return 등록 정보
      */
     @Transactional(rollbackFor = Exception.class)
-    public void updateManager(Long idxUser, CardIssuanceDto.UpdateManager dto, Long idxCardInfo, String depthKey) {
+    public CardIssuanceDto.ManagerRes registerManager(Long idxUser, CardIssuanceDto.RegisterManager dto, Long idxCardInfo, String depthKey) {
         User user = findUser(idxUser);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
         if (!cardInfo.idx().equals(idxCardInfo)) {
@@ -677,15 +679,26 @@ public class ShinhanCardService {
         updateD1000Manager(d1000, user, dto, idNum);
         updateD1400Manager(user, dto, idNum);
 
+        ManagerInfo manager = ManagerInfo.builder()
+                .cardIssuanceInfo(cardInfo)
+                .engName(dto.getEngName())
+                .name(dto.getName())
+                .nation(dto.getNation())
+                .phoneNumber(dto.getPhoneNumber())
+                .genderCode(dto.getGenderCode())
+                .birth(dto.getBirth())
+                .build();
+
         if (StringUtils.hasText(depthKey)) {
             repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
         }
+
+        return CardIssuanceDto.ManagerRes.from(repoManager.save(manager));
     }
 
-    private void updateD1000Manager(D1000 d1000, User user, CardIssuanceDto.UpdateManager dto, String idNum) {
+    private void updateD1000Manager(D1000 d1000, User user, CardIssuanceDto.RegisterManager dto, String idNum) {
         if (d1000 != null) {
             String[] corNumber = user.corp().resCompanyNumber().split("-");
-            String[] phoneNumber = dto.getPhoneNumber().split("-");
             repoD1000.save(d1000
                     .setD032(getValueOrDefault(dto.getDepartment(), "대표이사")) // 신청관리자부서명
                     .setD033(getValueOrDefault(dto.getTitle(), "대표이사")) // 신청관리자직위명
@@ -694,20 +707,19 @@ public class ShinhanCardService {
                     .setD036(corNumber[0]) // 신청관리자전화지역번호
                     .setD037(corNumber[1]) // 신청관리자전화국번호
                     .setD038(corNumber[2]) // 신청관리자전화고유번호
-                    .setD040(phoneNumber[0]) // 신청관리자휴대전화식별번호
-                    .setD041(phoneNumber[1]) // 신청관리자휴대전화국번호
-                    .setD042(phoneNumber[2]) // 신청관리자휴대전화고유번호
+                    .setD040(dto.getPhoneNumber().substring(0, 3)) // 신청관리자휴대전화식별번호
+                    .setD041(dto.getPhoneNumber().substring(3, 7)) // 신청관리자휴대전화국번호
+                    .setD042(dto.getPhoneNumber().substring(7)) // 신청관리자휴대전화고유번호
                     .setD043(user.email()) // 신청관리자이메일주소
 
             );
         }
     }
 
-    private void updateD1400Manager(User user, CardIssuanceDto.UpdateManager dto, String idNum) {
+    private void updateD1400Manager(User user, CardIssuanceDto.RegisterManager dto, String idNum) {
         D1400 d1400 = getD1400(user.corp().idx());
         if (d1400 != null) {
             String[] corNumber = user.corp().resCompanyNumber().split("-");
-            String[] phoneNumber = dto.getPhoneNumber().split("-");
             repoD1400.save(d1400
                     .setD054(getValueOrDefault(dto.getDepartment(), "대표이사")) // 신청관리자부서명
                     .setD055(getValueOrDefault(dto.getTitle(), "대표이사")) // 신청관리자직위명
@@ -716,9 +728,9 @@ public class ShinhanCardService {
                     .setD058(corNumber[0]) // 신청관리자전화지역번호
                     .setD059(corNumber[1]) // 신청관리자전화국번호
                     .setD060(corNumber[2]) // 신청관리자전화고유번호
-                    .setD062(phoneNumber[0]) // 신청관리자휴대전화식별번호
-                    .setD063(phoneNumber[1]) // 신청관리자휴대전화국번호
-                    .setD064(phoneNumber[2]) // 신청관리자휴대전화고유번호
+                    .setD062(dto.getPhoneNumber().substring(0, 3)) // 신청관리자휴대전화식별번호
+                    .setD063(dto.getPhoneNumber().substring(3, 7)) // 신청관리자휴대전화국번호
+                    .setD064(dto.getPhoneNumber().substring(7)) // 신청관리자휴대전화고유번호
                     .setD065(user.email()) // 신청관리자이메일주소
             );
         }
