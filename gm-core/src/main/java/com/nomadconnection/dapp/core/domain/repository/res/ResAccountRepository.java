@@ -5,11 +5,8 @@ import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -127,37 +124,37 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             " ) groupTableB  on groupTableA.ms = groupTableB.resAccountTrMonth order by sumDate", nativeQuery = true)
     List<CaccountMonthDto> findMonthHistory(String startMonth, String endMonth, Long idxUser);
 
-    @Query(value = "select ms sumDate, COALESCE(sumResAccountIn,0) sumResAccountIn, COALESCE(sumResAccountOut,0) sumResAccountOut, lastResAfterTranBalance     \n" +
-            " from (     \n" +
-            "     select ms, sum(     \n" +
-            "   ifnull(     \n" +
-            "    ifnull(     \n" +
-            "     (select resAfterTranBalance from ResAccountHistory r      \n" +
-            "      where Date_Format(resAccountTrDate,  '%Y%m') <= ms and b.resAccount = r.resAccount      \n" +
-            "      order by Date_Format(resAccountTrDate,  '%Y%m') desc , resAccountTrDate desc, resAccountTrTime desc, idx limit 1)     \n" +
-            "      ,     \n" +
-            "           (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r      \n" +
-            "       where Date_Format(resAccountTrDate,  '%Y%m') >= ms and b.resAccount = r.resAccount      \n" +
-            "       order by Date_Format(resAccountTrDate,  '%Y%m') asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1)     \n" +
-            "     ),     \n" +
-            "           (select if(ms >= left(resAccountStartDate,6) ,resAccountBalance,0 ) resAccountBalance      \n" +
-            "      from ResAccount r where b.resAccount = r.resAccount limit 1 )      \n" +
-            "           )     \n" +
-            "   ) lastResAfterTranBalance     \n" +
-            "  from (select ms from date_t c where ds >= :startMonth and ds <= :endMonth group by ms) groupA     \n" +
-            "    join ResAccount b on b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser order by resAccount desc ) and resAccountDeposit in ('10','11','12','13','14','30')    \n" +
-            "  group by ms     \n" +
-            " ) groupTableA     \n" +
-            "  left join (\n" +
-            "        select      \n" +
-            "  Date_Format(resAccountTrDate,  '%Y%m') resAccountTrMonth ,      \n" +
-            "  sum(resAccountIn) sumResAccountIn ,     \n" +
-            "  sum(resAccountOut) sumResAccountOut      \n" +
-            "  from ResAccountHistory a1                       \n" +
-            "   join ResAccount b on b.resAccount = a1.resAccount and resAccountDeposit in ('10','11','12','13','14')     \n" +
-            "   join ConnectedMng c  on c.connectedId = b.connectedId and c.idxUser = :idxUser     \n" +
-            "  where Date_Format(resAccountTrDate,  '%Y%m%d') >= :startMonth and  Date_Format(resAccountTrDate,  '%Y%m%d') <= :endMonth     \n" +
-            "  group by Date_Format(resAccountTrDate,  '%Y%m')     \n" +
+    @Query(value = "select ms sumDate, COALESCE(sumResAccountIn,0) sumResAccountIn, COALESCE(sumResAccountOut,0) sumResAccountOut, lastResAfterTranBalance     " +
+            " from (     " +
+            "     select ms, sum(     " +
+            "   ifnull(     " +
+            "    ifnull(     " +
+            "     (select resAfterTranBalance from ResAccountHistory r      " +
+            "      where Date_Format(resAccountTrDate,  '%Y%m') <= ms and b.resAccount = r.resAccount      " +
+            "      order by Date_Format(resAccountTrDate,  '%Y%m') desc , resAccountTrDate desc, resAccountTrTime desc, idx limit 1)     " +
+            "      ,     " +
+            "           (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r      " +
+            "       where Date_Format(resAccountTrDate,  '%Y%m') >= ms and b.resAccount = r.resAccount      " +
+            "       order by Date_Format(resAccountTrDate,  '%Y%m') asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1)     " +
+            "     ),     " +
+            "           (select if(ms >= left(resAccountStartDate,6) ,resAccountBalance,0 ) resAccountBalance      " +
+            "      from ResAccount r where b.resAccount = r.resAccount limit 1 )      " +
+            "           )     " +
+            "   ) lastResAfterTranBalance     " +
+            "  from (select ms from date_t c where ds >= :startMonth and ds <= :endMonth group by ms) groupA     " +
+            "    join ResAccount b on b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser order by resAccount desc ) and resAccountDeposit in ('10','11','12','13','14','30')    " +
+            "  group by ms     " +
+            " ) groupTableA     " +
+            "  left join (" +
+            "        select      " +
+            "  Date_Format(resAccountTrDate,  '%Y%m') resAccountTrMonth ,      " +
+            "  sum(resAccountIn) sumResAccountIn ,     " +
+            "  sum(resAccountOut) sumResAccountOut      " +
+            "  from ResAccountHistory a1                       " +
+            "   join ResAccount b on b.resAccount = a1.resAccount and resAccountDeposit in ('10','11','12','13','14')     " +
+            "   join ConnectedMng c  on c.connectedId = b.connectedId and c.idxUser = :idxUser     " +
+            "  where Date_Format(resAccountTrDate,  '%Y%m%d') >= :startMonth and  Date_Format(resAccountTrDate,  '%Y%m%d') <= :endMonth     " +
+            "  group by Date_Format(resAccountTrDate,  '%Y%m')     " +
             " ) groupTableB  on groupTableA.ms = groupTableB.resAccountTrMonth order by sumDate", nativeQuery = true)
     List<CaccountMonthDto> findMonthHistory_External(String startMonth, String endMonth, Long idxUser);
 
@@ -189,54 +186,67 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
 
     public static interface CRisk {
         Integer getDsc();
-
         String getDs();
-
         float getCurrentBalance();
-
-        String getErrCnt();
-
         String getErrCode();
+        String getErrCnt();
     }
 
-    @Query(value = "select DATEDIFF(:calcDate,ds) dsc " +
-            " , ds" +
-            " , sum(ifnull(ifnull(if(errCnt is null, value1,0),if(errCnt is null, value2,0)),if(errCnt is null, value3,0))) as currentBalance \n" +
-            " , max(errCnt) errCnt " +
-            " , max(errCode) errCode " +
-            "from  \n" +
-            "(  select ds, resAccount, errCnt, errCode \n" +
-            "  , (select resAfterTranBalance from ResAccountHistory r\n" +
-            "     where resAccountTrDate <= ds and b.resAccount = r.resAccount \n" +
-            "     order by resAccountTrDate desc , resAccountTrDate desc, resAccountTrTime desc, idx limit 1) value1 \n" +
-            "  , (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r       \n" +
-            "    where resAccountTrDate >= ds and b.resAccount = r.resAccount\n" +
-            "    order by resAccountTrDate asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1) value2   \n" +
-            "  , (select if( ds >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance       \n" +
-            "  from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3 \n" +
-            "    from (select ds from date_t c where d between date_add(:calcDate, INTERVAL - 44 day) and :calcDate) g     \n" +
-            "    join ResAccount b on b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14') \n" +
-            "    left join (select count(account) as errCnt, max(errCode) as errCode, account from ResBatchList r where errCode != 'CF-00000' and resBatchType = 1    \n" +
-            "      and idxResBatch = (SELECT idxResBatch FROM ResBatchList where idxUser = :idxUser order by idxResBatch desc limit 1) group by account, errCode) c on c.account = b.resAccount\n" +
-            ") a group by dsc order by dsc asc ", nativeQuery = true)
+    @Query(value = " select DATEDIFF(:calcDate,ds) dsc " +
+            " , ds " +
+            " , sum(ifnull(ifnull(ifnull(value1,value2),value3),0)) as currentBalance " +
+            " from  " +
+            " (  select ds, resAccount" +
+            "  , (select resAfterTranBalance from ResAccountHistory r" +
+            "     where resAccountTrDate <= ds and b.resAccount = r.resAccount " +
+            "     order by resAccountTrDate desc , resAccountTrDate desc, resAccountTrTime desc, idx limit 1) value1 " +
+            "  , (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r       " +
+            "    where resAccountTrDate >= ds and b.resAccount = r.resAccount" +
+            "    order by resAccountTrDate asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1) value2   " +
+            "  , (select if( ds >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance " +
+            "  from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3 " +
+            "    from (select ds from date_t c where d between date_add(:calcDate, INTERVAL - 44 day) and :calcDate) g     " +
+            "    join ResAccount b on b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14') " +
+            "    left join (" +
+            "   SELECT account," +
+            "   updatedAt," +
+            "   errCode," +
+            "   errMessage," +
+            "   CASE WHEN @vaccount = account" +
+            "   THEN @id\\:=@id+1" +
+            "   ELSE @id\\:=1" +
+            "   END AS Rank," +
+            "   @vaccount\\:= account AS dummy" +
+            "   FROM ResBatchList, (SELECT @vaccount\\:=NULL, @id\\:=0) AS t" +
+            "   where idxUser = :idxUser and updatedAt > @setDate and resBatchType = 1" +
+            "   ORDER BY account, updatedAt desc) c on Rank = 1 and errCode = 'CF-00000' and c.account = b.resAccount" +
+            " ) a group by dsc order by dsc asc", nativeQuery = true)
     List<CRisk> find45dayValance(Long idxUser, String calcDate);
 
-    @Query(value = " select sum(ifnull(ifnull(if(errCnt is null, value1,0),if(errCnt is null, value2,0)),if(errCnt is null, value3,0))) as currentBalance \n" +
-            "from  \n" +
-            "( select resAccount, errCnt \n" +
-            "  , (select resAfterTranBalance from ResAccountHistory r\n" +
-            "     where resAccountTrDate <= :setDate  and b.resAccount = r.resAccount \n" +
-            "     order by resAccountTrDate desc , resAccountTrDate desc, resAccountTrTime desc, idx limit 1) value1 \n" +
-            "  , (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r       \n" +
-            "    where resAccountTrDate >= :setDate and b.resAccount = r.resAccount\n" +
-            "    order by resAccountTrDate asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1) value2   \n" +
-            "  , (select if( :setDate >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance       \n" +
-            "  from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3 \n" +
-            "from ResAccount b     \n" +
-            "\tleft join (select count(account) as errCnt, account from ResBatchList r where errCode != 'CF-00000' and resBatchType = 1  \n" +
-            "      and idxResBatch = (SELECT idxResBatch FROM ResBatchList where idxUser = :idxUser order by idxResBatch desc limit 1) group by account) c on c.account = b.resAccount\n" +
-            "where b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14') \n" +
-            ") z ", nativeQuery = true)
+    @Query(value =
+            " select sum(ifnull(ifnull(ifnull(value1,value2),value3),0)) as currentBalance" +
+            " from" +
+            " (select resAccount" +
+            " , (select resAfterTranBalance from ResAccountHistory r" +
+            " where resAccountTrDate <= :setDate  and b.resAccount = r.resAccount" +
+            " order by resAccountTrDate desc , resAccountTrDate desc, resAccountTrTime desc, idx limit 1) value1" +
+            " , (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r" +
+            " where resAccountTrDate >= :setDate and b.resAccount = r.resAccount" +
+            " order by resAccountTrDate asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1) value2" +
+            " , (select if( :setDate >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance" +
+            " from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3" +
+            " from ResAccount b" +
+            " inner join (" +
+            " SELECT account, updatedAt, errCode, errMessage," +
+            " CASE WHEN @vaccount = account" +
+            " THEN @id\\:=@id+1" +
+            " ELSE @id\\:=1" +
+            " END AS Rank," +
+            " @vaccount\\:= account AS dummy" +
+            " FROM ResBatchList, (SELECT @vaccount\\:=NULL, @id\\:=0) AS t" +
+            " where idxUser = :idxUser and updatedAt > :setDate and resBatchType = 1" +
+            " ORDER BY account, updatedAt desc) c on Rank = 1 and errCode = 'CF-00000' and c.account = b.resAccount" +
+            " where b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14')) z", nativeQuery = true)
     Double findRecentBalance(Long idxUser, String setDate);
 
     @Query(value = "select sum(resAccountRiskBalance) from ResAccount " +
@@ -307,37 +317,37 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
     }
 
     @Query(
-            value = "select * from\n" +
-                    "(select idxUser, idxCorp, resCompanyNm, resAccountIn, resAccountOut, (resAccountIn - resAccountOut) as  resAccountInOut ,0 as burnRate, 0 as runWay,  befoBalance, createdAt, errCode, if(errCode is null ,0,1) errStatus  from \n" +
-                    "(select distinct u.idx as idxUser, u.idxCorp,   c.resCompanyNm, \n" +
-                    "ifnull((select sum(resAccountIn) from ResAccountHistory  \n" +
-                    "\twhere substr(resAccountTrDate, 1,6) = date_Format(now(),  '%Y%m') and resAccount in \n" +
-                    "\t(select resAccount from ResAccount d WHERE d.connectedId in (select connectedId from ConnectedMng where idxUser = u.idx ) and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountIn, \n" +
-                    " ifnull((select sum(resAccountOut) from ResAccountHistory  where substr(resAccountTrDate, 1,6)  =  Date_Format(now(),  '%Y%m') \n" +
-                    "\tand resAccount in  (select resAccount from ResAccount d WHERE d.connectedId in (select connectedId from ConnectedMng where idxUser = u.idx ) and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountOut\n" +
-                    ", ifnull((select currentBalance from Risk r\n" +
-                    " where r.idxUser = u.idx and r.date = Date_Format(date_add(now(), INTERVAL - 1 DAY),  '%Y%m%d') ) , 0) befoBalance,       \n" +
-                    " (select max(createdAt) from ResBatch where idxUser = u.idx) as createdAt,        \n" +
-                    " (select max(errCode) from ResBatchList where errCode != 'CF-00000' and idxUser = u.idx and resBatchType = 1       \n" +
-                    " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode \n" +
-                    " from User u inner join Corp c on c.idx = u.idxCorp \n" +
-                    " join ConnectedMng cm  on cm.idxUser = u.idx ) z  \n" +
+            value = "select * from" +
+                    "(select idxUser, idxCorp, resCompanyNm, resAccountIn, resAccountOut, (resAccountIn - resAccountOut) as  resAccountInOut ,0 as burnRate, 0 as runWay,  befoBalance, createdAt, errCode, if(errCode is null ,0,1) errStatus  from " +
+                    "(select distinct u.idx as idxUser, u.idxCorp,   c.resCompanyNm, " +
+                    "ifnull((select sum(resAccountIn) from ResAccountHistory  " +
+                    "where substr(resAccountTrDate, 1,6) = date_Format(now(),  '%Y%m') and resAccount in " +
+                    "(select resAccount from ResAccount d WHERE d.connectedId in (select connectedId from ConnectedMng where idxUser = u.idx ) and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountIn, " +
+                    " ifnull((select sum(resAccountOut) from ResAccountHistory  where substr(resAccountTrDate, 1,6)  =  Date_Format(now(),  '%Y%m') " +
+                    "and resAccount in  (select resAccount from ResAccount d WHERE d.connectedId in (select connectedId from ConnectedMng where idxUser = u.idx ) and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountOut" +
+                    ", ifnull((select currentBalance from Risk r" +
+                    " where r.idxUser = u.idx and r.date = Date_Format(date_add(now(), INTERVAL - 1 DAY),  '%Y%m%d') ) , 0) befoBalance,       " +
+                    " (select max(createdAt) from ResBatch where idxUser = u.idx) as createdAt,        " +
+                    " (select max(errCode) from ResBatchList where errCode != 'CF-00000' and idxUser = u.idx and resBatchType = 1       " +
+                    " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode " +
+                    " from User u inner join Corp c on c.idx = u.idxCorp " +
+                    " join ConnectedMng cm  on cm.idxUser = u.idx ) z  " +
                     ") d where (resCompanyNm like concat('%',:searchCorpName,'%') or :searchCorpName is null ) and ( errStatus = :updateStatus or :updateStatus is null) ",
-            countQuery = "select count(*) from\n" +
-                    "(select idxUser, idxCorp, resCompanyNm, resAccountIn, resAccountOut, (resAccountIn - resAccountOut) as  resAccountInOut ,0 as burnRate, 0 as runWay,  befoBalance, createdAt, errCode, if(errCode is null ,0,1) errStatus  from \n" +
-                    "(select distinct u.idx as idxUser, u.idxCorp,   c.resCompanyNm, \n" +
-                    "ifnull((select sum(resAccountIn) from ResAccountHistory  \n" +
-                    "\twhere substr(resAccountTrDate, 1,6) = date_Format(now(),  '%Y%m') and resAccount in \n" +
-                    "\t(select resAccount from ResAccount d WHERE d.connectedId in (select connectedId from ConnectedMng where idxUser = u.idx ) and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountIn, \n" +
-                    " ifnull((select sum(resAccountOut) from ResAccountHistory  where substr(resAccountTrDate, 1,6)  =  Date_Format(now(),  '%Y%m') \n" +
-                    "\tand resAccount in  (select resAccount from ResAccount d WHERE d.connectedId in (select connectedId from ConnectedMng where idxUser = u.idx ) and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountOut\n" +
-                    ", ifnull((select currentBalance from Risk r\n" +
-                    " where r.idxUser = u.idx and r.date = Date_Format(date_add(now(), INTERVAL - 1 DAY),  '%Y%m%d') ) , 0) befoBalance,       \n" +
-                    " (select max(createdAt) from ResBatch where idxUser = u.idx) as createdAt,        \n" +
-                    " (select max(errCode) from ResBatchList where errCode != 'CF-00000' and idxUser = u.idx and resBatchType = 1       \n" +
-                    " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode \n" +
-                    " from User u inner join Corp c on c.idx = u.idxCorp \n" +
-                    " join ConnectedMng cm  on cm.idxUser = u.idx ) z  \n" +
+            countQuery = "select count(*) from" +
+                    "(select idxUser, idxCorp, resCompanyNm, resAccountIn, resAccountOut, (resAccountIn - resAccountOut) as  resAccountInOut ,0 as burnRate, 0 as runWay,  befoBalance, createdAt, errCode, if(errCode is null ,0,1) errStatus  from " +
+                    "(select distinct u.idx as idxUser, u.idxCorp,   c.resCompanyNm, " +
+                    "ifnull((select sum(resAccountIn) from ResAccountHistory  " +
+                    "where substr(resAccountTrDate, 1,6) = date_Format(now(),  '%Y%m') and resAccount in " +
+                    "(select resAccount from ResAccount d WHERE d.connectedId in (select connectedId from ConnectedMng where idxUser = u.idx ) and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountIn, " +
+                    " ifnull((select sum(resAccountOut) from ResAccountHistory  where substr(resAccountTrDate, 1,6)  =  Date_Format(now(),  '%Y%m') " +
+                    "and resAccount in  (select resAccount from ResAccount d WHERE d.connectedId in (select connectedId from ConnectedMng where idxUser = u.idx ) and  resAccountDeposit in ('10','11','12','13','14'))),0) as resAccountOut" +
+                    ", ifnull((select currentBalance from Risk r" +
+                    " where r.idxUser = u.idx and r.date = Date_Format(date_add(now(), INTERVAL - 1 DAY),  '%Y%m%d') ) , 0) befoBalance,       " +
+                    " (select max(createdAt) from ResBatch where idxUser = u.idx) as createdAt,        " +
+                    " (select max(errCode) from ResBatchList where errCode != 'CF-00000' and idxUser = u.idx and resBatchType = 1       " +
+                    " and idxResBatch = (select max(idx) from ResBatch where idxUser = u.idx )) as errCode " +
+                    " from User u inner join Corp c on c.idx = u.idxCorp " +
+                    " join ConnectedMng cm  on cm.idxUser = u.idx ) z  " +
                     ") d where (resCompanyNm like concat('%',:searchCorpName,'%') or :searchCorpName is null ) and ( errStatus = :updateStatus or :updateStatus is null) ",
             nativeQuery = true
     )

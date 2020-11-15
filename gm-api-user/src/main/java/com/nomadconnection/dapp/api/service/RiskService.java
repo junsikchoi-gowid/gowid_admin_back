@@ -110,6 +110,8 @@ public class RiskService {
 			corp = user.corp();
 		}
 
+		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(user.idx()).orElse(null);
+
 		if(StringUtils.isEmpty(calcDate)){
 			calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 		}
@@ -250,22 +252,19 @@ public class RiskService {
 		// CardLimitNow
 		Double cardLimitNow = repoRisk.findCardLimitNow(idxUser,calcDate);
 		Double cardLimitNowFirst = repoRisk.findCardLimitNowFirst(idxUser,calcDate);
-		if(risk.emergencyStop()){
-			risk.cardLimitNow(risk.depositGuarantee());
-		}else {
-			if(cardLimitNow == null ){
-				if(cardLimitNowFirst == null){
-					risk.cardLimitNow(risk.cardLimit());
-				}else{
-					risk.cardLimitNow(cardLimitNowFirst);
-				}
-			}else {
-				risk.cardLimitNow(cardLimitNow);
-			}
-		}
+
+		risk.cardLimitNow(getCardLimitNow(
+				issuanceProgress
+				,isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())
+				,risk.emergencyStop()
+				,risk.depositGuarantee()
+				,cardLimitNow
+				,cardLimitNowFirst
+				,risk.cardLimit()
+				,risk.realtimeLimit()
+		));
 
 		// CardRestartCount
-		AtomicInteger iCardRestartCount = new AtomicInteger();
 		Risk risk1 =repoRisk.findByUserAndDate(User.builder().idx(idxUser).build(),calcDateMinus).orElse(
 				Risk.builder()
 						.cardRestartCount(0)
@@ -292,7 +291,7 @@ public class RiskService {
 			risk.cardRestart(false);
 		}
 
-		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(user.idx()).orElse(null);
+
 		if(issuanceProgress != null && isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())){
 			riskconfig.cardIssuance(true);
 			risk.cardIssuance(true);
@@ -350,6 +349,7 @@ public class RiskService {
 			corp = user.corp();
 		}
 
+		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(user.idx()).orElse(null);
 
 		if(StringUtils.isEmpty(calcDate)){
 			calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
@@ -496,22 +496,19 @@ public class RiskService {
 		// CardLimitNow
 		Double cardLimitNow = repoRisk.findCardLimitNow(idxUser,calcDate);
 		Double cardLimitNowFirst = repoRisk.findCardLimitNowFirst(idxUser,calcDate);
-		if(risk.emergencyStop()){
-			risk.cardLimitNow(risk.depositGuarantee());
-		}else {
-			if(cardLimitNow == null ){
-				if(cardLimitNowFirst == null){
-					risk.cardLimitNow(risk.cardLimit());
-				}else{
-					risk.cardLimitNow(cardLimitNowFirst);
-				}
-			}else {
-				risk.cardLimitNow(cardLimitNow);
-			}
-		}
+
+		risk.cardLimitNow(getCardLimitNow(
+				issuanceProgress
+				,isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())
+				,risk.emergencyStop()
+				,risk.depositGuarantee()
+				,cardLimitNow
+				,cardLimitNowFirst
+				,risk.cardLimit()
+				,risk.realtimeLimit()
+		));
 
 		// CardRestartCount
-		AtomicInteger iCardRestartCount = new AtomicInteger();
 		Risk risk1 =repoRisk.findByUserAndDate(User.builder().idx(idxUser).build(),calcDateMinus).orElse(
 				Risk.builder()
 						.cardRestartCount(0)
@@ -538,7 +535,7 @@ public class RiskService {
 			risk.cardRestart(false);
 		}
 
-		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(user.idx()).orElse(null);
+
 		if(issuanceProgress != null && isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())){
 			riskconfig.cardIssuance(true);
 			risk.cardIssuance(true);
@@ -560,6 +557,31 @@ public class RiskService {
 		repoD1400.save(d1400);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().build());
+	}
+
+	private double getCardLimitNow(IssuanceProgress issuanceProgress, boolean issuanceSuccess, boolean emergencyStop, double depositGuarantee, Double cardLimitNow, Double cardLimitNowFirst, double cardLimit, double realtimeLimit) {
+
+		double value = 0L;
+
+		if(issuanceProgress != null && issuanceSuccess){
+			if(emergencyStop){
+				value = depositGuarantee;
+			}else {
+				if(cardLimitNow == null ){
+					if(cardLimitNowFirst == null){
+						value = cardLimit;
+					}else{
+						value = cardLimitNowFirst;
+					}
+				}else {
+					value = cardLimitNow;
+				}
+			}
+		}else{
+			value = Math.max(depositGuarantee,realtimeLimit);
+		}
+
+		return value;
 	}
 
 	@Transactional(readOnly = true)
