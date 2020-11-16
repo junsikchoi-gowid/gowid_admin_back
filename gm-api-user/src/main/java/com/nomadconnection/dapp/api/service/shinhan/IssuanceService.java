@@ -35,6 +35,7 @@ import com.nomadconnection.dapp.core.domain.shinhan.*;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.encryption.shinhan.Seed128;
+import com.nomadconnection.dapp.core.utils.EnvUtil;
 import com.nomadconnection.dapp.secukeypad.EncryptParam;
 import com.nomadconnection.dapp.secukeypad.SecuKeypad;
 import lombok.RequiredArgsConstructor;
@@ -80,6 +81,7 @@ public class IssuanceService {
     private final CommonCardService commonCardService;
     private final FinancialStatementsService financialStatementsService;
     private final SlackNotiService slackNotiService;
+    private final EnvUtil envUtil;
 
     @Value("${mail.receipt.send-enable}")
     boolean sendReceiptEmailEnable;
@@ -544,7 +546,10 @@ public class IssuanceService {
 
         verifyCeo(idxUser, dto, decryptData);
         CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(dto.getCardIssuanceInfoIdx());
-        save1530(cardIssuanceInfo, dto);
+        // stage 환경에서 원활한 테스트를 위함
+        if(!envUtil.isStg()) {
+            save1530(cardIssuanceInfo, dto);
+        }
         save1400(cardIssuanceInfo, dto, decryptData);
         save1000(cardIssuanceInfo, dto, decryptData);
     }

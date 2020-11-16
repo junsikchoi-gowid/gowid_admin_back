@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.Card;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
