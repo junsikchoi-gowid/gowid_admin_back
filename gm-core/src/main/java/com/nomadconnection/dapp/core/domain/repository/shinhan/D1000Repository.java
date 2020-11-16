@@ -7,10 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 public interface D1000Repository extends JpaRepository<D1000, Long> {
     D1000 getTopByIdxCorpOrderByIdxDesc(Long idxCorp);
 
-    D1000 findFirstByIdxCorpOrderByUpdatedAtDesc(long idxCorp);
+    Optional<D1000> findFirstByIdxCorpOrderByUpdatedAtDesc(long idxCorp);
 
     D1000 findFirstByD071AndD072OrderByUpdatedAtDesc(String d079, String d080);
 

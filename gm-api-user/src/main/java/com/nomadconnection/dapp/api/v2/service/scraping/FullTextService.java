@@ -51,18 +51,21 @@ public class FullTextService {
 	private final Lotte_D1200Repository repoD1200Lotte;
 	
 	public D1000 findFirstByIdxCorpIn1000(Long corpIdx){
-		return Optional.ofNullable(repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx))
-			.orElseThrow(()-> CorpNotRegisteredException.builder().build());
+		return repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
+				() -> CorpNotRegisteredException.builder().build()
+		);
 	}
 
 	public D1400 findFirstByIdxCorpIn1400(Long corpIdx){
-		return Optional.ofNullable(repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx))
-			.orElseThrow(()-> CorpNotRegisteredException.builder().build());
+		return repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
+				() -> CorpNotRegisteredException.builder().build()
+		);
 	}
 
 	public D1530 findFirstByIdxCorpIn1530(Long corpIdx){
-		return Optional.ofNullable(repoD1530.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx))
-						.orElseThrow(()-> CorpNotRegisteredException.builder().build());
+		return repoD1530.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
+				() -> CorpNotRegisteredException.builder().build()
+		);
 	}
 
 	public void save1000(D1000 d1000){

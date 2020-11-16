@@ -1517,7 +1517,9 @@ public class CodefService {
 				log.debug("jsonObjectStandardFinancialCode = {} ", jsonObjectStandardFinancialCode);
 				log.debug("jsonObjectStandardFinancial message = {} ", jsonObjectStandardFinancial[0].get("message").toString());
 
-				D1530 d1530 = repoD1530.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx());
+				D1530 d1530 = repoD1530.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx()).orElseThrow(
+						() -> CorpNotRegisteredException.builder().build()
+				);
 
 				repoD1520.save(D1520.builder()
 						.idxCorp(user.corp().idx())
@@ -1602,7 +1604,9 @@ public class CodefService {
 				.d049(null)
 				.build());
 
-		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx());
+		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx()).orElseThrow(
+				() -> CorpNotRegisteredException.builder().build()
+		);
 		String[] corNumber = dto.getResCompanyPhoneNumber().split("-");
 		d1400.setD011(!StringUtils.hasText(d1400.getD011()) ? dto.getResBusinessCode() : d1400.getD011());        //업종코드
 		d1400.setD029(!StringUtils.hasText(d1400.getD029()) ? dto.getResCompanyEngNm() : d1400.getD029());    //법인영문명
@@ -1621,7 +1625,9 @@ public class CodefService {
 				.resBusinessCode(dto.getResBusinessCode())
 		);
 
-		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx());
+		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx()).orElseThrow(
+				() -> CorpNotRegisteredException.builder().build()
+		);
 		d1000.setD006(!StringUtils.hasText(d1000.getD006()) ? dto.getResCompanyEngNm() : d1000.getD006());    //법인영문명
 		d1000.setD008(!StringUtils.hasText(d1000.getD008()) ? dto.getResBusinessCode() : d1000.getD008());    //업종코드
 		d1000.setD026(corNumber[0]);            //직장전화지역번호

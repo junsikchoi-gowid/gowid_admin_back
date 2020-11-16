@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
@@ -12,7 +11,8 @@ import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
-import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1400Repository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.risk.Risk;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
@@ -21,15 +21,12 @@ import com.nomadconnection.dapp.core.domain.shinhan.D1400;
 import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
-import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.thymeleaf.ITemplateEngine;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -40,7 +37,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import static com.nomadconnection.dapp.core.domain.common.IssuanceProgressType.*;
+import static com.nomadconnection.dapp.core.domain.common.IssuanceProgressType.LP_ZIP;
+import static com.nomadconnection.dapp.core.domain.common.IssuanceProgressType.P_1800;
 import static com.nomadconnection.dapp.core.domain.common.IssuanceStatusType.SUCCESS;
 
 @Slf4j
@@ -536,9 +534,12 @@ public class RiskService {
 
 		repoRisk.save(risk);
 
-
-		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(corp.idx());
-		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(corp.idx());
+		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx()).orElseThrow(
+				() -> CorpNotRegisteredException.builder().build()
+		);
+		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(user.corp().idx()).orElseThrow(
+				() -> CorpNotRegisteredException.builder().build()
+		);
 
 		corp.riskConfig(repoRiskConfig.save(riskconfig));
 		repoCorp.save(corp);

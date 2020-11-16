@@ -7,6 +7,7 @@ import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.dto.shinhan.*;
 import com.nomadconnection.dapp.api.dto.shinhan.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.BadRequestedException;
+import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
@@ -85,6 +86,8 @@ public class IssuanceService {
 
     @Value("${encryption.seed128.enable}")
     private boolean ENC_SEED128_ENABLE;
+
+    private static String HIDDEN_CODE = "*******";
 
     /**
      * 카드 신청
@@ -353,12 +356,9 @@ public class IssuanceService {
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1530);
 
         // 데이터부 - db 추출, 세팅
-        D1530 d1530 = d1530Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
-        if (d1530 == null) {
-            String msg = "data of d1530 is not exist(corpIdx=" + userCorp.idx() + ")";
-            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1530, msg);
-            return;
-        }
+        D1530 d1530 = d1530Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx()).orElseThrow(
+                () -> CorpNotRegisteredException.builder().build()
+        );
 
         d1530.setD001(applyDate);   // 접수일자
         d1530.setD002(applyNo);     // 순번
@@ -411,12 +411,9 @@ public class IssuanceService {
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1000);
 
         // 데이터부 - db 추출, 세팅
-        D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
-        if (d1000 == null) {
-            String msg = "data of d1000 is not exist(corpIdx=" + userCorp.idx() + ")";
-            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1000, msg);
-            return;
-        }
+        D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx()).orElseThrow(
+                () -> CorpNotRegisteredException.builder().build()
+        );
 
         // 접수일자, 순번
         d1000.setD071(resultOfD1200.getD007());
@@ -456,12 +453,9 @@ public class IssuanceService {
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1400);
 
         // 데이터부 - db 추출, 세팅
-        D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
-        if (d1400 == null) {
-            String msg = "data of d1400 is not exist(corpIdx=" + userCorp.idx() + ")";
-            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1400, msg);
-            return;
-        }
+        D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx()).orElseThrow(
+                () -> CorpNotRegisteredException.builder().build()
+        );
 
         // 접수일자, 순번
         d1400.setD025(resultOfD1200.getD007());
@@ -550,6 +544,7 @@ public class IssuanceService {
 
         verifyCeo(idxUser, dto, decryptData);
         CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(dto.getCardIssuanceInfoIdx());
+        save1530(cardIssuanceInfo, dto);
         save1400(cardIssuanceInfo, dto, decryptData);
         save1000(cardIssuanceInfo, dto, decryptData);
     }
@@ -566,13 +561,37 @@ public class IssuanceService {
         }
     }
 
+    // 1530 테이블에 대표자 주민번호 저장
+    private void save1530(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.IdentificationReq dto) {
+        D1530 d1530 = d1530Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx()).orElseThrow(
+                () -> CorpNotRegisteredException.builder().build()
+        );
+
+        String idNum = dto.getIdentificationNumberFront().substring(0, 6) + HIDDEN_CODE;
+        idNum = Seed128.encryptEcb(idNum);
+
+        // 외국인 신분증 진위여부시 한글명, 영문명으로 두번 요청(dto.getName : 한글명 or 영문명)하기때문에
+        // contains 한번만 체크
+        if (d1530.getD046().contains(dto.getName())) {
+            d1530.setD047(idNum);       // 대표자주민등록번호1
+        } else if (d1530.getD051().contains(dto.getName())) {
+            d1530.setD051(idNum);       // 대표자주민등록번호2
+        } else if (d1530.getD055().contains(dto.getName())) {
+            d1530.setD055(idNum);       // 대표자주민등록번호3
+        } else {
+            log.error("Not matched ceoInfo in D1530. ceoInfo=" + dto);
+            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "Not matched ceoInfo in D1530. ceoName=" + dto.getName());
+        }
+
+        d1530Repository.save(d1530);
+    }
+
     // 1400 테이블에 대표자 주민번호 저장
     private void save1400(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
-        D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx());
-        if (d1400 == null) {
-            String msg = "data of d1400 is not exist(cardIssuanceInfo.idx =" + cardIssuanceInfo.idx() + ")";
-            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, msg);
-        }
+        D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx()).orElseThrow(
+                () -> CorpNotRegisteredException.builder().build()
+        );
+
         String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
         idNum = Seed128.encryptEcb(idNum);
 
@@ -596,11 +615,9 @@ public class IssuanceService {
 
     // 1000 테이블에 대표자1,2,3 주민번호 저장(d11,15,19)
     private void save1000(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
-        D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx());
-        if (d1000 == null) {
-            String msg = "data of d1000 is not exist(cardIssuanceInfo.idx =" + cardIssuanceInfo.idx() + ")";
-            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, msg);
-        }
+        D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx()).orElseThrow(
+                () -> CorpNotRegisteredException.builder().build()
+        );
         String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
         idNum = Seed128.encryptEcb(idNum);
 
