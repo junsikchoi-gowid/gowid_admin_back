@@ -175,13 +175,6 @@ public class CustomExceptionHandler {
         return ErrorResponse.from(ErrorCode.Resource.ENTITY_NOT_FOUND, e.getEntity());
     }
 
-
-    @ExceptionHandler(DeptNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ErrorResponse onDeptNotFoundException(DeptNotFoundException e) {
-        return ErrorResponse.from(ErrorCode.Resource.DEPT_NOT_FOUND);
-    }
-
     @ExceptionHandler(BusinessException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ErrorResponse onBusinessException(BusinessException e) {

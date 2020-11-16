@@ -31,7 +31,6 @@ public class UserEtcController {
         public static final String USERPASSWORDCHANGE_PRE = "/password/pre";
         public static final String USERPASSWORDCHANGE_AFTER = "/password/after";
         public static final String RECEPTION = "/reception";
-        public static final String ALARM = "/alarm";
     }
 
     private final UserService service;
@@ -110,14 +109,4 @@ public class UserEtcController {
         return service.deleteEmail(email);
     }
 
-
-    @ApiOperation(value = "알림 받기", notes = "" +
-            "\n ### Remarks" +
-            "\n ")
-    @PostMapping(URI.ALARM)
-    public ResponseEntity saveAlarm(
-			@RequestBody BrandDto.Alarm dto
-	) {
-        return service.saveAlarm(dto);
-    }
 }

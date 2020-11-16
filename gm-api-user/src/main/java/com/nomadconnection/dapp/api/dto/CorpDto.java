@@ -137,11 +137,6 @@ public class CorpDto {
 					.creditLimit(user.creditLimit())
 					.build();
 
-			if (user.dept() != null) {
-				member.setIdxDept(user.dept().idx());
-				member.setDept(user.dept().name());
-			}
-
 			if (user.profileResx() != null) {
 				//
 				//	todo: make or get profile image uri

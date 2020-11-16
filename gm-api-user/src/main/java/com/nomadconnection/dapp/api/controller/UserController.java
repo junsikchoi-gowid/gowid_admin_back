@@ -154,61 +154,6 @@ public class UserController {
 		return service.getUserInfo(user.idx());
 	}
 
-	//==================================================================================================================
-	//
-	//	부서정보 설정(변경)
-	//
-	//==================================================================================================================
-
-	@ApiOperation(value = "부서정보 설정(변경)", notes = "" +
-			"\n ### Remarks" +
-			"\n" +
-			"\n - " +
-			"\n")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "member", value = "식별자(멤버)", dataType = "Long"),
-			@ApiImplicitParam(name = "dept", value = "식별자(부서)", dataType = "Long")
-	})
-	@PutMapping(URI.MEMBERS_MEMBER_DEPT)
-	public ResponseEntity<?> putUserDept(
-			@ApiIgnore @CurrentUser CustomUser user,
-			@PathVariable Long member,
-			@RequestParam Long dept
-	) {
-		if (log.isInfoEnabled()) {
-			log.info("([ putUserDept ]) $user='{}' $member.idx='{}' $dept.idx='{}'", user, member, dept);
-		}
-		service.updateDept(user.idx(), member, dept);
-		return ResponseEntity.ok().build();
-	}
-
-	//==================================================================================================================
-	//
-	//	부서정보 제거
-	//
-	//==================================================================================================================
-
-	@ApiOperation(value = "부서정보 제거", notes = "" +
-			"\n ### Remarks" +
-			"\n" +
-			"\n - " +
-			"\n")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "member", value = "식별자(멤버)", dataType = "Long"),
-	})
-	@DeleteMapping(URI.MEMBERS_MEMBER_DEPT)
-	public ResponseEntity<?> deleteUserDept(
-			@ApiIgnore @CurrentUser CustomUser user,
-			@PathVariable Long member
-	) {
-		if (log.isInfoEnabled()) {
-			log.info("([ deleteUserDept ]) $user='{}' $member.idx='{}'", user, member);
-		}
-		service.removeDept(user.idx(), member);
-		return ResponseEntity.ok().build();
-	}
-
-
 	@ApiOperation(
 			value = "Brand 회원가입 유저정보",
 			notes = "### Remarks \n - <mark>액세스토큰 불필요</mark>"

@@ -39,14 +39,9 @@ public class CodefController {
 		public static final String REFERENCE_ADD_ACCOUNT = "/account/reference-add";  						// 인증서 추가 레퍼런스 추가
 
 		public static final String ACCOUNT_CREATE_NT = "/account/create/nt";         						// 인증서 추가 국세청 추가로 인한 수정
-		public static final String ACCOUNT_UPDATE = "/account/update";            							// 인증서 수정
 		public static final String ACCOUNT_DELETE = "/account/delete";            							// 인증서 삭제
 		public static final String ACCOUNT_REGISTER_CORP = "/account/register/corp";         				// 법인 정보 등록 및 등기부등본 스크래핑
 		public static final String ACCOUNT_REGISTER_CORP_MANUAL = "/account/register/corp/manual";         				// 등기부등본 스크래핑
-
-
-		public static final String SCRAPING ="/scraping"; 													// 스크래핑
-
 	}
 
 	private final CodefService service;

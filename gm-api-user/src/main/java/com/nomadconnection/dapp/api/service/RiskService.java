@@ -48,14 +48,7 @@ import static com.nomadconnection.dapp.core.domain.common.IssuanceStatusType.SUC
 @RequiredArgsConstructor
 public class RiskService {
 
-	private final EmailConfig config;
-	private final ITemplateEngine templateEngine;
-
-	private final JwtService jwt;
-	private final JavaMailSenderImpl sender;
-
 	private final CorpRepository repoCorp;
-	private final UserService serviceUser;
 	private final RiskRepository repoRisk;
 	private final UserRepository repoUser;
 	private final RiskConfigRepository repoRiskConfig;

@@ -30,17 +30,9 @@ public class ErrorCode {
 		NOT_ALLOWED_MEMBER_AUTHORITY
 	}
 
-	public enum Request implements ErrorCodeDescriptor {
-		INVALID_PARAMETER,
-	}
-
 	public enum Resource implements ErrorCodeDescriptor {
 		EMPTY_RESOURCE,
-		FAILED_TO_CREATE_DIRECTORIES,
-		FAILED_TO_SAVE,
 		USER_NOT_FOUND,
-		DEPT_NOT_FOUND,
-		EXCESS_RESOURCE,
 		ENTITY_NOT_FOUND,
 	}
 
@@ -60,10 +52,6 @@ public class ErrorCode {
 		UNVERIFIED,
 		UNVERIFIED_CVC, // CVC: CARD VERIFICATION CODE
 		UNVERIFIED_CVT, // CVT: CARD VALID THRU
-	}
-
-	public enum Business implements ErrorCodeDescriptor {
-		BUSINESS,
 	}
 
 	@AllArgsConstructor

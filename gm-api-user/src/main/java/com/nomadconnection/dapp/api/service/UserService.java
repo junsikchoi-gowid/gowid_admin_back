@@ -13,20 +13,15 @@ import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
 import com.nomadconnection.dapp.core.domain.consent.ConsentMapping;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
-import com.nomadconnection.dapp.core.domain.corp.Dept;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CeoInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
-import com.nomadconnection.dapp.core.domain.repository.corp.DeptRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ReceptionRepository;
-import com.nomadconnection.dapp.core.domain.repository.res.ResAccountHistoryRepository;
-import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
-import com.nomadconnection.dapp.core.domain.repository.user.AlarmRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
@@ -66,9 +61,7 @@ public class UserService {
 	private final JavaMailSenderImpl sender;
 	private final PasswordEncoder encoder;
 	private final ReceptionRepository receptionRepository;
-	private final DeptRepository repoDept;
 	private final VerificationCodeRepository repoVerificationCode;
-	private final AlarmRepository repoAlarm;
 	private final ITemplateEngine templateEngine;
 	private final AuthorityRepository repoAuthority;
 	private final UserRepository repo;
@@ -80,8 +73,6 @@ public class UserService {
 	private final RiskRepository repoRisk;
 	private final RiskConfigRepository repoRiskConfig;
 	private final CeoInfoRepository repoCeoInfo;
-	private final ResAccountRepository repoResAccount;
-	private final ResAccountHistoryRepository repoResAccountHistry;
 
 	private final JwtService jwt;
     private final FullTextService fullTextService;
@@ -177,12 +168,6 @@ public class UserService {
 	public void inviteMember(Long idxUser, UserDto.MemberRegister dto) {
 		//	사용자 조회
 		User user = getUser(idxUser);
-		//	부서 없음
-		Dept dept = repoDept.findById(dto.getIdxDept()).orElseThrow(
-				() -> DeptNotFoundException.builder()
-						.dept(dto.getIdxDept())
-						.build()
-		);
 		//	법인 미등록 상태
 		if (user.corp() == null) {
 			throw CorpNotRegisteredException.builder()
@@ -204,7 +189,6 @@ public class UserService {
 		repo.save(User.builder()
 				.email(dto.getEmail())
 				.name(dto.getName())
-				.dept(dept)
 				.corp(user.corp())
 				.authentication(new Authentication().setEnabled(false))
 				.authorities(Collections.singleton(authority))
@@ -228,45 +212,6 @@ public class UserService {
 	}
 
 	/**
-	 * 부서정보 설정
-	 *
-	 * @param idxUser 식별자(사용자)
-	 * @param idxMember 식별자(사용자:변경대상)
-	 * @param idxDept 식별자(부서)
-	 */
-	@Transactional(rollbackFor = Exception.class)
-	public void updateDept(Long idxUser, Long idxMember, Long idxDept) {
-		User user = getUser(idxUser);
-		{
-			//
-			//	todo: check user authorities
-			//
-		}
-		User member = getUser(idxMember);
-		Dept dept = repoDept.findById(idxDept).orElseThrow(
-				() -> DeptNotFoundException.builder().dept(idxDept).build()
-		);
-		user.dept(dept);
-	}
-
-	/**
-	 * 부서정보 제거
-	 *
-	 * @param idxUser 식별자(사용자)
-	 */
-	@Transactional(rollbackFor = Exception.class)
-	public void removeDept(Long idxUser, Long idxMember) {
-		User user = getUser(idxUser);
-		{
-			//
-			//	todo: check user authorities
-			//
-		}
-		User member = getUser(idxMember);
-		member.dept(null);
-	}
-
-	/**
 	 * User 정보 초기화
 	 *
 	 * @param idxUser 식별자(사용자)
@@ -278,12 +223,6 @@ public class UserService {
         List<Long> listIdxCardInfo = repoCardIssuanceInfo.findAllIdxByUserIdx(idxUser);
         repoCeoInfo.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
         repoCardIssuanceInfo.deleteAllByUserIdx(idxUser);
-        // 데이터, 리스크 팀과 협의 후 추가
-//        List<ConnectedMng> listConnectedMng = repoConnectdMng.findByIdxUser(idxUser);
-//        for (ConnectedMng connectedMng : listConnectedMng) {
-//			repoResAccount.deleteConnectedQuery(connectedMng.connectedId());
-//			repoResAccountHistry.deleteConnectedQuery(connectedMng.connectedId());
-//		}
         repoConnectdMng.deleteAllByUserIdx(idxUser);
         repoConsentMapping.deleteAllByUserIdx(idxUser);
         issuanceProgressRepository.deleteAllByUserIdx(idxUser);
@@ -703,40 +642,6 @@ public class UserService {
 				.data(corp.get())
 				.build());
 	}
-
-	public ResponseEntity saveAlarm(BrandDto.Alarm dto) {
-
-		MimeMessagePreparator preparator = mimeMessage -> {
-			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
-			{
-				Context context = new Context();
-				{
-					context.setVariable("contents1", dto.getCorpName());
-					context.setVariable("contents2", dto.getName());
-					context.setVariable("contents3", dto.getEmail());
-					context.setVariable("contents4", dto.isVentureCertification());
-					context.setVariable("contents5", dto.isVcInvestment());
-				}
-
-				helper.setFrom(config.getSender());
-				helper.setTo(config.getSender());
-				helper.setSubject("[Gowid 알림] ");
-				helper.setText(templateEngine.process("mail-template-alarm", context), true);
-			}
-		};
-		sender.send(preparator);
-
-		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.data(repoAlarm.save(Alarm.builder()
-						.corpName(dto.getCorpName())
-						.email(dto.getEmail())
-						.name(dto.getName())
-						.vcInvestment(dto.isVcInvestment())
-						.ventureCertification(dto.isVentureCertification())
-						.build()))
-				.build());
-	}
-
 
 	public ResponseEntity registerUserConsent(UserDto.RegisterUserConsent dto, Long idxUser) {
 
