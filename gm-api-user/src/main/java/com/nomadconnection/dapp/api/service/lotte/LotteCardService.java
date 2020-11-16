@@ -718,19 +718,19 @@ public class LotteCardService {
 		if (d1100 != null) {
 			String[] corNumber = user.corp().resCompanyNumber().split("-");
 			repoD1100.save(d1100
-					.setTkpNm(dto.getName()) // 수령자명
-					.setTkpEnm(dto.getEngName()) // 수령자영문명
+					.setTkpNm(Lotte_Seed128.encryptEcb(dto.getName())) // 수령자명
+					.setTkpEnm(Lotte_Seed128.encryptEcb(dto.getEngName())) // 수령자영문명
 					.setTkpRrno(idNum) // 수령자주민번호
 					.setTkpDpnm(getValueOrDefault(dto.getDepartment(), "대표이사")) // 수령자부서명
 					.setTkpPsiNm(getValueOrDefault(dto.getTitle(), "대표이사")) // 수령자직위명
 					.setTkpNatyC(dto.getNation()) // 수령자국적코드
-					.setTkpMlId(user.email()) // 수령자이메일
-					.setTkpDdd(corNumber[0]) // 수령자전화지역번호
-					.setTkpExno(corNumber[1]) // 수령자전화국번
-					.setTkpTlno(corNumber[2]) // 수령자전화개별번호
-                    .setTkpMbzNo(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(0, 3))) // 수령자이동사업자번호
-                    .setTkpMexno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(3, 7))) // 수령자이동전화국번
-                    .setTkpMtlno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(7))) // 수령자이동전화개별번호
+					.setTkpMlId(Lotte_Seed128.encryptEcb(user.email())) // 수령자이메일
+					.setTkpDdd(Lotte_Seed128.encryptEcb(corNumber[0])) // 수령자전화지역번호
+					.setTkpExno(Lotte_Seed128.encryptEcb(corNumber[1])) // 수령자전화국번
+					.setTkpTlno(Lotte_Seed128.encryptEcb(corNumber[2])) // 수령자전화개별번호
+					.setTkpMbzNo(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(0, 3))) // 수령자이동사업자번호
+					.setTkpMexno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(3, 7))) // 수령자이동전화국번
+					.setTkpMtlno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(7))) // 수령자이동전화개별번호
 			);
 		}
 	}
