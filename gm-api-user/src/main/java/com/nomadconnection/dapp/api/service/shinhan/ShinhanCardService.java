@@ -664,6 +664,10 @@ public class ShinhanCardService {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
+        if (!ObjectUtils.isEmpty(repoManager.getByCardIssuanceInfo(cardInfo))) {
+            throw new BadRequestException(ErrorCode.Api.ALREADY_EXIST, "ALREADY_EXIST_MANAGER");
+        }
+
         D1000 d1000 = getD1000(user.corp().idx());
         String idNum = null;
         if ("0".equals(dto.getCeoNumber())) {

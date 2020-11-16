@@ -678,6 +678,10 @@ public class LotteCardService {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
 
+		if (!ObjectUtils.isEmpty(repoManager.getByCardIssuanceInfo(cardInfo))) {
+			throw new BadRequestException(ErrorCode.Api.ALREADY_EXIST, "ALREADY_EXIST_MANAGER");
+		}
+
 		Lotte_D1100 d1100 = getD1100(user.corp().idx());
 		String idNum = null;
 
