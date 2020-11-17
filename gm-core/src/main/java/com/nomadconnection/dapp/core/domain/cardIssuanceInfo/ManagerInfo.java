@@ -33,6 +33,6 @@ public class ManagerInfo {
     private Long genderCode; // 성별 1:남자 2:여자
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idxCardIssuanceInfo", foreignKey = @ForeignKey(name = "fk__ceoInfo_cardIssuanceInfo"))
+    @JoinColumn(name = "idxCardIssuanceInfo", foreignKey = @ForeignKey(name = "fk__managerInfo_cardIssuanceInfo"))
     private CardIssuanceInfo cardIssuanceInfo;
 }
