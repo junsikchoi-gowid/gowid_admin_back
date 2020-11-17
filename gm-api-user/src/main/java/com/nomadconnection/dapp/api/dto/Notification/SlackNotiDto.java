@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.user.User;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -20,6 +21,36 @@ public class SlackNotiDto {
         @ApiModelProperty("Slack 에 전송할 텍스트")
         @NotEmpty(message = "email is empty")
         private String text;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SignedUserNotiReq {
+
+        @ApiModelProperty("이름")
+        private String name;
+        @ApiModelProperty("이메일")
+        private String email;
+
+        public static String getSlackSignedUserMessage(CustomUser user){
+            return SignedUserNotiReq.builder()
+                    .name(user.name())
+                    .email(user.email())
+                    .build()
+                    .toString();
+        }
+
+        @Override
+        public String toString() {
+            return new StringBuilder()
+                    .append("[ 회원가입 ]").append("\n")
+                    .append("이름 : ").append(name).append("\n")
+                    .append("계정 : ").append(email).append("\n")
+                    .toString();
+        }
+
     }
 
     @Getter

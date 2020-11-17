@@ -15,6 +15,8 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
+import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.SignedUserNotiReq.getSlackSignedUserMessage;
+
 @Slf4j
 @Validated
 @RestController
@@ -27,6 +29,7 @@ public class SlackNotiController {
     public static class URI {
         public static final String BASE = "/slack-noti/v1";
         public static final String SEND = "/send";
+        public static final String SEND_SIGNED = "/send/signed";
     }
 
     private final SlackNotiService slackNotiService;
@@ -38,6 +41,14 @@ public class SlackNotiController {
             @RequestBody @Valid SlackNotiDto.NotiReq req) {
         slackNotiService.sendSlackNotification(req, user);
         slackNotiService.saveProgress(req.getText());
+        return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation(value = "회원가입 완료 Slack 알림 텍스트 발송")
+    @PostMapping(URI.SEND_SIGNED)
+    public ResponseEntity<Object> sendSignedUser(
+            @ApiIgnore @CurrentUser CustomUser user) {
+        slackNotiService.sendSlackNotification(getSlackSignedUserMessage(user), slackNotiService.getSlackProgressUrl());
         return ResponseEntity.ok().build();
     }
 
