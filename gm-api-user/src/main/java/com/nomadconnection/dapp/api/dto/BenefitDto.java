@@ -124,6 +124,17 @@ public class BenefitDto {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
+	public static class BenefitSearchHistoryReq {
+
+		@ApiModelProperty("검색어")
+		private String searchText;
+
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class BenefitRes {
 
 		@ApiModelProperty("식별자")
@@ -276,6 +287,18 @@ public class BenefitDto {
 		@ApiModelProperty("에러 메세지")
 		private String errMessage;
 
+		@ApiModelProperty("결제 완료 메일 발송 결과")
+		private Integer sendPaymentMailErrCode;
+
+		@ApiModelProperty("결제 완료 메일 발송 에러 메세지")
+		private String sendPaymentMailErrMessage;
+
+		@ApiModelProperty("발주서 메일 발송 결과")
+		private Integer sendOrderMailErrCode;
+
+		@ApiModelProperty("발주서 메일 발송 에러 메세지")
+		private String sendOrderMailErrMessage;
+
 		@ApiModelProperty("benefit")
 		private BenefitDto.BenefitRes benefit;
 
@@ -298,10 +321,15 @@ public class BenefitDto {
 						.paidAt(benefitPaymentHistory.paidAt())
 						.status(benefitPaymentHistory.status())
 						.errMessage(benefitPaymentHistory.errMessage())
+						.sendPaymentMailErrCode(benefitPaymentHistory.sendPaymentMailErrCode())
+						.sendPaymentMailErrMessage(benefitPaymentHistory.sendPaymentMailErrMessage())
+						.sendOrderMailErrCode(benefitPaymentHistory.sendOrderMailErrCode())
+						.sendOrderMailErrMessage(benefitPaymentHistory.sendOrderMailErrMessage())
 						.benefit(BenefitDto.BenefitRes.from(benefitPaymentHistory.benefit()))
 						.benefitPaymentItems(benefitPaymentHistory.benefitPaymentItems().stream().map(BenefitDto.BenefitPaymentItemRes::from).collect(Collectors.toList()))
 						.build();
 			}
+
 			return null;
 		}
 	}

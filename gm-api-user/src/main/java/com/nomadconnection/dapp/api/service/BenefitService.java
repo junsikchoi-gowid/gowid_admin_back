@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.core.domain.benefit.*;
 import com.nomadconnection.dapp.core.domain.repository.benefit.*;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +32,7 @@ public class BenefitService {
 	private final BenefitPaymentHistoryRepository repoBenefitPaymentHistory;
 	private final BenefitPaymentItemRepository repoBenefitPaymentItem;
 	private final BenefitCategoryRepository repoBenefitCategory;
+	private final BenefitSearchHistoryRepository repoBenefitSearchHistory;
 
 	private final UserService userService;
 	private final EmailService emailService;
@@ -281,7 +284,7 @@ public class BenefitService {
 			resBenefitPaymentHistoryPage = repoBenefitPaymentHistory.findAll(pageable)
 					.map(BenefitDto.BenefitPaymentHistoryRes::from);
 		}else {
-			resBenefitPaymentHistoryPage = repoBenefitPaymentHistory.findAllByUserAndStatusOrderByPaidAtDesc(user,
+			resBenefitPaymentHistoryPage = repoBenefitPaymentHistory.findAllByUserAndStatus(user,
 												pageable,
 												BenefitPaymentStatusType.SUCCESS.getValue())
 											.map(BenefitDto.BenefitPaymentHistoryRes::from);
@@ -359,5 +362,28 @@ public class BenefitService {
 						.idx(idxBenefitItem)
 						.build()
 		);
+	}
+
+
+	/**
+	 * Benefit 검색어 저장
+	 *
+	 * @param dto	검색어 정보
+	 * @param idx	검색한 사용자 idx
+	 * @return	저장 결과
+	 */
+	public ResponseEntity saveBenefitSearchHistory(BenefitDto.BenefitSearchHistoryReq dto, CustomUser user) {
+
+		BenefitSearchHistory benefitSearchHistory = BenefitSearchHistory.builder()
+				.idxUser(StringUtils.isEmpty(user) ? null : user.idx())
+				.searchText(dto.getSearchText())
+				.build();
+		repoBenefitSearchHistory.save(benefitSearchHistory);
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(BusinessResponse.Normal.builder()
+						.status(true)
+						.build())
+				.build());
 	}
 }

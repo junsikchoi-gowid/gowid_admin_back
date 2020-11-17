@@ -41,6 +41,9 @@ public class BenefitController {
 
 		// Benefit Category
 		public static final String BENEFIT_CATEGORIES = "/categories";
+
+		// Benefit SerchText
+		public static final String BENEFIT_SEARCH = "/search";
 	}
 
 	private final BenefitService service;
@@ -120,5 +123,20 @@ public class BenefitController {
 			log.info("([ getBenefitCategories ])");
 		}
 		return service.getBenefitCategories();
+	}
+
+
+	@ApiOperation(value = "베네핏 검색어 저장")
+	@PostMapping(URI.BENEFIT_SEARCH)
+	public ResponseEntity saveBenefitSearchHistory(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody BenefitDto.BenefitSearchHistoryReq dto
+			) {
+
+		if (log.isDebugEnabled()) {
+			log.debug("([saveBenefitSearchHistory]) $dto='{}'", dto);
+		}
+
+		return service.saveBenefitSearchHistory(dto, user);
 	}
 }
