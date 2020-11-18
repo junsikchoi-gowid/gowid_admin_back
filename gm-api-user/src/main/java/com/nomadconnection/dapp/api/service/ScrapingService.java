@@ -1730,6 +1730,9 @@ public class ScrapingService {
         for (int i = 0; i < 2; i++) {
             saveAccountProcessBatchRetry(idx, idxResBatchParent);
         }
+
+        // 리스크 데이터 저장
+        serviceRisk.saveRisk(idx, null,"");
     }
 
     private void saveAccountProcessBatchRetry(Long idx, Long idxResBatchParent) {

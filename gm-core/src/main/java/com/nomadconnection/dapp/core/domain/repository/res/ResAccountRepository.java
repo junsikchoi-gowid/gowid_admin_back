@@ -207,7 +207,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "  from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3 " +
             "    from (select ds from date_t c where d between date_add(:calcDate, INTERVAL - 44 day) and :calcDate) g     " +
             "    join ResAccount b on b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14') " +
-            "    left join (" +
+            "   inner join (" +
             "   SELECT account," +
             "   updatedAt," +
             "   errCode," +
@@ -218,7 +218,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "   END AS Rank," +
             "   @vaccount\\:= account AS dummy" +
             "   FROM ResBatchList, (SELECT @vaccount\\:=NULL, @id\\:=0) AS t" +
-            "   where idxUser = :idxUser and updatedAt > @setDate and resBatchType = 1" +
+            "   where idxUser = :idxUser and updatedAt > :calcDate and resBatchType = 1" +
             "   ORDER BY account, updatedAt desc) c on Rank = 1 and errCode = 'CF-00000' and c.account = b.resAccount" +
             " ) a group by dsc order by dsc asc", nativeQuery = true)
     List<CRisk> find45dayValance(Long idxUser, String calcDate);
