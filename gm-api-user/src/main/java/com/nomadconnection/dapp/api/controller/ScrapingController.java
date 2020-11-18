@@ -49,11 +49,11 @@ public class ScrapingController {
 
     @ApiOperation(value = "10년간 데이터 가져오기", notes = "" + "\n")
     @GetMapping(URI.SCRAPING_ACCOUNT_HISTORY)
-    public boolean scrapingRegisterAll(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxUser) {
+    public void scrapingRegisterAll(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxUser) {
         if (log.isInfoEnabled()) {
             log.info("([ scrapingRegisterAll ]) $user='{}' $idxUser='{}'", user, idxUser);
         }
-        return service.aWaitScraping10Years(user.idx(), idxUser);
+        service.runExecutor(idxUser);
     }
 
     @ApiOperation(value = "스크래핑 중지(유저)", notes = "" + "\n")

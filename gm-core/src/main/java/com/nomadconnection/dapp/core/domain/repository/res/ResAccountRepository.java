@@ -218,7 +218,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "   END AS Rank," +
             "   @vaccount\\:= account AS dummy" +
             "   FROM ResBatchList, (SELECT @vaccount\\:=NULL, @id\\:=0) AS t" +
-            "   where idxUser = :idxUser and updatedAt > :calcDate and resBatchType = 1" +
+            "   where idxUser = :idxUser and endDate > :calcDate and resBatchType = 1" +
             "   ORDER BY account, updatedAt desc) c on Rank = 1 and errCode = 'CF-00000' and c.account = b.resAccount" +
             " ) a group by dsc order by dsc asc", nativeQuery = true)
     List<CRisk> find45dayValance(Long idxUser, String calcDate);
@@ -244,7 +244,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             " END AS Rank," +
             " @vaccount\\:= account AS dummy" +
             " FROM ResBatchList, (SELECT @vaccount\\:=NULL, @id\\:=0) AS t" +
-            " where idxUser = :idxUser and updatedAt > :setDate and resBatchType = 1" +
+            " where idxUser = :idxUser and endDate > :setDate and resBatchType = 1" +
             " ORDER BY account, updatedAt desc) c on Rank = 1 and errCode = 'CF-00000' and c.account = b.resAccount" +
             " where b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14')) z", nativeQuery = true)
     Double findRecentBalance(Long idxUser, String setDate);

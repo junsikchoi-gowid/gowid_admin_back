@@ -2453,16 +2453,17 @@ public class ScrapingService {
 
     @Async("executor1")
     public void runExecutor(Long idxUser){
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-
-        Callable task = () -> scraping10Years(idxUser);
-        Future futureResult = executor.submit(task) ;
-
-        try {
-            futureResult.get(50, TimeUnit.MINUTES);
-        }catch (Exception e){
-            log.info(e.toString());
-        }
+//        ExecutorService executor = Executors.newSingleThreadExecutor();
+//
+//        Callable task = () -> scraping10Years(idxUser);
+//        Future futureResult = executor.submit(task) ;
+//
+//        try {
+//            futureResult.get(50, TimeUnit.MINUTES);
+//        }catch (Exception e){
+//            log.info(e.toString());
+//        }
+        scraping10Years(idxUser);
     }
 
     @Async("executor1")
