@@ -244,9 +244,15 @@ public class RiskService {
 		Double cardLimitNow = repoRisk.findCardLimitNow(idxUser,calcDate);
 		Double cardLimitNowFirst = repoRisk.findCardLimitNowFirst(idxUser,calcDate);
 
+		boolean isIssuanceSuccess = false;
+
+		if(issuanceProgress != null){
+			isIssuanceSuccess = isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name());
+		}
+
 		risk.cardLimitNow(getCardLimitNow(
 				issuanceProgress
-				,isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())
+				,isIssuanceSuccess
 				,risk.emergencyStop()
 				,risk.depositGuarantee()
 				,cardLimitNow
@@ -488,9 +494,15 @@ public class RiskService {
 		Double cardLimitNow = repoRisk.findCardLimitNow(idxUser,calcDate);
 		Double cardLimitNowFirst = repoRisk.findCardLimitNowFirst(idxUser,calcDate);
 
+		boolean isIssuanceSuccess = false;
+
+		if(issuanceProgress != null){
+			isIssuanceSuccess = isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name());
+		}
+
 		risk.cardLimitNow(getCardLimitNow(
 				issuanceProgress
-				,isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())
+				,isIssuanceSuccess
 				,risk.emergencyStop()
 				,risk.depositGuarantee()
 				,cardLimitNow
@@ -525,7 +537,6 @@ public class RiskService {
 		}else{
 			risk.cardRestart(false);
 		}
-
 
 		if(issuanceProgress != null && isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())){
 			riskconfig.cardIssuance(true);

@@ -1442,8 +1442,8 @@ public class ScrapingService {
         });
 
         saveAccountProcessBatch(idx, idxResBatchParent, true);
-
-        // 리스크 데이터 저장
+ 
+        // 리스크 데이터 저장 
         serviceRisk.saveRisk(idx, null,"");
 
         return true;
@@ -2460,6 +2460,11 @@ public class ScrapingService {
         }catch (Exception e){
             log.info(e.toString());
         }
+    }
+
+    @Async("executor1")
+    public void runExecutorRisk(Long idxUser){
+        serviceRisk.saveRisk(idxUser, null,"");
     }
 
     public Object scraping10Years(Long idx) {

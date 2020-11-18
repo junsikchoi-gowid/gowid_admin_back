@@ -65,6 +65,8 @@ spring:
     enabled: false
     time: 0 0 2 * * *
     endtime: 0 0 6 * * *
+    risk-enabled: true
+    risk-time: 0 0 7 * * *
   mail:
     sender: gowid <support@gowid.com>
     riskteam: gowid <risk@gowid.com>
@@ -131,6 +133,8 @@ spring:
     enabled: false
     time: 0 0 2 * * *
     endtime: 0 0 6 * * *
+    risk-enabled: true
+    risk-time: 0 0 7 * * *
   mail:
     sender: gowid <support@gowid.com>
     riskteam: gowid <risk@gowid.com>
@@ -206,6 +210,8 @@ spring:
     enabled: true
     time: 0 15 2 * * MON-FRI
     endtime: 0 0 6 * * MON-FRI
+    risk-enabled: true
+    risk-time: 0 0 7 * * *
   mail:
     sender: gowid <support@gowid.com>
     riskteam: gowid <risk@gowid.com>
