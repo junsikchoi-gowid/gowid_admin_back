@@ -1291,7 +1291,7 @@ public class ScrapingService {
                 try {
                     strResult = getApiResult(KR_BK_1_B_001.krbk1b001(connId, strBank));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.debug("scrapingAccountHistory10year $message={}" , e.getMessage());
                 } finally {
                     endLog(ResBatchList.builder()
                             .idx(idxResBatchList)
@@ -1552,7 +1552,7 @@ public class ScrapingService {
                             break;
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.debug("saveAccountProcess $message={}" , e.getMessage());
                 }
 
                 if (strResult[0].get("code").toString().equals("CF-00000") || strResult[0].get("code").toString().equals("CF-04012")) {
@@ -1694,7 +1694,7 @@ public class ScrapingService {
                     log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.debug("scrapingAccountHistory10year $message={}" , e.getMessage());
                 }
 
                 if (strResult[1] != null && (strResult[0].get("code").toString().equals("CF-00000") || strResult[0].get("code").toString().equals("CF-04012"))) {
@@ -1846,7 +1846,7 @@ public class ScrapingService {
                     log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.debug("$message={}" , e.getMessage());
                 }
 
                 log.debug("([scrapingAccountHistory10year ]) $resData.getConnectedId()='{}'", resData.getConnectedId());
@@ -1890,7 +1890,7 @@ public class ScrapingService {
             scrapingAccountHistory10year(idx, idxLog.idx());
         } catch (Exception e) {
             log.debug("scraping10Years Exception");
-            e.printStackTrace();
+            log.debug("$message={}" , e.getMessage());
             return false;
         } finally {
             endBatchLog(idxLog.idx());
@@ -1906,8 +1906,7 @@ public class ScrapingService {
         try {
             awaitScrapingAccountHistory10year(idx, idxLog.idx());
         } catch (Exception e) {
-            log.debug("scraping10Years Exception");
-            e.printStackTrace();
+            log.debug("awaitScrapingAccountHistory10year Exception $message={}" , e.getMessage());
             return false;
         } finally {
             endBatchLog(idxLog.idx());
@@ -2476,8 +2475,7 @@ public class ScrapingService {
         try {
             scrapingAccountHistory10year(idx, idxLog.idx());
         } catch (Exception e) {
-            log.debug("scraping10Years Exception");
-            e.printStackTrace();
+            log.debug("scraping10Years Exception $message={}" , e.getMessage());
         } finally {
             endBatchLog(idxLog.idx());
         }
