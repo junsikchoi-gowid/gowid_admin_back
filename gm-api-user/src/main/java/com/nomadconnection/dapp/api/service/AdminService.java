@@ -13,8 +13,10 @@ import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
+import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepository;
@@ -55,6 +57,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.nomadconnection.dapp.core.domain.common.IssuanceProgressType.LP_ZIP;
+import static com.nomadconnection.dapp.core.domain.common.IssuanceProgressType.P_1800;
+import static com.nomadconnection.dapp.core.domain.common.IssuanceStatusType.SUCCESS;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -76,6 +82,7 @@ public class AdminService {
     private final ResAccountHistoryRepository resAccountHistoryRepository;
     private final RiskConfigRepository repoRiskConfig;
     private final CardIssuanceInfoRepository repoCardIssuance;
+    private final IssuanceProgressRepository repoIssuanceProgress;
 
 
     private Boolean isGowidMaster(Long idxUser) {
@@ -391,21 +398,6 @@ public class AdminService {
         return ResponseEntity.ok().body(BusinessResponse.builder().data(result).build());
     }
 
-    public ResponseEntity errorList(Long idx, Pageable pageable, ResBatchListCustomRepository.ErrorSearchDto dto) {
-        Boolean isMaster = isGowidMaster(idx);
-
-        String toDay = dto.getBoolToday();
-        if (toDay != null && toDay.equals("true")) {
-            toDay = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        } else {
-            toDay = "20100000";
-        }
-
-        Page<AdminDto.ErrorResultDto> list = repoResBatchList.errorList(dto.getCorpName(), dto.getErrorCode(), dto.getTransactionId(), toDay, dto.getIdxCorp(), pageable).map(AdminDto.ErrorResultDto::from);
-
-        return ResponseEntity.ok().body(BusinessResponse.builder().data(list).normal(BusinessResponse.Normal.builder().status(true).build()).build());
-    }
-
     private void accept(AdminDto.CashListDto x) {
         List<Long> firstBalance = repoResAccount.findBalance(x.getIdxUser());
         Long longFirstBalance = firstBalance.get(0);
@@ -461,18 +453,6 @@ public class AdminService {
 
         Page<CorpCustomRepository.SearchCorpResultDto> page = repoCorp.adminCorpList(dto, idxUser, pageable);
 
-//        page.forEach(
-//                searchCorpResultDto -> {
-//                    if(repoResBatchList.countByErrCodeNotAndResBatchTypeAndIdxResBatch(
-//                            "CF-00000",
-//                            "1",
-//                            repoResBatch.getMaxIdx(searchCorpResultDto.idx)) > 0 ){
-//                        searchCorpResultDto.setBoolError(true);
-//                    }else{
-//                        searchCorpResultDto.setBoolError(false);
-//                    }
-//                });
-
         return ResponseEntity.ok().body(BusinessResponse.builder().data(page).build());
     }
 
@@ -512,6 +492,10 @@ public class AdminService {
         Boolean isMaster = isGowidMaster(idxUser);
         AdminDto.corpInfoDetail data = new AdminDto.corpInfoDetail();
 
+        Corp corp = repoCorp.findById(idxCorp).orElseThrow(
+                () -> new RuntimeException("Bad idxCorp request.")
+        );
+
         data.setCardCompany(repoCorp.findById(idxCorp).get().user().cardCompany());
 
         if (isMaster) {
@@ -541,9 +525,42 @@ public class AdminService {
                         data.setGrantLimit(riskConfig.grantLimit());
                     }
             );
+
+            CardIssuanceInfo cardIssuance = repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(corp.user()).orElseGet(
+                    () -> CardIssuanceInfo.builder().issuanceDepth("0").build()
+            );
+
+            if(cardIssuance.card().requestCount() != null ){
+                data.setCardCount(cardIssuance.card().requestCount().toString());
+            }
+
+            if(cardIssuance.issuanceDepth() != null){
+                data.setIssuanceDepth(cardIssuance.issuanceDepth());
+            }
+
+            IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(corp.user().idx()).orElse(null);
+
+            if( issuanceProgress != null ){
+                data.setApplyDate(issuanceProgress.getCreatedAt());
+                data.setDecisionDate(issuanceProgress.getUpdatedAt());
+            }
+
+            data.setRegisterDate(corp.resRegisterDate());
+            data.setUserName(corp.user().name());
+            data.setPhoneNumber(corp.user().mdn());
+            data.setEmail(corp.user().email());
+            data.setIsSendEmail(corp.user().isSendEmail());
+            data.setIsSendSms(corp.user().isSendSms());
+
+            data.setHopeLimit(corp.riskConfig().hopeLimit());
+            data.setGrantLimit(corp.riskConfig().grantLimit());
         }
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(data).build());
+    }
+
+    private boolean isIssuanceSuccess(String progress, String status){
+        return (P_1800.equals(progress) || LP_ZIP.equals(progress)) && SUCCESS.equals(status);
     }
 
     public ResponseEntity riskConfigStop(Long idx, AdminDto.StopDto dto) {

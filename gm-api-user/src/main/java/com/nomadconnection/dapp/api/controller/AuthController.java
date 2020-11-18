@@ -43,7 +43,6 @@ public class AuthController {
         public static final String PASSWORD_RESET_EMAIL = "/passwordResetEmail";
         public static final String PASSWORD = "/password";
         public static final String TOKEN_ISSUE = "/token/issue";
-        public static final String TOKEN_ISSUE_OUT = "/token/issueOut";
         public static final String TOKEN_REISSUE = "/token/reissue";
         public static final String INFO = "/info";
     }
@@ -238,28 +237,6 @@ public class AuthController {
             log.info("([ issueTokenSet ]) $dto='{}'", dto);
         }
         return service.issueTokenSet(dto);
-    }
-
-    @ApiOperation(value = "인증토큰 - 발급", notes = "" +
-            "\n ### Remarks" +
-            "\n" +
-            "\n - JWT 사용" +
-            "\n   - 발급된 토큰 정보를 서버에 저장하지 않음" +
-            "\n   - 만료되기 전까지 사용가능하며, 타 기기에서의 다중 로그인도 가능함" +
-            "\n   - 개인식별번호(PIN)를 사용한 인증이 어떻게 처리되는지 확인 필요함" +
-            "\n     - 최초 로그인 시 인증토큰을 발급하고, 이후 등록된 PIN/TOUCH_ID 인증 통과시 발급된 인증토큰을 사용하는 방식인가?" +
-            "\n   - <mark>일단은 현 상태로 두고, 기획의도 확인 후 수정 예정</mark>" +
-            "\n - 인증토큰(액세스): 발급 10분 후 만료(현재는 이렇게 되어 있음)" +
-            "\n - 인증토큰(갱신): 발급 7일 후 만료(현재는 이렇게 되어 있음)" +
-            "\n")
-    @PostMapping(URI.TOKEN_ISSUE_OUT)
-    public TokenDto.TokenSet issueTokenSetOut(
-            @RequestBody AccountDto dto
-    ) {
-        if (log.isInfoEnabled()) {
-            log.info("([ issueTokenSet ]) $dto='{}'", dto);
-        }
-        return service.issueTokenSetOut(dto);
     }
 
 

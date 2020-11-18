@@ -64,10 +64,10 @@ public class AdminController {
 
 		public static final String CORP_LIST = "/corp/list" ;  // GET	법인정보
 
-		public static final String SCRAP_CORP_LIST = "/scrap/corp/list" ;  // GET	계좌스크래핑 - 법인 목록
+		public static final String SCRAP_CORP_LIST = "/scrap/corp/list" ;  // GET	계좌스크래핑 - 계좌목록
 		public static final String SCRAP_CORP = "/scrap/corp" ;  // POST	법인별스크래핑
 
-		public static final String SCRAP_ACCOUNT_LIST = "/scrap/account/list" ;  // GET	계좌스크래핑 - 계좌 목록
+		public static final String SCRAP_ACCOUNT_LIST = "/scrap/account/list" ;  // GET	계좌스크래핑 - 스크래핑결과
 		public static final String SCRAP_ACCOUNT = "/scrap/account" ;  // POST	계좌별 스크래핑
 
 		public static final String CORP_INFO = "/corp/info" ;   // GET	법인별 - 리스크 관련 상세정보
@@ -294,31 +294,6 @@ public class AdminController {
 			log.info("([ scrapingUpdate ]) $user='{}'", user);
 		}
 		return service.scrapingUpdate(user.idx(), idxCorp);
-	}
-
-
-	@ApiOperation(value = "에러내역"
-			, notes = "" + "\n"
-			+ "Sort 방식 " + "\n"
-			+ "idxCorp  " + "\n"
-			+ "updatedAt  " + "\n"
-			+ "corpName  " + "\n"
-			+ "bankName  " + "\n"
-			+ "account  " + "\n"
-			+ "accountDisplay  " + "\n"
-			+ "errorMessage  " + "\n"
-			+ "errorCode  " + "\n"
-			+ "transactionId  " + "\n"
-	)
-	@GetMapping(URI.ERROR)
-	@ApiPageable
-	public ResponseEntity errorList(@ApiIgnore @CurrentUser CustomUser user, @PageableDefault Pageable pageable
-			, @ModelAttribute ResBatchListCustomRepository.ErrorSearchDto dto
-	) {
-		if (log.isInfoEnabled()) {
-			log.info("([ errorList ]) $user='{}'", user);
-		}
-		return service.errorList(user.idx(), pageable, dto);
 	}
 
 	private final ResumeService resumeService;

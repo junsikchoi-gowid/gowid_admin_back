@@ -79,6 +79,24 @@ public interface CorpCustomRepository {
 
         @ApiModelProperty("카드사")
         public CardCompany cardCompany;
+
+        @ApiModelProperty("마지막 신청 단계")
+        private String issuanceDepth;
+
+        @ApiModelProperty("담당자")
+        private String userName;
+
+        @ApiModelProperty("이메일주소")
+        private String email;
+
+        @ApiModelProperty("법인등록일")
+        private String registerDate;
+
+        @ApiModelProperty("신청완료일")
+        private LocalDateTime applyDate;
+
+        @ApiModelProperty("심사완료일")
+        private LocalDateTime decisionDate;
     }
 
     @Data
@@ -86,20 +104,43 @@ public interface CorpCustomRepository {
     @NoArgsConstructor
     @AllArgsConstructor
     class SearchCorpListDto {
+
+        @ApiModelProperty("IDX")
+        private Long idx;
+
         @ApiModelProperty("법인명")
         private String resCompanyNm;
 
         @ApiModelProperty("사업자등록번호")
         private String resCompanyIdentityNo;
 
-        @ApiModelProperty("카드사")
+        @ApiModelProperty("대표")
+        private String ceoName;
+
+        @ApiModelProperty("카드")
         private CardCompany cardCompany;
+
+        @ApiModelProperty("발급")
+        private Boolean cardIssuance;
+
+        @ApiModelProperty("마지막 신청 단계")
+        private String issuanceDepth;
 
         @ApiModelProperty("담당자")
         private String userName;
 
-        @ApiModelProperty("이메일 주소")
+        @ApiModelProperty("이메일주소")
         private String email;
+
+        @ApiModelProperty("법인등록일")
+        private String registerDate;
+
+        @ApiModelProperty("신청완료일")
+        private LocalDateTime applyDate;
+
+        @ApiModelProperty("심사완료일")
+        private LocalDateTime decisionDate;
+
     }
 
     Page<SearchCorpResultDto> corpList(SearchCorpDto dto, Long idxUser, Pageable pageable);

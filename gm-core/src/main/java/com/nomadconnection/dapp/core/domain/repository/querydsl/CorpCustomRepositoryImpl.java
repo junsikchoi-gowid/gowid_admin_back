@@ -1,6 +1,8 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.QCardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.common.QConnectedMng;
+import com.nomadconnection.dapp.core.domain.common.QIssuanceProgress;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.QCorp;
 import com.nomadconnection.dapp.core.domain.res.QResAccount;
@@ -33,6 +35,9 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
     private final QConnectedMng connectedMng = QConnectedMng.connectedMng;
     private final QResBatch resBatch = QResBatch.resBatch;
     private final QResBatchList resBatchList = QResBatchList.resBatchList;
+    private final QIssuanceProgress issuanceProgress = QIssuanceProgress.issuanceProgress;
+    private final QCardIssuanceInfo cardIssuanceInfo = QCardIssuanceInfo.cardIssuanceInfo;
+
 
     /**
      * Creates a new {@link QuerydslRepositorySupport} instance for the given domain type.
@@ -83,7 +88,7 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
         query.where(corp.riskConfig.enabled.isTrue());
 
         if (dto.getResCompanyNm() != null) {
-            query.where(corp.resCompanyNm.like(dto.getResCompanyNm()));
+            query.where(corp.resCompanyNm.contains(dto.getResCompanyNm()));
         }
 
         if (dto.getResCompanyIdentityNo() != null) {
@@ -106,51 +111,41 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
     @Override
     public Page<SearchCorpResultDto> adminCorpList(SearchCorpListDto dto, Long idxUser, Pageable pageable) {
 
-        List<SearchCorpResultDto> riskList;
-        JPQLQuery<SearchCorpResultDto> query = from(corp)
-                .select(Projections.bean(SearchCorpResultDto.class,
+        List<SearchCorpListDto> riskList;
+        JPQLQuery<SearchCorpListDto> query = from(corp)
+                .leftJoin(issuanceProgress).on(corp.idx.eq(issuanceProgress.corpIdx))
+                .leftJoin(cardIssuanceInfo).on(corp.idx.eq(cardIssuanceInfo.corp.idx))
+                .select(Projections.bean(SearchCorpListDto.class,
                         corp.idx.as("idx"),
                         corp.resCompanyNm.as("resCompanyNm"),
                         corp.resCompanyIdentityNo.as("resCompanyIdentityNo"),
+                        corp.resUserNm.as("ceoName"),
                         corp.user.cardCompany.as("cardCompany"),
-                        corp.resUserNm.as("resUserNm"),
-                        corp.createdAt.as("createdAt"),
-                        corp.resBusinessItems.as("resBusinessItems"),
-                        corp.resBusinessTypes.as("resBusinessTypes"),
-                        corp.riskConfig.ceoGuarantee.as("ceoGuarantee"),
-                        corp.riskConfig.depositGuarantee.as("depositGuarantee"),
-                        corp.riskConfig.depositPayment.as("depositPayment"),
                         corp.riskConfig.cardIssuance.as("cardIssuance"),
-                        corp.riskConfig.ventureCertification.as("ventureCertification"),
-                        corp.riskConfig.vcInvestment.as("vcInvestment"),
-//                        ExpressionUtils.as(
-//                                JPAExpressions.select(resBatchList.count().eq((long) 0))
-//                                        .from(resBatchList)
-//                                        .where(resBatchList.errCode.notEqualsIgnoreCase("CF-00000"))
-//                                        .where(resBatchList.resBatchType.eq(ResBatchType.BANK))
-//                                        .where(resBatchList.idxResBatch.eq(
-//                                                JPAExpressions.select(resBatch.idx.max())
-//                                                        .from(resBatch)
-//                                                        .where(resBatch.idxUser.eq(corp.user.idx))))
-//                                , "boolError"),
-                        ExpressionUtils.as(
-                                JPAExpressions.select((risk.emergencyStop.castToNum(Long.class).add(risk.emergencyStop.castToNum(Long.class))).eq((long)0))
-                                        .from(risk)
-                                        .where(risk.idx.eq(
-                                                JPAExpressions.select(risk.idx.max())
-                                                        .from(risk)
-                                                        .where(risk.corp.idx.eq(corp.idx))))
-                                , "boolPauseStop")
+                        cardIssuanceInfo.issuanceDepth.as("issuanceDepth"),
+                        corp.user.name.as("userName"),
+                        corp.user.email.as("email"),
+                        corp.resRegisterDate.as("registerDate"),
+                        issuanceProgress.createdAt.as("applyDate"),
+                        issuanceProgress.updatedAt.as("decisionDate")
+//                        corp.resBusinessItems.as("resBusinessItems"),
+//                        corp.resBusinessTypes.as("resBusinessTypes"),
+//                        corp.riskConfig.ceoGuarantee.as("ceoGuarantee"),
+//                        corp.riskConfig.depositGuarantee.as("depositGuarantee"),
+//                        corp.riskConfig.depositPayment.as("depositPayment"),
+//                        corp.riskConfig.ventureCertification.as("ventureCertification"),
+//                        corp.riskConfig.vcInvestment.as("vcInvestment"),
+//                        corp.createdAt.as("createdAt")
                 ));
 
         query.where(corp.riskConfig.enabled.isTrue());
 
         if (dto.getResCompanyNm() != null) {
-            query.where(corp.resCompanyNm.like(dto.getResCompanyNm()));
+            query.where(corp.resCompanyNm.toLowerCase().contains(dto.getResCompanyNm().toLowerCase()));
         }
 
         if (dto.getResCompanyIdentityNo() != null) {
-            query.where(corp.resCompanyIdentityNo.eq(dto.getResCompanyIdentityNo()));
+            query.where(corp.resCompanyIdentityNo.toLowerCase().contains(dto.getResCompanyIdentityNo().toLowerCase()));
         }
 
         if (dto.getCardCompany() != null) {
@@ -158,11 +153,11 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
         }
 
         if (dto.getUserName() != null) {
-            query.where(corp.user.name.eq(dto.getUserName()));
+            query.where(corp.user.name.toLowerCase().contains(dto.getUserName().toLowerCase()));
         }
 
         if (dto.getEmail() != null) {
-            query.where(corp.user.email.eq(dto.getEmail()));
+            query.where(corp.user.email.toLowerCase().contains(dto.getEmail().toLowerCase()));
         }
 
         riskList = getQuerydsl().applyPagination(pageable, query).fetch();
@@ -179,7 +174,7 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
 
         JPQLQuery<ScrapCorpListDto> query = from(corp)
                 .leftJoin(risk).on(risk.date.eq(ld.format(DateTimeFormatter.BASIC_ISO_DATE))
-                        .and(risk.grade.in( dto.getGrade()!=null? dto.getGrade():"A","B","C" ))
+                        // .and(risk.grade.in( dto.getGrade()!=null? dto.getGrade():"A","B","C" ))
                         .and(risk.corp.idx.eq(corp.idx)))
                 .leftJoin(resBatch).on(corp.user.idx.eq(resBatch.idxUser).and(resBatch.createdAt.between(from,to)))
                 .select(Projections.bean(ScrapCorpListDto.class,
@@ -196,7 +191,13 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
                                                         .where(connectedMng.idxUser.eq(corp.user.idx))
                                         ).and(resAccount.enabled.eq(true)))
                                 ,"total"),
-                        // -- ("progress"),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(resBatchList.count())
+                                        .from(resBatchList)
+                                        .where(resBatchList.idxResBatch.eq(resBatch.idx)
+                                        .and(resBatchList.resBatchType.eq(ResBatchType.ACCOUNT))
+                                        )
+                                ,"progress"),
                         resBatch.endFlag.as("endFlag"),
                         resBatch.updatedAt.as("updatedAt"),
                         resBatch.createdAt.as("createdAt")
@@ -217,7 +218,7 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
         }
 
         if (dto.getGrade() != null) {
-            query.where(risk.grade.eq(dto.getGrade()));
+            query.where(risk.grade.toLowerCase().eq(dto.getGrade().toLowerCase()));
         }
 
         if( pageable.getSort().isEmpty()) {

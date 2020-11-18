@@ -541,7 +541,6 @@ public class AdminDto {
 		@ApiModelProperty("유지일")
 		public Integer cardRestartCount;
 
-
 		@ApiModelProperty("산출한도")
 		public Double cardLimitNow;
 
@@ -568,6 +567,32 @@ public class AdminDto {
 
 		@ApiModelProperty("잔고미달")
 		public boolean emergencyStop;
+
+		@ApiModelProperty("마지막 신청 단계")
+		private String issuanceDepth;
+
+		@ApiModelProperty("담당자")
+		private String userName;
+
+		@ApiModelProperty("이메일주소")
+		private String email;
+
+		@ApiModelProperty("법인등록일")
+		private String registerDate;
+
+		@ApiModelProperty("신청완료일")
+		private LocalDateTime applyDate;
+
+		@ApiModelProperty("심사완료일")
+		private LocalDateTime decisionDate;
+
+		@ApiModelProperty("카드매수")
+		private String cardCount;
+
+		private String phoneNumber;
+		private Boolean isSendSms;
+		private Boolean isSendEmail;
+
 	}
 
 	@Data
