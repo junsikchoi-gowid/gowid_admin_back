@@ -547,7 +547,7 @@ public class IssuanceService {
         verifyCeo(idxUser, dto, decryptData);
         CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(dto.getCardIssuanceInfoIdx());
         // stage 환경에서 원활한 테스트를 위함
-        if(!envUtil.isStg()) {
+        if(!envUtil.isStg() && !"0".equals(dto.getCeoSeqNo())) {
             save1530(cardIssuanceInfo, dto);
         }
         save1400(cardIssuanceInfo, dto, decryptData);
