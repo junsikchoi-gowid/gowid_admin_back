@@ -49,7 +49,7 @@ public class SchedulerService {
                     }
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("[schedule] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
                 }
 
                 if(boolSchedule) {

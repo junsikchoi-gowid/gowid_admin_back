@@ -210,8 +210,8 @@ public class RiskService {
 			}
 		});
 
-		if(repoResAccount.findRecentBalance(idxUser, calcDatePlus) != null ) {
-			risk.recentBalance(repoResAccount.findRecentBalance(idxUser, calcDatePlus));
+		if(repoResAccount.findRecentBalance(idxUser, calcDate) != null ) {
+			risk.recentBalance(repoResAccount.findRecentBalance(idxUser, calcDate));
 		}
 
 		// ActualBalance
@@ -459,8 +459,8 @@ public class RiskService {
 			}
 		});
 
-		if(repoResAccount.findRecentBalance(idxUser, calcDatePlus) != null ) {
-			risk.recentBalance(repoResAccount.findRecentBalance(idxUser, calcDatePlus));
+		if(repoResAccount.findRecentBalance(idxUser, calcDate) != null ) {
+			risk.recentBalance(repoResAccount.findRecentBalance(idxUser, calcDate));
 		}
 
 		// ActualBalance

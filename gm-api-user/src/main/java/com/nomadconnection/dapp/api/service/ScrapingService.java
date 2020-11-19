@@ -199,8 +199,7 @@ public class ScrapingService {
                         log.debug("resAccountBalance $resAccountBalance='{}'" + jsonData.get("resAccountBalance"));
                         balance = Double.parseDouble(jsonData.get("resAccountBalance").toString());
                     }catch (Exception e){
-                        log.debug("ScrapingServer saveAccount >");
-                        e.printStackTrace();
+                        log.error("[saveAccount type 30] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
                     }
                 }
                 resAccount.resAccountBalance(balance);
@@ -325,7 +324,7 @@ public class ScrapingService {
             result[0] = (JSONObject) jsonObject.get("result");
             result[1] = (JSONObject) jsonObject.get("data");
         }catch (Exception e){
-            log.debug( e.toString() );
+            log.error("[getApiResult] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
         }
 
         return result;
@@ -513,7 +512,7 @@ public class ScrapingService {
                 try {
                     strResult = getApiResult(KR_BK_1_B_001.krbk1b001(connId, strBank));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("[scrapingRegister1YearAll] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
                 } finally {
                     endLog(ResBatchList.builder()
                             .idx(idxResBatchList)
@@ -739,7 +738,7 @@ public class ScrapingService {
 
                 log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("[scrapingAccountHistory10year] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
             }
 
             log.debug("([scrapingAccountHistory10year ]) $resData.getConnectedId()='{}'", resData.getConnectedId());
@@ -832,7 +831,7 @@ public class ScrapingService {
                 try {
                     strResult = getApiResult(KR_BK_1_B_001.krbk1b001(connId, strBank));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("[scrapingRegisterAccount45] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
                 } finally {
                     endLog(ResBatchList.builder()
                             .idx(idxResBatchList)
@@ -1073,7 +1072,7 @@ public class ScrapingService {
                         break;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("[scrapingRegisterAccount45] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
             } finally {
                 endLog(ResBatchList.builder()
                         .idx(idxResBatchList)
@@ -1209,7 +1208,7 @@ public class ScrapingService {
                         break;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("[scrapingService] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
             } finally {
                 endLog(ResBatchList.builder()
                         .idx(idxResBatchList)
@@ -1552,7 +1551,7 @@ public class ScrapingService {
                             break;
                     }
                 } catch (Exception e) {
-                    log.debug("saveAccountProcess $message={}" , e.getMessage());
+                    log.error("[saveAccountProcess] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
                 }
 
                 if (strResult[0].get("code").toString().equals("CF-00000") || strResult[0].get("code").toString().equals("CF-04012")) {
@@ -1694,7 +1693,7 @@ public class ScrapingService {
                     log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
 
                 } catch (Exception e) {
-                    log.debug("scrapingAccountHistory10year $message={}" , e.getMessage());
+                    log.error("[scrapingService] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
                 }
 
                 if (strResult[1] != null && (strResult[0].get("code").toString().equals("CF-00000") || strResult[0].get("code").toString().equals("CF-04012"))) {
@@ -1846,7 +1845,7 @@ public class ScrapingService {
                     log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
 
                 } catch (Exception e) {
-                    log.debug("$message={}" , e.getMessage());
+                    log.error("[scrapingService] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
                 }
 
                 log.debug("([scrapingAccountHistory10year ]) $resData.getConnectedId()='{}'", resData.getConnectedId());
@@ -1889,8 +1888,7 @@ public class ScrapingService {
         try {
             scrapingAccountHistory10year(idx, idxLog.idx());
         } catch (Exception e) {
-            log.debug("scraping10Years Exception");
-            log.debug("$message={}" , e.getMessage());
+            log.error("[scrapingService] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
             return false;
         } finally {
             endBatchLog(idxLog.idx());
@@ -1906,7 +1904,7 @@ public class ScrapingService {
         try {
             awaitScrapingAccountHistory10year(idx, idxLog.idx());
         } catch (Exception e) {
-            log.debug("awaitScrapingAccountHistory10year Exception $message={}" , e.getMessage());
+            log.error("[scrapingService] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
             return false;
         } finally {
             endBatchLog(idxLog.idx());
@@ -1937,7 +1935,7 @@ public class ScrapingService {
                 try {
                     strResult = getApiResult(KR_BK_1_B_001.krbk1b001(connId, strBank));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("[scrapingService] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
                 } finally {
                     endLog(ResBatchList.builder()
                             .idx(idxResBatchList)
@@ -2177,7 +2175,7 @@ public class ScrapingService {
                 log.debug("([scrapingAccountHistory10year ]) $strResult='{}'", strResult.toString());
 
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("[scrapingService] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
             }
 
 
@@ -2304,7 +2302,7 @@ public class ScrapingService {
         try {
             strResult = getApiResult(KR_BK_1_B_001.krbk1b001(connId, strBank));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("[scrapingBank] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
         }
 
         if (strResult[0].get("code").toString().equals("CF-00000") || strResult[0].get("message").toString().equals("CF-04012")) {
@@ -2475,7 +2473,7 @@ public class ScrapingService {
         try {
             scrapingAccountHistory10year(idx, idxLog.idx());
         } catch (Exception e) {
-            log.debug("scraping10Years Exception $message={}" , e.getMessage());
+            log.error("[scraping10Years] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
         } finally {
             endBatchLog(idxLog.idx());
         }
