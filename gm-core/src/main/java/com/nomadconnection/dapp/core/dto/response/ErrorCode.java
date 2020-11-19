@@ -34,6 +34,7 @@ public class ErrorCode {
 		EMPTY_RESOURCE,
 		USER_NOT_FOUND,
 		ENTITY_NOT_FOUND,
+		CODE_NOT_FOUND,
 	}
 
 	public enum Mismatched implements ErrorCodeDescriptor {
@@ -143,7 +144,8 @@ public class ErrorCode {
 		NOT_FOUND("NOT_FOUND", "not found"),
 		NO_PERMISSION("NO_PERMISSION", "no permission"),
 		SUCCESS("SUCCESS", null),
-		ALREADY_EXIST("ALREADY_EXIST", "already exist");
+		ALREADY_EXIST("ALREADY_EXIST", "already exist"),
+		SURVEY_ALREADY_EXIST("ALREADY_EXIST", "user survey already exist");
 
 		private final String code;
 		private final String desc;

@@ -7,6 +7,7 @@ import com.nomadconnection.dapp.core.domain.consent.Consent;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.embed.UserProfileResx;
+import com.nomadconnection.dapp.core.domain.etc.Survey;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicUpdate;
@@ -87,5 +88,8 @@ public class User extends BaseTime {
 
 	@OneToMany(mappedBy = "user")
 	private List<BenefitPaymentHistory> benefitPaymentHistories;
+
+	@OneToMany(mappedBy = "user")
+	private List<Survey> surveys;
 
 }

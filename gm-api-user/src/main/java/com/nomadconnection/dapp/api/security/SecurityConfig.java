@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.security;
 
 import com.nomadconnection.dapp.api.controller.*;
+import com.nomadconnection.dapp.api.v2.controller.SurveyController;
 import com.nomadconnection.dapp.core.security.CustomUserDetailsService;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationEntryPoint;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationFilter;
@@ -65,19 +66,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-//	@Bean
-//	public CorsConfigurationSource corsConfigurationSource() {
-//		CorsConfiguration configuration = new CorsConfiguration();
-//		configuration.addAllowedOrigin("*");
-//		configuration.addAllowedMethod("*");
-//		configuration.addAllowedHeader("*");
-//		configuration.setAllowCredentials(true);
-//		configuration.setMaxAge(3600L);
-//		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//		source.registerCorsConfiguration("/**", configuration);
-//		return source;
-//	}
-
     @Override
     protected void configure(AuthenticationManagerBuilder builder) throws Exception {
         builder.userDetailsService(service).passwordEncoder(passwordEncoder());
@@ -141,6 +129,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFIT_CATEGORIES).permitAll()
                 .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFIT_SEARCH).permitAll()
                 .antMatchers(FaqController.URI.BASE + FaqController.URI.FAQ_SAVE).permitAll()
+	            .antMatchers(SurveyController.URI.BASE).permitAll()
                 .anyRequest().authenticated();
     }
 }

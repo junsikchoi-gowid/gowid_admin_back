@@ -1,0 +1,111 @@
+spring:
+  profiles:
+    active: junit, dev, mobile
+    include:
+      - swagger
+      - jwt
+      - core
+      - resx
+      - secukeypad
+#      - redis
+  devtools:
+    livereload:
+      enabled: true
+  freemarker:
+    cache: false
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+server:
+  port: 8080
+  error:
+    include-stacktrace: never
+
+logging:
+  level:
+    root: info
+    com.nomadconnection.dapp: debug
+    org.hibernate.SQL: warn
+    org.hibernate.type.descriptor.sql.BasicBinder: warn
+    org.springframework.jdbc.core.JdbcTemplate: warn
+    org.springframework.jdbc.core.StatementCreatorUtils: trace
+    com.zaxxer.hikari: debug
+
+---
+
+spring:
+  profiles: test
+  cron:
+    enabled: false
+    time: 0 0 2 * * *
+    endtime: 0 0 6 * * *
+  mail:
+    sender: gowid <support@gowid.com>
+    riskteam: gowid <risk@gowid.com>
+    host: email-smtp.us-west-2.amazonaws.com
+    port: 587
+    username: AKIAXD7XVDFHCXKO7DE5
+    password: BLkZ5wIHk5WRB5qNhZoLjVKDqPA4za0TR+8WXW1vWXc6
+    protocol: smtp
+    properties:
+      mail:
+        debug: true
+        smtp:
+          auth: true
+          starttls.enable: true
+    default-encoding: UTF-8
+s3:
+  access-key: AKIAXD7XVDFHOICQV3XW
+  secret-key: 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
+  bucket-url: https://s3.ap-northeast-2.amazonaws.com/stg-mycard.gowid.com/
+  bucket-name: stg-mycard.gowid.com
+
+tomcat:
+  ajp:
+    protocol: AJP/1.3
+    port: 8009
+    enabled: true
+    connection-timeout: 60000
+
+gateway:
+  idc:
+    shinhan: http://10.10.40.171:8080
+    lotte: http://10.10.40.171:8090
+#  idc:
+#    host: 10.10.40.171:8080
+#    protocol: http
+
+encryption:
+  keypad:
+    enable: true
+  seed128:
+    enable: true
+
+stockholder:
+  file:
+    size: 2097152
+    type: jpg, jpeg, tif, tiff
+
+mail:
+  approved:
+    send-enable: false
+  receipt:
+    send-enable: false
+
+slack:
+  progress-url: https://hooks.slack.com/services/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
+  recovery-url: https://hooks.slack.com/services/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
+  enable: true
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+    org.hibernate.type.descriptor.sql.BasicBinder: debug
+
+sentry:
+  dsn: https://f8c647c716454cbbbecab48e6650fa95@o432031.ingest.sentry.io/5394758
+  enabled: true
+---

@@ -1,10 +1,13 @@
 package com.nomadconnection.dapp.api.controller.error;
 
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
+import com.nomadconnection.dapp.api.exception.AlreadyExistException;
 import com.nomadconnection.dapp.api.exception.CodefApiException;
 import com.nomadconnection.dapp.api.exception.CorpAlreadyExistException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
+import com.nomadconnection.dapp.api.exception.api.NotRegisteredException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
+import com.nomadconnection.dapp.api.exception.survey.SurveyAlreadyExistException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -25,7 +28,19 @@ public class ApiExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler(NotRegisteredException.class)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    protected ApiResponse<?> handleBadRequestException(NotRegisteredException e) {
+
+        return ApiResponse.builder()
+            .result(ApiResponse.ApiResult.builder()
+                .code(e.getCode())
+                .desc(e.getDesc())
+                .build())
+            .build();
+    }
+
+    @ExceptionHandler({BadRequestException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ApiResponse<?> handleBadRequestException(BadRequestException e) {
 
@@ -49,14 +64,14 @@ public class ApiExceptionHandler {
             .build();
     }
 
-    @ExceptionHandler(CorpAlreadyExistException.class)
+    @ExceptionHandler({CorpAlreadyExistException.class, SurveyAlreadyExistException.class })
     @ResponseStatus(HttpStatus.CONFLICT)
-    protected ApiResponse<?> handleCorpAlreadyExistException(CorpAlreadyExistException e) {
+    protected ApiResponse<?> handleCorpAlreadyExistException(AlreadyExistException e) {
 
         return ApiResponse.builder()
                 .result(ApiResponse.ApiResult.builder()
-                        .code(e.getCode())
-                        .desc(e.getMessage())
+                        .code(e.category())
+                        .desc(e.resource())
                         .build())
                 .build();
     }

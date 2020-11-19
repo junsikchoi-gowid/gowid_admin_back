@@ -120,6 +120,12 @@ mail:
   receipt:
     send-enable: false
 
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+    org.hibernate.type.descriptor.sql.BasicBinder: debug
+
 slack:
   progress-url: https://hooks.slack.com/services/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
   recovery-url: https://hooks.slack.com/services/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

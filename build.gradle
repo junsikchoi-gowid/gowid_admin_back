@@ -2,6 +2,7 @@ ext {
     java_version = '1.8'
     springfox_version = '2.9.2'
     swagger_version = '1.5.22'
+    profile = (!project.hasProperty('profile') || !profile) ? 'dev' : profile
 }
 buildscript {
     ext {
@@ -27,7 +28,7 @@ subprojects {
     plugins.apply("io.spring.dependency-management")
 
     sourceCompatibility = java_version
-    
+
     repositories {
         mavenCentral()
     }
@@ -37,12 +38,21 @@ subprojects {
     configurations {
         implementation {
             exclude group: "junit", module: "junit"
+            if ("${profile}" == 'dev') {
+                exclude module: 'gm-redis'
+//                exclude module: 'gm-secukeypad'
+            }
         }
         compileOnly {
             extendsFrom annotationProcessor
         }
         testCompileOnly {
             extendsFrom compileOnly
+            exclude module: 'gm-secukeypad'
+            exclude module: 'gm-redis'
+            exclude module: 'gm-swagger'
+            exclude module: 'gm-jwt'
+            exclude module: 'gm-codef'
         }
         testAnnotationProcessor {
             extendsFrom annotationProcessor
