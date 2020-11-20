@@ -7,7 +7,6 @@ import com.nomadconnection.dapp.api.exception.survey.SurveyNotRegisteredExceptio
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.SurveyType;
 import com.nomadconnection.dapp.core.domain.etc.Survey;
-import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.etc.SurveyRepository;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -22,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -30,20 +30,24 @@ public class SurveyService {
 
 	private final UserService userService;
 	private final SurveyRepository surveyRepository;
-	private final CommonCodeDetailRepository commonCodeDetailRepository;
 
 	public SurveyDto.SurveyContents findSurvey(CommonCodeType surveyTitle) {
+		Map<CommonCodeType, String> title = new HashMap<>();
+		Map<SurveyType, String> answer = new HashMap<>();
 		Map<SurveyType, List<?>> selectBoxList = new HashMap<>();
-		List<SurveyType> surveyTypes = commonCodeDetailRepository.findAllByCode(surveyTitle).stream()
-			.map(surveyType ->{
-				SurveyType type = SurveyType.valueOf(surveyType.code1());
-				if(SurveyType.existsSelectItem(type)) {
-					selectBoxList.put(type, SurveyType.findSelectBoxItems(type));
-				}
-				return type;
-			}).collect(Collectors.toList());
+		title.put(surveyTitle, surveyTitle.getDescription());
 
-		return SurveyDto.SurveyContents.builder().surveyTitle(surveyTitle).surveyType(surveyTypes).selectBoxList(selectBoxList).build();
+		Stream.of(SurveyType.values()).map(type -> {
+			answer.put(type, type.getAnswer());
+			if(SurveyType.existsSelectItem(type)) {
+				selectBoxList.put(type, SurveyType.findSelectBoxItems(type));
+			}
+			return type;
+		}).collect(Collectors.toList());
+
+
+		return SurveyDto.SurveyContents.builder()
+			.surveyTitle(title).surveyType(answer).selectBoxList(selectBoxList).build();
 	}
 
 	@Deprecated
