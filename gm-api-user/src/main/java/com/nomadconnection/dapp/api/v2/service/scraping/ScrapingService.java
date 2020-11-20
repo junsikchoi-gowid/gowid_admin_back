@@ -7,6 +7,7 @@ import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.service.notification.SlackNotiService;
 import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
+import com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils;
 import com.nomadconnection.dapp.codef.io.api.ApiCodef;
 import com.nomadconnection.dapp.codef.io.dto.Common;
 import com.nomadconnection.dapp.codef.io.helper.ApiRequest;
@@ -287,6 +288,10 @@ public class ScrapingService {
 		String licenseNo = corp.resCompanyIdentityNo();
 		String registrationNumber = replaceHyphen(Optional.ofNullable(corp.resUserIdentiyNo()).orElse(""));
 
+		if(ScrapingCommonUtils.isNonProfitCorp(licenseNo)){
+			return;
+		}
+
 		String response = requestCorpRegistrationScraping("2", registrationNumber,"", "", user.email());
 		log.info("[scrapCorpRegistration] $user={}, $response={} ", user.email(), response);
 
@@ -499,4 +504,5 @@ public class ScrapingService {
 			throw new CodefApiException(ResponseCode.REQUEST_ERROR);
 		}
 	}
+
 }
