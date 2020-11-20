@@ -41,8 +41,8 @@ public class SurveyDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SurveyContents {
-        private Map<CommonCodeType, String> surveyTitle;
-        private Map<SurveyType,String> surveyType;
+        private CommonCodeType surveyTitle;
+        private List<SurveyType> surveyType;
         private Map<SurveyType, List<?>> selectBoxList;
     }
 
