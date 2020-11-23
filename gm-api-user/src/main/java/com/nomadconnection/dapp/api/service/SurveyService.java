@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.SurveyDto;
+import com.nomadconnection.dapp.api.dto.SurveyDto.SurveyContents.SurveyAnswer;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.survey.SurveyAlreadyExistException;
 import com.nomadconnection.dapp.api.exception.survey.SurveyNotRegisteredException;
@@ -17,11 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -32,22 +31,17 @@ public class SurveyService {
 	private final SurveyRepository surveyRepository;
 
 	public SurveyDto.SurveyContents findSurvey(CommonCodeType surveyTitle) {
-		Map<CommonCodeType, String> title = new HashMap<>();
-		Map<SurveyType, String> answer = new HashMap<>();
-		Map<SurveyType, List<?>> selectBoxList = new HashMap<>();
-		title.put(surveyTitle, surveyTitle.getDescription());
+		List<SurveyAnswer> answers = new ArrayList<>();
 
-		Stream.of(SurveyType.values()).map(type -> {
-			answer.put(type, type.getAnswer());
-			if(SurveyType.existsSelectItem(type)) {
-				selectBoxList.put(type, SurveyType.findSelectBoxItems(type));
-			}
-			return type;
+		SurveyType.findByTitle(surveyTitle).stream().map(key -> {
+			SurveyAnswer answer = SurveyAnswer.builder().key(key).title(key.getAnswer()).type(key.getType())
+				.items(SurveyType.findSelectBoxItems(key)).build();
+			answers.add(answer);
+			return key;
 		}).collect(Collectors.toList());
 
-
 		return SurveyDto.SurveyContents.builder()
-			.surveyTitle(title).surveyType(answer).selectBoxList(selectBoxList).build();
+			.key(surveyTitle).title(surveyTitle.getDescription()).answers(answers).build();
 	}
 
 	@Deprecated

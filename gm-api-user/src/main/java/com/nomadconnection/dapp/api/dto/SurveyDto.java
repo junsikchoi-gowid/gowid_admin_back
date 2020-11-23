@@ -1,12 +1,12 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.SurveyType;
 import com.nomadconnection.dapp.core.domain.etc.Survey;
 import lombok.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Getter
@@ -41,9 +41,22 @@ public class SurveyDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SurveyContents {
-        private Map<CommonCodeType, String> surveyTitle;
-        private Map<SurveyType,String> surveyType;
-        private Map<SurveyType, List<?>> selectBoxList;
+        private CommonCodeType key;
+        private String title;
+        private List<SurveyAnswer> answers;
+
+        @Getter
+        @Builder
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class SurveyAnswer {
+            private SurveyType key;
+            private String title;
+            private SurveyType.DetailType type;
+            @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
+            private List<SurveyType.SelectBoxItem> items;
+        }
+
     }
 
 }

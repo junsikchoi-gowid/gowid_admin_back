@@ -28,35 +28,37 @@ public enum SurveyType {
 
 	private CommonCodeType title;
 	private String answer;
-	private DetailType detailType;
+	private DetailType type;
 
-	enum DetailType {
+	public enum DetailType {
 		NONE, SELECT, TEXT
 	}
 
 	@Getter
 	@NoArgsConstructor
 	@AllArgsConstructor
-	enum SelectBoxItem {
+	public enum SelectBoxItem {
 		FACEBOOK(SNS), LINKEDIN(SNS), ETC(SNS);
 		private SurveyType surveyType;
 
-		public static List<?> findItems(SurveyType surveyType){
+		public static List<SelectBoxItem> findItems(SurveyType surveyType){
 			return Arrays.stream(SelectBoxItem.values())
 					.filter(type -> type.getSurveyType().equals(surveyType))
 					.collect(Collectors.toList());
 		}
 	}
 
+	public static List<SurveyType> findByTitle(CommonCodeType title){
+		return Arrays.stream(SurveyType.values())
+			.filter(type -> type.getTitle().equals(title))
+			.collect(Collectors.toList());
+	}
+
 	public static boolean existsDetail(SurveyType surveyType){
-		return !NONE.equals(surveyType.getDetailType());
+		return !NONE.equals(surveyType.getType());
 	}
 
-	public static boolean existsSelectItem(SurveyType surveyType){
-		return SELECT.equals(surveyType.getDetailType());
-	}
-
-	public static List<?> findSelectBoxItems(SurveyType surveyType){
+	public static List<SelectBoxItem> findSelectBoxItems(SurveyType surveyType){
 		return SelectBoxItem.findItems(surveyType);
 	}
 
