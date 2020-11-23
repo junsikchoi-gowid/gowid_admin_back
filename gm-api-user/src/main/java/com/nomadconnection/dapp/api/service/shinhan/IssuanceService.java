@@ -579,9 +579,9 @@ public class IssuanceService {
         // contains 한번만 체크
         if (d1530.getD046().contains(dto.getName())) {
             d1530.setD047(idNum);       // 대표자주민등록번호1
-        } else if (d1530.getD051().contains(dto.getName())) {
+        } else if (d1530.getD050().contains(dto.getName())) {
             d1530.setD051(idNum);       // 대표자주민등록번호2
-        } else if (d1530.getD055().contains(dto.getName())) {
+        } else if (d1530.getD054().contains(dto.getName())) {
             d1530.setD055(idNum);       // 대표자주민등록번호3
         } else {
             log.error("Not matched ceoInfo in D1530. ceoInfo=" + dto);
