@@ -75,6 +75,12 @@ public class Benefit extends BaseTime {
 	private Integer activePayment;
 
 	@Column(columnDefinition = "TINYINT", nullable = false)
+	private Integer activeDiscount;
+
+	@Column(columnDefinition = "TINYINT", nullable = false)
+	private Integer activeStartup;
+
+	@Column(columnDefinition = "TINYINT", nullable = false)
 	private Integer applyLink;
 
 	@OneToMany(mappedBy = "benefit")
