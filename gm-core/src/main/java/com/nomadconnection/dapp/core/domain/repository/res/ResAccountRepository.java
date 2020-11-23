@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             " from ResAccount R" +
             " where connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser ) " +
             " order by field(resAccountDeposit , 10,11,12,13,14,30,20,40), resAccountNickName ASC, resAccountName ASC ")
-    List<ResAccount> findResAccount(Long idxUser);
+    List<ResAccount> findResAccount(@Param("idxUser") Long idxUser);
 
     @Query(value = " select R " +
             " from ResAccount R" +
@@ -122,7 +123,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "  where Date_Format(resAccountTrDate,  '%Y%m') >= :startMonth and  Date_Format(resAccountTrDate,  '%Y%m') <= :endMonth     " +
             "  group by Date_Format(resAccountTrDate,  '%Y%m')     " +
             " ) groupTableB  on groupTableA.ms = groupTableB.resAccountTrMonth order by sumDate", nativeQuery = true)
-    List<CaccountMonthDto> findMonthHistory(String startMonth, String endMonth, Long idxUser);
+    List<CaccountMonthDto> findMonthHistory(@Param("startMonth") String startMonth, @Param("endMonth")String endMonth, @Param("idxUser") Long idxUser);
 
     @Query(value = "select ms sumDate, COALESCE(sumResAccountIn,0) sumResAccountIn, COALESCE(sumResAccountOut,0) sumResAccountOut, lastResAfterTranBalance     " +
             " from (     " +
@@ -178,7 +179,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "    join ResAccount b on b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser order by resAccount desc ) " +
             "       and resAccountDeposit in ('10','11','12','13','14')  " +
             "  group by ms", nativeQuery = true)
-    List<Long> findBalance(Long idxUser);
+    List<Long> findBalance(@Param("idxUser") Long idxUser);
 
     Optional<ResAccount> findByConnectedIdAndResAccount(String connectedId, String resAccount);
 
