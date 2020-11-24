@@ -1,10 +1,8 @@
 package com.nomadconnection.dapp.core.domain.repository.etc;
 
-import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
-import com.nomadconnection.dapp.core.domain.common.SurveyType;
 import com.nomadconnection.dapp.core.domain.etc.Survey;
-import com.nomadconnection.dapp.core.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,10 +11,17 @@ import java.util.Optional;
 @Repository
 public interface SurveyRepository extends JpaRepository<Survey, Long> {
 
-	Optional<List<Survey>> findAllByUser(User user);
-	Optional<List<Survey>> findAllByUserAndTitle(User user, CommonCodeType title);
-	Optional<Survey> findAllByUserAndTitleAndAnswer(User user, CommonCodeType title, SurveyType answer);
+	Optional<Survey> findAllByTitleAndAnswer(String title, String answer);
+
+	Optional<List<Survey>> findAllByTitleAndActivated(String title, boolean activated);
 
 	@Override
-	Survey save(Survey survey);
+	Survey save(Survey contents);
+
+	@Query(value = "select sc.* FROM Survey sc where sc.activated = true group by sc.title order by sc.updatedAt desc" ,nativeQuery = true)
+	Optional<Survey> findAllGroupByTitle();
+
+	@Query(value = "select sc.* FROM Survey sc where sc.title = :title and sc.activated = true group by sc.title order by sc.updatedAt desc" ,nativeQuery = true)
+	Optional<Survey> findAllByTitleAndActivatedGroupByTitle(String title);
+
 }

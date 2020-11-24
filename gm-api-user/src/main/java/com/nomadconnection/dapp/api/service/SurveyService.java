@@ -1,13 +1,13 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.SurveyDto;
-import com.nomadconnection.dapp.api.dto.SurveyDto.SurveyContents.SurveyAnswer;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
+import com.nomadconnection.dapp.api.exception.api.NotRegisteredException;
 import com.nomadconnection.dapp.api.exception.survey.SurveyAlreadyExistException;
 import com.nomadconnection.dapp.api.exception.survey.SurveyNotRegisteredException;
-import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
-import com.nomadconnection.dapp.core.domain.common.SurveyType;
 import com.nomadconnection.dapp.core.domain.etc.Survey;
+import com.nomadconnection.dapp.core.domain.etc.SurveyAnswer;
+import com.nomadconnection.dapp.core.domain.repository.etc.SurveyAnswerRepository;
 import com.nomadconnection.dapp.core.domain.repository.etc.SurveyRepository;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -19,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,61 +31,89 @@ public class SurveyService {
 
 	private final UserService userService;
 	private final SurveyRepository surveyRepository;
+	private final SurveyAnswerRepository surveyAnswerRepository;
 
-	public SurveyDto.SurveyContents findSurvey(CommonCodeType surveyTitle) {
-		List<SurveyAnswer> answers = new ArrayList<>();
+	private final String NONE = "NONE";
+	private final String DEFAULT_SURVEY = "DEFAULT";
 
-		SurveyType.findByTitle(surveyTitle).stream().map(key -> {
-			SurveyAnswer answer = SurveyAnswer.builder().key(key).title(key.getAnswer()).type(key.getType())
-				.items(SurveyType.findSelectBoxItems(key)).build();
+	public SurveyDto.SurveyContents findSurvey(String surveyTitle) {
+		List<SurveyDto.SurveyContents.SurveyAnswer> answers = new ArrayList<>();
+		Survey contents = findSurveyTitle(surveyTitle);
+
+		surveyRepository.findAllByTitleAndActivated(contents.getTitle(), true).orElseThrow(
+			() -> new SurveyNotRegisteredException(ErrorCode.Api.NOT_FOUND)
+		).stream().map(content -> {
+			SurveyDto.SurveyContents.SurveyAnswer answer = SurveyDto.SurveyContents.SurveyAnswer.builder().key(content.getAnswer()).title(content.getAnswerName()).type(content.getAnswerType())
+				.items(findSelectBoxItems(content.getItems())).build();
 			answers.add(answer);
-			return key;
+			return content;
 		}).collect(Collectors.toList());
 
 		return SurveyDto.SurveyContents.builder()
-			.key(surveyTitle).title(surveyTitle.getDescription()).answers(answers).build();
+			.key(contents.getTitle()).title(contents.getTitleName()).answers(answers).build();
 	}
 
-	@Deprecated
-	public List<SurveyDto> findAll(Long userIdx) throws SurveyNotRegisteredException {
+	public List<SurveyDto> findAnswerByTitle(Long userIdx, String title) throws NotRegisteredException {
+		Survey survey = findSurveyTitle(title);
 		User user = userService.getUser(userIdx);
-		List<Survey> surveys = surveyRepository.findAllByUser(user).orElseThrow(() -> new SurveyNotRegisteredException(ErrorCode.Api.NOT_FOUND));
-		return SurveyDto.from(surveys);
-	}
-
-	public List<SurveyDto> findByTitle(Long userIdx, CommonCodeType title) throws SurveyNotRegisteredException {
-		User user = userService.getUser(userIdx);
-		List<Survey> surveys = surveyRepository.findAllByUserAndTitle(user, title).orElseThrow(() -> new SurveyNotRegisteredException(ErrorCode.Api.NOT_FOUND));
-		return SurveyDto.from(surveys);
+		List<SurveyAnswer> surveyAnswers = surveyAnswerRepository.findAllByUserAndTitle(user, survey.getTitle()).orElseThrow(
+			() -> new NotRegisteredException(ErrorCode.Api.NOT_FOUND));
+		return SurveyDto.from(surveyAnswers);
 	}
 
 	@Transactional(rollbackFor = SurveyAlreadyExistException.class)
-	public SurveyDto save(Long userIdx, SurveyDto dto) {
+	public SurveyDto saveAnswer(Long userIdx, SurveyDto dto) {
 		try {
+			Survey survey = findSurveyTitle(dto.getTitle());
 			User user = userService.getUser(userIdx);
-			Survey survey = Survey.builder().title(dto.getTitle()).answer(dto.getAnswer()).detail(dto.getDetail()).user(user).build();
-			existsDetail(survey);
-			return SurveyDto.from(surveyRepository.save(survey));
+			SurveyAnswer surveyAnswer = SurveyAnswer.builder().title(survey.getTitle()).answer(dto.getAnswer()).detail(dto.getDetail()).user(user).build();
+			existsDetail(surveyAnswer);
+			return SurveyDto.from(surveyAnswerRepository.save(surveyAnswer));
 		}catch (DataIntegrityViolationException e){
 			throw new SurveyAlreadyExistException(ErrorCode.Api.SURVEY_ALREADY_EXIST);
 		}
 	}
 
 	@Transactional(rollbackFor = SurveyAlreadyExistException.class)
-	public void delete(Long userIdx, SurveyDto dto) throws Exception {
+	public void deleteAnswer(Long userIdx, SurveyDto dto) {
+		Survey survey = findSurveyTitle(dto.getTitle());
 		User user = userService.getUser(userIdx);
-		Survey survey = surveyRepository.findAllByUserAndTitleAndAnswer(user, dto.getTitle(), dto.getAnswer()).orElseThrow(
+		SurveyAnswer surveyAnswer = surveyAnswerRepository.findAllByUserAndTitleAndAnswer(user, survey.getTitle(), dto.getAnswer()).orElseThrow(
 			() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "Already deleted.")
 		);
-		surveyRepository.delete(survey);
+		surveyAnswerRepository.delete(surveyAnswer);
 	}
 
-	private void existsDetail(Survey survey) {
-		SurveyType surveyType = survey.getAnswer();
-		boolean requiredDetail = SurveyType.existsDetail(surveyType) && StringUtils.isEmpty(survey.getDetail().get());
+	private List<String> findSelectBoxItems(String items){
+		return Optional.ofNullable(items)
+			.map(item -> Arrays.asList(items.split(","))).orElse(null);
+	}
+
+	private void existsDetail(SurveyAnswer surveyAnswer) {
+		boolean requiredDetail = existsDetail(surveyAnswer.getTitle(), surveyAnswer.getAnswer()) && StringUtils.isEmpty(surveyAnswer.getDetail().get());
 		if(requiredDetail){
 			throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "must be enter the detail");
 		}
+	}
+
+	private boolean existsDetail(String title, String answer){
+		String answerType = surveyRepository.findAllByTitleAndAnswer(title, answer).orElseThrow(
+			() -> new SurveyNotRegisteredException(ErrorCode.Api.NOT_FOUND)
+		).getAnswerType();
+
+		return !NONE.equals(answerType);
+	}
+
+	private Survey findSurveyTitle(String surveyTitle){
+		if(DEFAULT_SURVEY.equals(surveyTitle)){
+			return surveyRepository.findAllGroupByTitle().orElseThrow(
+				() -> new SurveyNotRegisteredException(ErrorCode.Api.NOT_FOUND)
+			);
+		}
+		return surveyRepository.findAllByTitleAndActivatedGroupByTitle(surveyTitle).orElseThrow(
+			() -> new SurveyNotRegisteredException(ErrorCode.Api.NOT_FOUND)
+		);
+
 	}
 
 }

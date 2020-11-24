@@ -28,18 +28,18 @@ class CommonCodeServiceTests extends AbstractMockitoTest {
 	@Test
 	@DisplayName("findByCode_존재하는경우_공통코드_리턴")
 	void shouldGetCommonCodeByCode() {
-		final CommonCodeType CODE = CommonCodeType.SURVEY_FUNNELS;
-		final CommonCode funnelsSurveyCode = CommonCode.builder().code(CODE).build();
+		final CommonCodeType CODE = CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE;
+		CommonCode commonCode = CommonCode.builder().code(CODE).build();
 
 		//given
-		given(commonCodeRepository.findAllByCode(CODE)).willReturn(Optional.of(funnelsSurveyCode));
+		given(commonCodeRepository.findAllByCode(CODE)).willReturn(Optional.of(commonCode));
 
 		//when
-		final CommonCodeDto commonCodeDto = commonCodeService.findByCode(CODE);
+		CommonCodeDto commonCodeDto = commonCodeService.findByCode(CODE);
 
 		//then
 		verify(commonCodeRepository, atLeastOnce()).findAllByCode(CODE);
-		assertEquals(funnelsSurveyCode.code(), commonCodeDto.getCode());
+		assertEquals(commonCode.code(), commonCodeDto.getCode());
 	}
 
 }

@@ -5,8 +5,6 @@ import com.nomadconnection.dapp.api.abstracts.AbstractWebMvcTest;
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.SurveyDto;
 import com.nomadconnection.dapp.api.service.SurveyService;
-import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
-import com.nomadconnection.dapp.core.domain.common.SurveyType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class SurveyControllerTests extends AbstractWebMvcTest {
+class SurveyAnswerControllerTests extends AbstractWebMvcTest {
 
 	@MockBean
 	private SurveyService surveyService;
@@ -33,35 +31,29 @@ class SurveyControllerTests extends AbstractWebMvcTest {
 		token = extractToken(login(account).andReturn());
 	}
 
-	SurveyDto buildFunnelsSurveys(SurveyType surveyType, String detail ){
-		return SurveyDto.builder().title(CommonCodeType.SURVEY_FUNNELS).answer(surveyType).detail(detail).build();
+	SurveyDto buildFunnelsSurveys(String answer, String detail){
+		final String DEFAULT = "DEFAULT";
+		return SurveyDto.builder().title(DEFAULT).answer(answer).detail(detail).build();
 	}
 
 	@Test
 	@DisplayName("설문조사주제로_유저의_설문조사_조회")
 	void shouldSuccessWhenFindByTitle() throws Exception {
-		SurveyDto survey = buildFunnelsSurveys(SurveyType.SNS, "페이스북");
+		SurveyDto survey = buildFunnelsSurveys("SNS", "페이스북");
 
-		given(surveyService.findByTitle(67L ,CommonCodeType.SURVEY_FUNNELS))
-			.willReturn(Arrays.asList(buildFunnelsSurveys(SurveyType.DREAMPLUS, ""), survey));
+		given(surveyService.findAnswerByTitle(67L , survey.getTitle()))
+			.willReturn(Arrays.asList(buildFunnelsSurveys("KEYWORD", ""), survey));
 
 		mockMvc.perform(
 				get("/survey")
 				.header("Authorization", "Bearer " + token)
 					.characterEncoding("UTF-8")
 				.content(json(survey))
-//				.content(json(customUser))
 			)
 			.andDo(print())
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.data[0].answer").exists());
 	}
 
-//	@Test
-//	@DisplayName("유저_설문조사_저장")
-//	void saveUserSurvey() {
-//		webTestClient.post().uri("/survey").exchange()
-//			.expectStatus().isOk();
-//	}
 
 }

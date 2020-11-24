@@ -5,7 +5,6 @@ import com.nomadconnection.dapp.api.dto.SurveyDto;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.service.SurveyService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
-import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,21 +30,29 @@ public class SurveyController {
 
 	@GetMapping
 	@ApiOperation(value = "설문조사 주제 조회")
-	public ApiResponse<?> findSurvey(@RequestParam CommonCodeType surveyTitle){
+	public ApiResponse<?> findSurvey(@RequestParam String surveyTitle){
 		return ApiResponse.OK(surveyService.findSurvey(surveyTitle));
 	}
 
 	@GetMapping(URI.ANSWER)
 	@ApiOperation(value = "설문조사 응답내역 조회")
-	public ApiResponse<?> find(@ApiIgnore @CurrentUser CustomUser user, @RequestParam CommonCodeType surveyTitle){
-		return ApiResponse.OK(surveyService.findByTitle(user.idx(), surveyTitle));
+	public ApiResponse<?> find(@ApiIgnore @CurrentUser CustomUser user, @RequestParam String surveyTitle) {
+		return ApiResponse.OK(surveyService.findAnswerByTitle(user.idx(), surveyTitle));
 	}
 
 	@PostMapping(URI.ANSWER)
 	@ApiOperation(value = "설문조사 저장")
 	public ApiResponse<?> save(@ApiIgnore @CurrentUser CustomUser user,
 	                                 @RequestBody SurveyDto dto) {
-		return ApiResponse.OK(surveyService.save(user.idx(), dto));
+		return ApiResponse.OK(surveyService.saveAnswer(user.idx(), dto));
+	}
+
+	@DeleteMapping(URI.ANSWER)
+	@ApiOperation(value = "설문조사 삭제")
+	public ApiResponse<?> delete(@ApiIgnore @CurrentUser CustomUser user,
+	                                 @RequestBody SurveyDto dto) {
+		surveyService.deleteAnswer(user.idx(), dto);
+		return ApiResponse.OK();
 	}
 
 	@DeleteMapping(URI.ANSWER)

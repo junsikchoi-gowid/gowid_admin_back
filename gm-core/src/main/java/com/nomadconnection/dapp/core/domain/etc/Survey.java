@@ -1,13 +1,9 @@
 package com.nomadconnection.dapp.core.domain.etc;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
-import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
-import com.nomadconnection.dapp.core.domain.common.SurveyType;
-import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Optional;
 
 @Entity
 @Getter
@@ -15,8 +11,8 @@ import java.util.Optional;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "idx")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"idxUser", "title", "answer"}, name = "UK_idxUser_title_answer"))
+@EqualsAndHashCode(of = "idx", callSuper = false)
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"title", "answer"}, name = "UK_title"))
 public class Survey extends BaseTime {
 
 	@Id
@@ -24,23 +20,29 @@ public class Survey extends BaseTime {
 	@Column(nullable = false, updatable = false)
 	private Long idx;
 
-	@Column(columnDefinition = "varchar(30)  DEFAULT '' COMMENT   '설문조사 주제'")
-	@Enumerated(value = EnumType.STRING)
-	private CommonCodeType title;
+	@Column(columnDefinition = "varchar(30) NOT NULL DEFAULT '' COMMENT   '설문조사 주제'")
+	private String title;
 
-	@Column(columnDefinition = "varchar(50)  DEFAULT '' COMMENT   '설문조사 답변'")
-	@Enumerated(value = EnumType.STRING)
-	private SurveyType answer;
+	@Column(columnDefinition = "varchar(30) NOT NULL DEFAULT '' COMMENT   '설문조사 주제 내용'")
+	private String titleName;
 
-	@Column(columnDefinition = "varchar(100)  DEFAULT '' COMMENT   '설문조사 답변 상세내용'")
-	private String detail;
+	@Column(columnDefinition = "varchar(50) NOT NULL DEFAULT '' COMMENT   '설문조사 답변'")
+	private String answer;
 
-	@ManyToOne
-	@JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_Survey"), columnDefinition = "bigint(20) COMMENT '사용자 idx'")
-	private User user;
+	@Column(columnDefinition = "varchar(50) NOT NULL DEFAULT '' COMMENT   '설문조사 답변 내용'")
+	private String answerName;
 
-	public Optional getDetail() {
-		return Optional.ofNullable(detail);
-	}
+	@Column(columnDefinition = "varchar(20) NOT NULL DEFAULT '' COMMENT   '설문조사 답변 종류'")
+	private String answerType;
+
+	@Column(columnDefinition = "smallint DEFAULT 0 COMMENT '설문조사 답변 순서'")
+	private Integer answerOrder;
+
+	@Column(columnDefinition = "varchar(100) DEFAULT NULL COMMENT   '설문조사 선택항목'")
+	private String items;
+
+	@Column(columnDefinition = "tinyint(1)  DEFAULT false COMMENT '설문조사 활성화여부'")
+	private Boolean activated;
+
 
 }
