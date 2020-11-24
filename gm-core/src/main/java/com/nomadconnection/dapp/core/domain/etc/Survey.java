@@ -41,7 +41,7 @@ public class Survey extends BaseTime {
 	@Column(columnDefinition = "varchar(100) DEFAULT NULL COMMENT   '설문조사 선택항목'")
 	private String items;
 
-	@Column(columnDefinition = "tinyint(1)  DEFAULT false COMMENT '설문조사 활성화여부'")
+	@Column(columnDefinition = "bit DEFAULT false COMMENT '설문조사 활성화여부'")
 	private Boolean activated;
 
 
