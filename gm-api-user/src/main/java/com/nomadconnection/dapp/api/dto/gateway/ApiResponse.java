@@ -19,8 +19,12 @@ public class ApiResponse<T> {
         this.result = result;
     }
 
+    public static <T> ApiResponse<T> OK() {
+        return new ApiResponse<>(null, new ApiResult(HttpStatus.OK));
+    }
+
     public static <T> ApiResponse<T> OK(T data) {
-        return new ApiResponse<>(data, null);
+        return new ApiResponse<>(data, new ApiResult(HttpStatus.OK));
     }
 
     public static <T> ApiResponse<T> ERROR(Throwable throwable, HttpStatus status) {
@@ -52,6 +56,11 @@ public class ApiResponse<T> {
         ApiResult(String desc, HttpStatus status) {
             code = String.valueOf(status.value());
             this.desc = desc;
+        }
+
+        ApiResult(HttpStatus status) {
+            code = String.valueOf(status.value());
+            desc = status.getReasonPhrase();
         }
 
     }

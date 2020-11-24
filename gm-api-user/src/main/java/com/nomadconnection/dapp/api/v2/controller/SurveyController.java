@@ -24,7 +24,7 @@ public class SurveyController {
 
 	public static class URI {
 		public static final String BASE = "/survey";
-		public static final String USER = "/user";
+		public static final String ANSWER = "/answer";
 	}
 
 	private final SurveyService surveyService;
@@ -35,17 +35,25 @@ public class SurveyController {
 		return ApiResponse.OK(surveyService.findSurvey(surveyTitle));
 	}
 
-	@GetMapping(URI.USER)
+	@GetMapping(URI.ANSWER)
 	@ApiOperation(value = "설문조사 응답내역 조회")
 	public ApiResponse<?> find(@ApiIgnore @CurrentUser CustomUser user, @RequestParam CommonCodeType surveyTitle){
 		return ApiResponse.OK(surveyService.findByTitle(user.idx(), surveyTitle));
 	}
 
-	@PostMapping(URI.USER)
+	@PostMapping(URI.ANSWER)
 	@ApiOperation(value = "설문조사 저장")
-	public ApiResponse<?> saveSurvey(@ApiIgnore @CurrentUser CustomUser user,
+	public ApiResponse<?> save(@ApiIgnore @CurrentUser CustomUser user,
 	                                 @RequestBody SurveyDto dto) {
 		return ApiResponse.OK(surveyService.save(user.idx(), dto));
+	}
+
+	@DeleteMapping(URI.ANSWER)
+	@ApiOperation(value = "설문조사 삭제")
+	public ApiResponse<?> delete(@ApiIgnore @CurrentUser CustomUser user,
+	                                 @RequestBody SurveyDto dto) throws Exception {
+		surveyService.delete(user.idx(), dto);
+		return ApiResponse.OK();
 	}
 
 

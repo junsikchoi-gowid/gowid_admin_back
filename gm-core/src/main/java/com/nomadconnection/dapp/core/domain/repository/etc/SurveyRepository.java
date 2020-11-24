@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.domain.repository.etc;
 
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
+import com.nomadconnection.dapp.core.domain.common.SurveyType;
 import com.nomadconnection.dapp.core.domain.etc.Survey;
 import com.nomadconnection.dapp.core.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +15,7 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
 
 	Optional<List<Survey>> findAllByUser(User user);
 	Optional<List<Survey>> findAllByUserAndTitle(User user, CommonCodeType title);
+	Optional<Survey> findAllByUserAndTitleAndAnswer(User user, CommonCodeType title, SurveyType answer);
 
 	@Override
 	Survey save(Survey survey);

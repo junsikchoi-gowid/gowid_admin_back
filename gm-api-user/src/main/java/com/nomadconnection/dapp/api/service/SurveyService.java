@@ -69,6 +69,15 @@ public class SurveyService {
 		}
 	}
 
+	@Transactional(rollbackFor = SurveyAlreadyExistException.class)
+	public void delete(Long userIdx, SurveyDto dto) throws Exception {
+		User user = userService.getUser(userIdx);
+		Survey survey = surveyRepository.findAllByUserAndTitleAndAnswer(user, dto.getTitle(), dto.getAnswer()).orElseThrow(
+			() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "Already deleted.")
+		);
+		surveyRepository.delete(survey);
+	}
+
 	private void existsDetail(Survey survey) {
 		SurveyType surveyType = survey.getAnswer();
 		boolean requiredDetail = SurveyType.existsDetail(surveyType) && StringUtils.isEmpty(survey.getDetail().get());
