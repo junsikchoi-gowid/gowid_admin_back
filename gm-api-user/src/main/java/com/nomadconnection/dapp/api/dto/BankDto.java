@@ -207,6 +207,50 @@ public class BankDto {
 		@ApiModelProperty("계좌 별명")
 		private String nickName;
 	}
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ResSimpleAccountDto {
+		@ApiModelProperty("idx")
+		private Long idx;
+		private String resAccount              ; //계좌번호
+		private String accountName; // 별칭 시스템용
+		private Double accountBalance       ; //현재잔액
+		private String accountType; // 종류
+		private String accountDisplay       ; //계좌번호_표시용
+		private String companyCode; // 기관코드
+		private String errCode    ;
+		private String errMessage    ;
+		private LocalDateTime scrpaingUpdateTime    ;
+
+
+		public static ResSimpleAccountDto from(ResAccount resAccount, Boolean isMasking) {
+			String account = resAccount.resAccount();
+			String accountDisplay = resAccount.resAccountDisplay();
+
+			String nickName = resAccount.nickName();
+			if (!StringUtils.isEmpty(resAccount.resAccountName())) {
+				nickName = resAccount.resAccountName();
+			}
+			if (!StringUtils.isEmpty(resAccount.resAccountNickName())) {
+				nickName = resAccount.resAccountNickName();
+			}
+			if (!StringUtils.isEmpty(resAccount.nickName())) {
+				nickName = resAccount.nickName();
+			}
+
+			return ResSimpleAccountDto.builder()
+					.idx(resAccount.idx())
+					.resAccount(account)
+					.accountName(nickName)
+					.accountBalance(resAccount.resAccountBalance())
+					.accountType(resAccount.type())
+					.accountDisplay(accountDisplay)
+					.companyCode(resAccount.organization())
+					.build();
+		}
+	}
 
 	@Data
 	@Builder

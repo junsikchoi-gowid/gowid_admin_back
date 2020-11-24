@@ -252,11 +252,11 @@ public class BankService {
 		//todo auth
 		idxUser = getaLong(idxUser, idxCorp);
 
-		List<BankDto.ResAccountDto> resAccount = repoResAccount.findResAccount(idxUser).stream()
-				.map(account -> BankDto.ResAccountDto.from(account, isMasking))
+		List<BankDto.ResSimpleAccountDto> resAccount = repoResAccount.findResAccount(idxUser).stream()
+				.map(account -> BankDto.ResSimpleAccountDto.from(account, isMasking))
 				.collect(Collectors.toList());
 
-		for (BankDto.ResAccountDto dto : resAccount) {
+		for (BankDto.ResSimpleAccountDto dto : resAccount) {
 			ResBatchList historyData = repoResBatchList.findFirstByAccountOrderByUpdatedAtDesc(dto.getResAccount());
 			if(historyData != null ) {
 				dto.setErrCode(historyData.errCode());
