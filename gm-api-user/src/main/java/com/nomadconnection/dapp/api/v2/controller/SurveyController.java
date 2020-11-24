@@ -55,13 +55,5 @@ public class SurveyController {
 		return ApiResponse.OK();
 	}
 
-	@DeleteMapping(URI.ANSWER)
-	@ApiOperation(value = "설문조사 삭제")
-	public ApiResponse<?> delete(@ApiIgnore @CurrentUser CustomUser user,
-	                                 @RequestBody SurveyDto dto) throws Exception {
-		surveyService.delete(user.idx(), dto);
-		return ApiResponse.OK();
-	}
-
 
 }
