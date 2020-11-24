@@ -50,6 +50,7 @@ public class ResBatchListCustomRepositoryImpl extends QuerydslRepositorySupport 
                         commonCodeDetail.value1.as("bankName"),
                         resAccount1.type.as("accountType"),
                         resAccount1.resAccount.as("resAccount"),
+                        resAccount1.resAccountDeposit.as("resAccountDeposit"),
                         resAccount1.resAccountBalance.as("resAccountBalance"),
                         resAccount1.resAccountDisplay.as("resAccountDisplay"),
                         resBatchList.errMessage.as("errorMessage"),

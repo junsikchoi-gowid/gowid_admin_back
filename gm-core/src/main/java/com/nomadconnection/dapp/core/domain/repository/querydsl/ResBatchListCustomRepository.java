@@ -66,6 +66,9 @@ public interface ResBatchListCustomRepository {
         @ApiModelProperty("잔고")
         private Double resAccountBalance;
 
+        @ApiModelProperty("예적금 구분")
+        private String resAccountDeposit;
+
         @ApiModelProperty("계좌번호 View")
         private String resAccountDisplay;
 
