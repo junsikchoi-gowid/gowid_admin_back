@@ -35,6 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	//
 	private static final String[] PERMITTED_URIS = {
             "/",
+            "/partner/**",
             "/v2/api-docs",
             "/webjars/**",
             "/swagger-ui.html",

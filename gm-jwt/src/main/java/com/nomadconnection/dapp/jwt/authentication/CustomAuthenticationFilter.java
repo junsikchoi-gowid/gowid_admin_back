@@ -3,17 +3,20 @@ package com.nomadconnection.dapp.jwt.authentication;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import com.nomadconnection.dapp.jwt.exception.AccessTokenNotFoundException;
 import com.nomadconnection.dapp.jwt.exception.UnacceptableJwtException;
+import com.nomadconnection.dapp.jwt.exception.UnauthorizedException;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -31,8 +34,30 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 	private final UserDetailsService service;
 	private final JwtService jwt;
 
+	private boolean isAPIKeyAuth(HttpServletRequest request) {
+		log.debug("isAPIKEYAuth");
+		String apikey = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+		if(Strings.isEmpty(apikey)) {
+			return false;
+		}
+
+		if(apikey.toLowerCase().startsWith("bearer")) {
+			return false;
+		}
+
+		if(!"testApiKey".equals(apikey)){
+			throw new UnauthorizedException("Invalid apikey");
+		}
+		return true;
+	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+		if(isAPIKeyAuth(request)) {
+			chain.doFilter(request, response);
+			return;
+		}
 		try {
 			String bearerToken = request.getHeader(jwt.config().getHeader());
 			if (!Strings.isEmpty(bearerToken)) {
