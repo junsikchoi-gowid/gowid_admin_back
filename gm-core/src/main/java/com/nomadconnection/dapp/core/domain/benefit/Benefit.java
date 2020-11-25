@@ -78,7 +78,10 @@ public class Benefit extends BaseTime {
 	private Integer activeDiscount;
 
 	@Column(columnDefinition = "TINYINT", nullable = false)
-	private Integer activeStartup;
+	private Integer activeCredit;
+
+	@Column(columnDefinition = "TINYINT", nullable = false)
+	private Integer activeFreeTrial;
 
 	@Column(columnDefinition = "TINYINT", nullable = false)
 	private Integer applyLink;

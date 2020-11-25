@@ -200,8 +200,11 @@ public class BenefitDto {
 		@ApiModelProperty("구매 할인 여부")
 		private Integer activeDiscount;
 
-		@ApiModelProperty("스타트업 혜택 여부")
-		private Integer activeStartup;
+		@ApiModelProperty("크레딧 제공 여부")
+		private Integer activeCredit;
+
+		@ApiModelProperty("무료 Trial 제공 여부")
+		private Integer activeFreeTrial;
 
 		@ApiModelProperty("Modal 여부")
 		private Integer applyLink;
@@ -239,7 +242,8 @@ public class BenefitDto {
 						.activeApplying(benefit.activeApplying())
 						.activePayment(benefit.activePayment())
 						.activeDiscount(benefit.activeDiscount())
-						.activeStartup(benefit.activeStartup())
+						.activeCredit(benefit.activeCredit())
+						.activeFreeTrial(benefit.activeFreeTrial())
 						.applyLink(benefit.applyLink())
 						.benefitItems(benefit.benefitItems().stream().map(BenefitItemRes::from).collect(Collectors.toList()))
 						.benefitCategory(BenefitDto.BenefitCategoryRes.from(benefit.benefitCategory()))
