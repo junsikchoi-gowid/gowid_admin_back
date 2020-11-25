@@ -241,13 +241,40 @@ public class BankService {
 		return  df.format(cal.getTime());
 	}
 
-
 	/**
 	 * 유저의 계좌정보
 	 * @param idxUser 엔터티(사용자)
 	 */
 	@Transactional(readOnly = true)
 	public ResponseEntity accountList(Long idxUser, Long idxCorp, Boolean isMasking) {
+
+		//todo auth
+		idxUser = getaLong(idxUser, idxCorp);
+
+		List<BankDto.ResAccountDto> resAccount = repoResAccount.findResAccount(idxUser).stream()
+				.map(account -> BankDto.ResAccountDto.from(account, isMasking))
+				.collect(Collectors.toList());
+
+		for (BankDto.ResAccountDto dto : resAccount) {
+			ResBatchList historyData = repoResBatchList.findFirstByAccountOrderByUpdatedAtDesc(dto.getResAccount());
+			if(historyData != null ) {
+				dto.setErrCode(historyData.errCode());
+				dto.setErrMessage(historyData.errMessage());
+				dto.setScrpaingUpdateTime(historyData.getUpdatedAt());
+			}
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+				.size(resAccount.size())
+				.data(resAccount).build());
+	}
+
+	/**
+	 * 유저의 계좌정보
+	 * @param idxUser 엔터티(사용자)
+	 */
+	@Transactional(readOnly = true)
+	public ResponseEntity accountListExt(Long idxUser, Long idxCorp, Boolean isMasking) {
 
 		//todo auth
 		idxUser = getaLong(idxUser, idxCorp);

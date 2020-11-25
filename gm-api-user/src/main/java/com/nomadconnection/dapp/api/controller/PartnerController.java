@@ -57,7 +57,7 @@ public class PartnerController {
         if (log.isInfoEnabled()) {
             log.info("([ AccountList ]) $user='{}' $idxCorp='{}' $isMasking='{}'", corp.user().idx(), corp.idx(), true);
         }
-        return service.accountList(corp.user().idx(), corp.idx(), true);
+        return service.accountListExt(corp.user().idx(), corp.idx(), true);
     }
 
     @GetMapping( PartnerController.URI.BURN_RATE )
