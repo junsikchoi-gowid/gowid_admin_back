@@ -43,7 +43,8 @@ public class SurveyService {
 		surveyRepository.findAllByTitleAndActivated(contents.getTitle(), true).orElseThrow(
 			() -> new SurveyNotRegisteredException(ErrorCode.Api.NOT_FOUND)
 		).stream().map(content -> {
-			SurveyDto.SurveyContents.SurveyAnswer answer = SurveyDto.SurveyContents.SurveyAnswer.builder().key(content.getAnswer()).title(content.getAnswerName()).type(content.getAnswerType())
+			SurveyDto.SurveyContents.SurveyAnswer answer
+				= SurveyDto.SurveyContents.SurveyAnswer.builder().key(content.getAnswer()).title(content.getAnswerName()).subTitle(content.getAnswerSubTitle()).type(content.getAnswerType())
 				.items(findSelectBoxItems(content.getItems())).build();
 			answers.add(answer);
 			return content;

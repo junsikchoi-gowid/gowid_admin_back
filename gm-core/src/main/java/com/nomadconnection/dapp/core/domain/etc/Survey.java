@@ -35,14 +35,16 @@ public class Survey extends BaseTime {
 	@Column(columnDefinition = "varchar(20) NOT NULL DEFAULT '' COMMENT   '설문조사 답변 종류'")
 	private String answerType;
 
+	@Column(columnDefinition = "varchar(100) DEFAULT NULL COMMENT '설문조사 답변 소주제'")
+	private String answerSubTitle;
+
 	@Column(columnDefinition = "smallint DEFAULT 0 COMMENT '설문조사 답변 순서'")
 	private Integer answerOrder;
 
-	@Column(columnDefinition = "varchar(100) DEFAULT NULL COMMENT   '설문조사 선택항목'")
+	@Column(columnDefinition = "varchar(200) DEFAULT NULL COMMENT   '설문조사 선택항목'")
 	private String items;
 
 	@Column(columnDefinition = "bit DEFAULT false COMMENT '설문조사 활성화여부'")
 	private Boolean activated;
-
 
 }

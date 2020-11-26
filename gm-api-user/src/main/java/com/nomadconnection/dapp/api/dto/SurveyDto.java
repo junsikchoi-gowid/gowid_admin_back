@@ -51,6 +51,7 @@ public class SurveyDto {
         public static class SurveyAnswer {
             private String key;
             private String title;
+            private String subTitle;
             private String type;
             @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
             private List<String> items;
