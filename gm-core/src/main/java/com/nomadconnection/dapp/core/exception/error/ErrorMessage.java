@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.api.v2.exception.error;
+package com.nomadconnection.dapp.core.exception.error;
 
 public interface ErrorMessage {
 	String getCode();

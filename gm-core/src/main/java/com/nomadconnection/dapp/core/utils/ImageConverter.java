@@ -4,7 +4,10 @@ import com.nomadconnection.dapp.core.config.CrownixConfig;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.dto.ImageConvertDto;
 import com.nomadconnection.dapp.core.dto.ImageConvertRespDto;
+import com.nomadconnection.dapp.core.exception.ImageConvertException;
+import com.nomadconnection.dapp.core.exception.error.ImageConvertErrorMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import m2soft.ers.invoker.InvokerException;
 import m2soft.ers.invoker.http.ReportingServerInvoker;
 import org.apache.http.client.utils.URIBuilder;
@@ -15,6 +18,7 @@ import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ImageConverter {
@@ -70,8 +74,18 @@ public class ImageConverter {
 	}
 
 	public ImageConvertRespDto convertJsonToImage(ImageConvertDto params) throws Exception {
-        setParameters(params);
-        response = invoker.invoke();    // convert
+		if(!crownixConfig.isEnabled()) {
+			log.debug("Crownix Image Server is disabled.");
+			return ImageConvertRespDto.builder()
+				.isSuccess(true)
+				.build();
+		}
+		setParameters(params);
+        try {
+            response = invoker.invoke();    // convert
+        } catch (InvokerException e){
+			throw new ImageConvertException(ImageConvertErrorMessage.INTERNAL_ERROR, e);
+        }
 
 		return ImageConvertRespDto.builder()
 				.isSuccess(isSuccess(response))

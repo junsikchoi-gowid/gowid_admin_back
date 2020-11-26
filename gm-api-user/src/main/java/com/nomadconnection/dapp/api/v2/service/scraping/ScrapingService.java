@@ -11,9 +11,15 @@ import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
 import com.nomadconnection.dapp.api.v2.service.issuance.CardIssuanceInfoService;
 import com.nomadconnection.dapp.api.v2.utils.FullTextJsonParser;
 import com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils;
+import com.nomadconnection.dapp.codef.io.api.ApiCodef;
+import com.nomadconnection.dapp.codef.io.dto.Common;
+import com.nomadconnection.dapp.codef.io.helper.ApiRequest;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import com.nomadconnection.dapp.codef.io.helper.RSAUtil;
 import com.nomadconnection.dapp.codef.io.helper.ResponseCode;
+import com.nomadconnection.dapp.codef.io.sandbox.pb.CORP_REGISTER;
+import com.nomadconnection.dapp.codef.io.sandbox.pb.PROOF_ISSUE;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
@@ -36,7 +42,6 @@ import org.json.simple.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -283,9 +288,6 @@ public class ScrapingService {
 		String licenseNo = corp.resCompanyIdentityNo();
 		String registrationNumber = replaceHyphen(Optional.ofNullable(corp.resUserIdentiyNo()).orElse(""));
 
-		if(ScrapingCommonUtils.isNonProfitCorp(licenseNo)){
-			return;
-		}
 		String response = codefApiService.requestCorpRegistrationScraping(ENROLL_NO.getCode(), registrationNumber,"", "", email); // 등록번호 스크래핑
 		ScrapingResponse scrapingResponse = scrapingResultService.getApiResult(response);
 
@@ -296,8 +298,7 @@ public class ScrapingService {
 			if(isFinalSuccess(user, scrapingResponse)){
 				fullTextService.saveAfterCorpRegistration(scrapingResponse.getScrapingResponse()[1], corp);
 				if(!ScrapingCommonUtils.isNonProfitCorp(licenseNo)){
-					response = FullTextJsonParser.responseReplace(response);
-					imageService.sendCorpRegistrationImage(user.cardCompany(), response, licenseNo);
+					imageService.sendCorpRegistrationImage(user.cardCompany(), FullTextJsonParser.responseReplace(response), licenseNo);
 				}
 				cardIssuanceInfoService.saveCardIssuanceInfo(user, corp);
 			}
@@ -307,8 +308,6 @@ public class ScrapingService {
 			throw new CodefApiException(ResponseCode.findByCode(scrapingResponse.getCode()));
 		}
 	}
-
-
 
 	private String retryScrapingWhenMultipleResult(ScrapingResponse scrapingResponse, User user, String response) throws Exception {
 		JSONObject jsonDataCorpRegister = scrapingResponse.getScrapingResponse()[1];
@@ -330,7 +329,7 @@ public class ScrapingService {
 		String resIssueYn = FullTextJsonParser.getResIssueYn(scrapingResponse.getScrapingResponse());
 
 		if (isScrapingSuccess(scrapingResponse.getCode())) {
-			if (!SUCCESS.equals(resIssueYn)) {
+			if (!SUCCESS.getCode().equals(resIssueYn)) {
 				saveResBatchListAndPrintErrorLog(user, scrapingResponse, resIssueYn);
 				throw new CodefApiException(ResponseCode.findByCode(scrapingResponse.getCode()));
 			}

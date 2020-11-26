@@ -37,14 +37,16 @@ public class ScrapingResultService {
 		result[0] = (JSONObject) jsonObject.get("result");
 		result[1] = (JSONObject) jsonObject.get("data");
 
-		return ScrapingResponse.builder()
+		responseDto = ScrapingResponse.builder()
 			.scrapingResponse(result)
 			.code(result[0].get("code").toString())
 			.message(result[0].getOrDefault("message","").toString())
 			.extraMessage(result[0].getOrDefault("extraMessage","").toString())
 			.transactionId(result[0].getOrDefault("transactionId","").toString())
-			.connectedId(result[0].getOrDefault("connectedId","").toString())
+			.connectedId(result[1].getOrDefault("connectedId","").toString())
 			.build();
+
+		return responseDto;
 	}
 
 	public ApiResponse.ApiResult getCodeAndMessage(ScrapingResponse responseDto){

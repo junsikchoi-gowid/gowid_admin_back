@@ -17,4 +17,6 @@ public class CrownixConfig {
 	private String endPoint = "ReportingServer/service";
 	private String protocol = "http";
 
+	private boolean enabled;
+
 }

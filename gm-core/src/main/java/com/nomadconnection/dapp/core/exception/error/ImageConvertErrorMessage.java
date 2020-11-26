@@ -1,9 +1,10 @@
-package com.nomadconnection.dapp.api.v2.exception.error;
+package com.nomadconnection.dapp.core.exception.error;
 
 public enum ImageConvertErrorMessage implements ErrorMessage {
 
 	//TODO : error code 명세
-	IMAGE_CONVERT_INTERNAL_ERROR("500", "An error occurred while creating the image.");
+	INTERNAL_ERROR("INTERNAL_ERROR", "An error occurred while creating the image."),
+	CONNECTION_FAILED("CONNECTION_FAILED", "Unable to connect to image server.");
 
 	private String code;
 	private String desc;

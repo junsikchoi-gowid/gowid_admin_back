@@ -8,6 +8,7 @@ import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.NotRegisteredException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.exception.survey.SurveyAlreadyExistException;
+import com.nomadconnection.dapp.core.exception.ImageConvertException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -26,6 +27,18 @@ public class ApiExceptionHandler {
                         .desc(e.getDesc())
                         .build())
                 .build();
+    }
+
+    @ExceptionHandler(ImageConvertException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    protected ApiResponse<?> handleSystemException(RuntimeException e) {
+
+        return ApiResponse.builder()
+            .result(ApiResponse.ApiResult.builder()
+                .code(e.getMessage())
+                .desc(e.getCause().getMessage())
+                .build())
+            .build();
     }
 
     @ExceptionHandler(NotRegisteredException.class)

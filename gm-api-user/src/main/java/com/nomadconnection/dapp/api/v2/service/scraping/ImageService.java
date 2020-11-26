@@ -5,12 +5,12 @@ import com.nomadconnection.dapp.api.dto.GwUploadDto;
 import com.nomadconnection.dapp.api.dto.ImageFileDto;
 import com.nomadconnection.dapp.api.dto.shinhan.enums.ImageFileType;
 import com.nomadconnection.dapp.api.service.GwUploadService;
-import com.nomadconnection.dapp.api.v2.exception.ImageConvertException;
-import com.nomadconnection.dapp.api.v2.exception.error.ImageConvertErrorMessage;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.dto.ImageConvertDto;
 import com.nomadconnection.dapp.core.dto.ImageConvertRespDto;
+import com.nomadconnection.dapp.core.exception.ImageConvertException;
+import com.nomadconnection.dapp.core.exception.error.ImageConvertErrorMessage;
 import com.nomadconnection.dapp.core.utils.ImageConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class ImageService {
 	public ImageConvertRespDto createImageByScrapingJson(ImageConvertDto param) throws Exception {
 		ImageConvertRespDto imageConvertResponse = converter.convertJsonToImage(param);
 		if(!imageConvertResponse.isSuccess()) {
-			throw new ImageConvertException(ImageConvertErrorMessage.IMAGE_CONVERT_INTERNAL_ERROR);
+			throw new ImageConvertException(ImageConvertErrorMessage.INTERNAL_ERROR);
 		}
 		return imageConvertResponse;
 	}
