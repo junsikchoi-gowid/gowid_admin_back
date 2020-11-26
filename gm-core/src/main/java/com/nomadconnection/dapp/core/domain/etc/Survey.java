@@ -12,7 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "idx", callSuper = false)
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"title", "answer"}, name = "UK_title"))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"title", "answer"}, name = "UK_title_answer"))
 public class Survey extends BaseTime {
 
 	@Id
