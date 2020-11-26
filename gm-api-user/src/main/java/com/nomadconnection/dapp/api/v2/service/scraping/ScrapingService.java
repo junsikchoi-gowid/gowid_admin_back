@@ -6,23 +6,19 @@ import com.nomadconnection.dapp.api.exception.CorpAlreadyExistException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.service.notification.SlackNotiService;
+import com.nomadconnection.dapp.api.v2.dto.ScrapingResponse;
 import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
+import com.nomadconnection.dapp.api.v2.service.issuance.CardIssuanceInfoService;
+import com.nomadconnection.dapp.api.v2.utils.FullTextJsonParser;
 import com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils;
-import com.nomadconnection.dapp.codef.io.api.ApiCodef;
-import com.nomadconnection.dapp.codef.io.dto.Common;
-import com.nomadconnection.dapp.codef.io.helper.ApiRequest;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import com.nomadconnection.dapp.codef.io.helper.RSAUtil;
 import com.nomadconnection.dapp.codef.io.helper.ResponseCode;
-import com.nomadconnection.dapp.codef.io.sandbox.pb.CORP_REGISTER;
-import com.nomadconnection.dapp.codef.io.sandbox.pb.PROOF_ISSUE;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
-import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResBatchListRepository;
@@ -30,10 +26,6 @@ import com.nomadconnection.dapp.core.domain.repository.res.ResConCorpListReposit
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResBatchList;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
-import com.nomadconnection.dapp.core.domain.shinhan.D1000;
-import com.nomadconnection.dapp.core.domain.shinhan.D1400;
-import com.nomadconnection.dapp.core.domain.shinhan.D1510;
-import com.nomadconnection.dapp.core.domain.shinhan.D1530;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -44,8 +36,6 @@ import org.json.simple.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
-import org.springframework.web.client.RestClientResponseException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +44,10 @@ import java.util.Optional;
 
 import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.ScrapingNotiReq.getScrapingSlackMessage;
 import static com.nomadconnection.dapp.api.util.CommonUtil.replaceHyphen;
+import static com.nomadconnection.dapp.api.v2.enums.CorpRegistration.InquiryType.ENROLL_NO;
+import static com.nomadconnection.dapp.api.v2.enums.CorpRegistration.InquiryType.REGISTERED_NO;
+import static com.nomadconnection.dapp.api.v2.enums.CorpRegistration.Issue.MULTIPLE_RESULT;
+import static com.nomadconnection.dapp.api.v2.enums.CorpRegistration.Issue.SUCCESS;
 import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.isScrapingSuccess;
 
 @Slf4j
@@ -65,14 +59,15 @@ public class ScrapingService {
 	private final CorpRepository repoCorp;
 	private final ResConCorpListRepository repoResConCorpList;
 	private final CommonCodeDetailRepository commonCodeDetailRepository;
-    private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
     private final ResBatchListRepository repoResBatchList;
 
     private final UserService userService;
-	private final ScrapingResultService scrapingResultService;
 	private final ImageService imageService;
     private final FullTextService fullTextService;
     private final SlackNotiService slackNotiService;
+	private final ScrapingResultService scrapingResultService;
+	private final CodefApiService codefApiService;
+	private final CardIssuanceInfoService cardIssuanceInfoService;
 
     private final String URL_PATH = CommonConstant.getRequestDomain();
 
@@ -104,14 +99,14 @@ public class ScrapingService {
 
 		body.put("accountList", accounts);
 
-		String response = requestToCodef(createAccountUrlPath, body, user.email());
+		String response = codefApiService.requestToCodef(createAccountUrlPath, body, user.email());
 
 		log.info("[createAccount] $user={}, $response={}", user.email(), response);
 
-		JSONObject[] responseCreateAccount = scrapingResultService.getApiResult(response);
-		String code = scrapingResultService.getCode();
-		String message = scrapingResultService.getMessage();
-		String connectedId = scrapingResultService.getConnectedId();
+		ScrapingResponse scrapingResponse = scrapingResultService.getApiResult(response);
+		String code = scrapingResponse.getCode();
+		String message = scrapingResponse.getMessage();
+		String connectedId = scrapingResponse.getConnectedId();
 
 		if(code.equals(ResponseCode.CF00000.getCode()) || code.equals(ResponseCode.CF04012.getCode())) {
 			repoConnectedMng.save(ConnectedMng.builder()
@@ -126,11 +121,11 @@ public class ScrapingService {
 					.build()
 			);
 
-			JSONArray successList = (JSONArray) responseCreateAccount[1].get("successList");
+			JSONArray successList = (JSONArray) scrapingResponse.getScrapingResponse()[1].get("successList");
 			saveConnectedId(successList, connectedId);
 		}else {
 			log.error("[createAccount] $user={}, $code={}, $message={} ", user.email(), code, message);
-			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(), ScrapingType.CREATE_ACCOUNT), slackNotiService.getSlackProgressUrl());
+			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(scrapingResponse), ScrapingType.CREATE_ACCOUNT), slackNotiService.getSlackProgressUrl());
 			throw new CodefApiException(ResponseCode.findByCode(code));
 		}
 	}
@@ -175,11 +170,11 @@ public class ScrapingService {
 		body.put("accountList", accounts);
 		body.put(CommonConstant.CONNECTED_ID, connectedId);
 
-		String deleteAccountResult = requestToCodef(deleteAccountUrlPath, body, user);
+		String deleteAccountResult = codefApiService.requestToCodef(deleteAccountUrlPath, body, user);
 
-		scrapingResultService.getApiResult(deleteAccountResult);
-		String code = scrapingResultService.getCode();
-		String message = scrapingResultService.getMessage();
+		ScrapingResponse scrapingResponse = scrapingResultService.getApiResult(deleteAccountResult);
+		String code = scrapingResponse.getCode();
+		String message = scrapingResponse.getMessage();
 
 		if (isScrapingSuccess(code)) {
 			return ResponseEntity.ok().body(BusinessResponse.builder().normal(normal).build());
@@ -190,16 +185,17 @@ public class ScrapingService {
 	}
 
 	private void addAccount(User user, AccountNt dto) throws Exception{
-		JSONObject response = requestAddAccount(dto, user.email());
+		String connectedId = scrapingResultService.getResponseDto().getConnectedId();
+		JSONObject response = codefApiService.requestAddAccount(dto, connectedId, user.email());
 
         log.info("[addAccount] $user={} $response={}", user.email(), response.toString());
 
-		JSONObject[] jsonObjectsCreateAccount = scrapingResultService.getApiResult(response);
-		String code = scrapingResultService.getCode();
-		String message = scrapingResultService.getMessage();
-		String connectedId = scrapingResultService.getConnectedId();
+		ScrapingResponse scrapingResponse = scrapingResultService.getApiResult(response);
+		String code = scrapingResponse.getCode();
+		String message = scrapingResponse.getMessage();
+		connectedId = scrapingResponse.getConnectedId();
 
-		JSONArray successList = (JSONArray) jsonObjectsCreateAccount[1].get("successList");
+		JSONArray successList = (JSONArray) scrapingResponse.getScrapingResponse()[1].get("successList");
 
 		if(code.equals(ResponseCode.CF00000.getCode()) || code.equals(ResponseCode.CF04012.getCode())) {
 			saveConnectedId(successList, connectedId);
@@ -217,22 +213,19 @@ public class ScrapingService {
 	}
 
 	private void scrapCorpLicense(User user) throws Exception{
-		String response = requestScrapCorpLicense(user.email());
+		String connectedId = scrapingResultService.getResponseDto().getConnectedId();
+		String response = codefApiService.requestScrapCorpLicense(connectedId, user.email());
 
         log.info("[scrapCorpLicense] $user={}, $response={}", user.email(), response);
 
-		JSONObject[] jsonObjectsCorpLicense = scrapingResultService.getApiResult(response);
-		String code = scrapingResultService.getCode();
-		String message = scrapingResultService.getMessage();
-		String connectedId = scrapingResultService.getConnectedId();
+		ScrapingResponse scrapingResponse = scrapingResultService.getApiResult(response);
+		String code = scrapingResponse.getCode();
+		String message = scrapingResponse.getMessage();
+		connectedId = scrapingResponse.getConnectedId();
 
 		if (isScrapingSuccess(code)) {
-			JSONObject jsonData = jsonObjectsCorpLicense[1];
-
-			// todo 이미 가입된 회사의 경우 처리 필요
-			//	중복체크 테스트 후엔 적용
+			JSONObject jsonData = scrapingResponse.getScrapingResponse()[1];
 			Corp corp;
-
 			if (repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).isPresent()) {
 				corp = repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).get();
 				if (corp.user().idx() != user.idx()) {
@@ -278,170 +271,97 @@ public class ScrapingService {
 						.build());
 			}
 			log.error("[scrapCorpLicense] $user={}, $code={}, $message={} ", user.email(), code, message);
-			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(), ScrapingType.CORP_LICENSE), slackNotiService.getSlackProgressUrl());
+			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(scrapingResponse), ScrapingType.CORP_LICENSE), slackNotiService.getSlackProgressUrl());
 			throw new CodefApiException(ResponseCode.findByCode(code));
 		}
 	}
 
 	private void scrapCorpRegistration(User user) throws Exception {
 		Corp corp = user.corp();
+		String email = user.email();
 		String licenseNo = corp.resCompanyIdentityNo();
 		String registrationNumber = replaceHyphen(Optional.ofNullable(corp.resUserIdentiyNo()).orElse(""));
 
 		if(ScrapingCommonUtils.isNonProfitCorp(licenseNo)){
 			return;
 		}
+		String response = codefApiService.requestCorpRegistrationScraping(ENROLL_NO.getCode(), registrationNumber,"", "", email); // 등록번호 스크래핑
+		ScrapingResponse scrapingResponse = scrapingResultService.getApiResult(response);
 
-		String response = requestCorpRegistrationScraping("2", registrationNumber,"", "", user.email());
-		log.info("[scrapCorpRegistration] $user={}, $response={} ", user.email(), response);
+		if (isScrapingSuccess(scrapingResponse.getCode())) {
+			response = retryScrapingWhenMultipleResult(scrapingResponse, user, response);
+			scrapingResponse = scrapingResultService.getApiResult(response);
 
-		JSONObject[] corpRegisterJson = scrapingResultService.getApiResult(response);
-		String code = scrapingResultService.getCode();
-		String message = scrapingResultService.getMessage();
-		String connectedId = scrapingResultService.getConnectedId();
-		String transactionId = scrapingResultService.getTransactionId();
-
-		if (isScrapingSuccess(code)) {
-			JSONObject jsonDataCorpRegister = corpRegisterJson[1];
-			String resIssueYn = jsonDataCorpRegister.get("resIssueYN").toString();
-
-			if (resIssueYn.equals("0")) {
-
-				JSONArray jsonDataArraySearchList = (JSONArray) jsonDataCorpRegister.get("resSearchList");
-
-				registrationNumber = "";
-				CommonCodeDetail commCompetentRegistryOffice = new CommonCodeDetail();
-				CommonCodeDetail commBranchType = new CommonCodeDetail();
-
-				for (Object o : jsonDataArraySearchList) {
-					JSONObject obj = (JSONObject) o;
-					if (obj.get("commRegistryStatus").equals("살아있는 등기") && obj.get("commBranchType").equals("본점")) {    //TODO : fix
-						registrationNumber = obj.get("resRegistrationNumber").toString().trim();
-						commCompetentRegistryOffice = commonCodeDetailRepository.findFirstByCodeAndValue1(CommonCodeType.REG_OFFICE, obj.get("commCompetentRegistryOffice").toString());
-						commBranchType = commonCodeDetailRepository.findFirstByCodeAndValue1(CommonCodeType.REG_OFFICE_TYPE, obj.get("commCompanyType").toString());
-						break;
-					}
+			if(isFinalSuccess(user, scrapingResponse)){
+				fullTextService.saveAfterCorpRegistration(scrapingResponse.getScrapingResponse()[1], corp);
+				if(!ScrapingCommonUtils.isNonProfitCorp(licenseNo)){
+					imageService.sendCorpRegistrationImage(user.cardCompany(), response, licenseNo);
 				}
-
-				// 위에서 하는 동작과의 차이점 구분 필요
-				response = requestCorpRegistrationScraping("1", registrationNumber, commCompetentRegistryOffice.code1(), commBranchType.code1(), user.email());
-				log.info("[scrapCorpRegistration] $user={}, $response={} ", user.email(), response);
-
-			} else if (!resIssueYn.equals("1")) {
-				if(connectedId != null) {
-					repoResBatchList.save(ResBatchList.builder()
-							.connectedId(connectedId)
-							.transactionId(transactionId)
-							.errCode(code)
-							.errMessage(message)
-							.idxUser(user.idx())
-							.build());
-				}
-				log.error("[scrapCorpRegistration] $user={}, $resIssueYn={} $transactionId={} ", user.email(), resIssueYn, transactionId);
-				throw new CodefApiException(ResponseCode.findByCode(code));
+				cardIssuanceInfoService.saveCardIssuanceInfo(user, corp);
 			}
 		} else {
-			if(connectedId != null) {
-				repoResBatchList.save(ResBatchList.builder()
-						.connectedId(connectedId)
-						.transactionId(transactionId)
-						.errCode(code)
-						.errMessage(message)
-						.idxUser(user.idx())
-						.build());
-			}
-			log.error("[scrapCorpRegistration] $user={}, $code={}, $message={} ", user.email(), code, message);
-			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(), ScrapingType.CORP_REGISTRATION), slackNotiService.getSlackProgressUrl());
-			throw new CodefApiException(ResponseCode.findByCode(code));
-		}
-
-		corpRegisterJson = scrapingResultService.getApiResult(response);
-		code = scrapingResultService.getCode();
-		message = scrapingResultService.getMessage();
-		transactionId = scrapingResultService.getTransactionId();
-
-		if (isScrapingSuccess(code)) {
-			JSONObject jsonDataCorpRegister = corpRegisterJson[1];
-
-			if (!jsonDataCorpRegister.get("resIssueYN").toString().equals("1")) {
-				if(connectedId != null) {
-					repoResBatchList.save(ResBatchList.builder()
-							.connectedId(connectedId)
-							.errCode(code)
-							.errMessage(message)
-							.idxUser(user.idx())
-							.build());
-				}
-				log.error("[scrapCorpRegistration] $user={}, $resIssueYn={} $transactionId={} ", user.email(),
-						jsonDataCorpRegister.get("resIssueYN").toString(), transactionId);
-				throw new CodefApiException(ResponseCode.findByCode(code));
-			}
-
-			JSONArray resRegisterEntriesList = (JSONArray) jsonDataCorpRegister.get("resRegisterEntriesList");
-			JSONObject resRegisterEntry = (JSONObject) resRegisterEntriesList.get(0);
-
-			JSONArray jsonArrayResCEOList = (JSONArray) resRegisterEntry.get("resCEOList");
-
-			corp.resUserType(fullTextService.getCeoType(jsonArrayResCEOList));
-			corp = fullTextService.setCeoCount(corp, jsonArrayResCEOList);
-
-			imageService.sendCorpRegistrationImage(user.cardCompany(), response, licenseNo);
-
-			D1000 d1000 = fullTextService.build1000(corp, jsonArrayResCEOList);
-			fullTextService.save1000(d1000);
-
-			D1510 d1510 = fullTextService.build1510(corp);
-			fullTextService.save1510(d1510);
-
-			D1530 d1530 = fullTextService.build1530(corp, resRegisterEntriesList);
-			fullTextService.save1530(d1530);
-
-			D1400 d1400 = fullTextService.build1400(corp, jsonArrayResCEOList);
-			fullTextService.save1400(d1400);
-
-			CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.getTopByUserAndDisabledFalseOrderByIdxDesc(user);
-			if (!ObjectUtils.isEmpty(cardIssuanceInfo)) {
-				cardIssuanceInfoRepository.save(cardIssuanceInfo.corp(corp));
-			}
-		} else {
-			if(connectedId != null) {
-				repoResBatchList.save(ResBatchList.builder()
-						.connectedId(connectedId)
-						.errCode(code)
-						.errMessage(message)
-						.idxUser(user.idx())
-						.build());
-			}
-			log.error("[scrapCorpRegistration] $user={}, $code={}, $message={} ", user.email(), code, message);
-			throw new CodefApiException(ResponseCode.findByCode(code));
+			saveResBatchListAndPrintErrorLog(user, scrapingResponse, "");
+			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(scrapingResponse), ScrapingType.CORP_REGISTRATION), slackNotiService.getSlackProgressUrl());
+			throw new CodefApiException(ResponseCode.findByCode(scrapingResponse.getCode()));
 		}
 	}
 
-	private String requestCorpRegistrationScraping(String inquiryType, String registrationNumber,
-												  String competentRegistryOffice, String companyType, String user) throws Exception {
-		try{
-			return CORP_REGISTER.corp_register(
-					"0002",
-					"0261057000",
-					RSAUtil.encryptRSA("6821", CommonConstant.PUBLIC_KEY),
-					inquiryType,    // 2
-					registrationNumber,
-					"1",
-					"T34029396293",
-					"gowid99!",
-					competentRegistryOffice,
-					companyType,
-					"",
-					"",
-					"0",
-					"",
-					"",
-					"",
-					"N"
-			);
-		} catch (RestClientResponseException e) {
-			log.error("[requestCorpRegistrationScraping] $user={}, $error={}", user, e);
-			throw new CodefApiException(ResponseCode.REQUEST_ERROR);
+	private String retryScrapingWhenMultipleResult(ScrapingResponse scrapingResponse, User user, String response) throws Exception {
+		JSONObject jsonDataCorpRegister = scrapingResponse.getScrapingResponse()[1];
+		String email = user.email();
+		String code = scrapingResponse.getCode();
+		String resIssueYn = FullTextJsonParser.getResIssueYn(scrapingResponse.getScrapingResponse());
+
+		if (MULTIPLE_RESULT.getCode().equals(resIssueYn)) {
+			response = scrapCorpRegistrationByRegisteredNo(jsonDataCorpRegister, email); // 등가번호 스크래핑
+		} else if (!SUCCESS.getCode().equals(resIssueYn)) {
+			saveResBatchListAndPrintErrorLog(user, scrapingResponse, resIssueYn);
+			throw new CodefApiException(ResponseCode.findByCode(code));
+		}
+
+		return response;
+	}
+
+	private boolean isFinalSuccess(User user, ScrapingResponse scrapingResponse) {
+		String resIssueYn = FullTextJsonParser.getResIssueYn(scrapingResponse.getScrapingResponse());
+
+		if (isScrapingSuccess(scrapingResponse.getCode())) {
+			if (!SUCCESS.equals(resIssueYn)) {
+				saveResBatchListAndPrintErrorLog(user, scrapingResponse, resIssueYn);
+				throw new CodefApiException(ResponseCode.findByCode(scrapingResponse.getCode()));
+			}
+			return true;
+		}
+		return false;
+	}
+
+	private String scrapCorpRegistrationByRegisteredNo(JSONObject jsonDataCorpRegister, String email) throws Exception {
+		JSONArray jsonDataArraySearchList = (JSONArray) jsonDataCorpRegister.get("resSearchList");
+		String registrationNumber = "";
+		CommonCodeDetail commCompetentRegistryOffice = new CommonCodeDetail();
+		CommonCodeDetail commBranchType = new CommonCodeDetail();
+
+		for (Object o : jsonDataArraySearchList) {
+			JSONObject obj = (JSONObject) o;
+			if (obj.get("commRegistryStatus").equals("살아있는 등기") && obj.get("commBranchType").equals("본점")) {    //TODO : fix
+				registrationNumber = obj.get("resRegistrationNumber").toString().trim();
+				commCompetentRegistryOffice = commonCodeDetailRepository.findFirstByCodeAndValue1(CommonCodeType.REG_OFFICE, obj.get("commCompetentRegistryOffice").toString());
+				commBranchType = commonCodeDetailRepository.findFirstByCodeAndValue1(CommonCodeType.REG_OFFICE_TYPE, obj.get("commCompanyType").toString());
+				break;
+			}
+		}
+		return codefApiService.requestCorpRegistrationScraping(REGISTERED_NO.getCode(), registrationNumber, commCompetentRegistryOffice.code1(), commBranchType.code1(), email);
+	}
+
+	private void saveResBatchList(User user, ScrapingResponse scrapingResponse){
+		if (scrapingResponse.getConnectedId() != null) {
+			repoResBatchList.save(ResBatchList.builder()
+				.connectedId(scrapingResponse.getConnectedId())
+				.transactionId(scrapingResponse.getTransactionId())
+				.errCode(scrapingResponse.getCode())
+				.errMessage(scrapingResponse.getMessage())
+				.idxUser(user.idx())
+				.build());
 		}
 	}
 
@@ -464,45 +384,10 @@ public class ScrapingService {
         });
     }
 
-    private String requestToCodef(String url, HashMap<String, Object> body, String user) throws Exception {
-		try {
-			return ApiRequest.request(url, body);
-		} catch (RestClientResponseException e) {
-			log.error("[requestToCodef] $url={}, $user={}, $error={}", url, user, e);
-			throw new CodefApiException(ResponseCode.REQUEST_ERROR);
-		}
-	}
-
-	private JSONObject requestAddAccount(AccountNt dto, String user) throws Exception {
-		try {
-			return ApiCodef.registerCodef(
-					Common.Account.builder()
-							.certFile(dto.getCertFile())
-							.password1(dto.getPassword1())
-							.build()
-					, scrapingResultService.getConnectedId(), CommonConstant.API_DOMAIN, CommonConstant.ADD_ACCOUNT, null, CommonConstant.BUSINESSTYPE);
-		} catch (RestClientResponseException e) {
-			log.error("[requestAddAccount] $user={}, $error={}", user, e);
-			throw new CodefApiException(ResponseCode.REQUEST_ERROR);
-		}
-	}
-
-	private String requestScrapCorpLicense(String user) throws Exception {
-		try{
-			return PROOF_ISSUE.proof_issue(
-					"0001",
-					scrapingResultService.getConnectedId(),
-					"04",
-					"01",
-					"1",
-					"0",
-					"",
-					"" // 사업자번호
-			);
-		} catch (RestClientResponseException e) {
-			log.error("[requestScrapCorpLicense] $user={}, $error={}", user, e);
-			throw new CodefApiException(ResponseCode.REQUEST_ERROR);
-		}
+	private void saveResBatchListAndPrintErrorLog(User user, ScrapingResponse scrapingResponse, String resIssueYn){
+		saveResBatchList(user, scrapingResponse);
+		log.error("[scrapCorpRegistration] $user={}, $code={}, $message={}, $resIssueYn={} $transactionId={} "
+			, user.email(),scrapingResponse.getCode(), scrapingResponse.getMessage(), resIssueYn, scrapingResponse.getTransactionId());
 	}
 
 }
