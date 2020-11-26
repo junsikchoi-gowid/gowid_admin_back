@@ -36,6 +36,7 @@ import org.json.simple.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -295,6 +296,7 @@ public class ScrapingService {
 			if(isFinalSuccess(user, scrapingResponse)){
 				fullTextService.saveAfterCorpRegistration(scrapingResponse.getScrapingResponse()[1], corp);
 				if(!ScrapingCommonUtils.isNonProfitCorp(licenseNo)){
+					response = FullTextJsonParser.responseReplace(response);
 					imageService.sendCorpRegistrationImage(user.cardCompany(), response, licenseNo);
 				}
 				cardIssuanceInfoService.saveCardIssuanceInfo(user, corp);
@@ -305,6 +307,8 @@ public class ScrapingService {
 			throw new CodefApiException(ResponseCode.findByCode(scrapingResponse.getCode()));
 		}
 	}
+
+
 
 	private String retryScrapingWhenMultipleResult(ScrapingResponse scrapingResponse, User user, String response) throws Exception {
 		JSONObject jsonDataCorpRegister = scrapingResponse.getScrapingResponse()[1];

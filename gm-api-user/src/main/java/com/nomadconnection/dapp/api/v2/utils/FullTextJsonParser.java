@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -188,4 +189,12 @@ public class FullTextJsonParser {
 		return jsonDataCorpRegister.get("resIssueYN").toString();
 	}
 
+	public static String responseReplace(String response) {
+		int iLimit = StringUtils.countOccurrencesOf( response ,"resTypeStockContentItemList");
+		for(int i = 1 ; i < iLimit ; i++){
+			String strMatch2 = " \\]\n      \\}, \\{\n        \"resNumber\" : \"" + i +"\",\n        \"resTypeStockContentItemList\" : \\[";
+			response = response.replaceAll(strMatch2,",");
+		}
+		return response;
+	}
 }
