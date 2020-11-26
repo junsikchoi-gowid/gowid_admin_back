@@ -11,15 +11,9 @@ import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
 import com.nomadconnection.dapp.api.v2.service.issuance.CardIssuanceInfoService;
 import com.nomadconnection.dapp.api.v2.utils.FullTextJsonParser;
 import com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils;
-import com.nomadconnection.dapp.codef.io.api.ApiCodef;
-import com.nomadconnection.dapp.codef.io.dto.Common;
-import com.nomadconnection.dapp.codef.io.helper.ApiRequest;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import com.nomadconnection.dapp.codef.io.helper.RSAUtil;
 import com.nomadconnection.dapp.codef.io.helper.ResponseCode;
-import com.nomadconnection.dapp.codef.io.sandbox.pb.CORP_REGISTER;
-import com.nomadconnection.dapp.codef.io.sandbox.pb.PROOF_ISSUE;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
@@ -298,7 +292,7 @@ public class ScrapingService {
 			if(isFinalSuccess(user, scrapingResponse)){
 				fullTextService.saveAfterCorpRegistration(scrapingResponse.getScrapingResponse()[1], corp);
 				if(!ScrapingCommonUtils.isNonProfitCorp(licenseNo)){
-					imageService.sendCorpRegistrationImage(user.cardCompany(), FullTextJsonParser.responseReplace(response), licenseNo);
+					imageService.sendCorpRegistrationImage(user.cardCompany(), response, licenseNo);
 				}
 				cardIssuanceInfoService.saveCardIssuanceInfo(user, corp);
 			}
