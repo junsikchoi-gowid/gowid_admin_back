@@ -566,11 +566,11 @@ public class UserService {
 
 			repoVerificationCode.deleteById(email);
 
-			log.debug("pass $pass='{}'" , encoder.encode(password));
+			log.info("[passwordAuthPre] user={} pass={}" , user.email(), encoder.encode(password));
 			user.password(encoder.encode(password));
 			repo.save(user);
 		}else{
-
+			log.error("[passwordAuthPre] verificaition error. user={}", email);
 			return ResponseEntity.ok().body(BusinessResponse.builder()
 					.normal(BusinessResponse.Normal.builder()
 							.status(false).value("비밀번호 or Email 이 맞지않음").build())
@@ -596,6 +596,7 @@ public class UserService {
 		);
 
 		if (!encoder.matches(prePassword, user.password())) {
+			log.error("[passwordAuthAfter] invalid password");
 			return ResponseEntity.ok().body(BusinessResponse.builder()
 					.normal(BusinessResponse.Normal.builder()
 							.status(false)

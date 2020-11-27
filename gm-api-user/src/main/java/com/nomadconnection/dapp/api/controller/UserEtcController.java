@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.BrandDto;
-import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -69,6 +68,9 @@ public class UserEtcController {
     @PostMapping(URI.USERPASSWORDCHANGE_PRE)
     public ResponseEntity passwordPre(
             @RequestBody BrandDto.PasswordPre dto) {
+        if (log.isInfoEnabled()) {
+            log.info("([ passwordPre ]) $dto={}", dto);
+        }
         return service.passwordAuthPre(dto.getEmail(), dto.getCode(), dto.getPassword());
     }
 
@@ -78,8 +80,10 @@ public class UserEtcController {
     @PostMapping(URI.USERPASSWORDCHANGE_AFTER)
     public ResponseEntity passwordAfter(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody BrandDto.PasswordAfter dto
-    ) {
+            @RequestBody BrandDto.PasswordAfter dto) {
+        if (log.isInfoEnabled()) {
+            log.info("([ passwordAfter ]) $user={}, $dto{}", user, dto);
+        }
         return service.passwordAuthAfter(user.idx(), dto.getPrePassword(), dto.getAfterPassword());
     }
 
