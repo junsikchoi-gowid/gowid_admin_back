@@ -136,25 +136,13 @@ public class CardIssuanceDto {
         @Min(1)
         private Long count;
 
-        @ApiModelProperty("비교통그린카드 신청수량")
+        @ApiModelProperty("그린카드 신청수량")
         @Min(0)
         private Long greenCount;
 
-        @ApiModelProperty("비교통블랙카드 신청수량")
+        @ApiModelProperty("블랙카드 신청수량")
         @Min(0)
         private Long blackCount;
-
-        @ApiModelProperty("교통그린카드 신청수량")
-        @Min(0)
-        private Long greenTrafficCount;
-
-        @ApiModelProperty("교통블랙카드 신청수량")
-        @Min(0)
-        private Long blackTrafficCount;
-
-        @ApiModelProperty("하이패스 신청수량")
-        @Min(0)
-        private Long hiPassCount;
 
         @ApiModelProperty("명세서 수령방법")
         private ReceiveType receiveType;
@@ -516,20 +504,11 @@ public class CardIssuanceDto {
         @ApiModelProperty("신청수량")
         private Long count;
 
-        @ApiModelProperty("롯데 비교통그린카드 신청수량")
+        @ApiModelProperty("롯데 그린카드 신청수량")
         private Long lotteGreenCount;
 
-        @ApiModelProperty("롯데 비교통블랙카드 신청수량")
+        @ApiModelProperty("롯데 블랙카드 신청수량")
         private Long lotteBlackCount;
-
-        @ApiModelProperty("롯데 교통그린카드 신청수량")
-        private Long lotteGreenTrafficCount;
-
-        @ApiModelProperty("롯데 교통블랙카드 신청수량")
-        private Long lotteBlackTrafficCount;
-
-        @ApiModelProperty("롯데 하이패스 신청수량")
-        private Long lotteHiPassCount;
 
         @ApiModelProperty("명세서 수령방법")
         private ReceiveType receiveType;
@@ -568,9 +547,6 @@ public class CardIssuanceDto {
                         .count(cardInfo.card().requestCount())
                         .lotteGreenCount(cardInfo.card().lotteGreenCount())
                         .lotteBlackCount(cardInfo.card().lotteBlackCount())
-                        .lotteGreenTrafficCount(cardInfo.card().lotteGreenTrafficCount())
-                        .lotteBlackTrafficCount(cardInfo.card().lotteBlackTrafficCount())
-                        .lotteHiPassCount(cardInfo.card().lotteHiPassCount())
                         .addressBasic(cardInfo.card().addressBasic())
                         .addressDetail(cardInfo.card().addressDetail())
                         .addressKey(cardInfo.card().addressKey())
