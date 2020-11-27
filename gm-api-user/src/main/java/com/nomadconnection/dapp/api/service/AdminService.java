@@ -459,23 +459,12 @@ public class AdminService {
         return ResponseEntity.ok().body(BusinessResponse.builder().data(page).build());
     }
 
-    public ResponseEntity scrapCorp(Long idx, Long idxCorp) {
-
-        // return ResponseEntity.ok().body(BusinessResponse.builder().data(list).normal(BusinessResponse.Normal.builder().status(true).build()).build());
-        return null;
-    }
-
     public ResponseEntity scrapAccountList(ResBatchListCustomRepository.ScrapAccountDto dto, Long idxUser, Pageable pageable) {
         Boolean isMaster = isGowidMaster(idxUser);
 
         Page<ResBatchListCustomRepository.ScrapAccountListDto> page = repoResBatchList.scrapAccountList(dto, pageable);
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(page).build());
-    }
-
-    public ResponseEntity scrapAccount(Long idx, String account) {
-        // return ResponseEntity.ok().body(BusinessResponse.builder().data(list).normal(BusinessResponse.Normal.builder().status(true).build()).build());
-        return null;
     }
 
     @Transactional(readOnly = true)
@@ -489,63 +478,60 @@ public class AdminService {
 
         data.setCardCompany(repoCorp.findById(idxCorp).get().user().cardCompany());
 
-        if (isMaster) {
-            String date = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
-            repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), date).ifPresent(
-                    risk -> {
-                        data.setDepositGuarantee(risk.depositGuarantee());
-                        data.setDma45(risk.dma45());
-                        data.setDmm45(risk.dmm45());
-                        data.setCashBalance(risk.cashBalance());
-                        data.setCurrentBalance(risk.currentBalance());
-                        data.setMinCashNeed(risk.minCashNeed());
-                        data.setCardLimitNow(risk.cardLimitNow());
-                        data.setCardRestartCount(risk.cardRestartCount());
-                        data.setCardType(risk.cardType());
-                        data.setCardIssuance(risk.cardIssuance());
-                        data.setGrade(risk.grade());
-                        data.setEmergencyStop(risk.emergencyStop());
-                        data.setRealtimeLimit(risk.realtimeLimit());
-                    }
-            );
+        String date = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
+        repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), date).ifPresent(
+                risk -> {
+                    data.setDepositGuarantee(risk.depositGuarantee());
+                    data.setDma45(risk.dma45());
+                    data.setDmm45(risk.dmm45());
+                    data.setCashBalance(risk.cashBalance());
+                    data.setCurrentBalance(risk.currentBalance());
+                    data.setMinCashNeed(risk.minCashNeed());
+                    data.setCardLimitNow(risk.cardLimitNow());
+                    data.setCardRestartCount(risk.cardRestartCount());
+                    data.setCardType(risk.cardType());
+                    data.setCardIssuance(risk.cardIssuance());
+                    data.setGrade(risk.grade());
+                    data.setEmergencyStop(risk.emergencyStop());
+                    data.setRealtimeLimit(risk.realtimeLimit());
+                }
+        );
 
-            repoRiskConfig.findByCorpAndEnabled(Corp.builder().idx(idxCorp).build(),true).ifPresent(
-                    riskConfig -> {
-                        data.setHopeLimit(riskConfig.hopeLimit());
-                        data.setCalculatedLimit(riskConfig.calculatedLimit());
-                        data.setGrantLimit(riskConfig.grantLimit());
-                    }
-            );
+        repoRiskConfig.findByCorpAndEnabled(Corp.builder().idx(idxCorp).build(),true).ifPresent(
+                riskConfig -> {
+                    data.setHopeLimit(riskConfig.hopeLimit());
+                    data.setCalculatedLimit(riskConfig.calculatedLimit());
+                    data.setGrantLimit(riskConfig.grantLimit());
+                }
+        );
 
-            CardIssuanceInfo cardIssuance = repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(corp.user()).orElseGet(
-                    () -> CardIssuanceInfo.builder().issuanceDepth("0").build()
-            );
+        CardIssuanceInfo cardIssuance = repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(corp.user()).orElseGet(
+                () -> CardIssuanceInfo.builder().issuanceDepth("0").build()
+        );
 
-            if(cardIssuance.card().requestCount() != null ){
-                data.setCardCount(cardIssuance.card().requestCount().toString());
-            }
-
-            if(cardIssuance.issuanceDepth() != null){
-                data.setIssuanceDepth(cardIssuance.issuanceDepth());
-            }
-
-            IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(corp.user().idx()).orElse(null);
-
-            if( issuanceProgress != null ){
-                data.setApplyDate(issuanceProgress.getCreatedAt());
-                data.setDecisionDate(issuanceProgress.getUpdatedAt());
-            }
-
-            data.setRegisterDate(corp.resRegisterDate());
-            data.setUserName(corp.user().name());
-            data.setPhoneNumber(corp.user().mdn());
-            data.setEmail(corp.user().email());
-            data.setIsSendEmail(corp.user().isSendEmail());
-            data.setIsSendSms(corp.user().isSendSms());
-
-            data.setHopeLimit(corp.riskConfig().hopeLimit());
-            data.setGrantLimit(corp.riskConfig().grantLimit());
+        if(cardIssuance.card().requestCount() != null ){
+            data.setCardCount(cardIssuance.card().requestCount().toString());
         }
+
+        if(cardIssuance.issuanceDepth() != null){
+            data.setIssuanceDepth(cardIssuance.issuanceDepth());
+        }
+
+        IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(corp.user().idx()).orElse(null);
+
+        if( issuanceProgress != null ){
+            data.setApplyDate(issuanceProgress.getCreatedAt());
+            data.setDecisionDate(issuanceProgress.getUpdatedAt());
+        }
+
+        data.setRegisterDate(corp.resRegisterDate());
+        data.setUserName(corp.user().name());
+        data.setPhoneNumber(corp.user().mdn());
+        data.setEmail(corp.user().email());
+        data.setIsSendEmail(corp.user().isSendEmail());
+        data.setIsSendSms(corp.user().isSendSms());
+        data.setHopeLimit(corp.riskConfig().hopeLimit());
+        data.setGrantLimit(corp.riskConfig().grantLimit());
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(data).build());
     }

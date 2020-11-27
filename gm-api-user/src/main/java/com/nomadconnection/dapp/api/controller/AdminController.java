@@ -391,17 +391,6 @@ public class AdminController {
 		return service.scrapCorpList(dto, user.idx(), pageable);
 	}
 
-	@ApiOperation(value = "법인별스크래핑 " , notes = "" + "\n")
-	@PostMapping( URI.SCRAP_CORP )
-	public ResponseEntity scrapCorp(@ApiIgnore @CurrentUser CustomUser user,
-									@RequestParam(required = false) Long idxCorp ) {
-		if (log.isInfoEnabled()) {
-			log.info("([ scrapCorp ]) $user='{}' $idxCorp='{}'", user, idxCorp);
-		}
-		return service.scrapCorp(user.idx(), idxCorp);
-	}
-
-
 	@ApiOperation(value = "계좌스크래핑 - 계좌 목록"
 			, notes = "" + "\n"
 			+ "Sort 방식 " + "\n"
@@ -415,16 +404,6 @@ public class AdminController {
 			log.info("([ scrapAccountList ]) $dto='{}'", dto);
 		}
 		return service.scrapAccountList(dto, user.idx(), pageable);
-	}
-
-	@ApiOperation(value = "계좌별스크래핑 " , notes = "" + "\n")
-	@PostMapping( URI.SCRAP_ACCOUNT )
-	public ResponseEntity scrapAccount(@ApiIgnore @CurrentUser CustomUser user,
-									@RequestParam(required = false) String account ) {
-		if (log.isInfoEnabled()) {
-			log.info("([ scrapAccount ]) $user='{}' $account='{}'", user, account);
-		}
-		return service.scrapAccount(user.idx(), account);
 	}
 
 	@ApiOperation(value = "법인별 - 리스크 관련 상세정보"
