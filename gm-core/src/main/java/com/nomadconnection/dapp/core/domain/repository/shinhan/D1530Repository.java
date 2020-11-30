@@ -16,4 +16,6 @@ public interface D1530Repository extends JpaRepository<D1530, Long> {
     @Modifying
     @Query("delete from D1530  where idxCorp = :idxCorp")
     void deleteByCorpIdx(@Param("idxCorp") Long idxCorp);
+
+    Optional<D1530> findTopByIdxCorp(Long idx);
 }

@@ -31,6 +31,7 @@ public class RiskController {
 		public static final String RISK = "/risk";			// 리스크
 		public static final String RISKCORP = "/riskCorp";			// 리스크
 		public static final String SAVE45 = "/save45";			// 리스크
+		public static final String SAVE30 = "/save30";			// 리스크
 		public static final String RISKCONFIG = "/riskconfig";			// 리스크
 		public static final String CARD_LIMIT = "/cardLimit";
 		public static final String GRANT_LIMIT = "/grantLimit";
@@ -87,6 +88,18 @@ public class RiskController {
 		}
 		return service.getRiskConfig(user.idx(), idxCorp);
 	}
+
+	@ApiOperation(value = "saveRiskVer2 저장")
+	@GetMapping(URI.SAVE30)
+	public ResponseEntity<String> saveRiskVer2(@ApiIgnore @CurrentUser CustomUser user
+			, @RequestParam(required = false) Long idxCorp
+			, @RequestParam(required = false) String calcDate) {
+		if (log.isInfoEnabled()) {
+			log.info("([ getRiskConfig ]) $user='{}' $idxCorp='{}'", user, idxCorp);
+		}
+		return service.saveRiskVer2(idxCorp, calcDate);
+	}
+
 
 	@ApiOperation(value = "리스크 한도 금액 조회")
 	@GetMapping(URI.CARD_LIMIT)

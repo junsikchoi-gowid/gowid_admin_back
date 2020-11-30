@@ -151,7 +151,7 @@ public class BankController {
 		return service.checkAccountList(user.idx());
 	}
 
-	@ApiOperation(value = "계좌 + 거래내역 스크래핑 45일간만", notes = "" + "\n")
+	@ApiOperation(value = "계좌 + 거래내역 스크래핑 45일간만 + 리스크 저장", notes = "" + "\n")
 	@GetMapping( URI.CHECK_ACCOUNTLIST45 )
 	public ResponseEntity checkAccountList45(@ApiIgnore @CurrentUser CustomUser user) throws IOException, InterruptedException {
 		if (log.isInfoEnabled()) {

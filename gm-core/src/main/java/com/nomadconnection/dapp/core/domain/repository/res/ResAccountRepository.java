@@ -18,6 +18,8 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
 
     List<ResAccount> findByConnectedIdAndResAccountDepositIn(String connectedId, List<String> resAccountDeposit);
 
+    Optional<ResAccount> findByConnectedId(String connectedId);
+
     @Query(value = " select R " +
             " from ResAccount R" +
             " where connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser ) " +

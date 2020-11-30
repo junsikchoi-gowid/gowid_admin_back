@@ -18,6 +18,7 @@ public enum CommonCodeType {
 	SHINHAN_DRIVER_LOCAL_CODE("신한 운전면허 지역코드"),
 	CONCENT_TYPE("이용약관"),
 	LOTTE_LISTED_EXCHANGE("롯데 상장거래소 코드"),
+	RISK_GRADE("리스크 등급"),
 	;
 
 	private String description;

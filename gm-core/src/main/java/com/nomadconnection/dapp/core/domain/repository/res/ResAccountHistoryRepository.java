@@ -8,6 +8,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHistory, Long> {
 
@@ -15,12 +18,6 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
     @Modifying
     @Query("delete from ResAccountHistory c where c.resAccount = :resAccount and c.resAccountTrDate between :startDate and :endDate")
     void deleteResAccountTrDate(@Param("resAccount") String resAccount, @Param("startDate") String startDate, @Param("endDate") String endDate );
-
-    // 데이터, 리스크 팀과 협의 후 추가
-//    @Transactional
-//    @Modifying
-//    @Query("delete from ResAccountHistory c where c.connectedId = :connectedId")
-//    int deleteConnectedQuery(@Param("connectedId") String connectedId);
 
     public static interface CMonthInOutSumDto {
         Long getSumResAccountIn();
@@ -34,6 +31,17 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
             "   and resAccountDeposit in ('10','11','12','13','14'))"
             ,nativeQuery = true)
     CMonthInOutSumDto findMonthInOutSum(@Param("start") String start, @Param("end") String end, @Param("idxUser")Long idxUser);
+
+    Optional<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc1(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
+
+    Optional<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc2(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
+
+    Optional<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc3(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
+
+    Optional<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc4(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
+
+    @Query(value = "select sum(resAccountIn) from ResAccountHistory where idx in (:idx)",nativeQuery = true)
+    String sumCeoInBalance(List<Long> idx);
 
 
 }

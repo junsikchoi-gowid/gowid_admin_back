@@ -9,12 +9,12 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 @Slf4j
 public class CommonUtil {
@@ -129,5 +129,14 @@ public class CommonUtil {
 
     public static String getValueOrDefault(String value, String defaultValue) {
         return StringUtils.isEmpty(value) ? defaultValue : value;
+    }
+
+    public static String sumOfDates(int i) {
+        Calendar cal = Calendar.getInstance();
+        DateFormat df = new SimpleDateFormat("yyyyMMdd");
+        Date date = new Date();
+        cal.setTime(date);
+        cal.add(Calendar.DATE, i);
+        return df.format(cal.getTime());
     }
 }

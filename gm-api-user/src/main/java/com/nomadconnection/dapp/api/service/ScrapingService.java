@@ -1103,9 +1103,6 @@ public class ScrapingService {
             }
         }
         serviceRisk.saveRisk45(idx, null,"");
-
-        // 전문테이블 데이터 저장
-
     }
 
     @Async
@@ -1445,7 +1442,7 @@ public class ScrapingService {
         saveAccountProcessBatch(idx, idxResBatchParent, true);
  
         // 리스크 데이터 저장 
-        serviceRisk.saveRisk(idx, null,"");
+        // serviceRisk.saveRisk(idx, null,"");
 
         return true;
     }
@@ -1733,7 +1730,7 @@ public class ScrapingService {
         }
 
         // 리스크 데이터 저장
-        serviceRisk.saveRisk(idx, null,"");
+        // serviceRisk.saveRisk(idx, null,"");
     }
 
     private void saveAccountProcessBatchRetry(Long idx, Long idxResBatchParent) {
@@ -2467,7 +2464,7 @@ public class ScrapingService {
 
     @Async("executor1")
     public void runExecutorRisk(Long idxUser){
-        serviceRisk.saveRisk(idxUser, null,"");
+        serviceRisk.saveRisk45(idxUser, null,"");
     }
 
     public Object scraping10Years(Long idx) {
