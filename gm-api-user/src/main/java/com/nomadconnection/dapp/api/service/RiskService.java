@@ -498,17 +498,21 @@ public class RiskService {
 		AtomicReference<Double> recentBalance = new AtomicReference<>(0.0);
 
 		connectedMng.forEach(
-			connectedMng1 -> repoResAccount.findByConnectedId(connectedMng1.connectedId()).ifPresent(
-				resAccount -> {
-					if( ACCOUNT_TYPE.contains(resAccount.resAccountDeposit()) && resAccount.enabled().equals(true)){
+				connectedMng1 -> {
+					List<ResAccount> listResAccount = repoResAccount.findByConnectedId(connectedMng1.connectedId());
 
-						recentBalance.updateAndGet(v -> v + resAccount.resAccountBalance());
-						Double coeRecentBalance = getMinusRecentBalance(resAccount, d1530);
-						recentBalance.set( recentBalance.get() - coeRecentBalance);
+					for(ResAccount resAccount : listResAccount){
+						if( ACCOUNT_TYPE.contains(resAccount.resAccountDeposit()) && resAccount.enabled().equals(true)){
 
-						log.info("[getRecentBalance] $coeRecentBalance = {}", coeRecentBalance);
+							recentBalance.updateAndGet(v -> v + resAccount.resAccountBalance());
+							Double coeRecentBalance = getMinusRecentBalance(resAccount, d1530);
+							recentBalance.set( recentBalance.get() - coeRecentBalance);
+
+							log.info("[getRecentBalance] $coeRecentBalance = {}", coeRecentBalance);
+						}
 					}
-				}));
+				});
+
 		return recentBalance.get();
 	}
 
