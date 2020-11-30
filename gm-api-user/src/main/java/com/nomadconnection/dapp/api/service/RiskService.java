@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
@@ -275,13 +276,6 @@ public class RiskService {
 				,risk.realtimeLimit()
 		));
 
-		// CardRestartCount
-		Risk risk1 =repoRisk.findByUserAndDate(User.builder().idx(idxUser).build(),calcDateMinus).orElse(
-				Risk.builder()
-						.cardRestartCount(0)
-						.confirmedLimit(0).build()
-		);
-
 		// CardRestart
 		risk.cardRestart(risk.cardRestartCount() >= 45);
 
@@ -291,13 +285,16 @@ public class RiskService {
 			risk.confirmedLimit(Double.parseDouble(riskconfig.grantLimit()));
 		}
 
-		D1530 d1530 = repoD1530.findTopByIdxCorp(corp.idx()).orElseThrow(() -> new RuntimeException("D1530 corp not found"));
+		// D1530 d1530 = repoD1530.findTopByIdxCorp(corp.idx()).orElseThrow(() -> new RuntimeException("D1530 corp not found"));
+		D1530 d1530 = repoD1530.findTopByIdxCorp(corp.idx()).orElse(null);
 		//최신잔고를 구함
-		risk.recentBalance(getRecentBalance(corp, d1530));
+
+		risk.recentBalance(getRecentBalance(corp, d1530, risk.recentBalance()));
 		//Grade
 		risk.grade(getGrade(d1530, riskconfig));
 		//실제계산금액
-		risk.cardLimitNow(getCardLimitNow(risk.grade(),risk.recentBalance()));
+		risk.cardLimitNow(Math.floor((risk.recentBalance() * getCardLimitNow(risk.grade()) / 100 ) / 1000000) * 1000000);
+		risk.cardLimitNow(Math.max(risk.cardLimitNow(),riskconfig.depositGuarantee()));
 
 		repoRisk.save(risk);
 		corp.riskConfig(repoRiskConfig.save(riskconfig));
@@ -397,7 +394,7 @@ public class RiskService {
 	}
 
 	private boolean isIssuanceSuccess(String progress, String status){
-		return (P_1800.getCode().equals(progress) || LP_ZIP.getCode().equals(progress)) && Objects.equals(SUCCESS.getCode(), status);
+		return (P_1800.equals(progress) || LP_ZIP.equals(progress)) && "SUCCESS".equals(status);
 	}
 
 	@Transactional(rollbackFor = Exception.class)
@@ -451,11 +448,11 @@ public class RiskService {
 		risk.vcInvestment(riskConfig.vcInvestment());
 
 		//최신잔고를 구함
-		risk.recentBalance(getRecentBalance(corp, d1530));
+		risk.recentBalance(getRecentBalance(corp, d1530, risk.recentBalance()));
 		//Grade
 		risk.grade(getGrade(d1530, riskConfig));
 		//실제계산금액
-		risk.cardLimitNow(getCardLimitNow(risk.grade(),risk.recentBalance()));
+		risk.cardLimitNow( risk.recentBalance() * getCardLimitNow(risk.grade()) / 100 );
 
 		if(issuanceProgress != null &&
 				isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())){
@@ -465,18 +462,18 @@ public class RiskService {
 		return risk;
 	}
 
-	private double getCardLimitNow(String grade, double recentBalance) {
+	private Integer getCardLimitNow(String grade ) {
 		String strPercent = repoCommonCodeDetail.findFirstByCode1AndCode(grade, CommonCodeType.RISK_GRADE).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("CommonCodeDetail")
 						.build()
 		).value1();
 
-		return recentBalance * ( Integer.parseInt(strPercent) / 100 );
+		return Integer.parseInt(strPercent);
 	}
 
 	private String getGrade(D1530 d1530, RiskConfig riskConfig) {
-		if( Double.parseDouble(d1530.getD042()) > minBalance &&
+		if( d1530 != null && Double.parseDouble(d1530.getD042()) > minBalance &&
 				Integer.parseInt(LocalDate.now().minusMonths(1).format(DateTimeFormatter.BASIC_ISO_DATE)) < Integer.parseInt(d1530.getD057())){
 			return "E";
 		}else if(riskConfig.ventureCertification() && riskConfig.vcInvestment()){
@@ -493,30 +490,31 @@ public class RiskService {
 
 	final Double minBalance = 10000000d;
 
-	private double getRecentBalance(Corp corp, D1530 d1530) {
-		List<ConnectedMng> connectedMng = repoConnectedMng.findByIdxUser(corp.user().idx());
-		AtomicReference<Double> recentBalance = new AtomicReference<>(0.0);
+	private double getRecentBalance(Corp corp, D1530 d1530, Double balance) {
+		AtomicReference<Double> recentBalance = new AtomicReference<>(balance);
 
-		connectedMng.forEach(
-				connectedMng1 -> {
-					List<ResAccount> listResAccount = repoResAccount.findByConnectedId(connectedMng1.connectedId());
+		if( d1530 != null){
+			List<BankDto.ResAccountDto> listResAccount = repoResAccount.findResAccount(corp.user().idx()).stream()
+					.map(account -> BankDto.ResAccountDto.from(account, true))
+					.collect(Collectors.toList());
 
-					for(ResAccount resAccount : listResAccount){
-						if( ACCOUNT_TYPE.contains(resAccount.resAccountDeposit()) && resAccount.enabled().equals(true)){
+			Double coeRecentBalance = 0d;
 
-							recentBalance.updateAndGet(v -> v + resAccount.resAccountBalance());
-							Double coeRecentBalance = getMinusRecentBalance(resAccount, d1530);
-							recentBalance.set( recentBalance.get() - coeRecentBalance);
+			for(BankDto.ResAccountDto resAccount : listResAccount){
+				if( ACCOUNT_TYPE.contains(resAccount.getResAccountDeposit())){
+					coeRecentBalance += getMinusRecentBalance(resAccount, d1530);
+					log.info("[getRecentBalance] $coeRecentBalance = {}", coeRecentBalance);
+				}
+			}
+			log.info("[getRecentBalance] $coeRecentBalance = {}", coeRecentBalance);
 
-							log.info("[getRecentBalance] $coeRecentBalance = {}", coeRecentBalance);
-						}
-					}
-				});
+			recentBalance.set(recentBalance.get() - coeRecentBalance );
+		}
 
-		return recentBalance.get();
+		return recentBalance.get() ;
 	}
 
-	private Double getMinusRecentBalance(ResAccount resAccount, D1530 d1530){
+	private Double getMinusRecentBalance(BankDto.ResAccountDto resAccount, D1530 d1530){
 
 		if(d1530.getD057() != null &&
 				Integer.parseInt(LocalDate.now().minusMonths(3).format(DateTimeFormatter.BASIC_ISO_DATE)) > Integer.parseInt(d1530.getD057())){
@@ -528,7 +526,7 @@ public class RiskService {
 			for (String ceo: ceoList) {
 				if(!ceo.isEmpty()){
 					Optional<ResAccountHistory> resAccountHistoryDesc1 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc1(
-							resAccount.resAccount(),
+							resAccount.getResAccount(),
 							CommonUtil.getNowYYYYMMDD(),
 							LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE),
 							"0",
@@ -536,7 +534,7 @@ public class RiskService {
 					);
 
 					Optional<ResAccountHistory> resAccountHistoryDesc2 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc2(
-							resAccount.resAccount(),
+							resAccount.getResAccount(),
 							CommonUtil.getNowYYYYMMDD(),
 							LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE),
 							"0",
@@ -544,7 +542,7 @@ public class RiskService {
 					);
 
 					Optional<ResAccountHistory> resAccountHistoryDesc3 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc3(
-							resAccount.resAccount(),
+							resAccount.getResAccount(),
 							CommonUtil.getNowYYYYMMDD(),
 							LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE),
 							"0",
@@ -552,7 +550,7 @@ public class RiskService {
 					);
 
 					Optional<ResAccountHistory> resAccountHistoryDesc4 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc4(
-							resAccount.resAccount(),
+							resAccount.getResAccount(),
 							CommonUtil.getNowYYYYMMDD(),
 							LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE),
 							"0",
@@ -560,27 +558,30 @@ public class RiskService {
 					);
 
 					resAccountHistoryDesc1.ifPresent(
-							resAccountHistory -> idxList.add(resAccount.idx())
+							resAccountHistory -> idxList.add(resAccount.getIdx())
 					);
 
 					resAccountHistoryDesc2.ifPresent(
-							resAccountHistory -> idxList.add(resAccount.idx())
+							resAccountHistory -> idxList.add(resAccount.getIdx())
 					);
 
 					resAccountHistoryDesc3.ifPresent(
-							resAccountHistory -> idxList.add(resAccount.idx())
+							resAccountHistory -> idxList.add(resAccount.getIdx())
 					);
 
 					resAccountHistoryDesc4.ifPresent(
-							resAccountHistory -> idxList.add(resAccount.idx())
+							resAccountHistory -> idxList.add(resAccount.getIdx())
 					);
 				}
 			}
 
-			resultList = idxList.stream().distinct().collect(Collectors.toList());
-			String ceoInBalance = repoResAccountHistory.sumCeoInBalance(resultList);
-			log.info("[getMinusRecentBalance] $ceoInBalance={}", ceoInBalance);
-			return Double.parseDouble(ceoInBalance)/2;
+			if( idxList.size() > 0 ){
+				resultList = idxList.stream().distinct().collect(Collectors.toList());
+				String ceoInBalance = repoResAccountHistory.sumCeoInBalance(resultList);
+				log.info("[getMinusRecentBalance] $ceoInBalance={}", ceoInBalance);
+				return Double.parseDouble(ceoInBalance)/2;
+			}
+			return 0d;
 		}
 
 		return 0.0;
