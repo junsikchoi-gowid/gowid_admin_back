@@ -40,7 +40,7 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
 
     Optional<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc4(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
 
-    @Query(value = "select sum(resAccountIn) from ResAccountHistory where idx in (:idx)",nativeQuery = true)
+    @Query(value = "select sum(ifnull (resAccountIn,0)) from ResAccountHistory where idx in :idx ", nativeQuery = true)
     String sumCeoInBalance(List<Long> idx);
 
 
