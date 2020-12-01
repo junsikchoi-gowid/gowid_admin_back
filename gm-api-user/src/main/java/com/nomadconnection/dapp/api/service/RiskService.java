@@ -304,6 +304,13 @@ public class RiskService {
 			risk.cardLimitNow(0d);
 		}
 
+		// 계산값은 보증금을 최우선으로 한
+		if(riskconfig.depositGuarantee()>0){
+			risk.cardLimitNow(riskconfig.depositGuarantee());
+		}
+
+
+
 
 
 		repoRisk.save(risk);
