@@ -32,13 +32,13 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
             ,nativeQuery = true)
     CMonthInOutSumDto findMonthInOutSum(@Param("start") String start, @Param("end") String end, @Param("idxUser")Long idxUser);
 
-    Optional<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc1(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
+    List<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc1(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
 
-    Optional<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc2(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
+    List<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc2(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
 
-    Optional<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc3(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
+    List<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc3(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
 
-    Optional<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc4(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
+    List<ResAccountHistory> findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc4(String resAccount,String startDate,String endDate,String resAccountIn,String desc);
 
     @Query(value = "select sum(ifnull (resAccountIn,0)) from ResAccountHistory where idx in :idx ", nativeQuery = true)
     String sumCeoInBalance(List<Long> idx);

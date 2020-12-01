@@ -287,14 +287,24 @@ public class RiskService {
 
 		// D1530 d1530 = repoD1530.findTopByIdxCorp(corp.idx()).orElseThrow(() -> new RuntimeException("D1530 corp not found"));
 		D1530 d1530 = repoD1530.findTopByIdxCorp(corp.idx()).orElse(null);
-		//최신잔고를 구함
 
+
+		//최신잔고를 구함
 		risk.recentBalance(getRecentBalance(corp, d1530, risk.recentBalance()));
+
 		//Grade
-		risk.grade(getGrade(d1530, riskconfig));
+		risk.grade(getGrade(d1530, riskconfig, risk.recentBalance()));
+
+
 		//실제계산금액
-		risk.cardLimitNow(Math.floor((risk.recentBalance() * getCardLimitNow(risk.grade()) / 100 ) / 1000000) * 1000000);
-		risk.cardLimitNow(Math.max(risk.cardLimitNow(),riskconfig.depositGuarantee()));
+		if(getCardLimitNow(risk.grade()) > 0 ){
+			risk.cardLimitNow(Math.floor((risk.recentBalance() * getCardLimitNow(risk.grade()) / 100 ) / 1000000) * 1000000);
+			risk.cardLimitNow(Math.max(risk.cardLimitNow(),riskconfig.depositGuarantee()));
+		}else {
+			risk.cardLimitNow(0d);
+		}
+
+
 
 		repoRisk.save(risk);
 		corp.riskConfig(repoRiskConfig.save(riskconfig));
@@ -450,7 +460,7 @@ public class RiskService {
 		//최신잔고를 구함
 		risk.recentBalance(getRecentBalance(corp, d1530, risk.recentBalance()));
 		//Grade
-		risk.grade(getGrade(d1530, riskConfig));
+		risk.grade(getGrade(d1530, riskConfig, risk.recentBalance()));
 		//실제계산금액
 		risk.cardLimitNow( risk.recentBalance() * getCardLimitNow(risk.grade()) / 100 );
 
@@ -472,8 +482,10 @@ public class RiskService {
 		return Integer.parseInt(strPercent);
 	}
 
-	private String getGrade(D1530 d1530, RiskConfig riskConfig) {
-		if( d1530 != null && Double.parseDouble(d1530.getD042()) > minBalance &&
+	private String getGrade(D1530 d1530, RiskConfig riskConfig, Double balance) {
+		if(minCahsBalance > balance){
+			return "F";
+		}else if( d1530 != null && Double.parseDouble(d1530.getD042()) < minBalance &&
 				Integer.parseInt(LocalDate.now().minusMonths(1).format(DateTimeFormatter.BASIC_ISO_DATE)) < Integer.parseInt(d1530.getD057())){
 			return "E";
 		}else if(riskConfig.ventureCertification() && riskConfig.vcInvestment()){
@@ -482,20 +494,22 @@ public class RiskService {
 			return "B";
 		}else if(riskConfig.ventureCertification() && !riskConfig.vcInvestment()){
 			return "C";
+		}else{
+			return "D";
 		}
-		return "D";
 	}
 
 	final List<String> ACCOUNT_TYPE = Arrays.asList("10", "11", "12", "13", "14");
 
 	final Double minBalance = 10000000d;
+	final Double minCahsBalance = 50000000d;
 
 	private double getRecentBalance(Corp corp, D1530 d1530, Double balance) {
 		AtomicReference<Double> recentBalance = new AtomicReference<>(balance);
 
 		if( d1530 != null){
 			List<BankDto.ResAccountDto> listResAccount = repoResAccount.findResAccount(corp.user().idx()).stream()
-					.map(account -> BankDto.ResAccountDto.from(account, true))
+					.map(account -> BankDto.ResAccountDto.from(account, false))
 					.collect(Collectors.toList());
 
 			Double coeRecentBalance = 0d;
@@ -516,8 +530,8 @@ public class RiskService {
 
 	private Double getMinusRecentBalance(BankDto.ResAccountDto resAccount, D1530 d1530){
 
-		if(d1530.getD057() != null &&
-				Integer.parseInt(LocalDate.now().minusMonths(3).format(DateTimeFormatter.BASIC_ISO_DATE)) > Integer.parseInt(d1530.getD057())){
+		if(d1530.getD057() != null){
+			//				Integer.parseInt(LocalDate.now().minusMonths(3).format(DateTimeFormatter.BASIC_ISO_DATE)) > Integer.parseInt(d1530.getD057()
 
 			String[] ceoList = new String[]{d1530.getD046(), d1530.getD050(), d1530.getD050()};
 			List<Long> idxList = new ArrayList<>();
@@ -525,53 +539,53 @@ public class RiskService {
 
 			for (String ceo: ceoList) {
 				if(!ceo.isEmpty()){
-					Optional<ResAccountHistory> resAccountHistoryDesc1 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc1(
+					List<ResAccountHistory> resAccountHistoryDesc1 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc1(
 							resAccount.getResAccount(),
 							CommonUtil.getNowYYYYMMDD(),
-							LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE),
+							LocalDate.now().minusMonths(1).format(DateTimeFormatter.BASIC_ISO_DATE),
 							"0",
 							ceo
 					);
 
-					Optional<ResAccountHistory> resAccountHistoryDesc2 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc2(
+					List<ResAccountHistory> resAccountHistoryDesc2 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc2(
 							resAccount.getResAccount(),
+							LocalDate.now().minusMonths(1).format(DateTimeFormatter.BASIC_ISO_DATE),
 							CommonUtil.getNowYYYYMMDD(),
-							LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE),
 							"0",
 							ceo
 					);
 
-					Optional<ResAccountHistory> resAccountHistoryDesc3 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc3(
+					List<ResAccountHistory> resAccountHistoryDesc3 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc3(
 							resAccount.getResAccount(),
+							LocalDate.now().minusMonths(1).format(DateTimeFormatter.BASIC_ISO_DATE),
 							CommonUtil.getNowYYYYMMDD(),
-							LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE),
 							"0",
 							ceo
 					);
 
-					Optional<ResAccountHistory> resAccountHistoryDesc4 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc4(
+					List<ResAccountHistory> resAccountHistoryDesc4 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc4(
 							resAccount.getResAccount(),
+							LocalDate.now().minusMonths(1).format(DateTimeFormatter.BASIC_ISO_DATE),
 							CommonUtil.getNowYYYYMMDD(),
-							LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE),
 							"0",
 							ceo
 					);
 
-					resAccountHistoryDesc1.ifPresent(
-							resAccountHistory -> idxList.add(resAccount.getIdx())
-					);
+					for(ResAccountHistory accountHistory :resAccountHistoryDesc1){
+						idxList.add(accountHistory.idx());
+					}
 
-					resAccountHistoryDesc2.ifPresent(
-							resAccountHistory -> idxList.add(resAccount.getIdx())
-					);
+					for(ResAccountHistory accountHistory :resAccountHistoryDesc2){
+						idxList.add(accountHistory.idx());
+					}
 
-					resAccountHistoryDesc3.ifPresent(
-							resAccountHistory -> idxList.add(resAccount.getIdx())
-					);
+					for(ResAccountHistory accountHistory :resAccountHistoryDesc3){
+						idxList.add(accountHistory.idx());
+					}
 
-					resAccountHistoryDesc4.ifPresent(
-							resAccountHistory -> idxList.add(resAccount.getIdx())
-					);
+					for(ResAccountHistory accountHistory :resAccountHistoryDesc4){
+						idxList.add(accountHistory.idx());
+					}
 				}
 			}
 
