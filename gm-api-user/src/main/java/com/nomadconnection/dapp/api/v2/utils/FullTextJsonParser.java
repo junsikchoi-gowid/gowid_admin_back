@@ -183,4 +183,9 @@ public class FullTextJsonParser {
 		return str.get();
 	}
 
+	public static String getResIssueYn(JSONObject[] response){
+		JSONObject jsonDataCorpRegister = response[1];
+		return jsonDataCorpRegister.get("resIssueYN").toString();
+	}
+
 }

@@ -29,6 +29,9 @@ spring:
     username: gowid
     password: Gowid%0115
 
+crownix:
+  enabled: false
+
 ---
 spring:
   profiles: stage
@@ -46,6 +49,9 @@ spring:
     url: jdbc:mysql://10.10.40.173:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: gowid
     password: Gowid%0115
+
+crownix:
+  enabled: true
 
 ---
 spring:
@@ -65,6 +71,9 @@ spring:
     username: gowid
     password: Gowid%0115
 
+crownix:
+  enabled: true
+
 ---
 
 spring:
@@ -83,3 +92,6 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: card
     password: card2019
+
+crownix:
+  enabled: true

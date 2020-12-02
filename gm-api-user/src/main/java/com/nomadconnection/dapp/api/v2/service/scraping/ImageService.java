@@ -5,12 +5,12 @@ import com.nomadconnection.dapp.api.dto.GwUploadDto;
 import com.nomadconnection.dapp.api.dto.ImageFileDto;
 import com.nomadconnection.dapp.api.dto.shinhan.enums.ImageFileType;
 import com.nomadconnection.dapp.api.service.GwUploadService;
-import com.nomadconnection.dapp.api.v2.exception.ImageConvertException;
-import com.nomadconnection.dapp.api.v2.exception.error.ImageConvertErrorMessage;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.dto.ImageConvertDto;
 import com.nomadconnection.dapp.core.dto.ImageConvertRespDto;
+import com.nomadconnection.dapp.core.exception.ImageConvertException;
+import com.nomadconnection.dapp.core.exception.error.ImageConvertErrorMessage;
 import com.nomadconnection.dapp.core.utils.ImageConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class ImageService {
 	public ImageConvertRespDto createImageByScrapingJson(ImageConvertDto param) throws Exception {
 		ImageConvertRespDto imageConvertResponse = converter.convertJsonToImage(param);
 		if(!imageConvertResponse.isSuccess()) {
-			throw new ImageConvertException(ImageConvertErrorMessage.IMAGE_CONVERT_INTERNAL_ERROR);
+			throw new ImageConvertException(ImageConvertErrorMessage.INTERNAL_ERROR);
 		}
 		return imageConvertResponse;
 	}
@@ -95,7 +95,6 @@ public class ImageService {
 	}
 
 	public void sendCorpRegistrationImage(CardCompany cardCompany, String response, String licenseNo) throws Exception {
-		response = setNoContents(response);
 		ImageConvertDto corpRegistrationImageParam = buildImageConvertDto(
 			ImageFileDto
 				.builder()
@@ -152,39 +151,6 @@ public class ImageService {
 				"\t\t\"resCompanyNm\" : \"" + corp.resCompanyNm() + "\"\n" +
 				"\t}\n" +
 				"}";
-	}
-
-	private String setNoContents(String corpRegisterScrapingResult){
-		String noContents[] = {
-			"resStockOptionList\" : [ {\n" +
-				"        \"resStockOption\" : \"내용 없음\",\n" +
-				"        \"resNumber\" : \"0\"\n" +
-				"      } ]"
-			, "resTypeStockContentList\" : [ {\n" +
-			"        \"resNumber\" : \"0\",\n" +
-			"        \"resTypeStockContentItemList\" : [ {\n" +
-			"          \"resNumber\" : \"0\",\n" +
-			"          \"resTypeStockContent\" : \"내용 없음\"\n" +
-			"        } ]\n" +
-			"} ]"
-			, "resConvertibleBondList\" : [ {\n" +
-			"        \"resNumber\" : \"0\",\n" +
-			"        \"resConvertibleBondItemList\" : [ {\n" +
-			"          \"resNumber\" : \"0\",\n" +
-			"          \"resConvertibleBond\" : \"내용 없음\"\n" +
-			"        } ]\n" +
-			"} ]"
-			, "resEtcList\" : [ {\n" +
-			"        \"resNumber\" : \"0\",\n" +
-			"        \"resEtc\" : \"내용 없음\"\n" +
-			"      } ]"
-		};
-
-		return corpRegisterScrapingResult.concat("")
-			.replaceAll("resStockOptionList\" : \\[ \\]", noContents[0])
-			.replaceAll("resTypeStockContentList\" : \\[ \\]", noContents[1])
-			.replaceAll("resConvertibleBondList\" : \\[ \\]", noContents[2])
-			.replaceAll("resEtcList\" : \\[ \\]", noContents[3]);
 	}
 
 	// 0306 신한 0311 롯데

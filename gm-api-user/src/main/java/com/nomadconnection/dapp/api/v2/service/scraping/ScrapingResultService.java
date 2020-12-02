@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.v2.service.scraping;
 
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
+import com.nomadconnection.dapp.api.v2.dto.ScrapingResponse;
 import lombok.Getter;
 import lombok.Setter;
 import org.json.simple.JSONObject;
@@ -17,40 +18,39 @@ import org.springframework.web.context.WebApplicationContext;
 @Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class ScrapingResultService {
 
-	private String code;
-	private String message;
-	private String extraMessage;
-	private String connectedId;
-	private String transactionId;
+	private ScrapingResponse responseDto;
 
-	public JSONObject[] getApiResult(String str) throws ParseException {
+	public ScrapingResponse getApiResult(String str) throws ParseException {
 		JSONObject[] result = new JSONObject[2];
 		JSONObject jsonObject = (JSONObject) new JSONParser().parse(str);
 
-		setScrapingResponse(result, jsonObject);
-		return result;
+		return buildScrapingResponse(result, jsonObject);
 	}
 
-	public JSONObject[] getApiResult(JSONObject jsonObject) {
+	public ScrapingResponse getApiResult(JSONObject jsonObject) {
 		JSONObject[] result = new JSONObject[2];
 
-		setScrapingResponse(result, jsonObject);
-		return result;
+		return buildScrapingResponse(result, jsonObject);
 	}
 
-	public void setScrapingResponse(JSONObject[] result, JSONObject jsonObject){
+	public ScrapingResponse buildScrapingResponse(JSONObject[] result, JSONObject jsonObject){
 		result[0] = (JSONObject) jsonObject.get("result");
 		result[1] = (JSONObject) jsonObject.get("data");
 
-		setCode(result[0].get("code").toString());
-		setMessage(result[0].getOrDefault("message","").toString());
-		setExtraMessage(result[0].getOrDefault("extraMessage","").toString());
-		setTransactionId(result[0].getOrDefault("transactionId","").toString());
-		setConnectedId(result[1].getOrDefault("connectedId", "").toString());
+		responseDto = ScrapingResponse.builder()
+			.scrapingResponse(result)
+			.code(result[0].get("code").toString())
+			.message(result[0].getOrDefault("message","").toString())
+			.extraMessage(result[0].getOrDefault("extraMessage","").toString())
+			.transactionId(result[0].getOrDefault("transactionId","").toString())
+			.connectedId(result[1].getOrDefault("connectedId","").toString())
+			.build();
+
+		return responseDto;
 	}
 
-	public ApiResponse.ApiResult getCodeAndMessage(){
-		return ApiResponse.ApiResult.builder().code(code).desc(message).extraMessage(extraMessage).build();
+	public ApiResponse.ApiResult getCodeAndMessage(ScrapingResponse responseDto){
+		return ApiResponse.ApiResult.builder().code(responseDto.getCode()).desc(responseDto.getMessage()).extraMessage(responseDto.getExtraMessage()).build();
 	}
 
 }

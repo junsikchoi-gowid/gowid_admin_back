@@ -473,4 +473,32 @@ public class FullTextService {
 		repoD1200Lotte.deleteByCorpIdx(idxCorp);
 	}
 
+	public void saveAfterFinancialStatements(Corp corp, ConnectedMngDto.CorpInfo dto) {
+		Long corpIdx = corp.idx();
+
+		save1100(corp);
+		D1400 d1400 = findFirstByIdxCorpIn1400(corpIdx);
+		save1400(d1400, dto);
+		D1000 d1000 = findFirstByIdxCorpIn1000(corpIdx);
+		save1000(d1000, dto);
+	}
+
+	public void saveAfterCorpRegistration(JSONObject jsonDataCorpRegister, Corp corp){
+		JSONArray resRegisterEntriesList = (JSONArray) jsonDataCorpRegister.get("resRegisterEntriesList");
+		JSONObject resRegisterEntry = (JSONObject) resRegisterEntriesList.get(0);
+		JSONArray jsonArrayResCEOList = (JSONArray) resRegisterEntry.get("resCEOList");
+
+		corp.resUserType(getCeoType(jsonArrayResCEOList));
+		corp = setCeoCount(corp, jsonArrayResCEOList);
+
+		D1000 d1000 = build1000(corp, jsonArrayResCEOList);
+		save1000(d1000);
+		D1400 d1400 = build1400(corp, jsonArrayResCEOList);
+		save1400(d1400);
+		D1510 d1510 = build1510(corp);
+		save1510(d1510);
+		D1530 d1530 = build1530(corp, resRegisterEntriesList);
+		save1530(d1530);
+	}
+
 }
