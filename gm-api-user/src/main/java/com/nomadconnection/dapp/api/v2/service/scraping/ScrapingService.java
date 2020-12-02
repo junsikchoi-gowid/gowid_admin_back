@@ -215,9 +215,6 @@ public class ScrapingService {
 	private void scrapCorpLicense(User user) throws Exception{
 		String connectedId = scrapingResultService.getResponseDto().getConnectedId();
 		String response = codefApiService.requestScrapCorpLicense(connectedId, user.email());
-
-        log.info("[scrapCorpLicense] $user={}, $response={}", user.email(), response);
-
 		ScrapingResponse scrapingResponse = scrapingResultService.getApiResult(response);
 		String code = scrapingResponse.getCode();
 		String message = scrapingResponse.getMessage();
@@ -292,6 +289,7 @@ public class ScrapingService {
 			if(isFinalSuccess(user, scrapingResponse)){
 				fullTextService.saveAfterCorpRegistration(scrapingResponse.getScrapingResponse()[1], corp);
 				if(!ScrapingCommonUtils.isNonProfitCorp(licenseNo)){
+					fullTextService.save1530(scrapingResponse.getScrapingResponse()[1], corp);
 					imageService.sendCorpRegistrationImage(user.cardCompany(), response, licenseNo);
 				}
 				cardIssuanceInfoService.saveCardIssuanceInfo(user, corp);

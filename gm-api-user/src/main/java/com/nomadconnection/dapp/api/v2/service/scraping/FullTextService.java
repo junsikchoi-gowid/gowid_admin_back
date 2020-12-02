@@ -68,7 +68,7 @@ public class FullTextService {
 		);
 	}
 
-	public void save1000(D1000 d1000){
+	private void save1000(D1000 d1000){
 		repoD1000.save(d1000);
 	}
 
@@ -142,7 +142,7 @@ public class FullTextService {
 			.build());
 	}
 
-	public void save1400(D1400 d1400){
+	private void save1400(D1400 d1400){
 		repoD1400.save(d1400);
 	}
 
@@ -159,7 +159,7 @@ public class FullTextService {
 		repoD1400.save(d1400);
 	}
 
-	public void save1510(D1510 d1510){
+	private void save1510(D1510 d1510){
 		repoD1510.save(d1510);
 	}
 
@@ -192,7 +192,7 @@ public class FullTextService {
 		repoD1520.save(d1520);
 	}
 
-	public void save1530(D1530 d1530){
+	private void save1530(D1530 d1530){
 		repoD1530.save(d1530);
 	}
 
@@ -497,6 +497,10 @@ public class FullTextService {
 		save1400(d1400);
 		D1510 d1510 = build1510(corp);
 		save1510(d1510);
+	}
+
+	public void save1530(JSONObject jsonDataCorpRegister, Corp corp){
+		JSONArray resRegisterEntriesList = (JSONArray) jsonDataCorpRegister.get("resRegisterEntriesList");
 		D1530 d1530 = build1530(corp, resRegisterEntriesList);
 		save1530(d1530);
 	}
