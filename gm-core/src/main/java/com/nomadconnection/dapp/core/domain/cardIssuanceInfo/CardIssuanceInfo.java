@@ -68,6 +68,10 @@ public class CardIssuanceInfo extends BaseTime {
     @Column(columnDefinition = "varchar(100)  DEFAULT '' COMMENT   '카드발급신청 진행상황'")
     private String issuanceDepth;
 
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(20)  DEFAULT 'UNISSUED' COMMENT '카드발급 상태'")
+    private IssuanceStatus issuanceStatus;
+
     @Embedded
     private CorpExtend corpExtend;
 

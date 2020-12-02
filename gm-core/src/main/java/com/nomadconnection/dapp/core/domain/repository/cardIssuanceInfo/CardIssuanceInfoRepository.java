@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo;
 
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,9 +16,11 @@ public interface CardIssuanceInfoRepository extends JpaRepository<CardIssuanceIn
     Optional<CardIssuanceInfo> findTopByUserAndDisabledFalseOrderByIdxDesc(User user);
     CardIssuanceInfo getTopByUserAndDisabledFalseOrderByIdxDesc(User user);
     Optional<CardIssuanceInfo> findByIdx(Long idx);
+    Optional<CardIssuanceInfo> findByCorp(Corp corp);
 
     @Query(value = "select idx FROM CardIssuanceInfo where idxUser = :idxUser and disabled = false", nativeQuery = true)
     List<Long> findAllIdxByUserIdx(@Param("idxUser") Long idxUser);
+
 
     @Transactional
     @Modifying
