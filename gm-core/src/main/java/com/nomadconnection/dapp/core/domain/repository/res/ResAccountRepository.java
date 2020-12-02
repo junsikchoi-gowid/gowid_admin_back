@@ -221,35 +221,35 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "   END AS Rank," +
             "   @vaccount\\:= account AS dummy" +
             "   FROM ResBatchList, (SELECT @vaccount\\:=NULL, @id\\:=0) AS t" +
-            "   where idxUser = :idxUser and endDate > :calcDate and resBatchType = 1" +
+            "   where idxUser = :idxUser and endDate >= :calcDate and resBatchType = 1" +
             "   ORDER BY account, updatedAt desc) c on Rank = 1 and errCode = 'CF-00000' and c.account = b.resAccount" +
             " ) a group by dsc order by dsc asc", nativeQuery = true)
     List<CRisk> find45dayValance(Long idxUser, String calcDate);
 
     @Query(value =
             " select sum(ifnull(ifnull(ifnull(value1,value2),value3),0)) as currentBalance" +
-            " from" +
-            " (select resAccount" +
-            " , (select resAfterTranBalance from ResAccountHistory r" +
-            " where resAccountTrDate <= :setDate  and b.resAccount = r.resAccount" +
-            " order by resAccountTrDate desc , resAccountTrDate desc, resAccountTrTime desc, idx limit 1) value1" +
-            " , (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r" +
-            " where resAccountTrDate >= :setDate and b.resAccount = r.resAccount" +
-            " order by resAccountTrDate asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1) value2" +
-            " , (select if( :setDate >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance" +
-            " from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3" +
-            " from ResAccount b" +
-            " inner join (" +
-            " SELECT account, updatedAt, errCode, errMessage," +
-            " CASE WHEN @vaccount = account" +
-            " THEN @id\\:=@id+1" +
-            " ELSE @id\\:=1" +
-            " END AS Rank," +
-            " @vaccount\\:= account AS dummy" +
-            " FROM ResBatchList, (SELECT @vaccount\\:=NULL, @id\\:=0) AS t" +
-            " where idxUser = :idxUser and endDate > :setDate and resBatchType = 1" +
-            " ORDER BY account, updatedAt desc) c on Rank = 1 and errCode = 'CF-00000' and c.account = b.resAccount" +
-            " where b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14')) z", nativeQuery = true)
+                    " from" +
+                    " (select resAccount" +
+                    " , (select resAfterTranBalance from ResAccountHistory r" +
+                    " where resAccountTrDate <= :setDate  and b.resAccount = r.resAccount" +
+                    " order by resAccountTrDate desc , resAccountTrDate desc, resAccountTrTime desc, idx limit 1) value1" +
+                    " , (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r" +
+                    " where resAccountTrDate >= :setDate and b.resAccount = r.resAccount" +
+                    " order by resAccountTrDate asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1) value2" +
+                    " , (select if( :setDate >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance" +
+                    " from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3" +
+                    " from ResAccount b" +
+                    " inner join (" +
+                    " SELECT account, updatedAt, errCode, errMessage," +
+                    " CASE WHEN @vaccount = account" +
+                    " THEN @id\\:=@id+1" +
+                    " ELSE @id\\:=1" +
+                    " END AS Rank," +
+                    " @vaccount\\:= account AS dummy" +
+                    " FROM ResBatchList, (SELECT @vaccount\\:=NULL, @id\\:=0) AS t" +
+                    " where idxUser = :idxUser and endDate >= :setDate and resBatchType = 1" +
+                    " ORDER BY account, updatedAt desc) c on Rank = 1 and errCode = 'CF-00000' and c.account = b.resAccount" +
+                    " where b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14')) z", nativeQuery = true)
     Double findRecentBalance(Long idxUser, String setDate);
 
     @Query(value = "select sum(resAccountRiskBalance) from ResAccount " +

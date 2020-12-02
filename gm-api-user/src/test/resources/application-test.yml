@@ -63,7 +63,7 @@ spring:
     time: 0 0 2 * * *
     endtime: 0 0 6 * * *
     risk-enabled: true
-    risk-time: 0 0 7 * * *
+    risk-time: 0 0 6 * * *
   mail:
     sender: gowid <support@gowid.com>
     riskteam: gowid <risk@gowid.com>

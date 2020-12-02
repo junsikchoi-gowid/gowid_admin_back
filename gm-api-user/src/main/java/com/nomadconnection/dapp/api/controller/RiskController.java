@@ -72,7 +72,7 @@ public class RiskController {
 	@ApiOperation(value = "RiskConfig 저장", notes = "" + "\n")
 	@PostMapping( URI.RISKCONFIG )
 	public ResponseEntity saveRiskConfig(@RequestParam Long idxUser ,
-									  @ModelAttribute RiskDto.RiskConfigDto riskConfigDto) {
+										 @ModelAttribute RiskDto.RiskConfigDto riskConfigDto) {
 		if (log.isInfoEnabled()) {
 			log.info("([ saveRiskConfig ]) $idxUser='{}' $dto='{}'", idxUser, riskConfigDto);
 		}
@@ -81,7 +81,7 @@ public class RiskController {
 
 	@ApiOperation(value = "RiskConfig 조회")
 	@GetMapping(URI.RISKCONFIG)
-	public ResponseEntity<String> getRiskConfig(@ApiIgnore @CurrentUser CustomUser user
+	public ResponseEntity<?> getRiskConfig(@ApiIgnore @CurrentUser CustomUser user
 			, @RequestParam(required = false) Long idxCorp) {
 		if (log.isInfoEnabled()) {
 			log.info("([ getRiskConfig ]) $user='{}' $idxCorp='{}'", user, idxCorp);
@@ -91,7 +91,7 @@ public class RiskController {
 
 	@ApiOperation(value = "saveRiskVer2 저장")
 	@GetMapping(URI.SAVE30)
-	public ResponseEntity<String> saveRiskVer2(@ApiIgnore @CurrentUser CustomUser user
+	public ResponseEntity<?> saveRiskVer2(@ApiIgnore @CurrentUser CustomUser user
 			, @RequestParam(required = false) Long idxCorp
 			, @RequestParam(required = false) String calcDate) {
 		if (log.isInfoEnabled()) {
@@ -103,7 +103,7 @@ public class RiskController {
 
 	@ApiOperation(value = "리스크 한도 금액 조회")
 	@GetMapping(URI.CARD_LIMIT)
-	public ResponseEntity<String> getCardLimit(
+	public ResponseEntity<?> getCardLimit(
 			@ApiIgnore @CurrentUser CustomUser user) {
 		if (log.isInfoEnabled()) {
 			log.info("([ getCardLimit ]) $user='{}''", user);
@@ -114,7 +114,7 @@ public class RiskController {
 
 	@ApiOperation(value = "부여 한도 금액 조회")
 	@GetMapping(URI.GRANT_LIMIT)
-	public ResponseEntity<String> getGrantLimit(
+	public ResponseEntity<?> getGrantLimit(
 			@ApiIgnore @CurrentUser CustomUser user) {
 		if (log.isInfoEnabled()) {
 			log.info("([ getGrantLimit ]) $user='{}''", user);

@@ -7,7 +7,6 @@ import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
-import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
@@ -21,8 +20,6 @@ import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1400Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1530Repository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
-import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.res.ResAccountHistory;
 import com.nomadconnection.dapp.core.domain.risk.Risk;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
@@ -61,7 +58,6 @@ public class RiskService {
 	private final UserRepository repoUser;
 	private final RiskConfigRepository repoRiskConfig;
 	private final ResAccountRepository repoResAccount;
-	private final ConnectedMngRepository repoConnectedMng;
 	private final IssuanceProgressRepository repoIssuanceProgress;
 	private final ResAccountHistoryRepository repoResAccountHistory;
 	private final CommonCodeDetailRepository repoCommonCodeDetail;
@@ -71,7 +67,7 @@ public class RiskService {
 	private final D1530Repository repoD1530;
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity saveRiskConfig(RiskDto.RiskConfigDto riskConfig){
+	public ResponseEntity<?> saveRiskConfig(RiskDto.RiskConfigDto riskConfig){
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(repoRiskConfig.save(
 				RiskConfig.builder()
 						.user(User.builder().idx(riskConfig.getIdxUser()).build())
@@ -87,7 +83,7 @@ public class RiskService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity saveRisk(Long idxUser, Long idxCorp, String calcDate) {
+	public ResponseEntity<?> saveRisk(Long idxUser, Long idxCorp, String calcDate) {
 
 		return ResponseEntity.ok().body(
 				BusinessResponse.builder()
@@ -128,11 +124,6 @@ public class RiskService {
 		if(StringUtils.isEmpty(calcDate)){
 			calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 		}
-
-		String calcDateMinus = LocalDate.of(Integer.parseInt(calcDate.substring(0,4))
-				, Integer.parseInt(calcDate.substring(4,6))
-				, Integer.parseInt(calcDate.substring(6,8))
-		).minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
 
 		RiskConfig riskconfig = repoRiskConfig.findByUserAndEnabled(user, true).orElseGet(
 				() -> RiskConfig.builder()
@@ -336,7 +327,7 @@ public class RiskService {
 
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity saveRisk45(Long idxUser, Long idxCorp, String calcDate) {
+	public ResponseEntity<?> saveRisk45(Long idxUser, Long idxCorp, String calcDate) {
 
 		Risk risk = saveRiskData(idxUser, idxCorp, calcDate);
 
@@ -378,7 +369,7 @@ public class RiskService {
 	}
 
 	@Transactional(readOnly = true)
-	public ResponseEntity getGrantLimit(Long idxUser) {
+	public ResponseEntity<?> getGrantLimit(Long idxUser) {
 
 		User user = repoUser.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().build()
@@ -391,7 +382,7 @@ public class RiskService {
 
 
 	@Transactional(readOnly = true)
-	public ResponseEntity getRiskConfig(Long idxUser, Long idxCorp) {
+	public ResponseEntity<?> getRiskConfig(Long idxUser, Long idxCorp) {
 		User user = repoUser.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().build()
 		);
@@ -411,11 +402,11 @@ public class RiskService {
 	}
 
 	private boolean isIssuanceSuccess(String progress, String status){
-		return (P_1800.equals(progress) || LP_ZIP.equals(progress)) && "SUCCESS".equals(status);
+		return (P_1800.getCode().equals(progress) || LP_ZIP.getCode().equals(progress)) && SUCCESS.getCode().equals(status);
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity saveRiskVer2(Long idxCorp, String calcDate) {
+	public ResponseEntity<?> saveRiskVer2(Long idxCorp, String calcDate) {
 
 		Corp corp = repoCorp.findById(idxCorp).orElseThrow(() -> CorpNotRegisteredException.builder().build());
 
@@ -490,7 +481,7 @@ public class RiskService {
 	}
 
 	private String getGrade(D1530 d1530, RiskConfig riskConfig, Double balance) {
-		if(minCahsBalance > balance){
+		if(minCashBalance > balance){
 			return "F";
 		}else if( d1530 != null && Double.parseDouble(d1530.getD042()) < minBalance &&
 				Integer.parseInt(LocalDate.now().minusMonths(1).format(DateTimeFormatter.BASIC_ISO_DATE)) < Integer.parseInt(d1530.getD057())){
@@ -509,7 +500,7 @@ public class RiskService {
 	final List<String> ACCOUNT_TYPE = Arrays.asList("10", "11", "12", "13", "14");
 
 	final Double minBalance = 10000000d;
-	final Double minCahsBalance = 50000000d;
+	final Double minCashBalance = 50000000d;
 
 	private double getRecentBalance(Corp corp, D1530 d1530, Double balance) {
 		AtomicReference<Double> recentBalance = new AtomicReference<>(balance);
@@ -519,17 +510,17 @@ public class RiskService {
 					.map(account -> BankDto.ResAccountDto.from(account, false))
 					.collect(Collectors.toList());
 
-			Double coeRecentBalance = 0d;
+			Double ceoRecentBalance = 0d;
 
 			for(BankDto.ResAccountDto resAccount : listResAccount){
 				if( ACCOUNT_TYPE.contains(resAccount.getResAccountDeposit())){
-					coeRecentBalance += getMinusRecentBalance(resAccount, d1530);
-					log.info("[getRecentBalance] $coeRecentBalance = {}", coeRecentBalance);
+					ceoRecentBalance += getMinusRecentBalance(resAccount, d1530);
+					log.info("[getRecentBalance] $ceoRecentBalance = {}", ceoRecentBalance);
 				}
 			}
-			log.info("[getRecentBalance] $coeRecentBalance = {}", coeRecentBalance);
+			log.info("[getRecentBalance] $ceoRecentBalance = {}", ceoRecentBalance);
 
-			recentBalance.set(recentBalance.get() - coeRecentBalance );
+			recentBalance.set(recentBalance.get() - ceoRecentBalance );
 		}
 
 		return recentBalance.get() ;
@@ -537,8 +528,8 @@ public class RiskService {
 
 	private Double getMinusRecentBalance(BankDto.ResAccountDto resAccount, D1530 d1530){
 
-		if(d1530.getD057() != null){
-			//				Integer.parseInt(LocalDate.now().minusMonths(3).format(DateTimeFormatter.BASIC_ISO_DATE)) > Integer.parseInt(d1530.getD057()
+		if(d1530.getD057() != null
+				&& Integer.parseInt(LocalDate.now().minusMonths(3).format(DateTimeFormatter.BASIC_ISO_DATE)) > Integer.parseInt(d1530.getD057())){
 
 			String[] ceoList = new String[]{d1530.getD046(), d1530.getD050(), d1530.getD050()};
 			List<Long> idxList = new ArrayList<>();
@@ -548,8 +539,8 @@ public class RiskService {
 				if(!ceo.isEmpty()){
 					List<ResAccountHistory> resAccountHistoryDesc1 = repoResAccountHistory.findByResAccountAndResAccountTrDateBetweenAndResAccountInGreaterThanAndResAccountDesc1(
 							resAccount.getResAccount(),
-							CommonUtil.getNowYYYYMMDD(),
 							LocalDate.now().minusMonths(1).format(DateTimeFormatter.BASIC_ISO_DATE),
+							CommonUtil.getNowYYYYMMDD(),
 							"0",
 							ceo
 					);
