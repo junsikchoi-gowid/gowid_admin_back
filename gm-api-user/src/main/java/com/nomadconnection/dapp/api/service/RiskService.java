@@ -402,7 +402,7 @@ public class RiskService {
 	}
 
 	private boolean isIssuanceSuccess(String progress, String status){
-		return (P_1800.getCode().equals(progress) || LP_ZIP.getCode().equals(progress)) && SUCCESS.getCode().equals(status);
+		return (P_1800.name().equals(progress) || LP_ZIP.name().equals(progress)) && SUCCESS.name().equals(status);
 	}
 
 	@Transactional(rollbackFor = Exception.class)
