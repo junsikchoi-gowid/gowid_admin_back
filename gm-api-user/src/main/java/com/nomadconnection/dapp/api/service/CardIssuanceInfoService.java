@@ -5,9 +5,11 @@ import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
+import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.NoResultException;
 
@@ -26,6 +28,13 @@ public class CardIssuanceInfoService {
                                         .orElseThrow(() -> new NoResultException());
         cardIssuanceInfo.issuanceStatus(issuanceStatus);
         return OK(cardIssuanceInfo);
+    }
+
+    public void saveCardIssuanceInfo(User user, Corp corp){
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.getTopByUserAndDisabledFalseOrderByIdxDesc(user);
+        if (!ObjectUtils.isEmpty(cardIssuanceInfo)) {
+            cardIssuanceInfoRepository.save(cardIssuanceInfo.corp(corp));
+        }
     }
 
 }
