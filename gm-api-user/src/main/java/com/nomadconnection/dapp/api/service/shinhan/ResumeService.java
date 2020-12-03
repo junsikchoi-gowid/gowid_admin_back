@@ -10,17 +10,18 @@ import com.nomadconnection.dapp.api.dto.shinhan.DataPart1800;
 import com.nomadconnection.dapp.api.dto.shinhan.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
+import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
 import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.shinhan.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1100Repository;
-import com.nomadconnection.dapp.core.domain.repository.shinhan.D1200Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1400Repository;
 import com.nomadconnection.dapp.core.domain.shinhan.D1000;
 import com.nomadconnection.dapp.core.domain.shinhan.D1100;
@@ -42,7 +43,6 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class ResumeService {
 
-    private final D1200Repository d1200Repository;
     private final D1000Repository d1000Repository;
     private final D1400Repository d1400Repository;
     private final D1100Repository d1100Repository;
@@ -52,6 +52,9 @@ public class ResumeService {
     private final AsyncService asyncService;
     private final CommonService issCommonService;
     private final EmailService emailService;
+
+    private final D1200Service d1200Service;
+    private final CardIssuanceInfoService cardIssuanceInfoService;
 
     @Value("${encryption.seed128.enable}")
     private boolean ENC_SEED128_ENABLE;
@@ -75,6 +78,9 @@ public class ResumeService {
             log.error("## incoming result of 1600 is fail.");
             log.error("## c009 = " + request.getC009());
             log.error("## c013 = " + request.getC013());
+
+            cardIssuanceInfoService
+                .updateIssuanceStatusByApplicationDateAndNumber(request.getD001(), request.getD002(), IssuanceStatus.REJECT);
             return response;
         }
 
@@ -83,6 +89,8 @@ public class ResumeService {
         issCommonService.saveProgressSuccess(request, IssuanceProgressType.P_1600);
         log.debug("## response 1600 => " + response.toString());
 
+        cardIssuanceInfoService
+            .updateIssuanceStatusByApplicationDateAndNumber(request.getD001(), request.getD002(), IssuanceStatus.ISSUED);
         return response;
     }
 
@@ -111,14 +119,13 @@ public class ResumeService {
         issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
 
         sendApprovedEmail(request, signatureHistory.getCorpIdx());
-
     }
 
     private void sendApprovedEmail(CardIssuanceDto.ResumeReq request, long corpIdx) {
         if (!sendEmailEnable) {
             return;
         }
-        D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
+        D1200 d1200 = d1200Service.getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
         if (StringUtils.isEmpty(d1200.getD001())) {
             log.error("## biz no is empty! email not sent!");
             log.error("## application date={}, application num={}", request.getD001(), request.getD002());
@@ -227,7 +234,7 @@ public class ResumeService {
     private Long getCorpIdxFromLastRequest(CardIssuanceDto.ResumeReq request) {
         Long corpIdx;
 
-        D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
+        D1200 d1200 = d1200Service.getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
         if ("Y".equals(d1200.getD003())) {
             D1000 d1000 = d1000Repository.findFirstByD071AndD072OrderByUpdatedAtDesc(request.getD001(), request.getD002());
             corpIdx = d1000.getIdxCorp();
@@ -245,14 +252,8 @@ public class ResumeService {
     }
 
     private String getDigitalSignatureIdNumber(String applicationDate, String applicationNum, Long count) {
-        D1200 d1200 = getD1200ByApplicationDateAndApplicationNum(applicationDate, applicationNum);
+        D1200 d1200 = d1200Service.getD1200ByApplicationDateAndApplicationNum(applicationDate, applicationNum);
         return CommonUtil.getDigitalSignatureIdNumber(d1200.getD001(), count);
     }
 
-    private D1200 getD1200ByApplicationDateAndApplicationNum(String applicationDate, String applicationNum) {
-        return d1200Repository.findFirstByD007AndD008OrderByUpdatedAtDesc(applicationDate, applicationNum).orElseThrow(
-                () -> new BadRequestException(ErrorCode.Api.NOT_FOUND,
-                        "not found d1200 of applicationDate[" + applicationDate + "], applicationNum[" + applicationNum + "]")
-        );
-    }
 }

@@ -11,6 +11,7 @@ import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
+import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
 import com.nomadconnection.dapp.api.service.CommonCardService;
 import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.UserService;
@@ -23,6 +24,7 @@ import com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CertificationType;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
@@ -82,6 +84,7 @@ public class IssuanceService {
     private final FinancialStatementsService financialStatementsService;
     private final SlackNotiService slackNotiService;
     private final EnvUtil envUtil;
+    private final CardIssuanceInfoService cardIssuanceInfoService;
 
     @Value("${mail.receipt.send-enable}")
     boolean sendReceiptEmailEnable;
@@ -139,6 +142,9 @@ public class IssuanceService {
 
         // BRP 전송(비동기)
         asyncService.run(() -> procBpr(userCorp, resultOfD1200, userIdx));
+
+        cardIssuanceInfoService
+            .updateIssuanceStatusByApplicationDateAndNumber(resultOfD1200.getD007(), resultOfD1200.getD008(), IssuanceStatus.APPLY);
     }
 
     private void saveSignatureHistory(Long signatureHistoryIdx, DataPart1200 resultOfD1200) {
@@ -408,7 +414,7 @@ public class IssuanceService {
     }
 
     //    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
-    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200) {
+    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200) throws Exception {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1000);
 

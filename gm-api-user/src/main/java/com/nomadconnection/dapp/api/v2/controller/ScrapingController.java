@@ -3,10 +3,12 @@ package com.nomadconnection.dapp.api.v2.controller;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto.AccountNt;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
+import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
 import com.nomadconnection.dapp.api.v2.service.scraping.FinancialStatementsService;
 import com.nomadconnection.dapp.api.v2.service.scraping.ScrapingService;
 import com.nomadconnection.dapp.codef.io.helper.ResponseCode;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,6 +27,7 @@ public class ScrapingController {
 
 	private final ScrapingService scrapingService;
 	private final FinancialStatementsService financialStatementsService;
+	private final CardIssuanceInfoService cardIssuanceInfoService;
 
 	@ApiOperation(value = "인증서 등록(커넥티드아이디 발급) 국세청 관련 등록")
 	@PostMapping("/account/create/nt")
@@ -36,6 +39,7 @@ public class ScrapingController {
 		}
 		Long userIdx = user.idx();
 		scrapingService.scrap(userIdx, dto);
+		cardIssuanceInfoService.updateIssuanceStatus(userIdx , IssuanceStatus.INPROGRESS);
 
 		return ApiResponse.builder()
 			.result(ApiResponse.ApiResult.builder()

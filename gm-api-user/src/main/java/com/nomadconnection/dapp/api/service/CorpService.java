@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings({"unused", "SameParameterValue"})
 public class CorpService {
 
 	private final UserService serviceUser;
@@ -64,6 +63,12 @@ public class CorpService {
 		return repoUser.findByCorp(user.corp())
 				.map(CorpDto.CorpMember::from)
 				.collect(Collectors.toList());
+	}
+
+	public Corp findByCorpIdx(Long corpIdx){
+		return repo.findById(corpIdx)
+			.orElseThrow(() -> CorpNotRegisteredException.builder().build()
+			);
 	}
 
 	// 재무제표에서 신설법인 판단

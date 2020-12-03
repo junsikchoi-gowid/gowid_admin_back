@@ -292,7 +292,7 @@ public class ScrapingService {
 					fullTextService.save1530(scrapingResponse.getScrapingResponse()[1], corp);
 					imageService.sendCorpRegistrationImage(user.cardCompany(), response, licenseNo);
 				}
-				cardIssuanceInfoService.saveCardIssuanceInfo(user, corp);
+				cardIssuanceInfoService.updateCorpByUser(user, corp);
 			}
 		} else {
 			saveResBatchListAndPrintErrorLog(user, scrapingResponse, "");

@@ -7,6 +7,7 @@ import com.nomadconnection.dapp.api.dto.lotte.enums.LotteUserStatus;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
+import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
 import com.nomadconnection.dapp.api.service.CommonCardService;
 import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.UserService;
@@ -14,6 +15,7 @@ import com.nomadconnection.dapp.api.service.lotte.rpc.LotteGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
@@ -56,6 +58,7 @@ public class LotteIssuanceService {
 	private final LotteGwRpc lotteGwRpc;
 	private final EmailService emailService;
 	private final CommonCardService commonCardService;
+	private final CardIssuanceInfoService cardIssuanceInfoService;
 
 	@Value("${mail.receipt.send-enable}")
 	boolean sendReceiptEmailEnable;
@@ -124,6 +127,8 @@ public class LotteIssuanceService {
 
 		// 이메일 전송
 		sendReceiptEmail(resultOfD1200, userCorp);
+
+		cardIssuanceInfoService.updateIssuanceStatus(userIdx, IssuanceStatus.APPLY);
 	}
 
 	private void procImageZip(DataPart1200 resultOfD1200) {

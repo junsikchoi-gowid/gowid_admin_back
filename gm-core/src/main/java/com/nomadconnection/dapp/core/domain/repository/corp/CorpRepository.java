@@ -19,6 +19,9 @@ public interface CorpRepository extends JpaRepository<Corp, Long> , CorpCustomRe
 
 	Optional<Corp> findByResCompanyIdentityNo(String resCompanyIdentityNo);
 
+	@Override
+	Optional<Corp> findById(Long corpIdx);
+
 	@Query(value = "select Corp.idxUser from Corp where resCompanyIdentityNo = :resCompanyIdentityNo limit 1", nativeQuery = true)
 	Long searchResCompanyIdentityNo(String resCompanyIdentityNo);
 
