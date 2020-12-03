@@ -95,6 +95,7 @@ public class ImageService {
 	}
 
 	public void sendCorpRegistrationImage(CardCompany cardCompany, String response, String licenseNo) throws Exception {
+		response = setNoContents(response);
 		ImageConvertDto corpRegistrationImageParam = buildImageConvertDto(
 			ImageFileDto
 				.builder()
@@ -169,6 +170,39 @@ public class ImageService {
 		}
 
 		return fileCode;
+	}
+
+	private String setNoContents(String corpRegisterScrapingResult){
+		String noContents[] = {
+			"resStockOptionList\" : [ {\n" +
+				"        \"resStockOption\" : \"내용 없음\",\n" +
+				"        \"resNumber\" : \"0\"\n" +
+				"      } ]"
+			, "resTypeStockContentList\" : [ {\n" +
+			"        \"resNumber\" : \"0\",\n" +
+			"        \"resTypeStockContentItemList\" : [ {\n" +
+			"          \"resNumber\" : \"0\",\n" +
+			"          \"resTypeStockContent\" : \"내용 없음\"\n" +
+			"        } ]\n" +
+			"} ]"
+			, "resConvertibleBondList\" : [ {\n" +
+			"        \"resNumber\" : \"0\",\n" +
+			"        \"resConvertibleBondItemList\" : [ {\n" +
+			"          \"resNumber\" : \"0\",\n" +
+			"          \"resConvertibleBond\" : \"내용 없음\"\n" +
+			"        } ]\n" +
+			"} ]"
+			, "resEtcList\" : [ {\n" +
+			"        \"resNumber\" : \"0\",\n" +
+			"        \"resEtc\" : \"내용 없음\"\n" +
+			"      } ]"
+		};
+
+		return corpRegisterScrapingResult.concat("")
+			.replaceAll("resStockOptionList\" : \\[ \\]", noContents[0])
+			.replaceAll("resTypeStockContentList\" : \\[ \\]", noContents[1])
+			.replaceAll("resConvertibleBondList\" : \\[ \\]", noContents[2])
+			.replaceAll("resEtcList\" : \\[ \\]", noContents[3]);
 	}
 
 }
