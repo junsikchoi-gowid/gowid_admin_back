@@ -33,8 +33,7 @@ public interface RiskRepository extends JpaRepository<Risk, Long>, AdminCustomRe
     Double findCardLimitNow(Long idxUser, String setDate);
 
     @Query(value = "SELECT cardLimitNow FROM Risk where idxUser = :idxUser and date < :setDate order by date desc limit 1 ",nativeQuery = true)
-    Double findCardLimitNowFirst(@Param("idxUser") Long idxUser,
-                                 @Param("setDate") String setDate);
+    Double findCardLimitNowFirst(Long idxUser, String setDate);
 
     Optional<Risk> findByUserAndDate(User user, String Date);
 
