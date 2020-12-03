@@ -497,12 +497,17 @@ public class FullTextService {
 		save1400(d1400);
 		D1510 d1510 = build1510(corp);
 		save1510(d1510);
+
 	}
 
 	public void save1530(JSONObject jsonDataCorpRegister, Corp corp){
-		JSONArray resRegisterEntriesList = (JSONArray) jsonDataCorpRegister.get("resRegisterEntriesList");
-		D1530 d1530 = build1530(corp, resRegisterEntriesList);
-		save1530(d1530);
+		try {
+			JSONArray resRegisterEntriesList = (JSONArray) jsonDataCorpRegister.get("resRegisterEntriesList");
+			D1530 d1530 = build1530(corp, resRegisterEntriesList);
+			save1530(d1530);
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 
 }
