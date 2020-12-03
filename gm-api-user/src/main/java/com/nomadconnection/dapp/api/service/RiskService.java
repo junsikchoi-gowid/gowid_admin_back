@@ -134,6 +134,9 @@ public class RiskService {
 						.cardIssuance(false)
 						.ceoGuarantee(false)
 						.enabled(true)
+						.calculatedLimit("0")
+						.grantLimit("0")
+						.hopeLimit("0")
 						.user(user)
 						.corp(corp)
 						.build()
@@ -300,11 +303,10 @@ public class RiskService {
 			risk.cardLimitNow(riskconfig.depositGuarantee());
 		}
 
-
-
-
-
 		repoRisk.save(risk);
+
+		log.debug("riskconfig $riskconfig={}", riskconfig);
+
 		corp.riskConfig(repoRiskConfig.save(riskconfig));
 		repoCorp.save(corp);
 
@@ -331,14 +333,18 @@ public class RiskService {
 
 		Risk risk = saveRiskData(idxUser, idxCorp, calcDate);
 
-		D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(risk.corp().user().idx())
-				.orElseThrow(() -> CorpNotRegisteredException.builder().build());
-		repoD1000.save(d1000);
+		try{
+			D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(risk.corp().user().idx())
+					.orElseThrow(() -> CorpNotRegisteredException.builder().build());
+			repoD1000.save(d1000);
 
-		D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(risk.corp().user().idx())
-				.orElseThrow(() -> CorpNotRegisteredException.builder().build());
-		d1400.setD014(String.valueOf(Math.round(risk.cardLimit())));
-		repoD1400.save(d1400);
+			D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(risk.corp().user().idx())
+					.orElseThrow(() -> CorpNotRegisteredException.builder().build());
+			d1400.setD014(String.valueOf(Math.round(risk.cardLimit())));
+			repoD1400.save(d1400);
+		}catch (Exception e){
+			log.error("[saveRisk45] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
+		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(risk).build());
 	}
