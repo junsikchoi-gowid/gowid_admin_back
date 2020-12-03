@@ -750,12 +750,12 @@ public class LotteCardService {
 			idfNo2 = Lotte_Seed128.encryptEcb(getDriverLocalNumber(dto.getDriverLocal()) + decryptData.get(EncryptParam.DRIVER_NUMBER));
 		}
 
-		d1100.setHsVdPhc(dto.getIdentityType().getLotteCode());
-		d1100.setIdfIsuBurNm(idfIsuBurNm);
 		if ("0".equals(dto.getCeoSeqNo())) {
 			d1100.setTkpRrno(encryptIdNum);
 		} else if ("1".equals(dto.getCeoSeqNo())) {
-			d1100.setIdfKndcNm(dto.getIdentityType().getLotteCode());
+			d1100.setHsVdPhc(dto.getIdentityType().getLotteCode());
+			d1100.setIdfIsuBurNm(idfIsuBurNm);
+			d1100.setIdfKndcNm(dto.getIdentityType().getDescription());
 			d1100.setIdfNo2(idfNo2);
             d1100.setTkpRrno(encryptIdNum);
             d1100.setDgRrno(encryptIdNum);
