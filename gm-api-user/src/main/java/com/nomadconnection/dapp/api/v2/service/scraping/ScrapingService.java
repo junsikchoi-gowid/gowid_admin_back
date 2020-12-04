@@ -287,6 +287,9 @@ public class ScrapingService {
 			scrapingResponse = scrapingResultService.getApiResult(response);
 
 			if(isFinalSuccess(user, scrapingResponse)){
+				if (ScrapingCommonUtils.isLimitedCompany(scrapingResponse.getScrapingResponse()[1])) {
+					throw new CodefApiException(ResponseCode.findByCode("LIMITED"));
+				}
 				fullTextService.saveAfterCorpRegistration(scrapingResponse.getScrapingResponse()[1], corp);
 				if(!ScrapingCommonUtils.isNonProfitCorp(licenseNo)){
 					fullTextService.save1530(scrapingResponse.getScrapingResponse()[1], corp);

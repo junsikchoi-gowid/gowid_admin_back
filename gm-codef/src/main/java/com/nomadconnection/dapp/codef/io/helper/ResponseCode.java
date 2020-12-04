@@ -183,6 +183,7 @@ public enum ResponseCode {
     CF09999("CF-09999","서버 처리중 에러가 발생 했습니다. 관리자에게 문의하세요.", GP99999),
     UNKNOWN("UNKNOWN", "CODEF 서비스에서 알 수 없는 오류", GP99999),
     REQUEST_ERROR("REQUEST_ERROR", "CODEF 요청 실패", GP99999),
+    LIMITED("LIMITED", "유힌회사", GP00010)
     ;
 
     private String code;

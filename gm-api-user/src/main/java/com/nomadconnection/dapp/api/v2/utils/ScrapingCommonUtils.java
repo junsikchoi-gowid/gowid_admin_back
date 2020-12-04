@@ -1,6 +1,9 @@
 package com.nomadconnection.dapp.api.v2.utils;
 
+import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.codef.io.helper.ResponseCode;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -46,6 +49,27 @@ public final class ScrapingCommonUtils {
 		returnYyyyMm.add(df.format(cal.getTime()) + Mm);
 
 		return returnYyyyMm;
+	}
+
+	public static boolean isLimitedCompany(JSONObject jsonDataCorpRegister) {
+		JSONArray resRegisterEntriesList = (JSONArray) jsonDataCorpRegister.get("resRegisterEntriesList");
+		JSONObject resRegisterEntry = (JSONObject) resRegisterEntriesList.get(0);
+		JSONArray jsonArrayResCEOList = (JSONArray) resRegisterEntry.get("resCEOList");
+		JSONArray jsonArrayResCompanyNmList = (JSONArray) resRegisterEntry.get("resCompanyNmList");
+
+		for (Object item : jsonArrayResCEOList) {
+			JSONObject obj = (JSONObject) item;
+			if (GowidUtils.getEmptyStringToString(obj, "resPosition").contains("업무집행자")) {
+				return true;
+			}
+		}
+		for (Object item : jsonArrayResCompanyNmList) {
+			JSONObject obj = (JSONObject) item;
+			if (GowidUtils.getEmptyStringToString(obj, "resCompanyNm").contains("유한책임회사")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
