@@ -44,6 +44,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.nomadconnection.dapp.api.common.Const.PASSWORD_RESET;
+import static com.nomadconnection.dapp.api.common.Const.REGISTER;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -71,7 +74,14 @@ public class AuthService {
 	 */
 	public boolean isPresent(String account) {
 		return repoUser.findByAuthentication_EnabledAndEmail(true, account).isPresent();
+	}
 
+	public void ifPresentThrowNotFound(String account) {
+		repoUser.findByAuthentication_EnabledAndEmail(true, account).orElseThrow(
+			() -> UserNotFoundException.builder()
+				.email(account)
+				.build()
+		);
 	}
 
 	/**
@@ -326,10 +336,10 @@ public class AuthService {
 				helper.setFrom(config.getSender());
 				helper.setTo(email);
 
-				if(type.equals("register")){
+				if(REGISTER.equals(type)){
 					helper.setSubject("[Gowid] 회원가입 이메일 인증번호");
 					helper.setText(templateEngine.process("signup", context), true);
-				}else if(type.equals("password_reset")){
+				}else if(PASSWORD_RESET.equals(type)){
 					helper.setSubject("[Gowid] 비밀번호 재설정 이메일 인증번호");
 					helper.setText(templateEngine.process("password-init", context), true);
 				}else{

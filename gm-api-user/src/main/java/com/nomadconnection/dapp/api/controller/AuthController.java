@@ -24,6 +24,8 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.constraints.Email;
 import java.util.List;
 
+import static com.nomadconnection.dapp.api.common.Const.PASSWORD_RESET;
+
 @Slf4j
 @CrossOrigin(allowCredentials = "true")
 @RestController
@@ -69,17 +71,15 @@ public class AuthController {
         if (log.isInfoEnabled()) {
             log.info("([ exists ]) $account='{}'", account);
         }
-
         if (!service.isPresent(account)) {
             return ResponseEntity.ok().body(
-                    BusinessResponse.builder()
-                            .normal(BusinessResponse.Normal.builder()
-                                    .status(false)
-                                    .value("notFound")
-                                    .build()).build()
+                BusinessResponse.builder()
+                    .normal(BusinessResponse.Normal.builder()
+                        .status(false)
+                        .value("notFound")
+                        .build()).build()
             );
         }
-
         return ResponseEntity.ok().body(
                 BusinessResponse.builder().build()
         );
@@ -104,13 +104,20 @@ public class AuthController {
             log.info("([ sendVerificationCode ]) $email='{}' $type='{}'", email, type);
         }
         try {
+            if (!service.isPresent(email) && PASSWORD_RESET.equals(type)) {
+                return ResponseEntity.ok().body(
+                    BusinessResponse.builder()
+                        .normal(BusinessResponse.Normal.builder()
+                            .status(false)
+                            .value("notFound")
+                            .build()).build());
+            }
             if (!service.sendVerificationCode(email, type)) {
                 return ResponseEntity.ok().body(BusinessResponse.builder().normal(
                         BusinessResponse.Normal.builder()
                                 .status(false)
                                 .value(HttpStatus.INTERNAL_SERVER_ERROR.toString())
-                                .build()
-                ).build());
+                                .build()).build());
             }
         } catch (Exception e) {
             if (log.isErrorEnabled()) {

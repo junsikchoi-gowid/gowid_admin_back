@@ -32,4 +32,7 @@ public class Const {
 
     public static final String SLACK_NOTI_USER_EMAIL = "[USER_EMAIL]";
 
+    public static final String REGISTER = "register";
+    public static final String PASSWORD_RESET = "password_reset";
+
 }
