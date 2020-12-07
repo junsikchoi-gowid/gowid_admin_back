@@ -130,7 +130,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFIT_CATEGORIES).permitAll()
                 .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFIT_SEARCH).permitAll()
                 .antMatchers(FaqController.URI.BASE + FaqController.URI.FAQ_SAVE).permitAll()
-	            .antMatchers(SurveyController.URI.BASE).permitAll()
+                .antMatchers(SurveyController.URI.BASE).permitAll()
+                .antMatchers(LimitInquiryController.URI.BASE).permitAll()
                 .anyRequest().authenticated();
     }
 }
