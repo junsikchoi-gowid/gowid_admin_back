@@ -48,6 +48,7 @@ import static com.nomadconnection.dapp.api.v2.enums.CorpRegistration.InquiryType
 import static com.nomadconnection.dapp.api.v2.enums.CorpRegistration.InquiryType.REGISTERED_NO;
 import static com.nomadconnection.dapp.api.v2.enums.CorpRegistration.Issue.MULTIPLE_RESULT;
 import static com.nomadconnection.dapp.api.v2.enums.CorpRegistration.Issue.SUCCESS;
+import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.ifNotAvailableCorpRegistrationScrapingTime;
 import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.isScrapingSuccess;
 
 @Slf4j
@@ -123,7 +124,7 @@ public class ScrapingService {
 
 			JSONArray successList = (JSONArray) scrapingResponse.getScrapingResponse()[1].get("successList");
 			saveConnectedId(successList, connectedId);
-		}else {
+		} else {
 			log.error("[createAccount] $user={}, $code={}, $message={} ", user.email(), code, message);
 			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(scrapingResponse), ScrapingType.CREATE_ACCOUNT), slackNotiService.getSlackProgressUrl());
 			throw new CodefApiException(ResponseCode.findByCode(code));
@@ -273,7 +274,7 @@ public class ScrapingService {
 		}
 	}
 
-	private void scrapCorpRegistration(User user) throws Exception {
+	public void scrapCorpRegistration(User user) throws Exception {
 		Corp corp = user.corp();
 		String email = user.email();
 		String licenseNo = corp.resCompanyIdentityNo();
@@ -300,6 +301,7 @@ public class ScrapingService {
 		} else {
 			saveResBatchListAndPrintErrorLog(user, scrapingResponse, "");
 			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(scrapingResponse), ScrapingType.CORP_REGISTRATION), slackNotiService.getSlackProgressUrl());
+			ifNotAvailableCorpRegistrationScrapingTime(scrapingResponse.getCode(), scrapingResponse.getExtraMessage());
 			throw new CodefApiException(ResponseCode.findByCode(scrapingResponse.getCode()));
 		}
 	}
@@ -387,5 +389,6 @@ public class ScrapingService {
 		log.error("[scrapCorpRegistration] $user={}, $code={}, $message={}, $resIssueYn={} $transactionId={} "
 			, user.email(),scrapingResponse.getCode(), scrapingResponse.getMessage(), resIssueYn, scrapingResponse.getTransactionId());
 	}
+
 
 }

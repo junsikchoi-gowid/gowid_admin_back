@@ -1,7 +1,9 @@
 package com.nomadconnection.dapp.api.v2.utils;
 
+import com.nomadconnection.dapp.api.exception.CodefApiException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.codef.io.helper.ResponseCode;
+import com.nomadconnection.dapp.codef.io.helper.ScrapingMessageGroup;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -20,7 +22,15 @@ public final class ScrapingCommonUtils {
 		return ResponseCode.CF00000.getCode().equals(code);
 	}
 
-	public static boolean isNotAvailableScrapingTime(String code){
+	public static void ifNotAvailableCorpRegistrationScrapingTime(String code, String extraMessage){
+		final String notAvailableMessage = "서비스 시간이 종료되었습니다";
+		boolean isNotAvailableTime = ResponseCode.CF12003.getCode().equals(code) && extraMessage.contains(notAvailableMessage);
+		if(isNotAvailableTime) {
+			throw new CodefApiException(ResponseCode.findByCode(code), ScrapingMessageGroup.GP00009);
+		}
+	}
+
+	public static boolean isNotAvailableFinancialStatementsScrapingTime(String code){
 		return ResponseCode.CF12041.getCode().equals(code);
 	}
 

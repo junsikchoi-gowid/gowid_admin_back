@@ -22,7 +22,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.isNotAvailableScrapingTime;
+import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.isNotAvailableFinancialStatementsScrapingTime;
 import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.isScrapingSuccess;
 
 /**
@@ -94,7 +94,7 @@ public class FinancialStatementsService {
 				D1520 d1520 = fullTextService.build1520(corp, scrapingResult);
 				fullTextService.save1520(d1520);
 				imageService.sendFinancialStatementsImage(user.cardCompany(), yyyyMm, standardFinancialResult, licenseNo);
-			} else if(isNotAvailableScrapingTime(code)) {
+			} else if(isNotAvailableFinancialStatementsScrapingTime(code)) {
 				printScrapingErrorLog("It is not the time allowed for scraping.", logDto);
 				break;
 			} else {
