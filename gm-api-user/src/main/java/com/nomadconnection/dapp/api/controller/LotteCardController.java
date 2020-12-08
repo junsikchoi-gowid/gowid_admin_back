@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 @Slf4j
@@ -212,15 +213,22 @@ public class LotteCardController {
 	@ApiOperation(value = "법인카드 발급 신청")
 	@PostMapping(URI.CARD)
 	public ResponseEntity<CardIssuanceDto.IssuanceRes> application(
+			@ApiIgnore HttpSession httpSession,
 			@ApiIgnore @CurrentUser CustomUser user,
 			@ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) {
 		if (log.isInfoEnabled()) {
 			log.info("([ application ]) $user='{}' $dto='{}'", user, request);
 		}
-		SignatureHistory signatureHistory = issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
-		issuanceService.issuance(user.idx(), request, signatureHistory.getIdx());
 
-		return ResponseEntity.ok().build();
+        if (httpSession.getAttribute(request.getCardIssuanceInfoIdx().toString()) == null) {
+            httpSession.setAttribute(request.getCardIssuanceInfoIdx().toString(), true); // value값은 큰 의미 없음
+            SignatureHistory signatureHistory = issuanceService.verifySignedBinaryAndSave(user.idx(), request.getSignedBinaryString());
+            issuanceService.issuance(user.idx(), request, signatureHistory.getIdx());
+            httpSession.removeAttribute(request.getCardIssuanceInfoIdx().toString());
+        } else {
+            log.info("[ application ] Already running service {}'s {}", user.email(), request.getCardIssuanceInfoIdx());
+        }
+        return ResponseEntity.ok().build();
 	}
 
 	@Deprecated
