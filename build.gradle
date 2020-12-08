@@ -44,10 +44,8 @@ subprojects {
         testCompileOnly {
             extendsFrom compileOnly
             exclude module: 'gm-secukeypad'
-            exclude module: 'gm-redis'
             exclude module: 'gm-swagger'
             exclude module: 'gm-jwt'
-            exclude module: 'gm-codef'
         }
         testAnnotationProcessor {
             extendsFrom annotationProcessor
