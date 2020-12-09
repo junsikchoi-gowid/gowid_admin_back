@@ -29,6 +29,7 @@ import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
+import com.nomadconnection.dapp.core.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
@@ -40,7 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.ScrapingNotiReq.getScrapingSlackMessage;
 import static com.nomadconnection.dapp.api.util.CommonUtil.replaceHyphen;
@@ -278,7 +278,7 @@ public class ScrapingService {
 		Corp corp = user.corp();
 		String email = user.email();
 		String licenseNo = corp.resCompanyIdentityNo();
-		String registrationNumber = replaceHyphen(Optional.ofNullable(corp.resUserIdentiyNo()).orElse(""));
+		String registrationNumber = replaceHyphen(OptionalUtil.getOrEmptyString(corp.resUserIdentiyNo()));
 
 		String response = codefApiService.requestCorpRegistrationScraping(ENROLL_NO.getCode(), registrationNumber,"", "", email); // 등록번호 스크래핑
 		ScrapingResponse scrapingResponse = scrapingResultService.getApiResult(response);

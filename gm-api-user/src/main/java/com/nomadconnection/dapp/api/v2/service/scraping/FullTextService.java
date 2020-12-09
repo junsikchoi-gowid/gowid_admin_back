@@ -11,6 +11,7 @@ import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1200Reposito
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.domain.shinhan.*;
 import com.nomadconnection.dapp.core.encryption.shinhan.Seed128;
+import com.nomadconnection.dapp.core.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
@@ -20,7 +21,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.nomadconnection.dapp.api.util.CommonUtil.replaceHyphen;
@@ -203,12 +203,12 @@ public class FullTextService {
 		return D1000.builder()
 			.idxCorp(corp.idx())
 			.c007(CommonUtil.getNowYYYYMMDD())
-			.d001(replaceHyphen(Optional.ofNullable(corp.resCompanyIdentityNo()).orElse("")))
-			.d002(replaceHyphen(Optional.ofNullable(corp.resUserIdentiyNo()).orElse("")))
-			.d003(Optional.ofNullable(corp.resCompanyNm()).orElse(""))
+			.d001(replaceHyphen(OptionalUtil.getOrEmptyString(corp.resCompanyIdentityNo())))
+			.d002(replaceHyphen(OptionalUtil.getOrEmptyString(corp.resUserIdentiyNo())))
+			.d003(OptionalUtil.getOrEmptyString(corp.resCompanyNm()))
 			.d004("400")
 			.d005("06")
-			.d007(Optional.ofNullable(corp.resRegisterDate()).orElse(""))
+			.d007(OptionalUtil.getOrEmptyString(corp.resRegisterDate()))
 			.d009(ceoType) // 1: 단일대표 2: 개별대표 3: 공동대표
 			.d010(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")// 대표이사_성명1
 			.d011(listResCeoList.size() >= 3 ? Seed128.encryptEcb(replaceHyphen(listResCeoList.get(2))) : "")// 대표이사_주민번호1
@@ -258,9 +258,9 @@ public class FullTextService {
 			.d013("12")
 			.d015("GOWID1")
 			.d016("GOWID1")
-			.d027(replaceHyphen(Optional.ofNullable(corp.resUserIdentiyNo()).orElse("")))    // 법인등록번호
+			.d027(replaceHyphen(OptionalUtil.getOrEmptyString(corp.resUserIdentiyNo())))    // 법인등록번호
 			.d028("400")    // 법인자격코드
-			.d030(Optional.ofNullable(corp.resRegisterDate()).orElse(""))    // 설립일자
+			.d030(OptionalUtil.getOrEmptyString(corp.resRegisterDate()))    // 설립일자
 			.d031(ceoType)    // 대표자코드
 			.d032(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")    // 대표자명1
 			.d033(listResCeoList.size() >= 3 ? replaceHyphen(Seed128.encryptEcb(listResCeoList.get(2))) : "")    // 대표자주민등록번호1
