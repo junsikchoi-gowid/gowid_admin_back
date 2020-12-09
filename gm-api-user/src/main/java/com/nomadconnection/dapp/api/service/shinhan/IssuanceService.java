@@ -582,12 +582,13 @@ public class IssuanceService {
         idNum = Seed128.encryptEcb(idNum);
 
         // 외국인 신분증 진위여부시 한글명, 영문명으로 두번 요청(dto.getName : 한글명 or 영문명)하기때문에
-        // contains 한번만 체크
-        if (d1530.getD046().contains(dto.getName())) {
+        // 영문명으로 진위확인이 되는 경우 전문에 영문명이 저장되어 있지 않으므로
+        // korName으로 체크
+        if (d1530.getD046().contains(dto.getKorName())) {
             d1530.setD047(idNum);       // 대표자주민등록번호1
-        } else if (d1530.getD050().contains(dto.getName())) {
+        } else if (d1530.getD050().contains(dto.getKorName())) {
             d1530.setD051(idNum);       // 대표자주민등록번호2
-        } else if (d1530.getD054().contains(dto.getName())) {
+        } else if (d1530.getD054().contains(dto.getKorName())) {
             d1530.setD055(idNum);       // 대표자주민등록번호3
         } else {
             log.error("Not matched ceoInfo in D1530. ceoInfo=" + dto);
