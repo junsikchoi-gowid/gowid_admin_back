@@ -61,10 +61,14 @@ public class RiskService {
 	private final IssuanceProgressRepository repoIssuanceProgress;
 	private final ResAccountHistoryRepository repoResAccountHistory;
 	private final CommonCodeDetailRepository repoCommonCodeDetail;
-
 	private final D1000Repository repoD1000;
 	private final D1400Repository repoD1400;
 	private final D1530Repository repoD1530;
+
+	final List<String> ACCOUNT_TYPE = Arrays.asList("10", "11", "12", "13", "14");
+	final Double minBalance = 10000000d;
+	final Double minCashBalance = 50000000d;
+	final Double maxLimit = 500000000d;
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity<?> saveRiskConfig(RiskDto.RiskConfigDto riskConfig){
@@ -289,28 +293,30 @@ public class RiskService {
 		//Grade
 		risk.grade(getGrade(d1530, riskconfig, risk.recentBalance()));
 
-
 		//실제계산금액
-		if(getCardLimitNow(risk.grade()) > 0 ){
-			risk.cardLimitNow(Math.floor((risk.recentBalance() * getCardLimitNow(risk.grade()) / 100 ) / 1000000) * 1000000);
-			risk.cardLimitNow(Math.max(risk.cardLimitNow(),riskconfig.depositGuarantee()));
-		}else {
-			risk.cardLimitNow(0d);
-		}
-
-		// 계산값은 보증금을 최우선으로 한
-		if(riskconfig.depositGuarantee()>0){
-			risk.cardLimitNow(riskconfig.depositGuarantee());
-		}
+		risk.cardLimitNow(getCardLimitNowVer2(risk.grade(),risk.recentBalance(),riskconfig.depositGuarantee()));
 
 		repoRisk.save(risk);
-
-		log.debug("riskconfig $riskconfig={}", riskconfig);
-
 		corp.riskConfig(repoRiskConfig.save(riskconfig));
 		repoCorp.save(corp);
 
 		return risk;
+	}
+
+	private double getCardLimitNowVer2(String grade, double recentBalance, double depositGuarantee) {
+
+		// 계산값은 보증금을 최우선으로 함
+		if( depositGuarantee>0){
+			return depositGuarantee;
+		}else{
+			if(getCardLimitNowPercent(grade) > 0 ){
+				return Math.min(Math.max(
+						(Math.floor((recentBalance * getCardLimitNowPercent(grade) / 100 ) / 1000000) * 1000000), depositGuarantee)
+						,maxLimit);
+			}else {
+				return 0d;
+			}
+		}
 	}
 
 	@Transactional(readOnly = true)
@@ -466,7 +472,7 @@ public class RiskService {
 		//Grade
 		risk.grade(getGrade(d1530, riskConfig, risk.recentBalance()));
 		//실제계산금액
-		risk.cardLimitNow( risk.recentBalance() * getCardLimitNow(risk.grade()) / 100 );
+		risk.cardLimitNow( risk.recentBalance() * getCardLimitNowPercent(risk.grade()) / 100 );
 
 		if(issuanceProgress != null &&
 				isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())){
@@ -476,7 +482,7 @@ public class RiskService {
 		return risk;
 	}
 
-	private Integer getCardLimitNow(String grade ) {
+	private Integer getCardLimitNowPercent(String grade ) {
 		String strPercent = repoCommonCodeDetail.findFirstByCode1AndCode(grade, CommonCodeType.RISK_GRADE).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.entity("CommonCodeDetail")
@@ -503,10 +509,7 @@ public class RiskService {
 		}
 	}
 
-	final List<String> ACCOUNT_TYPE = Arrays.asList("10", "11", "12", "13", "14");
 
-	final Double minBalance = 10000000d;
-	final Double minCashBalance = 50000000d;
 
 	private double getRecentBalance(Corp corp, D1530 d1530, Double balance) {
 		AtomicReference<Double> recentBalance = new AtomicReference<>(balance);
