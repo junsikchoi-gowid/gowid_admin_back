@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.QCardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.common.QConnectedMng;
 import com.nomadconnection.dapp.core.domain.common.QIssuanceProgress;
@@ -13,9 +14,9 @@ import com.nomadconnection.dapp.core.domain.risk.QRisk;
 import com.nomadconnection.dapp.core.domain.user.QUser;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
-import io.swagger.annotations.ApiModelProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -121,21 +122,17 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
                         corp.resCompanyIdentityNo.as("resCompanyIdentityNo"),
                         corp.resUserNm.as("ceoName"),
                         corp.user.cardCompany.as("cardCompany"),
-                        corp.riskConfig.cardIssuance.as("cardIssuance"),
+                    new CaseBuilder()
+                        .when(cardIssuanceInfo.issuanceStatus.eq(IssuanceStatus.ISSUED))
+                        .then(true)
+                        .otherwise(false).as("cardIssuance"),
+                        cardIssuanceInfo.issuanceStatus.as("issuanceStatus"),
                         cardIssuanceInfo.issuanceDepth.as("issuanceDepth"),
                         corp.user.name.as("userName"),
                         corp.user.email.as("email"),
                         corp.resRegisterDate.as("registerDate"),
                         issuanceProgress.createdAt.as("applyDate"),
                         issuanceProgress.updatedAt.as("decisionDate")
-//                        corp.resBusinessItems.as("resBusinessItems"),
-//                        corp.resBusinessTypes.as("resBusinessTypes"),
-//                        corp.riskConfig.ceoGuarantee.as("ceoGuarantee"),
-//                        corp.riskConfig.depositGuarantee.as("depositGuarantee"),
-//                        corp.riskConfig.depositPayment.as("depositPayment"),
-//                        corp.riskConfig.ventureCertification.as("ventureCertification"),
-//                        corp.riskConfig.vcInvestment.as("vcInvestment"),
-//                        corp.createdAt.as("createdAt")
                 ));
 
         query.where(corp.riskConfig.enabled.isTrue());

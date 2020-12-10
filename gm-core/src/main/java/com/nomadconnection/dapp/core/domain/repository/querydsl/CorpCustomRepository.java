@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -122,6 +123,9 @@ public interface CorpCustomRepository {
 
         @ApiModelProperty("발급")
         private Boolean cardIssuance;
+
+        @ApiModelProperty("발급상태")
+        private IssuanceStatus issuanceStatus;
 
         @ApiModelProperty("마지막 신청 단계")
         private String issuanceDepth;
