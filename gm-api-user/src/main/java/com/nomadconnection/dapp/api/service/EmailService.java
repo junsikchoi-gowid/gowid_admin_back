@@ -105,7 +105,7 @@ public class EmailService {
 	}
 
 	public boolean sendBenefitResultMail(Map<String, Object> mailAttribute, String emailFrom, String emailTo, String mailSubject, String mailTemplate) {
-		return this.sendBenefitResultMail(mailAttribute, emailFrom, new String[]{ObjectUtils.isEmpty(emailTo) ? emailFrom : emailTo}, mailSubject, mailTemplate);
+		return sendBenefitResultMail(mailAttribute, emailFrom, new String[]{ObjectUtils.isEmpty(emailTo) ? emailFrom : emailTo}, mailSubject, mailTemplate);
 	}
 
 	/**
@@ -123,8 +123,7 @@ public class EmailService {
 			{
 				Context context = new Context();
 				{
-					mailAttribute.forEach((attibuteName, attibuteValue)
-							-> context.setVariable(attibuteName, attibuteValue));
+					mailAttribute.forEach(context::setVariable);
 				}
 				helper.setFrom(emailFrom);
 				helper.setTo(ObjectUtils.isEmpty(emailTo) ? new String[]{emailFrom} : emailTo);

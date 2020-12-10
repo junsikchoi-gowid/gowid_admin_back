@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.api.dto;
+package com.nomadconnection.dapp.api.dto.limitInquiry;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

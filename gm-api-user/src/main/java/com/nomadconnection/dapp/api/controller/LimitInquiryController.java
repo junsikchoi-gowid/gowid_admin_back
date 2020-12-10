@@ -1,7 +1,7 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.nomadconnection.dapp.api.dto.LimitInquiryDto;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
+import com.nomadconnection.dapp.api.dto.limitInquiry.LimitInquiryDto;
 import com.nomadconnection.dapp.api.service.LimitInquiryService;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import io.swagger.annotations.Api;
