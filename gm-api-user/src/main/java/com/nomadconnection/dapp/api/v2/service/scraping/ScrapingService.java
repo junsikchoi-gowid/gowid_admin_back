@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.api.v2.service.scraping;
 
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto.AccountNt;
-import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.exception.CodefApiException;
 import com.nomadconnection.dapp.api.exception.CorpAlreadyExistException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
@@ -126,12 +125,8 @@ public class ScrapingService {
 			JSONArray successList = (JSONArray) scrapingResponse.getScrapingResponse()[1].get("successList");
 			saveConnectedId(successList, connectedId);
 		} else {
-			ApiResponse.ApiResult result = scrapingResultService.getCodeAndMessage(scrapingResponse);
 			log.error("[createAccount] $user={}, $code={}, $message={} ", user.email(), code, message);
-			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, result, ScrapingType.CREATE_ACCOUNT), slackNotiService.getSlackProgressUrl());
-			if (code.equals(ResponseCode.CF12100.getCode()) && result.getExtraMessage().contains("개인납세자")) {
-				throw new CodefApiException(ResponseCode.findByCode("INDIVIDUAL"));
-			}
+			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(scrapingResponse), ScrapingType.CREATE_ACCOUNT), slackNotiService.getSlackProgressUrl());
 			throw new CodefApiException(ResponseCode.findByCode(code));
 		}
 	}
