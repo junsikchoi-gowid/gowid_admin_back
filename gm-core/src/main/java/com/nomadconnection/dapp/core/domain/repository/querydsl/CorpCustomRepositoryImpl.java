@@ -157,6 +157,10 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
             query.where(corp.user.email.toLowerCase().contains(dto.getEmail().toLowerCase()));
         }
 
+        if (dto.getIssuanceStatus() != null) {
+            query.where(cardIssuanceInfo.issuanceStatus.eq(dto.getIssuanceStatus()));
+        }
+
         riskList = getQuerydsl().applyPagination(pageable, query).fetch();
 
         return new PageImpl(riskList, pageable, query.fetchCount());
