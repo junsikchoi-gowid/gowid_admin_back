@@ -130,6 +130,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFIT_CATEGORIES).permitAll()
                 .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFIT_SEARCH).permitAll()
                 .antMatchers(FaqController.URI.BASE + FaqController.URI.FAQ_SAVE).permitAll()
+                .antMatchers(com.nomadconnection.dapp.api.v2.controller.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.AuthController.URI.SEND).permitAll()
+                .antMatchers(com.nomadconnection.dapp.api.v2.controller.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.AuthController.URI.VERIFY).permitAll()
                 .antMatchers(SurveyController.URI.BASE).permitAll()
                 .antMatchers(LimitInquiryController.URI.BASE).permitAll()
                 .anyRequest().authenticated();

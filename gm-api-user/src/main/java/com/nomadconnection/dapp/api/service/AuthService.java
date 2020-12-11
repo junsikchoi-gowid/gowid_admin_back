@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.AuthDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
+import com.nomadconnection.dapp.api.enums.VerifyCode;
 import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
@@ -43,9 +44,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-
-import static com.nomadconnection.dapp.api.common.Const.PASSWORD_RESET;
-import static com.nomadconnection.dapp.api.common.Const.REGISTER;
 
 @Slf4j
 @Service
@@ -336,10 +334,10 @@ public class AuthService {
 				helper.setFrom(config.getSender());
 				helper.setTo(email);
 
-				if(REGISTER.equals(type)){
+				if(VerifyCode.REGISTER.getCode().equals(type)){
 					helper.setSubject("[Gowid] 회원가입 이메일 인증번호");
 					helper.setText(templateEngine.process("signup", context), true);
-				}else if(PASSWORD_RESET.equals(type)){
+				}else if(VerifyCode.PASSWORD_RESET.getCode().equals(type)){
 					helper.setSubject("[Gowid] 비밀번호 재설정 이메일 인증번호");
 					helper.setText(templateEngine.process("password-init", context), true);
 				}else{

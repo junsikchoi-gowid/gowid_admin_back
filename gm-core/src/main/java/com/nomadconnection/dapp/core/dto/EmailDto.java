@@ -1,15 +1,18 @@
 package com.nomadconnection.dapp.core.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import java.text.NumberFormat;
+import java.util.Map;
 
 @Getter
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class EmailDto {
 
 	public EmailDto(String licenseNo, String companyName, String hopeLimit, String grantLimit, String email) {
@@ -31,5 +34,11 @@ public class EmailDto {
 	private String grantLimit;
 
 	private String email;
+
+	private String to;
+	private String from;
+	private String subject;
+	private String template;
+	private Map<String, Object> context;
 
 }

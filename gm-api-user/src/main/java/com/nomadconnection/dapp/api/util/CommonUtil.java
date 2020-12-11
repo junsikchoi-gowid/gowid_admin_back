@@ -139,4 +139,8 @@ public class CommonUtil {
         cal.add(Calendar.DATE, i);
         return df.format(cal.getTime());
     }
+
+    public static String get4DigitRandomNumber(){
+        return String.format("%04d", new Random().nextInt(10000));
+    }
 }

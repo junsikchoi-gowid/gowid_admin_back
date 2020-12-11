@@ -142,4 +142,23 @@ public class EmailService {
 
 		return true;
 	}
+
+	public void send(EmailDto emailDto){
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			{
+				Context context = new Context();
+				{
+					emailDto.getContext().forEach((attributeName, attributeValue)
+						-> context.setVariable(attributeName, attributeValue));
+				}
+				helper.setFrom(emailConfig.getSender());
+				helper.setTo(emailDto.getTo());
+				helper.setSubject(emailDto.getSubject());
+				helper.setText(templateEngine.process(emailDto.getTemplate(), context), true);
+			}
+		};
+		sender.send(preparator);
+	}
+
 }

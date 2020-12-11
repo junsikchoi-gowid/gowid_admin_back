@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.AuthDto;
+import com.nomadconnection.dapp.api.enums.VerifyCode;
 import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
@@ -23,8 +24,6 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.Email;
 import java.util.List;
-
-import static com.nomadconnection.dapp.api.common.Const.PASSWORD_RESET;
 
 @Slf4j
 @CrossOrigin(allowCredentials = "true")
@@ -104,7 +103,7 @@ public class AuthController {
             log.info("([ sendVerificationCode ]) $email='{}' $type='{}'", email, type);
         }
         try {
-            if (!service.isPresent(email) && PASSWORD_RESET.equals(type)) {
+            if (!service.isPresent(email) && VerifyCode.PASSWORD_RESET.equals(type)) {
                 return ResponseEntity.ok().body(
                     BusinessResponse.builder()
                         .normal(BusinessResponse.Normal.builder()

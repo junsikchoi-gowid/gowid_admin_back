@@ -26,22 +26,20 @@ class RedisServiceTest extends AbstractSpringBootTest {
 	@Test
 	@DisplayName("Redis에_저장하고_있는지_확인한다")
 	public void exists(){
+		redisService.putValue(key, id, true);
+		redisService.setExpireSecondsAtValueOps(key, id, 500);
 
-		redisService.putIfAbsent(key, id, true);
-		redisService.setExpireMinutes(key, 2);
-
-		assertEquals(true, redisService.get(key, id));
-		assertEquals(true, redisService.existsKey(key, id));
+		assertEquals(true, redisService.getByKey(key, id));
+		assertEquals(true, redisService.existsByKey(key, id));
 	}
 
 	@Test
 	@DisplayName("Redis에_저장하고_삭제되는지_확인한다")
 	public void notExists(){
+		redisService.putValue(key, id, true);
+		redisService.deleteByKey(key, id);
 
-		redisService.putIfAbsent(key, id, true);
-		redisService.delete(key, id);
-
-		assertEquals(false, redisService.existsKey(key, id));
+		assertEquals(false, redisService.existsByKey(key, id));
 	}
 
 }

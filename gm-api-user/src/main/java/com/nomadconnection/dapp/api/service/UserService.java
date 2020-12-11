@@ -49,7 +49,10 @@ import org.thymeleaf.context.Context;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -89,6 +92,18 @@ public class UserService {
 		);
 	}
 
+	public User findByEmail(String email){
+		return repo.findByAuthentication_EnabledAndEmail(true,email).orElseThrow(
+			() -> UserNotFoundException.builder()
+				.email(email)
+				.build()
+		);
+	}
+
+	public boolean isPresentEmail(String email) {
+		return repo.findByAuthentication_EnabledAndEmail(true, email).isPresent();
+	}
+
 	/**
 	 * 사용자 정보 조회
 	 *
@@ -111,8 +126,7 @@ public class UserService {
 	public void registerUser(UserDto.UserRegister dto) {
 		//	이메일 중복 체크
 
-
-		if (repo.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).isPresent()) {
+		if (isPresentEmail(dto.getEmail())) {
 			throw AlreadyExistException.builder()
 					.category("email")
 					.resource(dto.getEmail())
@@ -143,11 +157,7 @@ public class UserService {
 							.code(dto.getVerificationCode())
 							.build()
 			);
-			User user = repo.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).orElseThrow(
-					() -> UserNotFoundException.builder()
-							.email(dto.getEmail())
-							.build()
-			);
+			User user = findByEmail(dto.getEmail());
 			user.password(encoder.encode(dto.getPassword()));
 			user.name(dto.getName());
 			user.mdn(dto.getMdn());
@@ -236,27 +246,6 @@ public class UserService {
 		repo.save(user);
 	}
 
-
-
-
-
-
-	/**
-	 * 이용내역 리스트 분기
-	 */
-	private List<Long> getConsentIdxList(List<ConsentDto.RegDto> consents) {
-		Long[] l = new Long[consents.size()];
-		int index = 0 ;
-		for(ConsentDto.RegDto r : consents){
-			l[index] = r.idxConsent;
-			index++;
-		}
-
-		List<Long> returnList = new ArrayList<>();
-		Collections.addAll(returnList,l);
-		return returnList;
-	}
-
 	/**
 	 * 사용자 등록
 	 *
@@ -324,7 +313,7 @@ public class UserService {
 		userDto.setName(dto.getUserName());
 
 		// 메일확인
-		if (repo.findByAuthentication_EnabledAndEmail(true,userDto.getEmail()).isPresent()) {
+		if (isPresentEmail(dto.getEmail())) {
 			throw AlreadyExistException.builder()
 					.category("email")
 					.resource(userDto.getEmail())
@@ -447,11 +436,7 @@ public class UserService {
 
 
 	private TokenDto.TokenSet issueTokenSet(AccountDto dto) {
-		User user = repo.findByAuthentication_EnabledAndEmail(true,dto.getEmail()).orElseThrow(
-				() -> UserNotFoundException.builder()
-						.email(dto.getEmail())
-						.build()
-		);
+		User user = findByEmail(dto.getEmail());
 		if (!encoder.matches(dto.getPassword(), user.password())) {
 			throw UnauthorizedException.builder()
 					.account(dto.getEmail())
@@ -541,7 +526,7 @@ public class UserService {
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity<?> deleteEmail(String email) {
-		User user = repo.findByAuthentication_EnabledAndEmail(true,email).orElseThrow(() -> new RuntimeException("UserNotFound"));
+		User user = findByEmail(email);
 
 		user.authentication(Authentication.builder().enabled(false).build());
 		user.enabledDate(LocalDateTime.now());
@@ -558,11 +543,7 @@ public class UserService {
 	public ResponseEntity<?> passwordAuthPre(String email, String value, String password) {
 
 		if(repoVerificationCode.findByVerificationKeyAndCode(email, value).isPresent()){
-			User user = repo.findByAuthentication_EnabledAndEmail(true,email).orElseThrow(
-					() -> UserNotFoundException.builder()
-							.email(email)
-							.build()
-			);
+			User user = findByEmail(email);
 
 			repoVerificationCode.deleteById(email);
 
@@ -589,11 +570,7 @@ public class UserService {
 				() -> UserNotFoundException.builder().id(idxUser).build()
 		);
 
-		User user = repo.findByAuthentication_EnabledAndEmail(true, userEmail.email()).orElseThrow(
-				() -> UserNotFoundException.builder()
-						.email(userEmail.email())
-						.build()
-		);
+		User user = findByEmail(userEmail.email());
 
 		if (!encoder.matches(prePassword, user.password())) {
 			log.error("[passwordAuthAfter] invalid password");
@@ -812,4 +789,5 @@ public class UserService {
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().build());
 	}
+
 }
