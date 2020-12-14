@@ -15,6 +15,7 @@ import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.shinhan.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
@@ -65,6 +66,11 @@ public class ResumeService {
     // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
     @Transactional(noRollbackFor = Exception.class)
     public CardIssuanceDto.ResumeRes resumeApplication(CardIssuanceDto.ResumeReq request) {
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.getCardIssuanceInfoByApplicationDateAndNumber(request.getD001(), request.getD002());
+        if(cardIssuanceInfoService.isIssuedCorp(cardIssuanceInfo.issuanceStatus())){
+            throw new BadRequestException(ErrorCode.Api.ALREADY_ISSUED);
+        }
+
         issCommonService.saveGwTranForD1600(request);
         log.debug("### saveProgressFailed start");
         issCommonService.saveProgressFailed(request, IssuanceProgressType.P_1600);
@@ -79,8 +85,7 @@ public class ResumeService {
             log.error("## c009 = " + request.getC009());
             log.error("## c013 = " + request.getC013());
 
-            cardIssuanceInfoService
-                .updateIssuanceStatusByApplicationDateAndNumber(request.getD001(), request.getD002(), IssuanceStatus.REJECT);
+            cardIssuanceInfo.issuanceStatus(IssuanceStatus.REJECT);
             return response;
         }
 
@@ -89,8 +94,7 @@ public class ResumeService {
         issCommonService.saveProgressSuccess(request, IssuanceProgressType.P_1600);
         log.debug("## response 1600 => " + response.toString());
 
-        cardIssuanceInfoService
-            .updateIssuanceStatusByApplicationDateAndNumber(request.getD001(), request.getD002(), IssuanceStatus.ISSUED);
+        cardIssuanceInfo.issuanceStatus(IssuanceStatus.ISSUED);
         return response;
     }
 

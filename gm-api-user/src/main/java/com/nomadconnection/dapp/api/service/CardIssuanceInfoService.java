@@ -1,11 +1,14 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.exception.api.NotRegisteredException;
 import com.nomadconnection.dapp.api.service.shinhan.D1200Service;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
+import com.nomadconnection.dapp.core.domain.shinhan.D1200;
 import com.nomadconnection.dapp.core.domain.user.User;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -71,6 +74,25 @@ public class CardIssuanceInfoService {
     @Transactional(readOnly = true)
     public Optional<CardIssuanceInfo> findTopByUser(User user){
         return cardIssuanceInfoRepository.findTopByUserAndDisabledFalseOrderByIdxDesc(user);
+    }
+
+    @Transactional(readOnly = true)
+    public CardIssuanceInfo findTopByCorp(Corp corp){
+        return cardIssuanceInfoRepository.findByCorpAndDisabledFalseOrderByIdxDesc(corp)
+                .orElseThrow(() -> new NotRegisteredException(ErrorCode.Api.NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public CardIssuanceInfo getCardIssuanceInfoByApplicationDateAndNumber(String applicationDate, String applicationNum){
+        D1200 d1200 = d1200Service.getD1200ByApplicationDateAndApplicationNum(applicationDate, applicationNum);
+        Long corpIdx = d1200.getIdxCorp();
+        Corp corp = corpService.findByCorpIdx(corpIdx);
+
+        return findTopByCorp(corp);
+    }
+
+    public boolean isIssuedCorp(IssuanceStatus issuanceStatus){
+        return IssuanceStatus.ISSUED.equals(issuanceStatus);
     }
 
 }

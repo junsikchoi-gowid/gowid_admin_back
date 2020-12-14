@@ -145,7 +145,8 @@ public class ErrorCode {
 		NO_PERMISSION("NO_PERMISSION", "no permission"),
 		SUCCESS("SUCCESS", null),
 		ALREADY_EXIST("ALREADY_EXIST", "already exist"),
-		SURVEY_ALREADY_EXIST("ALREADY_EXIST", "user survey already exist");
+		SURVEY_ALREADY_EXIST("ALREADY_EXIST", "user survey already exist"),
+		ALREADY_ISSUED("ALREADY_ISSUED", "already been issued");
 
 		private final String code;
 		private final String desc;
