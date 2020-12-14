@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -186,6 +187,48 @@ public class FullTextJsonParser {
 	public static String getResIssueYn(JSONObject[] response){
 		JSONObject jsonDataCorpRegister = response[1];
 		return jsonDataCorpRegister.get("resIssueYN").toString();
+	}
+
+	public static String setNoContents(String corpRegisterScrapingResult){
+		String noContents[] = {
+			"resStockOptionList\" : [ {\n" +
+				"        \"resStockOption\" : \"내용 없음\",\n" +
+				"        \"resNumber\" : \"0\"\n" +
+				"      } ]"
+			, "resTypeStockContentList\" : [ {\n" +
+			"        \"resNumber\" : \"0\",\n" +
+			"        \"resTypeStockContentItemList\" : [ {\n" +
+			"          \"resNumber\" : \"0\",\n" +
+			"          \"resTypeStockContent\" : \"내용 없음\"\n" +
+			"        } ]\n" +
+			"} ]"
+			, "resConvertibleBondList\" : [ {\n" +
+			"        \"resNumber\" : \"0\",\n" +
+			"        \"resConvertibleBondItemList\" : [ {\n" +
+			"          \"resNumber\" : \"0\",\n" +
+			"          \"resConvertibleBond\" : \"내용 없음\"\n" +
+			"        } ]\n" +
+			"} ]"
+			, "resEtcList\" : [ {\n" +
+			"        \"resNumber\" : \"0\",\n" +
+			"        \"resEtc\" : \"내용 없음\"\n" +
+			"      } ]"
+		};
+
+		return corpRegisterScrapingResult.concat("")
+			.replaceAll("resStockOptionList\" : \\[ \\]", noContents[0])
+			.replaceAll("resTypeStockContentList\" : \\[ \\]", noContents[1])
+			.replaceAll("resConvertibleBondList\" : \\[ \\]", noContents[2])
+			.replaceAll("resEtcList\" : \\[ \\]", noContents[3]);
+	}
+
+	public static String mergeResTypeStockContentItemList(String response) {
+		int iLimit = StringUtils.countOccurrencesOf( response ,"resTypeStockContentItemList");
+		for(int i = 1 ; i < iLimit ; i++){
+			String strMatch = " \\]\n      \\}, \\{\n        \"resNumber\" : \"" + i +"\",\n        \"resTypeStockContentItemList\" : \\[";
+			response = response.replaceAll(strMatch,",");
+		}
+		return response;
 	}
 
 }
