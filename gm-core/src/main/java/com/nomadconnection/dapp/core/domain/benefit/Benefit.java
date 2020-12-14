@@ -32,9 +32,6 @@ public class Benefit extends BaseTime {
 	private Integer priority;
 
 	@Column(nullable = false)
-	private String hoverMessage;
-
-	@Column(nullable = false)
 	private String imageUrl;
 
 	private String detailImageUrl;

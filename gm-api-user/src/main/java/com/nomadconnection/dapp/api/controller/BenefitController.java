@@ -17,6 +17,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.validation.Valid;
+import java.util.List;
+
 @Slf4j
 @CrossOrigin(allowCredentials = "true")
 @RestController
@@ -50,11 +53,12 @@ public class BenefitController {
 
 	@ApiOperation("베네핏 목록 조회")
 	@GetMapping(URI.BENEFITS)
-	public ResponseEntity getBenefits(@PageableDefault Pageable pageable) {
+	public ResponseEntity getBenefits(@PageableDefault Pageable pageable,
+									  @RequestParam(required = false) String showAll) {
 		if (log.isInfoEnabled()) {
 			log.info("([ getBenefits ])");
 		}
-		return service.getBenefits(pageable);
+		return service.getBenefits(pageable, showAll);
 	}
 
 
@@ -82,7 +86,7 @@ public class BenefitController {
 			log.debug("([saveBenefitPaymentHistory]) $user='{}', $dto='{}'", user, dto.toString());
 		}
 
-		return service.saveBenefitPaymentHistory(dto, user.idx());
+		return service.saveBenefitPaymentHistory(user.idx(), dto);
 	}
 
 
@@ -137,6 +141,63 @@ public class BenefitController {
 			log.debug("([saveBenefitSearchHistory]) $dto='{}'", dto);
 		}
 
-		return service.saveBenefitSearchHistory(dto, user);
+		return service.saveBenefitSearchHistory(user, dto);
+	}
+
+
+	@ApiOperation(value = "베네핏 저장")
+	@PostMapping(URI.BENEFITS)
+	public ResponseEntity saveBenefit(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody BenefitDto.SaveBenefitReq dto) {
+
+		if (log.isDebugEnabled()) {
+			log.debug("([saveBenefit]) $dto='{}'", dto);
+		}
+
+		return service.saveBenefit(user.idx(), dto);
+	}
+
+
+	@ApiOperation(value = "혜택 삭제")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "idx", value = "식별자(베네핏 ID)", dataType = "Long")
+	})
+	@DeleteMapping(URI.BENEFIT)
+	public ResponseEntity deleteBenefit(@ApiIgnore @CurrentUser CustomUser user,
+								 @PathVariable Long idx) {
+
+		if (log.isInfoEnabled()) {
+			log.info("([ deleteBenefit ]) $user='{}' $idxBenefit='{}'", user, idx);
+		}
+
+		return service.deleteBenefit(user.idx(), idx);
+	}
+
+
+	@ApiOperation(value = "베네핏 수정")
+	@PutMapping(URI.BENEFIT)
+	public ResponseEntity updateBenefit(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@PathVariable Long idx,
+			@RequestBody @Valid BenefitDto.SaveBenefitReq dto) {
+
+		if (log.isInfoEnabled()) {
+			log.info("([ updateBenefit ]) $user='{}' $idxBenefit='{}' $dto='{}'", user, idx, dto);
+		}
+		return service.updateBenefit(user.idx(), idx, dto);
+	}
+
+
+	@ApiOperation(value = "베네핏 수정(List)")
+	@PutMapping(URI.BENEFITS)
+	public ResponseEntity updateBenefitList(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestBody @Valid List<BenefitDto.UpdateBenefitListReq> dto) {
+
+		if (log.isInfoEnabled()) {
+			log.info("([ updateBenefitList ]) $user='{}' $dto='{}'", user, dto);
+		}
+		return service.updateBenefitList(user.idx(), dto);
 	}
 }

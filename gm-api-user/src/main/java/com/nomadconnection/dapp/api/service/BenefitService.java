@@ -2,10 +2,12 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.BenefitDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
+import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.core.domain.benefit.*;
 import com.nomadconnection.dapp.core.domain.repository.benefit.*;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -33,6 +36,7 @@ public class BenefitService {
 	private final BenefitPaymentItemRepository repoBenefitPaymentItem;
 	private final BenefitCategoryRepository repoBenefitCategory;
 	private final BenefitSearchHistoryRepository repoBenefitSearchHistory;
+	private final BenefitProviderRepository repoBenefitProvider;
 
 	private final UserService userService;
 	private final EmailService emailService;
@@ -44,10 +48,17 @@ public class BenefitService {
 	 * @return 베네핏 정보 목록
 	 */
 	@Transactional(readOnly = true)
-	public ResponseEntity getBenefits(Pageable pageable) {
+	public ResponseEntity getBenefits(Pageable pageable, String showAll) {
 
 		log.debug(">>>>> getBenefits.start");
-		Page<BenefitDto.BenefitRes> resBenefitPage = repoBenefit.findAllByDisabledFalseOrderByPriority(pageable).map(BenefitDto.BenefitRes::from);
+		Page<BenefitDto.BenefitRes> resBenefitPage;
+
+		// if showAll이 없거나, showAll이 false일 경우 disabled가 false인 녀석만 조회
+		if(ObjectUtils.isEmpty(showAll) || !Boolean.valueOf(showAll)) {
+			resBenefitPage = repoBenefit.findAllByDisabledFalseOrderByPriority(pageable).map(BenefitDto.BenefitRes::from);
+		}else {
+			resBenefitPage = repoBenefit.findAllByOrderByPriority(pageable).map(BenefitDto.BenefitRes::from);
+		}
 
 		return ResponseEntity.ok().body(
 				BusinessResponse.builder().data(resBenefitPage).build()
@@ -64,7 +75,8 @@ public class BenefitService {
 	public ResponseEntity getBenefitCategories() {
 
 		log.debug(">>>>> getBenefitCategories.start");
-		List<BenefitDto.BenefitCategoryRes> resBenefitCategories = repoBenefitCategory.findAllByCategoryGroupCodeIsNullOrderByPriorityAsc()
+
+		List<BenefitDto.BenefitCategoryRes> resBenefitCategories = repoBenefitCategory.findAll()
 																						.stream().map(BenefitDto.BenefitCategoryRes::from)
 																						.collect(Collectors.toList());;
 
@@ -102,7 +114,7 @@ public class BenefitService {
 	 * @return 저장 결과
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity saveBenefitPaymentHistory(BenefitDto.BenefitPaymentHistoryReq dto, Long userIdx) {
+	public ResponseEntity saveBenefitPaymentHistory(Long userIdx, BenefitDto.BenefitPaymentHistoryReq dto) {
 
 		log.info(">>>>> saveBenefitPaymentLog.start");
 
@@ -334,7 +346,7 @@ public class BenefitService {
 	 * BenefitPaymentHistory 항목 조회
 	 *
 	 * @param idxBenefitPaymentHistory BenefitPaymentHistory ID
-	 * @return BenefitPaymentHistory 엔티티보
+	 * @return BenefitPaymentHistory 엔티티 정보
 	 */
 	@Transactional(readOnly = true)
 	BenefitPaymentHistory findBenefitPaymentHistory(Long idxBenefitPaymentHistory) {
@@ -369,10 +381,10 @@ public class BenefitService {
 	 * Benefit 검색어 저장
 	 *
 	 * @param dto	검색어 정보
-	 * @param idx	검색한 사용자 idx
+	 * @param user	검색한 사용자
 	 * @return	저장 결과
 	 */
-	public ResponseEntity saveBenefitSearchHistory(BenefitDto.BenefitSearchHistoryReq dto, CustomUser user) {
+	public ResponseEntity saveBenefitSearchHistory(CustomUser user, BenefitDto.BenefitSearchHistoryReq dto) {
 
 		BenefitSearchHistory benefitSearchHistory = BenefitSearchHistory.builder()
 				.idxUser(StringUtils.isEmpty(user) ? null : user.idx())
@@ -385,5 +397,167 @@ public class BenefitService {
 						.status(true)
 						.build())
 				.build());
+	}
+
+
+	/**
+	 * Benefit 삭제
+	 *
+	 * @param idxUser 사용자 idx
+	 * @param idxBenefit Benefit idx
+	 * @return 삭제 결과
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity deleteBenefit(Long idxUser, Long idxBenefit) {
+
+		if(adminService.isGowidAdmin(idxUser)) {
+			Benefit benefit = findBenefit(idxBenefit);
+
+			// Benefit 관련 정보 삭제(제공자, Item)
+			repoBenefitProvider.deleteAllByBenefit(benefit);
+			repoBenefitItem.deleteAllByBenefit(benefit);
+
+			// Benefit 정보 삭제
+			repoBenefit.deleteById(idxBenefit);
+
+			return ResponseEntity.ok().body(BusinessResponse.builder()
+					.normal(BusinessResponse.Normal.builder()
+							.status(true)
+							.build())
+					.build());
+		}else {
+			throw new BadRequestException(ErrorCode.Api.NO_PERMISSION);
+		}
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity saveBenefit(Long idxUser, BenefitDto.SaveBenefitReq dto) {
+
+		if(adminService.isGowidAdmin(idxUser)) {
+
+			// 1. 카테고리가 있는지 확인
+			BenefitCategory benefitCategory = findBenefitCategory(dto.getIdxBenefitCategory());
+
+			// 2. 혜택 저장
+			Benefit benefit = Benefit.builder()
+					.name(dto.getName())
+					.activeDiscount(dto.getActiveDiscount())
+					.activeCredit(dto.getActiveCredit())
+					.activeFreeTrial(dto.getActiveFreeTrial())
+					.imageUrl(dto.getImageUrl())
+					.catchphrase(dto.getCatchphrase())
+					.basicInfoDesc(dto.getBasicInfoDesc())
+					.basicInfoDetail(dto.getBasicInfoDetail())
+					.basicInfoGuide(dto.getBasicInfoGuide())
+					.activeApplying(dto.getActiveApplying())
+					.applyLink(0)
+					.disabled(dto.getDisabled())
+					.benefitCategory(benefitCategory)
+					.priority(repoBenefit.getMaxPriority())
+					.build();
+			repoBenefit.save(benefit);
+
+			// 3. 혜택 제공자 저장
+			BenefitProvider benefitProvider = BenefitProvider.builder()
+					.email(dto.getEmail())
+					.tel(dto.getTel())
+					.channel(dto.getChannel())
+					.applyLabel(dto.getApplyLabel())
+					.applyUrl(dto.getApplyUrl())
+					.benefit(benefit)
+					.build();
+			repoBenefitProvider.save(benefitProvider);
+
+			return ResponseEntity.ok().body(BusinessResponse.builder()
+					.normal(BusinessResponse.Normal.builder()
+							.status(true)
+							.build())
+					.build());
+
+		}else {
+			throw new BadRequestException(ErrorCode.Api.NO_PERMISSION);
+		}
+	}
+
+	private BenefitCategory findBenefitCategory(Long idxBenefitCategory) {
+		return repoBenefitCategory.findById(idxBenefitCategory).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.entity("BenefitCategory")
+						.idx(idxBenefitCategory)
+						.build()
+		);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity updateBenefit(Long idxUser, Long idxBenefit, BenefitDto.SaveBenefitReq dto) {
+
+		// 1. 사용자 확인
+		if(adminService.isGowidAdmin(idxUser)) {
+
+			// 2. 혜택이 있는지 확인하고,
+			Benefit benefit = findBenefit(idxBenefit);
+
+			// 3. 수정
+			if(!ObjectUtils.isEmpty(dto.getName())) benefit.name(dto.getName());
+			if(!ObjectUtils.isEmpty(dto.getActiveDiscount())) benefit.activeDiscount(dto.getActiveDiscount());
+			if(!ObjectUtils.isEmpty(dto.getActiveCredit())) benefit.activeCredit(dto.getActiveCredit());
+			if(!ObjectUtils.isEmpty(dto.getActiveFreeTrial())) benefit.activeFreeTrial(dto.getActiveFreeTrial());
+			if(!ObjectUtils.isEmpty(dto.getImageUrl())) benefit.imageUrl(dto.getImageUrl());
+			if(!ObjectUtils.isEmpty(dto.getCatchphrase())) benefit.catchphrase(dto.getCatchphrase());
+			if(!ObjectUtils.isEmpty(dto.getBasicInfoDesc())) benefit.basicInfoDesc(dto.getBasicInfoDesc());
+			if(!ObjectUtils.isEmpty(dto.getBasicInfoDetail())) benefit.basicInfoDetail(dto.getBasicInfoDetail());
+			if(!ObjectUtils.isEmpty(dto.getBasicInfoGuide())) benefit.basicInfoGuide(dto.getBasicInfoGuide());
+			if(!ObjectUtils.isEmpty(dto.getActiveApplying())) benefit.activeApplying(dto.getActiveApplying());
+			if(!ObjectUtils.isEmpty(dto.getDisabled())) benefit.disabled(dto.getDisabled());
+			if(!ObjectUtils.isEmpty(dto.getIdxBenefitCategory())) benefit.benefitCategory(findBenefitCategory(dto.getIdxBenefitCategory()));
+
+			// 4. Benefit Provider 수정
+			BenefitProvider benefitProvider = findBenefitProvider(benefit.benefitProviders().get(0).idx());
+			if(!ObjectUtils.isEmpty(dto.getTel())) benefitProvider.tel(dto.getTel());
+			if(!ObjectUtils.isEmpty(dto.getEmail())) benefitProvider.email(dto.getEmail());
+			if(!ObjectUtils.isEmpty(dto.getChannel())) benefitProvider.channel(dto.getChannel());
+			if(!ObjectUtils.isEmpty(dto.getApplyLabel())) benefitProvider.applyLabel(dto.getApplyLabel());
+			if(!ObjectUtils.isEmpty(dto.getApplyUrl())) benefitProvider.applyUrl(dto.getApplyUrl());
+
+			return ResponseEntity.ok().body(BusinessResponse.builder()
+					.normal(BusinessResponse.Normal.builder()
+							.status(true)
+							.build())
+					.build());
+
+		}else {
+			throw new BadRequestException(ErrorCode.Api.NO_PERMISSION);
+		}
+
+	}
+
+	private BenefitProvider findBenefitProvider(Long idxBenefitProvider) {
+		return repoBenefitProvider.findById(idxBenefitProvider).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.entity("BenefitProvider")
+						.idx(idxBenefitProvider)
+						.build()
+		);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity updateBenefitList(Long idxUser, List<BenefitDto.UpdateBenefitListReq> dtoList) {
+
+		// 1. 사용자 확인
+		if(adminService.isGowidAdmin(idxUser)) {
+			// 2. 혜택 우선순위 수정
+			dtoList.forEach(dto ->  {
+				Benefit benefit = findBenefit(dto.getIdx());
+				benefit.priority(dto.getPriority());
+			});
+
+			return ResponseEntity.ok().body(BusinessResponse.builder()
+					.normal(BusinessResponse.Normal.builder()
+							.status(true)
+							.build())
+					.build());
+		}else {
+			throw new BadRequestException(ErrorCode.Api.NO_PERMISSION);
+		}
 	}
 }

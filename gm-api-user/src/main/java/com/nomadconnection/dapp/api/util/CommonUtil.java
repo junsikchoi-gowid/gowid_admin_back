@@ -143,4 +143,16 @@ public class CommonUtil {
     public static String get4DigitRandomNumber(){
         return String.format("%04d", new Random().nextInt(10000));
     }
+
+    /**
+     * Convert LocalDateTime to String
+     * (parse없이 변환 시 시간에 'T'가 붙음)
+     *
+     * @param localDateTime
+     * @param pattern
+     * @return
+     */
+    public static String getLocalDateTimeToString(LocalDateTime localDateTime, String pattern) {
+        return LocalDateTime.parse(localDateTime.toString()).format(DateTimeFormatter.ofPattern(pattern));
+    }
 }

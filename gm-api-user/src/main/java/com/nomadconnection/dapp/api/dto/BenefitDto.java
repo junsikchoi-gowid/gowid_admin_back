@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.benefit.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -135,6 +136,81 @@ public class BenefitDto {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
+	public static class SaveBenefitReq {
+
+		@ApiModelProperty("이름")
+		private String name;
+
+		@ApiModelProperty("할인혜택 여부")
+		private Integer activeDiscount;
+
+		@ApiModelProperty("크레딧 제공 여부")
+		private Integer activeCredit;
+
+		@ApiModelProperty("무료 Trial 제공 여부")
+		private Integer activeFreeTrial;
+
+		@ApiModelProperty("Image URL")
+		private String imageUrl;
+
+		@ApiModelProperty("캐치프레이즈")
+		private String catchphrase;
+
+		@ApiModelProperty("기본정보 설명")
+		private String basicInfoDesc;
+
+		@ApiModelProperty("기본정보 상세")
+		private String basicInfoDetail;
+
+		@ApiModelProperty("기본정보 이용방법")
+		private String basicInfoGuide;
+
+		@ApiModelProperty("서비스 오픈 여부")
+		private Integer activeApplying;
+
+		@ApiModelProperty("활성화 여부")
+		@NotNull
+		private Boolean disabled;
+
+		@ApiModelProperty("카테고리 ID")
+		@NotNull
+		private Long idxBenefitCategory;
+
+		@ApiModelProperty("연락처")
+		private String tel;
+
+		@ApiModelProperty("이메일")
+		private String email;
+
+		@ApiModelProperty("기타 연락처 채널")
+		private String channel;
+
+		@ApiModelProperty("신청버튼 라벨")
+		private String applyLabel;
+
+		@ApiModelProperty("신청버튼 URL")
+		private String applyUrl;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class UpdateBenefitListReq {
+
+		@ApiModelProperty("ID")
+		@NotNull
+		private Long idx;
+
+		@ApiModelProperty("우선순위")
+		@NotNull
+		private Integer priority;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class BenefitRes {
 
 		@ApiModelProperty("식별자")
@@ -148,9 +224,6 @@ public class BenefitDto {
 
 		@ApiModelProperty("우선순위")
 		private Integer priority;
-
-		@ApiModelProperty("hover Message")
-		private String hoverMessage;
 
 		@ApiModelProperty("Imager URL")
 		private String imageUrl;
@@ -209,6 +282,15 @@ public class BenefitDto {
 		@ApiModelProperty("Modal 여부")
 		private Integer applyLink;
 
+		@ApiModelProperty("활성화 여부")
+		private Boolean disabled;
+
+		@ApiModelProperty("생성일시")
+		private String createdAt;
+
+		@ApiModelProperty("수정일시")
+		private String updatedAt;
+
 		@ApiModelProperty("Benefit 세부 항목(제품군)")
 		private List<BenefitDto.BenefitItemRes> benefitItems;
 
@@ -225,7 +307,6 @@ public class BenefitDto {
 						.name(benefit.name())
 						.catchphrase(benefit.catchphrase())
 						.priority(benefit.priority())
-						.hoverMessage(benefit.hoverMessage())
 						.imageUrl(benefit.imageUrl())
 						.detailImageUrl(benefit.detailImageUrl())
 						.detailMobileImageUrl(benefit.detailMobileImageUrl())
@@ -245,8 +326,11 @@ public class BenefitDto {
 						.activeCredit(benefit.activeCredit())
 						.activeFreeTrial(benefit.activeFreeTrial())
 						.applyLink(benefit.applyLink())
+						.disabled(benefit.disabled())
+						.createdAt(CommonUtil.getLocalDateTimeToString(benefit.getCreatedAt(), "yyyy-MM-dd HH:mm:ss"))
+						.updatedAt(CommonUtil.getLocalDateTimeToString(benefit.getUpdatedAt(), "yyyy-MM-dd HH:mm:ss"))
 						.benefitItems(benefit.benefitItems().stream().map(BenefitItemRes::from).collect(Collectors.toList()))
-						.benefitCategory(BenefitDto.BenefitCategoryRes.from(benefit.benefitCategory()))
+						.benefitCategory(BenefitCategoryRes.from(benefit.benefitCategory()))
 						.benefitProviders(benefit.benefitProviders().stream().map(BenefitProviderRes::from).collect(Collectors.toList()))
 						.build();
 			}
@@ -425,9 +509,6 @@ public class BenefitDto {
 		@ApiModelProperty("식별자")
 		private Long idx;
 
-		@ApiModelProperty("카테고리 그룹 코드")
-		private String categoryGroupCode;
-
 		@ApiModelProperty("카테고리 코드")
 		private String categoryCode;
 
@@ -441,7 +522,6 @@ public class BenefitDto {
 			if (benefitCategory != null) {
 				return BenefitCategoryRes.builder()
 						.idx(benefitCategory.idx())
-						.categoryGroupCode(benefitCategory.categoryGroupCode())
 						.categoryCode(benefitCategory.categoryCode())
 						.categoryName(benefitCategory.categoryName())
 						.priority(benefitCategory.priority())

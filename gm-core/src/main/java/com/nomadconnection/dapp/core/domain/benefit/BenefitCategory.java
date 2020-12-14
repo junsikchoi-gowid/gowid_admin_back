@@ -5,8 +5,6 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,8 +19,6 @@ public class BenefitCategory extends BaseTime {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false, updatable = false)
 	private Long idx;
-
-	private String categoryGroupCode;
 
 	private String categoryCode;
 
