@@ -441,8 +441,9 @@ public class LotteCardService {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
 
-		if (ObjectUtils.isEmpty(dto.getGreenCount()) && ObjectUtils.isEmpty(dto.getBlackCount())) {
-			throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "Green or Black, One of them must exist");
+		if (ObjectUtils.isEmpty(dto.getGreenCount()) && ObjectUtils.isEmpty(dto.getBlackCount()) &&
+				ObjectUtils.isEmpty(dto.getGreenTrafficCount()) && ObjectUtils.isEmpty(dto.getBlackTrafficCount())) {
+			throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "Green, Black, GreenTraffic or BlackTraffic, One of them must exist");
 		}
 
 		Double cardLimitNow = repoRisk.findCardLimitNowFirst(idxUser, CommonUtil.getNowYYYYMMDD());
@@ -476,7 +477,11 @@ public class LotteCardService {
 				.receiveType(dto.getReceiveType())
 				.lotteGreenCount(dto.getGreenCount())
 				.lotteBlackCount(dto.getBlackCount())
-				.requestCount(dto.getBlackCount() + dto.getGreenCount()));
+				.lotteGreenTrafficCount(dto.getGreenTrafficCount())
+				.lotteBlackTrafficCount(dto.getBlackTrafficCount())
+//				.lotteHiPassCount(dto.getHiPassCount())
+				.requestCount(dto.getBlackCount() + dto.getGreenCount() + dto.getGreenTrafficCount() +
+						dto.getBlackTrafficCount())); // + dto.getHiPassCount()));
 
 		if (StringUtils.hasText(depthKey)) {
 			repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
@@ -538,7 +543,19 @@ public class LotteCardService {
 			}
 			if (dto.getBlackCount() > 0) {
 				d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK, getCardReqCount(dto.getBlackCount()), seq);
+				seq++;
 			}
+			if (dto.getGreenTrafficCount() > 0) {
+				d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.GREEN_TRAFFIC, getCardReqCount(dto.getGreenTrafficCount()), seq);
+				seq++;
+			}
+			if (dto.getBlackTrafficCount() > 0) {
+				d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK_TRAFFIC, getCardReqCount(dto.getBlackTrafficCount()), seq);
+				seq++;
+			}
+//			if (dto.getHiPassCount() > 0) {
+//				d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.HI_PASS, getCardReqCount(dto.getHiPassCount()), seq);
+//			}
 		}
 
 		return repoD1100.save(d1100);
