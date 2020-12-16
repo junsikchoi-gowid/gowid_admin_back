@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.v2.service.auth;
 
 import com.nomadconnection.dapp.api.enums.VerifyCode;
+import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
@@ -12,14 +13,13 @@ import com.nomadconnection.dapp.redis.enums.RedisKey;
 import com.nomadconnection.dapp.redis.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import static com.nomadconnection.dapp.api.enums.EmailTemplate.*;
 import static com.nomadconnection.dapp.api.enums.VerifyCode.PASSWORD_RESET;
@@ -34,6 +34,9 @@ public class AuthService {
 	private final RedisService redisService;
 	private final UserService userService;
 
+	@Value("${auth.email.expire-time}")
+	private int expireTime;
+
 	/**
 	 * 인증코드(4 digits) 발송(이메일)
 	 *
@@ -42,31 +45,17 @@ public class AuthService {
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity sendVerificationCode(String email, VerifyCode type) {
-		try {
-			if(!existsEmail(email) && PASSWORD_RESET.equals(type)){
-				return ResponseEntity.ok().body(
-					BusinessResponse.builder()
-						.normal(BusinessResponse.Normal.builder()
-							.status(false)
-							.value("notFound")
-							.build()).build());
-			}
-
-			String code = CommonUtil.get4DigitRandomNumber();
-			EmailDto emailDto = buildVerifyEmailDto(email, code, type);
-
-			redisService.putValue(RedisKey.VERIFICATION_CODE, email, code);
-			redisService.setExpireSecondsAtValueOps(RedisKey.VERIFICATION_CODE, email, 300);
-			emailService.send(emailDto);
-			return ResponseEntity.ok().body(BusinessResponse.builder().build());
-		} catch (Exception e){
-			log.error("[sendVerificationCode] {}", e.getMessage());
-			return ResponseEntity.ok().body(BusinessResponse.builder().normal(
-				BusinessResponse.Normal.builder()
-					.status(false)
-					.value(HttpStatus.INTERNAL_SERVER_ERROR.toString())
-					.build()).build());
+		if(!existsEmail(email) && PASSWORD_RESET.equals(type)){
+			throw new BadRequestException(ErrorCode.Api.NOT_FOUND, email);
 		}
+
+		String code = CommonUtil.get4DigitRandomNumber();
+		EmailDto emailDto = buildVerifyEmailDto(email, code, type);
+
+		redisService.putValue(RedisKey.VERIFICATION_CODE, email, code);
+		redisService.setExpireSecondsAtValueOps(RedisKey.VERIFICATION_CODE, email, expireTime);
+		emailService.send(emailDto);
+		return ResponseEntity.ok().body(BusinessResponse.builder().build());
 	}
 
 	@Transactional(rollbackFor = Exception.class)

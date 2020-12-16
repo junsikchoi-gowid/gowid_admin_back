@@ -57,6 +57,10 @@ gateway:
       image-zip: /lotte/image/zip
       image-send: /lotte/image/send
 
+auth:
+  email:
+    expire-time: 600
+
 ---
 
 spring:

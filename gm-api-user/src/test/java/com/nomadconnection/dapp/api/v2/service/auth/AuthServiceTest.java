@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.v2.service.auth;
 
 import com.nomadconnection.dapp.api.abstracts.AbstractSpringBootTest;
 import com.nomadconnection.dapp.api.enums.VerifyCode;
+import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AuthServiceTest extends AbstractSpringBootTest {
 
@@ -82,6 +84,17 @@ class AuthServiceTest extends AbstractSpringBootTest {
 
 		//then
 		assertEquals(ErrorCode.Mismatched.MISMATCHED_VERIFICATION_CODE.toString(), responseEntity.getBody().getError());
+	}
+
+	@Test
+	@DisplayName("존재하지않는_이메일로_인증시_BadRequestException_발생")
+	void verifyByNotExistEmail() {
+		VerifyCode passwordResetVerifyCode = VerifyCode.PASSWORD_RESET;
+		String email = "invalid@email.com";
+
+		assertThrows(BadRequestException.class,
+			() -> authService.sendVerificationCode(email, passwordResetVerifyCode)
+		);
 	}
 
 }
