@@ -175,13 +175,26 @@
                                     희망한도 : <span th:text="${hopeLimit}"></span><br/>
                                     <div th:switch="${cardCompanyCode}">
                                         <div th:case="0306">
-                                            발급매수 : <span th:text="${issuanceCount[0]}"></span><br/>
+                                            발급매수 : <span th:text="${issuanceCount.get('counts')}"></span><br/>
                                             신규대상여부 : <span th:text="${targetStatus}"></span><br/>
                                         </div>
                                         <div th:case="0311">
                                             발급매수<br/>
-                                             -일반용 : <span th:text="${issuanceCount[0]}"></span><br/>
-                                             -임원용 : <span th:text="${issuanceCount[1]}"></span><br/>
+                                            <div th:if="${issuanceCount.containsKey('C313333')}">
+                                                -일반용 : <span th:text="${issuanceCount.get('C313333')}"></span><br/>
+                                            </div>
+                                            <div th:if="${issuanceCount.containsKey('C313438')}">
+                                                -일반용(교통) : <span th:text="${issuanceCount.get('C313438')}"></span><br/>
+                                            </div>
+                                            <div th:if="${issuanceCount.containsKey('C313334')}">
+                                                -임원용 : <span th:text="${issuanceCount.get('C313334')}"></span><br/>
+                                            </div>
+                                            <div th:if="${issuanceCount.containsKey('C313437')}">
+                                                -임원용(교통) : <span th:text="${issuanceCount.get('C313437')}"></span><br/>
+                                            </div>
+                                            <div th:if="${issuanceCount.containsKey('C313469')}">
+                                                -하이패스 : <span th:text="${issuanceCount.get('C313469')}"></span><br/>
+                                            </div>
                                         </div>
                                     </div>
                                     <div id="check"></div>

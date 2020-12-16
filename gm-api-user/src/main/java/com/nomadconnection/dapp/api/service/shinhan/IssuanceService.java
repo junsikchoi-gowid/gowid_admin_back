@@ -52,6 +52,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -200,7 +201,8 @@ public class IssuanceService {
                 () -> new SystemException(ErrorCode.External.INTERNAL_SERVER_ERROR,
                         "data of d1100 is not exist(corpIdx=" + userCorp.idx() + ")")
         );
-        String[] issuanceCounts = {d1100.getD039()};
+        Map<String, String> issuanceCounts = new HashMap<>();
+        issuanceCounts.put("counts", d1100.getD039());
         emailService.sendReceiptEmail(resultOfD1200.getD001(), issuanceCounts, CardCompany.SHINHAN, resultOfD1200.getD003());
         log.debug("## receipt email sent. biz no = " + resultOfD1200.getD001());
     }

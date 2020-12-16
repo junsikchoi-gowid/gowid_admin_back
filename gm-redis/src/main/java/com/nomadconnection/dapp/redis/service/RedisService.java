@@ -4,7 +4,6 @@ import com.nomadconnection.dapp.redis.enums.RedisKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import java.util.concurrent.TimeUnit;
 

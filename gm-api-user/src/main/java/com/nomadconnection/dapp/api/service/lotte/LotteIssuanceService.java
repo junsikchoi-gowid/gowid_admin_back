@@ -40,6 +40,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -156,7 +159,12 @@ public class LotteIssuanceService {
 			return;
 		}
 		Lotte_D1100 d1100 = repoD1100.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
-		String[] issuanceCounts = {getLotteCardsCount(d1100.getRgAkCt()), getLotteCardsCount(d1100.getRgAkCt2())};
+		Map<String, String> issuanceCounts = new HashMap<>();
+		issuanceCounts.put(d1100.getUnitCdC(), d1100.getRgAkCt());
+		issuanceCounts.put(d1100.getUnitCdC2(), d1100.getRgAkCt2());
+		issuanceCounts.put(d1100.getUnitCdC3(), d1100.getRgAkCt3());
+		issuanceCounts.put(d1100.getUnitCdC4(), d1100.getRgAkCt4());
+//		issuanceCounts.put(d1100.getUnitCdC5(), d1100.getRgAkCt5());
 		emailService.sendReceiptEmail(resultOfD1200.getBzno(), issuanceCounts, CardCompany.LOTTE, null);
 		log.debug("## receipt email sent. biz no = " + resultOfD1200.getBzno());
 	}
