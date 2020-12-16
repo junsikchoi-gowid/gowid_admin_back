@@ -382,11 +382,7 @@ public class BankService {
 		return refresh(idx,null);
 	}
 
-	public ResponseEntity checkAccountList45(Long idx) throws IOException, InterruptedException {
-		ObjectMapper mapper = new ObjectMapper();
-
-		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idx);
-
+	public ResponseEntity checkAccountList45(Long idx) throws InterruptedException {
 		serviceScraping.scrapingBankN45DayDataList(idx);
 		Thread.sleep(1000);
 		return refresh(idx,null);

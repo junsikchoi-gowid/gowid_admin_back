@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,7 +33,7 @@ public interface AdminCustomRepository {
         private String emergencyStop;
 
         @ApiModelProperty("카드발급여부")
-        private String cardIssuance;
+        private IssuanceStatus cardIssuance;
 
         @ApiModelProperty("updatedStatus")
         private String updatedStatus;
@@ -80,7 +81,7 @@ public interface AdminCustomRepository {
         private Boolean emergencyStop;
 
         @ApiModelProperty("카드발급여부")
-        private Boolean cardIssuance;
+        private IssuanceStatus cardIssuance;
 
         @ApiModelProperty("카드발급여부")
         private Boolean cardAvailable;
@@ -166,7 +167,7 @@ public interface AdminCustomRepository {
         private String grade;
 
         @ApiModelProperty("승인여부")
-        private String cardIssuance;
+        private IssuanceStatus cardIssuance;
     }
 
     @Data
@@ -208,7 +209,7 @@ public interface AdminCustomRepository {
         private Boolean emergencyStop;
 
         @ApiModelProperty("카드발급여부")
-        private Boolean cardIssuance;
+        private IssuanceStatus cardIssuance;
 
         @ApiModelProperty("카드유효여부")
         private Boolean cardAvailable;
@@ -316,7 +317,7 @@ public interface AdminCustomRepository {
         private Boolean emergencyStop;
 
         @ApiModelProperty("카드발급여부")
-        private Boolean cardIssuance;
+        private IssuanceStatus cardIssuance;
 
         @ApiModelProperty("카드발급여부")
         private Boolean cardAvailable;

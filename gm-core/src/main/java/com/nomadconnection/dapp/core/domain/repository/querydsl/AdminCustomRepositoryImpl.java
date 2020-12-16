@@ -1,6 +1,8 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.QCardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.QCommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.QConnectedMng;
@@ -39,6 +41,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
     private final QConnectedMng connectedMng = QConnectedMng.connectedMng;
     private final QResBatch resBatch = QResBatch.resBatch;
     private final QResBatchList resBatchList = QResBatchList.resBatchList;
+    private final QCardIssuanceInfo cardIssuanceInfo = QCardIssuanceInfo.cardIssuanceInfo;
 
     /**
      * Creates a new {@link QuerydslRepositorySupport} instance for the given domain type.
@@ -53,6 +56,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
         String[] availableDepositCode = {"10","11","12","13","14"};
         List<SearchRiskResultDto> riskList;
         JPQLQuery<SearchRiskResultDto> query = from(risk)
+                .join(cardIssuanceInfo).on(cardIssuanceInfo.corp.eq(risk.corp))
                 .select(Projections.bean(SearchRiskResultDto.class,
                         risk.user.corp.idx.as("idxCorp"),
                         risk.user.corp.resCompanyNm.as("idxCorpName"),
@@ -74,7 +78,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
                         risk.currentBalance.as("currentBalance"),
                         risk.cardRestartCount.as("cardRestartCount"),
                         risk.emergencyStop.as("emergencyStop"),
-                        risk.cardIssuance.as("cardIssuance"),
+                        cardIssuanceInfo.issuanceStatus.as("cardIssuance"),
                         risk.cardAvailable.as("cardAvailable"),
                         risk.pause.as("pause"),
                         risk.updatedAt.as("updatedAt"),
@@ -105,7 +109,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
         }
 
         if (dto.getCardIssuance() != null) {
-            query.where(risk.cardIssuance.eq(dto.getCardIssuance().equals("true")));
+            query.where(cardIssuanceInfo.issuanceStatus.eq(dto.getCardIssuance()));
         }
 
 		if ( dto.getUpdatedStatus() != null ) {
@@ -131,10 +135,12 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
         List<SearchRiskResultV2Dto> riskList;
 
         JPQLQuery<SearchRiskResultV2Dto> query = from(risk)
+                .join(cardIssuanceInfo).on(cardIssuanceInfo.corp.eq(risk.corp))
                 .select(Projections.bean(SearchRiskResultV2Dto.class,
                         risk.user.corp.idx.as("idxCorp"),
                         risk.user.corp.resCompanyNm.as("idxCorpName"),
-                        risk.user.cardCompany.as("cardCompany"),
+                        // risk.user.cardCompany.as("cardCompany"),
+                        cardIssuanceInfo.cardCompany.as("cardCompany"),
                         risk.cardLimitNow.as("cardLimitNow"),
                         risk.cardLimit.as("cardLimit"),
                         risk.cashBalance.as("cashBalance"),
@@ -153,7 +159,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
                         risk.currentBalance.as("currentBalance"),
                         risk.cardRestartCount.as("cardRestartCount"),
                         risk.emergencyStop.as("emergencyStop"),
-                        risk.cardIssuance.as("cardIssuance"),
+                        cardIssuanceInfo.issuanceStatus.as("cardIssuance"),
                         risk.cardAvailable.as("cardAvailable"),
                         risk.pause.as("pause"),
                         risk.updatedAt.as("updatedAt"),
@@ -183,7 +189,8 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
         }
 
         if (dto.getCardCompany() != null ){
-            query.where(risk.user.cardCompany.eq(dto.getCardCompany()));
+            // query.where(risk.user.cardCompany.eq(dto.getCardCompany()));
+            query.where(cardIssuanceInfo.cardCompany.eq(dto.getCardCompany()));
         }
 
         if (dto.getGrade() != null) {
@@ -191,7 +198,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
         }
 
         if (dto.getCardIssuance() != null) {
-            query.where(risk.cardIssuance.eq(dto.getCardIssuance().equals("true")));
+            query.where(cardIssuanceInfo.issuanceStatus.eq(dto.getCardIssuance()));
         }
 
         if( pageable.getSort().isEmpty()) {

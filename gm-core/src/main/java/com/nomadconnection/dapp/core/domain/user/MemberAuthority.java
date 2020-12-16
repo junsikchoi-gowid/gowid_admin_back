@@ -10,6 +10,7 @@ public enum MemberAuthority {
 	GOWID_ADMIN, // 운영 마스터
 	GOWID_USER, // 운영 USER
 	GOWID_EXTERNAL, // 운영 EXTERNAL
+	GOWID_BENEFIT, // 운영 BENEFIT
 	;
 	public static MemberAuthority from(Set<Authority> authorities) {
 		if (authorities != null) {

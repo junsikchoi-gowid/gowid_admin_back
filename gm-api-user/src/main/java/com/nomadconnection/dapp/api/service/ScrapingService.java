@@ -790,12 +790,14 @@ public class ScrapingService {
         }
     }
 
-    @Async
+    @Async("executor1")
     public void scrapingBankN45DayDataList(Long idxUser) {
-        log.debug("scrapingRegister");
+        log.debug("scrapingBankN45DayDataList");
         ResBatch idxLog = startBatchLog(idxUser);
         try {
             scrapingRegisterAccount45(idxUser, idxLog.idx(), null);
+        } catch (Exception e) {
+            log.error("[scrapingBankN45DayDataList] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
         } finally {
             endBatchLog(idxLog.idx());
         }

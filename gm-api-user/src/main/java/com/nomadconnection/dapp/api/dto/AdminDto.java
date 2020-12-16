@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.Card;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
@@ -57,7 +58,7 @@ public class AdminDto {
 		public Boolean emergencyStop;
 
 		@ApiModelProperty("카드발급여부")
-		public Boolean cardIssuance;
+		public IssuanceStatus cardIssuance;
 
 		@ApiModelProperty("카드발급여부")
 		public Boolean cardAvailable;
@@ -135,7 +136,7 @@ public class AdminDto {
 		public Boolean emergencyStop;
 
 		@ApiModelProperty("카드발급여부")
-		public Boolean cardIssuance;
+		public IssuanceStatus cardIssuance;
 
 		@ApiModelProperty("카드발급여부")
 		public Boolean cardAvailable;
@@ -466,7 +467,7 @@ public class AdminDto {
 		public Boolean emergencyStop;
 
 		@ApiModelProperty("카드발급여부")
-		public Boolean cardIssuance;
+		public IssuanceStatus cardIssuance;
 
 		@ApiModelProperty("카드발급여부")
 		public Boolean cardAvailable;
