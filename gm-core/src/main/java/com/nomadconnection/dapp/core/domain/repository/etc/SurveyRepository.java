@@ -13,7 +13,7 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
 
 	Optional<Survey> findAllByTitleAndAnswer(String title, String answer);
 
-	Optional<List<Survey>> findAllByTitleAndActivated(String title, boolean activated);
+	Optional<List<Survey>> findAllByTitleAndActivatedOrderByAnswerOrderAsc(String title, boolean activated);
 
 	@Override
 	Survey save(Survey contents);

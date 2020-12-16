@@ -30,7 +30,7 @@ public class SurveyController {
 
 	@GetMapping
 	@ApiOperation(value = "설문조사 주제 조회")
-	public ApiResponse<?> findSurvey(@RequestParam String surveyTitle){
+	public ApiResponse<?> findSurvey(@RequestParam(required = false) String surveyTitle){
 		return ApiResponse.OK(surveyService.findSurvey(surveyTitle));
 	}
 

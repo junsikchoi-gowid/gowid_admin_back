@@ -40,7 +40,7 @@ public class SurveyService {
 		List<SurveyDto.SurveyContents.SurveyAnswer> answers = new ArrayList<>();
 		Survey contents = findSurveyTitle(surveyTitle);
 
-		surveyRepository.findAllByTitleAndActivated(contents.getTitle(), true).orElseThrow(
+		surveyRepository.findAllByTitleAndActivatedOrderByAnswerOrderAsc(contents.getTitle(), true).orElseThrow(
 			() -> new SurveyNotRegisteredException(ErrorCode.Api.NOT_FOUND)
 		).stream().map(content -> {
 			SurveyDto.SurveyContents.SurveyAnswer answer
@@ -106,7 +106,7 @@ public class SurveyService {
 	}
 
 	private Survey findSurveyTitle(String surveyTitle){
-		if(DEFAULT_SURVEY.equals(surveyTitle)){
+		if(DEFAULT_SURVEY.equals(surveyTitle) || StringUtils.isEmpty(surveyTitle)){
 			return surveyRepository.findAllGroupByTitle().orElseThrow(
 				() -> new SurveyNotRegisteredException(ErrorCode.Api.NOT_FOUND)
 			);
