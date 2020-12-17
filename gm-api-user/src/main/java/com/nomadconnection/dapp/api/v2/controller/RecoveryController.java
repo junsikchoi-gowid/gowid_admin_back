@@ -47,7 +47,7 @@ public class RecoveryController {
 
 	@ApiOperation(value = "재무제표 전문 수동 발송")
 	@PostMapping("/fulltext/financial/{userIdx}")
-	public ApiResponse<?> sendFinancial(@PathVariable Long userIdx) {
+	public ApiResponse<?> sendFinancial(@PathVariable Long userIdx) throws Exception {
 		shinhanIssuanceService.send1520ByHand(userIdx);
 		return ApiResponse.OK(null);
 	}

@@ -689,9 +689,10 @@ public class IssuanceService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void send1520ByHand(Long userIdx) {
+    public void send1520ByHand(Long userIdx) throws Exception {
         Corp corp = getCorpByUserIdx(userIdx);
         DataPart1200 resultOfD1200 = makeDataPart1200(corp.idx());
+        proc1520(corp, resultOfD1200.getD007(), resultOfD1200.getD008());
     }
 
     @Transactional(rollbackFor = Exception.class)
