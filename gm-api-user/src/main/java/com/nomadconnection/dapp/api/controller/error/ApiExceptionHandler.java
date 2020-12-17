@@ -4,10 +4,12 @@ import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.exception.AlreadyExistException;
 import com.nomadconnection.dapp.api.exception.CodefApiException;
 import com.nomadconnection.dapp.api.exception.CorpAlreadyExistException;
+import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.NotRegisteredException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.exception.survey.SurveyAlreadyExistException;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.exception.ImageConvertException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -87,6 +89,18 @@ public class ApiExceptionHandler {
                         .desc(e.resource())
                         .build())
                 .build();
+    }
+
+    @ExceptionHandler({ExpiredException.class})
+    @ResponseStatus(HttpStatus.GONE)
+    protected ApiResponse<?> handleExpiredException(ExpiredException e) {
+
+        return ApiResponse.builder()
+            .result(ApiResponse.ApiResult.builder()
+                .code(e.getErrorCodeDescriptor().category())
+                .desc(e.getErrorCodeDescriptor().error())
+                .build())
+            .build();
     }
 
 }

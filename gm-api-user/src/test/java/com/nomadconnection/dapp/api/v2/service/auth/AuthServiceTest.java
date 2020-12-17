@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.v2.service.auth;
 
 import com.nomadconnection.dapp.api.abstracts.AbstractSpringBootTest;
 import com.nomadconnection.dapp.api.enums.VerifyCode;
+import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
@@ -75,7 +76,7 @@ class AuthServiceTest extends AbstractSpringBootTest {
 		redisService.setExpireSecondsAtValueOps(RedisKey.VERIFICATION_CODE, email, 1);
 		Thread.sleep(1000L);
 
-		assertThrows(MismatchedException.class,
+		assertThrows(ExpiredException.class,
 			() -> authService.checkVerificationCode(email, code)
 		);
 

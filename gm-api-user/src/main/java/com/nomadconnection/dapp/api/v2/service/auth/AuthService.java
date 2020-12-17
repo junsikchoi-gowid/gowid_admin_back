@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.v2.service.auth;
 
 import com.nomadconnection.dapp.api.enums.VerifyCode;
+import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.EmailService;
@@ -17,7 +18,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,7 +63,14 @@ public class AuthService {
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity checkVerificationCode(String email, String code) {
+		if(!existsEmail(email)){
+			throw new BadRequestException(ErrorCode.Api.NOT_FOUND, email);
+		}
 		String storedVerifyCode = (String) redisService.getByKey(RedisKey.VERIFICATION_CODE, email);
+		if(StringUtils.isEmpty(storedVerifyCode)){
+			throw ExpiredException.builder().errorCodeDescriptor(ErrorCode.Authentication.EXPIRED).expiration(LocalDateTime.now()).build();
+		}
+
 		if(!code.equals(storedVerifyCode)){
 			throw MismatchedException.builder()
 				.category(MismatchedException.Category.VERIFICATION_CODE)

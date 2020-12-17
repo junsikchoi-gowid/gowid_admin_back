@@ -21,6 +21,7 @@ public class ErrorCode {
 		ACCESS_TOKEN_NOT_FOUND,
 		UNACCEPTABLE_JWT_USED,
 		JWT_SUBJECT_MISMATCHED,
+		EXPIRED,
 	}
 
 	public enum Authority implements ErrorCodeDescriptor {
