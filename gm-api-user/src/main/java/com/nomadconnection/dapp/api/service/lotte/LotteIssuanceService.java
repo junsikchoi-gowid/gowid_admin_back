@@ -160,11 +160,11 @@ public class LotteIssuanceService {
 		}
 		Lotte_D1100 d1100 = repoD1100.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
 		Map<String, String> issuanceCounts = new HashMap<>();
-		issuanceCounts.put(d1100.getUnitCdC(), d1100.getRgAkCt());
-		issuanceCounts.put(d1100.getUnitCdC2(), d1100.getRgAkCt2());
-		issuanceCounts.put(d1100.getUnitCdC3(), d1100.getRgAkCt3());
-		issuanceCounts.put(d1100.getUnitCdC4(), d1100.getRgAkCt4());
-//		issuanceCounts.put(d1100.getUnitCdC5(), d1100.getRgAkCt5());
+		issuanceCounts.put(d1100.getUnitCdC(), getLotteCardsCount(d1100.getRgAkCt()));
+		issuanceCounts.put(d1100.getUnitCdC2(), getLotteCardsCount(d1100.getRgAkCt2()));
+		issuanceCounts.put(d1100.getUnitCdC3(), getLotteCardsCount(d1100.getRgAkCt3()));
+		issuanceCounts.put(d1100.getUnitCdC4(), getLotteCardsCount(d1100.getRgAkCt4()));
+//		issuanceCounts.put(d1100.getUnitCdC5(), getLotteCardsCount(d1100.getRgAkCt5()));
 		emailService.sendReceiptEmail(resultOfD1200.getBzno(), issuanceCounts, CardCompany.LOTTE, null);
 		log.debug("## receipt email sent. biz no = " + resultOfD1200.getBzno());
 	}
