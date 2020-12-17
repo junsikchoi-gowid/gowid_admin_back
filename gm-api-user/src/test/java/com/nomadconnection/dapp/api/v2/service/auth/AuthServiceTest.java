@@ -2,10 +2,9 @@ package com.nomadconnection.dapp.api.v2.service.auth;
 
 import com.nomadconnection.dapp.api.abstracts.AbstractSpringBootTest;
 import com.nomadconnection.dapp.api.enums.VerifyCode;
+import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
-import com.nomadconnection.dapp.core.dto.response.ErrorCode;
-import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import com.nomadconnection.dapp.redis.enums.RedisKey;
 import com.nomadconnection.dapp.redis.service.RedisService;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,30 +59,26 @@ class AuthServiceTest extends AbstractSpringBootTest {
 	@Test
 	@DisplayName("유효하지않은_인증번호와_비교한다")
 	void verifyByInvalidCode() {
-		//given
+		sendVerificationCodeWhenResetPassword();
 		String invalidCode = String.format("%04d", new Random().nextInt(10000));
 
-		//when
-		ResponseEntity<ErrorResponse> responseEntity = authService.checkVerificationCode(email, invalidCode);
-
-		//then
-		assertEquals(ErrorCode.Mismatched.MISMATCHED_VERIFICATION_CODE.toString(), responseEntity.getBody().getError());
+		assertThrows(MismatchedException.class,
+			() -> authService.checkVerificationCode(email, invalidCode)
+		);
 	}
 
 	@Test
 	@DisplayName("만료된_인증번호와_비교한다")
 	void verifyByExpiredCode() throws InterruptedException {
-		//given
 		sendVerificationCodeWhenResetPassword();
 		String code = (String) redisService.getByKey(RedisKey.VERIFICATION_CODE, email);
 		redisService.setExpireSecondsAtValueOps(RedisKey.VERIFICATION_CODE, email, 1);
 		Thread.sleep(1000L);
 
-		//when
-		ResponseEntity<ErrorResponse> responseEntity = authService.checkVerificationCode(email, code);
+		assertThrows(MismatchedException.class,
+			() -> authService.checkVerificationCode(email, code)
+		);
 
-		//then
-		assertEquals(ErrorCode.Mismatched.MISMATCHED_VERIFICATION_CODE.toString(), responseEntity.getBody().getError());
 	}
 
 	@Test

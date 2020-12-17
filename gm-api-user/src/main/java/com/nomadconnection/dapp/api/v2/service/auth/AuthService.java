@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.v2.service.auth;
 
 import com.nomadconnection.dapp.api.enums.VerifyCode;
+import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.UserService;
@@ -8,7 +9,6 @@ import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.dto.EmailDto;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
-import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import com.nomadconnection.dapp.redis.enums.RedisKey;
 import com.nomadconnection.dapp.redis.service.RedisService;
 import lombok.RequiredArgsConstructor;
@@ -61,16 +61,16 @@ public class AuthService {
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity checkVerificationCode(String email, String code) {
 		String storedVerifyCode = (String) redisService.getByKey(RedisKey.VERIFICATION_CODE, email);
-
-		if(code.equals(storedVerifyCode)){
-			redisService.deleteByKey(RedisKey.VERIFICATION_CODE, email);
-			return ResponseEntity.ok().body(
-				BusinessResponse.builder().build()
-	        );
+		if(!code.equals(storedVerifyCode)){
+			throw MismatchedException.builder()
+				.category(MismatchedException.Category.VERIFICATION_CODE)
+				.object(code).build();
 		}
 
-		return ResponseEntity.ok()
-			.body(ErrorResponse.from(ErrorCode.Mismatched.MISMATCHED_VERIFICATION_CODE));
+		redisService.deleteByKey(RedisKey.VERIFICATION_CODE, email);
+		return ResponseEntity.ok().body(
+			BusinessResponse.builder().build()
+        );
 	}
 
 	private boolean existsEmail(String email){
