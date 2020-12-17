@@ -55,6 +55,10 @@ public class AuthService {
 		String code = CommonUtil.get4DigitRandomNumber();
 		EmailDto emailDto = buildVerifyEmailDto(email, code, type);
 
+		if(redisService.existsByKey(RedisKey.VERIFICATION_CODE, email)){
+			redisService.deleteByKey(RedisKey.VERIFICATION_CODE, email);
+		}
+
 		redisService.putValue(RedisKey.VERIFICATION_CODE, email, code);
 		redisService.setExpireSecondsAtValueOps(RedisKey.VERIFICATION_CODE, email, expireTime);
 		emailService.send(emailDto);
