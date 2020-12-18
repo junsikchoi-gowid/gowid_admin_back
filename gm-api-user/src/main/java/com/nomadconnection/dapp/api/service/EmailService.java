@@ -78,30 +78,36 @@ public class EmailService {
 	}
 
 	public void sendReceiptEmail(String licenseNo, Map issuanceCounts, CardCompany cardCompany, String targetStatus) {
-		EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
-		MimeMessagePreparator preparator = mimeMessage -> {
-			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
-			{
-				Context context = new Context();
+		try {
+			EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
+			MimeMessagePreparator preparator = mimeMessage -> {
+				MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 				{
-					context.setVariable("licenseNo", emailDto.getLicenseNo());
-					context.setVariable("companyName", emailDto.getCompanyName());
-					context.setVariable("hopeLimit", emailDto.getHopeLimit());
-					context.setVariable("grantLimit", emailDto.getGrantLimit());
-					context.setVariable("email", emailDto.getEmail());
-					context.setVariable("issuanceCount", issuanceCounts);
-                    context.setVariable("targetStatus", targetStatus);
-					context.setVariable("cardCompanyCode", cardCompany.getCode());
-					context.setVariable("cardCompanyName", cardCompany.getName());
-				}
+					Context context = new Context();
+					{
+						context.setVariable("licenseNo", emailDto.getLicenseNo());
+						context.setVariable("companyName", emailDto.getCompanyName());
+						context.setVariable("hopeLimit", emailDto.getHopeLimit());
+						context.setVariable("grantLimit", emailDto.getGrantLimit());
+						context.setVariable("email", emailDto.getEmail());
+						context.setVariable("issuanceCount", issuanceCounts);
+						context.setVariable("targetStatus", targetStatus);
+						context.setVariable("cardCompanyCode", cardCompany.getCode());
+						context.setVariable("cardCompanyName", cardCompany.getName());
+					}
 
-				helper.setFrom(emailConfig.getSender());
-				helper.setTo(emailConfig.getSender());
-				helper.setSubject("[Gowid] " + cardCompany.getName() + " 접수완료 " + emailDto.getCompanyName());
-				helper.setText(templateEngine.process("mail-template-issuance-receipt", context), true);
-			}
-		};
-		sender.send(preparator);
+					helper.setFrom(emailConfig.getSender());
+					helper.setTo(emailConfig.getSender());
+					helper.setSubject("[Gowid] " + cardCompany.getName() + " 접수완료 " + emailDto.getCompanyName());
+					helper.setText(templateEngine.process("mail-template-issuance-receipt", context), true);
+				}
+			};
+			log.info("[ sendReceiptEmail ] send start");
+			sender.send(preparator);
+			log.info("[ sendReceiptEmail ] send done");
+		} catch (Exception e) {
+			log.error("[ sendReceiptEmail ] Error Occur! {}", e);
+		}
 	}
 
 	public boolean sendBenefitResultMail(Map<String, Object> mailAttribute, String emailFrom, String emailTo, String mailSubject, String mailTemplate) {

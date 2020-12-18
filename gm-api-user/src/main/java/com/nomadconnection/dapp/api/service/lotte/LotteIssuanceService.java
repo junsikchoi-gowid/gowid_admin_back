@@ -158,6 +158,7 @@ public class LotteIssuanceService {
 		if (!sendReceiptEmailEnable) {
 			return;
 		}
+		log.info("[ sendReceiptEmail ] prepare to send email {}", userCorp.resCompanyNm());
 		Lotte_D1100 d1100 = repoD1100.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
 		Map<String, String> issuanceCounts = new HashMap<>();
 		issuanceCounts.put(d1100.getUnitCdC(), getLotteCardsCount(d1100.getRgAkCt()));
@@ -166,7 +167,7 @@ public class LotteIssuanceService {
 		issuanceCounts.put(d1100.getUnitCdC4(), getLotteCardsCount(d1100.getRgAkCt4()));
 //		issuanceCounts.put(d1100.getUnitCdC5(), getLotteCardsCount(d1100.getRgAkCt5()));
 		emailService.sendReceiptEmail(resultOfD1200.getBzno(), issuanceCounts, CardCompany.LOTTE, null);
-		log.debug("## receipt email sent. biz no = " + resultOfD1200.getBzno());
+		log.info("[ sendReceiptEmail ] Complete send email {}", userCorp.resCompanyNm());
 	}
 
 	private String getLotteCardsCount(String count) {
