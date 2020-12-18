@@ -59,7 +59,7 @@ gateway:
 
 auth:
   email:
-    expire-time: 600
+    expire-time: 605
 
 ---
 

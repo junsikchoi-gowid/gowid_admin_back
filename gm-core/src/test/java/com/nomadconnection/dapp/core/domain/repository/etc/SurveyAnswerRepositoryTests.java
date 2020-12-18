@@ -47,7 +47,7 @@ class SurveyAnswerRepositoryTests extends AbstractJpaTest {
 	@Test
 	@DisplayName("설문조사_선택항목_조회")
 	void findCodeDetailList() throws NotFoundException {
-		List<Survey> surveys = surveyRepository.findAllByTitleAndActivated(surveyTitle, true).orElseThrow(
+		List<Survey> surveys = surveyRepository.findAllByTitleAndActivatedOrderByAnswerOrderAsc(surveyTitle, true).orElseThrow(
 			() -> new NotFoundException("not found survey")
 		);
 		assertEquals(KEYWORD.toString(), surveys.get(0).getAnswer());

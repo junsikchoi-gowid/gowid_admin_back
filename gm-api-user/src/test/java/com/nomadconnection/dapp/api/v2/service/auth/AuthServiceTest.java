@@ -5,6 +5,9 @@ import com.nomadconnection.dapp.api.enums.VerifyCode;
 import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
+import com.nomadconnection.dapp.api.service.UserService;
+import com.nomadconnection.dapp.api.v2.dto.AuthDto;
+import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.redis.enums.RedisKey;
 import com.nomadconnection.dapp.redis.service.RedisService;
@@ -13,16 +16,24 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AuthServiceTest extends AbstractSpringBootTest {
 
 	@Autowired
+	private UserService userService;
+
+	@Autowired
 	private AuthService authService;
+
+	@Autowired
+	private AuthValidator authValidator;
 
 	@Autowired
 	private RedisService redisService;
@@ -79,7 +90,6 @@ class AuthServiceTest extends AbstractSpringBootTest {
 		assertThrows(ExpiredException.class,
 			() -> authService.checkVerificationCode(email, code)
 		);
-
 	}
 
 	@Test
@@ -91,6 +101,36 @@ class AuthServiceTest extends AbstractSpringBootTest {
 		assertThrows(BadRequestException.class,
 			() -> authService.sendVerificationCode(email, passwordResetVerifyCode)
 		);
+	}
+
+	@Test
+	@Transactional
+	@DisplayName("로그인_전_패스워드를_변경한다")
+	void changePasswordBeforeLogin() {
+		String newPassword = "wkdfogur3#";
+		sendVerificationCodeWhenResetPassword();
+		String code = (String) redisService.getByKey(RedisKey.VERIFICATION_CODE, email);
+		AuthDto.PasswordBeforeLogin dto = AuthDto.PasswordBeforeLogin.builder().code(code).newPassword(newPassword).email(email).build();
+
+		authService.changePasswordBeforeLogin(dto);
+		User user = userService.findByEmail(email);
+
+		assertThat(authValidator.matchedPassword(newPassword, user.password()));
+	}
+
+	@Test
+	@Transactional
+	@DisplayName("로그인_후_패스워드를_변경한다")
+	void changePasswordAfterLogin() {
+		User user = userService.findByEmail(email);
+		String oldPassword = "wkdfogur1!";
+		String newPassword = "wkdfogur2@";
+		AuthDto.PasswordAfterLogin dto = AuthDto.PasswordAfterLogin.builder().oldPassword(oldPassword).newPassword(newPassword).build();
+
+		authService.changePasswordAfterLogin(user.idx(), dto);
+		User changedUser = userService.findByEmail(email);
+
+		assertThat(authValidator.matchedPassword(newPassword, changedUser.password()));
 	}
 
 }

@@ -1,12 +1,12 @@
 package com.nomadconnection.dapp.api.v2.service.auth;
 
 import com.nomadconnection.dapp.api.enums.VerifyCode;
-import com.nomadconnection.dapp.api.exception.ExpiredException;
-import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.api.v2.dto.AuthDto;
+import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.EmailDto;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -18,9 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +34,7 @@ public class AuthService {
 	private final EmailService emailService;
 	private final RedisService redisService;
 	private final UserService userService;
+	private final AuthValidator authValidator;
 
 	@Value("${auth.email.expire-time}")
 	private int expireTime;
@@ -48,7 +47,7 @@ public class AuthService {
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity sendVerificationCode(String email, VerifyCode type) {
-		if(!existsEmail(email) && PASSWORD_RESET.equals(type)){
+		if(!authValidator.existsEmail(email) && PASSWORD_RESET.equals(type)){
 			throw new BadRequestException(ErrorCode.Api.NOT_FOUND, email);
 		}
 
@@ -67,19 +66,10 @@ public class AuthService {
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity checkVerificationCode(String email, String code) {
-		if(!existsEmail(email)){
-			throw new BadRequestException(ErrorCode.Api.NOT_FOUND, email);
-		}
 		String storedVerifyCode = (String) redisService.getByKey(RedisKey.VERIFICATION_CODE, email);
-		if(StringUtils.isEmpty(storedVerifyCode)){
-			throw ExpiredException.builder().errorCodeDescriptor(ErrorCode.Authentication.EXPIRED).expiration(LocalDateTime.now()).build();
-		}
 
-		if(!code.equals(storedVerifyCode)){
-			throw MismatchedException.builder()
-				.category(MismatchedException.Category.VERIFICATION_CODE)
-				.object(code).build();
-		}
+		authValidator.expiredVerifyCodeThrowException(storedVerifyCode);
+		authValidator.mismatchedVerifyCodeThrowException(code, storedVerifyCode);
 
 		redisService.deleteByKey(RedisKey.VERIFICATION_CODE, email);
 		return ResponseEntity.ok().body(
@@ -87,8 +77,43 @@ public class AuthService {
         );
 	}
 
-	private boolean existsEmail(String email){
-		return userService.isPresentEmail(email);
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity<?> changePasswordBeforeLogin(AuthDto.PasswordBeforeLogin dto) {
+		String email = dto.getEmail();
+		String code = dto.getCode();
+		String newPassword = dto.getNewPassword();
+
+		authValidator.notExistsEmailThrowException(dto.getEmail());
+		String storedVerifyCode = (String)redisService.getByKey(RedisKey.VERIFICATION_CODE, email);
+		authValidator.expiredVerifyCodeThrowException(storedVerifyCode);
+		authValidator.mismatchedVerifyCodeThrowException(code, storedVerifyCode);
+
+		if(code.equals(storedVerifyCode)){
+			User user = userService.findByEmail(email);
+			user.password(authValidator.encodePassword(newPassword));
+
+			redisService.deleteByKey(RedisKey.VERIFICATION_CODE, email);
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+			.normal(BusinessResponse.Normal.builder().build())
+			.build());
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity<?> changePasswordAfterLogin(Long idxUser, AuthDto.PasswordAfterLogin dto) {
+		String oldPassword = dto.getOldPassword();
+		String newPassword = dto.getNewPassword();
+
+		User user = userService.getUser(idxUser);
+		authValidator.matchedPassword(oldPassword, user.password()); // 현재패스워드 검사
+		user.password(authValidator.encodePassword(newPassword));
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+			.normal(BusinessResponse.Normal.builder()
+				.build())
+			.data(user)
+			.build());
 	}
 
 	private EmailDto buildVerifyEmailDto(String email, String code, VerifyCode type){
