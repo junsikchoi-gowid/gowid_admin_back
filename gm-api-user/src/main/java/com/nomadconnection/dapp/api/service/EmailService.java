@@ -79,7 +79,9 @@ public class EmailService {
 
 	public void sendReceiptEmail(String licenseNo, Map issuanceCounts, CardCompany cardCompany, String targetStatus) {
 		try {
-			EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
+            log.info("[ sendReceiptEmail ] findTopByLicenseNo {}", licenseNo);
+            EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
+            log.info("[ sendReceiptEmail ] emailDto {}", emailDto);
 			MimeMessagePreparator preparator = mimeMessage -> {
 				MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 				{

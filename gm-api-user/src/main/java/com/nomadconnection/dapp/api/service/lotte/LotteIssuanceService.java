@@ -166,6 +166,7 @@ public class LotteIssuanceService {
 		issuanceCounts.put(d1100.getUnitCdC3(), getLotteCardsCount(d1100.getRgAkCt3()));
 		issuanceCounts.put(d1100.getUnitCdC4(), getLotteCardsCount(d1100.getRgAkCt4()));
 //		issuanceCounts.put(d1100.getUnitCdC5(), getLotteCardsCount(d1100.getRgAkCt5()));
+		log.info("[ sendReceiptEmail ] issuanceCounts {}", issuanceCounts);
 		emailService.sendReceiptEmail(resultOfD1200.getBzno(), issuanceCounts, CardCompany.LOTTE, null);
 		log.info("[ sendReceiptEmail ] Complete send email {}", userCorp.resCompanyNm());
 	}
