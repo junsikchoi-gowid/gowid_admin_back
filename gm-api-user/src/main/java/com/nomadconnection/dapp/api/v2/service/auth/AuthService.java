@@ -65,13 +65,15 @@ public class AuthService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity checkVerificationCode(String email, String code) {
+	public ResponseEntity checkVerificationCode(String email, String code, VerifyCode verifyType) {
 		String storedVerifyCode = (String) redisService.getByKey(RedisKey.VERIFICATION_CODE, email);
 
 		authValidator.expiredVerifyCodeThrowException(storedVerifyCode);
 		authValidator.mismatchedVerifyCodeThrowException(code, storedVerifyCode);
 
-		redisService.deleteByKey(RedisKey.VERIFICATION_CODE, email);
+		if(REGISTER.equals(verifyType)){
+			redisService.deleteByKey(RedisKey.VERIFICATION_CODE, email);
+		}
 		return ResponseEntity.ok().body(
 			BusinessResponse.builder().build()
         );

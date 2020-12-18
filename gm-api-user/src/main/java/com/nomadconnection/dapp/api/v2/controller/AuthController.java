@@ -53,13 +53,13 @@ public class AuthController {
             "\n ### Remarks" +
             "\n" +
             "\n - <mark>액세스토큰 불필요</mark>" +
-            "\n - 인증 후 인증번호 삭제됨" +
+            "\n - 인증 후 REGISTER 일 때, 인증번호 삭제됨" +
             "\n"
     )
     @GetMapping(URI.VERIFY)
-    public ResponseEntity<?> checkVerificationCode(@RequestParam String email, @RequestParam String code) {
+    public ResponseEntity<?> checkVerificationCode(@RequestParam String email, @RequestParam String code, @RequestParam VerifyCode verifyType) {
         log.info("([ checkVerificationCode ]) $email='{}' $code='{}'", email, code);
-        return authService.checkVerificationCode(email, code);
+        return authService.checkVerificationCode(email, code, verifyType);
     }
 
     @ApiOperation(value = "비밀번호 변경 - 로그인전", notes = "" +
@@ -82,6 +82,5 @@ public class AuthController {
         log.info("([ passwordAfter ]) $user={}, $dto{}", user, dto);
         return authService.changePasswordAfterLogin(user.idx(), dto);
     }
-
 
 }
