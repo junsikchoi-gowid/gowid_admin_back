@@ -39,6 +39,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -161,11 +162,21 @@ public class LotteIssuanceService {
 		log.info("[ sendReceiptEmail ] prepare to send email {}", userCorp.resCompanyNm());
 		Lotte_D1100 d1100 = repoD1100.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
 		Map<String, String> issuanceCounts = new HashMap<>();
-		issuanceCounts.put(d1100.getUnitCdC(), getLotteCardsCount(d1100.getRgAkCt()));
-		issuanceCounts.put(d1100.getUnitCdC2(), getLotteCardsCount(d1100.getRgAkCt2()));
-		issuanceCounts.put(d1100.getUnitCdC3(), getLotteCardsCount(d1100.getRgAkCt3()));
-		issuanceCounts.put(d1100.getUnitCdC4(), getLotteCardsCount(d1100.getRgAkCt4()));
-//		issuanceCounts.put(d1100.getUnitCdC5(), getLotteCardsCount(d1100.getRgAkCt5()));
+		if (StringUtils.isEmpty(d1100.getRgAkCt())) {
+			issuanceCounts.put(d1100.getUnitCdC(), getLotteCardsCount(d1100.getRgAkCt()));
+		}
+		if (StringUtils.isEmpty(d1100.getRgAkCt2())) {
+			issuanceCounts.put(d1100.getUnitCdC2(), getLotteCardsCount(d1100.getRgAkCt2()));
+		}
+		if (StringUtils.isEmpty(d1100.getRgAkCt3())) {
+			issuanceCounts.put(d1100.getUnitCdC3(), getLotteCardsCount(d1100.getRgAkCt3()));
+		}
+		if (StringUtils.isEmpty(d1100.getRgAkCt4())) {
+			issuanceCounts.put(d1100.getUnitCdC4(), getLotteCardsCount(d1100.getRgAkCt4()));
+		}
+//		if (StringUtils.isEmpty(d1100.getRgAkCt5())) {
+//			issuanceCounts.put(d1100.getUnitCdC5(), getLotteCardsCount(d1100.getRgAkCt5()));
+//		}
 		log.info("[ sendReceiptEmail ] issuanceCounts {}", issuanceCounts);
 		emailService.sendReceiptEmail(resultOfD1200.getBzno(), issuanceCounts, CardCompany.LOTTE, null);
 		log.info("[ sendReceiptEmail ] Complete send email {}", userCorp.resCompanyNm());
