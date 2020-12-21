@@ -184,12 +184,15 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
             }
         }
 
+        if (dto.getResCompanyNm() != null) {
+            query.where(risk.corp.resCompanyNm.contains(dto.getResCompanyNm()));
+        }
+
         if (dto.getCardType() != null ){
             query.where(risk.cardType.eq(dto.getCardType()));
         }
 
         if (dto.getCardCompany() != null ){
-            // query.where(risk.user.cardCompany.eq(dto.getCardCompany()));
             query.where(cardIssuanceInfo.cardCompany.eq(dto.getCardCompany()));
         }
 

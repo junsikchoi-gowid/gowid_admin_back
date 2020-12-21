@@ -151,6 +151,9 @@ public interface AdminCustomRepository {
     @NoArgsConstructor
     @AllArgsConstructor
     class RiskOriginal {
+        @ApiModelProperty("법인명")
+        private String resCompanyNm;
+
         @ApiModelProperty("법인 idx")
         public String idxCorp;
 
