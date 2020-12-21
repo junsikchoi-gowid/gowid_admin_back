@@ -33,7 +33,6 @@ public class UserController {
 		public static final String REGISTRATION_INFO = "/registration/info";
 		public static final String REGISTRATION_PW = "/registrationpw/pw";
 		public static final String MEMBERS = "/members";
-		public static final String MEMBERS_MEMBER_DEPT = "/members/{member}/dept";
 		public static final String INFO = "/info";
 		public static final String REGISTRATION_CONSENT = "/registration/consent";
 		public static final String ISSUANCE_PROGRESS = "/issuance-progress";
@@ -50,22 +49,11 @@ public class UserController {
 	//
 	//==================================================================================================================
 
-	//
-	//	사용자 등록(회원가입)
-	//	- 가입요청
-	//	- 인증메일발송
-	//	- 이메일인증
-	//
-
+	@Deprecated
 	@ApiOperation(value = "회원가입 - 법인관리자 등록", position = 3, notes = "" +
 			"\n ### Remarks" +
 			"\n" +
 			"\n - <mark>액세스토큰 불필요</mark>" +
-//			"\n - <mark>확인필요</mark>" +
-//			"\n   - 회원가입 -> 법인관리자 등록" +
-//			"\n   - 멤버초대 -> 카드사용자 등록" +
-//			"\n   - 회원가입진행 후 법인정보 등록에서 멈춘 사용자 정보 vs 법인관리자에 의해 다시 멤버초대된 사용자 정보" +
-//			"\n - <mark>개발서버에서는 인증메일 발송없이 바로 가입완료 처리됨</mark>" +
 			"\n" +
 			"\n ### Errors" +
 			"\n" +
@@ -113,6 +101,7 @@ public class UserController {
 	//
 	//==================================================================================================================
 
+	@Deprecated
 	@ApiOperation(value = "멤버초대 - 카드사용자 등록", notes = "" +
 			"\n ### Remarks" +
 			"\n" +
@@ -176,7 +165,7 @@ public class UserController {
 		return service.registerBrandUser(dto);
 	}
 
-
+	@Deprecated
 	@ApiOperation(
 			value = "Brand 회원가입 법인정보",
 			notes = "### Remarks \n"
@@ -193,6 +182,7 @@ public class UserController {
 		return service.registerBrandCorp(user.idx(), dto);
 	}
 
+	@Deprecated
 	@ApiOperation(
 			value = "Brand 회원가입 법인정보",
 			notes = "### Remarks \n"
@@ -232,6 +222,7 @@ public class UserController {
 		return service.registerUserUpdate(dto, user.idx());
 	}
 
+	@Deprecated
 	@ApiOperation(
 			value = "Brand 비밀번호 수정",
 			notes = "### Remarks "
@@ -248,6 +239,7 @@ public class UserController {
 		return service.registerUserPasswordUpdate(dto, user.idx());
 	}
 
+	@Deprecated
 	@ApiOperation(
 			value = "Brand 비밀번호 수정 2 ",
 			notes = "### Remarks "

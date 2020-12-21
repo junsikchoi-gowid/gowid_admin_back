@@ -34,6 +34,7 @@ public class UserEtcController {
 
     private final UserService service;
 
+    @Deprecated
     @ApiOperation(value = "아이디(이메일) 찾기", notes = "" +
             "\n ### Remarks" +
             "\n" +
@@ -60,7 +61,7 @@ public class UserEtcController {
         return service.companyCard(dto, user.idx());
     }
 
-
+    @Deprecated
     @ApiOperation(value = "비밀번호 변경 - 로그인전", notes = "" +
             "\n ### Remarks" +
             "\n 로그인후 인증번호 삭제됨" +
@@ -74,6 +75,7 @@ public class UserEtcController {
         return service.passwordAuthPre(dto.getEmail(), dto.getCode(), dto.getPassword());
     }
 
+    @Deprecated
     @ApiOperation(value = "비밀번호 변경 - 로그인후", notes = "" +
             "\n ### Remarks" +
             "\n")
@@ -96,6 +98,7 @@ public class UserEtcController {
         return service.saveReception(key);
     }
 
+    @Deprecated
     @ApiOperation(value = "수신거부 삭제", notes = "" +
             "\n ### Remarks" +
             "\n")
@@ -104,7 +107,7 @@ public class UserEtcController {
         return service.deleteReception(key);
     }
 
-
+    @Deprecated
     @ApiOperation(value = "사용자 삭제 Email 정보 입력", notes = "" +
             "\n ### Remarks" +
             "\n")

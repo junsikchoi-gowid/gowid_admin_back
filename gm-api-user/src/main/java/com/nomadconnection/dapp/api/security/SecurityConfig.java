@@ -102,27 +102,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.OPTIONS, "**").permitAll()
                 .antMatchers(PERMITTED_URIS).permitAll()
                 .antMatchers(AuthController.URI.BASE + AuthController.URI.EXISTS).permitAll()
-                .antMatchers(AuthController.URI.BASE + AuthController.URI.SEND_VERIFICATION_CODE).permitAll()
-                .antMatchers(AuthController.URI.BASE + AuthController.URI.CHECK_VERIFICATION_CODE).permitAll()
+                .antMatchers(AuthController.URI.BASE + AuthController.URI.SEND_VERIFICATION_CODE).permitAll() // to be deprecated
+                .antMatchers(AuthController.URI.BASE + AuthController.URI.CHECK_VERIFICATION_CODE).permitAll() // to be deprecated
                 .antMatchers(AuthController.URI.BASE + AuthController.URI.ACCOUNT).permitAll()
-                .antMatchers(AuthController.URI.BASE + AuthController.URI.PASSWORD_RESET_EMAIL).permitAll()
-                .antMatchers(AuthController.URI.BASE + AuthController.URI.PASSWORD).permitAll()
+                .antMatchers(AuthController.URI.BASE + AuthController.URI.PASSWORD_RESET_EMAIL).permitAll() // to be deprecated
                 .antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_ISSUE).permitAll()
                 .antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_REISSUE).permitAll()
                 .antMatchers(AuthController.URI.BASE + AuthController.URI.VERIFICATION_CODE).permitAll()
-                .antMatchers(UserController.URI.BASE + UserController.URI.REGISTER).permitAll()
+                .antMatchers(UserController.URI.BASE + UserController.URI.REGISTER).permitAll() // to be deprecated
                 .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_USER).permitAll()
-                .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_CORP).permitAll()
-                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.ACCOUNT).permitAll()
-                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.USERDELETE).permitAll()
-                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.USERPASSWORDCHANGE_PRE).permitAll()
+                .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_CORP).permitAll() // to be deprecated
+                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.ACCOUNT).permitAll() // to be deprecated
+                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.USERDELETE).permitAll() // to be deprecated
+                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.USERPASSWORDCHANGE_PRE).permitAll() // to be deprecated
                 .antMatchers(ConsentController.URI.BASE + ConsentController.URI.CONSENT).permitAll()
                 .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.RECEPTION).permitAll()
                 .antMatchers(RiskController.URI.BASE + RiskController.URI.RISK).permitAll()
                 .antMatchers(ScrapingController.URI.BASE + ScrapingController.URI.SCRAPING_ACCOUNT_HISTORY).permitAll()
                 .antMatchers(ScrapingController.URI.BASE + ScrapingController.URI.SCRAPING_ACCOUNT).permitAll()
                 .antMatchers(IrDashBoardController.URI.BASE + IrDashBoardController.URI.IRDASHBOARD).permitAll()
-                .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_PW + 2).permitAll()
+                .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_PW + 2).permitAll() // to be deprecated
                 .antMatchers(BankController.URI.BASE + BankController.URI.MONTH_BALANCE_EXT).permitAll()
                 .antMatchers(ShinhanCardController.URI.BASE + ShinhanCardController.URI.RESUME).permitAll()
                 .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFITS).permitAll()

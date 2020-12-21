@@ -42,7 +42,6 @@ public class AuthController {
         public static final String CHECK_VERIFICATION_CODE = "/checkVerificationCode";
         public static final String ACCOUNT = "/account";
         public static final String PASSWORD_RESET_EMAIL = "/passwordResetEmail";
-        public static final String PASSWORD = "/password";
         public static final String TOKEN_ISSUE = "/token/issue";
         public static final String TOKEN_REISSUE = "/token/reissue";
         public static final String INFO = "/info";
@@ -90,6 +89,7 @@ public class AuthController {
     //
     //==================================================================================================================
 
+    @Deprecated
     @ApiOperation(value = "인증코드(4 digits, EMAIL) 발송 요청", notes = "" +
             "\n ### Remarks" +
             "\n" +
@@ -140,6 +140,7 @@ public class AuthController {
     //
     //==================================================================================================================
 
+    @Deprecated
     @ApiOperation(value = "인증코드(4 digits, EMAIL) 확인", notes = "" +
             "\n ### Remarks" +
             "\n" +
@@ -195,6 +196,7 @@ public class AuthController {
     //
     //==================================================================================================================
 
+    @Deprecated
     @ApiOperation(value = "비밀번호 재설정 - 이메일 발송 요청", notes = "" +
             "\n ### Remarks" +
             "\n" +
