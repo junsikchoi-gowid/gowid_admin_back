@@ -30,6 +30,7 @@ import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.user.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -49,10 +50,7 @@ import org.thymeleaf.context.Context;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -738,10 +736,10 @@ public class UserService {
 		} else if (dto.getEnableEmail()) {
 			guidance = "이메일";
 		} else if (dto.getEnablePhone()) {
-            guidance = "휴대폰";
-        }
+			guidance = "휴대폰";
+		}
 
-		final String finalGuidance = guidance;
+		String finalGuidance = guidance;
 		User user = repo.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().build()
 		);
@@ -751,7 +749,7 @@ public class UserService {
 			{
 				Context context = new Context();
 				{
-					context.setVariable("userName",  GowidUtils.getEmptyStringToString(user.name()));
+					context.setVariable("userName", GowidUtils.getEmptyStringToString(user.name()));
 					context.setVariable("cardLimit", GowidUtils.getEmptyStringToString(dto.getCardLimit()));
 					context.setVariable("accountInfo", GowidUtils.getEmptyStringToString(dto.getAccountInfo()));
 					context.setVariable("etc", GowidUtils.getEmptyStringToString(dto.getEtc()));
@@ -788,6 +786,15 @@ public class UserService {
 		sender.send(preparatorSupport);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().build());
+	}
+
+	public UserDto.ExternalIdRes getUserExternalId(CustomUser customUser) {
+		User user = repo.findById(customUser.idx()).orElseThrow(() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "userId"));
+		if (StringUtils.isEmpty(user.externalId())) {
+			user.externalId(UUID.randomUUID().toString());
+			repo.save(user);
+		}
+		return UserDto.ExternalIdRes.builder().externalId(user.externalId()).build();
 	}
 
 }

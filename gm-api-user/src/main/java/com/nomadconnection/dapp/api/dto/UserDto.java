@@ -5,10 +5,7 @@ import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
 import com.nomadconnection.dapp.core.domain.user.MemberAuthority;
 import com.nomadconnection.dapp.core.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -222,4 +219,16 @@ public class UserDto {
 		@ApiModelProperty("희망한도")
 		private String hopeLimit;
 	}
+
+	@Getter
+	@Setter
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class ExternalIdRes {
+
+		@ApiModelProperty("외부아이디")
+		private String externalId;
+	}
+
 }

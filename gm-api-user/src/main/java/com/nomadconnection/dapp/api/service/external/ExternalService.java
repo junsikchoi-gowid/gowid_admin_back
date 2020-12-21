@@ -1,7 +1,8 @@
-package com.nomadconnection.dapp.api.service;
+package com.nomadconnection.dapp.api.service.external;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.ExternalDto;
+import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;

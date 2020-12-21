@@ -1,7 +1,7 @@
-package com.nomadconnection.dapp.api.controller;
+package com.nomadconnection.dapp.api.controller.external;
 
 import com.nomadconnection.dapp.api.dto.ExternalDto;
-import com.nomadconnection.dapp.api.service.ExternalService;
+import com.nomadconnection.dapp.api.service.external.ExternalService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;

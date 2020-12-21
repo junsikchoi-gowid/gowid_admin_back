@@ -82,7 +82,7 @@ public class User extends BaseTime {
 			name = "ConsentMapping",
 			joinColumns = @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_ConsentMapping")),
 			inverseJoinColumns = @JoinColumn(name = "idxConsent", foreignKey = @ForeignKey(name = "FK_Consent_ConsentMapping"))
-    )
+	)
 	@Builder.Default
 	private List<Consent> consents = new ArrayList<>();
 
@@ -91,5 +91,8 @@ public class User extends BaseTime {
 
 	@OneToMany(mappedBy = "user")
 	private List<SurveyAnswer> surveyAnswers;
+
+	@Column(columnDefinition = "varchar(60) comment '외부 아이디' ")
+	private String externalId;
 
 }

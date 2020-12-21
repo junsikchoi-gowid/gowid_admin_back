@@ -7,7 +7,10 @@ import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -25,7 +28,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @Api(tags = "사용자", description = UserController.URI.BASE)
 public class UserController {
 
-    public static class URI {
+	public static class URI {
 		public static final String BASE = "/user/v1";
 		public static final String REGISTER = "/register";
 		public static final String REGISTRATION_USER = "/registration/user";
@@ -38,6 +41,7 @@ public class UserController {
 		public static final String ISSUANCE_PROGRESS = "/issuance-progress";
 		public static final String LIMIT_REVIEW = "/limit-review";
 		public static final String INIT_USER_INFO = "/init/user";
+		public static final String EXTERNAL_ID = "/external-id";
 	}
 
 	private final UserService service;
@@ -295,5 +299,14 @@ public class UserController {
 		}
 
 		return service.limitReview(user.idx(), dto);
+	}
+
+	@ApiOperation(value = "외부 아이디 조회", notes = "### Remarks ")
+	@GetMapping(URI.EXTERNAL_ID)
+	public com.nomadconnection.dapp.api.dto.gateway.ApiResponse<UserDto.ExternalIdRes> externalId(
+			@ApiIgnore @CurrentUser CustomUser customUser) {
+
+		return com.nomadconnection.dapp.api.dto.gateway.ApiResponse
+				.SUCCESS(service.getUserExternalId(customUser));
 	}
 }

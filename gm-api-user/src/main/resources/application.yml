@@ -103,9 +103,13 @@ gateway:
   idc:
     shinhan: http://10.10.40.171:8080
     lotte: http://10.10.40.171:8090
-#  idc:
-#    host: 10.10.40.171:8080
-#    protocol: http
+
+quotabook:
+  domain-url: https://api-tour.quotabook.com
+  stakeholders-url: /external/stakeholders
+  share-classes-url: /external/share_classes
+  rounding-url: /external/rounding
+
 
 encryption:
   keypad:
@@ -177,9 +181,12 @@ gateway:
   idc:
     shinhan: http://10.10.40.171:8080
     lotte: http://10.10.40.171:8090
-#  idc:
-#    host: 10.10.40.171:8080
-#    protocol: http
+
+quotabook:
+  domain-url: https://api-tour.quotabook.com
+  stakeholders-url: /external/stakeholders
+  share-classes-url: /external/share_classes
+  rounding-url: /external/rounding
 
 encryption:
   keypad:
@@ -254,9 +261,12 @@ gateway:
   idc:
     shinhan: http://10.10.20.171:8080
     lotte: http://10.10.20.171:8090
-#  idc:
-#    host: 10.10.20.171:8080
-#    protocol: http
+
+quotabook:
+  domain-url: https://api-tour.quotabook.com
+  stakeholders-url: /external/stakeholders
+  share-classes-url: /external/share_classes
+  rounding-url: /external/rounding
 
 encryption:
   keypad:

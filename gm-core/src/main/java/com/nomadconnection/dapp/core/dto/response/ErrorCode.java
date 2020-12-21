@@ -59,6 +59,9 @@ public class ErrorCode {
 	@AllArgsConstructor
 	@Getter
 	public enum External {
+		EXTERNAL_ERROR_QUOTABOOK("EXTERNAL_ERROR_QUOTABOOK", "external error from QUOTABOOK"),
+		INTERNAL_ERROR_QUOTABOOK("EXTERNAL_ERROR_QUOTABOOK", "internal error when request QUOTABOOK"),
+
 		EXTERNAL_ERROR_GW("EXTERNAL_ERROR_GW", "external error(shinhan - GW)"),
 		INTERNAL_ERROR_GW("INTERNAL_ERROR_GW", "internal error(shinhan - GW)"),
 

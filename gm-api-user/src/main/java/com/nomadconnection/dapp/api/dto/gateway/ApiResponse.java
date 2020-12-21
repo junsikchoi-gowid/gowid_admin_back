@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.dto.gateway;
 
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 
@@ -21,6 +22,14 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> OK() {
         return new ApiResponse<>(null, new ApiResult(HttpStatus.OK));
+    }
+
+    public static <T> ApiResponse<T> SUCCESS() {
+        return new ApiResponse<>(null, new ApiResult(ErrorCode.Api.SUCCESS));
+    }
+
+    public static <T> ApiResponse<T> SUCCESS(T data) {
+        return new ApiResponse<>(data, new ApiResult(ErrorCode.Api.SUCCESS));
     }
 
     public static <T> ApiResponse<T> OK(T data) {
@@ -61,6 +70,17 @@ public class ApiResponse<T> {
         ApiResult(HttpStatus status) {
             code = String.valueOf(status.value());
             desc = status.getReasonPhrase();
+        }
+
+        ApiResult(ErrorCode.Api codeType, String extraMessage) {
+            code = codeType.getCode();
+            desc = codeType.getDesc();
+            this.extraMessage = extraMessage;
+        }
+
+        ApiResult(ErrorCode.Api codeType) {
+            code = codeType.getCode();
+            desc = codeType.getDesc();
         }
 
     }
