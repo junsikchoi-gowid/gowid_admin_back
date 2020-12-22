@@ -779,7 +779,7 @@ public class ScrapingService {
         }
     }
 
-    @Async
+    @Async("executor1")
     public void scrapingRegister1YearList(Long idxUser) {
         log.debug("scrapingRegister");
         ResBatch idxLog = startBatchLog(idxUser);

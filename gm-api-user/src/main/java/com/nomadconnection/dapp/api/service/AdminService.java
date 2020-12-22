@@ -490,7 +490,7 @@ public class AdminService {
                     data.setCardLimitNow(risk.cardLimitNow());
                     data.setCardRestartCount(risk.cardRestartCount());
                     data.setCardType(risk.cardType());
-                    data.setCardIssuance(risk.cardIssuance());
+                    // data.setCardIssuance(risk.cardIssuance());
                     data.setGrade(risk.grade());
                     data.setEmergencyStop(risk.emergencyStop());
                     data.setRealtimeLimit(risk.realtimeLimit());
@@ -515,6 +515,10 @@ public class AdminService {
 
         if(cardIssuance.issuanceDepth() != null){
             data.setIssuanceDepth(cardIssuance.issuanceDepth());
+        }
+
+        if(cardIssuance.issuanceStatus() != null){
+            data.setCardIssuance(cardIssuance.issuanceStatus());
         }
 
         IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(corp.user().idx()).orElse(null);

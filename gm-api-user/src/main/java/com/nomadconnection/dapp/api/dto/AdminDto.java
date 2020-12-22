@@ -555,7 +555,7 @@ public class AdminDto {
 		public String cardType;
 
 		@ApiModelProperty("발급")
-		public boolean cardIssuance;
+		public IssuanceStatus cardIssuance;
 
 		@ApiModelProperty("카드사")
 		public CardCompany cardCompany;
