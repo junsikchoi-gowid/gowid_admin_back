@@ -40,12 +40,14 @@ class AuthServiceTest extends AbstractSpringBootTest {
 
 	private String email;
 	private ResponseEntity successResponse;
+	private VerifyCode verifyType;
 
 	@BeforeEach
 	void init(){
 		email = "lhjang@gowid.com";
 		successResponse = ResponseEntity.ok().body(
 			BusinessResponse.builder().build());
+		verifyType = VerifyCode.PASSWORD_RESET;
 	}
 
 	@Test
@@ -63,7 +65,7 @@ class AuthServiceTest extends AbstractSpringBootTest {
 	void verifyByValidCode() {
 		sendVerificationCodeWhenResetPassword();
 		String code = (String) redisService.getByKey(RedisKey.VERIFICATION_CODE, email);
-		ResponseEntity responseEntity = authService.checkVerificationCode(email, code);
+		ResponseEntity responseEntity = authService.checkVerificationCode(email, code, verifyType);
 
 		assertEquals(successResponse, responseEntity);
 	}
@@ -75,7 +77,7 @@ class AuthServiceTest extends AbstractSpringBootTest {
 		String invalidCode = String.format("%04d", new Random().nextInt(10000));
 
 		assertThrows(MismatchedException.class,
-			() -> authService.checkVerificationCode(email, invalidCode)
+			() -> authService.checkVerificationCode(email, invalidCode, verifyType)
 		);
 	}
 
@@ -88,7 +90,7 @@ class AuthServiceTest extends AbstractSpringBootTest {
 		Thread.sleep(1000L);
 
 		assertThrows(ExpiredException.class,
-			() -> authService.checkVerificationCode(email, code)
+			() -> authService.checkVerificationCode(email, code, verifyType)
 		);
 	}
 

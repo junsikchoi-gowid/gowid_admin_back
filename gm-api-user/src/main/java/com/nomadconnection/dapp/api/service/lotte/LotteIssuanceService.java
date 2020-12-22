@@ -5,12 +5,8 @@ import com.nomadconnection.dapp.api.dto.lotte.*;
 import com.nomadconnection.dapp.api.dto.lotte.enums.LotteGwApiType;
 import com.nomadconnection.dapp.api.dto.lotte.enums.LotteUserStatus;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
-import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
-import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
-import com.nomadconnection.dapp.api.service.CommonCardService;
-import com.nomadconnection.dapp.api.service.EmailService;
-import com.nomadconnection.dapp.api.service.UserService;
+import com.nomadconnection.dapp.api.service.*;
 import com.nomadconnection.dapp.api.service.lotte.rpc.LotteGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
@@ -58,6 +54,7 @@ public class LotteIssuanceService {
 	private final RiskRepository repoRisk;
 
 	private final UserService userService;
+	private final CorpService corpService;
 	private final LotteCommonService commonService;
 	private final LotteGwRpc lotteGwRpc;
 	private final EmailService emailService;
@@ -70,7 +67,7 @@ public class LotteIssuanceService {
 	@Transactional(noRollbackFor = Exception.class)
 	public StatusDto verifyNewMember(Long userIdx) {
 		// 1000(법인회원신규여부검증)
-		Corp userCorp = getCorpByUserIdx(userIdx);
+		Corp userCorp = corpService.getCorpByUserIdx(userIdx);
 		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1000, CardCompany.LOTTE);
 		DataPart1000 resultOfD1000 = proc1000(userCorp);
 		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1000, CardCompany.LOTTE);
@@ -95,7 +92,7 @@ public class LotteIssuanceService {
 	// 테스트 용도
 	@Transactional(noRollbackFor = Exception.class)
 	public String verifyNewMemberTest(Long userIdx) {
-		Corp userCorp = getCorpByUserIdx(userIdx);
+		Corp userCorp = corpService.getCorpByUserIdx(userIdx);
 		Lotte_D1000 d1000 = Lotte_D1000.builder().idxCorp(userCorp.idx()).build();
 		d1000.setBzno(CommonUtil.replaceHyphen(userCorp.resCompanyIdentityNo()));
 		repoD1000.save(d1000);
@@ -109,7 +106,7 @@ public class LotteIssuanceService {
 		paramsLogging(request);
 		request.setUserIdx(userIdx);
 		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED, CardCompany.LOTTE);
-		Corp userCorp = getCorpByUserIdx(userIdx);
+		Corp userCorp = corpService.getCorpByUserIdx(userIdx);
 		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.SIGNED, CardCompany.LOTTE);
 		repoIssuanceProgress.flush();
 
@@ -145,7 +142,7 @@ public class LotteIssuanceService {
 
 	@Transactional(rollbackFor = Exception.class)
 	public void procImageZipByHand(Long userIdx){
-		Corp corp = getCorpByUserIdx(userIdx);
+		Corp corp = corpService.getCorpByUserIdx(userIdx);
 		Lotte_D1200 lotteD1200 = repoD1200.getTopByIdxCorpOrderByIdxDesc(corp.idx());
 
 		ImageZipReq requestRpc = new ImageZipReq();
@@ -155,7 +152,7 @@ public class LotteIssuanceService {
 		lotteGwRpc.requestImageZip(requestRpc);
 	}
 
-	private void sendReceiptEmail(Corp userCorp) {
+	public void sendReceiptEmail(Corp userCorp) {
 		if (!sendReceiptEmailEnable) {
 			return;
 		}
@@ -340,16 +337,6 @@ public class LotteIssuanceService {
 
 	private void paramsLogging(CardIssuanceDto.IssuanceReq request) {
 		log.debug("## request params : " + request.toString());
-	}
-
-	private Corp getCorpByUserIdx(Long userIdx) {
-		User user = findUser(userIdx);
-		Corp userCorp = user.corp();
-		if (userCorp == null) {
-			log.error("not found corp. userIdx=" + userIdx);
-			throw new BadRequestException(ErrorCode.Api.NOT_FOUND, "corp(userIdx=" + userIdx + ")");
-		}
-		return userCorp;
 	}
 
 	private User findUser(Long idx_user) {

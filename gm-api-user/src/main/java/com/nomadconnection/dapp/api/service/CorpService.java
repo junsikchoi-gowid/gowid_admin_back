@@ -2,11 +2,13 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.CorpDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
+import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.user.User;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -22,7 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CorpService {
 
-	private final UserService serviceUser;
+	private final UserService userService;
 	private final UserRepository repoUser;
 
 	private final CorpRepository repo;
@@ -52,7 +55,7 @@ public class CorpService {
 	 */
 	@Transactional
 	public List<CorpDto.CorpMember> members(Long idxUser) {
-		User user = serviceUser.getUser(idxUser);
+		User user = userService.getUser(idxUser);
 		{
 			if (user.corp() == null) {
 				throw CorpNotRegisteredException.builder()
@@ -69,6 +72,15 @@ public class CorpService {
 		return repo.findById(corpIdx)
 			.orElseThrow(() -> CorpNotRegisteredException.builder().build()
 			);
+	}
+
+	public Corp getCorpByUserIdx(Long userIdx) {
+		User user = userService.getUser(userIdx);
+		Corp corp = user.corp();
+		Optional.ofNullable(corp).orElseThrow(() ->
+			new BadRequestException(ErrorCode.Api.NOT_FOUND, "corp(userIdx=" + userIdx + ")")
+		);
+		return corp;
 	}
 
 	// 재무제표에서 신설법인 판단

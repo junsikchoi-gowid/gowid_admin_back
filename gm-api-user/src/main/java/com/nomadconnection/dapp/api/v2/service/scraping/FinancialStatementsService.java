@@ -51,8 +51,7 @@ public class FinancialStatementsService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public ApiResponse.ApiResult scrap(Long userIdx, String resClosingStandards) throws Exception {
-		User user = userService.getUser(userIdx);
+	public ApiResponse.ApiResult scrap(User user, String resClosingStandards) throws Exception {
 		Corp corp = user.corp();
 		ConnectedMngDto.CorpInfo dto = ConnectedMngDto.CorpInfo
 			.builder()

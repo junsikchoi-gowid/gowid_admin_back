@@ -1,13 +1,9 @@
 package com.nomadconnection.dapp.api.v2.controller;
 
-import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
-import com.nomadconnection.dapp.api.service.lotte.LotteIssuanceService;
-import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.api.v2.dto.ImageReqDto;
-import com.nomadconnection.dapp.api.v2.service.scraping.FinancialStatementsService;
-import com.nomadconnection.dapp.codef.io.helper.ResponseCode;
-import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
+import com.nomadconnection.dapp.api.v2.service.scraping.RecoveryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -21,35 +17,30 @@ import org.springframework.web.bind.annotation.*;
 @Api(tags = "CodeF 수동처리 스크래핑")
 public class RecoveryController {
 
-	private final FinancialStatementsService financialStatementsService;
-	private final IssuanceService shinhanIssuanceService;
-	private final LotteIssuanceService lotteIssuanceService;
+	private final RecoveryService recoveryService;
 
-	@ApiOperation(value = "재무제표 수동 스크래핑")
-	@PostMapping("/scrap/financial/{userIdx}/{resClosingStandards}")
-	public ApiResponse<?> scrapFinancialStatements(@PathVariable Long userIdx, @PathVariable String resClosingStandards) throws Exception {
-		ApiResponse.ApiResult response = financialStatementsService.scrap(userIdx, resClosingStandards);
-		return ApiResponse.builder()
-			.result(response)
-			.build();
+	@ApiOperation(value = "수동 스크래핑")
+	@PostMapping("/scrap/{userIdx}")
+	public ApiResponse<?> scrapByScrapingType(@PathVariable Long userIdx,
+	                                            @RequestParam ScrapingType scrapingType,
+	                                            @RequestParam(required = false) String resClosingStandards) throws Exception {
+		recoveryService.scrapByScrapingType(userIdx, scrapingType, resClosingStandards);
+		return ApiResponse.OK();
+	}
+
+	@ApiOperation(value = "전문 수동 발송")
+	@PostMapping("/fulltext/{userIdx}")
+	public ApiResponse<?> sendFullText(@PathVariable Long userIdx,
+	                                   @RequestParam ScrapingType scrapingType) throws Exception {
+		recoveryService.sendFullText(userIdx, scrapingType);
+		return ApiResponse.OK();
 	}
 
 	@ApiOperation(value = "이미지 수동 전송")
 	@PostMapping("/image/{userIdx}")
 	public ApiResponse<?> sendImage(@PathVariable Long userIdx, @RequestBody ImageReqDto dto) {
-		if(CardCompany.isShinhan(dto.getCardCompany())){
-			shinhanIssuanceService.sendImageByHand(userIdx, dto.getImageFileType().getFileType());
-		} else if(CardCompany.isLotte(dto.getCardCompany())){
-			lotteIssuanceService.procImageZipByHand(userIdx);
-		}
-		return ApiResponse.OK(null);
-	}
-
-	@ApiOperation(value = "재무제표 전문 수동 발송")
-	@PostMapping("/fulltext/financial/{userIdx}")
-	public ApiResponse<?> sendFinancial(@PathVariable Long userIdx) throws Exception {
-		shinhanIssuanceService.send1520ByHand(userIdx);
-		return ApiResponse.OK(null);
+		recoveryService.sendImage(userIdx, dto);
+		return ApiResponse.OK();
 	}
 
 }

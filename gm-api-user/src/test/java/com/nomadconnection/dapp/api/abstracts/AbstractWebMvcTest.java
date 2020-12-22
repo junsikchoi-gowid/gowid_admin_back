@@ -68,4 +68,9 @@ public abstract class AbstractWebMvcTest {
 		return JsonPath.read(result.getResponse().getContentAsString(), "$.jwtAccess");
 	}
 
+	protected String getToken(String email, String password) throws Exception {
+		AccountDto account = AccountDto.builder().email(email).password(password).build();
+		return extractToken(login(account).andReturn());
+	}
+
 }

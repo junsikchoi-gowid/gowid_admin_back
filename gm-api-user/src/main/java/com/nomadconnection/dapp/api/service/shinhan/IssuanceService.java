@@ -11,10 +11,7 @@ import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
-import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
-import com.nomadconnection.dapp.api.service.CommonCardService;
-import com.nomadconnection.dapp.api.service.EmailService;
-import com.nomadconnection.dapp.api.service.UserService;
+import com.nomadconnection.dapp.api.service.*;
 import com.nomadconnection.dapp.api.service.notification.SlackNotiService;
 import com.nomadconnection.dapp.api.service.shinhan.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
@@ -80,6 +77,7 @@ public class IssuanceService {
     private final CommonService issCommonService;
     private final AsyncService asyncService;
     private final UserService userService;
+    private final CorpService corpService;
     private final EmailService emailService;
     private final CommonCardService commonCardService;
     private final FinancialStatementsService financialStatementsService;
@@ -113,7 +111,7 @@ public class IssuanceService {
         request.setUserIdx(userIdx);
         CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(request.getCardIssuanceInfoIdx());
         userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED);
-        Corp userCorp = getCorpByUserIdx(userIdx);
+        Corp userCorp = corpService.getCorpByUserIdx(userIdx);
         encryptAndSaveD1100(userCorp.idx(), cardIssuanceInfo);
         userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.SIGNED);
         issuanceProgressRepository.flush();
@@ -158,16 +156,6 @@ public class IssuanceService {
         log.debug("## request params : " + request.toString());
     }
 
-    private Corp getCorpByUserIdx(Long userIdx) {
-        User user = findUser(userIdx);
-        Corp userCorp = user.corp();
-        if (userCorp == null) {
-            log.error("not found corp. userIdx=" + userIdx);
-            throw new BadRequestException(ErrorCode.Api.NOT_FOUND, "corp(userIdx=" + userIdx + ")");
-        }
-        return userCorp;
-    }
-
     @Async
     void procBpr(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
         try {
@@ -182,7 +170,7 @@ public class IssuanceService {
         }
     }
 
-    void procBprByHand(DataPart1200 resultOfD1200, Long userIdx, int fileType) {
+    public void procBprByHand(DataPart1200 resultOfD1200, Long userIdx, int fileType) {
         try {
             DataPart3000 resultOfD3000 = proc3000(resultOfD1200, userIdx);                    // 3000(이미지 제출여부)
             if ("Y".equals(resultOfD3000.getD001())) {
@@ -335,11 +323,11 @@ public class IssuanceService {
         shinhanGwRpc.request1510(requestRpc, userCorp.user().idx());
     }
 
-    private void proc1520(Corp userCorp, String applyDate, String applyNo) throws Exception {
+    public void proc1520(Corp userCorp, String applyDate, String applyNo) throws Exception {
         List<D1520> d1520s = d1520Repository.findTop2ByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         if (CollectionUtils.isEmpty(d1520s)) {
             log.error("data of d1520 is not exist(corpIdx=" + userCorp.idx() + ")");
-            ApiResponse.ApiResult response = financialStatementsService.scrap(userCorp.user().idx(), ScrapingCommonUtils.DEFAULT_CLOSING_STANDARDS_MONTH);
+            ApiResponse.ApiResult response = financialStatementsService.scrap(userCorp.user(), ScrapingCommonUtils.DEFAULT_CLOSING_STANDARDS_MONTH);
             if(!isScrapingSuccess(response.getCode())){
                 slackNotiService.sendSlackNotification(getSlackRecoveryMessage(userCorp, response), slackNotiService.getSlackRecoveryUrl());
                 return;
@@ -361,7 +349,7 @@ public class IssuanceService {
         }
     }
 
-    private void proc1530(Corp userCorp, String applyDate, String applyNo) {
+    public void proc1530(Corp userCorp, String applyDate, String applyNo) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1530);
 
@@ -688,22 +676,7 @@ public class IssuanceService {
         return code;
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void send1520ByHand(Long userIdx) throws Exception {
-        Corp corp = getCorpByUserIdx(userIdx);
-        DataPart1200 resultOfD1200 = makeDataPart1200(corp.idx());
-        proc1520(corp, resultOfD1200.getD007(), resultOfD1200.getD008());
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void sendImageByHand(Long userIdx, int fileType){
-        Corp corp = getCorpByUserIdx(userIdx);
-        DataPart1200 resultOfD1200 = makeDataPart1200(corp.idx());
-
-        procBprByHand(resultOfD1200, userIdx, fileType);
-    }
-
-    private DataPart1200 makeDataPart1200(Long corpIdx){
+    public DataPart1200 makeDataPart1200(Long corpIdx){
         D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx);
         DataPart1200 resultOfD1200 = new DataPart1200();
         BeanUtils.copyProperties(d1200, resultOfD1200);
