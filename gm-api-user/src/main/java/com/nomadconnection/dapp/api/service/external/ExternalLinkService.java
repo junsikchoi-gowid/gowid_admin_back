@@ -18,12 +18,17 @@ public class ExternalLinkService {
 
     public void saveExternalKey(ExternalLinkReq request, CustomUser customUser) {
 
-        userExternalLinkRepo.save(
-                UserExternalLink.builder()
-                        .user(User.builder().idx(customUser.idx()).build())
-                        .externalCompanyType(request.getExternalCompanyType())
-                        .externalKey(request.getExternalKey())
-                        .build()
-        );
+        UserExternalLink userExternalLink = userExternalLinkRepo.findByUserAndExternalCompanyType(
+                User.builder().idx(customUser.idx()).build(),
+                request.getExternalCompanyType())
+                .orElse(
+                        UserExternalLink.builder()
+                                .user(User.builder().idx(customUser.idx()).build())
+                                .externalCompanyType(request.getExternalCompanyType())
+                                .build()
+                );
+
+        userExternalLink.setExternalKey(request.getExternalKey());
+        userExternalLinkRepo.save(userExternalLink);
     }
 }
