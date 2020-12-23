@@ -18,8 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.nomadconnection.dapp.api.v2.enums.ScrapingType.CORP_REGISTRATION;
-import static com.nomadconnection.dapp.api.v2.enums.ScrapingType.FINANCIAL_STATEMENTS;
+import static com.nomadconnection.dapp.api.v2.enums.ScrapingType.*;
 
 @Slf4j
 @Service
@@ -36,12 +35,13 @@ public class RecoveryService {
 	@Transactional
 	public void scrapByScrapingType(Long userIdx, ScrapingType scrapingType, String resClosingStandards) throws Exception {
 		User user = userService.getUser(userIdx);
-		if(FINANCIAL_STATEMENTS.equals(scrapingType)){
-			financialStatementsService.scrap(user, resClosingStandards);
-		} else if (CORP_REGISTRATION.equals(scrapingType)){
+
+		if(CORP_LICENSE.equals(scrapingType)){
+			scrapingService.scrapCorpLicense(user);
+		} else if (CORP_REGISTRATION.equals(scrapingType)) {
 			scrapingService.scrapCorpRegistration(user);
-		} else {
-			throw new BadRequestException(ErrorCode.Api.NOT_FOUND, "ScrapingType");
+		} else if(FINANCIAL_STATEMENTS.equals(scrapingType)){
+			financialStatementsService.scrap(user, resClosingStandards);
 		}
 	}
 
@@ -49,12 +49,15 @@ public class RecoveryService {
 	public void sendFullText(Long userIdx, ScrapingType scrapingType) throws Exception {
 		Corp corp = corpService.getCorpByUserIdx(userIdx);
 		DataPart1200 resultOfD1200 = shinhanIssuanceService.makeDataPart1200(corp.idx());
-		if(FINANCIAL_STATEMENTS.equals(scrapingType)){
-			shinhanIssuanceService.proc1520(corp, resultOfD1200.getD007(), resultOfD1200.getD008());
+		String applyDate = resultOfD1200.getD007();
+		String applyNo = resultOfD1200.getD008();
+
+		if(CORP_LICENSE.equals(scrapingType)){
+			shinhanIssuanceService.proc1510(corp, applyDate, applyNo);
 		} else if (CORP_REGISTRATION.equals(scrapingType)){
-			shinhanIssuanceService.proc1530(corp, resultOfD1200.getD007(), resultOfD1200.getD008());
-		} else {
-			throw new BadRequestException(ErrorCode.Api.NOT_FOUND, "ScrapingType");
+			shinhanIssuanceService.proc1530(corp, applyDate, applyNo);
+		} else if(FINANCIAL_STATEMENTS.equals(scrapingType)){
+			shinhanIssuanceService.proc1520(corp, applyDate, applyNo);
 		}
 	}
 

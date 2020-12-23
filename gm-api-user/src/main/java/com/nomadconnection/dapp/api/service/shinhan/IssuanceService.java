@@ -291,7 +291,7 @@ public class IssuanceService {
         proc1530(userCorp, applyDate, applyNo);
     }
 
-    private void proc1510(Corp userCorp, String applyDate, String applyNo) {
+    public void proc1510(Corp userCorp, String applyDate, String applyNo) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1510);
 

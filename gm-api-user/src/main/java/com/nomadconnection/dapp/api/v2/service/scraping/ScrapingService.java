@@ -190,7 +190,7 @@ public class ScrapingService {
 		}
 	}
 
-	private void addAccount(User user, AccountNt dto) throws Exception{
+	private void addAccount(User user, AccountNt dto) {
 		String connectedId = scrapingResultService.getResponseDto().getConnectedId();
 		JSONObject response = codefApiService.requestAddAccount(dto, connectedId, user.email());
 
@@ -218,7 +218,7 @@ public class ScrapingService {
 		}
 	}
 
-	private void scrapCorpLicense(User user) throws Exception{
+	public void scrapCorpLicense(User user) throws Exception{
 		String connectedId = scrapingResultService.getResponseDto().getConnectedId();
 		String response = codefApiService.requestScrapCorpLicense(connectedId, user.email());
 		ScrapingResponse scrapingResponse = scrapingResultService.getApiResult(response);
