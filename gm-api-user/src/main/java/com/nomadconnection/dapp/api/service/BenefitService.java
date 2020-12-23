@@ -5,6 +5,7 @@ import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.core.domain.benefit.*;
 import com.nomadconnection.dapp.core.domain.repository.benefit.*;
+import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -410,7 +411,7 @@ public class BenefitService {
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity deleteBenefit(Long idxUser, Long idxBenefit) {
 
-		if(adminService.isGowidAdmin(idxUser)) {
+		if(hasModifyAuth(idxUser)) {
 			Benefit benefit = findBenefit(idxBenefit);
 
 			// Benefit 관련 정보 삭제(제공자, Item)
@@ -433,7 +434,7 @@ public class BenefitService {
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity saveBenefit(Long idxUser, BenefitDto.SaveBenefitReq dto) {
 
-		if(adminService.isGowidAdmin(idxUser)) {
+		if(hasModifyAuth(idxUser)) {
 
 			// 1. 카테고리가 있는지 확인
 			BenefitCategory benefitCategory = findBenefitCategory(dto.getIdxBenefitCategory());
@@ -492,7 +493,7 @@ public class BenefitService {
 	public ResponseEntity updateBenefit(Long idxUser, Long idxBenefit, BenefitDto.SaveBenefitReq dto) {
 
 		// 1. 사용자 확인
-		if(adminService.isGowidAdmin(idxUser)) {
+		if(hasModifyAuth(idxUser)) {
 
 			// 2. 혜택이 있는지 확인하고,
 			Benefit benefit = findBenefit(idxBenefit);
@@ -544,7 +545,7 @@ public class BenefitService {
 	public ResponseEntity updateBenefitList(Long idxUser, List<BenefitDto.UpdateBenefitListReq> dtoList) {
 
 		// 1. 사용자 확인
-		if(adminService.isGowidAdmin(idxUser)) {
+		if(hasModifyAuth(idxUser)) {
 			// 2. 혜택 우선순위 수정
 			dtoList.forEach(dto ->  {
 				Benefit benefit = findBenefit(dto.getIdx());
@@ -559,5 +560,15 @@ public class BenefitService {
 		}else {
 			throw new BadRequestException(ErrorCode.Api.NO_PERMISSION);
 		}
+	}
+
+	/**
+	 * 혜택 변경 권한이 있는지 확인
+	 *
+	 * @param idxUser
+	 * @return
+	 */
+	private boolean hasModifyAuth(Long idxUser) {
+		return adminService.isGowidAdmin(idxUser) || adminService.hasAdminAuth(idxUser, Role.GOWID_BENEFIT);
 	}
 }

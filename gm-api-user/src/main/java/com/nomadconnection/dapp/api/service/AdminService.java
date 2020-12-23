@@ -104,6 +104,14 @@ public class AdminService {
                 .anyMatch(o -> o.role().equals(Role.GOWID_ADMIN));
     }
 
+    public boolean hasAdminAuth(long idxUser, Role role) {
+        User user = repoUser.findById(idxUser).orElseThrow(
+                () -> UserNotFoundException.builder().build()
+        );
+        return user.authorities().stream()
+                .anyMatch(o -> o.role().equals(role));
+    }
+
     private Integer intGowidMaster(Long idxUser) {
 
         int iReturn = 0;
