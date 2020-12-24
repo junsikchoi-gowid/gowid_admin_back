@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.jwt.authentication;
 
+import com.nomadconnection.dapp.core.utils.EnvUtil;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import com.nomadconnection.dapp.jwt.exception.AccessTokenNotFoundException;
 import com.nomadconnection.dapp.jwt.exception.UnacceptableJwtException;
@@ -16,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -28,11 +28,11 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@SuppressWarnings("unused")
 public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
 	private final UserDetailsService service;
 	private final JwtService jwt;
+	private final EnvUtil envUtil;
 
 	private boolean isAPIKeyAuth(HttpServletRequest request) {
 		log.debug("isAPIKEYAuth");
@@ -46,10 +46,21 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 			return false;
 		}
 
-		if(!"testApiKey".equals(apikey)){
-			throw new UnauthorizedException("Invalid apikey");
+		// TODO hyuntak DB를 사용하는 방법으로 변경
+		String API_KEY_PROD = "24ffe03e45b211ebb3780242ac130002";
+		String API_KEY_TEST = "testApiKey";
+
+		if(envUtil.isProd()) {
+			if(!API_KEY_PROD.equals(apikey)) {
+				throw new UnauthorizedException("Invalid api key");
+			}
+			return true;
+		} else {
+			if(!API_KEY_TEST.equals(apikey)){
+				throw new UnauthorizedException("Invalid api key");
+			}
+			return true;
 		}
-		return true;
 	}
 
 	@Override
