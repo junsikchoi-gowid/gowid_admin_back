@@ -109,6 +109,7 @@ quotabook:
   stakeholders-url: /external/stakeholders
   share-classes-url: /external/share_classes
   rounding-url: /external/rounding
+  api-key: testApiKey
 
 
 encryption:
@@ -187,6 +188,7 @@ quotabook:
   stakeholders-url: /external/stakeholders
   share-classes-url: /external/share_classes
   rounding-url: /external/rounding
+  api-key: testApiKey
 
 encryption:
   keypad:
@@ -267,6 +269,7 @@ quotabook:
   stakeholders-url: /external/stakeholders
   share-classes-url: /external/share_classes
   rounding-url: /external/rounding
+  api-key: 24ffe03e45b211ebb3780242ac130002
 
 encryption:
   keypad:
