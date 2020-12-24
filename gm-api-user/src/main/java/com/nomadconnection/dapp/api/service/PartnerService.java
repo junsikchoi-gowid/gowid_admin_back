@@ -18,7 +18,7 @@ public class PartnerService {
     public Corp getIdxCorp(String externalId) {
         User user = service.findByExternalId(externalId);
 
-        if(externalId.equals(user.externalId())) {
+        if(!externalId.equals(user.externalId())) {
             return null;
         }
 
