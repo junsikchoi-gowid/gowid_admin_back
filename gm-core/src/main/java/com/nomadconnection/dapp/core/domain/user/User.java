@@ -95,4 +95,10 @@ public class User extends BaseTime {
 	@Column(columnDefinition = "varchar(60) comment '외부 아이디' ")
 	private String externalId;
 
+	@Column(columnDefinition = "varchar(60) comment '회사명' ")
+	private String corpName;
+
+	@Column(columnDefinition = "varchar(40) comment '직책' ")
+	private String position;
+
 }

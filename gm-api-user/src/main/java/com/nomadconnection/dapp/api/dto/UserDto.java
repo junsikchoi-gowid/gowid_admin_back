@@ -103,6 +103,12 @@ public class UserDto {
 		@ApiModelProperty("이름")
 		private String userName;
 
+		@ApiModelProperty("회사명")
+		private String corpName;
+
+		@ApiModelProperty("직책")
+		private String position;
+
 		@ApiModelProperty("연락처(폰)")
 		private String mdn;
 

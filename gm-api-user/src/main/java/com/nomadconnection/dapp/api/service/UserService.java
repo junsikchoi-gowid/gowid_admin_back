@@ -335,6 +335,8 @@ public class UserService {
 						repoAuthority.findByRole(Role.ROLE_MASTER).orElseThrow(
 								() -> new RuntimeException("ROLE_MASTER NOT FOUND")
 						)))
+				.corpName(dto.getCorpName())
+				.position(dto.getPosition())
 				.build());
 		// user info - end
 
