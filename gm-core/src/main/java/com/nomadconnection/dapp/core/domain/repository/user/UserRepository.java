@@ -21,6 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Stream<User> findByNameAndMdn(String name, String mdn);
 	Stream<User> findByCorp(Corp corp);
+	Optional<User> findByExternalId(String externalId);
 
 	Optional<User> findTopByCorp(Corp corp);
 

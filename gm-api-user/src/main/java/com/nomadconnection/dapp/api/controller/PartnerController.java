@@ -28,7 +28,7 @@ public class PartnerController {
     private final PartnerService partnerService;
 
     private Corp getCorp(String externalId) {
-        System.out.println("External Id: " + externalId);
+        log.debug("External Id: " + externalId);
         //TODO implement this
         Corp corp = partnerService.getIdxCorp(externalId);
 

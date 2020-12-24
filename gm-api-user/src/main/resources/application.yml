@@ -109,6 +109,7 @@ quotabook:
   stakeholders-url: /external/stakeholders
   share-classes-url: /external/share_classes
   rounding-url: /external/rounding
+  api-key: testApiKey
 
 
 encryption:
@@ -183,10 +184,11 @@ gateway:
     lotte: http://10.10.40.171:8090
 
 quotabook:
-  domain-url: https://api-tour.quotabook.com
+  domain-url: https://api.quotabook.com
   stakeholders-url: /external/stakeholders
   share-classes-url: /external/share_classes
   rounding-url: /external/rounding
+  api-key: testApiKey
 
 encryption:
   keypad:
@@ -263,10 +265,11 @@ gateway:
     lotte: http://10.10.20.171:8090
 
 quotabook:
-  domain-url: https://api-tour.quotabook.com
+  domain-url: https://api.quotabook.com
   stakeholders-url: /external/stakeholders
   share-classes-url: /external/share_classes
   rounding-url: /external/rounding
+  api-key: 24ffe03e45b211ebb3780242ac130002
 
 encryption:
   keypad:

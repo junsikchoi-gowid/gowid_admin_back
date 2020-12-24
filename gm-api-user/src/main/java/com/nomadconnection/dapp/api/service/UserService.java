@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.*;
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
+import com.nomadconnection.dapp.api.exception.api.NotRegisteredException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.v2.service.scraping.FullTextService;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
@@ -97,6 +98,11 @@ public class UserService {
 				.email(email)
 				.build()
 		);
+	}
+
+	public User findByExternalId(String externalId){
+		return repo.findByExternalId(externalId)
+				.orElseThrow(() -> new NotRegisteredException(ErrorCode.Api.NOT_FOUND));
 	}
 
 	public boolean isPresentEmail(String email) {
