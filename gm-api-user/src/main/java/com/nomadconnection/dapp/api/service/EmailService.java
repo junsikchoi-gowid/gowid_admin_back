@@ -200,16 +200,18 @@ public class EmailService {
             {
                 Context context = new Context();
                 {
+                	if (user.cardCompany() != null) {
+						context.setVariable("cardCompany", user.cardCompany().getName());
+					}
                 	if (user.corp() != null) {
 						context.setVariable("companyName", user.corp().resCompanyNm());
 						context.setVariable("licenseNo", user.corp().resCompanyIdentityNo());
 					}
-                	if (cardInfo != null) {
+					if (cardInfo != null) {
 						context.setVariable("issuanceStatus", cardInfo.issuanceStatus().getStatus());
 					}
 					context.setVariable("email", user.email());
 					context.setVariable("reason", reason);
-					context.setVariable("cardCompany", user.cardCompany().getName());
                 }
 
                 helper.setFrom(emailConfig.getSender());
