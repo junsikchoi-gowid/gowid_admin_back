@@ -213,7 +213,7 @@ public class EmailService {
                 }
 
                 helper.setFrom(emailConfig.getSender());
-                helper.setTo(user.email());
+                helper.setTo(emailConfig.getSender());
                 helper.setSubject("[Gowid] 회원탈퇴 요청 " + user.email());
                 helper.setText(templateEngine.process("delete-account-support", context), true);
             }

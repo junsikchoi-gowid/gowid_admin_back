@@ -270,7 +270,7 @@ public class UserService {
 		user.mdn(dto.getMdn());
 		user.name(dto.getUserName());
 		user.isSendSms(dto.getIsSendSms());
-		user.isSendEmail(dto.getIsSendSms());
+		user.isSendEmail(dto.getIsSendEmail());
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(repo.save(user))
@@ -803,8 +803,12 @@ public class UserService {
 	}
 
     @Transactional(readOnly = true)
-	public void sendEmailDeleteAccount(String email, String reason) {
+	public void sendEmailDeleteAccount(String email, String password, String reason) {
 		User user = findByEmail(email);
+		if (!encoder.matches(password, user.password())) {
+			log.error("[sendEmailDeleteAccount] invalid password");
+			throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED);
+		}
 		emailService.sendDeleteAccountEmailtoUser(user);
 		emailService.sendDeleteAccountEmailtoSupport(user, reason);
     }
