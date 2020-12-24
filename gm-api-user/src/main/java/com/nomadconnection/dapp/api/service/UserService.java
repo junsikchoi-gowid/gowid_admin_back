@@ -77,6 +77,7 @@ public class UserService {
 
 	private final JwtService jwt;
     private final FullTextService fullTextService;
+    private final EmailService emailService;
 
 	/**
 	 * 사용자 엔터티 조회
@@ -268,6 +269,8 @@ public class UserService {
 		user.email(dto.getEmail());
 		user.mdn(dto.getMdn());
 		user.name(dto.getUserName());
+		user.isSendSms(dto.getIsSendSms());
+		user.isSendEmail(dto.getIsSendSms());
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(repo.save(user))
@@ -523,7 +526,7 @@ public class UserService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity<?> deleteEmail(String email) {
+	public ResponseEntity<?> deleteUserByEmail(String email) {
 		User user = findByEmail(email);
 
 		user.authentication(Authentication.builder().enabled(false).build());
@@ -797,4 +800,17 @@ public class UserService {
 		return UserDto.ExternalIdRes.builder().externalId(user.externalId()).build();
 	}
 
+    @Transactional(readOnly = true)
+	public void sendEmailDeleteAccount(String email, String reason) {
+		User user = findByEmail(email);
+		emailService.sendDeleteAccountEmailtoUser(user);
+		emailService.sendDeleteAccountEmailtoSupport(user, reason);
+    }
+
+	public void enableAccount(Long idxUser) {
+		User user = repo.findById(idxUser).orElse(null);
+		user.authentication().setEnabled(true);
+		user.enabledDate(null);
+		repo.save(user);
+	}
 }

@@ -113,7 +113,7 @@ public class UserEtcController {
             "\n")
     @DeleteMapping(URI.USERDELETE)
     public ResponseEntity deleteEmail(@RequestParam String email) {
-        return service.deleteEmail(email);
+        return service.deleteUserByEmail(email);
     }
 
 }

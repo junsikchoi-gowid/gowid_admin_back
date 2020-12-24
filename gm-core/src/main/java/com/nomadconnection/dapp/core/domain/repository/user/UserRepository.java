@@ -16,6 +16,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Optional<User> findByAuthentication_EnabledAndEmail(boolean enabled, String email);
 
+	@Override
+	Optional<User> findById(Long idxUser);
+
 	Stream<User> findByNameAndMdn(String name, String mdn);
 	Stream<User> findByCorp(Corp corp);
 

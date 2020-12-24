@@ -2,7 +2,10 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.EmailRepository;
+import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.EmailDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,7 @@ public class EmailService {
 	private final JavaMailSenderImpl sender;
 	private final ITemplateEngine templateEngine;
 	private final EmailRepository repository;
+	private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
 
 	public void sendApproveEmail(String licenseNo) {
 		EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
@@ -169,4 +173,51 @@ public class EmailService {
 		sender.send(preparator);
 	}
 
+	public void sendDeleteAccountEmailtoUser(User user){
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			{
+				Context context = new Context();
+				{
+					context.setVariable("userName", user.name());
+				}
+
+				helper.setFrom(emailConfig.getSender());
+				helper.setTo(user.email());
+				helper.setSubject("[고위드] 그 동안 고위드를 이용해 주셔서 감사합니다.");
+				helper.setText(templateEngine.process("delete-account-user", context), true);
+			}
+		};
+		sender.send(preparator);
+	}
+
+
+    public void sendDeleteAccountEmailtoSupport(User user, String reason){
+        CardIssuanceInfo cardInfo = cardIssuanceInfoRepository.findTopByUserAndDisabledFalseOrderByIdxDesc(user).orElse(null);
+
+        MimeMessagePreparator preparator = mimeMessage -> {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+            {
+                Context context = new Context();
+                {
+                	if (user.corp() != null) {
+						context.setVariable("companyName", user.corp().resCompanyNm());
+						context.setVariable("licenseNo", user.corp().resCompanyIdentityNo());
+					}
+                	if (cardInfo != null) {
+						context.setVariable("issuanceStatus", cardInfo.issuanceStatus().getStatus());
+					}
+					context.setVariable("email", user.email());
+					context.setVariable("reason", reason);
+					context.setVariable("cardCompany", user.cardCompany().getName());
+                }
+
+                helper.setFrom(emailConfig.getSender());
+                helper.setTo(user.email());
+                helper.setSubject("[Gowid] 회원탈퇴 요청 " + user.email());
+                helper.setText(templateEngine.process("delete-account-support", context), true);
+            }
+        };
+        sender.send(preparator);
+    }
 }

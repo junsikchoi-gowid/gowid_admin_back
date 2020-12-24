@@ -42,6 +42,8 @@ public class UserController {
 		public static final String LIMIT_REVIEW = "/limit-review";
 		public static final String INIT_USER_INFO = "/init/user";
 		public static final String EXTERNAL_ID = "/external-id";
+		public static final String DELETE_ACCOUNT = "/delete-account";
+		public static final String ENABLE = "/enable";
 	}
 
 	private final UserService service;
@@ -83,11 +85,7 @@ public class UserController {
 				.build());
 	}
 
-    @ApiOperation(value = "사용자정보 초기화", notes = "" +
-            "\n ### Remarks" +
-            "\n" +
-            "\n - " +
-            "\n")
+    @ApiOperation(value = "사용자정보 초기화")
     @DeleteMapping(URI.INIT_USER_INFO)
     public ResponseEntity<?> initUserInfo(
             @ApiIgnore @CurrentUser CustomUser user
@@ -131,12 +129,7 @@ public class UserController {
 	//
 	//==================================================================================================================
 
-	@ApiOperation(value = "정보조회(요청하는 사용자의 기본정보를 반환)", notes = "" +
-			"\n ### Remarks" +
-			"\n" +
-			"\n - " +
-			"\n" +
-			"\n")
+	@ApiOperation(value = "정보조회(요청하는 사용자의 기본정보를 반환)")
 	@GetMapping(URI.INFO)
 	public UserDto getUserInfo(
 			@ApiIgnore @CurrentUser CustomUser user
@@ -170,10 +163,7 @@ public class UserController {
 	}
 
 	@Deprecated
-	@ApiOperation(
-			value = "Brand 회원가입 법인정보",
-			notes = "### Remarks \n"
-	)
+	@ApiOperation(value = "Brand 회원가입 법인정보")
 	@PostMapping(path = URI.REGISTRATION_CORP, consumes = {MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity registerBrandCorp(
 			@ApiIgnore @CurrentUser CustomUser user,
@@ -187,10 +177,7 @@ public class UserController {
 	}
 
 	@Deprecated
-	@ApiOperation(
-			value = "Brand 회원가입 법인정보",
-			notes = "### Remarks \n"
-	)
+	@ApiOperation(value = "Brand 회원가입 법인정보")
 	@GetMapping(path = URI.REGISTRATION_CORP)
 	public ResponseEntity getBrandCorp(
 			@ApiIgnore @CurrentUser CustomUser user
@@ -202,10 +189,7 @@ public class UserController {
 		return service.getBrandCorp(user.idx());
 	}
 
-	@ApiOperation(
-			value = "Brand 내 정보 수정",
-			notes = "### Remarks "
-	)
+	@ApiOperation(value = "Brand 내 정보 수정")
 	@ApiResponses(value={
 			@ApiResponse(code = 200, message = "정상"),
 			@ApiResponse(code = 201, message = "생성"),
@@ -227,10 +211,7 @@ public class UserController {
 	}
 
 	@Deprecated
-	@ApiOperation(
-			value = "Brand 비밀번호 수정",
-			notes = "### Remarks "
-	)
+	@ApiOperation(value = "Brand 비밀번호 수정")
 	@PostMapping(URI.REGISTRATION_PW)
 	public ResponseEntity registerUserPasswordUpdate(
 			@ApiIgnore @CurrentUser CustomUser user,
@@ -244,10 +225,7 @@ public class UserController {
 	}
 
 	@Deprecated
-	@ApiOperation(
-			value = "Brand 비밀번호 수정 2 ",
-			notes = "### Remarks "
-	)
+	@ApiOperation(value = "Brand 비밀번호 수정 2")
 	@PostMapping(URI.REGISTRATION_PW + 2)
 	public ResponseEntity registerUserPasswordUpdate2(
 			@RequestParam Long idxUser,
@@ -260,10 +238,7 @@ public class UserController {
 		return service.registerUserPasswordUpdate(dto, idxUser);
 	}
 
-	@ApiOperation(
-			value = "사용자별 이용약관 등록 ",
-			notes = "### Remarks "
-	)
+	@ApiOperation(value = "사용자별 이용약관 등록")
 	@PostMapping(URI.REGISTRATION_CONSENT)
 	public ResponseEntity registerUserConsent(
 			@RequestParam Long idxUser,
@@ -276,7 +251,7 @@ public class UserController {
 		return service.registerUserConsent(dto, idxUser);
 	}
 
-	@ApiOperation(value = "카드발급 진행상태 ", notes = "### Remarks ")
+	@ApiOperation(value = "카드발급 진행상태")
 	@GetMapping(URI.ISSUANCE_PROGRESS)
 	public ResponseEntity<UserDto.IssuanceProgressRes> registerUserConsent(
 			@ApiIgnore @CurrentUser CustomUser user
@@ -288,7 +263,7 @@ public class UserController {
 		return service.issuanceProgress(user.idx());
 	}
 
-	@ApiOperation(value = "한도 재심사 요청 ", notes = "### Remarks ")
+	@ApiOperation(value = "한도 재심사 요청")
 	@PostMapping(URI.LIMIT_REVIEW)
 	public ResponseEntity limitReview(
 			@ApiIgnore @CurrentUser CustomUser user,
@@ -301,12 +276,38 @@ public class UserController {
 		return service.limitReview(user.idx(), dto);
 	}
 
-	@ApiOperation(value = "외부 아이디 조회", notes = "### Remarks ")
+	@ApiOperation(value = "외부 아이디 조회")
 	@GetMapping(URI.EXTERNAL_ID)
 	public com.nomadconnection.dapp.api.dto.gateway.ApiResponse<UserDto.ExternalIdRes> externalId(
 			@ApiIgnore @CurrentUser CustomUser customUser) {
 
 		return com.nomadconnection.dapp.api.dto.gateway.ApiResponse
 				.SUCCESS(service.getUserExternalId(customUser));
+	}
+
+	@ApiOperation(value = "회원탈퇴 요청")
+	@PostMapping(URI.DELETE_ACCOUNT)
+	public ResponseEntity<?> requestDeleteAccount(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestParam String reason
+	) {
+		if (log.isInfoEnabled()) {
+			log.info("([ requestDeleteAccount ]) $user='{}'", user);
+		}
+		service.sendEmailDeleteAccount(user.email(), reason);
+		service.deleteUserByEmail(user.email());
+		return ResponseEntity.ok().build();
+	}
+
+	@ApiOperation(value = "회원활성")
+	@PostMapping(URI.ENABLE)
+	public ResponseEntity<?> enableAccount(
+			@RequestParam Long idxUser
+	) {
+		if (log.isInfoEnabled()) {
+			log.info("([ enableAccount ]) $user='{}'", idxUser);
+		}
+		service.enableAccount(idxUser);
+		return ResponseEntity.ok().build();
 	}
 }

@@ -285,6 +285,8 @@ public class AuthService {
 						.idxCardIssuance(idxCardIssuance.get())
 						.build())
 				.issuanceProgressRes(issuanceProgress(user))
+				.isSendSms(user.isSendSms())
+				.isSendEmail(user.isSendEmail())
 				.build();
 	}
 

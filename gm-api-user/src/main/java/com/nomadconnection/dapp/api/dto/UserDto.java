@@ -153,6 +153,12 @@ public class UserDto {
 
 		@ApiModelProperty("email")
 		private String email;
+
+		@ApiModelProperty("sms수신여부")
+		private Boolean isSendSms;
+
+		@ApiModelProperty("email수신여부")
+		private Boolean isSendEmail;
 	}
 
 	@Data
