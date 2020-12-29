@@ -332,6 +332,7 @@ public class IssuanceService {
                 slackNotiService.sendSlackNotification(getSlackRecoveryMessage(userCorp, response), slackNotiService.getSlackRecoveryUrl());
                 return;
             }
+        d1520s = d1520Repository.findTop2ByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
         }
 
         for (D1520 d1520 : d1520s) {
