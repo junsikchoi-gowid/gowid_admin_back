@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -37,5 +38,30 @@ public class StakeholdersRes {
         @ApiModelProperty("보유 주식 수")
         @JsonProperty("num_shares")
         private Long numShares;
+    }
+
+    public void tailorStakeholders() {
+        int TOP_N = 5;
+        if(stakeholders.size() <= TOP_N) {
+            return;
+        }
+
+        List<Stakeholder> top5 = new ArrayList<>(stakeholders.subList(0, TOP_N - 1));
+        long etcNumShares = 0L;
+        long etcOwnerShipRatio = 0L;
+
+        for(Stakeholder holder: stakeholders.subList(TOP_N, stakeholders.size()-1)) {
+            etcNumShares += holder.numShares;
+            etcOwnerShipRatio += Long.valueOf(holder.ownership);
+        }
+
+        Stakeholder etcStakeholder = new Stakeholder();
+        etcStakeholder.setStakeholderName("기타주주");
+        etcStakeholder.setNumShares(etcNumShares);
+        etcStakeholder.setOwnership(Long.toString(etcOwnerShipRatio));
+
+        top5.add(etcStakeholder);
+
+        stakeholders = top5;
     }
 }

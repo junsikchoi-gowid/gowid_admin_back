@@ -27,7 +27,10 @@ public class QuotabookService {
 
     public StakeholdersRes getStakeHolders(CustomUser customUser) {
         UserExternalLink userExternalLink = getUserExternalLink(customUser);
-        return quotabookRpc.requestStakeHolders(userExternalLink.getExternalKey(), HttpMethod.GET);
+        StakeholdersRes response = quotabookRpc.requestStakeHolders(userExternalLink.getExternalKey(), HttpMethod.GET);
+        response.tailorStakeholders();
+
+        return response;
     }
 
     public ShareClassesRes getShareClasses(CustomUser customUser) {
