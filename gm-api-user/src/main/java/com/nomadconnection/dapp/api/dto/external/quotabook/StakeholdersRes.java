@@ -46,11 +46,11 @@ public class StakeholdersRes {
             return;
         }
 
-        List<Stakeholder> top5 = new ArrayList<>(stakeholders.subList(0, TOP_N - 1));
+        List<Stakeholder> top5 = new ArrayList<>(stakeholders.subList(0, TOP_N));
         long etcNumShares = 0L;
         float etcOwnerShipRatio = 0;
 
-        for(Stakeholder holder: stakeholders.subList(TOP_N, stakeholders.size()-1)) {
+        for(Stakeholder holder: stakeholders.subList(TOP_N, stakeholders.size())) {
             etcNumShares += holder.numShares;
             etcOwnerShipRatio += Float.valueOf(holder.ownership);
         }
