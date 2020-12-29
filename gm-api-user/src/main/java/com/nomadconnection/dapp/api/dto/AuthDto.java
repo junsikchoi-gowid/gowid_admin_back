@@ -53,9 +53,9 @@ public class AuthDto {
 		private UserDto.IssuanceProgressRes issuanceProgressRes;
 
 		@ApiModelProperty("sms 수신 동의여부")
-		private Boolean isSendSms = false;
+		private Boolean isSendSms;
 
 		@ApiModelProperty("Email 수신 동의여부")
-		private Boolean isSendEmail = false;
+		private Boolean isSendEmail;
 	}
 }
