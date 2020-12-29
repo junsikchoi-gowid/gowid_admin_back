@@ -8,13 +8,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StakeholdersRes {
+public class StakeholdersRes{
 
     @ApiModelProperty("총 주식 수")
     @JsonProperty("num_shares_total")
@@ -27,7 +28,7 @@ public class StakeholdersRes {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Stakeholder {
+    public static class Stakeholder implements Comparable<Stakeholder>{
         @ApiModelProperty("주주명")
         @JsonProperty("stakeholder_name")
         private String stakeholderName;
@@ -38,10 +39,22 @@ public class StakeholdersRes {
         @ApiModelProperty("보유 주식 수")
         @JsonProperty("num_shares")
         private Long numShares;
+
+        @Override
+        public int compareTo(Stakeholder obj) {
+            if (numShares == obj.numShares) {
+                return 0;
+            } else if(numShares < obj.numShares) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
     }
 
     public void tailorStakeholders() {
         int TOP_N = 5;
+        Collections.sort(stakeholders);
         if(stakeholders.size() <= TOP_N) {
             return;
         }
@@ -56,7 +69,7 @@ public class StakeholdersRes {
         }
 
         Stakeholder etcStakeholder = new Stakeholder();
-        etcStakeholder.setStakeholderName("기타주주");
+        etcStakeholder.setStakeholderName("기타");
         etcStakeholder.setNumShares(etcNumShares);
         etcStakeholder.setOwnership(Float.toString(etcOwnerShipRatio));
 
