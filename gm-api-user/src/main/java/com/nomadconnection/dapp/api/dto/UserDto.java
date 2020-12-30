@@ -243,4 +243,16 @@ public class UserDto {
 		private String externalId;
 	}
 
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class DeleteUserAccount {
+		@ApiModelProperty("패스워드")
+		private String password;
+
+		@ApiModelProperty("탈퇴사유")
+		private String reason;
+	}
+
 }

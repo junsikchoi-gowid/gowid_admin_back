@@ -288,14 +288,13 @@ public class UserController {
 	@ApiOperation(value = "회원탈퇴 요청")
 	@PostMapping(URI.DELETE_ACCOUNT)
 	public ResponseEntity<?> requestDeleteAccount(
-			@ApiIgnore @CurrentUser CustomUser user,
-			@RequestParam String password,
-			@RequestParam String reason
-	) {
+		@ApiIgnore @CurrentUser CustomUser user,
+		@RequestBody UserDto.DeleteUserAccount dto
+		) {
 		if (log.isInfoEnabled()) {
 			log.info("([ requestDeleteAccount ]) $user='{}'", user);
 		}
-		service.sendEmailDeleteAccount(user.email(), password, reason);
+		service.sendEmailDeleteAccount(user.email(), dto.getPassword(), dto.getReason());
 		service.deleteUserByEmail(user.email());
 		return ResponseEntity.ok().build();
 	}
