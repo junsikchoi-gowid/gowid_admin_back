@@ -125,10 +125,12 @@ public class FullTextJsonParser {
 		jsonArrayResCEOList.forEach(item -> {
 			JSONObject obj = (JSONObject) item;
 			if(GowidUtils.getEmptyStringToString(obj, "resPosition").charAt(0) != '!' ){
-
-				if(GowidUtils.getEmptyStringToString(obj, "resPosition").equals("공동대표이사")) {
+				// resPosition이 [공동대표이사 / 사내이사 / 대표이사] 가 아닌경우 pass
+				if(!GowidUtils.getEmptyStringToString(obj, "resPosition").contains("이사")){
+					return;
+				}else if(GowidUtils.getEmptyStringToString(obj, "resPosition").equals("공동대표이사")) {
 					str.add("공동대표");
-				}else{
+				} else {
 					str.add(GowidUtils.getEmptyStringToString(obj, "resPosition"));
 				}
 				str.add(GowidUtils.getEmptyStringToString(obj, "resUserNm"));
