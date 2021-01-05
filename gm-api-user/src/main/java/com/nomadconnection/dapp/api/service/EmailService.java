@@ -222,4 +222,25 @@ public class EmailService {
         };
         sender.send(preparator);
     }
+
+	public void sendWelcomeEmail(String licenseNo, String issuanceCount){
+		EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
+		String[] sendTo = {emailDto.getEmail(), emailConfig.getSender()};
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			{
+				Context context = new Context();
+				{
+					context.setVariable("companyName", emailDto.getCompanyName());
+					context.setVariable("issuanceCount", issuanceCount);
+				}
+
+				helper.setFrom(emailConfig.getSender());
+				helper.setTo(sendTo);
+				helper.setSubject("[고위드] 고위드 카드 심사 승인 및 이용 안내");
+				helper.setText(templateEngine.process("shinhan-welcome", context), true);
+			}
+		};
+		sender.send(preparator);
+	}
 }
