@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.service.shinhan;
 
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
+import com.nomadconnection.dapp.api.exception.AlreadyExistException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
@@ -644,7 +645,8 @@ public class ShinhanCardService {
         }
         return CardIssuanceDto.CeoTypeRes.builder()
                 .type(ceoType)
-                .count(count)
+                // ceoType이 각자대자표인 경우 count를 1로 설정
+                .count(ceoType.equals(CeoType.EACH)?1:count)
                 .build();
     }
 
@@ -711,6 +713,7 @@ public class ShinhanCardService {
                     .setD036(corNumber[0]) // 신청관리자전화지역번호
                     .setD037(corNumber[1]) // 신청관리자전화국번호
                     .setD038(corNumber[2]) // 신청관리자전화고유번호
+                    // TODO : 핸드폰번호 '-' 포함으로 구분
                     .setD040(dto.getPhoneNumber().substring(0, 3)) // 신청관리자휴대전화식별번호
                     .setD041(dto.getPhoneNumber().substring(3, 7)) // 신청관리자휴대전화국번호
                     .setD042(dto.getPhoneNumber().substring(7)) // 신청관리자휴대전화고유번호
@@ -732,6 +735,7 @@ public class ShinhanCardService {
                     .setD058(corNumber[0]) // 신청관리자전화지역번호
                     .setD059(corNumber[1]) // 신청관리자전화국번호
                     .setD060(corNumber[2]) // 신청관리자전화고유번호
+                    // TODO : 핸드폰번호 '-' 포함으로 구분
                     .setD062(dto.getPhoneNumber().substring(0, 3)) // 신청관리자휴대전화식별번호
                     .setD063(dto.getPhoneNumber().substring(3, 7)) // 신청관리자휴대전화국번호
                     .setD064(dto.getPhoneNumber().substring(7)) // 신청관리자휴대전화고유번호
@@ -756,12 +760,34 @@ public class ShinhanCardService {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
+        List<CeoInfo> ceoInfos = repoCeo.getByCardIssuanceInfo(cardInfo);
+        if (!ceoInfos.isEmpty()) {
+            for (CeoInfo ceoInfo : ceoInfos) {
+                // ceo중복등록 예외처리
+                if ((ceoInfo.name().equals(dto.getName()) || ceoInfo.engName().equals(dto.getEngName()))
+                    && ceoInfo.phoneNumber() != null) {
+                    throw AlreadyExistException.builder().category("ceo")
+                        .resource(dto.getName())
+                        .build();
+                }
+            }
+        }
+
         CeoInfo ceo = null;
         Integer ceoNum = 0;
         if (!ObjectUtils.isEmpty(dto.getCeoIdx())) {
             ceo = findCeoInfo(dto.getCeoIdx());
             if (!cardInfo.ceoInfos().contains(ceo)) {
+                // ceo업데이트중 해당 ceo정보가 있으나 cardInfo에 매칭되지 않는 경우
                 throw MismatchedException.builder().category(MismatchedException.Category.CEO).build();
+            }
+            if (ceo.phoneNumber() != null) {
+                // ceo중복등록 예외처리
+                // 초기등록시 신분증진위확인만 진행하고 등록됨
+                // 따라서 핸드폰번호가 null이 아닌 경우 중복등록으로 처리
+                throw AlreadyExistException.builder().category("ceo")
+                    .resource(dto.getName())
+                    .build();
             }
             if (ceo.ceoNumber() > 0) {
                 ceoNum = ceo.ceoNumber();
@@ -822,11 +848,7 @@ public class ShinhanCardService {
         if (!StringUtils.hasText(d1000.getD012()) || (ceoNum == 1)) { // 첫번째 대표자정보
             d1000 = d1000.setD010(dto.getName())                     //대표자명1
                     .setD012(dto.getEngName())                  //대표자영문명1
-                    .setD013(dto.getNation())                   //대표자국적코드1
-                    .setD035(dto.getName())                     //신청관리자명
-                    .setD040(dto.getPhoneNumber().substring(0, 3))      //신청관리자휴대전화식별번호
-                    .setD041(dto.getPhoneNumber().substring(3, 7))      //신청관리자휴대전화국번호
-                    .setD042(dto.getPhoneNumber().substring(7));         //신청관리자휴대전화고유번호
+                    .setD013(dto.getNation());                   //대표자국적코드1
 
             if (commonCardService.isStockholderUpdateCeo(cardInfo)) {
                 d1000 = d1000.setD059(dto.getName())
@@ -865,7 +887,7 @@ public class ShinhanCardService {
 
     private D1100 updateD1100Ceo(Long idxCorp, CardIssuanceDto.RegisterCeo dto) {
         D1100 d1100 = getD1100(idxCorp);
-        if (d1100 != null) {
+        if (d1100 != null && dto.getPhoneNumber() != null) {
             d1100 = repoD1100.save(d1100
                     .setD035(dto.getPhoneNumber().substring(0, 3))
                     .setD036(dto.getPhoneNumber().substring(3, 7))
@@ -885,10 +907,7 @@ public class ShinhanCardService {
                     .setD032(dto.getName())                     //대표자명1
                     .setD034(dto.getEngName())                  //대표자영문명1
                     .setD035(dto.getNation())                   //대표자국적코드1
-                    .setD057(dto.getName())                     //신청관리자명
-                    .setD062(dto.getPhoneNumber().substring(0, 3))      //신청관리자휴대전화식별번호
-                    .setD063(dto.getPhoneNumber().substring(3, 7))      //신청관리자휴대전화국번호
-                    .setD064(dto.getPhoneNumber().substring(7));         //신청관리자휴대전화고유번호
+                    .setD057(dto.getName());                     //신청관리자명
 
             if (commonCardService.isStockholderUpdateCeo(cardInfo)) {
                 d1400 = d1400.setD019(dto.getName())

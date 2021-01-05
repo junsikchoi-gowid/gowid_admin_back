@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum CeoType {
     SINGLE("단일대표", "1", "1"),
-    EACH("각기대표", "2", "3"),
+    EACH("각자대표", "2", "3"),
     PUBLIC("공동대표", "3", "2"),
     ;
 

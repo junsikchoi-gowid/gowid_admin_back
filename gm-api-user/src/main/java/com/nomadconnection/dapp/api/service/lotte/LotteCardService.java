@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service.lotte;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.lotte.enums.Lotte_CardKind;
+import com.nomadconnection.dapp.api.exception.AlreadyExistException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
@@ -639,7 +640,8 @@ public class LotteCardService {
 		}
 		return CardIssuanceDto.CeoTypeRes.builder()
 				.type(ceoType)
-				.count(count)
+				// ceoType이 각자대표인 경우 count를 1로 설정
+				.count(ceoType.equals(CeoType.EACH)?1:count)
 				.build();
 	}
 
@@ -745,6 +747,7 @@ public class LotteCardService {
 					.setTkpDdd(Lotte_Seed128.encryptEcb(corNumber[0])) // 수령자전화지역번호
 					.setTkpExno(Lotte_Seed128.encryptEcb(corNumber[1])) // 수령자전화국번
 					.setTkpTlno(Lotte_Seed128.encryptEcb(corNumber[2])) // 수령자전화개별번호
+					// TODO : 핸드폰번호 '-' 포함으로 구분
 					.setTkpMbzNo(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(0, 3))) // 수령자이동사업자번호
 					.setTkpMexno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(3, 7))) // 수령자이동전화국번
 					.setTkpMtlno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(7))) // 수령자이동전화개별번호
@@ -804,12 +807,34 @@ public class LotteCardService {
 			throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
 		}
 
+		List<CeoInfo> ceoInfos = repoCeo.getByCardIssuanceInfo(cardInfo);
+		if (!ceoInfos.isEmpty()) {
+			for (CeoInfo ceoInfo : ceoInfos) {
+				// ceo중복등록 예외처리
+				if ((ceoInfo.name().equals(dto.getName()) || ceoInfo.engName().equals(dto.getEngName()))
+					&& ceoInfo.phoneNumber() != null) {
+					throw AlreadyExistException.builder().category("ceo")
+						.resource(dto.getName())
+						.build();
+				}
+			}
+		}
+
 		CeoInfo ceo = null;
 		Integer ceoNum = 0;
 		if (!ObjectUtils.isEmpty(dto.getCeoIdx())) {
 			ceo = findCeoInfo(dto.getCeoIdx());
 			if (!cardInfo.ceoInfos().contains(ceo)) {
+				// ceo업데이트중 해당 ceo정보가 있으나 cardInfo에 매칭되지 않는 경우
 				throw MismatchedException.builder().category(MismatchedException.Category.CEO).build();
+			}
+			if (ceo.phoneNumber() != null) {
+				// ceo중복등록 예외처리
+				// 초기등록시 신분증진위확인만 진행하고 등록됨
+				// 따라서 핸드폰번호가 null이 아닌 경우 중복등록으로 처리
+				throw AlreadyExistException.builder().category("ceo")
+					.resource(dto.getName())
+					.build();
 			}
 			if (ceo.ceoNumber() > 0) {
 				ceoNum = ceo.ceoNumber();
@@ -876,13 +901,7 @@ public class LotteCardService {
 					.setCstNm(encryptName)
 					.setCstEnm(encryptEngName)
 					.setNatyC(dto.getNation())
-					.setMaFemDc(String.valueOf(dto.getGenderCode()))
-					.setTkpNm(encryptName)
-					.setTkpEnm(encryptEngName)
-					.setTkpNatyC(dto.getNation())
-					.setTkpMbzNo(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(0, 3)))
-					.setTkpMexno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(3, 7)))
-					.setTkpMtlno(Lotte_Seed128.encryptEcb(dto.getPhoneNumber().substring(7)));
+					.setMaFemDc(String.valueOf(dto.getGenderCode()));
 
 			if (commonCardService.isStockholderUpdateCeo(cardInfo)) {
 				d1100 = d1100

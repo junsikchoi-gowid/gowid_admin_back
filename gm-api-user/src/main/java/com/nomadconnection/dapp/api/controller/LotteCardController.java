@@ -157,7 +157,7 @@ public class LotteCardController {
 		return ResponseEntity.ok().body(service.getCeoType(user.idx()));
 	}
 
-	@ApiOperation("대표자 등록")
+	@ApiOperation("대표자 등록/수정")
 	@PostMapping(URI.CEO)
 	public ResponseEntity<CardIssuanceDto.CeoRes> registerCEO(
 			@ApiIgnore @CurrentUser CustomUser user,

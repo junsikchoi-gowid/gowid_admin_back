@@ -260,6 +260,7 @@ public class CardIssuanceDto {
         private String nation;
 
         @ApiModelProperty("대표자(한글)")
+        @NotEmpty
         private String name;
 
         @ApiModelProperty("대표자(영문)")
@@ -270,7 +271,6 @@ public class CardIssuanceDto {
         private String agency;
 
         @ApiModelProperty("휴대폰번호")
-        @NotEmpty
         private String phoneNumber;
 
         @ApiModelProperty("생년월일(yyMMdd)")
@@ -681,6 +681,9 @@ public class CardIssuanceDto {
         @ApiModelProperty("대표자 입력순서")
         private Integer ceoNumber;
 
+        @ApiModelProperty("신분증검증방법")
+        private CertificationType identityType;
+
         public static CeoRes from(CeoInfo ceoInfo) {
             if (ceoInfo != null) {
                 return CeoRes.builder()
@@ -695,6 +698,7 @@ public class CardIssuanceDto {
                         .genderCode(ceoInfo.genderCode())
                         .ceoType(ceoInfo.type())
                         .ceoNumber(ceoInfo.ceoNumber())
+                        .identityType(ceoInfo.certificationType())
                         .build();
             }
             return null;
