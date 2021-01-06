@@ -212,12 +212,6 @@ slack:
   recovery-url: https://hooks.slack.com/services/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
   enable: true
 
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.type: trace
-    org.hibernate.type.descriptor.sql.BasicBinder: debug
-
 sentry:
   dsn: https://f8c647c716454cbbbecab48e6650fa95@o432031.ingest.sentry.io/5394758
   enabled: true
