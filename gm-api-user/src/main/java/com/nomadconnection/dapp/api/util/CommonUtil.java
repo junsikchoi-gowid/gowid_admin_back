@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +26,10 @@ public class CommonUtil {
 
     public static String getNowHHMMSS() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
+    }
+
+    public static String getNowYYYYMM() {
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
     }
 
     public static String getRandom5Num() {
@@ -140,6 +145,47 @@ public class CommonUtil {
         return df.format(cal.getTime());
     }
 
+    /**
+     * Add Month
+     *
+     * @param dateStr 년월 String (ex. YYYYMM)
+     * @param addMonths 추가할 월 수
+     * @return
+     */
+    public static String addMonths(String dateStr, int addMonths) throws ParseException {
+        Calendar cal = Calendar.getInstance();
+        DateFormat df = new SimpleDateFormat("yyyyMM");
+
+        try {
+            Date date = df.parse(dateStr);
+
+            cal.setTime(date);
+            cal.add(Calendar.MONTH, addMonths);
+
+            return df.format(cal.getTime());
+        }catch(ParseException pe) {
+            log.error(pe.getMessage(), pe);
+            throw pe;
+        }
+    }
+
+    /**
+     * Subtract Month
+     *
+     * @param fromDate 시작 년월 String (ex. YYYYMM)
+     * @param toDate 종료 년월 String (ex. YYYYMM)
+     * @return
+     */
+    public static Integer subtractMonth(String fromDate, String toDate) {
+        Integer fromMonth = Integer.parseInt(fromDate.substring(4));
+        Integer toMonth = Integer.parseInt(toDate.substring(4));
+        if (fromMonth < toMonth) {
+            return toMonth - fromMonth;
+        }else {
+            return (toMonth + 12) - fromMonth;
+        }
+    }
+
     public static String get4DigitRandomNumber(){
         return String.format("%04d", new Random().nextInt(10000));
     }
@@ -154,5 +200,16 @@ public class CommonUtil {
      */
     public static String getLocalDateTimeToString(LocalDateTime localDateTime, String pattern) {
         return LocalDateTime.parse(localDateTime.toString()).format(DateTimeFormatter.ofPattern(pattern));
+    }
+
+    /**
+     * Text의 마지막부터 index만큼을 추출한다.
+     *
+     * @param str      추출할 문자열
+     * @param index    추출 범위
+     * @return
+     */
+    public static String extractTextFromLast(String str, int index) {
+        return StringUtils.isEmpty(str) ? null : str.substring(str.length() - index);
     }
 }

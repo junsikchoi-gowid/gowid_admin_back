@@ -8,6 +8,9 @@ import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.embed.UserProfileResx;
 import com.nomadconnection.dapp.core.domain.etc.SurveyAnswer;
+import com.nomadconnection.dapp.core.domain.saas.SaasIssueReport;
+import com.nomadconnection.dapp.core.domain.saas.SaasPaymentHistory;
+import com.nomadconnection.dapp.core.domain.saas.SaasPaymentInfo;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicUpdate;
@@ -100,5 +103,14 @@ public class User extends BaseTime {
 
 	@Column(columnDefinition = "varchar(40) comment '직책' ")
 	private String position;
+
+	@OneToMany(mappedBy = "user")
+	private List<SaasIssueReport> saasIssueReports;
+
+	@OneToMany(mappedBy = "user")
+	private List<SaasPaymentInfo> saasPaymentInfos;
+
+	@OneToMany(mappedBy = "user")
+	private List<SaasPaymentHistory> saasPaymentHistories;
 
 }
