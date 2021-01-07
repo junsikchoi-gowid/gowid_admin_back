@@ -80,6 +80,7 @@ public class IssuanceService {
     private final CorpService corpService;
     private final EmailService emailService;
     private final CommonCardService commonCardService;
+    private final ShinhanCardService shinhanCardService;
     private final FinancialStatementsService financialStatementsService;
     private final SlackNotiService slackNotiService;
     private final EnvUtil envUtil;
@@ -545,6 +546,11 @@ public class IssuanceService {
         CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(dto.getCardIssuanceInfoIdx());
         // stage 환경에서 원활한 테스트를 위함
         if(!envUtil.isStg() && !"0".equals(dto.getCeoSeqNo())) {
+            // 실제 법인 ceo가 맞는지 확인
+            shinhanCardService.verifyCorrespondCeo(cardIssuanceInfo.corp().idx(), CardIssuanceDto.CeoValidReq.builder()
+                .identificationNumberFront(dto.getIdentificationNumberFront())
+                .name(dto.getKorName())
+                .nation(dto.getNation()).build());
             save1530(cardIssuanceInfo, dto);
         }
         save1400(cardIssuanceInfo, dto, decryptData);

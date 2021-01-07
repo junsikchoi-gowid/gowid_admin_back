@@ -34,6 +34,7 @@ import com.nomadconnection.dapp.core.domain.shinhan.D1000;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.encryption.lotte.Lotte_Seed128;
+import com.nomadconnection.dapp.core.utils.EnvUtil;
 import com.nomadconnection.dapp.secukeypad.EncryptParam;
 import com.nomadconnection.dapp.secukeypad.SecuKeypad;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +70,7 @@ public class LotteCardService {
 
 	private final IssuanceService shinhanIssuanceService;
 	private final CommonCardService commonCardService;
+	private final EnvUtil envUtil;
 
 
 	/**
@@ -672,6 +674,16 @@ public class LotteCardService {
 		}
 
 		shinhanIssuanceService.verifyCeo(idxUser, dto, decryptData);
+
+
+		if(!envUtil.isStg() && !"0".equals(dto.getCeoSeqNo())) {
+			// 실제 법인 ceo가 맞는지 확인
+			verifyCorrespondCeo(user.corp().idx(), CardIssuanceDto.CeoValidReq.builder()
+				.identificationNumberFront(dto.getIdentificationNumberFront())
+				.name(dto.getKorName())
+				.nation(dto.getNation()).build());
+		}
+
 		Lotte_D1100 d1100 = getD1100(user.corp().idx());
 		updateD1100Identification(d1100, dto, decryptData);
 
@@ -777,7 +789,6 @@ public class LotteCardService {
 			d1100.setIdfIsuBurNm(idfIsuBurNm);
 			d1100.setIdfKndcNm(dto.getIdentityType().getDescription());
 			d1100.setIdfNo2(idfNo2);
-            d1100.setTkpRrno(encryptIdNum);
             d1100.setDgRrno(encryptIdNum);
 		} else if ("2".equals(dto.getCeoSeqNo())) {
 			d1100.setDgRrno2(encryptIdNum);
@@ -948,34 +959,6 @@ public class LotteCardService {
 		return null;
 	}
 
-	/**
-	 * 대표자 타당성 확인
-	 *
-	 * @param idxUser 조회하는 User idx
-	 * @param dto      대표자 타당성 확인 정보
-	 */
-	@Deprecated
-	@Transactional(rollbackFor = Exception.class)
-	public void verifyValidCeo(Long idxUser, CardIssuanceDto.CeoValidReq dto, String depthKey) {
-		User user = findUser(idxUser);
-		if (ObjectUtils.isEmpty(user.corp())) {
-			throw EntityNotFoundException.builder().entity("Corp").build();
-		}
-
-		CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(user);
-		cardIssuanceInfo.ceoInfos().forEach(ceoInfo -> {
-			if (dto.getPhoneNumber().equals(ceoInfo.phoneNumber())) {
-				throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "ALREADY_AUTH_CEO");
-			}
-		});
-
-		// 스크래핑 데이터와 입력 데이터 일치여부 확인
-		verifyCorrespondCeo(user.corp().idx(), dto);
-
-		if (StringUtils.hasText(depthKey)) {
-			repoCardIssuance.save(cardIssuanceInfo.issuanceDepth(depthKey));
-		}
-	}
 
 	public void verifyCorrespondCeo(Long idxCorp, CardIssuanceDto.CeoValidReq dto) {
 		D1000 shinhanD1000 = repoShinhanD1000.getTopByIdxCorpOrderByIdxDesc(idxCorp);
@@ -983,9 +966,9 @@ public class LotteCardService {
 			throw EntityNotFoundException.builder().entity("shinhanD1000").build();
 		}
 
-		boolean isValidCeoInfo = !checkCeo(shinhanD1000.getD010(), shinhanD1000.getD012(), shinhanD1000.getD011(), dto)
-				&& !checkCeo(shinhanD1000.getD014(), shinhanD1000.getD016(), shinhanD1000.getD015(), dto)
-				&& !checkCeo(shinhanD1000.getD018(), shinhanD1000.getD020(), shinhanD1000.getD019(), dto);
+		boolean isValidCeoInfo = !checkCeo(shinhanD1000.getD010(), shinhanD1000.getD011(), dto)
+				&& !checkCeo(shinhanD1000.getD014(), shinhanD1000.getD015(), dto)
+				&& !checkCeo(shinhanD1000.getD018(), shinhanD1000.getD019(), dto);
 
 		// TODO: 스크래핑시 롯데전문으로 받는 로직으로 바뀌면 아래와 같이 코드 수정
 //		{
@@ -1004,16 +987,22 @@ public class LotteCardService {
 		}
 	}
 
-	private boolean checkCeo(String korName, String engName, String idNum, CardIssuanceDto.CeoValidReq dto) {
+	private boolean checkCeo(String korName, String idNum, CardIssuanceDto.CeoValidReq dto) {
 		if (!StringUtils.hasText(idNum)) {
 			return false;
 		}
 
-		idNum = Lotte_Seed128.decryptEcb(idNum);
-
-		if ((dto.getName().equals(korName) || dto.getName().equals(engName)) && dto.getIdentificationNumberFront().substring(0, 6).equals(idNum.substring(0, 6))) {
-			return true;
+		if (dto.getName().equals(korName)) {
+			if (!"KR".equals(dto.getNation())) {
+                return true;
+			} else {
+				idNum = Lotte_Seed128.decryptEcb(idNum);
+				if (dto.getIdentificationNumberFront().substring(0, 6).equals(idNum.substring(0, 6))) {
+                    return true;
+				}
+			}
 		}
+
 		return false;
 	}
 

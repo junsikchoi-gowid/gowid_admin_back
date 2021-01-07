@@ -230,19 +230,4 @@ public class LotteCardController {
         }
         return ResponseEntity.ok().build();
 	}
-
-	@Deprecated
-	@ApiOperation(value = "대표자 일치 확인")
-	@PostMapping(URI.CEO_CORRESPOND)
-	public ResponseEntity<?> verifyCorrespondCeo(
-			@ApiIgnore @CurrentUser CustomUser user,
-			@RequestParam(required = false) String depthKey,
-			@RequestBody @Valid CardIssuanceDto.CeoValidReq dto) {
-		if (log.isInfoEnabled()) {
-			log.info("([ verifyCorrespondCeo ]) $user='{}' $dto='{}'", user, dto);
-		}
-
-		service.verifyValidCeo(user.idx(), dto, depthKey);
-		return ResponseEntity.ok().build();
-	}
 }

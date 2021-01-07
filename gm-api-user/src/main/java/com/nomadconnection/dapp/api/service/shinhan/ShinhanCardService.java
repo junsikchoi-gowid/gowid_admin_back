@@ -958,63 +958,39 @@ public class ShinhanCardService {
         return repoCodeDetail.findAllByCode(CommonCodeType.SHINHAN_DRIVER_LOCAL_CODE).stream().map(CardIssuanceDto.ShinhanDriverLocalCode::from).collect(Collectors.toList());
     }
 
-    /**
-     * 대표자 타당성 확인
-     *
-     * @param idxUser 조회하는 User idx
-     * @param dto      대표자 타당성 확인 정보
-     */
-    @Deprecated
-    @Transactional(rollbackFor = Exception.class)
-    public void verifyValidCeo(Long idxUser, CardIssuanceDto.CeoValidReq dto, String depthKey) {
-        User user = findUser(idxUser);
-        if (ObjectUtils.isEmpty(user.corp())) {
-            throw EntityNotFoundException.builder().entity("Corp").build();
-        }
-
-        CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(user);
-        cardIssuanceInfo.ceoInfos().forEach(ceoInfo -> {
-            if (dto.getPhoneNumber().equals(ceoInfo.phoneNumber())) {
-                throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "ALREADY_AUTH_CEO");
-            }
-        });
-
-        // 스크래핑 데이터와 입력 데이터 일치여부 확인
-        verifyCorrespondCeo(user.corp().idx(), dto);
-
-        if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardIssuanceInfo.issuanceDepth(depthKey));
-        }
-    }
-
     public void verifyCorrespondCeo(Long idxCorp, CardIssuanceDto.CeoValidReq dto) {
         D1000 d1000 = getD1000(idxCorp);
         if (ObjectUtils.isEmpty(d1000)) {
             throw EntityNotFoundException.builder().entity("D1000").build();
         }
 
-        boolean isValidCeoInfo = !checkCeo(d1000.getD010(), d1000.getD012(), d1000.getD011(), dto)
-                && !checkCeo(d1000.getD014(), d1000.getD016(), d1000.getD015(), dto)
-                && !checkCeo(d1000.getD018(), d1000.getD020(), d1000.getD019(), dto);
+        boolean isValidCeoInfo = !checkCeo(d1000.getD010(), d1000.getD011(), dto)
+                && !checkCeo(d1000.getD014(), d1000.getD015(), dto)
+                && !checkCeo(d1000.getD018(), d1000.getD019(), dto);
 
         if (isValidCeoInfo) {
             throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "MISMATCH_CEO");
         }
     }
 
-    private boolean checkCeo(String korName, String engName, String idNum, CardIssuanceDto.CeoValidReq dto) {
+    private boolean checkCeo(String korName, String idNum, CardIssuanceDto.CeoValidReq dto) {
         if (!StringUtils.hasText(idNum)) {
             return false;
         }
 
-        idNum = Seed128.decryptEcb(idNum);
-
-        if ((dto.getName().equals(korName) || dto.getName().equals(engName)) && dto.getIdentificationNumberFront().substring(0, 6).equals(idNum.substring(0, 6))) {
-            return true;
+        if (dto.getName().equals(korName)) {
+            if (!"KR".equals(dto.getNation())) {
+                return true;
+            } else {
+                idNum = Seed128.decryptEcb(idNum);
+                if (dto.getIdentificationNumberFront().substring(0, 6).equals(idNum.substring(0, 6))) {
+                    return true;
+                }
+            }
         }
+
         return false;
     }
-
 
     private User findUser(Long idxUser) {
         return repoUser.findById(idxUser).orElseThrow(

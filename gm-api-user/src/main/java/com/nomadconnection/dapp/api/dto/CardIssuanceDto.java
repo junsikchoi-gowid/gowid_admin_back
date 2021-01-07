@@ -214,6 +214,10 @@ public class CardIssuanceDto {
         @NotEmpty
         private String korName;
 
+        @ApiModelProperty("국적") // 외국인확인
+        @NotEmpty
+        private String nation;
+
         @ApiModelProperty("주민등록번호-앞(성별포함)")
         private String identificationNumberFront;
 
@@ -995,14 +999,13 @@ public class CardIssuanceDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CeoValidReq {
-
-        @ApiModelProperty("휴대폰번호('-' 제거)")
-        @NotEmpty
-        private String phoneNumber;
-
         @ApiModelProperty("대표자명")
         @NotEmpty
         private String name;
+
+        @ApiModelProperty("국적")
+        @NotEmpty
+        private String nation;
 
         @ApiModelProperty("주민등록번호 앞자리")
         @NotEmpty
