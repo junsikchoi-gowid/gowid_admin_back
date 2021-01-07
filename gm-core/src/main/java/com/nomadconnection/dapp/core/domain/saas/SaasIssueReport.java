@@ -40,7 +40,7 @@ public class SaasIssueReport extends BaseTime {
     @Column(columnDefinition = "VARCHAR(10) COMMENT '무료 사용 만료일'")
     private String experationDate;
 
-    @Column(columnDefinition = "TINYINT(1) COMMENT '무료 사용 만료 알림 여부'")
+    @Column(columnDefinition = "BIT COMMENT '무료 사용 만료 알림 여부'")
     private Boolean activeExperationAlert;
 
     @Lob

@@ -45,13 +45,13 @@ public class SaasPaymentInfo extends BaseTime {
     @Column(columnDefinition = "VARCHAR(10) COMMENT '다음 결제 예정일'")
     private String paymentScheduleDate;
 
-    @Column(nullable = false, columnDefinition = "TINYINT(1) COMMENT '구독 여부'")
+    @Column(nullable = false, columnDefinition = "BIT COMMENT '구독 여부'")
     private Boolean activeSubscription;
 
-    @Column(nullable = false, columnDefinition = "TINYINT(1) COMMENT '새로 구독한 SaaS'")
+    @Column(nullable = false, columnDefinition = "BIT COMMENT '새로 구독한 SaaS'")
     private Boolean isNew;
 
-    @Column(nullable = false, columnDefinition = "TINYINT(1) COMMENT '중복 결제 여부'")
+    @Column(nullable = false, columnDefinition = "BIT COMMENT '중복 결제 여부'")
     private Boolean isDup;
 
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
