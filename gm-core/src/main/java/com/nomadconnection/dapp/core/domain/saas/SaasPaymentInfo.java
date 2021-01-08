@@ -27,7 +27,7 @@ public class SaasPaymentInfo extends BaseTime {
     @Column(nullable = false, columnDefinition = "BIGINT(20) COMMENT '최근 결제 금액'")
     private Long currentPaymentPrice;
 
-    @Column(nullable = false, columnDefinition = "TINYINT(1) COMMENT '결제 수단'")
+    @Column(nullable = false)
     private Integer paymentMethod;
 
     @Column(nullable = false, columnDefinition = "VARCHAR(6) COMMENT '기관 코드'")
@@ -39,7 +39,7 @@ public class SaasPaymentInfo extends BaseTime {
     @Column(columnDefinition = "VARCHAR(30) COMMENT '결제 카드 번호'")
     private String cardNumber;
 
-    @Column(nullable = false, columnDefinition = "TINYINT(1) COMMENT '결제 유형'")
+    @Column(nullable = false)
     private Integer paymentType;
 
     @Column(columnDefinition = "VARCHAR(10) COMMENT '다음 결제 예정일'")

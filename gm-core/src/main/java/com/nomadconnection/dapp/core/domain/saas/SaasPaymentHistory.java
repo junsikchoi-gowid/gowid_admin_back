@@ -24,7 +24,7 @@ public class SaasPaymentHistory extends BaseTime {
     @Column(nullable = false, columnDefinition = "VARCHAR(10) COMMENT '구매 일자'")
     private String paymentDate;
 
-    @Column(nullable = false, columnDefinition = "TINYINT(1) COMMENT '결제 수단'")
+    @Column(nullable = false)
     private Integer paymentMethod;
 
     @Column(nullable = false, columnDefinition = "BIGINT(20) COMMENT '구매 금액'")

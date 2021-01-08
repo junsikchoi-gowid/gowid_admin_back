@@ -25,13 +25,13 @@ public class SaasIssueReport extends BaseTime {
     @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_SaasIssueReport"))
     private User user;
 
-    @Column(nullable = false, columnDefinition = "TINYINT(1) COMMENT '제보 타입'")
+    @Column(nullable = false)
     private Integer reportType;
 
     @Column(columnDefinition = "VARCHAR(100) COMMENT 'SaaS 이름'")
     private String saasName;
 
-    @Column(columnDefinition = "TINYINT(1) COMMENT '결제 수단'")
+    @Column
     private Integer paymentMethod;
 
     @Column(columnDefinition = "BIGINT(20) COMMENT '결제 금액'")
