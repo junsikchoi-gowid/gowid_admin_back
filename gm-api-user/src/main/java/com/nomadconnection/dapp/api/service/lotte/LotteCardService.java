@@ -34,6 +34,7 @@ import com.nomadconnection.dapp.core.domain.shinhan.D1000;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.encryption.lotte.Lotte_Seed128;
+import com.nomadconnection.dapp.core.encryption.shinhan.Seed128;
 import com.nomadconnection.dapp.core.utils.EnvUtil;
 import com.nomadconnection.dapp.secukeypad.EncryptParam;
 import com.nomadconnection.dapp.secukeypad.SecuKeypad;
@@ -996,7 +997,7 @@ public class LotteCardService {
 			if (!"KR".equals(dto.getNation())) {
                 return true;
 			} else {
-				idNum = Lotte_Seed128.decryptEcb(idNum);
+				idNum = Seed128.decryptEcb(idNum);
 				if (dto.getIdentificationNumberFront().substring(0, 6).equals(idNum.substring(0, 6))) {
                     return true;
 				}
