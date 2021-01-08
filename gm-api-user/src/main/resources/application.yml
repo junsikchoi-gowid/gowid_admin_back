@@ -195,8 +195,7 @@ quotabook:
   api-key: testApiKey
 
 expense:
-  domain-url: http://localhost:3000
-  #  domain-url: https://stg-exepense-auth.gowid.com
+  domain-url: https://stg-exepense-auth.gowid.com
   user-url: /user
   api-key: expapisvR2021!
 
