@@ -59,6 +59,9 @@ public class ErrorCode {
 	@AllArgsConstructor
 	@Getter
 	public enum External {
+		EXTERNAL_ERROR_EXPENSE("EXTERNAL_ERROR_EXPENSE", "external error from EXPENSE"),
+		INTERNAL_ERROR_EXPENSE("INTERNAL_ERROR_EXPENSE", "internal error when request EXPENSE"),
+
 		EXTERNAL_ERROR_QUOTABOOK("EXTERNAL_ERROR_QUOTABOOK", "external error from QUOTABOOK"),
 		INTERNAL_ERROR_QUOTABOOK("EXTERNAL_ERROR_QUOTABOOK", "internal error when request QUOTABOOK"),
 
@@ -146,7 +149,9 @@ public class ErrorCode {
 	public enum Api {
 		VALIDATION_FAILED("VALIDATION_FAILED", "validation failed"),
 		NOT_FOUND("NOT_FOUND", "not found"),
+		EXPENSE_APP_USER("EXPENSE_APP_USER", "not gowid web user but, expense app user."),
 		NO_PERMISSION("NO_PERMISSION", "no permission"),
+		AUTHENTICATION_FAILURE("AUTHENTICATION_FAILURE", "Authentication failed."),
 		SUCCESS("SUCCESS", null),
 		ALREADY_EXIST("ALREADY_EXIST", "already exist"),
 		SURVEY_ALREADY_EXIST("ALREADY_EXIST", "user survey already exist"),

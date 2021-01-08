@@ -1,10 +1,12 @@
 package com.nomadconnection.dapp.api.v2.controller;
 
+import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.enums.VerifyCode;
 import com.nomadconnection.dapp.api.v2.dto.AuthDto;
 import com.nomadconnection.dapp.api.v2.service.auth.AuthService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
+import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class AuthController {
         public static final String VERIFY = "/verify";
         public static final String CHANGE_PASSWORD_BEFORE_LOGIN = "/password/before-login";
         public static final String CHANGE_PASSWORD_AFTER_LOGIN = "/password/after-login";
+        public static final String TOKEN_ISSUE = "/token/issue";
     }
 
     private final AuthService authService;
@@ -76,10 +79,33 @@ public class AuthController {
     @ApiOperation(value = "비밀번호 변경 - 로그인후")
     @PostMapping(URI.CHANGE_PASSWORD_AFTER_LOGIN)
     public ResponseEntity changePasswordAfter(
-        @ApiIgnore @CurrentUser CustomUser user,
-        @RequestBody AuthDto.PasswordAfterLogin dto) {
+            @ApiIgnore @CurrentUser CustomUser user,
+            @RequestBody AuthDto.PasswordAfterLogin dto) {
         log.info("([ passwordAfter ]) $user={}, $dto{}", user, dto);
         return authService.changePasswordAfterLogin(user.idx(), dto);
+    }
+
+    @ApiOperation(value = "토큰 발급(v2)", notes = "" +
+            "\n ### Remarks" +
+            "\n" +
+            "\n - JWT 사용" +
+            "\n   - 발급된 토큰 정보를 서버에 저장하지 않음" +
+            "\n   - 만료되기 전까지 사용가능하며, 타 기기에서의 다중 로그인도 가능함" +
+            "\n   - 개인식별번호(PIN)를 사용한 인증이 어떻게 처리되는지 확인 필요함" +
+            "\n     - 최초 로그인 시 인증토큰을 발급하고, 이후 등록된 PIN/TOUCH_ID 인증 통과시 발급된 인증토큰을 사용하는 방식인가?" +
+            "\n   - <mark>일단은 현 상태로 두고, 기획의도 확인 후 수정 예정</mark>" +
+            "\n - 인증토큰(액세스): 발급 10분 후 만료(현재는 이렇게 되어 있음)" +
+            "\n - 인증토큰(갱신): 발급 7일 후 만료(현재는 이렇게 되어 있음)" +
+            "\n - 로그인 실패시, 해당 유저가 지출관리 앱 사용자일 경우 별도 결과코드 리턴. " +
+            "\n")
+    @PostMapping(URI.TOKEN_ISSUE)
+    public TokenDto.TokenSet issueTokenSet(
+            @RequestBody AccountDto dto
+    ) {
+        if (log.isInfoEnabled()) {
+            log.info("([ issueTokenSet ]) $dto='{}'", dto);
+        }
+        return authService.issueTokenSet(dto);
     }
 
 }

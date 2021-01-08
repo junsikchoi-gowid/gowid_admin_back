@@ -8,6 +8,7 @@ import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.NotRegisteredException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
+import com.nomadconnection.dapp.api.exception.api.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.survey.SurveyAlreadyExistException;
 import com.nomadconnection.dapp.core.exception.ImageConvertException;
 import org.springframework.http.HttpStatus;
@@ -95,11 +96,23 @@ public class ApiExceptionHandler {
     protected ApiResponse<?> handleExpiredException(ExpiredException e) {
 
         return ApiResponse.builder()
-            .result(ApiResponse.ApiResult.builder()
-                .code(e.getErrorCodeDescriptor().category())
-                .desc(e.getErrorCodeDescriptor().error())
-                .build())
-            .build();
+                .result(ApiResponse.ApiResult.builder()
+                        .code(e.getErrorCodeDescriptor().category())
+                        .desc(e.getErrorCodeDescriptor().error())
+                        .build())
+                .build();
+    }
+
+    @ExceptionHandler({UnauthorizedException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected ApiResponse<?> handleExpiredException(UnauthorizedException e) {
+
+        return ApiResponse.builder()
+                .result(ApiResponse.ApiResult.builder()
+                        .code(e.getCode())
+                        .desc(e.getDesc())
+                        .build())
+                .build();
     }
 
 }

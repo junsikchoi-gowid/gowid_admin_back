@@ -111,6 +111,10 @@ quotabook:
   rounding-url: /external/rounding
   api-key: testApiKey
 
+expense:
+  domain-url: https://stg-exepense-auth.gowid.com
+  user-url: /user
+  api-key: expapisvR2021!
 
 encryption:
   keypad:
@@ -190,6 +194,12 @@ quotabook:
   rounding-url: /external/rounding
   api-key: testApiKey
 
+expense:
+  domain-url: http://localhost:3000
+  #  domain-url: https://stg-exepense-auth.gowid.com
+  user-url: /user
+  api-key: expapisvR2021!
+
 encryption:
   keypad:
     enable: true
@@ -264,6 +274,11 @@ quotabook:
   share-classes-url: /external/share_classes
   rounding-url: /external/rounding
   api-key: 24ffe03e45b211ebb3780242ac130002
+
+expense:
+  domain-url: https://exepense-auth.gowid.com
+  user-url: /user
+  api-key: expapIsvR2021!
 
 encryption:
   keypad:

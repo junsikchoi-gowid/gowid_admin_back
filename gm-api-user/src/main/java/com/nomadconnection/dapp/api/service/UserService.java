@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.NotRegisteredException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
+import com.nomadconnection.dapp.api.service.expense.ExpenseService;
 import com.nomadconnection.dapp.api.v2.service.scraping.FullTextService;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
@@ -77,8 +78,23 @@ public class UserService {
 	private final CeoInfoRepository repoCeoInfo;
 
 	private final JwtService jwt;
-    private final FullTextService fullTextService;
-    private final EmailService emailService;
+	private final FullTextService fullTextService;
+	private final EmailService emailService;
+	private final ExpenseService expenseService;
+
+	public User getEnabledUserByEmailIfNotExistError(String email) {
+		User user = repo.findByAuthentication_EnabledAndEmail(true, email).orElse(null);
+		if (user != null) {
+			return user;
+		}
+
+		// 지출관리 App 유저이면, 해당 에러코드 throw
+		if (expenseService.isAppUser(email)) {
+			throw new BadRequestException(ErrorCode.Api.EXPENSE_APP_USER);
+		}
+
+		throw new BadRequestException(ErrorCode.Api.NOT_FOUND, "email");
+	}
 
 	/**
 	 * 사용자 엔터티 조회
