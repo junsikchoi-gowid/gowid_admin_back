@@ -11,7 +11,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.ifNotAvailableCorpRegistrationScrapingTime;
+import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.isNewCorp;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 
@@ -35,6 +40,64 @@ class ScrapingCommonUtilsTest extends AbstractMockitoTest {
 		assertThrows(CodefApiException.class,
 			() -> ifNotAvailableCorpRegistrationScrapingTime(scrapingResponse.getCode(), scrapingResponse.getExtraMessage())
 			, ScrapingMessageGroup.GP00009.getMessage());
+	}
+
+	@Test
+	@DisplayName("입력받은날짜가_올해4월_이전이면_true를_리턴한다")
+	void shouldReturnTrueIfEnteredDateIsBeforeApril(){
+		LocalDate now = LocalDate.now();
+		assertThat(ScrapingCommonUtils.isBeforeApril(now)).isTrue();
+	}
+
+	@Test
+	@DisplayName("현재날짜가_4월이전이고_결산월이_12월이면_당해년기준_2,3년전_아니면_1,2년전을_반환한다")
+	void shouldReturnClosingStandardsWhenClosingMonthIsDecember() {
+		LocalDate beforeApril = LocalDate.of(2021, 01, 07);
+		LocalDate afterApril = LocalDate.of(2021, 05, 25);
+		String closingMonth = "12";
+
+		List<String> beforeAprilAndClosingDecember = ScrapingCommonUtils.getFindClosingStandards(beforeApril, closingMonth);
+		List<String> afterAprilAndClosingDecember = ScrapingCommonUtils.getFindClosingStandards(afterApril, closingMonth);
+
+		// 결산월 12월
+		assertThat(beforeAprilAndClosingDecember.get(0)).isEqualTo("201912");
+		assertThat(beforeAprilAndClosingDecember.get(1)).isEqualTo("201812");
+		assertThat(afterAprilAndClosingDecember.get(0)).isEqualTo("202012");
+		assertThat(afterAprilAndClosingDecember.get(1)).isEqualTo("201912");
+	}
+
+	@Test
+	@DisplayName("결산월이_12월이아니면_당해년기준_1,2년전을_반환한다")
+	void shouldReturnClosingStandardsWhenClosingMonthIsNotDecember() {
+		LocalDate beforeApril = LocalDate.of(2021, 01, 07);
+		LocalDate afterApril = LocalDate.of(2021, 05, 25);
+		String closingMonth = "09";
+
+		List<String> beforeAprilAndClosingSeptember = ScrapingCommonUtils.getFindClosingStandards(beforeApril, closingMonth);
+		List<String> afterAprilAndClosingSeptember = ScrapingCommonUtils.getFindClosingStandards(afterApril, closingMonth);
+
+		// 결산월 9월
+		assertThat(beforeAprilAndClosingSeptember.get(0)).isEqualTo("202009");
+		assertThat(beforeAprilAndClosingSeptember.get(1)).isEqualTo("201909");
+		assertThat(afterAprilAndClosingSeptember.get(0)).isEqualTo("202009");
+		assertThat(afterAprilAndClosingSeptember.get(1)).isEqualTo("201909");
+	}
+
+	@Test
+	@DisplayName("결산월_개업일을_입력받아_신설법인인지_판단한다")
+	void shouldReturnTrueWhenNewCorp(){
+		LocalDate openDateCorpA = LocalDate.of(2019, 2, 1);
+		LocalDate openDateCorpB = LocalDate.of(2020, 2, 1);
+		LocalDate openDateCorpC = LocalDate.of(2021, 1, 7);
+		int closingMonth = 12;
+
+		boolean isNewCorpA = isNewCorp(closingMonth, openDateCorpA);
+		boolean isNewCorpB = isNewCorp(closingMonth, openDateCorpB);
+		boolean isNewCorpC = isNewCorp(closingMonth, openDateCorpC);
+
+		assertThat(isNewCorpA).isFalse();
+		assertThat(isNewCorpB).isTrue();
+		assertThat(isNewCorpC).isTrue();
 	}
 
 	private JSONObject getNotAvailableTimeErrorResponse() {
@@ -64,4 +127,5 @@ class ScrapingCommonUtilsTest extends AbstractMockitoTest {
 			.connectedId(result[1].getOrDefault("connectedId","").toString())
 			.build();
 	}
+
 }

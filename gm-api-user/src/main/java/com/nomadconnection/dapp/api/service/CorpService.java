@@ -9,6 +9,7 @@ import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
+import com.nomadconnection.dapp.core.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -81,25 +82,6 @@ public class CorpService {
 			new BadRequestException(ErrorCode.Api.NOT_FOUND, "corp(userIdx=" + userIdx + ")")
 		);
 		return corp;
-	}
-
-	// 재무제표에서 신설법인 판단
-	public boolean isNewCorp(int closingStandards, LocalDate openDate) {
-		LocalDate today = LocalDate.now();
-		int year = closingStandards==12 ? today.getYear()-1 : today.getYear();
-		LocalDate closingStandardsDate = LocalDate.of(year, closingStandards, today.getDayOfMonth());
-
-		LocalDate preBaseStartDate = closingStandardsDate.plusMonths(1).withDayOfMonth(1);
-		LocalDate preBaseEndDate = closingStandardsDate.plusMonths(4).with(TemporalAdjusters.lastDayOfMonth());
-		boolean isPreSearchType = CommonUtil.isBetweenDate(today, preBaseStartDate, preBaseEndDate);
-
-		LocalDate startDate = LocalDate.of(today.getYear(), 01, 01);
-		LocalDate endDate = today;
-		if (isPreSearchType) {
-			startDate = startDate.minusYears(1);
-		}
-
-		return CommonUtil.isBetweenDate(openDate, startDate, endDate);
 	}
 
 }

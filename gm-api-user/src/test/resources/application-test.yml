@@ -123,6 +123,13 @@ gateway:
 #    host: 10.10.40.171:8080
 #    protocol: http
 
+quotabook:
+  domain-url: https://api-tour.quotabook.com
+  stakeholders-url: /external/stakeholders
+  share-classes-url: /external/share_classes
+  rounding-url: /external/rounding
+  api-key: testApiKey
+
 encryption:
   keypad:
     enable: true

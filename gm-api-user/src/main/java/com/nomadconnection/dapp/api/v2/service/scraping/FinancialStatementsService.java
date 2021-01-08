@@ -68,7 +68,7 @@ public class FinancialStatementsService {
 		String licenseNo = corp.resCompanyIdentityNo();
 		String connectedId = connectedMngService.getConnectedId(user.idx());
 		String resClosingStandards = StringUtils.isEmpty(dto.getResClosingStandards()) ? ScrapingCommonUtils.DEFAULT_CLOSING_STANDARDS_MONTH : dto.getResClosingStandards();
-		List<String> listYyyyMm = ScrapingCommonUtils.getFindClosingStandards(resClosingStandards);
+		List<String> listYyyyMm = ScrapingCommonUtils.getFindClosingStandards(LocalDate.now(), resClosingStandards);
 		ApiResponse.ApiResult response = null;
 
 		// 국세청 - 증명발급 표준재무재표
@@ -81,7 +81,7 @@ public class FinancialStatementsService {
 			response = scrapingResultService.getCodeAndMessage(scrapingResponse);
 			ScrapingLogDto logDto = ScrapingLogDto.builder().email(user.email()).code(code).message(message).extraMessage(extraMessage).build();
 
-			if(corpService.isNewCorp(Integer.parseInt(resClosingStandards), LocalDate.parse(corp.resOpenDate(), DateTimeFormatter.ofPattern("yyyyMMdd")))){
+			if(ScrapingCommonUtils.isNewCorp(Integer.parseInt(resClosingStandards), LocalDate.parse(corp.resOpenDate(), DateTimeFormatter.ofPattern("yyyyMMdd")))){
 				D1530 d1530 = fullTextService.findFirstByIdxCorpIn1530(corpIdx);
 				fullTextService.saveDefault1520(d1530, corp);
 				printScrapingErrorLog("It is a new corporation.", logDto);

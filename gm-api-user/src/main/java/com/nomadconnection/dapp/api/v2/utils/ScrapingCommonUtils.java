@@ -4,14 +4,13 @@ import com.nomadconnection.dapp.api.exception.CodefApiException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.codef.io.helper.ResponseCode;
 import com.nomadconnection.dapp.codef.io.helper.ScrapingMessageGroup;
+import com.nomadconnection.dapp.core.utils.DateUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public final class ScrapingCommonUtils {
@@ -47,18 +46,38 @@ public final class ScrapingCommonUtils {
 		return NON_PROFIT_CORP.equals(licenseMiddleNo);
 	}
 
-	public static List<String> getFindClosingStandards(String Mm) {
-		List<String> returnYyyyMm = new ArrayList<>();
-		Calendar cal = Calendar.getInstance();
-		DateFormat df = new SimpleDateFormat("yyyy");
-		Date date = new Date();
-		cal.setTime(date);
-		cal.add(Calendar.YEAR, -1);
-		returnYyyyMm.add(df.format(cal.getTime()) + Mm);
-		cal.add(Calendar.YEAR, -1);
-		returnYyyyMm.add(df.format(cal.getTime()) + Mm);
+	public static List<String> getFindClosingStandards(LocalDate date, String closingMonth) {
+		List<String> yyyyMm = new ArrayList<>();
+		int minusYear = 1;
+		if(isBeforeApril(date) && "12".equals(closingMonth)){
+			minusYear = 2;
+		}
 
-		return returnYyyyMm;
+		for(int i = minusYear ; i < minusYear+2 ; i++){
+			String year = String.valueOf(date.minusYears(i).getYear());
+			yyyyMm.add(year + closingMonth);
+		}
+
+		return yyyyMm;
+	}
+
+	// 재무제표에서 신설법인 판단
+	public static boolean isNewCorp(int closingMonth, LocalDate openDate) {
+		LocalDate today = LocalDate.now();
+		int year = closingMonth==12 ? today.getYear()-1 : today.getYear();
+		LocalDate closingStandardsDate = LocalDate.of(year, closingMonth, today.getDayOfMonth());
+
+		LocalDate preBaseStartDate = closingStandardsDate.plusMonths(1).withDayOfMonth(1);
+		LocalDate preBaseEndDate = closingStandardsDate.plusMonths(4).with(TemporalAdjusters.lastDayOfMonth());
+		boolean isPreSearchType = DateUtils.isBetweenDate(today, preBaseStartDate, preBaseEndDate);
+
+		LocalDate startDate = LocalDate.of(today.getYear(), 01, 01);
+		LocalDate endDate = today;
+		if (isPreSearchType) {
+			startDate = startDate.minusYears(1);
+		}
+
+		return DateUtils.isBetweenDate(openDate, startDate, endDate);
 	}
 
 	public static boolean isLimitedCompany(JSONObject jsonDataCorpRegister) {
@@ -80,6 +99,14 @@ public final class ScrapingCommonUtils {
 			}
 		}
 		return false;
+	}
+
+	public static boolean isBeforeApril(LocalDate baseDate){
+		LocalDate preBaseStartDate = LocalDate.now().withMonth(1).withDayOfMonth(1);
+		LocalDate preBaseEndDate = LocalDate.now().withMonth(4).withDayOfMonth(30);
+		boolean isBeforeApril = DateUtils.isBetweenDate(baseDate, preBaseStartDate, preBaseEndDate);
+
+		return isBeforeApril;
 	}
 
 }

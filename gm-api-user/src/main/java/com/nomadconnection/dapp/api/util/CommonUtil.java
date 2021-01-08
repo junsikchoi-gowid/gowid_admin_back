@@ -127,11 +127,6 @@ public class CommonUtil {
         return "0";
     }
 
-    public static boolean isBetweenDate(LocalDate baseDate, LocalDate startDate, LocalDate endDate){
-        return  (baseDate.isEqual(startDate) || baseDate.isAfter(startDate))
-            && (baseDate.isEqual(endDate) || baseDate.isBefore(endDate));
-    }
-
     public static String getValueOrDefault(String value, String defaultValue) {
         return StringUtils.isEmpty(value) ? defaultValue : value;
     }
