@@ -94,7 +94,6 @@ public class ResumeService {
         issCommonService.saveProgressSuccess(request, IssuanceProgressType.P_1600);
         log.debug("## response 1600 => " + response.toString());
 
-        cardIssuanceInfo.issuanceStatus(IssuanceStatus.ISSUED);
         return response;
     }
 
@@ -121,6 +120,8 @@ public class ResumeService {
         issCommonService.saveProgressFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
         proc1800(request, signatureHistory, signatureHistory.getUserIdx());  // 1800(전자서명값전달)
         issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
+
+        cardIssuanceInfoService.updateIssuanceStatusByApplicationDateAndNumber(request.getD001(), request.getD002() , IssuanceStatus.ISSUED);
 
         sendApprovedEmail(request, signatureHistory.getCorpIdx());
     }
