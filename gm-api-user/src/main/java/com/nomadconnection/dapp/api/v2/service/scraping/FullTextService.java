@@ -210,7 +210,7 @@ public class FullTextService {
 			.d005("06")
 			.d007(OptionalUtil.getOrEmptyString(corp.resRegisterDate()))
 			.d009(ceoType) // 1: 단일대표 2: 개별대표 3: 공동대표
-			.d010(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")// 대표이사_성명1
+			.d010(listResCeoList.size() >= 2 ? getOnlyKorLan(listResCeoList.get(1)) : "")// 대표이사_성명1
 			.d011(listResCeoList.size() >= 3 ? Seed128.encryptEcb(replaceHyphen(listResCeoList.get(2))) : "")// 대표이사_주민번호1
 			.d029(null)
 			.d030(null)
@@ -218,7 +218,7 @@ public class FullTextService {
 			.d032("대표이사")
 			.d033("대표이사")
 			.d034(listResCeoList.size() >= 3 ? Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-", "")) : "")// 대표이사_주민번호1
-			.d035(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")// 대표이사_성명1
+			.d035(listResCeoList.size() >= 2 ? getOnlyKorLan(listResCeoList.get(1)) : "")// 대표이사_성명1
 			.d044("0113")
 			.d045("5")
 			.d046("Y")
@@ -262,7 +262,7 @@ public class FullTextService {
 			.d028("400")    // 법인자격코드
 			.d030(OptionalUtil.getOrEmptyString(corp.resRegisterDate()))    // 설립일자
 			.d031(ceoType)    // 대표자코드
-			.d032(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")    // 대표자명1
+			.d032(listResCeoList.size() >= 2 ? getOnlyKorLan(listResCeoList.get(1)) : "")    // 대표자명1
 			.d033(listResCeoList.size() >= 3 ? replaceHyphen(Seed128.encryptEcb(listResCeoList.get(2))) : "")    // 대표자주민등록번호1
 			.d051(null)    // 팩스전화지역번호
 			.d052(null)    // 팩스전화국번호
@@ -270,7 +270,7 @@ public class FullTextService {
 			.d054("대표이사")    // 신청관리자부서명
 			.d055("대표이사")    // 신청관리자직위명
 			.d056(listResCeoList.size() >= 3 ? replaceHyphen(Seed128.encryptEcb(listResCeoList.get(2))) : "")    // 신청관리자주민등록번호
-			.d057(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")    // 신청관리자명
+			.d057(listResCeoList.size() >= 2 ? getOnlyKorLan(listResCeoList.get(1)) : "")    // 신청관리자명
 			.build();
 	}
 
