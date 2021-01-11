@@ -9,7 +9,8 @@ public enum Role {
 	GOWID_ADMIN,
 	GOWID_USER,
 	GOWID_EXTERNAL,
-	GOWID_BENEFIT;
+	GOWID_BENEFIT,
+	GOWID_SAASTRACKER;
 
 	public static boolean isMaster(Role role) {
 		return ROLE_MASTER.equals(role);
