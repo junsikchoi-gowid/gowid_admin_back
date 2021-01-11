@@ -422,15 +422,15 @@ public class FullTextService {
 			.d043(ifNullReplaceObject(listResStockList, 3, ResCorpEstablishDate))// 발행주식현황_변경일자
 			.d044(ifNullReplaceObject(listResStockList, 4, ResCorpEstablishDate))// 발행주식현황_등기일자
 			.d045(listResCeoList.size() >= 1 ? listResCeoList.get(0) : "")// 대표이사_직위1
-			.d046(listResCeoList.size() >= 2 ? listResCeoList.get(1) : "")// 대표이사_성명1
+			.d046(listResCeoList.size() >= 2 ? getOnlyKorLan(listResCeoList.get(1)) : "")// 대표이사_성명1
 			.d047(listResCeoList.size() >= 3 ? Seed128.encryptEcb(listResCeoList.get(2).replaceAll("-", "")) : "")// 대표이사_주민번호1
 			.d048(listResCeoList.size() >= 4 ? listResCeoList.get(3) : "")// 대표이사_주소1
 			.d049(listResCeoList.size() >= 5 ? listResCeoList.get(4) : "")// 대표이사_직위2
-			.d050(listResCeoList.size() >= 6 ? listResCeoList.get(5) : "")// 대표이사_성명2
+			.d050(listResCeoList.size() >= 6 ? getOnlyKorLan(listResCeoList.get(5)) : "")// 대표이사_성명2
 			.d051(listResCeoList.size() >= 7 ? Seed128.encryptEcb(listResCeoList.get(6).replaceAll("-", "")) : "")// 대표이사_주민번호2
 			.d052(listResCeoList.size() >= 8 ? listResCeoList.get(7) : "")// 대표이사_주소2
 			.d053(listResCeoList.size() >= 9 ? listResCeoList.get(8) : "")// 대표이사_직위3
-			.d054(listResCeoList.size() >= 10 ? listResCeoList.get(9) : "")// 대표이사_성명3
+			.d054(listResCeoList.size() >= 10 ? getOnlyKorLan(listResCeoList.get(9)) : "")// 대표이사_성명3
 			.d055(listResCeoList.size() >= 11 ? Seed128.encryptEcb(listResCeoList.get(10).replaceAll("-", "")) : "")// 대표이사_주민번호3
 			.d056(listResCeoList.size() >= 12 ? listResCeoList.get(11) : "")// 대표이사_주소3
 			.d057(ResCorpEstablishDate)// 법인성립연월일

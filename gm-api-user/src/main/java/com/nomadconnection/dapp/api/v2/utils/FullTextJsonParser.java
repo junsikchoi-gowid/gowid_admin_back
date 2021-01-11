@@ -10,6 +10,8 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 전문 Json
@@ -231,6 +233,18 @@ public class FullTextJsonParser {
 			response = response.replaceAll(strMatch,",");
 		}
 		return response;
+	}
+
+	public static String getOnlyKorLan(String str){
+		StringBuffer sb = new StringBuffer();
+		if(str!=null && str.length()!=0){
+			Pattern p = Pattern.compile("[가-힣]");
+			Matcher m = p.matcher(str);
+			while(m.find()){
+				sb.append(m.group());
+			}
+		}
+		return sb.toString();
 	}
 
 }
