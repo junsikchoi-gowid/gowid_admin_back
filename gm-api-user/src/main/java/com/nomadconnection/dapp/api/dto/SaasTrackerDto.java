@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.core.domain.repository.saas.SaasPaymentHistoryRe
 import com.nomadconnection.dapp.core.domain.saas.SaasOrganizationType;
 import com.nomadconnection.dapp.core.domain.saas.SaasPaymentHistory;
 import com.nomadconnection.dapp.core.domain.saas.SaasPaymentInfo;
+import com.nomadconnection.dapp.core.domain.saas.SaasTrackerProgress;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -213,16 +214,17 @@ public class SaasTrackerDto {
 
 		public static UseSaasRes from(SaasPaymentInfo saasPaymentInfo) {
 			if(saasPaymentInfo != null) {
+				boolean hasSaasPaymentMangeInfo = !ObjectUtils.isEmpty(saasPaymentInfo.saasPaymentManageInfo());
 				return UseSaasRes.builder()
 						.idxSaasInfo(saasPaymentInfo.saasInfo().idx())
 						.currentPaymentDate(saasPaymentInfo.currentPaymentDate())
 						.currentPaymentPrice(saasPaymentInfo.currentPaymentPrice())
 						.paymentMethod(saasPaymentInfo.paymentMethod())
 						.paymentType(saasPaymentInfo.paymentType())
-						.activeAlert(saasPaymentInfo.saasPaymentManageInfo().activeAlert())
+						.activeAlert(hasSaasPaymentMangeInfo ? saasPaymentInfo.saasPaymentManageInfo().activeAlert() : null)
 						.activeSubscription(saasPaymentInfo.activeSubscription())
-						.managerName(saasPaymentInfo.saasPaymentManageInfo().managerName())
-						.managerEmail(saasPaymentInfo.saasPaymentManageInfo().managerEmail())
+						.managerName(hasSaasPaymentMangeInfo ? saasPaymentInfo.saasPaymentManageInfo().managerName() : null)
+						.managerEmail(hasSaasPaymentMangeInfo ? saasPaymentInfo.saasPaymentManageInfo().managerEmail() : null)
 						.saasName(saasPaymentInfo.saasInfo().name())
 						.saasImageName(saasPaymentInfo.saasInfo().imageName())
 						.categoryName(saasPaymentInfo.saasInfo().saasCategory().name())
@@ -301,6 +303,7 @@ public class SaasTrackerDto {
 
 		public static SaasPaymentScheduleDetailRes from(SaasPaymentInfo saasPaymentInfo) {
 			if(saasPaymentInfo != null) {
+				boolean hasSaasPaymentMangeInfo = !ObjectUtils.isEmpty(saasPaymentInfo.saasPaymentManageInfo());
 				return SaasPaymentScheduleDetailRes.builder()
 						.idxSaasPaymentInfo(saasPaymentInfo.idx())
 						.saasName(saasPaymentInfo.saasInfo().name())
@@ -309,14 +312,14 @@ public class SaasTrackerDto {
 						.organization(SaasOrganizationType.getType(saasPaymentInfo.organization()).getOrgName())
 						.cardNumber(ObjectUtils.isEmpty(saasPaymentInfo.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.cardNumber(), 4))
 						.accountNumber(ObjectUtils.isEmpty(saasPaymentInfo.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.accountNumber(), 4))
-						.managerName(saasPaymentInfo.saasPaymentManageInfo().managerName())
-						.managerEmail(saasPaymentInfo.saasPaymentManageInfo().managerEmail())
+						.managerName(hasSaasPaymentMangeInfo ? saasPaymentInfo.saasPaymentManageInfo().managerName() : null)
+						.managerEmail(hasSaasPaymentMangeInfo ? saasPaymentInfo.saasPaymentManageInfo().managerEmail() : null)
 						.paymentType(saasPaymentInfo.paymentType())
 						.currentPaymentDate(saasPaymentInfo.currentPaymentDate())
 						.currentPaymentPrice(saasPaymentInfo.currentPaymentPrice())
 						.paymentScheduleDate(saasPaymentInfo.paymentScheduleDate())
 						.activeSubscription(saasPaymentInfo.activeSubscription())
-						.activeAlert(saasPaymentInfo.saasPaymentManageInfo().activeAlert())
+						.activeAlert(hasSaasPaymentMangeInfo ? saasPaymentInfo.saasPaymentManageInfo().activeAlert() : null)
 						.build();
 			}
 			return null;
@@ -611,4 +614,30 @@ public class SaasTrackerDto {
 		}
 	}
 
+    @Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class SaaSTrackerProgressRes {
+
+		@ApiModelProperty("준비 상태")
+		private Integer status;
+
+		@ApiModelProperty("진행 단계")
+		private Integer step;
+
+		@ApiModelProperty("데이터 갱신 날짜")
+		private String processDate;
+
+		public static SaaSTrackerProgressRes from(SaasTrackerProgress progress) {
+			if(progress != null) {
+				return SaaSTrackerProgressRes.builder()
+						.status(progress.status())
+						.step(progress.step())
+						.processDate(progress.processDate())
+						.build();
+			}
+			return null;
+		}
+	}
 }

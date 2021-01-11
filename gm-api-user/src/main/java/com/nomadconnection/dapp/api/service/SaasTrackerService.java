@@ -5,10 +5,7 @@ import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.repository.saas.*;
-import com.nomadconnection.dapp.core.domain.saas.SaasCategory;
-import com.nomadconnection.dapp.core.domain.saas.SaasInfo;
-import com.nomadconnection.dapp.core.domain.saas.SaasIssueReport;
-import com.nomadconnection.dapp.core.domain.saas.SaasPaymentInfo;
+import com.nomadconnection.dapp.core.domain.saas.*;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -29,6 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SaasTrackerService {
 
+	private final SaasTrackerProgressRepository repoSaasTrackerProgress;
 	private final SaasCategoryRepository repoSaasCategory;
 	private final SaasIssueReportRepository repoSaasIssueReport;
 	private final SaasPaymentHistoryRepository repoSaasPaymentHistory;
@@ -65,6 +63,57 @@ public class SaasTrackerService {
 							.build())
 					.build());
 
+		}catch(Exception e) {
+			log.error(e.getMessage(), e);
+			throw new SystemException(ErrorCode.Api.INTERNAL_ERROR);
+		}
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity getSaasTrackerProgress(Long userIdx) {
+
+		log.info(">>>>> getSaasTrackerProgress.start");
+		User user = userService.getUser(userIdx);
+
+		SaasTrackerProgress progress = new SaasTrackerProgress();
+		try {
+			progress = findSaasTrackerProgress(user);
+		}catch(EntityNotFoundException enfe) {
+			progress = new SaasTrackerProgress();
+			progress.user(user)
+					.status(SaaSTrackerType.STATUS_REQUEST.getValue())
+					.step(SaaSTrackerType.STEP_INIT.getValue());
+			repoSaasTrackerProgress.save(progress);
+		}
+		SaasTrackerDto.SaaSTrackerProgressRes saasTrackerProgressRes = SaasTrackerDto.SaaSTrackerProgressRes.from(progress);
+
+		log.info(">>>>> getSaasTrackerProgress.complete");
+		return ResponseEntity.ok().body(
+				BusinessResponse.builder().data(saasTrackerProgressRes).build());
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity updateSaasTrackerProgress(Long userIdx, Integer step) {
+
+		log.info(">>>>> updateSaasTrackerProgress.start");
+		User user = userService.getUser(userIdx);
+
+		try {
+			SaasTrackerProgress progress = findSaasTrackerProgress(user);
+			if(SaaSTrackerType.STEP_ALL_COMPLETE.getValue() == step) {
+				progress.status(SaaSTrackerType.STATUS_REQUEST_COMPLETE.getValue());
+			}
+			progress.step(step);
+
+			log.info(">>>>> updateSaasTrackerProgress.complete");
+			return ResponseEntity.ok().body(BusinessResponse.builder()
+					.normal(BusinessResponse.Normal.builder()
+							.status(true)
+							.build())
+					.build());
+		}catch(EntityNotFoundException enfe) {
+			log.error(enfe.getMessage(), enfe);
+			throw new SystemException(ErrorCode.Api.NOT_FOUND);
 		}catch(Exception e) {
 			log.error(e.getMessage(), e);
 			throw new SystemException(ErrorCode.Api.INTERNAL_ERROR);
@@ -350,11 +399,12 @@ public class SaasTrackerService {
 		try {
 
 			// 2. 1에서 조회한 데이터로 기본 정보 및 결제 수단 목록까지 세팅
+			boolean hasSaasPaymentMangeInfo = !ObjectUtils.isEmpty(saasPaymentInfos.get(0).saasPaymentManageInfo());
 			SaasTrackerDto.SaasPaymentDetailInfoRes saasPaymentDetailInfoRes = new SaasTrackerDto.SaasPaymentDetailInfoRes();
 			saasPaymentDetailInfoRes.setSaasName(sassInfo.name());
-			saasPaymentDetailInfoRes.setManagerName(saasPaymentInfos.get(0).saasPaymentManageInfo().managerName());
-			saasPaymentDetailInfoRes.setManagerEmail(saasPaymentInfos.get(0).saasPaymentManageInfo().managerEmail());
-			saasPaymentDetailInfoRes.setActiveAlert(saasPaymentInfos.get(0).saasPaymentManageInfo().activeAlert());
+			saasPaymentDetailInfoRes.setManagerName(hasSaasPaymentMangeInfo ? saasPaymentInfos.get(0).saasPaymentManageInfo().managerName() : null);
+			saasPaymentDetailInfoRes.setManagerEmail(hasSaasPaymentMangeInfo? saasPaymentInfos.get(0).saasPaymentManageInfo().managerEmail() : null);
+			saasPaymentDetailInfoRes.setActiveAlert(hasSaasPaymentMangeInfo ? saasPaymentInfos.get(0).saasPaymentManageInfo().activeAlert() : null);
 			saasPaymentDetailInfoRes.setSaasPaymentInfos(saasPaymentInfos.stream().map(SaasTrackerDto.SaasPaymentInfoRes::from).collect(Collectors.toList()));
 
 			// 3. 결제 내역은 saasPaymentHistory에서 useridx, saasInfoIdx로 조회
@@ -458,6 +508,15 @@ public class SaasTrackerService {
 				() -> EntityNotFoundException.builder()
 						.entity("SaasInfo")
 						.idx(idx)
+						.build()
+		);
+	}
+
+	SaasTrackerProgress findSaasTrackerProgress(User user) {
+		return repoSaasTrackerProgress.findByUser(user).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.entity("SaasTrackerProgress")
+						.idx(user.idx())
 						.build()
 		);
 	}

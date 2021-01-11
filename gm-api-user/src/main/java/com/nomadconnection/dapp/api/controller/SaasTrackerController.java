@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 @Slf4j
 @CrossOrigin(allowCredentials = "true")
@@ -28,6 +29,9 @@ public class SaasTrackerController {
 
 		// Base
 		public static final String BASE = "/saas/v1/tracker";
+
+		// Progress
+		public static final String PROGRESS = "/progress";
 
 		// Reports
 		public static final String REPORTS = "/reports";
@@ -75,6 +79,24 @@ public class SaasTrackerController {
 		return service.saveSaasTrackerReports(user.idx(), dto);
 	}
 
+	@ApiOperation("SaaS Tracker 사용 진행 상황 조회")
+	@GetMapping(URI.PROGRESS)
+	public ResponseEntity getSaasTrackerProgress(@ApiIgnore @CurrentUser CustomUser user) {
+		if (log.isInfoEnabled()) {
+			log.info("([ getSaasTrackerProgress ])");
+		}
+		return service.getSaasTrackerProgress(user.idx());
+	}
+
+	@ApiOperation("SaaS Tracker 사용 진행 상황 저장")
+	@PutMapping(URI.PROGRESS)
+	public ResponseEntity updateSaasTrackerProgress(@ApiIgnore @CurrentUser CustomUser user,
+													@RequestBody Map<String, Integer> requestBodyMap) {
+		if (log.isInfoEnabled()) {
+			log.info("([ updateSaasTrackerProgress ])");
+		}
+		return service.updateSaasTrackerProgress(user.idx(), requestBodyMap.get("step"));
+	}
 
 	@ApiOperation("월별 총 SaaS 결제 금액 조회")
 	@GetMapping(URI.USAGE_SUMS)

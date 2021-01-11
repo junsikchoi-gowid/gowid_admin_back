@@ -12,7 +12,7 @@ import java.util.List;
 public interface SaasCategoryRepository extends JpaRepository<SaasCategory, Long> {
 
     @Query(value = "SELECT \n" +
-                    "    info.name name, info.imageName imageName\n" +
+                    "    info.idx idxSaasInfo, info.name name, info.imageName imageName\n" +
                     "FROM\n" +
                     "    SaasPaymentInfo payment\n" +
                     "        JOIN\n" +
@@ -25,6 +25,7 @@ public interface SaasCategoryRepository extends JpaRepository<SaasCategory, Long
                                                                              @Param("idxSaasCategory") Long idxSaasCategory);
 
     public static interface UseSaasByCategoryDto {
+        Long getIdxSaasInfo();
         String getName();
         String getImageName();
     }
