@@ -483,9 +483,9 @@ public class LotteCardService {
 				.lotteBlackCount(dto.getBlackCount())
 				.lotteGreenTrafficCount(dto.getGreenTrafficCount())
 				.lotteBlackTrafficCount(dto.getBlackTrafficCount())
-//				.lotteHiPassCount(dto.getHiPassCount())
+				.lotteHiPassCount(dto.getHiPassCount())
 				.requestCount(dto.getBlackCount() + dto.getGreenCount() + dto.getGreenTrafficCount() +
-						dto.getBlackTrafficCount())); // + dto.getHiPassCount()));
+						dto.getBlackTrafficCount() + dto.getHiPassCount()));
 
 		if (StringUtils.hasText(depthKey)) {
 			repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
@@ -557,9 +557,9 @@ public class LotteCardService {
 				d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.BLACK_TRAFFIC, getCardReqCount(dto.getBlackTrafficCount()), seq);
 				seq++;
 			}
-//			if (dto.getHiPassCount() > 0) {
-//				d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.HI_PASS, getCardReqCount(dto.getHiPassCount()), seq);
-//			}
+			if (dto.getHiPassCount() > 0) {
+				d1100 = Lotte_CardKind.setCardKindInLotte_D1100(d1100, Lotte_CardKind.HI_PASS, getCardReqCount(dto.getHiPassCount()), seq);
+			}
 		}
 
 		return repoD1100.save(d1100);
