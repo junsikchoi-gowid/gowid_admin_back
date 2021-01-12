@@ -11,7 +11,7 @@ public enum Lotte_CardKind {
 	BLACK("01", "C313334", "02", "4", "3"),
 	GREEN_TRAFFIC("01", "C313438", "02", "4", "3"),
 	BLACK_TRAFFIC("01", "C313437", "02", "4", "3"),
-	HI_PASS("01", "C313469", "02", "4", "1"),
+	HI_PASS("01", "C313469", "01", "4", "1"),
 	;
 
 	private String productCode;
