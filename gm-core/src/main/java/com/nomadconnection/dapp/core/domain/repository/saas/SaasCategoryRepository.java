@@ -20,7 +20,8 @@ public interface SaasCategoryRepository extends JpaRepository<SaasCategory, Long
                     "WHERE\n" +
                     "    payment.activeSubscription = 1\n" +
                     "        AND payment.idxUser = :idxUser \n" +
-                    "        AND info.idxSaasCategory = :idxSaasCategory ", nativeQuery = true)
+                    "        AND info.idxSaasCategory = :idxSaasCategory \n" +
+                    "GROUP BY idxSaasInfo", nativeQuery = true)
     List<SaasCategoryRepository.UseSaasByCategoryDto> getUseSaasByCategoryId(@Param("idxUser") Long idxUser,
                                                                              @Param("idxSaasCategory") Long idxSaasCategory);
 

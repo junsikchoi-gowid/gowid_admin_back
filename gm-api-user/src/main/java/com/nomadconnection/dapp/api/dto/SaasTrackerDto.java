@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.dto;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.repository.saas.SaasCategoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.saas.SaasPaymentHistoryRepository;
+import com.nomadconnection.dapp.core.domain.repository.saas.SaasPaymentInfoRepository;
 import com.nomadconnection.dapp.core.domain.saas.SaasOrganizationType;
 import com.nomadconnection.dapp.core.domain.saas.SaasPaymentHistory;
 import com.nomadconnection.dapp.core.domain.saas.SaasPaymentInfo;
@@ -13,6 +14,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -145,8 +147,8 @@ public class SaasTrackerDto {
 						.paymentPrice(history.paymentPrice())
 						.paymentMethod(history.paymentMethod())
 						.organization(SaasOrganizationType.getType(history.organization()).getOrgName())
-						.cardNumber(ObjectUtils.isEmpty(history.cardNumber()) ? null : CommonUtil.extractTextFromLast(history.cardNumber(), 4))
-						.accountNumber(ObjectUtils.isEmpty(history.accountNumber()) ? null : CommonUtil.extractTextFromLast(history.accountNumber(), 4))
+						.cardNumber(StringUtils.isEmpty(history.cardNumber()) ? null : CommonUtil.extractTextFromLast(history.cardNumber(), 4))
+						.accountNumber(StringUtils.isEmpty(history.accountNumber()) ? null : CommonUtil.extractTextFromLast(history.accountNumber(), 4))
 						.build();
 			}
 			return null;
@@ -232,6 +234,26 @@ public class SaasTrackerDto {
 			}
 			return null;
 		}
+
+		public static UseSaasRes from(SaasPaymentInfoRepository.SubscriptSaasDto subscriptSaasDto) {
+			if(subscriptSaasDto != null) {
+				return UseSaasRes.builder()
+						.idxSaasInfo(subscriptSaasDto.getIdxSaasInfo())
+						.currentPaymentDate(subscriptSaasDto.getCurrentPaymentDate())
+						.currentPaymentPrice(subscriptSaasDto.getCurrentPaymentPrice())
+						.paymentMethod(subscriptSaasDto.getPaymentMethod())
+						.paymentType(subscriptSaasDto.getPaymentType())
+						.activeAlert(subscriptSaasDto.getActiveAlert() == 1 ? true : false)
+						.activeSubscription(subscriptSaasDto.getActiveAlert() == 1 ? true : false)
+						.managerName(subscriptSaasDto.getManagerName())
+						.managerEmail(subscriptSaasDto.getManagerEmail())
+						.saasName(subscriptSaasDto.getSaasName())
+						.saasImageName(subscriptSaasDto.getSaasImageName())
+						.categoryName(subscriptSaasDto.getCategoryName())
+						.build();
+			}
+			return null;
+		}
 	}
 
 	@Data
@@ -310,8 +332,8 @@ public class SaasTrackerDto {
 						.saasImageName(saasPaymentInfo.saasInfo().imageName())
 						.paymentMethod(saasPaymentInfo.paymentMethod())
 						.organization(SaasOrganizationType.getType(saasPaymentInfo.organization()).getOrgName())
-						.cardNumber(ObjectUtils.isEmpty(saasPaymentInfo.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.cardNumber(), 4))
-						.accountNumber(ObjectUtils.isEmpty(saasPaymentInfo.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.accountNumber(), 4))
+						.cardNumber(StringUtils.isEmpty(saasPaymentInfo.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.cardNumber(), 4))
+						.accountNumber(StringUtils.isEmpty(saasPaymentInfo.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.accountNumber(), 4))
 						.managerName(hasSaasPaymentMangeInfo ? saasPaymentInfo.saasPaymentManageInfo().managerName() : null)
 						.managerEmail(hasSaasPaymentMangeInfo ? saasPaymentInfo.saasPaymentManageInfo().managerEmail() : null)
 						.paymentType(saasPaymentInfo.paymentType())
@@ -330,7 +352,10 @@ public class SaasTrackerDto {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
-	public static class SaasPaymentScheduleAtCalendarRes {
+	public static class SaasPaymentScheduleAtCalendarListRes {
+
+		@ApiModelProperty("SaaS ID")
+		private Long idxSaasInfo;
 
 		@ApiModelProperty("SaaS Payment Info ID")
 		private Long idxSaasPaymentInfo;
@@ -362,20 +387,25 @@ public class SaasTrackerDto {
 		@ApiModelProperty("결제예상금액")
 		private Long paymentPrice;
 
-		public static SaasPaymentScheduleAtCalendarRes from(SaasPaymentInfo saasPaymentInfo) {
+		@ApiModelProperty("결제예정일")
+		private String paymentScheduleDate;
+
+		public static SaasPaymentScheduleAtCalendarListRes from(SaasPaymentInfo saasPaymentInfo) {
 			if(saasPaymentInfo != null) {
-				return SaasPaymentScheduleAtCalendarRes.builder()
+				return SaasPaymentScheduleAtCalendarListRes.builder()
+						.idxSaasInfo(saasPaymentInfo.saasInfo().idx())
 						.idxSaasPaymentInfo(saasPaymentInfo.idx())
 						.saasName(saasPaymentInfo.saasInfo().name())
 						.saasImageName(saasPaymentInfo.saasInfo().imageName())
 						.paymentMethod(saasPaymentInfo.paymentMethod())
 						.organization(SaasOrganizationType.getType(saasPaymentInfo.organization()).getOrgName())
-						.cardNumber(ObjectUtils.isEmpty(saasPaymentInfo.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.cardNumber(), 4))
-						.accountNumber(ObjectUtils.isEmpty(saasPaymentInfo.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.accountNumber(), 4))
+						.cardNumber(StringUtils.isEmpty(saasPaymentInfo.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.cardNumber(), 4))
+						.accountNumber(StringUtils.isEmpty(saasPaymentInfo.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.accountNumber(), 4))
 						.paymentType(saasPaymentInfo.paymentType())
 						.paymentDate(saasPaymentInfo.paymentScheduleDate().startsWith(CommonUtil.getNowYYYYMM()) ? saasPaymentInfo.paymentScheduleDate() :
 								(saasPaymentInfo.paymentScheduleDate().startsWith(CommonUtil.getNowYYYYMM()) ? saasPaymentInfo.paymentScheduleDate() : null ))
 						.paymentPrice(saasPaymentInfo.currentPaymentPrice())
+						.paymentScheduleDate(saasPaymentInfo.paymentScheduleDate())
 						.build();
 			}
 			return null;
@@ -386,8 +416,25 @@ public class SaasTrackerDto {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
+	public static class SaasPaymentScheduleAtCalendarRes {
+
+		@ApiModelProperty("결제 목록(캘린더)")
+		private List<SaasPaymentScheduleAtCalendarListRes> calendarList;
+
+		@ApiModelProperty("다가올 결제 목록")
+		private List<SaasPaymentScheduleAtCalendarListRes> scheduleList;
+
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class SaasPaymentDetailInfoRes {
 
+		@ApiModelProperty("SaaS ID")
+		private Long idxSaasInfo;
+		
 		@ApiModelProperty("SaaS 이름")
 		private String saasName;
 
@@ -449,8 +496,8 @@ public class SaasTrackerDto {
 						.currentPaymentDate(saasPaymentInfo.currentPaymentDate())
 						.paymentMethod(saasPaymentInfo.paymentMethod())
 						.organization(SaasOrganizationType.getType(saasPaymentInfo.organization()).getOrgName())
-						.cardNumber(ObjectUtils.isEmpty(saasPaymentInfo.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.cardNumber(), 4))
-						.accountNumber(ObjectUtils.isEmpty(saasPaymentInfo.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.accountNumber(), 4))
+						.cardNumber(StringUtils.isEmpty(saasPaymentInfo.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.cardNumber(), 4))
+						.accountNumber(StringUtils.isEmpty(saasPaymentInfo.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.accountNumber(), 4))
 						.paymentType(saasPaymentInfo.paymentType())
 						.build();
 			}
@@ -493,8 +540,8 @@ public class SaasTrackerDto {
 						.paymentMethod(saasPaymentHistory.paymentMethod())
 						.organization(SaasOrganizationType.getType(saasPaymentHistory.organization()).getOrgName())
 						.paymentPrice(saasPaymentHistory.paymentPrice())
-						.cardNumber(ObjectUtils.isEmpty(saasPaymentHistory.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentHistory.cardNumber(), 4))
-						.accountNumber(ObjectUtils.isEmpty(saasPaymentHistory.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentHistory.accountNumber(), 4))
+						.cardNumber(StringUtils.isEmpty(saasPaymentHistory.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentHistory.cardNumber(), 4))
+						.accountNumber(StringUtils.isEmpty(saasPaymentHistory.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentHistory.accountNumber(), 4))
 						.build();
 			}
 			return null;
@@ -548,8 +595,8 @@ public class SaasTrackerDto {
 						.currentPaymentDate(saasPaymentInfo.currentPaymentDate())
 						.paymentMethod(saasPaymentInfo.paymentMethod())
 						.organization(SaasOrganizationType.getType(saasPaymentInfo.organization()).getOrgName())
-						.cardNumber(ObjectUtils.isEmpty(saasPaymentInfo.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.cardNumber(), 4))
-						.accountNumber(ObjectUtils.isEmpty(saasPaymentInfo.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.accountNumber(), 4))
+						.cardNumber(StringUtils.isEmpty(saasPaymentInfo.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.cardNumber(), 4))
+						.accountNumber(StringUtils.isEmpty(saasPaymentInfo.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.accountNumber(), 4))
 						.build();
 			}
 			return null;
@@ -635,6 +682,53 @@ public class SaasTrackerDto {
 						.status(progress.status())
 						.step(progress.step())
 						.processDate(progress.processDate())
+						.build();
+			}
+			return null;
+		}
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class SaasNewTop5Res {
+
+		@ApiModelProperty("SaaS Info Idx")
+		private Long idxSaasInfo;
+
+		@ApiModelProperty("SaaS 이름")
+		private String saasName;
+
+		@ApiModelProperty("최근 결제 날짜")
+		private String currentPaymentDate;
+
+		@ApiModelProperty("결제 유형")
+		private Integer paymentMethod;
+
+		@ApiModelProperty("기관명")
+		private String organization;
+
+		@ApiModelProperty("계좌번호")
+		private String accountNumber;
+
+		@ApiModelProperty("카드번호")
+		private String cardNumber;
+
+		@ApiModelProperty("결제 종류")
+		private Integer paymentType;
+
+		public static SaasPaymentInfoRes from(SaasPaymentHistory saasPaymentHistory) {
+			if(saasPaymentHistory != null) {
+				return SaasPaymentInfoRes.builder()
+						.idxSaasInfo(saasPaymentHistory.saasInfo().idx())
+						.saasName(saasPaymentHistory.saasInfo().name())
+						.currentPaymentDate(saasPaymentHistory.paymentDate())
+						.paymentMethod(saasPaymentHistory.paymentMethod())
+						.organization(SaasOrganizationType.getType(saasPaymentHistory.organization()).getOrgName())
+						.cardNumber(StringUtils.isEmpty(saasPaymentHistory.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentHistory.cardNumber(), 4))
+						.accountNumber(StringUtils.isEmpty(saasPaymentHistory.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentHistory.accountNumber(), 4))
+						.paymentType(ObjectUtils.isEmpty(saasPaymentHistory.accountNumber()) ? 1 : 2)
 						.build();
 			}
 			return null;

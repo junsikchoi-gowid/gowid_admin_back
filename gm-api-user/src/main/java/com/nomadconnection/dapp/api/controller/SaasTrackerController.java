@@ -146,11 +146,11 @@ public class SaasTrackerController {
 	public ResponseEntity getUsageCategoriesDetails(@ApiIgnore @CurrentUser CustomUser user,
 											        @RequestParam(required = true) String fromDt,
 											        @RequestParam(required = true) String toDt,
-													@RequestParam(required = true) Long idxSaasCategoty) {
+													@RequestParam(required = true) Long idxSaasCategory) {
 		if (log.isInfoEnabled()) {
 			log.info("([ getUsageCategoriesDetails ])");
 		}
-		return service.getUsageCategoriesDetails(user.idx(), idxSaasCategoty, fromDt, toDt);
+		return service.getUsageCategoriesDetails(user.idx(), idxSaasCategory, fromDt, toDt);
 	}
 
 	@ApiOperation("카테고리 별 사용 SaaS 항목 조회")

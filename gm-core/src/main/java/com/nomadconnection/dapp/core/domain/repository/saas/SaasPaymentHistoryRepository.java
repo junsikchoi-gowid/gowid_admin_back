@@ -58,6 +58,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
      * @return 해당 월 SaaS 결제 금액 목록
      */
     @Query(value = "select info.name as name, \n" +
+                   "       info.idx as idxSaasInfo, \n" +
                    "       hist.paymentPrice as price \n" +
                    "from SaasPaymentHistory hist\n" +
                    "join SaasInfo info\n" +
@@ -71,10 +72,11 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
 
     public static interface UsageSumsDetailsDto {
         String getName();
+        Long getIdxSaasInfo();
         Long getPrice();
     }
 
-    List<SaasPaymentHistory> findAllByUserAndPaymentDateBetween(User user, String startDate, String endDate);
+    List<SaasPaymentHistory> findAllByUserAndPaymentDateBetweenOrderByPaymentDateDesc(User user, String startDate, String endDate);
 
     /**
      *
@@ -126,7 +128,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
     }
 
     @Query(value = "SELECT \n" +
-                    "    info.name, SUM(hist.paymentPrice) as price \n" +
+                    "    info.idx idxSaasInfo, info.name, SUM(hist.paymentPrice) as price \n" +
                     "FROM\n" +
                     "    SaasPaymentHistory hist\n" +
                     "        JOIN\n" +
@@ -210,7 +212,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                     "        LEFT JOIN\n" +
                     "    SaasInfo info ON pi.idxSaasInfo = info.idx\n" +
                     "GROUP BY pi.idxSaasInfo\n" +
-                    "HAVING count >= 2\n" +
+                    "HAVING count >= 3\n" +
                     "ORDER BY count DESC\n" +
                     "LIMIT 5", nativeQuery = true)
     List<DuplicatePaymentDto> getDuplicatePaymentList(@Param("idxUser") Long idxUser);
@@ -219,4 +221,17 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
         String getName();
         Integer getCount();
     }
+
+    @Query(value = "SELECT \n" +
+                    "    *\n" +
+                    "FROM\n" +
+                    "    SaasPaymentHistory\n" +
+                    "WHERE\n" +
+                    "    idxUser = :idxUser \n" +
+                    "GROUP BY idxSaasInfo\n" +
+                    "HAVING paymentDate = MIN(paymentDate)\n" +
+                    "ORDER BY paymentDate DESC\n" +
+                    "LIMIT 5;", nativeQuery = true)
+    List<SaasPaymentHistory> findTop5ByUserIsNew(@Param("idxUser") Long idxUser);
+
 }

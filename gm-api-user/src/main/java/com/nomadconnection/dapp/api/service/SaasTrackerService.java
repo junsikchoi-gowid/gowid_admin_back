@@ -182,7 +182,7 @@ public class SaasTrackerService {
 
 		try {
 			List<SaasTrackerDto.UsageRes> usageList =
-					repoSaasPaymentHistory.findAllByUserAndPaymentDateBetween(user, searchDt + "01", searchDt + "31")
+					repoSaasPaymentHistory.findAllByUserAndPaymentDateBetweenOrderByPaymentDateDesc(user, searchDt + "01", searchDt + "31")
 					.stream().map(SaasTrackerDto.UsageRes::from).collect(Collectors.toList());
 
 			return ResponseEntity.ok().body(
@@ -280,7 +280,7 @@ public class SaasTrackerService {
 
 		try {
 			List<SaasTrackerDto.UseSaasRes> useSaasRes =
-					repoSaasPaymentInfo.findAllByUser(user).stream()
+					repoSaasPaymentInfo.findAllPaymentInfoByUser(user.idx()).stream()
 							.map(SaasTrackerDto.UseSaasRes::from)
 							.collect(Collectors.toList());
 
@@ -305,8 +305,8 @@ public class SaasTrackerService {
 			SaasInfo saasInfo = findSaasInfo(idxSaasInfo);
 
 			repoSaasPaymentInfo.findAllByUserAndSaasInfo(user, saasInfo).forEach(paymentInfo -> {
-				if(!ObjectUtils.isEmpty(dto.getManagerName())) paymentInfo.saasPaymentManageInfo().managerName(dto.getManagerName());
-				if(!ObjectUtils.isEmpty(dto.getManagerEmail())) paymentInfo.saasPaymentManageInfo().managerEmail(dto.getManagerEmail());
+				if(!StringUtils.isEmpty(dto.getManagerName())) paymentInfo.saasPaymentManageInfo().managerName(dto.getManagerName());
+				if(!StringUtils.isEmpty(dto.getManagerEmail())) paymentInfo.saasPaymentManageInfo().managerEmail(dto.getManagerEmail());
 				if(!ObjectUtils.isEmpty(dto.getActiveSubscription())) paymentInfo.activeSubscription(dto.getActiveSubscription());
 				if(!ObjectUtils.isEmpty(dto.getActiveAlert())) paymentInfo.saasPaymentManageInfo().activeAlert(dto.getActiveAlert());
 			});
@@ -333,14 +333,23 @@ public class SaasTrackerService {
 		User user = userService.getUser(userIdx);
 
 		try {
-			List<SaasTrackerDto.SaasPaymentScheduleAtCalendarRes> saasPaymentScheduleRes =
+
+			List<SaasTrackerDto.SaasPaymentScheduleAtCalendarListRes> calendarRes =
 					repoSaasPaymentInfo.findAllByUserAndActiveSubscriptionIsTrue(user).stream()
-							.map(SaasTrackerDto.SaasPaymentScheduleAtCalendarRes::from).filter(p -> !StringUtils.isEmpty(p.getPaymentDate()))
+							.map(SaasTrackerDto.SaasPaymentScheduleAtCalendarListRes::from).filter(p -> !StringUtils.isEmpty(p.getPaymentDate()))
 							.collect(Collectors.toList());
+
+			List<SaasTrackerDto.SaasPaymentScheduleAtCalendarListRes> scheduleRes =
+					repoSaasPaymentInfo.findAllByUserScheduleList(user.idx()).stream()
+							.map(SaasTrackerDto.SaasPaymentScheduleAtCalendarListRes::from).collect(Collectors.toList());
+
+			SaasTrackerDto.SaasPaymentScheduleAtCalendarRes saasPaymentSchedulesAtCalendarRes = new SaasTrackerDto.SaasPaymentScheduleAtCalendarRes();
+			saasPaymentSchedulesAtCalendarRes.setCalendarList(calendarRes);
+			saasPaymentSchedulesAtCalendarRes.setScheduleList(scheduleRes);
 
 			log.info(">>>>> getSaasPaymentSchedulesAtCalendar.complete");
 			return ResponseEntity.ok().body(
-					BusinessResponse.builder().data(saasPaymentScheduleRes).build()
+					BusinessResponse.builder().data(saasPaymentSchedulesAtCalendarRes).build()
 			);
 		}catch(Exception e) {
 			log.error(e.getMessage(), e);
@@ -393,30 +402,28 @@ public class SaasTrackerService {
 
 		// 1. SsssPaymentInfo에서 UserIdx, SaaSInfoIdx로 해당하는 데이터 조회
 		User user = userService.getUser(userIdx);
-		SaasInfo sassInfo = findSaasInfo(saasInfoIdx);
-		List<SaasPaymentInfo> saasPaymentInfos = repoSaasPaymentInfo.findAllByUserAndSaasInfo(user, sassInfo);
+		SaasInfo saasInfo = findSaasInfo(saasInfoIdx);
+		List<SaasPaymentInfo> saasPaymentInfos = repoSaasPaymentInfo.findAllByUserAndSaasInfo(user, saasInfo);
 
 		try {
 
 			// 2. 1에서 조회한 데이터로 기본 정보 및 결제 수단 목록까지 세팅
 			boolean hasSaasPaymentMangeInfo = !ObjectUtils.isEmpty(saasPaymentInfos.get(0).saasPaymentManageInfo());
 			SaasTrackerDto.SaasPaymentDetailInfoRes saasPaymentDetailInfoRes = new SaasTrackerDto.SaasPaymentDetailInfoRes();
-			saasPaymentDetailInfoRes.setSaasName(sassInfo.name());
+			saasPaymentDetailInfoRes.setIdxSaasInfo(saasInfo.idx());
+			saasPaymentDetailInfoRes.setSaasName(saasInfo.name());
 			saasPaymentDetailInfoRes.setManagerName(hasSaasPaymentMangeInfo ? saasPaymentInfos.get(0).saasPaymentManageInfo().managerName() : null);
 			saasPaymentDetailInfoRes.setManagerEmail(hasSaasPaymentMangeInfo? saasPaymentInfos.get(0).saasPaymentManageInfo().managerEmail() : null);
 			saasPaymentDetailInfoRes.setActiveAlert(hasSaasPaymentMangeInfo ? saasPaymentInfos.get(0).saasPaymentManageInfo().activeAlert() : null);
 			saasPaymentDetailInfoRes.setSaasPaymentInfos(saasPaymentInfos.stream().map(SaasTrackerDto.SaasPaymentInfoRes::from).collect(Collectors.toList()));
 
 			// 3. 결제 내역은 saasPaymentHistory에서 useridx, saasInfoIdx로 조회
-			saasPaymentDetailInfoRes.setSaasPaymentHistories(repoSaasPaymentHistory.findAllByUserAndSaasInfoOrderByPaymentDateDesc(user, sassInfo).stream().map(SaasTrackerDto.SaasPaymentHistoryRes::from).collect(Collectors.toList()));
+			saasPaymentDetailInfoRes.setSaasPaymentHistories(repoSaasPaymentHistory.findAllByUserAndSaasInfoOrderByPaymentDateDesc(user, saasInfo).stream().map(SaasTrackerDto.SaasPaymentHistoryRes::from).collect(Collectors.toList()));
 
-			// 4. 차트 목록은 결제 종류가 월결제 일때만 조회하며, saasPaymentHistory에서 userIdx, saasInfoIdx로 통계
-			if(isMonthlyUse(saasPaymentInfos)) {
-				String toDt = CommonUtil.getNowYYYYMM();
-				String fromDt = CommonUtil.addMonths(toDt, -5);
-
-				saasPaymentDetailInfoRes.setListOfSums(repoSaasPaymentHistory.getUsageSumsBySaasInfoIdx(userIdx, saasInfoIdx, fromDt + "01", toDt + "31"));
-			}
+			// 4. 6개월 추이 차트 조회(saasPaymentHistory에서 userIdx, saasInfoIdx로 통계)
+			String toDt = CommonUtil.getNowYYYYMM();
+			String fromDt = CommonUtil.addMonths(toDt, -5);
+			saasPaymentDetailInfoRes.setListOfSums(repoSaasPaymentHistory.getUsageSumsBySaasInfoIdx(userIdx, saasInfoIdx, fromDt + "01", toDt + "31"));
 
 			log.info(">>>>> getSaasPaymentDetailInfo.complete");
 			return ResponseEntity.ok().body(
@@ -440,7 +447,7 @@ public class SaasTrackerService {
 		try {
 
 			// 1. 새로운 SaaS
-			insightsRes.setNewSaasList(repoSaasPaymentInfo.findTop5ByUserAndIsNewTrueOrderByCurrentPaymentDateDesc(user).stream().map(SaasTrackerDto.SaasPaymentInfoRes::from).collect(Collectors.toList()));
+			insightsRes.setNewSaasList(repoSaasPaymentHistory.findTop5ByUserIsNew(user.idx()).stream().map(SaasTrackerDto.SaasNewTop5Res::from).collect(Collectors.toList()));
 
 			// 2. 월결제 증가 SaaS
 			insightsRes.setBestPaymentTop5List(repoSaasPaymentHistory.getBestPaymentTop5(userIdx).stream().map(SaasTrackerDto.SaasMaxTop5Res::from).collect(Collectors.toList()));
