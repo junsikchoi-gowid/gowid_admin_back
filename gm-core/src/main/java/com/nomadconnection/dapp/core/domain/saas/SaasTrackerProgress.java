@@ -31,16 +31,24 @@ public class SaasTrackerProgress extends BaseTime {
     private String processDate;
 
     @Column
-    private Integer extractStatus;
+    private Long idxCurrentCardApprovalHist;
+
+    @Column
+    private Long idxCurrentAccountHist;
+
+    @Column
+    private String cardStatus;
 
     @Lob
-    private String extractErrMessage;
+    @Column(columnDefinition = "LONGTEXT COMMENT '카드 추출 에러 메세지'")
+    private String cardErrMsg;
 
     @Column
-    private Long currentExtractCardApprovalIdx;
+    private String accountStatus;
 
-    @Column
-    private Long currentExtractAccountHistoryIdx;
+    @Lob
+    @Column(columnDefinition = "LONGTEXT COMMENT '계좌 추출 에러 메세지'")
+    private String accountErrMsg;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idxUser", nullable = false, foreignKey = @ForeignKey(name = "FK_SaasTrackerProgress_User"))

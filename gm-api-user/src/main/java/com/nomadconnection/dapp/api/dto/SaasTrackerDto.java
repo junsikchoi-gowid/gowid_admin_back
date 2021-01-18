@@ -17,7 +17,6 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 public class SaasTrackerDto {
@@ -33,7 +32,7 @@ public class SaasTrackerDto {
 		private Integer reportType;
 
 		@ApiModelProperty("SaaS 이름")
-		private String sassName;
+		private String saasName;
 
 		@ApiModelProperty("결제 수단")
 		private Integer paymentMethod;
@@ -45,7 +44,6 @@ public class SaasTrackerDto {
 		private String issue;
 
 		@ApiModelProperty("무료 사용 만료일")
-		@Size(min = 8, max = 8, message = "날짜 형식은 년월일(YYYYMMDD)로 입력되어야 합니다.")
 		private String experationDate;
 
 		@ApiModelProperty("무료 사용 만료 알림")
@@ -176,6 +174,16 @@ public class SaasTrackerDto {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
+	public static class UseSaasListRes {
+		private List<UseSaasRes> subscriptionList;
+		private List<UseSaasRes> unsubscriptionList;
+	}
+
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class UseSaasRes {
 
 		@ApiModelProperty("SaaS ID")
@@ -192,6 +200,9 @@ public class SaasTrackerDto {
 
 		@ApiModelProperty("결제유형")
 		private Integer paymentType;
+
+		@ApiModelProperty("결제유형 목록")
+		private List<Integer> paymentTypeList;
 
 		@ApiModelProperty("알림여부")
 		private Boolean activeAlert;
@@ -222,7 +233,6 @@ public class SaasTrackerDto {
 						.currentPaymentDate(saasPaymentInfo.currentPaymentDate())
 						.currentPaymentPrice(saasPaymentInfo.currentPaymentPrice())
 						.paymentMethod(saasPaymentInfo.paymentMethod())
-						.paymentType(saasPaymentInfo.paymentType())
 						.activeAlert(hasSaasPaymentMangeInfo ? saasPaymentInfo.saasPaymentManageInfo().activeAlert() : null)
 						.activeSubscription(saasPaymentInfo.activeSubscription())
 						.managerName(hasSaasPaymentMangeInfo ? saasPaymentInfo.saasPaymentManageInfo().managerName() : null)
@@ -242,9 +252,8 @@ public class SaasTrackerDto {
 						.currentPaymentDate(subscriptSaasDto.getCurrentPaymentDate())
 						.currentPaymentPrice(subscriptSaasDto.getCurrentPaymentPrice())
 						.paymentMethod(subscriptSaasDto.getPaymentMethod())
-						.paymentType(subscriptSaasDto.getPaymentType())
-						.activeAlert(subscriptSaasDto.getActiveAlert() == 1 ? true : false)
-						.activeSubscription(subscriptSaasDto.getActiveAlert() == 1 ? true : false)
+						.activeAlert(subscriptSaasDto.getActiveAlert())
+						.activeSubscription(subscriptSaasDto.getActiveAlert())
 						.managerName(subscriptSaasDto.getManagerName())
 						.managerEmail(subscriptSaasDto.getManagerEmail())
 						.saasName(subscriptSaasDto.getSaasName())
@@ -277,6 +286,9 @@ public class SaasTrackerDto {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class SaasPaymentScheduleDetailRes {
+
+		@ApiModelProperty("SaaS Info ID")
+		private Long idxSaasInfo;
 
 		@ApiModelProperty("SaaS Payment Info ID")
 		private Long idxSaasPaymentInfo;
@@ -327,6 +339,7 @@ public class SaasTrackerDto {
 			if(saasPaymentInfo != null) {
 				boolean hasSaasPaymentMangeInfo = !ObjectUtils.isEmpty(saasPaymentInfo.saasPaymentManageInfo());
 				return SaasPaymentScheduleDetailRes.builder()
+						.idxSaasInfo(saasPaymentInfo.saasInfo().idx())
 						.idxSaasPaymentInfo(saasPaymentInfo.idx())
 						.saasName(saasPaymentInfo.saasInfo().name())
 						.saasImageName(saasPaymentInfo.saasInfo().imageName())
@@ -434,7 +447,7 @@ public class SaasTrackerDto {
 
 		@ApiModelProperty("SaaS ID")
 		private Long idxSaasInfo;
-		
+
 		@ApiModelProperty("SaaS 이름")
 		private String saasName;
 
@@ -446,6 +459,9 @@ public class SaasTrackerDto {
 
 		@ApiModelProperty("알림 여부")
 		private Boolean activeAlert;
+
+		@ApiModelProperty("구독 여부")
+		private Boolean activeSubscription;
 
 		@ApiModelProperty("결제 수단 목록")
 		private List<SaasPaymentInfoRes> saasPaymentInfos;
@@ -661,7 +677,7 @@ public class SaasTrackerDto {
 		}
 	}
 
-    @Data
+	@Data
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor

@@ -44,7 +44,7 @@ public class SaasTrackerService {
 		try {
 			SaasIssueReport report = SaasIssueReport.builder()
 					.reportType(dto.getReportType())
-					.saasName(dto.getSassName())
+					.saasName(dto.getSaasName())
 					.paymentMethod(dto.getPaymentMethod())
 					.paymentPrice(dto.getPaymentPrice())
 					.issue(dto.getIssue())
@@ -183,7 +183,7 @@ public class SaasTrackerService {
 		try {
 			List<SaasTrackerDto.UsageRes> usageList =
 					repoSaasPaymentHistory.findAllByUserAndPaymentDateBetweenOrderByPaymentDateDesc(user, searchDt + "01", searchDt + "31")
-					.stream().map(SaasTrackerDto.UsageRes::from).collect(Collectors.toList());
+							.stream().map(SaasTrackerDto.UsageRes::from).collect(Collectors.toList());
 
 			return ResponseEntity.ok().body(
 					BusinessResponse.builder().data(usageList).build());
@@ -279,10 +279,24 @@ public class SaasTrackerService {
 		User user = userService.getUser(userIdx);
 
 		try {
-			List<SaasTrackerDto.UseSaasRes> useSaasRes =
-					repoSaasPaymentInfo.findAllPaymentInfoByUser(user.idx()).stream()
-							.map(SaasTrackerDto.UseSaasRes::from)
-							.collect(Collectors.toList());
+
+			SaasTrackerDto.UseSaasListRes useSaasRes = new SaasTrackerDto.UseSaasListRes();
+
+			List<SaasTrackerDto.UseSaasRes> subscriptionList = new ArrayList<>();
+			for(SaasPaymentInfoRepository.SubscriptSaasDto dto : repoSaasPaymentInfo.findAllSubscriptionByUser(user.idx())) {
+				SaasTrackerDto.UseSaasRes res = SaasTrackerDto.UseSaasRes.from(dto);
+				res.setPaymentTypeList(repoSaasPaymentInfo.findPaymentType(userIdx, dto.getIdxSaasInfo(), true));
+				subscriptionList.add(res);
+			}
+			useSaasRes.setSubscriptionList(subscriptionList);
+
+			List<SaasTrackerDto.UseSaasRes> unsubscriptionList = new ArrayList<>();
+			for(SaasPaymentInfoRepository.SubscriptSaasDto dto : repoSaasPaymentInfo.findAllUnsubscriptionByUser(user.idx())) {
+				SaasTrackerDto.UseSaasRes res = SaasTrackerDto.UseSaasRes.from(dto);
+				res.setPaymentTypeList(repoSaasPaymentInfo.findPaymentType(userIdx, dto.getIdxSaasInfo(), false));
+				unsubscriptionList.add(res);
+			}
+			useSaasRes.setUnsubscriptionList(unsubscriptionList);
 
 			log.info(">>>>> getUseSaasList.complete");
 			return ResponseEntity.ok().body(
@@ -370,20 +384,20 @@ public class SaasTrackerService {
 
 			// 1. 정기 결제 목록
 			scheduleRes.setRegularList(paymentInfos.stream()
-													.map(SaasTrackerDto.SaasPaymentScheduleDetailRes::from)
-													.filter(p -> (p.getPaymentType() == 1 || p.getPaymentType() == 2))
-													.collect(Collectors.toList()));
+					.map(SaasTrackerDto.SaasPaymentScheduleDetailRes::from)
+					.filter(p -> (p.getPaymentType() == 1 || p.getPaymentType() == 2))
+					.collect(Collectors.toList()));
 			// 2. 비정기 결제 목록
 			scheduleRes.setIrregularList(paymentInfos.stream()
-													.map(SaasTrackerDto.SaasPaymentScheduleDetailRes::from)
-													.filter(p -> p.getPaymentType() == 4)
-													.collect(Collectors.toList()));
+					.map(SaasTrackerDto.SaasPaymentScheduleDetailRes::from)
+					.filter(p -> p.getPaymentType() == 4)
+					.collect(Collectors.toList()));
 
 			// 3. 미분류 목록
 			scheduleRes.setUnclassifiedList(paymentInfos.stream()
-													.map(SaasTrackerDto.SaasPaymentScheduleDetailRes::from)
-													.filter(p -> p.getPaymentType() == 0)
-													.collect(Collectors.toList()));
+					.map(SaasTrackerDto.SaasPaymentScheduleDetailRes::from)
+					.filter(p -> p.getPaymentType() == 0)
+					.collect(Collectors.toList()));
 
 			log.info(">>>>> getSaasPaymentSchedules.complete");
 			return ResponseEntity.ok().body(
@@ -412,6 +426,7 @@ public class SaasTrackerService {
 			SaasTrackerDto.SaasPaymentDetailInfoRes saasPaymentDetailInfoRes = new SaasTrackerDto.SaasPaymentDetailInfoRes();
 			saasPaymentDetailInfoRes.setIdxSaasInfo(saasInfo.idx());
 			saasPaymentDetailInfoRes.setSaasName(saasInfo.name());
+			saasPaymentDetailInfoRes.setActiveSubscription(repoSaasPaymentInfo.findSaasSubscriptionByUserAndSaasInfo(userIdx, saasInfoIdx) > 0 ? true : false);
 			saasPaymentDetailInfoRes.setManagerName(hasSaasPaymentMangeInfo ? saasPaymentInfos.get(0).saasPaymentManageInfo().managerName() : null);
 			saasPaymentDetailInfoRes.setManagerEmail(hasSaasPaymentMangeInfo? saasPaymentInfos.get(0).saasPaymentManageInfo().managerEmail() : null);
 			saasPaymentDetailInfoRes.setActiveAlert(hasSaasPaymentMangeInfo ? saasPaymentInfos.get(0).saasPaymentManageInfo().activeAlert() : null);
