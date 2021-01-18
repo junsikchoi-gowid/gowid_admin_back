@@ -18,7 +18,6 @@ import com.nomadconnection.dapp.core.domain.repository.res.ResBatchListRepositor
 import com.nomadconnection.dapp.core.domain.repository.res.ResBatchRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.res.ResBatch;
@@ -61,13 +60,6 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class BankService {
 
-	private final EmailConfig config;
-	private final ITemplateEngine templateEngine;
-
-	private final JwtService jwt;
-	private final JavaMailSenderImpl sender;
-
-	private final UserService serviceUser;
 	private final ScrapingService serviceScraping;
 
 	private final UserRepository repoUser;
@@ -78,43 +70,9 @@ public class BankService {
 	private final ResAccountRepository repoResAccount;
 	private final ResAccountHistoryRepository repoResAccountHistory;
 
-	private final ConnectedMngRepository repoConnectedMng;
 	private final ResBatchRepository repoResBatch;
 
 	private final PasswordEncoder encoder;
-	private final VerificationCodeRepository repoVerificationCode;
-
-	private final String urlPath = CommonConstant.getRequestDomain();
-	private ForkJoinPool forkJoinPool = new ForkJoinPool();
-
-	public ResponseEntity findConnectedIdList(ConnectedMngDto.ConnectedId dto, Long idx) {
-		return ResponseEntity.ok().body(BusinessResponse.builder().data(dto).build());
-	}
-
-	public ResponseEntity findAccountList(ConnectedMngDto.Account dto, Long idx) {
-		return ResponseEntity.ok().body(BusinessResponse.builder().data(dto).build());
-	}
-
-	@Transactional(rollbackFor = Exception.class)
-	public Long saveLog(String account) {
-		ResBatchList result = repoResBatchList.save(ResBatchList.builder().account(account).build());
-		return result.idx();
-	}
-
-
-	private JSONObject[] getApiResult(String str) throws ParseException {
-		JSONObject[] result = new JSONObject[2];
-
-		JSONParser jsonParse = new JSONParser();
-		JSONObject jsonObject = (JSONObject) jsonParse.parse(str);
-
-		result[0] = (JSONObject) jsonObject.get("result");
-		result[1] = (JSONObject) jsonObject.get("data");
-
-		return result;
-	}
-
-
 
 	/**
 	 * (기간별) 일별 입출금 잔고
@@ -337,11 +295,10 @@ public class BankService {
 
 	/**
 	 * 계좌 별명수정
-	 * @param idx 엔터티(사용자)
 	 * @param dto 보유정보
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity nickname(BankDto.Nickname dto, Long idx) {
+	public ResponseEntity nickname(BankDto.Nickname dto) {
 
 		ResAccount resAccount = repoResAccount.findById(dto.getIdxAccount()).orElseThrow(
 				() -> new RuntimeException("ACCOUNT NOT FOUND")
@@ -352,9 +309,7 @@ public class BankService {
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(dto).build());
 	}
 
-	public ResponseEntity checkAccount(Long idx) throws IOException, InterruptedException {
-		ObjectMapper mapper = new ObjectMapper();
-
+	public ResponseEntity checkAccount(Long idx) throws InterruptedException {
 		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idx);
 		if(returnData.size()>0 && Integer.valueOf(returnData.get(0).getMin()) < 3){
 			return ResponseEntity.ok().body(BusinessResponse.builder().normal(
@@ -367,8 +322,7 @@ public class BankService {
 		return refresh(idx, null);
 	}
 
-	public ResponseEntity checkAccountList(Long idx) throws IOException, InterruptedException {
-		ObjectMapper mapper = new ObjectMapper();
+	public ResponseEntity checkAccountList(Long idx) throws InterruptedException {
 
 		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idx);
 		if(returnData.size()>0 && Integer.valueOf(returnData.get(0).getMin()) < 3){
@@ -404,71 +358,6 @@ public class BankService {
 			}
 		}
 		return idxUser;
-	}
-
-
-	public static void sendREST(String sendUrl, String jsonValue) throws IllegalStateException {
-
-		String inputLine = null;
-
-		try{
-			URL url = new URL(sendUrl);
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setDoOutput(true);
-			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type", "application/json");
-			conn.setRequestProperty("Accept-Charset", "UTF-8");
-			conn.setConnectTimeout(1000);
-			conn.setReadTimeout(1000);
-			OutputStream os = conn.getOutputStream();
-			os.write(jsonValue.getBytes("UTF-8"));
-
-			os.flush();
-			try {
-				conn.getInputStream();
-			}catch (Exception e){}
-
-			conn.disconnect();
-			os.close();
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-
-	@Transactional(rollbackFor = Exception.class)
-	public List<ConnectedMng> getConnectedMng(Long idx) {
-		return repoConnectedMng.findByIdxUser(idx);
-	}
-
-
-	@Transactional(rollbackFor = Exception.class)
-	List<ResAccount> getFindByConnectedIdAndResAccountDepositIn(String connectedId, List<String> asList) {
-		return repoResAccount.findByConnectedIdAndResAccountDepositIn(connectedId, asList);
-	}
-
-	@Transactional(rollbackFor = Exception.class)
-	List<ConnectedMng> getFindByIdxUser(Long idx) {
-		return repoConnectedMng.findByIdxUser(idx);
-	}
-
-	@Transactional
-	public ResBatch startBatchLog(Long userIdx) {
-		return repoResBatch.save(ResBatch.builder()
-				.idxUser(userIdx)
-				.endFlag(false)
-				.build());
-	}
-
-	@Transactional
-	public void endBatchLog(Long idx) {
-		repoResBatch.findById(idx).ifPresent(resBatch -> {
-			repoResBatch.save(
-					ResBatch.builder()
-							.idx(idx)
-							.idxUser(resBatch.idxUser())
-							.endFlag(true)
-							.build());
-		});
 	}
 
 	public ResponseEntity monthInOutSum(BankDto.MonthInOutSum dto, Long idxUser, Long idxCorp) {

@@ -30,12 +30,10 @@ public class UserController {
 
 	public static class URI {
 		public static final String BASE = "/user/v1";
-		public static final String REGISTER = "/register";
 		public static final String REGISTRATION_USER = "/registration/user";
 		public static final String REGISTRATION_CORP = "/registration/corp";
 		public static final String REGISTRATION_INFO = "/registration/info";
 		public static final String REGISTRATION_PW = "/registrationpw/pw";
-		public static final String MEMBERS = "/members";
 		public static final String INFO = "/info";
 		public static final String REGISTRATION_CONSENT = "/registration/consent";
 		public static final String ISSUANCE_PROGRESS = "/issuance-progress";
@@ -55,36 +53,6 @@ public class UserController {
 	//
 	//==================================================================================================================
 
-	@Deprecated
-	@ApiOperation(value = "회원가입 - 법인관리자 등록", position = 3, notes = "" +
-			"\n ### Remarks" +
-			"\n" +
-			"\n - <mark>액세스토큰 불필요</mark>" +
-			"\n" +
-			"\n ### Errors" +
-			"\n" +
-			"\n - <s>401 UNAUTHORIZED: 권한없음(패스워드 불일치)</s>" +
-			"\n 	- <pre>{ \"error\": \"UNAUTHORIZED\", ... }</pre>" +
-			"\n" +
-			"\n - 404 NOT FOUND: 등록되지 않은 이메일" +
-			"\n 	- <pre>{ \"error\": \"USER_NOT_FOUND\", ... }</pre>" +
-			"\n" +
-			"\n")
-	@PostMapping(URI.REGISTER)
-	public TokenDto.TokenSet registerUser(
-			@RequestBody UserDto.UserRegister dto
-	) {
-		if (log.isInfoEnabled()) {
-			log.info("([ registerUser ]) $dto='{}'", dto);
-		}
-
-		service.registerUser(dto);
-		return serviceAuth.issueTokenSet(AccountDto.builder()
-				.email(dto.getEmail())
-				.password(dto.getPassword())
-				.build());
-	}
-
     @ApiOperation(value = "사용자정보 초기화")
     @DeleteMapping(URI.INIT_USER_INFO)
     public ResponseEntity<?> initUserInfo(
@@ -97,31 +65,6 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-	//==================================================================================================================
-	//
-	//	멤버 초대
-	//
-	//==================================================================================================================
-
-	@Deprecated
-	@ApiOperation(value = "멤버초대 - 카드사용자 등록", notes = "" +
-			"\n ### Remarks" +
-			"\n" +
-			"\n - <mark>사용자 테이블에 넣어야 할지, 별도 테이블에 넣어야할지 모호해서 일단 호출만 가능(무조건 200OK)한 상태로 되어 있음</mark>" +
-			"\n - 카드멤버는 패스워드 설정이 없는건지.. " +
-			"\n - 인증관련해서는 PIN 인증만 보이는데, 만료되지않는 토큰을 발급하고 PIN 인증시 해당 토큰을 사용하는 방식인가.." +
-			"\n")
-	@PostMapping(URI.MEMBERS)
-	public ResponseEntity<?> postMembers(
-			@ApiIgnore @CurrentUser CustomUser user,
-			@RequestBody UserDto.MemberRegister dto
-	) {
-		if (log.isInfoEnabled()) {
-			log.info("([ postMembers ]) $user='{}' $dto='{}'", user, dto);
-		}
-		service.inviteMember(user.idx(), dto);
-		return ResponseEntity.ok().build();
-	}
 
 	//==================================================================================================================
 	//

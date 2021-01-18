@@ -14,11 +14,9 @@ import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.user.Authority;
 import com.nomadconnection.dapp.core.domain.user.User;
-import com.nomadconnection.dapp.core.domain.user.VerificationCode;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import com.nomadconnection.dapp.jwt.exception.UnacceptableJwtException;
 import com.nomadconnection.dapp.jwt.service.JwtService;
@@ -60,7 +58,6 @@ public class AuthService {
 	private final UserRepository repoUser;
 	private final ConnectedMngRepository repoConnectedMng;
 	private final PasswordEncoder encoder;
-	private final VerificationCodeRepository repoVerificationCode;
 	private final CardIssuanceInfoRepository repoCardIssuance;
 	private final IssuanceProgressRepository issuanceProgressRepository;
 
@@ -80,26 +77,6 @@ public class AuthService {
 				.email(account)
 				.build()
 		);
-	}
-
-	/**
-	 * 인증번호(4 digits) 확인
-	 * <p>
-	 * - 확인에 성공하더라도 인증번호를 삭제하지 않음
-	 *
-	 * @param key  연락처(폰) or 메일주소
-	 * @param code 인증번호(4 digits)
-	 * @return 존재여부
-	 */
-	@Transactional(rollbackFor = Exception.class)
-	public boolean checkVerificationCode(String key, String code, boolean boolDelete) {
-		if (!repoVerificationCode.findByVerificationKeyAndCode(key, code).isPresent()) {
-			return false;
-		}
-		if (boolDelete) {
-			repoVerificationCode.deleteById(key);
-		}
-		return true;
 	}
 
 	/**
@@ -304,52 +281,6 @@ public class AuthService {
 				.progress(issuanceProgress.getProgress())
 				.status(issuanceProgress.getStatus())
 				.build();
-	}
-
-	/**
-	 * 인증코드(4 digits) 발송(이메일)
-	 *
-	 * @param email 수신메일주소
-	 * @return true if succeeded, otherwise false
-	 */
-	@Transactional(rollbackFor = Exception.class)
-	public boolean sendVerificationCode(String email, String type) {
-		String code = String.format("%04d", new Random().nextInt(10000));
-		try {
-			repoVerificationCode.save(VerificationCode.builder()
-					.verificationKey(email)
-					.code(code)
-					.build());
-		} catch (Exception e) {
-			if (log.isErrorEnabled()) {
-				log.error("([ sendVerificationCode ]) REPOSITORY.SAVE ERROR, $email='{}'", email, e);
-			}
-			return false;
-		}
-		MimeMessagePreparator preparator = mimeMessage -> {
-			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
-			{
-				Context context = new Context();
-				{
-					context.setVariable("verification_code", code);
-				}
-				helper.setFrom(config.getSender());
-				helper.setTo(email);
-
-				if(VerifyCode.REGISTER.getCode().equals(type)){
-					helper.setSubject("[Gowid] 회원가입 이메일 인증번호");
-					helper.setText(templateEngine.process("signup", context), true);
-				}else if(VerifyCode.PASSWORD_RESET.getCode().equals(type)){
-					helper.setSubject("[Gowid] 비밀번호 재설정 이메일 인증번호");
-					helper.setText(templateEngine.process("password-init", context), true);
-				}else{
-					helper.setSubject("[Gowid] 이메일 인증번호");
-					helper.setText(templateEngine.process("mail-template", context), true);
-				}
-			}
-		};
-		sender.send(preparator);
-		return true;
 	}
 
 }

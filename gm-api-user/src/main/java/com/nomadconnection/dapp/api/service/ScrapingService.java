@@ -15,7 +15,6 @@ import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResBatchListRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResBatchRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
 import com.nomadconnection.dapp.core.domain.res.*;
 import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -40,14 +39,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @SuppressWarnings("unused")
 public class ScrapingService {
-
 
     private final EmailConfig config;
     private final ITemplateEngine templateEngine;
@@ -61,7 +58,6 @@ public class ScrapingService {
     private final ConnectedMngRepository repoConnectedMng;
     private final RiskService serviceRisk;
     private final PasswordEncoder encoder;
-    private final VerificationCodeRepository repoVerificationCode;
 
     private final String urlPath = CommonConstant.getRequestDomain();
 

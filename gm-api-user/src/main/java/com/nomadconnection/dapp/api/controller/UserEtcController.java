@@ -27,7 +27,6 @@ public class UserEtcController {
         public static final String ACCOUNT = "/account";
         public static final String COMPANYCARD = "/companycard";
         public static final String USERDELETE = "/userdelete";
-        public static final String USERPASSWORDCHANGE_PRE = "/password/pre";
         public static final String USERPASSWORDCHANGE_AFTER = "/password/after";
         public static final String RECEPTION = "/reception";
     }
@@ -59,20 +58,6 @@ public class UserEtcController {
             log.info("([ getAccount ]) $dto.account.find='{}'", dto);
         }
         return service.companyCard(dto, user.idx());
-    }
-
-    @Deprecated
-    @ApiOperation(value = "비밀번호 변경 - 로그인전", notes = "" +
-            "\n ### Remarks" +
-            "\n 로그인후 인증번호 삭제됨" +
-            "\n")
-    @PostMapping(URI.USERPASSWORDCHANGE_PRE)
-    public ResponseEntity passwordPre(
-            @RequestBody BrandDto.PasswordPre dto) {
-        if (log.isInfoEnabled()) {
-            log.info("([ passwordPre ]) $dto={}", dto);
-        }
-        return service.passwordAuthPre(dto.getEmail(), dto.getCode(), dto.getPassword());
     }
 
     @Deprecated

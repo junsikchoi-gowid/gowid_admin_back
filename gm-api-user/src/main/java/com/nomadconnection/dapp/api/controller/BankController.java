@@ -130,7 +130,7 @@ public class BankController {
 		if (log.isInfoEnabled()) {
 			log.info("([ Nickname ]) $user='{}' $dto='{}'", user, dto);
 		}
-		return service.nickname(dto, user.idx());
+		return service.nickname(dto);
 	}
 
 	@ApiOperation(value = "계좌 + 거래내역 스크래핑", notes = "" + "\n")

@@ -26,7 +26,6 @@ import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.repository.user.VerificationCodeRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.user.*;
@@ -64,7 +63,6 @@ public class UserService {
 	private final JavaMailSenderImpl sender;
 	private final PasswordEncoder encoder;
 	private final ReceptionRepository receptionRepository;
-	private final VerificationCodeRepository repoVerificationCode;
 	private final ITemplateEngine templateEngine;
 	private final AuthorityRepository repoAuthority;
 	private final UserRepository repo;
@@ -134,112 +132,6 @@ public class UserService {
 
 	public UserDto getUserInfo(Long idxUser) {
 		return UserDto.from(getUser(idxUser));
-	}
-
-	/**
-	 * 사용자 등록
-	 *
-	 * - 인증코드가 설정되어 있는 경우, 초대된 멤버의 가입으로 처리
-	 *
-	 * @param dto 등록정보
-	 */
-	@Transactional(rollbackFor = Exception.class)
-	public void registerUser(UserDto.UserRegister dto) {
-		//	이메일 중복 체크
-
-		if (isPresentEmail(dto.getEmail())) {
-			throw AlreadyExistException.builder()
-					.category("email")
-					.resource(dto.getEmail())
-					.build();
-		}
-		if (dto.getVerificationCode() == null) {
-			//
-			//	마스터 등록
-			//
-			repo.save(User.builder()
-					.consent(dto.isConsent())
-					.email(dto.getEmail())
-					.password(encoder.encode(dto.getPassword()))
-					.name(dto.getName())
-					.mdn(dto.getMdn())
-					.authentication(new Authentication())
-					.authorities(Collections.singleton(
-							repoAuthority.findByRole(Role.ROLE_MASTER).orElseThrow(
-									() -> new RuntimeException("ROLE_MASTER NOT FOUND")
-							)))
-					.build());
-		} else {
-			//
-			//	어드민, 멤버 등록
-			//
-			repoVerificationCode.findByVerificationKeyAndCode(dto.getEmail(), dto.getVerificationCode()).orElseThrow(
-					() -> VerificationCodeMismatchedException.builder()
-							.code(dto.getVerificationCode())
-							.build()
-			);
-			User user = findByEmail(dto.getEmail());
-			user.password(encoder.encode(dto.getPassword()));
-			user.name(dto.getName());
-			user.mdn(dto.getMdn());
-			user.authentication().setEnabled(true);
-		}
-	}
-
-	/**
-	 * 사용자(카드멤버) 초대
-	 *
-	 * - 사용자(어드민: 마스터에 의해 초대) 등록
-	 * - 사용자(멤버: 마스터에 의해 초대) 등록
-	 *
-	 * @param idxUser 식별자(사용자)
-	 * @param dto 멤버 정보 - 이름, 이메일, 권한(관리자/일반사용자), 부서(식별자), 월한도
-	 */
-	@Transactional(rollbackFor = Exception.class)
-	public void inviteMember(Long idxUser, UserDto.MemberRegister dto) {
-		//	사용자 조회
-		User user = getUser(idxUser);
-		//	법인 미등록 상태
-		if (user.corp() == null) {
-			throw CorpNotRegisteredException.builder()
-					.account(user.email())
-					.build();
-		}
-		//	마스터 권한으로 초대
-		if (MemberAuthority.MASTER.equals(dto.getAuthority())) {
-			throw NotAllowedMemberAuthorityException.builder()
-					.account(dto.getEmail())
-					.authority(dto.getAuthority())
-					.build();
-		}
-		//	권한
-		Authority authority = repoAuthority.findByRole(MemberAuthority.ADMIN.equals(dto.getAuthority()) ? Role.ROLE_ADMIN : Role.ROLE_MEMBER).orElseThrow(
-				() -> new RuntimeException("ROLE_ADMIN or ROLE_MEMBER NOT FOUND")
-		);
-		//	멤버 초대
-		repo.save(User.builder()
-				.email(dto.getEmail())
-				.name(dto.getName())
-				.corp(user.corp())
-				.authentication(new Authentication().setEnabled(false))
-				.authorities(Collections.singleton(authority))
-				.creditLimit(dto.getCreditLimit())
-				.build());
-		//	인증코드 등록
-		String code = String.format("%04d", new Random().nextInt(10000));
-		repoVerificationCode.save(VerificationCode.builder()
-				.verificationKey(dto.getEmail())
-				.code(code)
-				.build());
-		//	메일 발송
-		MimeMessagePreparator preparator = mimeMessage -> {
-			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
-			helper.setFrom(config.getSender());
-			helper.setTo(dto.getEmail());
-			helper.setSubject("[Gowid] 멤버초대");
-			helper.setText("Email: " + dto.getEmail() + ", VerificationCode: " + code, false);
-		};
-		sender.send(preparator);
 	}
 
 	/**
@@ -561,30 +453,6 @@ public class UserService {
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(BusinessResponse.Normal.builder()
 						.build())
-				.build());
-	}
-
-	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity<?> passwordAuthPre(String email, String value, String password) {
-
-		if(repoVerificationCode.findByVerificationKeyAndCode(email, value).isPresent()){
-			User user = findByEmail(email);
-
-			repoVerificationCode.deleteById(email);
-
-			log.info("[passwordAuthPre] user={} pass={}" , user.email(), encoder.encode(password));
-			user.password(encoder.encode(password));
-			repo.save(user);
-		}else{
-			log.error("[passwordAuthPre] verificaition error. user={}", email);
-			return ResponseEntity.ok().body(BusinessResponse.builder()
-					.normal(BusinessResponse.Normal.builder()
-							.status(false).value("비밀번호 or Email 이 맞지않음").build())
-					.build());
-		}
-
-		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.normal(BusinessResponse.Normal.builder().build())
 				.build());
 	}
 

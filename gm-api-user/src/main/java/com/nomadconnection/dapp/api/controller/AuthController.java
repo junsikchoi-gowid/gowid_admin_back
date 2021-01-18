@@ -37,9 +37,6 @@ public class AuthController {
     public static class URI {
         public static final String BASE = "/auth/v1";
         public static final String EXISTS = "/exists";
-        public static final String VERIFICATION_CODE = "/verificationCode";
-        public static final String SEND_VERIFICATION_CODE = "/sendVerificationCode";
-        public static final String CHECK_VERIFICATION_CODE = "/checkVerificationCode";
         public static final String ACCOUNT = "/account";
         public static final String PASSWORD_RESET_EMAIL = "/passwordResetEmail";
         public static final String TOKEN_ISSUE = "/token/issue";
@@ -77,94 +74,6 @@ public class AuthController {
                         .value("notFound")
                         .build()).build()
             );
-        }
-        return ResponseEntity.ok().body(
-                BusinessResponse.builder().build()
-        );
-    }
-
-    //==================================================================================================================
-    //
-    //	인증코드(4 digits, EMAIL) 발송 요청
-    //
-    //==================================================================================================================
-
-    @Deprecated
-    @ApiOperation(value = "인증코드(4 digits, EMAIL) 발송 요청", notes = "" +
-            "\n ### Remarks" +
-            "\n" +
-            "\n - <mark>액세스토큰 불필요</mark>" +
-            "\n - 인증메일 발송 실패: <mark>500(INTERNAL SERVER ERROR)</mark>" +
-            "\n")
-    @GetMapping(URI.SEND_VERIFICATION_CODE)
-    public ResponseEntity<?> sendVerificationCode(@Email(message = "잘못된 이메일 형식입니다.") @RequestParam String email,
-                                                  @RequestParam String type) {
-        if (log.isInfoEnabled()) {
-            log.info("([ sendVerificationCode ]) $email='{}' $type='{}'", email, type);
-        }
-        try {
-            if (!service.isPresent(email) && VerifyCode.PASSWORD_RESET.equals(type)) {
-                return ResponseEntity.ok().body(
-                    BusinessResponse.builder()
-                        .normal(BusinessResponse.Normal.builder()
-                            .status(false)
-                            .value("notFound")
-                            .build()).build());
-            }
-            if (!service.sendVerificationCode(email, type)) {
-                return ResponseEntity.ok().body(BusinessResponse.builder().normal(
-                        BusinessResponse.Normal.builder()
-                                .status(false)
-                                .value(HttpStatus.INTERNAL_SERVER_ERROR.toString())
-                                .build()).build());
-            }
-        } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error("([ sendVerificationCode ]) FAILED TO SEND VERIFICATION CODE, $email='{}' $exception='{} => {}'",
-                        email,
-                        e.getClass().getSimpleName(), e.getMessage(), e);
-            }
-            return ResponseEntity.ok().body(BusinessResponse.builder().normal(
-                    BusinessResponse.Normal.builder()
-                            .status(false)
-                            .value(HttpStatus.INTERNAL_SERVER_ERROR.toString())
-                            .build()
-            ).build());
-        }
-        return ResponseEntity.ok().body(BusinessResponse.builder().build());
-    }
-
-    //==================================================================================================================
-    //
-    //	인증코드(4 digits, SMS/EMAIL) 확인
-    //
-    //==================================================================================================================
-
-    @Deprecated
-    @ApiOperation(value = "인증코드(4 digits, EMAIL) 확인", notes = "" +
-            "\n ### Remarks" +
-            "\n" +
-            "\n - <mark>액세스토큰 불필요</mark>" +
-            "\n - 현재는 인증코드의 만료시간이 없음" +
-            "\n - 확인에 성공하는 경우, 인증코드 삭제됨" +
-            "\n - 확인성공: 200 OK" +
-            "\n - <s>확인실패: 400 BAD REQUEST</s>" +
-            "\n - code 인증번호(4 digits)" +
-            "\n - key 연락처(폰) or 메일주소" +
-            "\n ### Errors" +
-            "\n" +
-            "\n - 200 OK: " +
-            "\n 	- <pre>{ \"error\": \"MISMATCHED_VERIFICATION_CODE\" }</pre>" +
-            "\n"
-    )
-    @GetMapping(URI.CHECK_VERIFICATION_CODE)
-    public ResponseEntity<?> checkVerificationCode(@RequestParam String key, @RequestParam String code, @RequestParam Boolean deleteFlag) {
-        if (log.isInfoEnabled()) {
-            log.info("([ checkVerificationCode ]) $key='{}' $code='{}'", key, code);
-        }
-        if (!service.checkVerificationCode(key, code, deleteFlag)) {
-            return ResponseEntity.ok()
-                    .body(ErrorResponse.from(ErrorCode.Mismatched.MISMATCHED_VERIFICATION_CODE));
         }
         return ResponseEntity.ok().body(
                 BusinessResponse.builder().build()
