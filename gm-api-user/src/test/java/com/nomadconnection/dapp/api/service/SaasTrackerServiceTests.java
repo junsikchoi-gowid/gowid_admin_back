@@ -35,7 +35,7 @@ class SaasTrackerServiceTests extends AbstractSpringBootTest {
 
 		SaasTrackerDto.SaasTrackerReportsReq dto = new SaasTrackerDto.SaasTrackerReportsReq();
 		dto.setReportType(1);
-		dto.setSassName("Test SaaS");
+		dto.setSaasName("Test SaaS");
 		dto.setPaymentMethod(1);
 		dto.setPaymentPrice(10000000L);
 		dto.setIssue("이것은 저러하고, 이것은 요러하다!");

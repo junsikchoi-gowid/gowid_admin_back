@@ -253,7 +253,7 @@ public class SaasTrackerDto {
 						.currentPaymentPrice(subscriptSaasDto.getCurrentPaymentPrice())
 						.paymentMethod(subscriptSaasDto.getPaymentMethod())
 						.activeAlert(subscriptSaasDto.getActiveAlert())
-						.activeSubscription(subscriptSaasDto.getActiveAlert())
+						.activeSubscription(subscriptSaasDto.getActiveSubscription())
 						.managerName(subscriptSaasDto.getManagerName())
 						.managerEmail(subscriptSaasDto.getManagerEmail())
 						.saasName(subscriptSaasDto.getSaasName())

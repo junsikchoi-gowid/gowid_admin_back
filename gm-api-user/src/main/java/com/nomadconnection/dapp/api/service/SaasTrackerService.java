@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -130,20 +131,18 @@ public class SaasTrackerService {
 			List<SaasTrackerDto.UsageSumsRes> usageSumsRes = new ArrayList<>();
 			List<SaasPaymentHistoryRepository.UsageSumsDto> usageSums =
 					repoSaasPaymentHistory.getUsageSums(userIdx, fromDt + "01", toDt + "31");
+			Map<String, Long> usageSumsMap = usageSums.stream().collect(Collectors.toMap(SaasPaymentHistoryRepository.UsageSumsDto::getPDate, SaasPaymentHistoryRepository.UsageSumsDto::getPSum));
 
 			long tempPrevPSum = 0L;
-			for(int i = 0; i < usageSums.size(); i++) {
-
+			toDt = CommonUtil.addMonths(toDt, 1);
+			while(!fromDt.equals(toDt)) {
 				SaasTrackerDto.UsageSumsRes tempUsageSum = new SaasTrackerDto.UsageSumsRes();
-				SaasPaymentHistoryRepository.UsageSumsDto usageSum = usageSums.get(i);
-				tempUsageSum.setPdate(usageSum.getPDate());
-				tempUsageSum.setPsum(usageSum.getPSum());
-				tempUsageSum.setMom(i == 0 ? "-" : String.format("%.2f", ((double)(tempUsageSum.getPsum() - tempPrevPSum) / tempPrevPSum * 100)) + "%");
-
-				tempPrevPSum = tempUsageSum.getPsum();
+				tempUsageSum.setPdate(fromDt);
+				tempUsageSum.setPsum(ObjectUtils.isEmpty(usageSumsMap.get(fromDt)) ? 0 : usageSumsMap.get(fromDt));
 				usageSumsRes.add(tempUsageSum);
-			}
 
+				fromDt = CommonUtil.addMonths(fromDt, 1);
+			}
 			log.info(">>>>> getUsageSums.complete");
 
 			return ResponseEntity.ok().body(
