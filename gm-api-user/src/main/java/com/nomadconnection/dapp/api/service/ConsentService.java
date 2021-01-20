@@ -129,6 +129,10 @@ public class ConsentService {
         );
 
         user.cardCompany(dto.getCompanyCode());
+        // 초기화된 유저인 경우
+        if (user.isReset()) {
+            user.isReset(false);
+        }
         repoUser.save(user);
 
         // 이용약관 매핑

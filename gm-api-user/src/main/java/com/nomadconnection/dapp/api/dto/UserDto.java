@@ -25,12 +25,16 @@ public class UserDto {
 	@ApiModelProperty("연락처(폰)")
 	private String mdn;
 
+	@ApiModelProperty("초기화여부")
+	private boolean isReset;
+
 	@Builder
-	public UserDto(boolean consent, String email, String name, String mdn) {
+	public UserDto(boolean consent, String email, String name, String mdn, boolean isReset) {
 		this.consent = consent;
 		this.email = email;
 		this.name = name;
 		this.mdn = mdn;
+		this.isReset = isReset;
 	}
 
 	public static UserDto from(User user) {
@@ -39,6 +43,7 @@ public class UserDto {
 				.email(user.email())
 				.name(user.name())
 				.mdn(user.mdn())
+				.isReset(user.isReset())
 				.build();
 	}
 

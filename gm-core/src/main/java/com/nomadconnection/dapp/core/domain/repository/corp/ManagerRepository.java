@@ -9,6 +9,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Repository
 public interface ManagerRepository extends JpaRepository<ManagerInfo, Long> {
     ManagerInfo getByCardIssuanceInfo(CardIssuanceInfo cardIssuanceInfo);
@@ -16,6 +18,6 @@ public interface ManagerRepository extends JpaRepository<ManagerInfo, Long> {
     @Transactional
     @Modifying
     @Query("delete from ManagerInfo where idxCardIssuanceInfo in :idxCardIssuanceInfo")
-    void deleteAllByCardIssuanceInfoIdx(@Param("idxCardIssuanceInfo") Long idxCardIssuanceInfo);
+    void deleteAllByCardIssuanceInfoIdx(@Param("idxCardIssuanceInfo") List<Long> idxCardIssuanceInfo);
 }
 

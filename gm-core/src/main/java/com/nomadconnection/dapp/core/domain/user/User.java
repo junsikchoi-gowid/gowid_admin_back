@@ -104,6 +104,9 @@ public class User extends BaseTime {
 	@Column(columnDefinition = "varchar(40) comment '직책' ")
 	private String position;
 
+	@Builder.Default
+	private boolean isReset = false; // 초기화여부
+
 	@OneToMany(mappedBy = "user")
 	private List<SaasIssueReport> saasIssueReports;
 

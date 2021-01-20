@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,15 +23,20 @@ public interface CorpRepository extends JpaRepository<Corp, Long> , CorpCustomRe
 	@Override
 	Optional<Corp> findById(Long corpIdx);
 
-	@Query(value = "select Corp.idxUser from Corp where resCompanyIdentityNo = :resCompanyIdentityNo limit 1", nativeQuery = true)
+	@Query(value = "SELECT Corp.idxUser FROM Corp WHERE resCompanyIdentityNo = :resCompanyIdentityNo limit 1", nativeQuery = true)
 	Long searchResCompanyIdentityNo(String resCompanyIdentityNo);
 
-	@Query(value = "select Corp.idxUser from Corp where idx = :idxCorp limit 1", nativeQuery = true)
+	@Query(value = "SELECT Corp.idxUser FROM Corp WHERE idx = :idxCorp limit 1", nativeQuery = true)
 	Long searchIdxUser(@Param("idxCorp") Long idxCorp);
+
+	@Query(value = "SELECT c.* FROM Corp AS c" +
+		" LEFT JOIN CardIssuanceInfo AS ci ON ci.idxCorp = c.idx" +
+		" WHERE ci.issuanceStatus IN (:issuanceStatus)", nativeQuery = true)
+	List<Corp> findCorpByIssuanceStatus(@Param("issuanceStatus") List<String> issuanceStatus);
 
 	@Transactional
 	@Modifying
-	@Query("delete from Corp  where idx = :idxCorp")
+	@Query("DELETE FROM Corp  WHERE idx = :idxCorp")
 	void deleteCorpByIdx(@Param("idxCorp") Long idxCorp);
 
 	public static interface ScrapingResultDto {
@@ -46,21 +52,21 @@ public interface CorpRepository extends JpaRepository<Corp, Long> , CorpCustomRe
 	}
 
 	@Query(
-			value = " select * from ("+
-					" select a.idx as idxCorp, a.resCompanyNm as idxCorpName, b.createdAt, b.updatedAt, b.endFlag, a.idxUser, 0 as successAccountCnt, 0 as processAccountCnt, 0 as allAccountCnt \n" +
-					" from (\n" +
-					" select  a.idx ,  a.resCompanyNm ,  a.idxUser, max( b.idx) as idxResBatch\n" +
-					"  from  Corp a\n" +
-					"  inner join ResBatch b on b.idxUser = a.idxUser \n" +
-					"  group by   a.idx ,  a.resCompanyNm ,  a.idxUser,  b.idxUser ) a inner join ResBatch b on b.idx = a.idxResBatch " +
+			value = " SELECT * FROM ("+
+					" SELECT a.idx AS idxCorp, a.resCompanyNm AS idxCorpName, b.createdAt, b.updatedAt, b.endFlag, a.idxUser, 0 AS successAccountCnt, 0 AS processAccountCnt, 0 AS allAccountCnt \n" +
+					" FROM (\n" +
+					" SELECT a.idx, a.resCompanyNm, a.idxUser, max( b.idx) AS idxResBatch\n" +
+					" FROM Corp a\n" +
+					" INNER JOIN ResBatch b ON b.idxUser = a.idxUser \n" +
+					" GROUP BY a.idx, a.resCompanyNm, a.idxUser, b.idxUser ) a INNER JOIN ResBatch b ON b.idx = a.idxResBatch " +
 					"  ) a " ,
-			countQuery = " select * from ( "+
-					" select count(*) " +
-					" from (\n" +
-					" select  a.idx ,  a.resCompanyNm ,  a.idxUser, max( b.idx) as idxResBatch\n" +
-					"  from  Corp a\n" +
-					"  inner join ResBatch b on b.idxUser = a.idxUser \n" +
-					"  group by   a.idx ,  a.resCompanyNm ,  a.idxUser,  b.idxUser ) a inner join ResBatch b on b.idx = a.idxResBatch ) a ",
+			countQuery = " SELECT * FROM ( "+
+					" SELECT count(*) " +
+					" FROM (\n" +
+					" SELECT a.idx, a.resCompanyNm, a.idxUser, max( b.idx) AS idxResBatch\n" +
+					" FROM Corp a\n" +
+					" INNER JOIN ResBatch b ON b.idxUser = a.idxUser \n" +
+					" GROUP BY a.idx, a.resCompanyNm, a.idxUser, b.idxUser ) a INNER JOIN ResBatch b ON b.idx = a.idxResBatch ) a ",
 			nativeQuery = true
 	)
 	Page<ScrapingResultDto> scrapingList(Pageable pageable);

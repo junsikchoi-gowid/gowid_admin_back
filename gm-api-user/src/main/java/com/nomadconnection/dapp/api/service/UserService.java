@@ -17,10 +17,12 @@ import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
+import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.StockholderFileRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CeoInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
+import com.nomadconnection.dapp.core.domain.repository.corp.ManagerRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ReceptionRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
@@ -74,6 +76,9 @@ public class UserService {
 	private final RiskRepository repoRisk;
 	private final RiskConfigRepository repoRiskConfig;
 	private final CeoInfoRepository repoCeoInfo;
+	private final ManagerRepository repoManager;
+	private final StockholderFileRepository repoStockholderFile;
+	private final UserRepository repoUser;
 
 	private final JwtService jwt;
 	private final FullTextService fullTextService;
@@ -145,6 +150,8 @@ public class UserService {
 		Long idxCorp = user.corp().idx();
         List<Long> listIdxCardInfo = repoCardIssuanceInfo.findAllIdxByUserIdx(idxUser);
         repoCeoInfo.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
+        repoManager.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
+        repoStockholderFile.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
         repoCardIssuanceInfo.deleteAllByUserIdx(idxUser);
         repoConnectdMng.deleteAllByUserIdx(idxUser);
         repoConsentMapping.deleteAllByUserIdx(idxUser);
@@ -152,10 +159,15 @@ public class UserService {
         fullTextService.deleteAllShinhanFulltext(idxCorp);
         fullTextService.deleteAllLotteFulltext(idxCorp);
         repoRisk.deleteByCorpIdx(idxCorp);
-        repoRiskConfig.deleteByCorpIdx(idxCorp);
-		repoCorp.deleteCorpByIdx(idxCorp);
+        // Todo 추후 corp테이블의 idxRiskConfig 값 & AdminService 수정시 반영
+		repoRiskConfig.delete(user.corp().riskConfig());
+		repoRiskConfig.flush();
+		repoCorp.delete(user.corp());
+		repoCorp.flush();
+		user.corp().riskConfig(null);
 		user.corp(null);
 		user.cardCompany(null);
+		user.isReset(true);
 		repo.save(user);
 	}
 

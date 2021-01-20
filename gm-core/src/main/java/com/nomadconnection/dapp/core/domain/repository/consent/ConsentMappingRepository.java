@@ -18,6 +18,6 @@ public interface ConsentMappingRepository extends JpaRepository<ConsentMapping, 
 
     @Transactional
     @Modifying
-    @Query("delete from ConsentMapping where idxUser = :idxUser and idxConset not in (select idx from Consent where enable = 1 and typeCode = 'GOWID-A')")
+    @Query("delete from ConsentMapping where idxUser = :idxUser and idxConsent not in (select idx from Consent where enabled = 1 and typeCode = 'GOWID-A')")
     void deleteAllByUserIdx(@Param("idxUser") Long idxUser);
 }

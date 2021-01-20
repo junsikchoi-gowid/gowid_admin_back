@@ -18,6 +18,8 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Slf4j
@@ -239,6 +241,28 @@ public class EmailService {
 				helper.setTo(sendTo);
 				helper.setSubject("[고위드] 고위드 카드 심사 승인 및 이용 안내");
 				helper.setText(templateEngine.process("shinhan-welcome", context), true);
+			}
+		};
+		sender.send(preparator);
+	}
+
+	public void sendResetEmail(String licenseNo){
+		EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
+		String[] sendTo = {emailDto.getEmail(), emailConfig.getSender()};
+		String resetDate = LocalDateTime.now().plusDays(7).format(DateTimeFormatter.ofPattern("yyyy년 M월 d일"));
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			{
+				Context context = new Context();
+				{
+					context.setVariable("companyName", emailDto.getCompanyName());
+					context.setVariable("date", resetDate);
+				}
+
+				helper.setFrom(emailConfig.getSender());
+				helper.setTo(sendTo);
+				helper.setSubject("[고위드] 고위드 카드 신청정보가 7일 후 삭제될 예정입니다.");
+				helper.setText(templateEngine.process("reset-expired-corp", context), true);
 			}
 		};
 		sender.send(preparator);
