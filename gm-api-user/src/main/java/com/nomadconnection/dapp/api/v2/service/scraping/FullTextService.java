@@ -212,6 +212,10 @@ public class FullTextService {
 			.d009(ceoType) // 1: 단일대표 2: 개별대표 3: 공동대표
 			.d010(listResCeoList.size() >= 2 ? getOnlyKorLan(listResCeoList.get(1)) : "")// 대표이사_성명1
 			.d011(listResCeoList.size() >= 3 ? Seed128.encryptEcb(replaceHyphen(listResCeoList.get(2))) : "")// 대표이사_주민번호1
+			.d014(listResCeoList.size() >= 6 ? getOnlyKorLan(listResCeoList.get(5)) : "")// 대표이사_성명2
+			.d015(listResCeoList.size() >= 7 ? Seed128.encryptEcb(replaceHyphen(listResCeoList.get(6))) : "")// 대표이사_주민번호2
+			.d018(listResCeoList.size() >= 10 ? getOnlyKorLan(listResCeoList.get(9)) : "")// 대표이사_성명3
+			.d019(listResCeoList.size() >= 11 ? Seed128.encryptEcb(replaceHyphen(listResCeoList.get(10))) : "")// 대표이사_주민번호3
 			.d029(null)
 			.d030(null)
 			.d031(null)
