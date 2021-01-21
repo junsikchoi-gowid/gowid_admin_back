@@ -152,9 +152,9 @@ public class CardIssuanceDto {
         @Min(0)
         private Long blackTrafficCount;
 
-        @ApiModelProperty("하이패스 신청수량")
-        @Min(0)
-        private Long hiPassCount;
+//        @ApiModelProperty("하이패스 신청수량")
+//        @Min(0)
+//        private Long hiPassCount;
 
         @ApiModelProperty("명세서 수령방법")
         private ReceiveType receiveType;
@@ -536,8 +536,8 @@ public class CardIssuanceDto {
         @ApiModelProperty("롯데 교통블랙카드 신청수량")
         private Long lotteBlackTrafficCount;
 
-        @ApiModelProperty("롯데 하이패스 신청수량")
-        private Long lotteHiPassCount;
+//        @ApiModelProperty("롯데 하이패스 신청수량")
+//        private Long lotteHiPassCount;
 
         @ApiModelProperty("명세서 수령방법")
         private ReceiveType receiveType;
@@ -578,7 +578,7 @@ public class CardIssuanceDto {
                         .lotteBlackCount(cardInfo.card().lotteBlackCount())
                         .lotteGreenTrafficCount(cardInfo.card().lotteGreenTrafficCount())
                         .lotteBlackTrafficCount(cardInfo.card().lotteBlackTrafficCount())
-                        .lotteHiPassCount(cardInfo.card().lotteHiPassCount())
+//                        .lotteHiPassCount(cardInfo.card().lotteHiPassCount())
                         .addressBasic(cardInfo.card().addressBasic())
                         .addressDetail(cardInfo.card().addressDetail())
                         .addressKey(cardInfo.card().addressKey())
