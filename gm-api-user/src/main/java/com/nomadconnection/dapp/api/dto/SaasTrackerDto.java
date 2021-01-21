@@ -504,6 +504,9 @@ public class SaasTrackerDto {
 		@ApiModelProperty("결제 종류")
 		private Integer paymentType;
 
+		@ApiModelProperty("구독 여부")
+		private Boolean activeSubscription;
+
 		public static SaasPaymentInfoRes from(SaasPaymentInfo saasPaymentInfo) {
 			if(saasPaymentInfo != null) {
 				return SaasPaymentInfoRes.builder()
@@ -515,6 +518,7 @@ public class SaasTrackerDto {
 						.cardNumber(StringUtils.isEmpty(saasPaymentInfo.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.cardNumber(), 4))
 						.accountNumber(StringUtils.isEmpty(saasPaymentInfo.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.accountNumber(), 4))
 						.paymentType(saasPaymentInfo.paymentType())
+						.activeSubscription(saasPaymentInfo.activeSubscription())
 						.build();
 			}
 			return null;

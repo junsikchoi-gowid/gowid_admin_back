@@ -59,13 +59,14 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
      */
     @Query(value = "select info.name as name, \n" +
                    "       info.idx as idxSaasInfo, \n" +
-                   "       hist.paymentPrice as price \n" +
+                   "       sum(hist.paymentPrice) as price \n" +
                    "from SaasPaymentHistory hist\n" +
                    "join SaasInfo info\n" +
                    "on info.idx = hist.idxSaasInfo\n" +
                    "where idxUser = :idxUser \n" +
                    "and paymentDate between :fromDt and :toDt \n" +
-                   "group by idxSaasInfo", nativeQuery = true)
+                   "group by idxSaasInfo \n" +
+                   "order by price desc", nativeQuery = true)
     List<UsageSumsDetailsDto> getUsageSumsDetails(@Param("idxUser") Long idxUser,
                                                 @Param("fromDt") String fromDt,
                                                 @Param("toDt") String toDt);

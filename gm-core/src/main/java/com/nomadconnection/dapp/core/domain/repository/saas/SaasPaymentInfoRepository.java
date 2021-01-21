@@ -120,7 +120,8 @@ public interface SaasPaymentInfoRepository extends JpaRepository<SaasPaymentInfo
             "WHERE\n" +
             "    paymentInfo.idxUser = :idxUser \n" +
             "        AND activeSubscription = TRUE\n" +
-            "GROUP BY idxSaasInfo", nativeQuery = true)
+            "GROUP BY idxSaasInfo\n" +
+            "ORDER BY saasName", nativeQuery = true)
     List<SubscriptSaasDto> findAllSubscriptionByUser(@Param("idxUser") Long idxUser);
 
     @Query(value = "SELECT \n" +
