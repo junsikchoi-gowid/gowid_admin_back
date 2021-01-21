@@ -147,24 +147,26 @@ public class UserService {
 	@Transactional(rollbackFor = Exception.class)
 	public void initUserInfo(Long idxUser) {
 		User user = getUser(idxUser);
-		Long idxCorp = user.corp().idx();
-        List<Long> listIdxCardInfo = repoCardIssuanceInfo.findAllIdxByUserIdx(idxUser);
-        repoCeoInfo.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
-        repoManager.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
-        repoStockholderFile.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
+        if (!ObjectUtils.isEmpty(user.corp())) {
+            Long idxCorp = user.corp().idx();
+            List<Long> listIdxCardInfo = repoCardIssuanceInfo.findAllIdxByUserIdx(idxUser);
+            repoCeoInfo.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
+            repoManager.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
+            repoStockholderFile.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
+            fullTextService.deleteAllShinhanFulltext(idxCorp);
+            fullTextService.deleteAllLotteFulltext(idxCorp);
+            repoRisk.deleteByCorpIdx(idxCorp);
+            // Todo 추후 corp테이블의 idxRiskConfig 값 & AdminService 수정시 반영
+            repoRiskConfig.delete(user.corp().riskConfig());
+            repoRiskConfig.flush();
+            repoCorp.delete(user.corp());
+            repoCorp.flush();
+            user.corp().riskConfig(null);
+        }
         repoCardIssuanceInfo.deleteAllByUserIdx(idxUser);
         repoConnectdMng.deleteAllByUserIdx(idxUser);
         repoConsentMapping.deleteAllByUserIdx(idxUser);
         issuanceProgressRepository.deleteAllByUserIdx(idxUser);
-        fullTextService.deleteAllShinhanFulltext(idxCorp);
-        fullTextService.deleteAllLotteFulltext(idxCorp);
-        repoRisk.deleteByCorpIdx(idxCorp);
-        // Todo 추후 corp테이블의 idxRiskConfig 값 & AdminService 수정시 반영
-		repoRiskConfig.delete(user.corp().riskConfig());
-		repoRiskConfig.flush();
-		repoCorp.delete(user.corp());
-		repoCorp.flush();
-		user.corp().riskConfig(null);
 		user.corp(null);
 		user.cardCompany(null);
 		user.isReset(true);
