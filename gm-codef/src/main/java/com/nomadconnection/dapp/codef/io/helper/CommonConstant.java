@@ -29,6 +29,9 @@ public class CommonConstant {
 	public static final String KR_BK_1_B_006	= "/v1/kr/bank/b/fund/transaction-list";                    // 은행 기업 펀드 거래내역
 	public static final String KR_BK_1_B_007	= "/v1/kr/bank/b/fast-account/transaction-list";            // 은행 기업 빠른계좌조회
 
+	public static final String KR_ST_1_S_001	= "/v1/kr/stock/a/account/account-list";            		// 증권 보유계좌
+	public static final String KR_ST_1_S_002	= "/v1/kr/stock/a/account/transaction-list";            	// 증권 입출금 내역
+
 	public static final String KR_BK_1_P_001	= "/v1/kr/bank/p/account/account-list";                     // 은행 개인 보유계좌
 	public static final String KR_BK_1_P_002	= "/v1/kr/bank/p/account/transaction-list";                 // 은행 개인 수시입출 거래내역
 	public static final String KR_BK_1_P_003	= "/v1/kr/bank/p/installment-savings/transaction-list";     // 은행 개인 적금 거래내역

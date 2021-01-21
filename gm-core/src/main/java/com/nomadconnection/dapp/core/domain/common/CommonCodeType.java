@@ -19,6 +19,8 @@ public enum CommonCodeType {
 	CONCENT_TYPE("이용약관"),
 	LOTTE_LISTED_EXCHANGE("롯데 상장거래소 코드"),
 	RISK_GRADE("리스크 등급"),
+	STOCK("증권사 코드"),
+	NT("공공기관 코드")
 	;
 
 	private String description;

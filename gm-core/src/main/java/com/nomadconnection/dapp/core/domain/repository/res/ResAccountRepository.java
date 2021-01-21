@@ -16,10 +16,6 @@ import java.util.Optional;
 @Repository
 public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, ResAccountCustomRepository {
 
-    List<ResAccount> findByConnectedIdAndResAccountDepositIn(String connectedId, List<String> resAccountDeposit);
-
-    List<ResAccount> findByConnectedId(String connectedId);
-
     @Query(value = " select R " +
             " from ResAccount R" +
             " where connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser ) " +
@@ -56,6 +52,8 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             " order by resAccountTrDate desc, resAccountTrTime desc, A.idx  " +
             " LIMIT :limit OFFSET :offset  ", nativeQuery = true)
     List<CaccountHistoryDto> findAccountHistory(String startDate, String endDate, String resAccount, Long idxUser, Integer limit, Integer offset, Integer resAccountIn, Integer resAccountOut, Integer boolF);
+
+
 
     public static interface CaccountCountDto {
         String getSumDate();
@@ -356,9 +354,5 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
     )
     Page<CashResultDto> cashList(String searchCorpName, Boolean updateStatus, Pageable pageable);
 
-    // 데이터, 리스크 팀과 협의 후 추가
-//    @Transactional
-//    @Modifying
-//    @Query("delete from ResAccount c where c.connectedId = :connectedId")
-//    int deleteConnectedQuery(@Param("connectedId") String connectedId);
+    List<ResAccount> findByConnectedIdInAndUpdatedAtAfter(List<String> connectedId, LocalDateTime localDateTime);
 }

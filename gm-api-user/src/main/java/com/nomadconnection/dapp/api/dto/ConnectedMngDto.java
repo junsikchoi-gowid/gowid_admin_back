@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
+import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,13 +10,14 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @SuppressWarnings("unused")
-public class ConnectedMngDto {
+public class 	ConnectedMngDto {
 
 
 	@ApiModelProperty("식별자")
@@ -42,6 +44,13 @@ public class ConnectedMngDto {
 	@ApiModelProperty("식별자(사용자)")
 	private Long idxUser;
 
+	@ApiModelProperty("상태")
+	private ConnectedMngStatus status;
+
+	@ApiModelProperty("connectedMng 테이블의 index list")
+	private List<Long> idxConnectedIdList;
+
+
 	public static ConnectedMngDto from(ConnectedMng connectedMng){
 		return ConnectedMngDto.builder()
 				.idx(connectedMng.idx())
@@ -51,6 +60,7 @@ public class ConnectedMngDto {
 				.endDate(connectedMng.endDate())
 				.desc1(connectedMng.desc1())
 				.desc2(connectedMng.desc2())
+				.status(connectedMng.status())
 				.build();
 	}
 

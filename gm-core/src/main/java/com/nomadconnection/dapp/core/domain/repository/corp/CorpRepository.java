@@ -28,10 +28,13 @@ public interface CorpRepository extends JpaRepository<Corp, Long> , CorpCustomRe
 
 	@Query(value = "SELECT Corp.idxUser FROM Corp WHERE idx = :idxCorp limit 1", nativeQuery = true)
 	Long searchIdxUser(@Param("idxCorp") Long idxCorp);
+ 
+	@Query(value = "select Corp.idx from Corp where idxUser = :idxUser limit 1", nativeQuery = true)
+	Long searchIdxCorp(@Param("idxUser") Long idxUser);
 
 	@Query(value = "SELECT c.* FROM Corp AS c" +
-		" LEFT JOIN CardIssuanceInfo AS ci ON ci.idxCorp = c.idx" +
-		" WHERE ci.issuanceStatus IN (:issuanceStatus)", nativeQuery = true)
+			" LEFT JOIN CardIssuanceInfo AS ci ON ci.idxCorp = c.idx" +
+			" WHERE ci.issuanceStatus IN (:issuanceStatus)", nativeQuery = true)
 	List<Corp> findCorpByIssuanceStatus(@Param("issuanceStatus") List<String> issuanceStatus);
 
 	@Transactional
@@ -39,7 +42,7 @@ public interface CorpRepository extends JpaRepository<Corp, Long> , CorpCustomRe
 	@Query("DELETE FROM Corp  WHERE idx = :idxCorp")
 	void deleteCorpByIdx(@Param("idxCorp") Long idxCorp);
 
-	public static interface ScrapingResultDto {
+	interface ScrapingResultDto {
 		Long getIdxCorp();
 		String getIdxCorpName();
 		String getSuccessAccountCnt();
@@ -70,4 +73,6 @@ public interface CorpRepository extends JpaRepository<Corp, Long> , CorpCustomRe
 			nativeQuery = true
 	)
 	Page<ScrapingResultDto> scrapingList(Pageable pageable);
+
+
 }

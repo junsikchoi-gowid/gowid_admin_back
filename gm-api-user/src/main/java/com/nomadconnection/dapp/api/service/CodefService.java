@@ -23,6 +23,7 @@ import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
+import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
@@ -190,6 +191,7 @@ public class CodefService {
 					.endDate(dto.getEndDate())
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
+					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);
 
@@ -231,6 +233,7 @@ public class CodefService {
 						.endDate(dto.getEndDate())
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
+						.status(ConnectedMngStatus.NORMAL)
 						.build()
 				);
 
@@ -499,6 +502,7 @@ public class CodefService {
 					.endDate(dto.getEndDate())
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
+					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);
 
@@ -518,6 +522,7 @@ public class CodefService {
 						.endDate(dto.getEndDate())
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
+						.status(ConnectedMngStatus.NORMAL)
 						.build()
 				);
 
@@ -588,6 +593,7 @@ public class CodefService {
 						.endDate(dto.getEndDate())
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
+						.status(ConnectedMngStatus.NORMAL)
 						.build()
 				);
 			}else{
@@ -826,6 +832,7 @@ public class CodefService {
 						.endDate(dto.getEndDate())
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
+						.status(ConnectedMngStatus.NORMAL)
 						.type("NT")
 						.build()
 				);
@@ -844,6 +851,7 @@ public class CodefService {
 									.loginType(GowidUtils.getEmptyStringToString(obj, "loginType"))
 									.message(GowidUtils.getEmptyStringToString(obj, "message"))
 									.connectedId(finalConnectedId)
+									.status(ConnectedMngStatus.NORMAL)
 									.build()
 					);
 				});
@@ -1958,7 +1966,7 @@ public class CodefService {
 								.loginType(GowidUtils.getEmptyStringToString(obj, "loginType"))
 								.message(GowidUtils.getEmptyStringToString(obj, "message"))
 								.connectedId(connectedId)
-								// .idxCorp(idxCorp)
+								.status(ConnectedMngStatus.NORMAL)
 								.build()
 				);
 			});
@@ -2009,6 +2017,7 @@ public class CodefService {
 					.endDate(dto.getEndDate())
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
+					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);
 		}
@@ -2070,6 +2079,7 @@ public class CodefService {
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
 					.idxCorp(idxCorp)
+					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);
 
@@ -2113,6 +2123,7 @@ public class CodefService {
 						.endDate(dto.getEndDate())
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
+						.status(ConnectedMngStatus.NORMAL)
 						.build()
 				);
 
@@ -2312,7 +2323,10 @@ public class CodefService {
 
 	@SneakyThrows
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity registerAccountReferenceAdd(Common.Account dto, Long idxUser, String connectedId, String sourceOrganization,String targetOrganization) {
+	public ResponseEntity registerAccountReferenceAdd(Common.Account dto, Long idxUser, String connectedId,
+													  String sourceOrganization,String targetBusiness,
+													  String targetOrganization,String sourceBusiness
+	) {
 
 		User user = repoUser.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().build()
@@ -2328,7 +2342,7 @@ public class CodefService {
 		// 추가할 정보
 		accountMap1 = new HashMap<>();
 		accountMap1.put("countryCode", CommonConstant.COUNTRYCODE);  // 국가코드
-		accountMap1.put("businessType", CommonConstant.BUSINESSTYPE);  // 업무구분코드
+		accountMap1.put("businessType", targetBusiness);  // 업무구분코드
 		accountMap1.put("organization", targetOrganization);// 기관코드
 		accountMap1.put("clientType", "B");   // 고객구분(P: 개인, B: 기업)
 		accountMap1.put("birthDate", "");
@@ -2343,7 +2357,7 @@ public class CodefService {
 		// 기준 정보
 		bodyMap.put("connectedId", connectedId);
 		bodyMap.put("countryCode", CommonConstant.COUNTRYCODE);  // 국가코드
-		bodyMap.put("businessType", CommonConstant.BUSINESSTYPE);  // 업무구분코드
+		bodyMap.put("businessType", sourceBusiness);  // 업무구분코드
 		bodyMap.put("organization", sourceOrganization);// 기관코드
 		bodyMap.put("clientType", "B");   // 고객구분(P: 개인, B: 기업)
 		bodyMap.put("accountList", list);

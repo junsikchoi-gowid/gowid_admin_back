@@ -207,4 +207,24 @@ public class CommonUtil {
     public static String extractTextFromLast(String str, int index) {
         return StringUtils.isEmpty(str) ? null : str.substring(str.length() - index);
     }
+
+    /**
+     * 날짜계산으로 입력 i 만큼 뺀다
+     * @param yyyymmdd
+     * @param i
+     * @return
+     */
+    public static String getMinusDay(String yyyymmdd, int i) {
+        return String.valueOf(LocalDate.of(Integer.parseInt(yyyymmdd.substring(0,4)),Integer.parseInt(yyyymmdd.substring(4,6)),Integer.parseInt(yyyymmdd.substring(6,8))).minusDays(i));
+    }
+
+    /**
+     * 날짜계산으로 입력 i 만큼 더한다.
+     * @param yyyymmdd
+     * @param i
+     * @return
+     */
+    public static String getPlusDay(String yyyymmdd, int i) {
+        return String.valueOf(LocalDate.of(Integer.parseInt(yyyymmdd.substring(0,4)),Integer.parseInt(yyyymmdd.substring(4,6)),Integer.parseInt(yyyymmdd.substring(6,8))).plusDays(i));
+    }
 }

@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.core.domain.res;
 
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
+import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import lombok.*;
 import lombok.experimental.Accessors;
 
@@ -52,5 +53,8 @@ public class ResConCorpList extends BaseTime {
     @Column(columnDefinition = "varchar(500) COMMENT '메시지'")
     private String message;
 
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(20)  DEFAULT 'NORMAL' COMMENT '카드발급 상태'")
+    private ConnectedMngStatus status;
 
 }

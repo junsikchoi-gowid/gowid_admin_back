@@ -18,6 +18,7 @@ import com.nomadconnection.dapp.codef.io.helper.ResponseCode;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
+import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
@@ -120,6 +121,7 @@ public class ScrapingService {
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
 					.type(CommonConstant.REVENUETYPE)
+					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);
 
@@ -384,6 +386,7 @@ public class ScrapingService {
                             .loginType(GowidUtils.getEmptyStringToString(obj, "loginType"))
                             .message(GowidUtils.getEmptyStringToString(obj, "message"))
                             .connectedId(connectedId)
+							.status(ConnectedMngStatus.NORMAL)
                             .build()
             );
         });

@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.domain.res;
 
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
+import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +22,10 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 
 	List<ConnectedMng> findByIdxUser(Long idxUser);
 
+	List<ConnectedMng> findByIdxUserAndStatusInOrderByCreatedAtDesc(Long idxUser, List<ConnectedMngStatus> connectedMngStatusList);
+
+	Optional<ConnectedMng> findByIdxAndIdxUser(Long idx, Long idxUser);
+
 	Optional<ConnectedMng> findTopByIdxUserAndType(Long idxUser, String type);
 
 	@Query(value = "select c.* FROM ConnectedMng c where c.idxUser = :idxUser order by createdAt " ,nativeQuery = true)
@@ -34,7 +39,9 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 
 	Optional<ConnectedMng> findByConnectedIdAndIdxUser(String connectedId, Long idxUser);
 
-	public static interface CconnectedMngDto {
+	List<ConnectedMng> findByIdxUserAndType(Long idxUser, String type);
+
+    public static interface CconnectedMngDto {
 		Long getIdx();
 		String getConnectedId();
 		Long getIdxUser();

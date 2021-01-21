@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.parser.ParseException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,7 @@ public class ScrapingController {
         public static final String SCRAPING_ACCOUNT_ID = "/account/id";    // 계좌별 조회
         public static final String SCRAPING_BANK_ID = "/bank/id";    // 계좌별 조회
 
+        public static final String SCRAPING_YEAR = "/scraping/year";    // 스크래핑 전체
     }
 
     private final ScrapingService service;
@@ -89,5 +91,16 @@ public class ScrapingController {
             ,@RequestParam String strConnetedId, @RequestParam String strBankCode
                 ) throws ParseException{
         return service.scrapingBank(user.idx(), strConnetedId,strBankCode);
+    }
+
+
+    @ApiOperation(value = "은행 스크래핑 ALL 배치기능 "
+            , notes = "" + "\n"
+            + "관리자만 스크래핑 가능 " + "\n"
+    )
+    @GetMapping( URI.SCRAPING_YEAR )
+    public ResponseEntity<?> scrapingYear(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxUser ) throws Exception {
+        service.scraping3Years(user, idxUser, null);
+        return new ResponseEntity<>(null,HttpStatus.OK);
     }
 }

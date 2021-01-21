@@ -37,4 +37,8 @@ public class ConnectedMng extends BaseTime {
 
 	@Column(columnDefinition = "varchar(2)    DEFAULT '' COMMENT '업무구분'")
 	private String type;
+
+	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "varchar(20)  DEFAULT 'NORMAL' COMMENT '카드발급 상태'")
+	private ConnectedMngStatus status;
 }

@@ -34,7 +34,7 @@ public class GowidUtils {
 	}
 
     public static String getEmptyStringToString(JSONObject obj, String objName) {
-		if(obj.get(objName) != null ){
+		if(obj != null && obj.get(objName) != null ){
 			return obj.get(objName).toString();
 		}else{
 			return "";

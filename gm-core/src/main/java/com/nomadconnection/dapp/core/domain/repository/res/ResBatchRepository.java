@@ -46,7 +46,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "    ResBatchList b   \n" +
             "        on a.idx = b.idxResBatch  \n" +
             "        and b.errCode <> 'CF-00000'  \n" +
-            "        and resBatchType = 1\n" +
+            "        and resBatchType = 1  \n" +
             "limit 1 ",nativeQuery = true)
     List<ResBatchRepository.CResBatchDto> findRefresh(Long idxUser);
 
