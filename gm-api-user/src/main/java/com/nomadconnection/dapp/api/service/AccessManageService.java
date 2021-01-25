@@ -373,6 +373,15 @@ public class AccessManageService {
                 , connectedMngStatusList
         )).ifPresent(resConCorpList -> resConCorpList.status(ConnectedMngStatus.STOP));
 
+        Optional<ConnectedMng> connectedMng = repoConnectedMng.findById(idxConnectedMng);
+        if(repoResConCorpList.findByConnectedIdAndStatusIn(connectedMng.get().connectedId(), connectedMngStatusList).size() < 1){
+            connectedMng.ifPresent(
+                    connectedMng1 -> {
+                        connectedMng1.status(ConnectedMngStatus.STOP);
+                    }
+            );
+        }
+
         return true;
     }
 }

@@ -19,6 +19,6 @@ class ScrapingServiceTest extends AbstractSpringBootTest {
     void scraping3Years() throws Exception {
         // scrapingService.scraping3Years(454L);
         // scrapingService.scrapingBatchTaxInvoice(1L, 1L, 4527L);
-        scrapingService.scrapingBatchHistory_v2(1L, 1L, 1L);
+        // scrapingService.scrapingBatchHistory_v2(1L, 1L, 1L);
     }
 }

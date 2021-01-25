@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
+import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.ProcessKillException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
@@ -48,6 +49,7 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.round;
 
@@ -76,6 +78,9 @@ public class ScrapingService {
 
     private final String urlPath = CommonConstant.getRequestDomain();
     final Thread currentThread = Thread.currentThread();
+
+    private final List<ConnectedMngStatus> connectedMngStatusList
+            = Arrays.asList(ConnectedMngStatus.NORMAL, ConnectedMngStatus.ERROR);
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -2091,7 +2096,7 @@ public class ScrapingService {
         scrapingBatchStock(idxUser,idxResBatchParent);
 
         // 국세청 세금계산서
-        scrapingBatchTaxInvoice(idxUser, idxCorp, idxResBatchParent);
+        scrapingBatchTaxInvoice(idxUser, idxResBatchParent);
 
         // 거래내역 등 업데이트
         // todo 거래내역 가져오기 추후 개발
@@ -2102,9 +2107,9 @@ public class ScrapingService {
         return true;
     }
 
-    void scrapingBatchTaxInvoice(Long idxUser, Long idxCorp, Long idxResBatchParent) {
+    void scrapingBatchTaxInvoice(Long idxUser, Long idxResBatchParent) {
         User user = repoUser.findById(idxUser).get();
-        Corp corp = repoCorp.findById(idxCorp).get();
+        Corp corp = repoCorp.findById(repoCorp.searchIdxCorp(idxUser)).get();
 
         //가져와야할 기간 추출 2년치 가져와야할 경우
         if(user != null && corp != null){
@@ -2118,43 +2123,57 @@ public class ScrapingService {
                     endDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
                 }
 
-                for (ConnectedMng connectedMng : repoConnectedMng.findByIdxUserAndType(idxUser, "NT")) {
-                    if (!connectedMng.status().equals(ConnectedMngStatus.DELETE)) {
-                        JSONObject[] strResult = getBatchTaxInvoice(
-                                connectedMng.connectedId(),
-                                idxResBatchParent,
-                                startDate,
-                                endDate,
-                                corp.resCompanyIdentityNo());
+                List<String> connectedIdList = new ArrayList<>();
+                ResConCorpList resConCorpList = new ResConCorpList();
 
-                        if (strResult[0].get("code").toString().equals("CF-00000")) {
-                            saveTaxInvoice((JSONArray) strResult[1].get("data")
-                                    , idxUser
-                                    , corp.idx()
-                                    , startDate
-                                    , endDate
-                            );
-                        }
+                List<ConnectedMngDto> connectedMngList = repoConnectedMng.findByIdxUserAndStatusInOrderByCreatedAtDesc(user.idx(), connectedMngStatusList)
+                        .stream().map(ConnectedMngDto::from).collect(Collectors.toList());
 
-                        if(strResult[0] != null ){
+                for(ConnectedMngDto obj : connectedMngList){
+                    connectedIdList.add(obj.getConnectedId());
+                }
 
-                            String code = GowidUtils.getEmptyStringToString(strResult[0], "code");
-                            String transactionId = GowidUtils.getEmptyStringToString(strResult[0], "transactionId");
-                            String message = GowidUtils.getEmptyStringToString(strResult[0], "message");
+                if( connectedMngList.size() > 0 ){
+                    resConCorpList = repoResConCorpList.findTopByConnectedIdInAndStatusInAndBusinessTypeAndOrganization(
+                            connectedIdList, connectedMngStatusList, "NT", "0002"
+                    );
+                }
 
-                            repoResBatchList.save(
-                                    ResBatchList.builder()
-                                            .idxUser(idxUser)
-                                            .idxResBatch(idxResBatchParent)
-                                            .resBatchType(ResBatchType.ACCOUNT)
-                                            .connectedId(connectedMng.connectedId())
-                                            .startDate(startDate)
-                                            .endDate(endDate)
-                                            .errCode(code)
-                                            .transactionId(transactionId)
-                                            .errMessage(message)
-                                            .build());
-                        }
+                if (resConCorpList != null) {
+                    JSONObject[] strResult = getBatchTaxInvoice(
+                            resConCorpList.connectedId(),
+                            idxResBatchParent,
+                            startDate,
+                            endDate,
+                            corp.resCompanyIdentityNo());
+
+                    if (strResult[0].get("code").toString().equals("CF-00000")) {
+                        saveTaxInvoice((JSONArray) strResult[1].get("data")
+                                , idxUser
+                                , corp.idx()
+                                , startDate
+                                , endDate
+                        );
+                    }
+
+                    if(strResult[0] != null ){
+
+                        String code = GowidUtils.getEmptyStringToString(strResult[0], "code");
+                        String transactionId = GowidUtils.getEmptyStringToString(strResult[0], "transactionId");
+                        String message = GowidUtils.getEmptyStringToString(strResult[0], "message");
+
+                        repoResBatchList.save(
+                                ResBatchList.builder()
+                                        .idxUser(idxUser)
+                                        .idxResBatch(idxResBatchParent)
+                                        .resBatchType(ResBatchType.NT)
+                                        .connectedId(resConCorpList.connectedId())
+                                        .startDate(startDate)
+                                        .endDate(endDate)
+                                        .errCode(code)
+                                        .transactionId(transactionId)
+                                        .errMessage(message)
+                                        .build());
                     }
                 }
             }

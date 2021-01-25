@@ -19,7 +19,6 @@ public class BatchDate extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
     private Long idxCorp;
-
     private String startDate;
     private String endDate;
     private String account;

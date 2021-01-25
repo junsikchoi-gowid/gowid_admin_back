@@ -5,8 +5,6 @@ import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.service.AccessManageService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
-import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
-import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -210,4 +208,6 @@ public class AccessManageController {
 
         return new ResponseEntity<>(data,HttpStatus.OK);
     }
+
+
 }

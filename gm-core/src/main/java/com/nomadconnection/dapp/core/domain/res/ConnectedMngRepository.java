@@ -24,6 +24,7 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 
 	List<ConnectedMng> findByIdxUserAndStatusInOrderByCreatedAtDesc(Long idxUser, List<ConnectedMngStatus> connectedMngStatusList);
 
+
 	Optional<ConnectedMng> findByIdxAndIdxUser(Long idx, Long idxUser);
 
 	Optional<ConnectedMng> findTopByIdxUserAndType(Long idxUser, String type);

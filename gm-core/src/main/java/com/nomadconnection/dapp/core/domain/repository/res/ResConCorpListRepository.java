@@ -24,7 +24,11 @@ public interface ResConCorpListRepository extends JpaRepository<ResConCorpList, 
 
     List<ResConCorpList> findByConnectedIdInAndStatusInAndBusinessTypeAndOrganization(List<String> connectedIdList,List<ConnectedMngStatus> statusList, String BusinessType, String organization);
 
+    ResConCorpList findTopByConnectedIdInAndStatusInAndBusinessTypeAndOrganization(List<String> connectedIdList,List<ConnectedMngStatus> statusList, String BusinessType, String organization);
+
     Optional<ResConCorpList> findByConnectedIdAndOrganizationAndStatusIn(String connectedId, String organization, List<ConnectedMngStatus> connectedMngStatusList);
+
+    List<ResConCorpList> findByConnectedIdAndStatusIn(String connectedId, List<ConnectedMngStatus> connectedMngStatusList);
 
     Optional<ResConCorpList> findByIdx(Long idx);
 
