@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.res;
 
 import com.nomadconnection.dapp.core.domain.res.ResTaxInvoice;
-import com.nomadconnection.dapp.core.domain.user.Reception;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,5 +14,7 @@ public interface ResTaxInvoiceRepository extends JpaRepository<ResTaxInvoice, Lo
     @Transactional
     @Modifying
     @Query("DELETE FROM ResTaxInvoice WHERE idxCorp = :idxCorp AND resIssueDate BETWEEN :startDate AND :endDate ")
-    void deleteTaxInvoiceAndResIssueDate(@Param("idxCorp") Long idxCorp, String startDate,String endDate);
+    void deleteTaxInvoiceAndResIssueDate(@Param("idxCorp") Long idxCorp,
+                                         @Param("startDate") String startDate,
+                                         @Param("endDate") String endDate);
 }

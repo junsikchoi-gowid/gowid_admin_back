@@ -16,6 +16,6 @@ public interface StockholderFileRepository extends JpaRepository<StockholderFile
 
     @Transactional
     @Modifying
-    @Query("delete from StockholderFile  where idxCardIssuanceInfo in :idxCardIssuanceInfo")
+    @Query("delete from StockholderFile  where idxCardIssuanceInfo in (:idxCardIssuanceInfo)")
     void deleteAllByCardIssuanceInfoIdx(@Param("idxCardIssuanceInfo") List<Long> idxCardIssuanceInfo);
 }
