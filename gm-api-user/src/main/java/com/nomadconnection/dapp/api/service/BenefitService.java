@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.BenefitDto;
+import com.nomadconnection.dapp.api.exception.BusinessException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.core.domain.benefit.*;
@@ -498,38 +499,42 @@ public class BenefitService {
 			// 2. 혜택이 있는지 확인하고,
 			Benefit benefit = findBenefit(idxBenefit);
 
-			// 3. 수정
-			if(!ObjectUtils.isEmpty(dto.getName())) benefit.name(dto.getName());
-			if(!ObjectUtils.isEmpty(dto.getActiveDiscount())) benefit.activeDiscount(dto.getActiveDiscount());
-			if(!ObjectUtils.isEmpty(dto.getActiveCredit())) benefit.activeCredit(dto.getActiveCredit());
-			if(!ObjectUtils.isEmpty(dto.getActiveFreeTrial())) benefit.activeFreeTrial(dto.getActiveFreeTrial());
-			if(!ObjectUtils.isEmpty(dto.getImageUrl())) benefit.imageUrl(dto.getImageUrl());
-			if(!ObjectUtils.isEmpty(dto.getCatchphrase())) benefit.catchphrase(dto.getCatchphrase());
-			if(!ObjectUtils.isEmpty(dto.getBasicInfoDesc())) benefit.basicInfoDesc(dto.getBasicInfoDesc());
-			if(!ObjectUtils.isEmpty(dto.getBasicInfoDetail())) benefit.basicInfoDetail(dto.getBasicInfoDetail());
-			if(!ObjectUtils.isEmpty(dto.getBasicInfoGuide())) benefit.basicInfoGuide(dto.getBasicInfoGuide());
-			if(!ObjectUtils.isEmpty(dto.getActiveApplying())) benefit.activeApplying(dto.getActiveApplying());
-			if(!ObjectUtils.isEmpty(dto.getDisabled())) benefit.disabled(dto.getDisabled());
-			if(!ObjectUtils.isEmpty(dto.getIdxBenefitCategory())) benefit.benefitCategory(findBenefitCategory(dto.getIdxBenefitCategory()));
+			try {
+				// 3. 수정
+				if(!ObjectUtils.isEmpty(dto.getName())) benefit.name(dto.getName());
+				if(!ObjectUtils.isEmpty(dto.getActiveDiscount())) benefit.activeDiscount(dto.getActiveDiscount());
+				if(!ObjectUtils.isEmpty(dto.getActiveCredit())) benefit.activeCredit(dto.getActiveCredit());
+				if(!ObjectUtils.isEmpty(dto.getActiveFreeTrial())) benefit.activeFreeTrial(dto.getActiveFreeTrial());
+				if(!ObjectUtils.isEmpty(dto.getImageUrl())) benefit.imageUrl(dto.getImageUrl());
+				if(!ObjectUtils.isEmpty(dto.getCatchphrase())) benefit.catchphrase(dto.getCatchphrase());
+				if(!ObjectUtils.isEmpty(dto.getBasicInfoDesc())) benefit.basicInfoDesc(dto.getBasicInfoDesc());
+				if(!ObjectUtils.isEmpty(dto.getBasicInfoDetail())) benefit.basicInfoDetail(dto.getBasicInfoDetail());
+				if(!ObjectUtils.isEmpty(dto.getBasicInfoGuide())) benefit.basicInfoGuide(dto.getBasicInfoGuide());
+				if(!ObjectUtils.isEmpty(dto.getActiveApplying())) benefit.activeApplying(dto.getActiveApplying());
+				if(!ObjectUtils.isEmpty(dto.getDisabled())) benefit.disabled(dto.getDisabled());
+				if(!ObjectUtils.isEmpty(dto.getIdxBenefitCategory())) benefit.benefitCategory(findBenefitCategory(dto.getIdxBenefitCategory()));
 
-			// 4. Benefit Provider 수정
-			BenefitProvider benefitProvider = findBenefitProvider(benefit.benefitProviders().get(0).idx());
-			if(!ObjectUtils.isEmpty(dto.getTel())) benefitProvider.tel(dto.getTel());
-			if(!ObjectUtils.isEmpty(dto.getEmail())) benefitProvider.email(dto.getEmail());
-			if(!ObjectUtils.isEmpty(dto.getChannel())) benefitProvider.channel(dto.getChannel());
-			if(!ObjectUtils.isEmpty(dto.getApplyLabel())) benefitProvider.applyLabel(dto.getApplyLabel());
-			if(!ObjectUtils.isEmpty(dto.getApplyUrl())) benefitProvider.applyUrl(dto.getApplyUrl());
+				// 4. Benefit Provider 수정
+				BenefitProvider benefitProvider = findBenefitProvider(benefit.benefitProviders().get(0).idx());
+				if(!ObjectUtils.isEmpty(dto.getTel())) benefitProvider.tel(dto.getTel());
+				if(!ObjectUtils.isEmpty(dto.getEmail())) benefitProvider.email(dto.getEmail());
+				if(!ObjectUtils.isEmpty(dto.getChannel())) benefitProvider.channel(dto.getChannel());
+				if(!ObjectUtils.isEmpty(dto.getApplyLabel())) benefitProvider.applyLabel(dto.getApplyLabel());
+				if(!ObjectUtils.isEmpty(dto.getApplyUrl())) benefitProvider.applyUrl(dto.getApplyUrl());
 
-			return ResponseEntity.ok().body(BusinessResponse.builder()
-					.normal(BusinessResponse.Normal.builder()
-							.status(true)
-							.build())
-					.build());
+				return ResponseEntity.ok().body(BusinessResponse.builder()
+						.normal(BusinessResponse.Normal.builder()
+								.status(true)
+								.build())
+						.build());
 
+			}catch(Exception e) {
+				log.error(e.getMessage(), e);
+				throw BusinessException.builder().error(ErrorCode.Api.INTERNAL_ERROR.getCode()).description(e.getMessage()).build();
+			}
 		}else {
 			throw new BadRequestException(ErrorCode.Api.NO_PERMISSION);
 		}
-
 	}
 
 	private BenefitProvider findBenefitProvider(Long idxBenefitProvider) {

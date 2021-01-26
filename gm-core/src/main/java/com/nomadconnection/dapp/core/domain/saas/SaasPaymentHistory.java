@@ -42,6 +42,15 @@ public class SaasPaymentHistory extends BaseTime {
     @Column(nullable = false, columnDefinition = "VARCHAR(6) COMMENT '기관 코드'")
     private String organization;
 
+    @Column(columnDefinition = "BIGINT(20) COMMENT '계좌 승인 정보 idx'")
+    private Long idxAccountHist;
+
+    @Column(columnDefinition = "BIGINT(20) COMMENT '세금 계산서 정보 idx'")
+    private Long idxTaxInvoice;
+
+    @Column(columnDefinition = "BIGINT(20) COMMENT '카드 승인 정보 idx'")
+    private Long idxCardApprovalHist;
+
     @Lob
     @Column(nullable = false, columnDefinition = "LONGTEXT COMMENT '품목명'")
     private String item;

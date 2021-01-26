@@ -379,13 +379,14 @@ public class SaasTrackerService {
 		SaasTrackerDto.SaasPaymentScheduleRes scheduleRes = new SaasTrackerDto.SaasPaymentScheduleRes();
 
 		try {
-			List<SaasPaymentInfo> paymentInfos = repoSaasPaymentInfo.findAllByUserAndActiveSubscriptionIsTrue(user);
+			List<SaasPaymentInfo> paymentInfos = repoSaasPaymentInfo.findAllByUserAndActiveSubscriptionIsTrueAndPaymentScheduleDateGreaterThanEqualOrderByPaymentScheduleDateAsc(user, CommonUtil.getNowYYYYMMDD());
 
 			// 1. 정기 결제 목록
 			scheduleRes.setRegularList(paymentInfos.stream()
 					.map(SaasTrackerDto.SaasPaymentScheduleDetailRes::from)
 					.filter(p -> (p.getPaymentType() == 1 || p.getPaymentType() == 2))
 					.collect(Collectors.toList()));
+
 			// 2. 비정기 결제 목록
 			scheduleRes.setIrregularList(paymentInfos.stream()
 					.map(SaasTrackerDto.SaasPaymentScheduleDetailRes::from)
