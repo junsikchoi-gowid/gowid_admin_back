@@ -4,14 +4,18 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.GwUploadDto;
 import com.nomadconnection.dapp.api.dto.ImageFileDto;
 import com.nomadconnection.dapp.api.dto.shinhan.enums.ImageFileType;
+import com.nomadconnection.dapp.api.service.CommonCodeService;
 import com.nomadconnection.dapp.api.service.GwUploadService;
 import com.nomadconnection.dapp.api.v2.utils.FullTextJsonParser;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.dto.ImageConvertDto;
 import com.nomadconnection.dapp.core.dto.ImageConvertRespDto;
 import com.nomadconnection.dapp.core.exception.ImageConvertException;
 import com.nomadconnection.dapp.core.exception.error.ImageConvertErrorMessage;
+import com.nomadconnection.dapp.core.service.CommonCodeDetailCoreService;
 import com.nomadconnection.dapp.core.utils.ImageConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +37,7 @@ public class ImageService {
 
 	private final ImageConverter converter;
 	private final GwUploadService gwUploadService;
+	private final CommonCodeDetailCoreService commonCodeDetailCoreService;
 
 	public ImageConvertDto buildImageConvertDto(ImageFileDto imageFileDto){
 		return
@@ -143,6 +148,12 @@ public class ImageService {
 	}
 
 	private void createAndSendImage(ImageConvertDto imageParam, String licenseNo) throws Exception {
+		String imageFlag = commonCodeDetailCoreService.findByCodeAndCode1(CommonCodeType.IMAGE_FLAG, "SCRAPING").value1();
+		if("N".equals(imageFlag)){
+			log.info("Skip image create and send while scraping.");
+			return;
+		}
+
 		ImageConvertRespDto imageConvertResponse = createImageByScrapingJson(imageParam);
 		sendImageToGw(imageParam, imageConvertResponse.getTotalPageCount(), licenseNo);
 	}
@@ -174,7 +185,5 @@ public class ImageService {
 
 		return fileCode;
 	}
-
-
 
 }

@@ -20,7 +20,8 @@ public enum CommonCodeType {
 	LOTTE_LISTED_EXCHANGE("롯데 상장거래소 코드"),
 	RISK_GRADE("리스크 등급"),
 	STOCK("증권사 코드"),
-	NT("공공기관 코드")
+	NT("공공기관 코드"),
+	IMAGE_FLAG("이미지 생성여부")
 	;
 
 	private String description;
