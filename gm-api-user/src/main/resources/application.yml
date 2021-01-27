@@ -113,7 +113,7 @@ quotabook:
   api-key: testApiKey
 
 expense:
-  domain-url: https://stg-exepense-auth.gowid.com
+  domain-url: https://stg-expense-auth.gowid.com
   user-url: /user
   api-key: expapisvR2021!
 
@@ -197,7 +197,7 @@ quotabook:
   api-key: testApiKey
 
 expense:
-  domain-url: https://stg-exepense-auth.gowid.com
+  domain-url: https://stg-expense-auth.gowid.com
   user-url: /user
   api-key: expapisvR2021!
 
@@ -278,7 +278,7 @@ quotabook:
   api-key: 24ffe03e45b211ebb3780242ac130002
 
 expense:
-  domain-url: https://exepense-auth.gowid.com
+  domain-url: https://expense-auth.gowid.com
   user-url: /user
   api-key: expapIsvR2021!
 
