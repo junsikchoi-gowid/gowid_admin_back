@@ -149,10 +149,10 @@ public class UserService {
 		User user = getUser(idxUser);
         if (!ObjectUtils.isEmpty(user.corp())) {
             Long idxCorp = user.corp().idx();
-            List<Long> listIdxCardInfo = repoCardIssuanceInfo.findAllIdxByUserIdx(idxUser);
-            repoCeoInfo.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
-            repoManager.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
-            repoStockholderFile.deleteAllByCardIssuanceInfoIdx(listIdxCardInfo);
+            Long idxCardInfo = repoCardIssuanceInfo.findIdxByUserIdx(idxUser);
+            repoCeoInfo.deleteByCardIssuanceInfoIdx(idxCardInfo);
+            repoManager.deleteByCardIssuanceInfoIdx(idxCardInfo);
+            repoStockholderFile.deleteByCardIssuanceInfoIdx(idxCardInfo);
             fullTextService.deleteAllShinhanFulltext(idxCorp);
             fullTextService.deleteAllLotteFulltext(idxCorp);
             repoRisk.deleteByCorpIdx(idxCorp);

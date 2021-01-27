@@ -19,6 +19,9 @@ public interface CardIssuanceInfoRepository extends JpaRepository<CardIssuanceIn
     Optional<CardIssuanceInfo> findByCorpAndDisabledFalseOrderByIdxDesc(Corp corp);
 
     @Query(value = "select idx FROM CardIssuanceInfo where idxUser = :idxUser and disabled = false", nativeQuery = true)
+    Long findIdxByUserIdx(@Param("idxUser") Long idxUser);
+
+    @Query(value = "select idx FROM CardIssuanceInfo where idxUser = :idxUser and disabled = false", nativeQuery = true)
     List<Long> findAllIdxByUserIdx(@Param("idxUser") Long idxUser);
 
     @Query(value = "select * FROM CardIssuanceInfo where idxUser = :idxUser and disabled = false order by idx", nativeQuery = true)

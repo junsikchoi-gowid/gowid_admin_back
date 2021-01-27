@@ -17,7 +17,12 @@ public interface ManagerRepository extends JpaRepository<ManagerInfo, Long> {
 
     @Transactional
     @Modifying
-    @Query("delete from ManagerInfo where idxCardIssuanceInfo in (:idxCardIssuanceInfo)")
+    @Query("delete from ManagerInfo where idxCardIssuanceInfo in :idxCardIssuanceInfo")
     void deleteAllByCardIssuanceInfoIdx(@Param("idxCardIssuanceInfo") List<Long> idxCardIssuanceInfo);
+
+    @Transactional
+    @Modifying
+    @Query("delete from ManagerInfo where idxCardIssuanceInfo = :idxCardIssuanceInfo")
+    void deleteByCardIssuanceInfoIdx(@Param("idxCardIssuanceInfo") Long idxCardIssuanceInfo);
 }
 

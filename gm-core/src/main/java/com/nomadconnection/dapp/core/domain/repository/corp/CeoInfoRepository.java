@@ -17,6 +17,11 @@ public interface CeoInfoRepository extends JpaRepository<CeoInfo, Long> {
 
 	@Transactional
 	@Modifying
-	@Query("delete from CeoInfo where idxCardIssuanceInfo in (:idxCardIssuanceInfo)")
+	@Query("delete from CeoInfo where idxCardIssuanceInfo in :idxCardIssuanceInfo")
 	void deleteAllByCardIssuanceInfoIdx(@Param("idxCardIssuanceInfo") List<Long> idxCardIssuanceInfo);
+
+	@Transactional
+	@Modifying
+	@Query("delete from CeoInfo where idxCardIssuanceInfo = :idxCardIssuanceInfo")
+	void deleteByCardIssuanceInfoIdx(@Param("idxCardIssuanceInfo") Long idxCardIssuanceInfo);
 }
