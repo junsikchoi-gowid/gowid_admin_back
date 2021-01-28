@@ -415,8 +415,8 @@ public class SaasTrackerDto {
 						.cardNumber(StringUtils.isEmpty(saasPaymentInfo.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.cardNumber(), 4))
 						.accountNumber(StringUtils.isEmpty(saasPaymentInfo.accountNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.accountNumber(), 4))
 						.paymentType(saasPaymentInfo.paymentType())
-						.paymentDate(saasPaymentInfo.paymentScheduleDate().startsWith(CommonUtil.getNowYYYYMM()) ? saasPaymentInfo.paymentScheduleDate() :
-								(saasPaymentInfo.currentPaymentDate().startsWith(CommonUtil.getNowYYYYMM()) ? saasPaymentInfo.currentPaymentDate() : null ))
+						.paymentDate(saasPaymentInfo.currentPaymentDate().startsWith(CommonUtil.getNowYYYYMM()) ? saasPaymentInfo.currentPaymentDate()
+								: (Integer.parseInt(saasPaymentInfo.paymentScheduleDate()) >= Integer.parseInt(CommonUtil.getNowYYYYMMDD()) ? saasPaymentInfo.paymentScheduleDate() : null))
 						.paymentPrice(saasPaymentInfo.currentPaymentPrice())
 						.paymentScheduleDate(saasPaymentInfo.paymentScheduleDate())
 						.build();
