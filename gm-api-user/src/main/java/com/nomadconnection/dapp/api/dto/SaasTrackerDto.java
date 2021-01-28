@@ -646,7 +646,7 @@ public class SaasTrackerDto {
 				return SaasMaxTop5Res.builder()
 						.idxSaasInfo(dto.getIdxSaasInfo())
 						.saasName(dto.getName())
-						.payment(dto.getaSum())
+						.payment(dto.getbSum())
 						.mom(ObjectUtils.isEmpty(dto.getMom()) ? 0 : dto.getMom())
 						.build();
 			}
