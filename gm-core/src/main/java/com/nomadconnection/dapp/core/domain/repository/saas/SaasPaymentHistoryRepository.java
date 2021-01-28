@@ -156,8 +156,8 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
     @Query(value = "SELECT \n" +
                     "    info.name,\n" +
                     "    hist.idxSaasInfo,\n" +
-                    "    IFNULL(a.psum, 0) AS bsum,\n" +
-                    "    IFNULL(b.psum, 0) AS asum,\n" +
+                    "    IFNULL(a.psum, 0) AS asum,\n" +
+                    "    IFNULL(b.psum, 0) AS bsum,\n" +
                     "    ROUND(((IFNULL(b.psum, 0) - IFNULL(a.psum, 0)) / IFNULL(a.psum, 0) * 100),\n" +
                     "            2) AS mom\n" +
                     "FROM\n" +
@@ -183,7 +183,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                     "            AND paymentDate BETWEEN DATE_FORMAT(DATE_SUB(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), INTERVAL DAY(CURDATE()) - 1 DAY), '%Y%m%d') AND DATE_FORMAT(LAST_DAY(DATE_SUB(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), INTERVAL DAY(CURDATE()) - 1 DAY)), '%Y%m%d')\n" +
                     "    GROUP BY idxSaasInfo) b ON hist.idxSaasInfo = b.idxSaasInfo\n" +
                     "WHERE\n" +
-                    "    idxUser = :idxUser AND a.psum IS NOT NULL\n" +
+                    "    idxUser = :idxUser AND b.psum IS NOT NULL\n" +
                     "GROUP BY hist.idxSaasInfo\n" +
                     "ORDER BY b.psum DESC\n" +
                     "LIMIT 5", nativeQuery = true)
@@ -224,15 +224,21 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
     }
 
     @Query(value = "SELECT \n" +
-                    "    *\n" +
+                    "    a.*" +
                     "FROM\n" +
-                    "    SaasPaymentHistory\n" +
-                    "WHERE\n" +
-                    "    idxUser = :idxUser \n" +
-                    "GROUP BY idxSaasInfo\n" +
-                    "HAVING paymentDate = MIN(paymentDate)\n" +
+                    "    (SELECT \n" +
+                    "        MIN(paymentDate) paymentDate, idxSaasInfo\n" +
+                    "    FROM\n" +
+                    "        SaasPaymentHistory\n" +
+                    "    WHERE\n" +
+                    "        idxUser = :idxUser \n" +
+                    "    GROUP BY idxSaasInfo) t1\n" +
+                    "        INNER JOIN\n" +
+                    "    SaasPaymentHistory a ON a.idxSaasInfo = t1.idxSaasInfo\n" +
+                    "        AND a.paymentDate = t1.paymentDate\n" +
+                    "GROUP BY paymentDate\n" +
                     "ORDER BY paymentDate DESC\n" +
-                    "LIMIT 5;", nativeQuery = true)
+                    "LIMIT 5", nativeQuery = true)
     List<SaasPaymentHistory> findTop5ByUserIsNew(@Param("idxUser") Long idxUser);
 
 }

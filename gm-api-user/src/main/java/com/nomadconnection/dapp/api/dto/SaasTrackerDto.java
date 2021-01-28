@@ -647,7 +647,7 @@ public class SaasTrackerDto {
 						.idxSaasInfo(dto.getIdxSaasInfo())
 						.saasName(dto.getName())
 						.payment(dto.getaSum())
-						.mom(dto.getMom())
+						.mom(ObjectUtils.isEmpty(dto.getMom()) ? 0 : dto.getMom())
 						.build();
 			}
 			return null;
