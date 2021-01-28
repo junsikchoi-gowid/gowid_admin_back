@@ -376,15 +376,16 @@ public class SaasTrackerService {
 		log.info(">>>>> getSaasPaymentSchedules.start");
 		User user = userService.getUser(userIdx);
 
+		String dateStr = CommonUtil.getNowYYYYMMDD();
 		SaasTrackerDto.SaasPaymentScheduleRes scheduleRes = new SaasTrackerDto.SaasPaymentScheduleRes();
 
 		try {
-			List<SaasPaymentInfo> paymentInfos = repoSaasPaymentInfo.findAllByUserAndActiveSubscriptionIsTrueAndPaymentScheduleDateGreaterThanEqualOrderByPaymentScheduleDateAsc(user, CommonUtil.getNowYYYYMMDD());
+			List<SaasPaymentInfo> paymentInfos = repoSaasPaymentInfo.findAllByUserAndActiveSubscriptionIsTrueOrderByPaymentScheduleDateAsc(user);
 
 			// 1. 정기 결제 목록
 			scheduleRes.setRegularList(paymentInfos.stream()
 					.map(SaasTrackerDto.SaasPaymentScheduleDetailRes::from)
-					.filter(p -> (p.getPaymentType() == 1 || p.getPaymentType() == 2))
+					.filter(p -> ((p.getPaymentType() == 1 || p.getPaymentType() == 2)) && !StringUtils.isEmpty(p.getPaymentScheduleDate()) && Integer.parseInt(p.getPaymentScheduleDate()) >= Integer.parseInt(dateStr))
 					.collect(Collectors.toList()));
 
 			// 2. 비정기 결제 목록

@@ -17,7 +17,7 @@ public interface SaasPaymentInfoRepository extends JpaRepository<SaasPaymentInfo
 
     List<SaasPaymentInfo> findAllByUserAndActiveSubscriptionIsTrue(User user);
 
-    List<SaasPaymentInfo> findAllByUserAndActiveSubscriptionIsTrueAndPaymentScheduleDateGreaterThanEqualOrderByPaymentScheduleDateAsc(User user, String yyyymm);
+    List<SaasPaymentInfo> findAllByUserAndActiveSubscriptionIsTrueOrderByPaymentScheduleDateAsc(User user);
 
     List<SaasPaymentInfo> findAllByUserAndSaasInfo(User user, SaasInfo saasInfo);
 
