@@ -22,7 +22,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
     @Transactional
     @Modifying
     @Query("update ResBatch set endFlag = true where idxUser = :idxUser and endFlag = false ")
-    int endBatchUser(Long idxUser);
+    int endBatchUser(@Param("idxUser") Long idxUser);
 
     @Query(value = "select \n" +
             "    a.idx as idx, \n" +
@@ -48,7 +48,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "        and b.errCode <> 'CF-00000'  \n" +
             "        and resBatchType = 1  \n" +
             "limit 1 ",nativeQuery = true)
-    List<ResBatchRepository.CResBatchDto> findRefresh(Long idxUser);
+    List<ResBatchRepository.CResBatchDto> findRefresh(@Param("idxUser") Long idxUser);
 
     @Query(value = "select comm.resAccountStartDate\n" +
             ", if(Date_Format(resAccountStartDate , '%Y%m') = Date_Format(startDay , '%Y%m'), resAccountStartDate, startDay) startDay\n" +
@@ -112,7 +112,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "or (true and nowMonth = 1) \n" +
             "or (true and Date_Format(startDay , '%Y%m') >= date_format(date_add(now(), INTERVAL - 1 month), '%Y%m') and nowMonthFirst = 1) \n"+
             "order by startDay desc, endDay desc",nativeQuery = true)
-    List<ResBatchRepository.CResYears> findStartDateMonth(Long idxUser);
+    List<ResBatchRepository.CResYears> findStartDateMonth(@Param("idxUser") Long idxUser);
 
     @Query(value = "select comm.resAccountStartDate\n" +
             ", if(Date_Format(resAccountStartDate , '%Y%m') = Date_Format(startDay , '%Y%m'), resAccountStartDate, startDay) startDay\n" +
@@ -176,7 +176,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "or (true and nowMonth = 1) \n" +
             "or (true and Date_Format(startDay , '%Y%m') >= date_format(date_add(now(), INTERVAL - 45 day), '%Y%m') and nowMonthFirst = 1) \n"+
             "order by startDay desc, endDay desc",nativeQuery = true)
-    List<ResBatchRepository.CResYears> findStart45DateMonth(Long idxUser);
+    List<ResBatchRepository.CResYears> findStart45DateMonth(@Param("idxUser") Long idxUser);
 
     @Query(value = "select comm.resAccountStartDate\n" +
             ", if(Date_Format(resAccountStartDate , '%Y%m') = Date_Format(startDay , '%Y%m'), resAccountStartDate, startDay) startDay\n" +
@@ -244,7 +244,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "or (:boolNow and nowMonth = 1) \n" +
             "or (:boolNow and Date_Format(startDay , '%Y%m') >= date_format(date_add(now(), INTERVAL - 1 month), '%Y%m') and nowMonthFirst = 1) \n"+
             "order by startDay desc, endDay desc",nativeQuery = true)
-    List<ResBatchRepository.CResYears> find10yearMonth(Long idxUser , Boolean boolNow);
+    List<ResBatchRepository.CResYears> find10yearMonth(@Param("idxUser") Long idxUser , @Param("boolNow") Boolean boolNow);
 
     @Transactional
     @Modifying
@@ -253,7 +253,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
 
     @Transactional
     @Query("select max(idx) from ResBatch where idxUser = :idxUser")
-    Long getMaxIdx(Long idxUser);
+    Long getMaxIdx(@Param("idxUser") Long idxUser);
 
     public static interface CResBatchDto {
         String getMin();

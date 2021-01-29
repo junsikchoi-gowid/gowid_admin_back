@@ -1,9 +1,7 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.BankDto;
-import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.api.service.BankService;
-import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
@@ -160,6 +158,8 @@ public class BankController {
 		return service.checkAccountList45(user.idx());
 	}
 
+	// 지금까지 idxCorp를 전달하지 않았음
+	// 준식님 대화 필요
 	@ApiOperation(value = "새로고침", notes = "" + "\n")
 	@GetMapping( URI.CHECK_REFRESH )
 	public ResponseEntity checkRefresh(@ApiIgnore @CurrentUser CustomUser user, @RequestParam(required = false) Long idxCorp) {

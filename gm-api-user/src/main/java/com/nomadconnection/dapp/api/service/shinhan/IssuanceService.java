@@ -487,7 +487,7 @@ public class IssuanceService {
         shinhanGwRpc.request1400(requestRpc, userCorp.user().idx());
     }
 
-    private DataPart1700 proc1700(Long idxUser, CardIssuanceDto.IdentificationReq request, Map<String, String> decryptData) {
+    public DataPart1700 proc1700(Long idxUser, CardIssuanceDto.IdentificationReq request, Map<String, String> decryptData) {
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1700);
 

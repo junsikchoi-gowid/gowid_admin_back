@@ -7,8 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 public interface Lotte_D1100Repository extends JpaRepository<Lotte_D1100, Long> {
 	Lotte_D1100 getTopByIdxCorpOrderByIdxDesc(Long idxCorp);
+
+	Optional<Lotte_D1100> findFirstByIdxCorpOrderByUpdatedAtDesc(long idxCorp);
 
 	@Transactional
 	@Modifying

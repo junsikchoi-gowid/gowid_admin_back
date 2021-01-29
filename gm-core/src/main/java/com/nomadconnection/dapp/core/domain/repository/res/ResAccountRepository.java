@@ -26,7 +26,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             " from ResAccount R" +
             " where connectedId = :connectedId " +
             " order by field(resAccountDeposit , 10,11,12,13,14,30,20,40), resAccountNickName ASC, resAccountName ASC ")
-    List<ResAccount> findConnectedId(String connectedId);
+    List<ResAccount> findConnectedId(@Param("connectedId") String connectedId);
 
     @Query(value = " select      " +
             " R.resAccountDeposit,     " +
@@ -51,7 +51,11 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             " and cast(resAccountIn as signed) >= :resAccountIn and cast(resAccountOut as signed) >= :resAccountOut " +
             " order by resAccountTrDate desc, resAccountTrTime desc, A.idx  " +
             " LIMIT :limit OFFSET :offset  ", nativeQuery = true)
-    List<CaccountHistoryDto> findAccountHistory(String startDate, String endDate, String resAccount, Long idxUser, Integer limit, Integer offset, Integer resAccountIn, Integer resAccountOut, Integer boolF);
+    List<CaccountHistoryDto> findAccountHistory(@Param("startDate") String startDate, @Param("endDate") String endDate,
+                                                @Param("resAccount") String resAccount, @Param("idxUser") Long idxUser,
+                                                @Param("limit") Integer limit, @Param("offset") Integer offset,
+                                                @Param("resAccountIn") Integer resAccountIn,
+                                                @Param("resAccountOut") Integer resAccountOut, @Param("boolF") Integer boolF);
 
 
 
@@ -79,7 +83,9 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "                group by resAccountTrDate ) groupB    " +
             "                on groupA.dm = groupB.resAccountTrDate  where groupA.dm between :startDate and  :endDate   " +
             "            order by groupA.dm desc", nativeQuery = true)
-    List<CaccountCountDto> findDayHistory(String startDate, String endDate, Long idxUser);
+    List<CaccountCountDto> findDayHistory(@Param("startDate") String startDate,
+                                          @Param("endDate") String endDate,
+                                          @Param("idxUser") Long idxUser);
 
     public static interface CaccountMonthDto {
         String getSumDate();
@@ -157,7 +163,9 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "  where Date_Format(resAccountTrDate,  '%Y%m%d') >= :startMonth and  Date_Format(resAccountTrDate,  '%Y%m%d') <= :endMonth     " +
             "  group by Date_Format(resAccountTrDate,  '%Y%m')     " +
             " ) groupTableB  on groupTableA.ms = groupTableB.resAccountTrMonth order by sumDate", nativeQuery = true)
-    List<CaccountMonthDto> findMonthHistory_External(String startMonth, String endMonth, Long idxUser);
+    List<CaccountMonthDto> findMonthHistory_External(@Param("startMonth") String startMonth,
+                                                     @Param("endMonth") String endMonth,
+                                                     @Param("idxUser") Long idxUser);
 
     @Query(value = "select  " +
             "  sum(  " +
@@ -222,7 +230,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "   where idxUser = :idxUser and endDate >= :calcDate and resBatchType = 1" +
             "   ORDER BY account, updatedAt desc) c on Rank = 1 and errCode = 'CF-00000' and c.account = b.resAccount" +
             " ) a group by dsc order by dsc asc", nativeQuery = true)
-    List<CRisk> find45dayValance(Long idxUser, String calcDate);
+    List<CRisk> find45dayValance(@Param("idxUser") Long idxUser, @Param("calcDate") String calcDate);
 
     @Query(value =
             " select sum(ifnull(ifnull(ifnull(value1,value2),value3),0)) as currentBalance" +
@@ -248,12 +256,12 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
                     " where idxUser = :idxUser and endDate >= :setDate and resBatchType = 1" +
                     " ORDER BY account, updatedAt desc) c on Rank = 1 and errCode = 'CF-00000' and c.account = b.resAccount" +
                     " where b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14')) z", nativeQuery = true)
-    Double findRecentBalance(Long idxUser, String setDate);
+    Double findRecentBalance(@Param("idxUser") Long idxUser, @Param("setDate") String setDate);
 
     @Query(value = "select sum(resAccountRiskBalance) from ResAccount " +
             " where connectedId in (select connectedId from ConnectedMng where idxUser in (select idxUser from Corp where idx = :idxCorp))"
             , nativeQuery = true)
-    Double findNowBalance(Long idxCorp);
+    Double findNowBalance(@Param("idxCorp") Long idxCorp);
 
     public static interface CaccountHistoryDto {
         String getResAccount();
@@ -288,7 +296,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             countQuery = "select count(*) from ResAccount R where connectedId in (select connectedId from ConnectedMng where idxUser =:idxUser) ",
             nativeQuery = true
     )
-    Page<ResAccount> findExternalAccount(Pageable pageable, Long idxUser);
+    Page<ResAccount> findExternalAccount(@Param("pageable") Pageable pageable, @Param("idxUser") Long idxUser);
 
 
     public static interface CashResultDto {
@@ -352,7 +360,9 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
                     ") d where (resCompanyNm like concat('%',:searchCorpName,'%') or :searchCorpName is null ) and ( errStatus = :updateStatus or :updateStatus is null) ",
             nativeQuery = true
     )
-    Page<CashResultDto> cashList(String searchCorpName, Boolean updateStatus, Pageable pageable);
+    Page<CashResultDto> cashList(@Param("searchCorpName") String searchCorpName,
+                                 @Param("updateStatus") Boolean updateStatus,
+                                 @Param("pageable") Pageable pageable);
 
     List<ResAccount> findByConnectedIdInAndUpdatedAtAfter(List<String> connectedId, LocalDateTime localDateTime);
 }
