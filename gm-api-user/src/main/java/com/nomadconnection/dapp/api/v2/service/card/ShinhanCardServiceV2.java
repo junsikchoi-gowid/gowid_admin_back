@@ -20,6 +20,7 @@ import com.nomadconnection.dapp.core.domain.shinhan.D1530;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.encryption.shinhan.Seed128;
+import com.nomadconnection.dapp.core.utils.EnvUtil;
 import com.nomadconnection.dapp.secukeypad.EncryptParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,8 @@ public class ShinhanCardServiceV2 {
     private final D1100Repository repoD1100;
     private final D1400Repository repoD1400;
     private final D1530Repository repoD1530;
+
+    private final EnvUtil envUtil;
 
     @Value("${encryption.seed128.enable}")
     private boolean ENC_SEED128_ENABLE;
@@ -463,7 +466,9 @@ public class ShinhanCardServiceV2 {
     public void updateIdentification(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
         save1000Identification(cardIssuanceInfo, dto, decryptData);
         save1400Identification(cardIssuanceInfo, dto, decryptData);
-        save1530Identification(cardIssuanceInfo, dto);
+        if(envUtil.isProd() && !"0".equals(dto.getCeoSeqNo())) {
+            save1530Identification(cardIssuanceInfo, dto);
+        }
     }
 
     // 1000 테이블에 대표자1,2,3 주민번호 저장(d11,15,19)
