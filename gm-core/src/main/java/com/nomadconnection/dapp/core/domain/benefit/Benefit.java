@@ -38,6 +38,7 @@ public class Benefit extends BaseTime {
 
 	private String detailMobileImageUrl;
 
+	@Lob
 	@Column(nullable = false)
 	private String basicInfoDesc;
 
