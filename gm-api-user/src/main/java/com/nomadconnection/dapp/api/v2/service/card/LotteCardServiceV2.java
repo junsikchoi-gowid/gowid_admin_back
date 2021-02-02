@@ -104,6 +104,15 @@ public class LotteCardServiceV2 {
         );
     }
 
+    public Lotte_D1100 updateD1100CorpExtend(Long idxCorp, CardIssuanceDto.RegisterCorporationExtend dto) {
+        Lotte_D1100 d1100 = getD1100(idxCorp);
+        if (ObjectUtils.isEmpty(d1100)) {
+            return d1100;
+        }
+
+        return d1100.setVtCurTtEnpYn(dto.getIsVirtualCurrency() ? "Y" : "N");
+    }
+
     public Lotte_D1100 updateD1100Stockholder(Long idxCorp, CardIssuanceInfo cardInfo, List<CeoInfo> ceoInfos,
                                                CardIssuanceDto.RegisterStockholder dto) {
         Lotte_D1100 d1100 = getD1100(idxCorp);

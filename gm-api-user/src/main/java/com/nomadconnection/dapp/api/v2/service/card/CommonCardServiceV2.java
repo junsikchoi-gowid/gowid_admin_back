@@ -169,6 +169,10 @@ public class CommonCardServiceV2 {
             .build())
         );
 
+        if (CardCompany.isLotte(user.cardCompany())) {
+            lotteCardService.updateD1100CorpExtend(user.corp().idx(), dto);
+        }
+
         if (StringUtils.hasText(depthKey)) {
             repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
         }
