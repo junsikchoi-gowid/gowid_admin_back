@@ -33,7 +33,7 @@ public class SurveyService {
 	private final SurveyRepository surveyRepository;
 	private final SurveyAnswerRepository surveyAnswerRepository;
 
-	private final String NONE = "NONE";
+	private final String[] NOT_EXISTS_DETAIL = {"NONE", "TEXT"};
 	private final String DEFAULT_SURVEY = "DEFAULT";
 
 	public SurveyDto.SurveyContents findSurvey(String surveyTitle) {
@@ -102,7 +102,12 @@ public class SurveyService {
 			() -> new SurveyNotRegisteredException(ErrorCode.Api.NOT_FOUND)
 		).getAnswerType();
 
-		return !NONE.equals(answerType);
+		for (String detail : NOT_EXISTS_DETAIL) {
+			if(detail.equals(answerType)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private Survey findSurveyTitle(String surveyTitle){
