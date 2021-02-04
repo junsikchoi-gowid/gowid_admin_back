@@ -1,9 +1,7 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.RiskDto;
-import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.api.service.RiskService;
-import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
@@ -112,6 +110,7 @@ public class RiskController {
 		return ResponseEntity.ok().body(service.getCardLimit(user.idx()));
 	}
 
+	@Deprecated
 	@ApiOperation(value = "부여 한도 금액 조회")
 	@GetMapping(URI.GRANT_LIMIT)
 	public ResponseEntity<?> getGrantLimit(

@@ -101,7 +101,7 @@ public class ShinhanCardService {
         );
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            commonCardService.saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.CorporationRes.from(corp, cardInfo.idx());
@@ -131,7 +131,7 @@ public class ShinhanCardService {
         );
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            commonCardService.saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.CorporationExtendRes.from(cardInfo, getListedCompanyName(dto.getListedCompanyCode()));
@@ -210,7 +210,7 @@ public class ShinhanCardService {
         updateRiskConfigVenture(user, dto);
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            commonCardService.saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.VentureRes.from(repoCardIssuance.save(cardInfo));
@@ -275,7 +275,7 @@ public class ShinhanCardService {
         updateD1400Stockholder(user.corp().idx(), cardInfo, ceoInfos, dto);
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            commonCardService.saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.VentureRes.from(repoCardIssuance.save(cardInfo));
@@ -385,9 +385,9 @@ public class ShinhanCardService {
     public CardIssuanceDto.CardRes saveHopeLimit(Long idxUser, CardIssuanceDto.HopeLimitReq dto, String depthKey) {
         User user = findUser(idxUser);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-        if (!cardInfo.idx().equals(dto.getCardIssuanceInfoIdx())) {
-            throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
-        }
+//        if (!cardInfo.idx().equals(dto.getCardIssuanceInfoIdx())) {
+//            throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
+//        }
 
         Card card = cardInfo.card();
         if (ObjectUtils.isEmpty(card)) {
@@ -406,7 +406,7 @@ public class ShinhanCardService {
         }
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            commonCardService.saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.CardRes.from(repoCardIssuance.save(cardInfo));
@@ -498,7 +498,7 @@ public class ShinhanCardService {
                 .requestCount(dto.getCount()));
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            commonCardService.saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.CardRes.from(repoCardIssuance.save(cardInfo));
@@ -603,7 +603,7 @@ public class ShinhanCardService {
                 .build());
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            commonCardService.saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.AccountRes.from(repoCardIssuance.save(cardInfo), getBankName(account.organization()));
@@ -696,7 +696,7 @@ public class ShinhanCardService {
                 .build();
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            commonCardService.saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.ManagerRes.from(repoManager.save(manager));
@@ -834,7 +834,7 @@ public class ShinhanCardService {
         }
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            commonCardService.saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");

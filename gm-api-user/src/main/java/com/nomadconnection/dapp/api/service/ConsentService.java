@@ -3,6 +3,8 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.ConsentDto;
+import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
+import com.nomadconnection.dapp.api.exception.MismatchedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
@@ -123,7 +125,6 @@ public class ConsentService {
     }
 
     public ResponseEntity consentCardSave(Long idxUser, ConsentDto.RegisterCardUserConsent dto) {
-
         User user = repoUser.findById(idxUser).orElseThrow(
                 () -> UserNotFoundException.builder().build()
         );
@@ -146,13 +147,18 @@ public class ConsentService {
             );
         }
 
-
-        // CardIssuanceInfo 첫 raw 생성시점
-        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.save(CardIssuanceInfo.builder()
-                .corp(user.corp())
-                .user(user)
-                .cardCompany(dto.getCompanyCode())
+        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(user).orElseThrow(
+            () -> EntityNotFoundException.builder()
+                .entity("CardIssuanceInfo")
                 .build());
+
+        if (!cardIssuanceInfo.idx().equals(dto.getCardIssuanceInfoIdx())) {
+            throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
+        }
+
+        cardIssuanceInfo = repoCardIssuance.save(cardIssuanceInfo
+                .user(user)
+                .cardCompany(dto.getCompanyCode()));
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(cardIssuanceInfo).build());
     }

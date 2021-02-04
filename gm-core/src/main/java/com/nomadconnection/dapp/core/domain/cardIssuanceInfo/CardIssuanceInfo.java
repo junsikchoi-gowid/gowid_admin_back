@@ -65,8 +65,9 @@ public class CardIssuanceInfo extends BaseTime {
     @Enumerated(EnumType.STRING)
     private CardCompany cardCompany = CardCompany.SHINHAN;
 
+    @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(100)  DEFAULT '' COMMENT   '카드발급신청 진행상황'")
-    private String issuanceDepth;
+    private IssuanceDepth issuanceDepth;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(20)  DEFAULT 'UNISSUED' COMMENT '카드발급 상태'")

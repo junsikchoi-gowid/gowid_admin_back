@@ -320,8 +320,18 @@ public class RiskService {
 	}
 
 	@Transactional(readOnly = true)
-	public String getCardLimit(Long idx_user) {
-		return repoRisk.findCardLimitNowFirst(idx_user, CommonUtil.getNowYYYYMMDD()) + "";
+	public String getCardLimit(Long idxUser) {
+		User user = findUser(idxUser);
+		double cardLimit = repoRisk.findCardLimitNowFirst(idxUser, CommonUtil.getNowYYYYMMDD());
+		double maxLimit = 0;
+
+		maxLimit = Double.parseDouble(
+			repoCommonCodeDetail.getByCodeAndCode1(CommonCodeType.CARD_LIMIT, user.cardCompany().getName()).value1());
+		if (cardLimit > maxLimit) {
+			cardLimit = maxLimit;
+		}
+
+		return cardLimit + "";
 	}
 
 	@Transactional(readOnly = true)

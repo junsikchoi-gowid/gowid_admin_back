@@ -9,6 +9,7 @@ import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceDepth;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
@@ -283,7 +284,7 @@ public class AdminService {
                 () -> CorpNotRegisteredException.builder().build());
 
         CardIssuanceInfo cardIssuance = repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(user).orElseGet(
-                () -> CardIssuanceInfo.builder().issuanceDepth("0").build()
+                () -> CardIssuanceInfo.builder().issuanceDepth(IssuanceDepth.SIGNUP).build()
         );
 
         RiskDto.RiskConfigDto riskConfig = repoRiskConfig.findByCorpAndEnabled(corp, true).map(RiskDto.RiskConfigDto::from)
@@ -295,7 +296,7 @@ public class AdminService {
         AdminDto.corpInfoDetailId corpInfo = AdminDto.corpInfoDetailId.builder()
                 .corpDto(corpDto)
                 .cardCompany(user.cardCompany())
-                .depth(cardIssuance.issuanceDepth())
+                .depth(cardIssuance.issuanceDepth().toString())
                 .hopeLimit(riskConfig.hopeLimit)
                 .grantLimit(riskConfig.grantLimit)
                 .userName(user.name())
@@ -514,7 +515,7 @@ public class AdminService {
         );
 
         CardIssuanceInfo cardIssuance = repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(corp.user()).orElseGet(
-                () -> CardIssuanceInfo.builder().issuanceDepth("0").build()
+                () -> CardIssuanceInfo.builder().issuanceDepth(IssuanceDepth.SIGNUP).build()
         );
 
         if(cardIssuance.card().requestCount() != null ){
@@ -522,7 +523,7 @@ public class AdminService {
         }
 
         if(cardIssuance.issuanceDepth() != null){
-            data.setIssuanceDepth(cardIssuance.issuanceDepth());
+            data.setIssuanceDepth(cardIssuance.issuanceDepth().toString());
         }
 
         if(cardIssuance.issuanceStatus() != null){

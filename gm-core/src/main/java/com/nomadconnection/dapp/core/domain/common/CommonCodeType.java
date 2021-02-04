@@ -21,7 +21,8 @@ public enum CommonCodeType {
 	RISK_GRADE("리스크 등급"),
 	STOCK("증권사 코드"),
 	NT("공공기관 코드"),
-	IMAGE_FLAG("이미지 생성여부")
+	IMAGE_FLAG("이미지 생성여부"),
+	CARD_LIMIT("카드사별 최대한도")
 	;
 
 	private String description;

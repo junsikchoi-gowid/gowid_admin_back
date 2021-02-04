@@ -6,10 +6,7 @@ import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CeoInfo;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFile;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFileType;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
@@ -129,7 +126,7 @@ public class CommonCardService {
 		}
 
 		if (StringUtils.hasText(depthKey)) {
-			repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+			saveIssuanceDepth(idx_user, depthKey);
 		}
 
 		return resultList;
@@ -240,7 +237,7 @@ public class CommonCardService {
 		repoFile.delete(file);
 
 		if (StringUtils.hasText(depthKey)) {
-			repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+			saveIssuanceDepth(idx_user, depthKey);
 		}
 	}
 
@@ -259,7 +256,7 @@ public class CommonCardService {
 
 		if (cardIssuanceInfo != null) {
 			return CardIssuanceDto.CardIssuanceInfoRes.builder()
-					.issuanceDepth(cardIssuanceInfo.issuanceDepth())
+					.issuanceDepth(cardIssuanceInfo.issuanceDepth().toString())
 					.cardCompany(!ObjectUtils.isEmpty(cardIssuanceInfo.cardCompany()) ? cardIssuanceInfo.cardCompany().name() : null)
 					.consentRes(consentInfo)
 					.corporationRes(getCorporationRes(cardIssuanceInfo))
@@ -365,7 +362,7 @@ public class CommonCardService {
 	public void saveIssuanceDepth(Long idx_user, String depthKey) {
 		User user = findUser(idx_user);
 		CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-		repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+		repoCardIssuance.save(cardInfo.issuanceDepth(IssuanceDepth.getIssuanceDepth(depthKey)));
 	}
 
 	@Transactional(rollbackFor = Exception.class)

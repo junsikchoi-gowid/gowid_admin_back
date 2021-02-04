@@ -130,7 +130,7 @@ public class CommonCardServiceV2 {
         );
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.CorporationRes.from(corp, cardInfo.idx());
@@ -174,7 +174,7 @@ public class CommonCardServiceV2 {
         }
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.CorporationExtendRes.from(cardInfo, getListedCompanyName(dto.getListedCompanyCode()));
@@ -224,7 +224,7 @@ public class CommonCardServiceV2 {
         }
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.VentureRes.from(repoCardIssuance.save(cardInfo));
@@ -262,18 +262,18 @@ public class CommonCardServiceV2 {
     /**
      * 주주명부 파일 등록
      *
-     * @param idx_user     등록하는 User idx
+     * @param idxUser     등록하는 User idx
      * @param file_1       파일1
      * @param file_2       파일2
      * @param type         file type
-     * @param idx_CardInfo CardIssuanceInfo idx
+     * @param idxCardInfo CardIssuanceInfo idx
      * @return 등록 정보
      */
     @Transactional(noRollbackFor = FileUploadException.class)
-    public List<CardIssuanceDto.StockholderFileRes> registerStockholderFile(Long idx_user, MultipartFile[] file_1, MultipartFile[] file_2, String type, Long idx_CardInfo, String depthKey) throws IOException {
-        User user = findUser(idx_user);
+    public List<CardIssuanceDto.StockholderFileRes> registerStockholderFile(Long idxUser, MultipartFile[] file_1, MultipartFile[] file_2, String type, Long idxCardInfo, String depthKey) throws IOException {
+        User user = findUser(idxUser);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-        if (!cardInfo.idx().equals(idx_CardInfo)) {
+        if (!cardInfo.idx().equals(idxCardInfo)) {
             throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
         }
 
@@ -302,7 +302,7 @@ public class CommonCardServiceV2 {
         }
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            saveIssuanceDepth(idxUser, depthKey);
         }
 
         return resultList;
@@ -405,7 +405,7 @@ public class CommonCardServiceV2 {
 
         if (cardIssuanceInfo != null) {
             return CardIssuanceDto.CardIssuanceInfoRes.builder()
-                .issuanceDepth(cardIssuanceInfo.issuanceDepth())
+                .issuanceDepth(cardIssuanceInfo.issuanceDepth().toString())
                 .cardCompany(!ObjectUtils.isEmpty(cardIssuanceInfo.cardCompany()) ? cardIssuanceInfo.cardCompany().name() : null)
                 .consentRes(consentInfo)
                 .corporationRes(getCorporationRes(cardIssuanceInfo))
@@ -474,7 +474,7 @@ public class CommonCardServiceV2 {
         }
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.CardRes.from(repoCardIssuance.save(cardInfo));
@@ -595,7 +595,7 @@ public class CommonCardServiceV2 {
         }
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.VentureRes.from(repoCardIssuance.save(cardInfo));
@@ -639,16 +639,17 @@ public class CommonCardServiceV2 {
     @Transactional(rollbackFor = Exception.class)
     public CardIssuanceDto.CardRes saveHopeLimit(Long idxUser, CardIssuanceDto.HopeLimitReq dto, String depthKey) {
         User user = findUser(idxUser);
-        CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-        if (!cardInfo.idx().equals(dto.getCardIssuanceInfoIdx())) {
-            throw MismatchedException.builder().category(MismatchedException.Category.CARD_ISSUANCE_INFO).build();
-        }
 
-        Card card = cardInfo.card();
+        CardIssuanceInfo cardIssuanceInfo = CardIssuanceInfo.builder()
+            .corp(user.corp())
+            .user(user)
+            .build();
+
+        Card card = cardIssuanceInfo.card();
         if (ObjectUtils.isEmpty(card)) {
             card = Card.builder().build();
         }
-        cardInfo.card(card.hopeLimit(dto.getHopeLimit()));
+        cardIssuanceInfo.card(card.hopeLimit(dto.getHopeLimit()));
 
         if (StringUtils.hasText(card.grantLimit())) {
             Long calculatedLimitLong = Long.parseLong(card.calculatedLimit());
@@ -663,11 +664,13 @@ public class CommonCardServiceV2 {
             }
         }
 
+        repoCardIssuance.save(cardIssuanceInfo);
+
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            saveIssuanceDepth(idxUser, depthKey);
         }
 
-        return CardIssuanceDto.CardRes.from(repoCardIssuance.save(cardInfo));
+        return CardIssuanceDto.CardRes.from(cardIssuanceInfo);
     }
 
     private RiskConfig updateRiskConfigLimit(User user, String grantLimit, String hopeLimit) {
@@ -717,7 +720,7 @@ public class CommonCardServiceV2 {
             .build());
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.AccountRes.from(repoCardIssuance.save(cardInfo), getBankName(account.organization()));
@@ -819,11 +822,11 @@ public class CommonCardServiceV2 {
         }
 
         if (isStockholderUpdateCeo(cardInfo)) {
-            cardInfo = setStockholderByCeoInfo(cardInfo, ceo, getStockRate(user.cardCompany()));
+            setStockholderByCeoInfo(cardInfo, ceo, getStockRate(user.cardCompany()));
         }
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.CeoRes.from(repoCeo.save(ceo)).setDeviceId("");
@@ -876,7 +879,7 @@ public class CommonCardServiceV2 {
             .build();
 
         if (StringUtils.hasText(depthKey)) {
-            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+            saveIssuanceDepth(idxUser, depthKey);
         }
 
         return CardIssuanceDto.ManagerRes.from(repoManager.save(manager));
@@ -999,7 +1002,7 @@ public class CommonCardServiceV2 {
 //        repoFile.delete(file);
 //
 //        if (StringUtils.hasText(depthKey)) {
-//            repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+//            saveIssuanceDepth(idx_user, depthKey);
 //        }
 //    }
 
@@ -1026,17 +1029,23 @@ public class CommonCardServiceV2 {
      * @param depthKey 발급단계 값
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveIssuanceDepth(Long idx_user, String depthKey) {
-        User user = findUser(idx_user);
+    public void saveIssuanceDepth(Long idxUser, String depthKey) {
+        User user = findUser(idxUser);
         CardIssuanceInfo cardInfo = findCardIssuanceInfo(user);
-        repoCardIssuance.save(cardInfo.issuanceDepth(depthKey));
+
+        // 안정화 후 삭제 예정
+        if (depthKey.matches("[+-]?\\d*(\\.\\d+)?")) {
+            depthKey = IssuanceDepth.getIssuanceDepthByNumber(depthKey).toString();
+        }
+
+        repoCardIssuance.save(cardInfo.issuanceDepth(IssuanceDepth.getIssuanceDepth(depthKey)));
     }
 
-    private User findUser(Long idx_user) {
-        return repoUser.findById(idx_user).orElseThrow(
+    private User findUser(Long idxUser) {
+        return repoUser.findById(idxUser).orElseThrow(
             () -> EntityNotFoundException.builder()
                 .entity("User")
-                .idx(idx_user)
+                .idx(idxUser)
                 .build()
         );
     }

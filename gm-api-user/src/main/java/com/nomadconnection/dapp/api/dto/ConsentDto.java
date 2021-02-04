@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -52,6 +53,10 @@ public class ConsentDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class RegisterCardUserConsent {
+
+        @ApiModelProperty("카드발급정보 식별자")
+        @NotNull
+        private Long cardIssuanceInfoIdx;
 
         @ApiModelProperty("카드회사이름 etc 1.SHINHAN 2.LOTTE")
         private CardCompany companyCode;

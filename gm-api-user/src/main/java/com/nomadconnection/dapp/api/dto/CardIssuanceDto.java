@@ -329,11 +329,6 @@ public class CardIssuanceDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class HopeLimitReq {
-
-        @ApiModelProperty("카드발급정보 식별자")
-        @NotNull
-        private Long cardIssuanceInfoIdx;
-
         @ApiModelProperty("희망한도")
         @NotEmpty
         private String hopeLimit;
