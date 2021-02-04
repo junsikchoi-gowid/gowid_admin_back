@@ -515,6 +515,12 @@ public class AdminDto {
 		@ApiModelProperty("고객희망한도")
 		private String hopeLimit;
 
+		@ApiModelProperty("벤처기업확인서 보유 여부")
+		private Boolean isVerifiedVenture;
+
+		@ApiModelProperty("10억이상 VC투자 여부")
+		private Boolean isVC;
+
 		@ApiModelProperty("보증금")
 		private Double depositGuarantee;
 

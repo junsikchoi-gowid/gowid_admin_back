@@ -491,6 +491,8 @@ public class AdminService {
         repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), date).ifPresent(
                 risk -> {
                     data.setDepositGuarantee(risk.depositGuarantee());
+                    data.setIsVerifiedVenture(risk.ventureCertification());
+                    data.setIsVC(risk.vcInvestment());
                     data.setDma45(risk.dma45());
                     data.setDmm45(risk.dmm45());
                     data.setCashBalance(risk.cashBalance());
