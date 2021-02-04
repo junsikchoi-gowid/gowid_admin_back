@@ -118,4 +118,13 @@ class SurveyAnswerServiceTests extends AbstractSpringBootTest {
 		surveyService.deleteAnswer(user.idx(), dto);
 	}
 
+	@Test
+	@Order(7)
+	@DisplayName("유저_설문조사정보_상세정보_공백_저장")
+	void saveUserSurveyWithEmptyStringDetail()  {
+		SurveyAnswer surveyAnswer = build(user, surveyTitle, ETC.toString());
+		SurveyDto surveyResult = surveyService.saveAnswer(user.idx(), SurveyDto.from(surveyAnswer));
+		assertEquals("", surveyResult.getDetail());
+	}
+
 }
