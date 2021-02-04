@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceDepth;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -82,7 +83,7 @@ public interface CorpCustomRepository {
         public CardCompany cardCompany;
 
         @ApiModelProperty("마지막 신청 단계")
-        private String issuanceDepth;
+        private IssuanceDepth issuanceDepth;
 
         @ApiModelProperty("담당자")
         private String userName;
@@ -128,7 +129,7 @@ public interface CorpCustomRepository {
         private IssuanceStatus issuanceStatus;
 
         @ApiModelProperty("마지막 신청 단계")
-        private String issuanceDepth;
+        private IssuanceDepth issuanceDepth;
 
         @ApiModelProperty("담당자")
         private String userName;

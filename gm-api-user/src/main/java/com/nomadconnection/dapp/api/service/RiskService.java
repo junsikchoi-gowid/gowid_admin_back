@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.BankDto;
-import com.nomadconnection.dapp.api.dto.BrandDto;
 import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
@@ -39,7 +38,10 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -323,7 +325,7 @@ public class RiskService {
 	public String getCardLimit(Long idxUser) {
 		User user = findUser(idxUser);
 		double cardLimit = repoRisk.findCardLimitNowFirst(idxUser, CommonUtil.getNowYYYYMMDD());
-		double maxLimit  = Double.parseDouble(
+		double maxLimit = Double.parseDouble(
 			repoCommonCodeDetail.getByCodeAndCode1(CommonCodeType.CARD_LIMIT, user.cardCompany().getName()).value1());
 		if (cardLimit > maxLimit) {
 			cardLimit = maxLimit;

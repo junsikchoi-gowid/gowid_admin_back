@@ -126,8 +126,8 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
                         .when(cardIssuanceInfo.issuanceStatus.eq(IssuanceStatus.ISSUED))
                         .then(true)
                         .otherwise(false).as("cardIssuance"),
-                        cardIssuanceInfo.issuanceStatus.as("issuanceStatus"),
                         cardIssuanceInfo.issuanceDepth.as("issuanceDepth"),
+                        cardIssuanceInfo.issuanceStatus.as("issuanceStatus"),
                         corp.user.name.as("userName"),
                         corp.user.email.as("email"),
                         corp.resRegisterDate.as("registerDate"),
