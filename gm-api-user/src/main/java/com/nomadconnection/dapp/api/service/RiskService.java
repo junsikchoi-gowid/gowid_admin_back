@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.BankDto;
+import com.nomadconnection.dapp.api.dto.BrandDto;
 import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
@@ -39,10 +40,8 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.nomadconnection.dapp.core.domain.common.IssuanceProgressType.LP_ZIP;
 import static com.nomadconnection.dapp.core.domain.common.IssuanceProgressType.P_1800;
@@ -68,7 +67,7 @@ public class RiskService {
 	final List<String> ACCOUNT_TYPE = Arrays.asList("10", "11", "12", "13", "14");
 	final Double minBalance = 10000000d;
 	final Double minCashBalance = 50000000d;
-	final Double maxLimit = 500000000d;
+	final Double maxLimit = 200000000d;
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity<?> saveRiskConfig(RiskDto.RiskConfigDto riskConfig){
@@ -126,7 +125,7 @@ public class RiskService {
 		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(user.idx()).orElse(null);
 
 		if(StringUtils.isEmpty(calcDate)){
-			calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
+			calcDate = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
 		}
 
 		RiskConfig riskconfig = repoRiskConfig.findByUserAndEnabled(user, true).orElseGet(
@@ -175,87 +174,92 @@ public class RiskService {
 		risk.corp(corp);
 
 		// 46일
-		List<ResAccountRepository.CRisk> cRisk45days = repoResAccount.find45dayValance(idxUser, calcDate);
+		// List<ResAccountRepository.CRisk> cRisk45days = repoResAccount.find45dayValance(idxUser, calcDate);
 
 		// 45일
-		Stream<ResAccountRepository.CRisk> cRisk45daysTemp = cRisk45days.stream();
+		// Stream<ResAccountRepository.CRisk> cRisk45daysTemp = cRisk45days.stream();
 
-		if(riskconfig.ventureCertification() && riskconfig.vcInvestment()){
-			risk.grade("A");
-			risk.gradeLimitPercentage(10);
-			risk.minStartCash(100000000);
-			risk.minCashNeed(50000000);
-		}else if(riskconfig.ventureCertification() && !riskconfig.vcInvestment()){
-			risk.grade("B");
-			risk.gradeLimitPercentage(5);
-			risk.minStartCash(100000000);
-			risk.minCashNeed(50000000);
-		}else{
-			risk.grade("C");
-			risk.gradeLimitPercentage(5);
-			risk.minStartCash(500000000);
-			risk.minCashNeed(50000000);
-		}
+//		if(riskconfig.ventureCertification() && riskconfig.vcInvestment()){
+//			risk.grade("A");
+//			risk.gradeLimitPercentage(10);
+//			risk.minStartCash(100000000);
+//			risk.minCashNeed(50000000);
+//		}else if(riskconfig.ventureCertification() && !riskconfig.vcInvestment()){
+//			risk.grade("B");
+//			risk.gradeLimitPercentage(5);
+//			risk.minStartCash(100000000);
+//			risk.minCashNeed(50000000);
+//		}else{
+//			risk.grade("C");
+//			risk.gradeLimitPercentage(5);
+//			risk.minStartCash(500000000);
+//			risk.minCashNeed(50000000);
+//		}
 
-		if(cRisk45days.size() > 0 ){
-			risk.currentBalance(cRisk45days.get(0).getCurrentBalance());
-			risk.errCode(cRisk45days.get(0).getErrCode());
-		}else{
-			risk.currentBalance(0F);
-		}
+//		if(cRisk45days.size() > 0 ){
+//			risk.currentBalance(cRisk45days.get(0).getCurrentBalance());
+//			risk.errCode(cRisk45days.get(0).getErrCode());
+//		}else{
+//			risk.currentBalance(0F);
+//		}
 
 
 		// Error
-		risk.error(repoRisk.findErrCount(idxUser));
+//		risk.error(repoRisk.findErrCount(idxUser));
 
-		// 45DMA
-		List<Double> arrList = new ArrayList<>();
-		cRisk45daysTemp.forEach( cRisk -> arrList.add((double) cRisk.getCurrentBalance()));
+//		// 45DMA
+//		List<Double> arrList = new ArrayList<>();
+//		cRisk45daysTemp.forEach( cRisk -> arrList.add((double) cRisk.getCurrentBalance()));
+//
+//		risk.dma45(arrList.stream().mapToDouble(Double::doubleValue).average().orElse(0));
+//
+//		// 45DMM
+//		AtomicInteger i = new AtomicInteger(0);
+//		arrList.stream().sorted().forEach( l -> {
+//			log.debug("sort order $={} $={}" , i.getAndIncrement(), l);
+//			if(i.get() == 23){
+//				risk.dmm45(l);
+//			}
+//		});
 
-		risk.dma45(arrList.stream().mapToDouble(Double::doubleValue).average().orElse(0));
-
-		// 45DMM
-		AtomicInteger i = new AtomicInteger(0);
-		arrList.stream().sorted().forEach( l -> {
-			log.debug("sort order $={} $={}" , i.getAndIncrement(), l);
-			if(i.get() == 23){
-				risk.dmm45(l);
-			}
-		});
-
-		if(repoResAccount.findRecentBalance(idxUser, calcDate) != null ) {
-			risk.recentBalance(repoResAccount.findRecentBalance(idxUser, calcDate));
-		}
-
-		// ActualBalance
-		if(risk.depositPayment()){
-			risk.actualBalance(risk.recentBalance()-risk.depositGuarantee());
-		}else {
-			risk.actualBalance(risk.recentBalance());
-		}
-
-		// CashBalance
-		ArrayList<Double> cashBalance = new ArrayList<>();
-		cashBalance.add(risk.dma45());
-		cashBalance.add(risk.dmm45());
-		cashBalance.add(risk.actualBalance());
-		risk.cashBalance(Collections.min(cashBalance));
+//		if(repoResAccount.findRecentBalance(idxUser, calcDate) != null ) {
+//			risk.recentBalance(repoResAccount.findRecentBalance(idxUser, calcDate));
+//		}
+//
+//		// ActualBalance
+//		if(risk.depositPayment()){
+//			risk.actualBalance(risk.recentBalance()-risk.depositGuarantee());
+//		}else {
+//			risk.actualBalance(risk.recentBalance());
+//		}
+//
+//		// CashBalance
+//		ArrayList<Double> cashBalance = new ArrayList<>();
+//		cashBalance.add(risk.dma45());
+//		cashBalance.add(risk.dmm45());
+//		cashBalance.add(risk.actualBalance());
+//		risk.cashBalance(Collections.min(cashBalance));
 
 		// CardLimitCalculation
-		risk.cardLimitCalculation( risk.cashBalance() * risk.gradeLimitPercentage()/100);
+//		risk.cardLimitCalculation( risk.cashBalance() * risk.gradeLimitPercentage()/100);
 
 		// RealtimeLimit
-		risk.realtimeLimit(Math.floor(risk.cardLimitCalculation() / 1000000) * 1000000);
+//		risk.realtimeLimit(Math.floor(risk.cardLimitCalculation() / 1000000) * 1000000);
 
 		// CardLimit
-		risk.cardLimit(Math.max(risk.depositGuarantee(),risk.realtimeLimit()));
+//		risk.cardLimit(Math.max(risk.depositGuarantee(),risk.realtimeLimit()));
 
-		boolean needToStop = risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow();
-		risk.emergencyStop(needToStop);
+//		boolean needToStop = risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow();
+//		risk.emergencyStop(needToStop);
 
 		// CardLimitNow
-		Double cardLimitNow = repoRisk.findCardLimitNow(idxUser,calcDate);
-		Double cardLimitNowFirst = repoRisk.findCardLimitNowFirst(idxUser,calcDate);
+//		Double cardLimitNow = repoRisk.findCardLimitNow(idxUser,calcDate);
+//		Double cardLimitNow = 0.0;
+//		Double cardLimitNowFirst = repoRisk.findCardLimitNowFirst(idxUser,calcDate);
+
+		risk.recentBalance(repoResAccount.findRecentBalance(idxUser, calcDate));
+		risk.actualBalance(risk.recentBalance());
+
 
 		boolean isIssuanceSuccess = false;
 
@@ -263,19 +267,10 @@ public class RiskService {
 			isIssuanceSuccess = isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name());
 		}
 
-		risk.cardLimitNow(getCardLimitNow(
-				issuanceProgress
-				,isIssuanceSuccess
-				,risk.emergencyStop()
-				,risk.depositGuarantee()
-				,cardLimitNow
-				,cardLimitNowFirst
-				,risk.cardLimit()
-				,risk.realtimeLimit()
-		));
+		// risk.cardLimitNow(Math.max(risk.depositGuarantee(),risk.realtimeLimit()));
 
 		// CardRestart
-		risk.cardRestart(risk.cardRestartCount() >= 45);
+		// risk.cardRestart(risk.cardRestartCount() >= 45);
 
 		if(issuanceProgress != null && isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())){
 			riskconfig.cardIssuance(true);
@@ -288,6 +283,8 @@ public class RiskService {
 
 
 		//최신잔고를 구함
+		risk.currentBalance(risk.recentBalance());
+		risk.cashBalance(risk.recentBalance());
 		risk.recentBalance(getRecentBalance(corp, d1530, risk.recentBalance()));
 
 		//Grade
@@ -295,6 +292,9 @@ public class RiskService {
 
 		//실제계산금액
 		risk.cardLimitNow(getCardLimitNowVer2(risk.grade(),risk.recentBalance(),riskconfig.depositGuarantee()));
+
+		boolean needToStop = risk.cashBalance() < risk.minCashNeed() || risk.recentBalance() < risk.cardLimitNow();
+		risk.emergencyStop(needToStop);
 
 		repoRisk.save(risk);
 		corp.riskConfig(repoRiskConfig.save(riskconfig));
@@ -365,23 +365,15 @@ public class RiskService {
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(risk).build());
 	}
 
-	private double getCardLimitNow(IssuanceProgress issuanceProgress, boolean issuanceSuccess, boolean emergencyStop, double depositGuarantee, Double cardLimitNow, Double cardLimitNowFirst, double cardLimit, double realtimeLimit) {
+	private double getCardLimitNow(boolean issuanceSuccess, boolean emergencyStop, double depositGuarantee, double cardLimit, double realtimeLimit) {
 
 		double value;
 
-		if(issuanceProgress != null && issuanceSuccess){
+		if(issuanceSuccess){
 			if(emergencyStop){
 				value = depositGuarantee;
 			}else {
-				if(cardLimitNow == null ){
-					if(cardLimitNowFirst == null){
-						value = cardLimit;
-					}else{
-						value = cardLimitNowFirst;
-					}
-				}else {
-					value = cardLimitNow;
-				}
+				value = cardLimit;
 			}
 		}else{
 			value = Math.max(depositGuarantee,realtimeLimit);
