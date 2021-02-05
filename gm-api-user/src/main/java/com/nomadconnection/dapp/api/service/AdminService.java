@@ -216,7 +216,7 @@ public class AdminService {
 
         Boolean isMaster = isGowidMaster(idxUser);
 
-        String calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
+        String calcDate = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
 
         Risk risk = repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), calcDate).orElseThrow(
                 () -> new RuntimeException("Empty Data")
@@ -238,7 +238,7 @@ public class AdminService {
 
         Boolean isMaster = isGowidMaster(idxUser);
 
-        String calcDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
+        String calcDate = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
 
         Risk risk = repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), calcDate).orElseThrow(
                 () -> new RuntimeException("Empty Data")
@@ -487,7 +487,7 @@ public class AdminService {
 
         data.setCardCompany(repoCorp.findById(idxCorp).get().user().cardCompany());
 
-        String date = LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE);
+        String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
         repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), date).ifPresent(
                 risk -> {
                     data.setDepositGuarantee(risk.depositGuarantee());

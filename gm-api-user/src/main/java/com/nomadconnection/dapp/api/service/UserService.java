@@ -518,14 +518,22 @@ public class UserService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity getBrandCorp(Long idx) {
+	public CorpDto getBrandCorp(Long idx) {
 
-		Long idxCorp = getUser(idx).corp().idx();
-		Optional<CorpDto> corp = repoCorp.findById(idxCorp).map(CorpDto::from);
+		Long idxCorp ;
+		CorpDto corpDto = new CorpDto();
 
-		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.data(corp.get())
-				.build());
+		User user = getUser(idx);
+
+		if(user != null && user.corp() != null ){
+			idxCorp = user.corp().idx();
+
+			corpDto = repoCorp.findById(idxCorp).map(CorpDto::from).orElseThrow(
+					() -> CorpNotRegisteredException.builder().build()
+			);
+		}
+
+		return corpDto ;
 	}
 
 	public ResponseEntity registerUserConsent(UserDto.RegisterUserConsent dto, Long idxUser) {

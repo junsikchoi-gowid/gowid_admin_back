@@ -1,9 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
-import com.nomadconnection.dapp.core.domain.card.CardCompany;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.QCardIssuanceInfo;
-import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.QCommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.QConnectedMng;
 import com.nomadconnection.dapp.core.domain.corp.QCorp;
@@ -25,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -86,7 +82,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
                 ))
                 ;
 
-        query.where(risk.date.eq(LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE)));
+        query.where(risk.date.eq(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)));
 
         if (dto.idxCorp != null) {
             query.where(corp.idx.eq(Long.parseLong(dto.getIdxCorp())));
@@ -180,7 +176,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
             if (dto.getBaseDate() != null) {
                 query.where(risk.date.eq(dto.getBaseDate().replaceAll("-","")));
             }else{
-                query.where(risk.date.eq(LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE)));
+                query.where(risk.date.eq(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)));
             }
         }
 
@@ -242,7 +238,7 @@ public class AdminCustomRepositoryImpl extends QuerydslRepositorySupport impleme
         if (dto.getBaseDate() != null) {
             query.where(riskTrans.date.eq(dto.getBaseDate().replaceAll("-","")));
         }else{
-            query.where(riskTrans.date.eq(LocalDate.now().minusDays(1).format(DateTimeFormatter.BASIC_ISO_DATE)));
+            query.where(riskTrans.date.eq(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)));
         }
 
         if (dto.getCardType() != null ){
