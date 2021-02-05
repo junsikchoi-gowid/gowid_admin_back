@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.dto.SaasTrackerDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
+import com.nomadconnection.dapp.api.service.notification.SlackNotiService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.repository.saas.*;
 import com.nomadconnection.dapp.core.domain.saas.*;
@@ -12,6 +13,7 @@ import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -21,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.RecoveryNotiReq.getSlackRecoveryMessage;
+import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.SaasTrackerNotiReq.getSlackSaasTrackerMessage;
 
 @Slf4j
 @Service
@@ -34,7 +39,9 @@ public class SaasTrackerService {
 	private final SaasPaymentInfoRepository repoSaasPaymentInfo;
 	private final SaasInfoRepository repoSaasInfo;
 
+	private final CorpService corpService;
 	private final UserService userService;
+	private final SlackNotiService slackNotiService;
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity saveSaasTrackerReports(Long userIdx, SaasTrackerDto.SaasTrackerReportsReq dto) {
@@ -57,6 +64,9 @@ public class SaasTrackerService {
 			repoSaasIssueReport.save(report);
 
 			log.info(">>>>> saveSaasTrackerReports.complete");
+
+			// 제보 Slack Notification
+			this.sendSlackNotification(userIdx, dto);
 
 			return ResponseEntity.ok().body(BusinessResponse.builder()
 					.normal(BusinessResponse.Normal.builder()
@@ -103,6 +113,7 @@ public class SaasTrackerService {
 			SaasTrackerProgress progress = findSaasTrackerProgress(user);
 			if(SaaSTrackerType.STEP_ALL_COMPLETE.getValue() == step) {
 				progress.status(SaaSTrackerType.STATUS_REQUEST_COMPLETE.getValue());
+				this.sendSlackNotification(userIdx);
 			}
 			progress.step(step);
 
@@ -507,6 +518,18 @@ public class SaasTrackerService {
 			log.error(e.getMessage(), e);
 			throw new SystemException(ErrorCode.Api.INTERNAL_ERROR);
 		}
+	}
+
+	private void sendSlackNotification(Long userIdx) {
+		this.sendSlackNotification(userIdx, getSlackSaasTrackerMessage(corpService.getCorpByUserIdx(userIdx)));
+	}
+
+	private void sendSlackNotification(Long userIdx, SaasTrackerDto.SaasTrackerReportsReq dto) {
+		this.sendSlackNotification(userIdx, getSlackSaasTrackerMessage(corpService.getCorpByUserIdx(userIdx), dto));
+	}
+
+	private void sendSlackNotification(Long userIdx, String slackMessage) {
+		slackNotiService.sendSlackNotification(slackMessage, slackNotiService.getSlackSaasTrackerUrl());
 	}
 
 	private boolean isMonthlyUse(List<SaasPaymentInfo> saasPaymentInfos) {

@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.dto.Notification;
 
+import com.nomadconnection.dapp.api.dto.SaasTrackerDto;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
@@ -7,6 +8,7 @@ import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotEmpty;
 import java.util.Optional;
@@ -151,6 +153,83 @@ public class SlackNotiDto {
                 .toString();
         }
 
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SaasTrackerNotiReq {
+        private String title;
+        private String company;
+        private String name;
+        private String email;
+        private String message;
+
+        /**
+         * SaaS Tracker 제보하기 알림
+         *
+         * @param corp
+         * @param dto
+         * @return
+         */
+        public static String getSlackSaasTrackerMessage(Corp corp, SaasTrackerDto.SaasTrackerReportsReq dto){
+            StringBuffer message = new StringBuffer();
+            switch(dto.getReportType()) {
+                case 1:         // 항목 미표시
+                    message.append(">    - SaaS 이름: ").append(dto.getSaasName()).append("\n")
+                            .append(">    - 결제 수단: ").append(dto.getPaymentMethod() == 1 ? "신용카드" : "계좌이체").append("\n")
+                            .append(">    - 최근 결제 금액: ").append(dto.getPaymentPrice());
+                    break;
+                case 2:         // 정보 불일치
+                    message.append(">    ").append(dto.getIssue());
+                    break;
+                case 3:         // 무료 이용중인 항목
+                    message.append(">    - SaaS 이름: ").append(dto.getSaasName()).append("\n")
+                            .append(">    - 무료 사용 만료일: ").append(dto.getExperationDate()).append("\n")
+                            .append(">    - 만료 알림 여부: ").append(dto.getActiveExperationAlert() ? "알림" : "미알림");
+                    break;
+                default:
+                    break;
+            }
+
+            return SaasTrackerNotiReq.builder()
+                    .title("*정보가 정확하지 않아요!*")
+                    .company(corp.resCompanyNm())
+                    .name(corp.user().name())
+                    .email(corp.user().email())
+                    .message(message.toString())
+                    .build()
+                    .toString();
+        }
+
+        /**
+         * SaaS Tracker 준비 알림
+         *
+         * @param corp
+         * @return
+         */
+        public static String getSlackSaasTrackerMessage(Corp corp){
+            return SaasTrackerNotiReq.builder()
+                    .title("*새로운 회사가 준비를 완료했습니다!*")
+                    .company(corp.resCompanyNm())
+                    .name(corp.user().name())
+                    .email(corp.user().email())
+                    .build()
+                    .toString();
+        }
+
+        @Override
+        public String toString() {
+            StringBuffer sb = new StringBuffer();
+            sb.append(">").append(title).append("\n").append(">").append("\n")
+                    .append(">• 회사명 : ").append(company).append("\n")
+                    .append(">• 사용자 : ").append(name).append("(").append(email).append(")").append("\n");
+            if(!StringUtils.isEmpty(message)) {
+                sb.append(">• 제보내용 : ").append("\n").append(message);
+            }
+            return sb.toString();
+        }
     }
 
 }

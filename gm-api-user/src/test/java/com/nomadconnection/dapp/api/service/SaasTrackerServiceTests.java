@@ -25,7 +25,7 @@ class SaasTrackerServiceTests extends AbstractSpringBootTest {
 
 	@BeforeEach
 	void init() {
-		user = userService.getUser(66L);
+		user = userService.getUser(467L);
 	}
 
 	@Test
@@ -34,13 +34,13 @@ class SaasTrackerServiceTests extends AbstractSpringBootTest {
 	void saveSaasIssueReport() {
 
 		SaasTrackerDto.SaasTrackerReportsReq dto = new SaasTrackerDto.SaasTrackerReportsReq();
-		dto.setReportType(1);
+		dto.setReportType(3);
 		dto.setSaasName("Test SaaS");
 		dto.setPaymentMethod(1);
 		dto.setPaymentPrice(10000000L);
-		dto.setIssue("이것은 저러하고, 이것은 요러하다!");
+		dto.setIssue("이것은 저러하고, 이것은 요러하다! 그래서 제보한다!");
 		dto.setExperationDate("20201231");
-		dto.setActiveExperationAlert(false);
+		dto.setActiveExperationAlert(true);
 
 		try {
 			service.saveSaasTrackerReports(user.idx(), dto);
@@ -130,6 +130,13 @@ class SaasTrackerServiceTests extends AbstractSpringBootTest {
 	@DisplayName("SaaS Insights 조회")
 	void getSaasInsights() {
 		service.getInsights(66L);
+	}
+
+	@Test
+	@Order(11)
+	@DisplayName("SaaS Tracker 준비")
+	void updateSaasTracker() {
+		service.updateSaasTrackerProgress(467L, 3);
 	}
 
 }

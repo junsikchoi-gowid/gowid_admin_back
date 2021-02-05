@@ -76,4 +76,8 @@ public class SlackNotiService {
         return slackNotiConfig.getProgressUrl();
     }
 
+    public String getSlackSaasTrackerUrl(){
+        return slackNotiConfig.getSaastrackerUrl();
+    }
+
 }
