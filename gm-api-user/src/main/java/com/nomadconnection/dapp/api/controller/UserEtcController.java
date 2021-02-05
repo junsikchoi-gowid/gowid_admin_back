@@ -1,6 +1,8 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.BrandDto;
+import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
+import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -8,10 +10,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
+
+import java.util.List;
 
 @Slf4j
 @CrossOrigin(allowCredentials = "true")
@@ -29,9 +34,11 @@ public class UserEtcController {
         public static final String USERDELETE = "/userdelete";
         public static final String USERPASSWORDCHANGE_AFTER = "/password/after";
         public static final String RECEPTION = "/reception";
+        public static final String INDUCE_EMAIL = "/induceemail";
     }
 
     private final UserService service;
+    private final EmailService emailService;
 
     @Deprecated
     @ApiOperation(value = "아이디(이메일) 찾기", notes = "" +
@@ -99,6 +106,15 @@ public class UserEtcController {
     @DeleteMapping(URI.USERDELETE)
     public ResponseEntity deleteEmail(@RequestParam String email) {
         return service.deleteUserByEmail(email);
+    }
+
+    @ApiOperation(value = "메일 발송(포잉)", notes = "" +
+            "\n ### Remarks" +
+            "\n")
+    @PutMapping(URI.INDUCE_EMAIL)
+    public ResponseEntity<?> induceEmail(@RequestParam String email) {
+        emailService.induceEmail(email);
+        return new ResponseEntity<>(null,HttpStatus.OK);
     }
 
 }

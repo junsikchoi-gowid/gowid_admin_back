@@ -9,6 +9,7 @@ import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.EmailDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -265,6 +266,22 @@ public class EmailService {
 				helper.setText(templateEngine.process("reset-expired-corp", context), true);
 			}
 		};
+		sender.send(preparator);
+	}
+
+
+	public void induceEmail(String email) {
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			{
+				Context context = new Context();
+				helper.setFrom(emailConfig.getSender());
+				helper.setTo(email);
+				helper.setSubject("[고위드] 스타트업 법인카드, 고위드 카드 신청 안내드립니다.");
+				helper.setText(templateEngine.process("pop-poing-template", context), true);
+			}
+		};
+
 		sender.send(preparator);
 	}
 }
