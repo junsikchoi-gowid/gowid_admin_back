@@ -103,33 +103,37 @@ public class LotteIssuanceService {
 
 	@Transactional(noRollbackFor = Exception.class)
 	public void issuance(Long userIdx, CardIssuanceDto.IssuanceReq request, Long signatureHistoryIdx) {
-		paramsLogging(request);
-		request.setUserIdx(userIdx);
-		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED, CardCompany.LOTTE);
-		Corp userCorp = corpService.getCorpByUserIdx(userIdx);
-		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.SIGNED, CardCompany.LOTTE);
-		repoIssuanceProgress.flush();
+		try {
+			paramsLogging(request);
+			request.setUserIdx(userIdx);
+			userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED, CardCompany.LOTTE);
+			Corp userCorp = corpService.getCorpByUserIdx(userIdx);
+			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.SIGNED, CardCompany.LOTTE);
+			repoIssuanceProgress.flush();
 
-		// 신규(1100) 신청
-		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1100, CardCompany.LOTTE);
-		DataPart1100 resultOfD1100 = proc1100(userCorp);
-		saveSignatureHistory(signatureHistoryIdx, resultOfD1100);
-		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1100, CardCompany.LOTTE);
+			// 신규(1100) 신청
+			userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1100, CardCompany.LOTTE);
+			DataPart1100 resultOfD1100 = proc1100(userCorp);
+			saveSignatureHistory(signatureHistoryIdx, resultOfD1100);
+			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1100, CardCompany.LOTTE);
 
-		// 1200 전자서명값 제출
-		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
-		DataPart1200 resultOfD1200 = proc1200(userCorp, resultOfD1100);
-		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
+			// 1200 전자서명값 제출
+			userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
+			DataPart1200 resultOfD1200 = proc1200(userCorp, resultOfD1100);
+			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
 
-		// 이미지 zip파일 생성요청
-		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
-		procImageZip(resultOfD1200);
-		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
+			// 이미지 zip파일 생성요청
+			userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
+			procImageZip(resultOfD1200);
+			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
 
-		// 이메일 전송
-		sendReceiptEmail(userCorp);
+			// 이메일 전송
+			sendReceiptEmail(userCorp);
 
-		cardIssuanceInfoService.updateIssuanceStatus(userIdx, IssuanceStatus.APPLY);
+			cardIssuanceInfoService.updateIssuanceStatus(userIdx, IssuanceStatus.APPLY);
+		} catch (Exception e){
+			log.error("[lotte issuance] {}", e);
+		}
 	}
 
 	private void procImageZip(DataPart1200 resultOfD1200) {
