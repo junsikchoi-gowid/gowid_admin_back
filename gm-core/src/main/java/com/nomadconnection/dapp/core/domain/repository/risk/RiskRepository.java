@@ -40,8 +40,7 @@ public interface RiskRepository extends JpaRepository<Risk, Long>, AdminCustomRe
 
     Optional<Risk> findByCorpAndDate(Corp corp, String Date);
 
-    // findCardLimitNowFirst 과 동일한 entity select
-    Optional<Risk> findTopByUserAndDateLessThanOrderByDateDesc(User user, String Date);
+    Optional<Risk> findTopByUserAndDateLessThanEqualOrderByDateDesc(User user, String Date);
 
     Page<Risk> findByCorp(Corp corp, Pageable pageable);
 

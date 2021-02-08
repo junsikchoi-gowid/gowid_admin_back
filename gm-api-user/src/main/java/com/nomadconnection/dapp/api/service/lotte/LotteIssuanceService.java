@@ -51,7 +51,7 @@ public class LotteIssuanceService {
 	private final Lotte_D1000Repository repoD1000;
 	private final Lotte_D1200Repository repoD1200;
 	private final SignatureHistoryRepository repoSignatureHistory;
-	private final RiskRepository repoRisk;
+	private final RiskService riskService;
 
 	private final UserService userService;
 	private final CorpService corpService;
@@ -133,6 +133,7 @@ public class LotteIssuanceService {
 			cardIssuanceInfoService.updateIssuanceStatus(userIdx, IssuanceStatus.APPLY);
 		} catch (Exception e){
 			log.error("[lotte issuance] {}", e);
+			throw e;
 		}
 	}
 
@@ -237,7 +238,7 @@ public class LotteIssuanceService {
 	}
 
 	private Lotte_D1100 setD1100Risk(Lotte_D1100 d1100, User user) {
-		Risk risk = findRisk(user);
+		Risk risk = riskService.findRiskByUserAndDateLessThanEqual(user, CommonUtil.getNowYYYYMMDD());
 		d1100.setGowidEtrGdV(risk.grade());
 
 		String gowid45DAvBalAm = String.valueOf(Math.round(Math.floor(risk.dma45())));
@@ -352,11 +353,4 @@ public class LotteIssuanceService {
 		);
 	}
 
-	private Risk findRisk(User user) {
-		return repoRisk.findTopByUserAndDateLessThanOrderByDateDesc(user, CommonUtil.getNowYYYYMMDD()).orElseThrow(
-				() -> EntityNotFoundException.builder()
-						.entity("Risk")
-						.build()
-		);
-	}
 }

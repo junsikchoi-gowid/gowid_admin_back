@@ -610,6 +610,14 @@ public class RiskService {
 		return 0.0;
 	}
 
+	public Risk findRiskByUserAndDateLessThanEqual(User user, String date) {
+		return repoRisk.findTopByUserAndDateLessThanEqualOrderByDateDesc(user, date).orElseThrow(
+			() -> EntityNotFoundException.builder()
+				.entity("Risk")
+				.build()
+		);
+	}
+
 }
 
 
