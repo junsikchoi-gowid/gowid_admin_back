@@ -120,7 +120,6 @@ public class UserController {
 		return service.registerBrandCorp(user.idx(), dto);
 	}
 
-	@Deprecated
 	@ApiOperation(value = "Brand 회원가입 법인정보")
 	@GetMapping(path = URI.REGISTRATION_CORP)
 	public ResponseEntity getBrandCorp(
@@ -133,8 +132,8 @@ public class UserController {
 		if(user == null){
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-
-		return new ResponseEntity<>(service.getBrandCorp(user.idx()),HttpStatus.OK);
+ 
+		return service.getBrandCorp(user.idx()); 
 	}
 
 	@ApiOperation(value = "Brand 내 정보 수정")
