@@ -640,13 +640,12 @@ public class CommonCardServiceV2 {
     public CardIssuanceDto.CardRes saveHopeLimit(Long idxUser, CardIssuanceDto.HopeLimitReq dto, String depthKey) {
         User user = findUser(idxUser);
 
-        CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(user);
-        if (cardIssuanceInfo == null) {
-            cardIssuanceInfo = CardIssuanceInfo.builder()
+        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(user).orElseGet(
+            () -> CardIssuanceInfo.builder()
                 .corp(user.corp())
                 .user(user)
-                .build();
-        }
+                .build()
+        );
 
         Card card = cardIssuanceInfo.card();
         if (ObjectUtils.isEmpty(card)) {
