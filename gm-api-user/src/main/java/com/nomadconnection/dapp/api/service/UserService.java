@@ -518,7 +518,7 @@ public class UserService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public CorpDto getBrandCorp(Long idx) {
+	public ResponseEntity getBrandCorp(Long idx) {
  
 		Corp corp = getUser(idx).corp();
 
