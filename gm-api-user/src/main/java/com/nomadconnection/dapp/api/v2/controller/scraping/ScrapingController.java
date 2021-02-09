@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.api.v2.controller;
+package com.nomadconnection.dapp.api.v2.controller.scraping;
 
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto.AccountNt;

@@ -1,7 +1,7 @@
 package com.nomadconnection.dapp.api.security;
 
 import com.nomadconnection.dapp.api.controller.*;
-import com.nomadconnection.dapp.api.v2.controller.SurveyController;
+import com.nomadconnection.dapp.api.v2.controller.card.SurveyController;
 import com.nomadconnection.dapp.core.security.CustomUserDetailsService;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationEntryPoint;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationFilter;
@@ -126,10 +126,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFIT_CATEGORIES).permitAll()
                 .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFIT_SEARCH).permitAll()
                 .antMatchers(FaqController.URI.BASE + FaqController.URI.FAQ_SAVE).permitAll()
-                .antMatchers(com.nomadconnection.dapp.api.v2.controller.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.AuthController.URI.SEND).permitAll()
-                .antMatchers(com.nomadconnection.dapp.api.v2.controller.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.AuthController.URI.VERIFY).permitAll()
-                .antMatchers(com.nomadconnection.dapp.api.v2.controller.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.AuthController.URI.CHANGE_PASSWORD_BEFORE_LOGIN).permitAll()
-                .antMatchers(com.nomadconnection.dapp.api.v2.controller.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.AuthController.URI.TOKEN_ISSUE).permitAll()
+                .antMatchers(com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.SEND).permitAll()
+                .antMatchers(com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.VERIFY).permitAll()
+                .antMatchers(com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.CHANGE_PASSWORD_BEFORE_LOGIN).permitAll()
+                .antMatchers(com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.TOKEN_ISSUE).permitAll()
                 .antMatchers(SurveyController.URI.BASE).permitAll()
                 .antMatchers(LimitInquiryController.URI.BASE).permitAll()
                 .anyRequest().authenticated();

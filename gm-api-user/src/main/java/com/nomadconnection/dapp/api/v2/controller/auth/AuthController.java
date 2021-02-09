@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.api.v2.controller;
+package com.nomadconnection.dapp.api.v2.controller.auth;
 
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.enums.VerifyCode;

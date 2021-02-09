@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.api.v2.controller;
+package com.nomadconnection.dapp.api.v2.controller.card;
 
 import com.nomadconnection.dapp.api.controller.UserController;
 import com.nomadconnection.dapp.api.dto.SurveyDto;
