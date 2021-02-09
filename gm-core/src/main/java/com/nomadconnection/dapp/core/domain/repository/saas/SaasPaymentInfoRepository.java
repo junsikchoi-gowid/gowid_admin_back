@@ -114,11 +114,11 @@ public interface SaasPaymentInfoRepository extends JpaRepository<SaasPaymentInfo
             "FROM\n" +
             "    SaasPaymentInfo paymentInfo\n" +
             "        JOIN\n" +
-            "    SaasPaymentManageInfo manage ON paymentInfo.idxSaasPaymentManageInfo = manage.idx\n" +
-            "        JOIN\n" +
             "    SaasInfo info ON paymentInfo.idxSaasInfo = info.idx\n" +
             "        JOIN\n" +
             "    SaasCategory category ON info.idxSaasCategory = category.idx\n" +
+            "        LEFT JOIN\n" +
+            "    SaasPaymentManageInfo manage ON paymentInfo.idxSaasPaymentManageInfo = manage.idx\n" +
             "WHERE\n" +
             "    paymentInfo.idxUser = :idxUser \n" +
             "        AND activeSubscription = TRUE\n" +
@@ -141,11 +141,11 @@ public interface SaasPaymentInfoRepository extends JpaRepository<SaasPaymentInfo
             "FROM\n" +
             "    SaasPaymentInfo paymentInfo\n" +
             "        JOIN\n" +
-            "    SaasPaymentManageInfo manage ON paymentInfo.idxSaasPaymentManageInfo = manage.idx\n" +
-            "        JOIN\n" +
             "    SaasInfo info ON paymentInfo.idxSaasInfo = info.idx\n" +
             "        JOIN\n" +
             "    SaasCategory category ON info.idxSaasCategory = category.idx\n" +
+            "        LEFT JOIN\n" +
+            "    SaasPaymentManageInfo manage ON paymentInfo.idxSaasPaymentManageInfo = manage.idx\n" +
             "WHERE\n" +
             "    paymentInfo.idxUser = :idxUser \n" +
             "        AND activeSubscription = FALSE\n" +
