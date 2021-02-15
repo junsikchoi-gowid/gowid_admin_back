@@ -43,6 +43,7 @@ public class UserController {
 		public static final String EXTERNAL_ID = "/external-id";
 		public static final String DELETE_ACCOUNT = "/delete-account";
 		public static final String ENABLE = "/enable";
+		public static final String EVENTS = "/events";
 	}
 
 	private final UserService service;
@@ -257,4 +258,25 @@ public class UserController {
 		service.enableAccount(idxUser);
 		return ResponseEntity.ok().build();
 	}
+
+	@ApiOperation(value = "Event 정보")
+	@GetMapping(URI.EVENTS)
+	public ResponseEntity<?> events(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@RequestParam String eventName
+	) {
+		if (log.isInfoEnabled()) {
+			log.info("([ events ]) $user='{}', $eventName='{}'", user.idx(), eventName);
+		}
+
+		UserDto.EventsInfo events = service.getEvents(user, eventName);
+
+		if(events == null){
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		return new ResponseEntity<>(events,HttpStatus.OK);
+	}
+
+
 }

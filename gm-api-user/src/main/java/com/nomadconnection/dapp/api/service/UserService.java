@@ -27,6 +27,7 @@ import com.nomadconnection.dapp.core.domain.repository.res.ReceptionRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.EventsRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
@@ -69,6 +70,7 @@ public class UserService {
 	private final AuthorityRepository repoAuthority;
 	private final UserRepository repo;
 	private final CorpRepository repoCorp;
+	private final EventsRepository repoEvents;
 	private final CardIssuanceInfoRepository repoCardIssuanceInfo;
 	private final ConnectedMngRepository repoConnectdMng;
 	private final ConsentMappingRepository repoConsentMapping;
@@ -283,6 +285,15 @@ public class UserService {
 				.email(dto.getEmail())
 				.password(dto.getPassword())
 				.build());
+
+		// 이벤트 정보
+		if(!StringUtils.isEmpty(dto.getEventName())){
+			repoEvents.save(Events.builder()
+					.idxUser(user.idx())
+					.createUser(user.idx())
+					.eventName(dto.getEventName())
+					.build());
+		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(tokenSet)
@@ -729,5 +740,11 @@ public class UserService {
 		user.authentication().setEnabled(true);
 		user.enabledDate(null);
 		repo.save(user);
+	}
+
+	@Transactional(readOnly = true)
+	public UserDto.EventsInfo getEvents(CustomUser user, String eventName) {
+
+		return repoEvents.findTopByEventNameAndIdxUser(eventName, user.idx()).map(UserDto.EventsInfo::from).orElse(null);
 	}
 }

@@ -2,11 +2,14 @@ package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
+import com.nomadconnection.dapp.core.domain.user.Events;
 import com.nomadconnection.dapp.core.domain.user.MemberAuthority;
 import com.nomadconnection.dapp.core.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
+import javax.persistence.Column;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -125,6 +128,9 @@ public class UserDto {
 
 		@ApiModelProperty("이용약관 정보")
 		private List<ConsentDto.RegDto> consents;
+
+		@ApiModelProperty("이벤트 명")
+		private String eventName;
 	}
 
 	@Data
@@ -258,6 +264,40 @@ public class UserDto {
 
 		@ApiModelProperty("탈퇴사유")
 		private String reason;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class EventsInfo {
+		@ApiModelProperty("idx")
+		private Long idx;
+
+		@ApiModelProperty("idxUser")
+		private Long idxUser;
+
+		@ApiModelProperty("createUser")
+		private Long createUser;
+
+		@ApiModelProperty("이벤트명")
+		private String eventName;
+
+		@ApiModelProperty("시작일자")
+		private LocalDateTime startDate;
+
+		@ApiModelProperty("종료일자")
+		private LocalDateTime endDate;
+
+		public static EventsInfo from(Events events) {
+			return EventsInfo.builder()
+					.idx(events.idx())
+					.idxUser(events.idxUser())
+					.eventName(events.eventName())
+					.createUser(events.createUser())
+					.endDate(events.endDate())
+					.build();
+		}
 	}
 
 }
