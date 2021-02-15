@@ -13,8 +13,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "idx", callSuper = false)
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"title", "answer"}, name = "UK_title_answer"))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"idxCorp", "date"}, name = "UK_title_answer"))
 public class LimitRecalculation extends BaseTime {
 
 	@Id
@@ -24,7 +23,7 @@ public class LimitRecalculation extends BaseTime {
 	private Long idx;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@Column(columnDefinition = "bigint(20) COMMENT '법인 idx'", nullable = false)
+	@JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "FK_Corp_LimitRecalculation"), columnDefinition = "bigint(20) COMMENT '법인 idx'", nullable = false)
 	private Corp corp;
 
 	@Column(columnDefinition = "date COMMENT '요청일자'", nullable = false)
