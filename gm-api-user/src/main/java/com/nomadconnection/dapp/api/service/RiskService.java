@@ -290,7 +290,7 @@ public class RiskService {
 		risk.recentBalance(getRecentBalance(corp, d1530, risk.recentBalance()));
 
 		//Grade
-		risk.grade(getGrade(d1530, riskconfig, risk.recentBalance()));
+		risk.grade(getGrade(d1530, riskconfig, risk.recentBalance(), corp.resBusinessCode()));
 
 		//실제계산금액
 		risk.cardLimitNow(getCardLimitNowVer2(risk.grade(),risk.recentBalance(),riskconfig.depositGuarantee()));
@@ -472,7 +472,7 @@ public class RiskService {
 		//최신잔고를 구함
 		risk.recentBalance(getRecentBalance(corp, d1530, risk.recentBalance()));
 		//Grade
-		risk.grade(getGrade(d1530, riskConfig, risk.recentBalance()));
+		risk.grade(getGrade(d1530, riskConfig, risk.recentBalance(), corp.resBusinessCode()));
 		//실제계산금액
 		risk.cardLimitNow( risk.recentBalance() * getCardLimitNowPercent(risk.grade()) / 100 );
 
@@ -494,9 +494,14 @@ public class RiskService {
 		return Integer.parseInt(strPercent);
 	}
 
-	private String getGrade(D1530 d1530, RiskConfig riskConfig, Double balance) {
-		if(minCashBalance > balance){
+	private String getGrade(D1530 d1530, RiskConfig riskConfig, Double balance, String businessCode) {
+
+		boolean isConstructionSector = businessCode.toUpperCase().startsWith("F41") || businessCode.toUpperCase().startsWith("F42");
+
+		if (minCashBalance > balance) {
 			return "F";
+		}else if(isConstructionSector){
+			return "G";
 		}else if( d1530 != null && Double.parseDouble(d1530.getD042()) < minBalance &&
 				Integer.parseInt(LocalDate.now().minusMonths(1).format(DateTimeFormatter.BASIC_ISO_DATE)) < Integer.parseInt(d1530.getD057())){
 			return "E";
