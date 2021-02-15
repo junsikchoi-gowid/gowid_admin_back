@@ -62,6 +62,13 @@ public class SurveyService {
 		return SurveyDto.from(surveyAnswers);
 	}
 
+	public SurveyDto findAnswerByUser(Long userIdx) throws NotRegisteredException {
+		User user = userService.getUser(userIdx);
+		List<SurveyAnswer> surveyAnswers = surveyAnswerRepository.findAllByUser(user).orElseThrow(
+			() -> new NotRegisteredException(ErrorCode.Api.NOT_FOUND));
+		return SurveyDto.from(surveyAnswers.get(0));
+	}
+
 	@Transactional(rollbackFor = SurveyAlreadyExistException.class)
 	public SurveyDto saveAnswer(Long userIdx, SurveyDto dto) {
 		try {

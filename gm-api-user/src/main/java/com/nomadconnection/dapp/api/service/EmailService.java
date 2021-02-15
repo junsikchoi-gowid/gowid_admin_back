@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
+import com.nomadconnection.dapp.api.dto.SurveyDto;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
@@ -9,7 +10,6 @@ import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.EmailDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -84,7 +84,8 @@ public class EmailService {
 		sender.send(preparator);
 	}
 
-	public void sendReceiptEmail(String licenseNo, Map issuanceCounts, CardCompany cardCompany, String targetStatus) {
+	public void sendReceiptEmail(String licenseNo, Map issuanceCounts, CardCompany cardCompany, String targetStatus,
+								 SurveyDto surveyResult, String arrivalAddr) {
 		try {
             log.info("[ sendReceiptEmail ] findTopByLicenseNo {}", licenseNo);
             EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
@@ -103,6 +104,8 @@ public class EmailService {
 						context.setVariable("targetStatus", targetStatus);
 						context.setVariable("cardCompanyCode", cardCompany.getCode());
 						context.setVariable("cardCompanyName", cardCompany.getName());
+						context.setVariable("arrivalAddr", arrivalAddr);
+						context.setVariable("surveyResult", surveyResult);
 					}
 
 					helper.setFrom(emailConfig.getSender());

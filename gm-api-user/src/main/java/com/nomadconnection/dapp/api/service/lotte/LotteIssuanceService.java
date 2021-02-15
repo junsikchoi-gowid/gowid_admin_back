@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service.lotte;
 
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
+import com.nomadconnection.dapp.api.dto.SurveyDto;
 import com.nomadconnection.dapp.api.dto.lotte.*;
 import com.nomadconnection.dapp.api.dto.lotte.enums.LotteGwApiType;
 import com.nomadconnection.dapp.api.dto.lotte.enums.LotteUserStatus;
@@ -23,7 +24,6 @@ import com.nomadconnection.dapp.core.domain.repository.common.SignatureHistoryRe
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1100Repository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1200Repository;
-import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.risk.Risk;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -60,6 +60,7 @@ public class LotteIssuanceService {
 	private final EmailService emailService;
 	private final CommonCardService commonCardService;
 	private final CardIssuanceInfoService cardIssuanceInfoService;
+	private final SurveyService surveyService;
 
 	@Value("${mail.receipt.send-enable}")
 	boolean sendReceiptEmailEnable;
@@ -179,8 +180,9 @@ public class LotteIssuanceService {
 		if (!StringUtils.isEmpty(d1100.getRgAkCt5())) {
 			issuanceCounts.put(d1100.getUnitCdC5(), getLotteCardsCount(d1100.getRgAkCt5()));
 		}
-		log.info("[ sendReceiptEmail ] issuanceCounts {}", issuanceCounts);
-		emailService.sendReceiptEmail(CommonUtil.replaceHyphen(userCorp.resCompanyIdentityNo()), issuanceCounts, CardCompany.LOTTE, null);
+		SurveyDto surveyResult = surveyService.findAnswerByUser(userCorp.user().idx());
+		emailService.sendReceiptEmail(CommonUtil.replaceHyphen(userCorp.resCompanyIdentityNo()), issuanceCounts,
+			CardCompany.LOTTE, null, surveyResult, d1100.getTkpPnadd() + " " + d1100.getTkpBpnoAdd());
 		log.info("[ sendReceiptEmail ] Complete send email {}", userCorp.resCompanyNm());
 	}
 

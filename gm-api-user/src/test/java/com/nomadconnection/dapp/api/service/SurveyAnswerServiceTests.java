@@ -103,7 +103,7 @@ class SurveyAnswerServiceTests extends AbstractSpringBootTest {
 	@Test
 	@Order(5)
 	@DisplayName("유저_설문조사정보_주제별_조회")
-	void findUserSurveyResult() {
+	void findUserSurveyByTitleResult() {
 		List<SurveyDto> userSurveys = surveyService.findAnswerByTitle(user.idx(), surveyTitle);
 		assertThat(userSurveys).filteredOn(survey -> survey.getTitle().equals(surveyTitle));
 	}
@@ -125,6 +125,14 @@ class SurveyAnswerServiceTests extends AbstractSpringBootTest {
 		SurveyAnswer surveyAnswer = build(user, surveyTitle, ETC.toString());
 		SurveyDto surveyResult = surveyService.saveAnswer(user.idx(), SurveyDto.from(surveyAnswer));
 		assertEquals("", surveyResult.getDetail());
+	}
+
+	@Test
+	@Order(8)
+	@DisplayName("유저_설문조사정보_유저별_조회")
+	void findUserSurveyResult()  {
+		SurveyDto surveyResult = surveyService.findAnswerByUser(user.idx());
+		assertEquals("", surveyResult.getAnswer());
 	}
 
 }

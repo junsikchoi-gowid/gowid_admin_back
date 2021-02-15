@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.service.shinhan;
 import com.nomadconnection.dapp.api.common.AsyncService;
 import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
+import com.nomadconnection.dapp.api.dto.SurveyDto;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.dto.shinhan.*;
 import com.nomadconnection.dapp.api.dto.shinhan.enums.ShinhanGwApiType;
@@ -85,6 +86,7 @@ public class IssuanceService {
     private final SlackNotiService slackNotiService;
     private final EnvUtil envUtil;
     private final CardIssuanceInfoService cardIssuanceInfoService;
+    private final SurveyService surveyService;
 
     @Value("${mail.receipt.send-enable}")
     boolean sendReceiptEmailEnable;
@@ -192,7 +194,9 @@ public class IssuanceService {
         );
         Map<String, String> issuanceCounts = new HashMap<>();
         issuanceCounts.put("counts", d1100.getD039());
-        emailService.sendReceiptEmail(resultOfD1200.getD001(), issuanceCounts, CardCompany.SHINHAN, resultOfD1200.getD003());
+        SurveyDto surveyResult = surveyService.findAnswerByUser(userCorp.user().idx());
+        emailService.sendReceiptEmail(resultOfD1200.getD001(), issuanceCounts, CardCompany.SHINHAN, resultOfD1200.getD003(),
+            surveyResult, d1100.getD033() + " " + d1100.getD034());
         log.debug("## receipt email sent. biz no = " + resultOfD1200.getD001());
     }
 

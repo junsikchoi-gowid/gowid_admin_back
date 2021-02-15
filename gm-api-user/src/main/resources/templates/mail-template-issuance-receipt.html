@@ -197,6 +197,43 @@
                                             </div>
                                         </div>
                                     </div>
+                                    수령지주소 : <span th:text="${arrivalAddr}"></span><br/>
+                                    <div th:switch="${surveyResult.answer}">
+                                        <div th:case="KEYWORD">
+                                            가입경로 : 키워드 검색<br/>
+                                        </div>
+                                        <div th:case="NEWS">
+                                            가입경로 : 뉴스 혹은 신문 기사<br/>
+                                        </div>
+                                        <div th:case="FRIEND">
+                                            가입경로 : 지인 소개<br/>
+                                        </div>
+                                        <div th:case="CARD">
+                                            가입경로 : 카드사 홈페이지<br/>
+                                        </div>
+                                        <div th:case="POSTER">
+                                            가입경로 : 전단지 및 포스터<br/>
+                                        </div>
+                                        <div th:case="POING">
+                                            가입경로 : 포잉<br/>
+                                        </div>
+                                        <div th:case="VC">
+                                            가입경로 : VC/엑셀러레이터<br/>
+                                            - <span th:text="${surveyResult.detail}"></span><br/>
+                                        </div>
+                                        <div th:case="SEMINAR">
+                                            가입경로 : 고위드 주최 세미나/웨비나<br/>
+                                            - <span th:text="${surveyResult.detail}"></span><br/>
+                                        </div>
+                                        <div th:case="SNS">
+                                            가입경로 : 소셜 네트워크 서비스
+                                            - <span th:text="${surveyResult.detail}"></span><br/>
+                                        </div>
+                                        <div th:case="ETC">
+                                            가입경로 : 기타<br/>
+                                            - <span th:text="${surveyResult.detail}"></span><br/>
+                                        </div>
+                                    </div>
                                     <div id="check"></div>
                                 </td>
                             </tr>
