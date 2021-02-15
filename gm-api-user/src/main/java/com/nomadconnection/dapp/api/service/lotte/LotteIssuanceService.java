@@ -118,18 +118,18 @@ public class LotteIssuanceService {
 			saveSignatureHistory(signatureHistoryIdx, resultOfD1100);
 			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1100, CardCompany.LOTTE);
 
-			// 1200 전자서명값 제출
-			userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
-			DataPart1200 resultOfD1200 = proc1200(userCorp, resultOfD1100);
-			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
-
 			// 이미지 zip파일 생성요청
 			userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
-			procImageZip(resultOfD1200);
+			procImageZip(resultOfD1100.getBzno(), resultOfD1100.getApfRcpno());
 			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
 
 			// 이메일 전송
 			sendReceiptEmail(userCorp);
+
+			// 1200 전자서명값 제출
+			userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
+			proc1200(userCorp, resultOfD1100);
+			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
 
 			cardIssuanceInfoService.updateIssuanceStatus(userIdx, IssuanceStatus.APPLY);
 		} catch (Exception e){
@@ -138,11 +138,11 @@ public class LotteIssuanceService {
 		}
 	}
 
-	private void procImageZip(DataPart1200 resultOfD1200) {
+	private void procImageZip(String licenseNo, String registrationNo) {
 		ImageZipReq requestRpc = new ImageZipReq();
 		requestRpc.setEnrollmentDate(CommonUtil.getNowYYYYMMDD());
-		requestRpc.setLicenseNo(resultOfD1200.getBzno());
-		requestRpc.setRegistrationNo(resultOfD1200.getApfRcpno());
+		requestRpc.setLicenseNo(licenseNo);
+		requestRpc.setRegistrationNo(registrationNo);
 		lotteGwRpc.requestImageZip(requestRpc);
 	}
 
