@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.domain.corp;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
+import com.nomadconnection.dapp.core.domain.limit.LimitRecalculation;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.*;
@@ -36,6 +37,10 @@ public class Corp extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "idxRiskConfig", foreignKey = @ForeignKey(name = "FK_Corp_RiskConfig"))
     private RiskConfig riskConfig; // 법인 리스크 정보
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "corp")
+    @JoinColumn(name = "idxLimitRecalculation", foreignKey = @ForeignKey(name = "FK_Corp_LimitRecalculation"))
+    private LimitRecalculation limitRecalculation;
 
     private String resBusinessItems; // 종목
     private String resBusinessTypes; // 업태
