@@ -467,10 +467,10 @@ public class CommonCardServiceV2 {
         updateRiskConfigCard(user, grantLimit, calculatedLimit, hopeLimit);
         if (CardCompany.isShinhan(user.cardCompany())) {
             shinhanCardService.updateShinhanFulltextCard(user.corp().idx(), grantLimit, dto);
-            shinhanCardService.setCardInfoCard(cardInfo, dto, calculatedLimit, hopeLimit);
+            shinhanCardService.setCardInfoCard(cardInfo, dto, calculatedLimit, grantLimit);
         } else if (CardCompany.isLotte(user.cardCompany())) {
             lotteCardService.updateD1100Card(user, grantLimit, calculatedLimit, hopeLimit, dto);
-            lotteCardService.setCardInfoCard(cardInfo, dto, calculatedLimit, hopeLimit);
+            lotteCardService.setCardInfoCard(cardInfo, dto, calculatedLimit, grantLimit);
         }
 
         if (StringUtils.hasText(depthKey)) {
