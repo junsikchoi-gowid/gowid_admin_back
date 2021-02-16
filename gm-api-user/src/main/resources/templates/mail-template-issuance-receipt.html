@@ -229,6 +229,10 @@
                                             가입경로 : 소셜 네트워크 서비스
                                             - <span th:text="${surveyResult.detail}"></span><br/>
                                         </div>
+                                        <div th:case="DCAMP">
+                                            가입경로 : 디캠프/프론트원
+                                            - <span th:text="${surveyResult.detail}"></span><br/>
+                                        </div>
                                         <div th:case="ETC">
                                             가입경로 : 기타<br/>
                                             - <span th:text="${surveyResult.detail}"></span><br/>
