@@ -721,6 +721,9 @@ public class CardIssuanceDto {
 
         @ApiModelProperty("타입")
         private String consentType;
+
+        @ApiModelProperty("필수여부")
+        public Boolean essential;
     }
 
     @Data

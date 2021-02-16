@@ -524,6 +524,7 @@ public class CommonCardServiceV2 {
                 .title(item.getTitle())
                 .boolConsent(consentMapping != null ? consentMapping.status() : false)
                 .consentType(item.getTypeCode())
+                .essential(item.getEssential())
                 .build();
             consentInfo.add(resTemp);
         });
