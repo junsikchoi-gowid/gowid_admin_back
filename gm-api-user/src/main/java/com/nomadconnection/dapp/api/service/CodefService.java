@@ -1902,49 +1902,6 @@ public class CodefService {
 
 	@SneakyThrows
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity registerAccountAdd(Common.Account dto, Long idxUser) {
-
-		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
-		ConnectedMng connectedMng = repoConnectedMng.findTopByIdxUserAndType(idxUser,"NT").orElseThrow(
-				() -> new RuntimeException("NtConnectedIdNotFound")
-		);
-
-		User user = repoUser.findById(idxUser).orElseThrow(
-				() -> new RuntimeException("UserNotFound")
-		);
-
-		List<String> listCorp = new ArrayList<>();
-		repoResConCorpList.findByBusinessTypeAndIdxCorp(CommonConstant.BUSINESSTYPE, user.corp().idx()).forEach(
-				resConCorpList -> {
-					listCorp.add(resConCorpList.organization()); }
-		);
-		JSONObject jsonObject = ApiCodef.registerCodef(dto, connectedMng.connectedId(), CommonConstant.API_DOMAIN, CommonConstant.REFERENCE_UPDATE_ACCOUNT, null, CommonConstant.BUSINESSTYPE);
-		ProcAddConnectedId(jsonObject, connectedMng.connectedId(), user.corp().idx());
-		saveConnectedId(dto, jsonObject, connectedMng.connectedId(), user.idx(), user.corp().idx());
-
-		listCorp.clear();
-		repoResConCorpList.findByBusinessTypeAndIdxCorp(CommonConstant.CARDTYPE, user.corp().idx()).forEach(
-				resConCorpList -> {
-					listCorp.add(resConCorpList.organization()); }
-		);
-		jsonObject = ApiCodef.registerCodef(dto, connectedMng.connectedId(), CommonConstant.API_DOMAIN, CommonConstant.REFERENCE_UPDATE_ACCOUNT, null, CommonConstant.CARDTYPE);
-		ProcAddConnectedId(jsonObject, connectedMng.connectedId(), user.corp().idx());
-		saveConnectedId(dto, jsonObject, connectedMng.connectedId(), user.idx(), user.corp().idx());
-
-		normal.setKey("CF-00000"); // 이상 유무와 상관없이 처리
-		normal.setStatus(true);
-
-		List<BankDto.ResAccountDto> resAccount = repoResAccount.findConnectedId(connectedMng.connectedId()).stream()
-				.map(account -> BankDto.ResAccountDto.from(account, true))
-				.collect(Collectors.toList());
-
-		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.normal(normal)
-				.data(resAccount).build());
-	}
-
-	@SneakyThrows
-	@Transactional(rollbackFor = Exception.class)
 	public void ProcAddConnectedId(JSONObject jsonObject, String connectedId, Long idxCorp) {
 		JSONParser jsonParse = new JSONParser();
 		String strResultCode = jsonObject.get("result").toString();
@@ -2089,64 +2046,8 @@ public class CodefService {
 						.collect(Collectors.toList());
 			}
 
-		}else{
-			// 삭제처리
-			try {
-				JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
-				JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
-				connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
-				log.debug("([ registerAccountAddCreate ]) connectedId='{}'", connectedId);
-				deleteAccount2(connectedId);
-				deleteConnectedId(connectedId);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			// 재등록
-			strObject = ApiRequest.request(createUrlPath, bodyMap);
-
-			jsonParse = new JSONParser();
-			jsonObject = (JSONObject)jsonParse.parse(strObject);
-			strResultCode = jsonObject.get("result").toString();
-			strResultData = jsonObject.get("data").toString();
-
-			code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
-
-			if(code.equals("CF-00000") || code.equals("CF-04012")) {
-				connectedId = (((JSONObject) jsonParse.parse(strResultData)).get("connectedId")).toString();
-
-				repoConnectedMng.save(ConnectedMng.builder()
-						.connectedId(connectedId)
-						.idxUser(idxUser)
-						.name(dto.getName())
-						.startDate(dto.getStartDate())
-						.endDate(dto.getEndDate())
-						.desc1(dto.getDesc1())
-						.desc2(dto.getDesc2())
-						.status(ConnectedMngStatus.NORMAL)
-						.build()
-				);
-
-				if (getScrapingAccountBank(connectedId)) {
-					resAccount = repoResAccount.findResAccount(idxUser).stream()
-							.map(account -> BankDto.ResAccountDto.from(account, true))
-							.collect(Collectors.toList());
-				}
-			}else{
-				try {
-					JSONObject JSONObjectData = (JSONObject) (jsonObject.get("data"));
-					JSONArray JSONObjectErrorData = (JSONArray) JSONObjectData.get("errorList");
-					connectedId = GowidUtils.getEmptyStringToString((JSONObject) JSONObjectErrorData.get(0), "extraMessage");
-					deleteAccount2(connectedId);
-					deleteConnectedId(connectedId);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-
-			normal.setStatus(false);
-			normal.setKey(code);
-			normal.setValue((((JSONObject)jsonParse.parse(strResultCode)).get("message")).toString());
+			// 은행 추가
+			ProcAddConnectedId(jsonObject, connectedId, null);
 		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
