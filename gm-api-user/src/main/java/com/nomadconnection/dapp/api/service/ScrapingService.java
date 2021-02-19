@@ -19,8 +19,10 @@ import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.*;
+import com.nomadconnection.dapp.core.domain.repository.saas.SaasTrackerProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.*;
+import com.nomadconnection.dapp.core.domain.saas.SaasTrackerProgress;
 import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
@@ -38,7 +40,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
@@ -75,6 +76,7 @@ public class ScrapingService {
     private final PasswordEncoder encoder;
     private final BatchDateRepository repoBatchDate;
     private final ResTaxInvoiceRepository repoResTaxInvoice;
+    private final SaasTrackerProgressRepository repoSaasTrackerProgress;
 
     private final String urlPath = CommonConstant.getRequestDomain();
     final Thread currentThread = Thread.currentThread();
@@ -93,8 +95,8 @@ public class ScrapingService {
     void saveAccount(int iType, JSONObject jsonData, JSONArray jsonArrayResTrHistoryList, String connectedId,  BankDto.AccountBatch dto, String nowFlag) {
         String strDefault = null;
         Optional<ResAccount> optResAccount = repoResAccount.findByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString().trim());
-        ResAccount resAccount = null;
-        if(optResAccount.isPresent() && optResAccount.get() != null){
+        ResAccount resAccount;
+        if(optResAccount.isPresent()){
             resAccount = optResAccount.get();
             repoResAccountHistory.deleteResAccountTrDate(jsonData.get("resAccount").toString(), dto.getStartDate(), dto.getEndDate());
             String account = resAccount.resAccount();
@@ -159,13 +161,13 @@ public class ScrapingService {
                                 ResAccountHistory.builder()
                                         .resRoundNo(GowidUtils.getEmptyStringToString(obj, "resRoundNo"))
                                         .resMonth(GowidUtils.getEmptyStringToString(obj, "resMonth"))
-                                        .resAccountTrDate( GowidUtils.getEmptyStringToString(obj, "resAccountTrDate").toString())
-                                        .resAccountIn( GowidUtils.getEmptyStringToString(obj, "resAccountIn").toString())
-                                        .resAccountDesc1( GowidUtils.getEmptyStringToString(obj, "resAccountDesc1").toString())
-                                        .resAccountDesc2( GowidUtils.getEmptyStringToString(obj, "resAccountDesc2").toString())
-                                        .resAccountDesc3( GowidUtils.getEmptyStringToString(obj, "resAccountDesc3").toString())
-                                        .resAccountDesc4( GowidUtils.getEmptyStringToString(obj, "resAccountDesc4").toString())
-                                        .resAfterTranBalance( GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance").toString())
+                                        .resAccountTrDate(GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
+                                        .resAccountIn( GowidUtils.getEmptyStringToString(obj, "resAccountIn"))
+                                        .resAccountDesc1( GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
+                                        .resAccountDesc2( GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
+                                        .resAccountDesc3( GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
+                                        .resAccountDesc4( GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
+                                        .resAfterTranBalance( GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
                                         .resAccount(account)
                                         .build()
                         );
@@ -186,19 +188,19 @@ public class ScrapingService {
                         JSONObject obj = (JSONObject) item2;
                         repoResAccountHistory.save(
                                 ResAccountHistory.builder()
-                                        .resAccountTrDate( GowidUtils.getEmptyStringToString(obj, "resAccountTrDate").toString())
-                                        .resTransTypeNm( GowidUtils.getEmptyStringToString(obj, "resTransTypeNm").toString())
-                                        .resType( GowidUtils.getEmptyStringToString(obj, "resType").toString())
-                                        .resTranAmount( GowidUtils.getEmptyStringToString(obj, "resTranAmount").toString())
-                                        .resPrincipal( GowidUtils.getEmptyStringToString(obj, "resPrincipal").toString())
-                                        .resInterest( GowidUtils.getEmptyStringToString(obj, "resInterest").toString())
-                                        // .resOverdueInterest(GowidUtils.getEmptyStringToString(obj,"resOverdueInterest").toString())
-                                        // .resReturnInterest(GowidUtils.getEmptyStringToString(obj,"resReturnInterest").toString())
-                                        // .resFee(GowidUtils.getEmptyStringToString(obj,"resFee").toString())
-                                        .commStartDate( GowidUtils.getEmptyStringToString(obj, "commStartDate").toString())
-                                        .commEndDate( GowidUtils.getEmptyStringToString(obj, "commEndDate").toString())
-                                        .resLoanBalance( GowidUtils.getEmptyStringToString(obj, "resLoanBalance").toString())
-                                        .resInterestRate( GowidUtils.getEmptyStringToString(obj, "resInterestRate").toString())
+                                        .resAccountTrDate( GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
+                                        .resTransTypeNm( GowidUtils.getEmptyStringToString(obj, "resTransTypeNm"))
+                                        .resType( GowidUtils.getEmptyStringToString(obj, "resType"))
+                                        .resTranAmount( GowidUtils.getEmptyStringToString(obj, "resTranAmount"))
+                                        .resPrincipal( GowidUtils.getEmptyStringToString(obj, "resPrincipal"))
+                                        .resInterest( GowidUtils.getEmptyStringToString(obj, "resInterest"))
+                                        // .resOverdueInterest(GowidUtils.getEmptyStringToString(obj,"resOverdueInterest"))
+                                        // .resReturnInterest(GowidUtils.getEmptyStringToString(obj,"resReturnInterest"))
+                                        // .resFee(GowidUtils.getEmptyStringToString(obj,"resFee"))
+                                        .commStartDate( GowidUtils.getEmptyStringToString(obj, "commStartDate"))
+                                        .commEndDate( GowidUtils.getEmptyStringToString(obj, "commEndDate"))
+                                        .resLoanBalance( GowidUtils.getEmptyStringToString(obj, "resLoanBalance"))
+                                        .resInterestRate( GowidUtils.getEmptyStringToString(obj, "resInterestRate"))
                                         .resAccount(account)
                                         .build()
                         );
@@ -212,7 +214,6 @@ public class ScrapingService {
                     double balance = 0;
                     if (jsonData.get("resAccountBalance") != null ||  jsonData.get("resAccountBalance") != "") {
                         try {
-                            log.debug("resAccountBalance $resAccountBalance='{}'" + jsonData.get("resAccountBalance"));
                             balance = Double.parseDouble(jsonData.get("resAccountBalance").toString());
                         }catch (Exception e){
                             log.error("[saveAccount type 30] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
@@ -230,17 +231,17 @@ public class ScrapingService {
                         JSONObject obj = (JSONObject) item2;
                         repoResAccountHistory.save(
                                 ResAccountHistory.builder()
-                                        .resAccountTrDate( GowidUtils.getEmptyStringToString(obj, "resAccountTrDate").toString())
-                                        .resAccountTrTime( GowidUtils.getEmptyStringToString(obj, "resAccountTrTime").toString())
-                                        .resTranAmount( GowidUtils.getEmptyStringToString(obj, "resTranAmount").toString())
-                                        .resTranNum( GowidUtils.getEmptyStringToString(obj, "resTranNum").toString())
-                                        .resBasePrice( GowidUtils.getEmptyStringToString(obj, "resBasePrice").toString())
-                                        .resBalanceNum( GowidUtils.getEmptyStringToString(obj, "resBalanceNum").toString())
-                                        .resAccountDesc1( GowidUtils.getEmptyStringToString(obj, "resAccountDesc1").toString())
-                                        .resAccountDesc2( GowidUtils.getEmptyStringToString(obj, "resAccountDesc2").toString())
-                                        .resAccountDesc3( GowidUtils.getEmptyStringToString(obj, "resAccountDesc3").toString())
-                                        .resAccountDesc4( GowidUtils.getEmptyStringToString(obj, "resAccountDesc4").toString())
-                                        .resAfterTranBalance( GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance").toString())
+                                        .resAccountTrDate( GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
+                                        .resAccountTrTime( GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"))
+                                        .resTranAmount( GowidUtils.getEmptyStringToString(obj, "resTranAmount"))
+                                        .resTranNum( GowidUtils.getEmptyStringToString(obj, "resTranNum"))
+                                        .resBasePrice( GowidUtils.getEmptyStringToString(obj, "resBasePrice"))
+                                        .resBalanceNum( GowidUtils.getEmptyStringToString(obj, "resBalanceNum"))
+                                        .resAccountDesc1( GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
+                                        .resAccountDesc2( GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
+                                        .resAccountDesc3( GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
+                                        .resAccountDesc4( GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
+                                        .resAfterTranBalance( GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
                                         .resValuationAmt("" + GowidUtils.getEmptyStringToString(obj, "resValuationAmt") )
                                         .resAccount(account)
                                         .build()
@@ -267,15 +268,15 @@ public class ScrapingService {
                         JSONObject obj = (JSONObject) item2;
                         repoResAccountHistory.save(
                                 ResAccountHistory.builder()
-                                        .resAccountTrDate( GowidUtils.getEmptyStringToString(obj, "resAccountTrDate").toString())
-                                        .resAccountTrTime( GowidUtils.getEmptyStringToString(obj, "resAccountTrTime").toString())
-                                        .resAccountOut( GowidUtils.getEmptyStringToString(obj, "resAccountOut").toString())
-                                        .resAccountIn( GowidUtils.getEmptyStringToString(obj, "resAccountIn").toString())
-                                        .resAccountDesc1( GowidUtils.getEmptyStringToString(obj, "resAccountDesc1").toString())
-                                        .resAccountDesc2( GowidUtils.getEmptyStringToString(obj, "resAccountDesc2").toString())
-                                        .resAccountDesc3( GowidUtils.getEmptyStringToString(obj, "resAccountDesc3").toString())
-                                        .resAccountDesc4( GowidUtils.getEmptyStringToString(obj, "resAccountDesc4").toString())
-                                        .resAfterTranBalance( GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance").toString())
+                                        .resAccountTrDate( GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
+                                        .resAccountTrTime( GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"))
+                                        .resAccountOut( GowidUtils.getEmptyStringToString(obj, "resAccountOut"))
+                                        .resAccountIn( GowidUtils.getEmptyStringToString(obj, "resAccountIn"))
+                                        .resAccountDesc1( GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
+                                        .resAccountDesc2( GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
+                                        .resAccountDesc3( GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
+                                        .resAccountDesc4( GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
+                                        .resAfterTranBalance( GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
                                         .resAccount(account)
                                         .build()
                         );
@@ -284,21 +285,9 @@ public class ScrapingService {
             }
         }else{
             log.error("[saveAccount] $jsonData = {}, $jsonArrayResTrHistoryList = {}, $connectedId = {}, $dto= {}, $nowFlag = {} ", jsonData, jsonArrayResTrHistoryList, connectedId, dto, nowFlag);
-            return;
         }
     }
 
-
-    /**
-     * scraping Data
-     *
-     * @param account
-     * @param connectedId
-     * @param resBatchType
-     * @param idxResBatch
-     * @param idxUser
-     * @return
-     */
     @Transactional
     public Long startLog(String account, String connectedId, ResBatchType resBatchType, Long idxResBatch, Long idxUser) {
         ResBatchList result = repoResBatchList.save(
@@ -314,23 +303,21 @@ public class ScrapingService {
 
     @Transactional
     public void endLog(ResBatchList resBatchList) {
-        repoResBatchList.findById(resBatchList.idx()).ifPresent(resBatch -> {
-            repoResBatchList.save(
-                    ResBatchList.builder()
-                            .idx(resBatchList.idx())
-                            .account(resBatchList.account())
-                            .bank(resBatchList.bank())
-                            .errCode(resBatchList.errCode())
-                            .errMessage(resBatchList.errMessage())
-                            .startDate(resBatchList.startDate())
-                            .endDate(resBatchList.endDate())
-                            .transactionId(resBatchList.transactionId())
-                            .idxUser(resBatch.idxUser())
-                            .connectedId(resBatch.connectedId())
-                            .resBatchType(resBatch.resBatchType())
-                            .idxResBatch(resBatch.idxResBatch())
-                            .build());
-        });
+        repoResBatchList.findById(resBatchList.idx()).ifPresent(resBatch -> repoResBatchList.save(
+                ResBatchList.builder()
+                        .idx(resBatchList.idx())
+                        .account(resBatchList.account())
+                        .bank(resBatchList.bank())
+                        .errCode(resBatchList.errCode())
+                        .errMessage(resBatchList.errMessage())
+                        .startDate(resBatchList.startDate())
+                        .endDate(resBatchList.endDate())
+                        .transactionId(resBatchList.transactionId())
+                        .idxUser(resBatch.idxUser())
+                        .connectedId(resBatch.connectedId())
+                        .resBatchType(resBatch.resBatchType())
+                        .idxResBatch(resBatch.idxResBatch())
+                        .build()));
     }
 
     private JSONObject[] getApiResult(String str) throws ParseException {
@@ -546,16 +533,16 @@ public class ScrapingService {
                                 .connectedId(connId)
                                 .organization(strBank)
                                 .type("ResForeignCurrency")
-                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                                 .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                                 .resAccountStartDate(startDate)
-                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                                .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate").toString())
-                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
+                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                                .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate"))
+                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName"))
                                 .build()
                         );
                     });
@@ -576,16 +563,16 @@ public class ScrapingService {
                                 .connectedId(connId)
                                 .organization(strBank)
                                 .type("ResFund")
-                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                                 .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                                 .resAccountStartDate(startDate)
-                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                                .resAccountInvestedCost( GowidUtils.getEmptyStringToString(obj, "resAccountInvestedCost").toString())
-                                .resEarningsRate( GowidUtils.getEmptyStringToString(obj, "resEarningsRate").toString())
+                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                                .resAccountInvestedCost( GowidUtils.getEmptyStringToString(obj, "resAccountInvestedCost"))
+                                .resEarningsRate( GowidUtils.getEmptyStringToString(obj, "resEarningsRate"))
                                 .build()
                         );
                     });
@@ -607,9 +594,11 @@ public class ScrapingService {
             strStart = resData.getStartDay();
             strEnd = resData.getEndDay();
 
+            boolean b = strType.equals("12") || strType.equals("13") || strType.equals("14");
+
             if (strType.equals("10") || strType.equals("11")) {
                 iType = 10;
-            } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
+            } else if (b) {
                 iType = 12;
             } else if (strType.equals("40")) {
                 iType = 40;
@@ -640,7 +629,7 @@ public class ScrapingService {
                             , strEnd
                             , "0"
                             , "1"));
-                } else if (strType.equals("12") || strType.equals("13") || strType.equals("14")) {
+                } else if (b) {
                     strResult = getApiResult(KR_BK_1_B_003.krbk1b003(resData.getConnectedId()
                             , resData.getOrganization()
                             , resData.getResAccount()
@@ -800,16 +789,16 @@ public class ScrapingService {
                                 .connectedId(connId)
                                 .organization(strBank)
                                 .type("DepositTrust")
-                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                                 .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                                 .resAccountStartDate(startDate)
-                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                                .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate").toString())
-                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
+                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                                .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate"))
+                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName"))
                                 .build()
                         );
                     });
@@ -830,16 +819,16 @@ public class ScrapingService {
                                 .connectedId(connId)
                                 .organization(strBank)
                                 .type("Loan")
-                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                                 .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                                 .resAccountStartDate(startDate)
-                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
-                                .resAccountLoanExecNo( GowidUtils.getEmptyStringToString(obj, "resAccountLoanExecNo").toString())
+                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName"))
+                                .resAccountLoanExecNo( GowidUtils.getEmptyStringToString(obj, "resAccountLoanExecNo"))
                                 .build()
                         );
                     });
@@ -860,16 +849,16 @@ public class ScrapingService {
                                 .connectedId(connId)
                                 .organization(strBank)
                                 .type("ResForeignCurrency")
-                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                                 .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                                 .resAccountStartDate(startDate)
-                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                                .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate").toString())
-                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
+                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                                .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate"))
+                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName"))
                                 .build()
                         );
                     });
@@ -890,16 +879,16 @@ public class ScrapingService {
                                 .connectedId(connId)
                                 .organization(strBank)
                                 .type("ResFund")
-                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                                 .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                                 .resAccountStartDate(startDate)
-                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                                .resAccountInvestedCost( GowidUtils.getEmptyStringToString(obj, "resAccountInvestedCost").toString())
-                                .resEarningsRate( GowidUtils.getEmptyStringToString(obj, "resEarningsRate").toString())
+                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                                .resAccountInvestedCost( GowidUtils.getEmptyStringToString(obj, "resAccountInvestedCost"))
+                                .resEarningsRate( GowidUtils.getEmptyStringToString(obj, "resEarningsRate"))
                                 .build()
                         );
                     });
@@ -1256,17 +1245,17 @@ public class ScrapingService {
                                 .connectedId(connId)
                                 .organization(strBank)
                                 .type("DepositTrust")
-                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                                .resAccountHolder( GowidUtils.getEmptyStringToString(obj, "resAccountHolder").toString())
-                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                                .resAccountHolder( GowidUtils.getEmptyStringToString(obj, "resAccountHolder"))
+                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                                 .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                                 .resAccountStartDate(startDate)
-                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                                .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate").toString())
-                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
+                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                                .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate"))
+                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName"))
                                 .enabled(true)
                                 .build()
                         );
@@ -1288,17 +1277,17 @@ public class ScrapingService {
                                 .connectedId(connId)
                                 .organization(strBank)
                                 .type("Loan")
-                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                                .resAccountHolder( GowidUtils.getEmptyStringToString(obj, "resAccountHolder").toString())
-                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                                .resAccountHolder( GowidUtils.getEmptyStringToString(obj, "resAccountHolder"))
+                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                                 .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                                 .resAccountStartDate(startDate)
-                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
-                                .resAccountLoanExecNo( GowidUtils.getEmptyStringToString(obj, "resAccountLoanExecNo").toString())
+                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName"))
+                                .resAccountLoanExecNo( GowidUtils.getEmptyStringToString(obj, "resAccountLoanExecNo"))
                                 .enabled(true)
                                 .build()
                         );
@@ -1320,17 +1309,17 @@ public class ScrapingService {
                                 .connectedId(connId)
                                 .organization(strBank)
                                 .type("ResForeignCurrency")
-                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                                .resAccountHolder( GowidUtils.getEmptyStringToString(obj, "resAccountHolder").toString())
-                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                                .resAccountHolder( GowidUtils.getEmptyStringToString(obj, "resAccountHolder"))
+                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                                 .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                                 .resAccountStartDate(startDate)
-                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                                .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate").toString())
-                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
+                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                                .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate"))
+                                .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName"))
                                 .enabled(true)
                                 .build()
                         );
@@ -1352,17 +1341,17 @@ public class ScrapingService {
                                 .connectedId(connId)
                                 .organization(strBank)
                                 .type("ResFund")
-                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                                .resAccountHolder( GowidUtils.getEmptyStringToString(obj, "resAccountHolder").toString())
-                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                                .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                                .resAccountHolder( GowidUtils.getEmptyStringToString(obj, "resAccountHolder"))
+                                .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                                 .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                                .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                                .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                                .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                                 .resAccountStartDate(startDate)
-                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                                .resAccountInvestedCost( GowidUtils.getEmptyStringToString(obj, "resAccountInvestedCost").toString())
-                                .resEarningsRate( GowidUtils.getEmptyStringToString(obj, "resEarningsRate").toString())
+                                .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                                .resAccountInvestedCost( GowidUtils.getEmptyStringToString(obj, "resAccountInvestedCost"))
+                                .resEarningsRate( GowidUtils.getEmptyStringToString(obj, "resEarningsRate"))
                                 .enabled(true)
                                 .build()
                         );
@@ -1934,16 +1923,16 @@ public class ScrapingService {
                         .connectedId(connId)
                         .organization(strBank)
                         .type("DepositTrust")
-                        .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                        .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                        .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                        .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                         .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                        .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                        .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                        .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                        .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                        .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                        .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                         .resAccountStartDate(startDate)
-                        .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                        .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate").toString())
-                        .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
+                        .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                        .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate"))
+                        .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName"))
                         .build()
                 );
             });
@@ -1964,16 +1953,16 @@ public class ScrapingService {
                         .connectedId(connId)
                         .organization(strBank)
                         .type("Loan")
-                        .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                        .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                        .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                        .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                         .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                        .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                        .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                        .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                        .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                        .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                        .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                         .resAccountStartDate(startDate)
-                        .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                        .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
-                        .resAccountLoanExecNo( GowidUtils.getEmptyStringToString(obj, "resAccountLoanExecNo").toString())
+                        .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                        .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName"))
+                        .resAccountLoanExecNo( GowidUtils.getEmptyStringToString(obj, "resAccountLoanExecNo"))
                         .build()
                 );
             });
@@ -1994,16 +1983,16 @@ public class ScrapingService {
                         .connectedId(connId)
                         .organization(strBank)
                         .type("ResForeignCurrency")
-                        .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                        .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                        .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                        .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                         .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                        .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                        .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                        .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                        .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                        .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                        .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                         .resAccountStartDate(startDate)
-                        .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                        .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate").toString())
-                        .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName").toString())
+                        .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                        .resLastTranDate( GowidUtils.getEmptyStringToString(obj, "resLastTranDate"))
+                        .resAccountName( GowidUtils.getEmptyStringToString(obj, "resAccountName"))
                         .build()
                 );
             });
@@ -2024,16 +2013,16 @@ public class ScrapingService {
                         .connectedId(connId)
                         .organization(strBank)
                         .type("ResFund")
-                        .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount").toString())
-                        .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay").toString())
+                        .resAccount( GowidUtils.getEmptyStringToString(obj, "resAccount"))
+                        .resAccountDisplay( GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
                         .resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-                        .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit").toString())
-                        .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName").toString())
-                        .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").toString())
+                        .resAccountDeposit( GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"))
+                        .resAccountNickName( GowidUtils.getEmptyStringToString(obj, "resAccountNickName"))
+                        .resAccountCurrency( GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"))
                         .resAccountStartDate(startDate)
-                        .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate").toString())
-                        .resAccountInvestedCost( GowidUtils.getEmptyStringToString(obj, "resAccountInvestedCost").toString())
-                        .resEarningsRate( GowidUtils.getEmptyStringToString(obj, "resEarningsRate").toString())
+                        .resAccountEndDate( GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"))
+                        .resAccountInvestedCost( GowidUtils.getEmptyStringToString(obj, "resAccountInvestedCost"))
+                        .resEarningsRate( GowidUtils.getEmptyStringToString(obj, "resEarningsRate"))
                         .build()
                 );
             });
@@ -2111,73 +2100,83 @@ public class ScrapingService {
         User user = repoUser.findById(idxUser).get();
         Corp corp = repoCorp.findById(repoCorp.searchIdxCorp(idxUser)).get();
 
-        //가져와야할 기간 추출 2년치 가져와야할 경우
-        if(user != null && corp != null){
+        SaasTrackerProgress progress = repoSaasTrackerProgress.findByUser(user).orElse(null);
+        Boolean boolSaasExec = progress != null && progress.status() > 0;
 
-            for(int i = 24 ; i > 0 ; i--) {
-                YearMonth ym = YearMonth.from(LocalDate.now().minusMonths(i));
-                String startDate = ym.format(DateTimeFormatter.ofPattern("yyyyMM")) + "01";
-                String endDate = ym.atEndOfMonth().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        if( boolSaasExec ){
+            ResConCorpList resConCorpList = getSaasTaxInvoice(user.idx());
 
-                if (i == 0) {
-                    endDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-                }
+            //가져와야할 기간 추출 2년치 가져와야할 경우
+            if(user != null && corp != null){
 
-                List<String> connectedIdList = new ArrayList<>();
-                ResConCorpList resConCorpList = new ResConCorpList();
+                for(int i = 24 ; i > 0 ; i--) {
+                    YearMonth ym = YearMonth.from(LocalDate.now().minusMonths(i));
+                    String startDate = ym.format(DateTimeFormatter.ofPattern("yyyyMM")) + "01";
+                    String endDate = ym.atEndOfMonth().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-                List<ConnectedMngDto> connectedMngList = repoConnectedMng.findByIdxUserAndStatusInOrderByCreatedAtDesc(user.idx(), connectedMngStatusList)
-                        .stream().map(ConnectedMngDto::from).collect(Collectors.toList());
-
-                for(ConnectedMngDto obj : connectedMngList){
-                    connectedIdList.add(obj.getConnectedId());
-                }
-
-                if( connectedMngList.size() > 0 ){
-                    resConCorpList = repoResConCorpList.findTopByConnectedIdInAndStatusInAndBusinessTypeAndOrganization(
-                            connectedIdList, connectedMngStatusList, "NT", "0002"
-                    );
-                }
-
-                if (resConCorpList != null) {
-                    JSONObject[] strResult = getBatchTaxInvoice(
-                            resConCorpList.connectedId(),
-                            idxResBatchParent,
-                            startDate,
-                            endDate,
-                            corp.resCompanyIdentityNo());
-
-                    if (strResult[0].get("code").toString().equals("CF-00000")) {
-                        saveTaxInvoice((JSONArray) strResult[1].get("data")
-                                , idxUser
-                                , corp.idx()
-                                , startDate
-                                , endDate
-                        );
+                    if (i == 0) {
+                        endDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
                     }
 
-                    if(strResult[0] != null ){
+                    if (resConCorpList != null) {
+                        JSONObject[] strResult = getBatchTaxInvoice(
+                                resConCorpList.connectedId(),
+                                idxResBatchParent,
+                                startDate,
+                                endDate,
+                                corp.resCompanyIdentityNo());
 
-                        String code = GowidUtils.getEmptyStringToString(strResult[0], "code");
-                        String transactionId = GowidUtils.getEmptyStringToString(strResult[0], "transactionId");
-                        String message = GowidUtils.getEmptyStringToString(strResult[0], "message");
+                        if (strResult[0].get("code").toString().equals("CF-00000")) {
+                            saveTaxInvoice((JSONArray) strResult[1].get("data")
+                                    , idxUser
+                                    , corp.idx()
+                                    , startDate
+                                    , endDate
+                            );
+                        }
 
-                        repoResBatchList.save(
-                                ResBatchList.builder()
-                                        .idxUser(idxUser)
-                                        .idxResBatch(idxResBatchParent)
-                                        .resBatchType(ResBatchType.NT)
-                                        .connectedId(resConCorpList.connectedId())
-                                        .startDate(startDate)
-                                        .endDate(endDate)
-                                        .errCode(code)
-                                        .transactionId(transactionId)
-                                        .errMessage(message)
-                                        .build());
+                        if(strResult[0] != null ){
+
+                            String code = GowidUtils.getEmptyStringToString(strResult[0], "code");
+                            String transactionId = GowidUtils.getEmptyStringToString(strResult[0], "transactionId");
+                            String message = GowidUtils.getEmptyStringToString(strResult[0], "message");
+
+                            repoResBatchList.save(
+                                    ResBatchList.builder()
+                                            .idxUser(idxUser)
+                                            .idxResBatch(idxResBatchParent)
+                                            .resBatchType(ResBatchType.NT)
+                                            .connectedId(resConCorpList.connectedId())
+                                            .startDate(startDate)
+                                            .endDate(endDate)
+                                            .errCode(code)
+                                            .transactionId(transactionId)
+                                            .errMessage(message)
+                                            .build());
+                        }
                     }
                 }
             }
         }
+    }
+
+    private ResConCorpList getSaasTaxInvoice(Long idxUser) {
+        List<String> connectedIdList = new ArrayList<>();
+        ResConCorpList resConCorpList = new ResConCorpList();
+        List<ConnectedMngDto> connectedMngList = repoConnectedMng.findByIdxUserAndStatusInOrderByCreatedAtDesc(idxUser, connectedMngStatusList)
+                .stream().map(ConnectedMngDto::from).collect(Collectors.toList());
+
+        for(ConnectedMngDto obj : connectedMngList){
+            connectedIdList.add(obj.getConnectedId());
+        }
+
+        if( connectedMngList.size() > 0 ){
+            resConCorpList = repoResConCorpList.findTopByConnectedIdInAndStatusInAndBusinessTypeAndOrganizationOrderByCreatedAtDesc(
+                    connectedIdList, connectedMngStatusList, "NT", "0002"
+            );
+        }
+
+        return resConCorpList;
     }
 
 
@@ -2632,7 +2631,7 @@ public class ScrapingService {
             if (boolProc) {
                 baseEndDate = getPlusDate(endDate, -(diffDay+1));
                 cal.setTime(df.parse(baseEndDate));
-                diffDay = round(diffDay+1 * 5);
+                diffDay = round((diffDay+1) * 5);
                 cal.add(Calendar.DATE, -diffDay);
             } else {
                 diffDay = -round(diffDay / 3);
@@ -2682,62 +2681,70 @@ public class ScrapingService {
         JSONObject[] strResult = new JSONObject[0];
 
         if (!startDate.isEmpty() && !endDate.isEmpty()) {
-            if (!repoResBatch.findById(idxResBatchParent).get().endFlag()) {
+            Optional<ResBatch> resBatch = repoResBatch.findById(idxResBatchParent);
+            if ( resBatch.isPresent() && !repoResBatch.findById(idxResBatchParent).get().endFlag()){
 
                 try{
-                    if(resAccount.resAccountDeposit().equals("10")
-                            || resAccount.resAccountDeposit().equals("11")) {
-                        strResult = getApiResult(KR_BK_1_B_002.krbk1b002(resAccount.connectedId()
-                                , resAccount.organization()
-                                , resAccount.resAccount()
-                                , startDate
-                                , endDate
-                                , "0"
-                                , "1"));
-                    }else if(resAccount.resAccountDeposit().equals("12")
-                            || resAccount.resAccountDeposit().equals("13")
-                            || resAccount.resAccountDeposit().equals("14")) {
-                        strResult = getApiResult(KR_BK_1_B_003.krbk1b003(resAccount.connectedId()
-                                , resAccount.organization()
-                                , resAccount.resAccount()
-                                , startDate
-                                , endDate
-                                , "0"
-                                , "1"));
-                    }else if(resAccount.resAccountDeposit().equals("40")) {
-                        strResult = getApiResult(KR_BK_1_B_004.krbk1b004(resAccount.connectedId()
-                                , resAccount.organization()
-                                , resAccount.resAccount()
-                                , startDate
-                                , endDate
-                                , "0"
-                                , resAccount.resAccountLoanExecNo()));
-                    }else if(resAccount.resAccountDeposit().equals("30")) {
-                        strResult = getApiResult(KR_BK_1_B_006.krbk1b006(resAccount.connectedId()
-                                , resAccount.organization()
-                                , resAccount.resAccount()
-                                , startDate
-                                , endDate
-                                , "0"
-                                , "1"));
-                    }else if(resAccount.resAccountDeposit().equals("20")) {
-                        strResult = getApiResult(KR_BK_1_B_005.krbk1b005(resAccount.connectedId()
-                                , resAccount.organization()
-                                , resAccount.resAccount()
-                                , startDate
-                                , endDate
-                                , "0"
-                                , resAccount.resAccountCurrency()
-                        ));
-                    }else{
-                        strResult = getApiResultStock(KR_ST_1_S_002.krst1a002(resAccount.connectedId()
-                                , resAccount.organization()
-                                , resAccount.resAccount()
-                                , startDate
-                                , endDate
-                                , "0"
-                                , ""
-                        ));
+                    switch (resAccount.resAccountDeposit()) {
+                        case "10":
+                        case "11":
+                            strResult = getApiResult(KR_BK_1_B_002.krbk1b002(resAccount.connectedId()
+                                    , resAccount.organization()
+                                    , resAccount.resAccount()
+                                    , startDate
+                                    , endDate
+                                    , "0"
+                                    , "1"));
+                            break;
+                        case "12":
+                        case "13":
+                        case "14":
+                            strResult = getApiResult(KR_BK_1_B_003.krbk1b003(resAccount.connectedId()
+                                    , resAccount.organization()
+                                    , resAccount.resAccount()
+                                    , startDate
+                                    , endDate
+                                    , "0"
+                                    , "1"));
+                            break;
+                        case "40":
+                            strResult = getApiResult(KR_BK_1_B_004.krbk1b004(resAccount.connectedId()
+                                    , resAccount.organization()
+                                    , resAccount.resAccount()
+                                    , startDate
+                                    , endDate
+                                    , "0"
+                                    , resAccount.resAccountLoanExecNo()));
+                            break;
+                        case "30":
+                            strResult = getApiResult(KR_BK_1_B_006.krbk1b006(resAccount.connectedId()
+                                    , resAccount.organization()
+                                    , resAccount.resAccount()
+                                    , startDate
+                                    , endDate
+                                    , "0"
+                                    , "1"));
+                            break;
+                        case "20":
+                            strResult = getApiResult(KR_BK_1_B_005.krbk1b005(resAccount.connectedId()
+                                    , resAccount.organization()
+                                    , resAccount.resAccount()
+                                    , startDate
+                                    , endDate
+                                    , "0"
+                                    , resAccount.resAccountCurrency()
+                            ));
+                            break;
+                        default:
+                            strResult = getApiResultStock(KR_ST_1_S_002.krst1a002(resAccount.connectedId()
+                                    , resAccount.organization()
+                                    , resAccount.resAccount()
+                                    , startDate
+                                    , endDate
+                                    , "0"
+                                    , ""
+                            ));
+                            break;
                     }
 
                     if (strResult[0].get("code").toString().equals("CF-00000") || strResult[0].get("code").toString().equals("CF-04012")) {
