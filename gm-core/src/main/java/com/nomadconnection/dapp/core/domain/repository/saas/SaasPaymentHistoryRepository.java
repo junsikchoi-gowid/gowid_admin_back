@@ -3,12 +3,15 @@ package com.nomadconnection.dapp.core.domain.repository.saas;
 import com.nomadconnection.dapp.core.domain.saas.SaasInfo;
 import com.nomadconnection.dapp.core.domain.saas.SaasPaymentHistory;
 import com.nomadconnection.dapp.core.domain.user.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Repository
 public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentHistory, Long> {
@@ -240,5 +243,9 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                     "ORDER BY paymentDate DESC\n" +
                     "LIMIT 5", nativeQuery = true)
     List<SaasPaymentHistory> findTop5ByUserIsNew(@Param("idxUser") Long idxUser);
+
+    Page<SaasPaymentHistory> findAllByUser(User user, Pageable pageable);
+
+    Page<SaasPaymentHistory> findAllByUserAndPaymentDateBetween(User user, String fromPaymentDate, String toPaymentDate, Pageable pageable);
 
 }

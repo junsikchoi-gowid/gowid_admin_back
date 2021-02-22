@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.dto.BenefitDto;
 import com.nomadconnection.dapp.api.dto.SaasTrackerDto;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
@@ -543,7 +544,18 @@ public class SaasTrackerService {
 	SaasPaymentInfo findSaasPaymentInfo(Long idx) {
 		return repoSaasPaymentInfo.findById(idx).orElseThrow(
 				() -> EntityNotFoundException.builder()
+						.message("idxSaasPaymentInfo is not found.")
 						.entity("SaasPaymentInfo")
+						.idx(idx)
+						.build()
+		);
+	}
+
+	SaasPaymentHistory findSaasPaymentHistory(Long idx) {
+		return repoSaasPaymentHistory.findById(idx).orElseThrow(
+				() -> EntityNotFoundException.builder()
+						.message("idxSaasPaymentHistory is not found.")
+						.entity("SaasPaymentHistory")
 						.idx(idx)
 						.build()
 		);
@@ -552,6 +564,7 @@ public class SaasTrackerService {
 	SaasInfo findSaasInfo(Long idx) {
 		return repoSaasInfo.findById(idx).orElseThrow(
 				() -> EntityNotFoundException.builder()
+						.message("idxSaasInfo is not found.")
 						.entity("SaasInfo")
 						.idx(idx)
 						.build()
@@ -561,9 +574,21 @@ public class SaasTrackerService {
 	SaasTrackerProgress findSaasTrackerProgress(User user) {
 		return repoSaasTrackerProgress.findByUser(user).orElseThrow(
 				() -> EntityNotFoundException.builder()
+						.message("Saas Tracker's User is not found.")
 						.entity("SaasTrackerProgress")
 						.idx(user.idx())
 						.build()
+		);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity getSaasInfos() {
+		List<SaasTrackerDto.SaasInfoRes> resSaasInfos = repoSaasInfo.findAllByOrderByName()
+				.stream().map(SaasTrackerDto.SaasInfoRes::from)
+				.collect(Collectors.toList());;
+
+		return ResponseEntity.ok().body(
+				BusinessResponse.builder().data(resSaasInfos).build()
 		);
 	}
 }

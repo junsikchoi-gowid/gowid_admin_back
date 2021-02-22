@@ -1,8 +1,11 @@
 package com.nomadconnection.dapp.core.domain.repository.saas;
 
 import com.nomadconnection.dapp.core.domain.saas.SaasInfo;
+import com.nomadconnection.dapp.core.domain.saas.SaasPaymentHistory;
 import com.nomadconnection.dapp.core.domain.saas.SaasPaymentInfo;
 import com.nomadconnection.dapp.core.domain.user.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -195,4 +198,6 @@ public interface SaasPaymentInfoRepository extends JpaRepository<SaasPaymentInfo
             "        AND activeSubscription = TRUE", nativeQuery = true)
     Integer findSaasSubscriptionByUserAndSaasInfo(@Param("idxUser") Long idxUser,
                                                   @Param("idxSaasInfo") Long idxSaasInfo);
+
+    Page<SaasPaymentInfo> findAllByUser(User user, Pageable pageable);
 }

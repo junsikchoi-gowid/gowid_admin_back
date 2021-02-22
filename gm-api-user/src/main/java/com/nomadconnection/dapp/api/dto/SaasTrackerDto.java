@@ -4,10 +4,7 @@ import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.repository.saas.SaasCategoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.saas.SaasPaymentHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.saas.SaasPaymentInfoRepository;
-import com.nomadconnection.dapp.core.domain.saas.SaasOrganizationType;
-import com.nomadconnection.dapp.core.domain.saas.SaasPaymentHistory;
-import com.nomadconnection.dapp.core.domain.saas.SaasPaymentInfo;
-import com.nomadconnection.dapp.core.domain.saas.SaasTrackerProgress;
+import com.nomadconnection.dapp.core.domain.saas.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -754,4 +751,39 @@ public class SaasTrackerDto {
 			return null;
 		}
 	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+    public static class SaasInfoRes {
+
+		@ApiModelProperty("SaaS Info Idx")
+		private Long idxSaasInfo;
+
+//		@ApiModelProperty("Saas Categort Idx")
+//		private Long idxSaasCategory;
+
+		@ApiModelProperty("SaaS 이름")
+		private String name;
+
+		@ApiModelProperty("이미지 이름")
+		private String imageName;
+
+//		@ApiModelProperty("한글 이름")
+//		private String korName;
+
+		public static SaasInfoRes from(SaasInfo saasInfo) {
+			if(saasInfo != null) {
+				return SaasInfoRes.builder()
+						.idxSaasInfo(saasInfo.idx())
+//						.idxSaasCategory(saasInfo.saasCategory().idx())
+						.name(saasInfo.name())
+						.imageName(saasInfo.imageName())
+//						.korName(saasInfo.korName())
+						.build();
+			}
+			return null;
+		}
+    }
 }

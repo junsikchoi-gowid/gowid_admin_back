@@ -48,7 +48,7 @@ public class SaasPaymentInfo extends BaseTime {
     @Column(nullable = false, columnDefinition = "BIT COMMENT '구독 여부'")
     private Boolean activeSubscription;
 
-    @Column(nullable = false, columnDefinition = "BIT COMMENT '새로 구독한 SaaS'")
+    @Column(columnDefinition = "BIT COMMENT '새로 구독한 SaaS'")
     private Boolean isNew;
 
     @Column(nullable = false, columnDefinition = "BIT COMMENT '중복 결제 여부'")

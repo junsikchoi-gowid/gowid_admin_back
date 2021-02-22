@@ -139,4 +139,11 @@ class SaasTrackerServiceTests extends AbstractSpringBootTest {
 		service.updateSaasTrackerProgress(467L, 3);
 	}
 
+
+	@Test
+	@Order(12)
+	@DisplayName("SaaS 목록 조회")
+	void getSaasInfos() {
+		service.getSaasInfos();
+	}
 }

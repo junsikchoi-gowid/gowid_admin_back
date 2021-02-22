@@ -62,6 +62,9 @@ public class SaasTrackerController {
 		public static final String INSIGHTS = "/insights";
 		public static final String INSIGHTS_DETAIL = "/insights/{idx}";
 
+		// SaaS Info
+		public static final String SAAS = "/infos";
+
 	}
 
 	private final SaasTrackerService service;
@@ -233,5 +236,14 @@ public class SaasTrackerController {
 			log.info("([ updateSaasInsightAtDuplicatePayment ]) $user='{}' $idx='{}'", user, idx);
 		}
 		return service.updateSaasInsightAtDuplicatePayment(user.idx(), idx);
+	}
+
+	@ApiOperation("SaaS 목록 조회")
+	@GetMapping(URI.SAAS)
+	public ResponseEntity getSaasInfos(@ApiIgnore @CurrentUser CustomUser user) {
+		if (log.isInfoEnabled()) {
+			log.info("([ getSaasInfos ])");
+		}
+		return service.getSaasInfos();
 	}
 }

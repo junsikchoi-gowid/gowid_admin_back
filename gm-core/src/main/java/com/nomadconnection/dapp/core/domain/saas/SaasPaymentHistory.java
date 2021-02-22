@@ -27,6 +27,12 @@ public class SaasPaymentHistory extends BaseTime {
     @Column(nullable = false)
     private Integer paymentMethod;
 
+    @Column(nullable = false)
+    private Integer foreignType;
+
+    @Column(nullable = false)
+    private String currency;
+
     @Column(nullable = false, columnDefinition = "BIGINT(20) COMMENT '구매 금액'")
     private Long paymentPrice;
 
@@ -52,7 +58,7 @@ public class SaasPaymentHistory extends BaseTime {
     private Long idxCardApprovalHist;
 
     @Lob
-    @Column(nullable = false, columnDefinition = "LONGTEXT COMMENT '품목명'")
+    @Column(columnDefinition = "LONGTEXT COMMENT '품목명'")
     private String item;
 
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)

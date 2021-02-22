@@ -11,6 +11,7 @@ import com.nomadconnection.dapp.core.domain.etc.SurveyAnswer;
 import com.nomadconnection.dapp.core.domain.saas.SaasIssueReport;
 import com.nomadconnection.dapp.core.domain.saas.SaasPaymentHistory;
 import com.nomadconnection.dapp.core.domain.saas.SaasPaymentInfo;
+import com.nomadconnection.dapp.core.domain.saas.SaasTrackerProgress;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicUpdate;
@@ -115,5 +116,8 @@ public class User extends BaseTime {
 
 	@OneToMany(mappedBy = "user")
 	private List<SaasPaymentHistory> saasPaymentHistories;
+
+	@OneToOne(mappedBy = "user")
+	private SaasTrackerProgress saasTrackerProgress;
 
 }
