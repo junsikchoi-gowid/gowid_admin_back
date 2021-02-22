@@ -10,7 +10,8 @@ import java.time.LocalDate;
 
 @Getter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"idxCorp", "date"}, name = "UK_title_answer"))
 @Entity
 public class LimitRecalculation extends BaseTime {
