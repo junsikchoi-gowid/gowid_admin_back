@@ -33,7 +33,7 @@ public class CardIssuanceInfo extends BaseTime {
     @Builder.Default
     private Boolean disabled = false; // 해당정보가 유효한 정보인지 아닌지 확인 (false 이면 폐기된 정보)
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "FK_Corp_cardIssuance"))
     private Corp corp; // 소속법인
 

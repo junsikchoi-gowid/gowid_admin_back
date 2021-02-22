@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.domain.corp;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.limit.LimitRecalculation;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -40,6 +41,9 @@ public class Corp extends BaseTime {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "corp")
     private List<LimitRecalculation> limitRecalculation;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "corp")
+    private CardIssuanceInfo cardIssuanceInfo;
 
     private String resBusinessItems; // 종목
     private String resBusinessTypes; // 업태
