@@ -53,7 +53,7 @@ public class SaasTrackerAdminService {
 
 		try {
 			List<SaasTrackerAdminDto.SaasTrackerUserRes> saasTrackerUserList =
-					repoSaasTrackerProgress.findAll().stream().map(SaasTrackerAdminDto.SaasTrackerUserRes::from).collect(Collectors.toList());
+					repoSaasTrackerProgress.findAllByStatusGreaterThanEqual(1).stream().map(SaasTrackerAdminDto.SaasTrackerUserRes::from).collect(Collectors.toList());
 
 			log.info(">>>>> admin.getSaasTrackerUser.end");
 
