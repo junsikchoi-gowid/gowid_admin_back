@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.domain.repository.user;
 
 import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.repository.querydsl.UserCustomRepository;
 import com.nomadconnection.dapp.core.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,7 +11,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, UserCustomRepository {
 
 	Optional<User> findByIdxNotAndEmailAndAuthentication_Enabled(Long idx, String email, boolean enabled);
 

@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public interface AdminCustomRepository {
@@ -122,7 +121,7 @@ public interface AdminCustomRepository {
         private Double resAccountOut;
 
         @ApiModelProperty("순입출")
-        private Double resAccountInOut;
+        private Double resAccountInOut; 
 
         @ApiModelProperty("전일잔고")
         private Double befoBalance;
@@ -249,8 +248,6 @@ public interface AdminCustomRepository {
     }
 
     Page<SearchRiskResultV2Dto> riskList(RiskOriginal risk, Long idxUser, Pageable pageable);
-
-
 
     @Data
     @Builder

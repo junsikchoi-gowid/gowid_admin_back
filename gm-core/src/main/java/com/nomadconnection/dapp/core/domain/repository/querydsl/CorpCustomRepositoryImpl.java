@@ -167,6 +167,42 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
     }
 
     @Override
+    public Page<CorpListDto> adminCorpListV2(String keyWord, Pageable pageable) {
+            List<CorpListDto> list;
+
+            JPQLQuery<CorpListDto> query = from(user)
+                .leftJoin(corp).on(user.idx.eq(corp.user.idx))
+                .leftJoin(cardIssuanceInfo).on(user.idx.eq(cardIssuanceInfo.user.idx))
+                .leftJoin(connectedMng).on(connectedMng.idxUser.eq(user.idx))
+                .leftJoin(issuanceProgress).on(corp.idx.eq(issuanceProgress.corpIdx))
+                .select(Projections.bean(CorpListDto.class,
+                    user.idx.as("idxUser"),
+                    corp.idx.as("idxCorp"),
+                    cardIssuanceInfo.idx.as("idxCardIssuanceInfo"),
+                    corp.resCompanyNm.as("resCompanyNm"),
+                    corp.resCompanyIdentityNo.as("resCompanyIdentityNo"),
+                    user.name.as("userName"),
+                    user.cardCompany.as("cardCompany"),
+                    cardIssuanceInfo.card.hopeLimit.as("hopeLimit"),
+                    cardIssuanceInfo.card.grantLimit.as("grantLimit"),
+                    cardIssuanceInfo.issuanceStatus.as("issuanceStatus"),
+                    cardIssuanceInfo.issuanceDepth.as("issuanceDepth"),
+                    connectedMng.createdAt.as("certRegisterDate"),
+                    issuanceProgress.createdAt.as("applyDate"),
+                    issuanceProgress.updatedAt.as("decisionDate")
+                ));
+            query.where(user.authentication.enabled.isTrue());
+
+//        if (dto.getKeyWord() != null) {
+//            query.where(corp.resCompanyNm.toLowerCase().contains(dto.getKeyWord().toLowerCase()));
+//        }
+
+            list = getQuerydsl().applyPagination(pageable, query).fetch();
+
+            return new PageImpl(list, pageable, query.fetchCount());
+        }
+
+    @Override
     public Page<ScrapCorpListDto> scrapCorpList(ScrapCorpDto dto, Pageable pageable){
 
         LocalDate ld = LocalDate.parse(dto.getUpdatedAt().replaceAll("-", ""), DateTimeFormatter.BASIC_ISO_DATE);

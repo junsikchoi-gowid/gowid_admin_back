@@ -148,9 +148,60 @@ public interface CorpCustomRepository {
 
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class CorpListDto {
+
+        @ApiModelProperty("idxUser")
+        public Long idxUser;
+
+        @ApiModelProperty("idxCorp")
+        public Long idxCorp;
+
+        @ApiModelProperty("idxCardIssuanceInfo")
+        public Long idxCardIssuanceInfo;
+
+        @ApiModelProperty("법인명")
+        private String resCompanyNm;
+
+        @ApiModelProperty("사업자등록번호")
+        private String resCompanyIdentityNo;
+
+        @ApiModelProperty("담당자")
+        private String userName;
+
+        @ApiModelProperty("카드사")
+        private CardCompany cardCompany;
+
+        @ApiModelProperty("희망한도")
+        private String hopeLimit;
+
+        @ApiModelProperty("실제카드한도")
+        private String grantLimit;
+
+        @ApiModelProperty("신청 상태")
+        public IssuanceStatus issuanceStatus;
+
+        @ApiModelProperty("마지막 신청 단계")
+        private IssuanceDepth issuanceDepth;
+
+        @ApiModelProperty("인증서등록일")
+        private LocalDateTime certRegisterDate;
+
+        @ApiModelProperty("신청완료일")
+        private LocalDateTime applyDate;
+
+        @ApiModelProperty("심사완료일")
+        private LocalDateTime decisionDate;
+    }
+
     Page<SearchCorpResultDto> corpList(SearchCorpDto dto, Long idxUser, Pageable pageable);
 
     Page<SearchCorpResultDto> adminCorpList(SearchCorpListDto dto, Long idxUser, Pageable pageable);
+
+    Page<CorpListDto> adminCorpListV2(String keyWord, Pageable pageable);
 
     @Data
     @Builder

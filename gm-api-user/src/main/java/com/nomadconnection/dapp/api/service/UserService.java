@@ -68,7 +68,7 @@ public class UserService {
 	private final ReceptionRepository receptionRepository;
 	private final ITemplateEngine templateEngine;
 	private final AuthorityRepository repoAuthority;
-	private final UserRepository repo;
+	private final UserRepository repoUser;
 	private final CorpRepository repoCorp;
 	private final EventsRepository repoEvents;
 	private final CardIssuanceInfoRepository repoCardIssuanceInfo;
@@ -80,7 +80,6 @@ public class UserService {
 	private final CeoInfoRepository repoCeoInfo;
 	private final ManagerRepository repoManager;
 	private final StockholderFileRepository repoStockholderFile;
-	private final UserRepository repoUser;
 
 	private final JwtService jwt;
 	private final FullTextService fullTextService;
@@ -88,7 +87,7 @@ public class UserService {
 	private final ExpenseService expenseService;
 
 	public User getEnabledUserByEmailIfNotExistError(String email) {
-		User user = repo.findByAuthentication_EnabledAndEmail(true, email).orElse(null);
+		User user = repoUser.findByAuthentication_EnabledAndEmail(true, email).orElse(null);
 		if (user != null) {
 			return user;
 		}
@@ -108,13 +107,13 @@ public class UserService {
 	 * @return 사용자 엔터티
 	 */
 	public User getUser(Long idxUser) {
-		return repo.findById(idxUser).orElseThrow(
+		return repoUser.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().id(idxUser).build()
 		);
 	}
 
 	public User findByEmail(String email){
-		return repo.findByAuthentication_EnabledAndEmail(true,email).orElseThrow(
+		return repoUser.findByAuthentication_EnabledAndEmail(true,email).orElseThrow(
 			() -> UserNotFoundException.builder()
 				.email(email)
 				.build()
@@ -122,12 +121,12 @@ public class UserService {
 	}
 
 	public User findByExternalId(String externalId){
-		return repo.findByExternalId(externalId)
+		return repoUser.findByExternalId(externalId)
 				.orElseThrow(() -> new NotRegisteredException(ErrorCode.Api.NOT_FOUND));
 	}
 
 	public boolean isPresentEmail(String email) {
-		return repo.findByAuthentication_EnabledAndEmail(true, email).isPresent();
+		return repoUser.findByAuthentication_EnabledAndEmail(true, email).isPresent();
 	}
 
 	/**
@@ -172,7 +171,7 @@ public class UserService {
 		user.corp(null);
 		user.cardCompany(null);
 		user.isReset(true);
-		repo.save(user);
+		repoUser.save(user);
 	}
 
 	/**
@@ -186,7 +185,7 @@ public class UserService {
 	public ResponseEntity<?> registerUserUpdate(UserDto.registerUserUpdate dto, Long idx) {
 		// validation start
 		// mail check
-		if(repo.findByIdxNotAndEmailAndAuthentication_Enabled(idx, dto.getEmail(),true).isPresent()){
+		if(repoUser.findByIdxNotAndEmailAndAuthentication_Enabled(idx, dto.getEmail(),true).isPresent()){
 			throw AlreadyExistException.builder()
 					.category("email")
 					.resource(dto.getEmail())
@@ -203,7 +202,7 @@ public class UserService {
 		user.isSendEmail(dto.getIsSendEmail());
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.data(repo.save(user))
+				.data(repoUser.save(user))
 				.build());
 	}
 
@@ -222,7 +221,7 @@ public class UserService {
 		user.password(encoder.encode(dto.getNewPassword()));
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.data(repo.save(user))
+				.data(repoUser.save(user))
 				.build());
 	}
 
@@ -252,7 +251,7 @@ public class UserService {
 		}
 
 		//	마스터 등록 (권한 설정 필요)
-		User user = repo.save(User.builder()
+		User user = repoUser.save(User.builder()
 				.consent(true)
 				.email(userDto.getEmail())
 				.password(encoder.encode(userDto.getPassword()))
@@ -359,7 +358,7 @@ public class UserService {
 		);
 
 		//	사용자-법인 매핑
-		repo.save(user.corp(corp));
+		repoUser.save(user.corp(corp));
 
 		// fixme: dummy data - credit limit check
 		// Long creditLimit = dto.getReqCreditLimit();
@@ -401,7 +400,7 @@ public class UserService {
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity<?> findAccount(String name, String mdn) {
-		List<String> user = repo.findByNameAndMdn(name, mdn)
+		List<String> user = repoUser.findByNameAndMdn(name, mdn)
 				.map(User::email)
 				.map(email -> email.replaceAll("(^[^@]{3}|(?!^)\\G)[^@]", "$1*"))
 				.collect(Collectors.toList());
@@ -418,7 +417,7 @@ public class UserService {
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity<?> companyCard(BrandDto.CompanyCard dto, Long idxUser) {
 
-		User user = repo.findById(idxUser).orElseThrow(
+		User user = repoUser.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().id(idxUser).build()
 		);
 
@@ -462,7 +461,7 @@ public class UserService {
 		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.data(repo.save(user))
+				.data(repoUser.save(user))
 				.build());
 	}
 
@@ -473,7 +472,7 @@ public class UserService {
 		user.authentication(Authentication.builder().enabled(false).build());
 		user.enabledDate(LocalDateTime.now());
 
-		repo.save(user);
+		repoUser.save(user);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(BusinessResponse.Normal.builder()
@@ -484,7 +483,7 @@ public class UserService {
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity<?> passwordAuthAfter(Long idxUser, String prePassword, String afterPassword) {
 
-		User userEmail = repo.findById(idxUser).orElseThrow(
+		User userEmail = repoUser.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().id(idxUser).build()
 		);
 
@@ -502,7 +501,7 @@ public class UserService {
 		}
 
 		user.password(encoder.encode(afterPassword));
-		User returnUser = repo.save(user);
+		User returnUser = repoUser.save(user);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.normal(BusinessResponse.Normal.builder()
@@ -548,7 +547,7 @@ public class UserService {
 
 	public ResponseEntity registerUserConsent(UserDto.RegisterUserConsent dto, Long idxUser) {
 
-		User user = repo.findById(idxUser).orElseThrow(
+		User user = repoUser.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().id(idxUser).build()
 		);
 
@@ -570,7 +569,7 @@ public class UserService {
 
 	@Transactional
 	public ResponseEntity<UserDto.IssuanceProgressRes> issuanceProgress(Long userIdx) {
-		User user = repo.findById(userIdx).orElseThrow(
+		User user = repoUser.findById(userIdx).orElseThrow(
 				() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "userIdx=" + userIdx)
 		);
 
@@ -591,7 +590,7 @@ public class UserService {
 	}
 
 	public void saveUser(User user) {
-		repo.save(user);
+		repoUser.save(user);
 	}
 
 	public void saveIssuanceProgress(Long userIdx, IssuanceProgressType progressType, IssuanceStatusType statusType) {
@@ -643,7 +642,7 @@ public class UserService {
 		if (ObjectUtils.isEmpty(userIdx)) {
 			return null;
 		}
-		User user = repo.findById(userIdx).orElse(null);
+		User user = repoUser.findById(userIdx).orElse(null);
 		if (user == null) {
 			return null;
 		}
@@ -667,7 +666,7 @@ public class UserService {
 		}
 
 		String finalGuidance = guidance;
-		User user = repo.findById(idxUser).orElseThrow(
+		User user = repoUser.findById(idxUser).orElseThrow(
 				() -> UserNotFoundException.builder().build()
 		);
 
@@ -716,10 +715,10 @@ public class UserService {
 	}
 
 	public UserDto.ExternalIdRes getUserExternalId(CustomUser customUser) {
-		User user = repo.findById(customUser.idx()).orElseThrow(() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "userId"));
+		User user = repoUser.findById(customUser.idx()).orElseThrow(() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "userId"));
 		if (StringUtils.isEmpty(user.externalId())) {
 			user.externalId(UUID.randomUUID().toString());
-			repo.save(user);
+			repoUser.save(user);
 		}
 		return UserDto.ExternalIdRes.builder().externalId(user.externalId()).build();
 	}
@@ -736,10 +735,10 @@ public class UserService {
     }
 
 	public void enableAccount(Long idxUser) {
-		User user = repo.findById(idxUser).orElse(null);
+		User user = repoUser.findById(idxUser).orElse(null);
 		user.authentication().setEnabled(true);
 		user.enabledDate(null);
-		repo.save(user);
+		repoUser.save(user);
 	}
 
 	@Transactional(readOnly = true)
