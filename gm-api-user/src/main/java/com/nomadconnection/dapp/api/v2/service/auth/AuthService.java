@@ -167,7 +167,7 @@ public class AuthService {
 		}
 
 		return EmailDto.builder()
-					.subject(subject).template(template).context(context).to(email)
+					.subject(subject).template(template).context(context).receiver(email)
 					.build();
 	}
 

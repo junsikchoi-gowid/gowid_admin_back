@@ -80,6 +80,9 @@ public class LimitRecalculationDto {
 		private String accountInfo;
 		private String contents;
 
+		private String companyName;
+		private Long cardLimit;
+		private Long hopeLimit;
 	}
 
 	public static LimitRecalculationDto from(LimitRecalculation limitRecalculation){

@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class AdminControllerTests extends AbstractWebMvcTest {
+class AdminLimitControllerTests extends AbstractWebMvcTest {
 
 	private String token;
 	private Long idxCorp;
@@ -48,8 +48,12 @@ class AdminControllerTests extends AbstractWebMvcTest {
 
 		body = objectMapper.writeValueAsString(
 			LimitRecalculationDetail.builder()
-				.accountInfo("농협").contactType(ContactType.ANYTHING)
-				.contents("plz").currentUsedAmount(2000000L).date(date));
+				.cardLimit(1500000L)
+				.hopeLimit(1000000L)
+				.currentUsedAmount(2000000L)
+				.companyName("(주)GOWID")
+				.accountInfo("농협").contactType(ContactType.BOTH)
+				.contents("plz limit~").date(date));
 	}
 
 	@Test
@@ -82,7 +86,7 @@ class AdminControllerTests extends AbstractWebMvcTest {
 
 	@Test
 	@Transactional
-	@DisplayName("법인의_한도를_재심사를_요청하고_저장한다")
+	@DisplayName("법인의_한도를_재심사를_저장하고_이메일을보낸다")
 	public void requestRecalculateLimit() throws Exception {
 
 		mockMvc.perform(

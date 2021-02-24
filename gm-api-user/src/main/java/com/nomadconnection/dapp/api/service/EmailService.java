@@ -171,7 +171,11 @@ public class EmailService {
 						-> context.setVariable(attributeName, attributeValue));
 				}
 				helper.setFrom(emailConfig.getSender());
-				helper.setTo(emailDto.getTo());
+				if(emailDto.getReceivers() != null){
+					helper.setTo(emailDto.getReceivers());
+				} else {
+					helper.setTo(emailDto.getReceiver());
+				}
 				helper.setSubject(emailDto.getSubject());
 				helper.setText(templateEngine.process(emailDto.getTemplate(), context), true);
 			}
@@ -286,5 +290,13 @@ public class EmailService {
 		};
 
 		sender.send(preparator);
+	}
+
+	public String getSender(){
+		return emailConfig.getSender();
+	}
+
+	public String getRiskTeam(){
+		return emailConfig.getRiskteam();
 	}
 }

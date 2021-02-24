@@ -35,10 +35,12 @@ public class EmailDto {
 
 	private String email;
 
-	private String to;
-	private String from;
+	private String receiver;
+	private String[] receivers;
+	private String sender;
 	private String subject;
 	private String template;
 	private Map<String, Object> context;
+
 
 }
