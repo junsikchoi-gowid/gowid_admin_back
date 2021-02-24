@@ -13,18 +13,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-@RestController("AdminV2Controller")
+@RestController
 @RequiredArgsConstructor
-@RequestMapping(AdminStatisticsController.URI.BASE)
+@RequestMapping(AdminController.URI.BASE)
 @CrossOrigin(allowCredentials = "true")
 @Api(tags = "어드민 V2")
 public class AdminStatisticsController {
 
 	public static class URI {
-		public static final String BASE = "/admin/v2";
-		public static final String DASHBOARD_CARD = "/dashboard-card";
-		public static final String DASHBOARD_MONTH = "/dashboard-month";
-		public static final String DASHBOARD_WEEK = "/dashboard-week";
+		public static final String DASHBOARD_CARD = "/dashboard/card";
+		public static final String DASHBOARD_MONTH = "/dashboard/month";
+		public static final String DASHBOARD_WEEK = "/dashboard/week";
 	}
 
 	private final DashBoardService dashBoardService;

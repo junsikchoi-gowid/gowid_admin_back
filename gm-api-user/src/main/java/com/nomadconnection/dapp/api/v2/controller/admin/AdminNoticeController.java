@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.api.v2.controller.board;
+package com.nomadconnection.dapp.api.v2.controller.admin;
 
 import com.nomadconnection.dapp.api.controller.UserController;
 import com.nomadconnection.dapp.api.v2.dto.BoardDto;
@@ -19,21 +19,19 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@CrossOrigin(allowCredentials = "true")
 @RequiredArgsConstructor
-@RequestMapping(BoardController.URI.BASE)
-@Api(tags = "사용자", description = UserController.URI.BASE)
-public class BoardController {
+@RequestMapping(AdminController.URI.BASE)
+@CrossOrigin(allowCredentials = "true")
+@Api(tags = "어드민 V2")
+public class AdminNoticeController {
 
 	public static class URI {
-		public static final String BASE = "/board";
 		public static final String NOTICE = "/notice";
 	}
 
 	private final BoardService boardService;
 
 	@GetMapping(URI.NOTICE)
-	@PreAuthorize("hasAnyAuthority('GOWID_ADMIN')")
 	@ApiOperation(value = "공지사항 조회")
 	public ResponseEntity<?> findNotice(Pageable pageable){
 
@@ -42,7 +40,6 @@ public class BoardController {
 		return new ResponseEntity(data, HttpStatus.OK);
 	}
 
-	@PreAuthorize("hasAnyAuthority('GOWID_ADMIN')")
 	@ApiOperation(value = "공지사항 조회")
 	@GetMapping(URI.NOTICE + "/{idx}")
 	public ResponseEntity<?> findNotice(@PathVariable Long idx){
