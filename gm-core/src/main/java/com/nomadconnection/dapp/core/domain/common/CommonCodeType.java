@@ -22,7 +22,8 @@ public enum CommonCodeType {
 	STOCK("증권사 코드"),
 	NT("공공기관 코드"),
 	IMAGE_FLAG("이미지 생성여부"),
-	CARD_LIMIT("카드사별 최대한도")
+	CARD_LIMIT("카드사별 최대한도"),
+	TOTAL_LIMIT("카드사별 총 부여한도")
 	;
 
 	private String description;
