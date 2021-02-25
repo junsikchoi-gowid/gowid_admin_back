@@ -121,6 +121,7 @@ public class SaasTrackerAdminService {
 					.currency(req.getCurrency())
 					.user(user)
 					.saasInfo(saasInfo)
+					.item(req.getItem())
 					.build();
 			repoSaasPaymentHistory.save(history);
 

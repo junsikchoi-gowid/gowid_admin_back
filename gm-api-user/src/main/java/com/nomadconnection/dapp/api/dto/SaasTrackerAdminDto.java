@@ -246,6 +246,9 @@ public class SaasTrackerAdminDto {
 		@ApiModelProperty("결제 단위")
 		@NotNull(message = "결제 단위는 반드시 입력되어야 합니다.")
 		private String currency;
+
+		@ApiModelProperty("적요")
+		private String item;
 	}
 
 	@Data
