@@ -302,8 +302,8 @@ public class AdminService {
                 .userName(user.name())
                 .userNumber(user.mdn())
                 .userEmail(user.email())
-                .smsFlag(user.isSendSms())
-                .emailFlag(user.isSendEmail())
+                .smsFlag(user.reception().getIsSendSms())
+                .emailFlag(user.reception().getIsSendEmail())
                 .build();
 
         return ResponseEntity.ok().body(BusinessResponse.builder().data(corpInfo).build());
@@ -543,8 +543,8 @@ public class AdminService {
         data.setUserName(corp.user().name());
         data.setPhoneNumber(corp.user().mdn());
         data.setEmail(corp.user().email());
-        data.setIsSendEmail(corp.user().isSendEmail());
-        data.setIsSendSms(corp.user().isSendSms());
+        data.setIsSendEmail(corp.user().reception().getIsSendEmail());
+        data.setIsSendSms(corp.user().reception().getIsSendSms());
         data.setHopeLimit(corp.riskConfig().hopeLimit());
         data.setGrantLimit(corp.riskConfig().grantLimit());
 

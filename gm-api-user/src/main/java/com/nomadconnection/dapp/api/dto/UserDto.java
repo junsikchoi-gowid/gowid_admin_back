@@ -2,13 +2,13 @@ package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
+import com.nomadconnection.dapp.core.domain.embed.ExpenseStatus;
 import com.nomadconnection.dapp.core.domain.user.Events;
 import com.nomadconnection.dapp.core.domain.user.MemberAuthority;
 import com.nomadconnection.dapp.core.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import javax.persistence.Column;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -162,7 +162,7 @@ public class UserDto {
 	@AllArgsConstructor
 	public static class registerUserUpdate {
 
-		@ApiModelProperty("결제계좌정보")
+		@ApiModelProperty("이름")
 		private String userName;
 
 		@ApiModelProperty("전화번호")
@@ -183,10 +183,10 @@ public class UserDto {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class registerUserPasswordUpdate {
-		@ApiModelProperty("email")
+		@ApiModelProperty("이전 패스워드")
 		private String oldPassword;
 
-		@ApiModelProperty("email")
+		@ApiModelProperty("새로운 패스워드")
 		private String newPassword;
 	}
 
@@ -197,6 +197,21 @@ public class UserDto {
 	public static class RegisterUserConsent {
 		@ApiModelProperty("이용약관 정보")
 		private List<ConsentDto.RegDto> consents;
+	}
+
+	@Getter
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class UpdateOtherService {
+		@ApiModelProperty("email")
+		private String email;
+
+		@ApiModelProperty("지출관리 상태")
+		private ExpenseStatus expenseStatus;
+
+		@ApiModelProperty("SaaS 사용여부")
+		private Boolean saasUsage;
 	}
 
 

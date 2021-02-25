@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.core.domain.repository.querydsl;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceDepth;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
+import com.nomadconnection.dapp.core.domain.embed.ExpenseStatus;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -86,6 +87,12 @@ public interface UserCustomRepository {
 
         @ApiModelProperty("email 수신여부")
         private Boolean emailReception;
+
+        @ApiModelProperty("지출관리 상태")
+        private ExpenseStatus expenseStatus;
+
+        @ApiModelProperty("SaaS 사용여부")
+        private Boolean saasUsage;
 
         @ApiModelProperty("이메일주소")
         private String email;

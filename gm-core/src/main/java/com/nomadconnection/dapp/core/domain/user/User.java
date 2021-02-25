@@ -6,7 +6,9 @@ import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.consent.Consent;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
+import com.nomadconnection.dapp.core.domain.embed.OtherServiceUsage;
 import com.nomadconnection.dapp.core.domain.embed.UserProfileResx;
+import com.nomadconnection.dapp.core.domain.embed.UserReception;
 import com.nomadconnection.dapp.core.domain.etc.SurveyAnswer;
 import com.nomadconnection.dapp.core.domain.saas.SaasIssueReport;
 import com.nomadconnection.dapp.core.domain.saas.SaasPaymentHistory;
@@ -54,11 +56,13 @@ public class User extends BaseTime {
 
 	private Boolean consent; // 선택약관동의여부
 
+	@Embedded
 	@Builder.Default
-	private Boolean isSendSms = false; // sms 수신 동의여부
+	private UserReception reception = new UserReception();
 
+	@Embedded
 	@Builder.Default
-	private Boolean isSendEmail = false; // Email 수신 동의여부
+	private OtherServiceUsage otherServiceUsage = new OtherServiceUsage();
 
 	@Column(columnDefinition = "DATETIME default 99991231010101")
 	private LocalDateTime enabledDate; // 삭제된 날짜

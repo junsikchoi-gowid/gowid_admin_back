@@ -4,7 +4,6 @@ import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.AuthDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
-import com.nomadconnection.dapp.api.enums.VerifyCode;
 import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
@@ -31,14 +30,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.thymeleaf.ITemplateEngine;
-import org.thymeleaf.context.Context;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -262,8 +259,8 @@ public class AuthService {
 						.idxCardIssuance(idxCardIssuance.get())
 						.build())
 				.issuanceProgressRes(issuanceProgress(user))
-				.isSendSms(user.isSendSms())
-				.isSendEmail(user.isSendEmail())
+				.isSendSms(user.reception().getIsSendSms())
+				.isSendEmail(user.reception().getIsSendEmail())
 				.build();
 	}
 

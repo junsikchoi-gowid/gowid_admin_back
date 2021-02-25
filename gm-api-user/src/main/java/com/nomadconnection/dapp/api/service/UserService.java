@@ -2,7 +2,10 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.*;
-import com.nomadconnection.dapp.api.exception.*;
+import com.nomadconnection.dapp.api.exception.AlreadyExistException;
+import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
+import com.nomadconnection.dapp.api.exception.UnauthorizedException;
+import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.NotRegisteredException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
@@ -16,6 +19,7 @@ import com.nomadconnection.dapp.core.domain.consent.ConsentMapping;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
 import com.nomadconnection.dapp.core.domain.embed.Authentication;
+import com.nomadconnection.dapp.core.domain.embed.UserReception;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.StockholderFileRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
@@ -31,7 +35,10 @@ import com.nomadconnection.dapp.core.domain.repository.user.EventsRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
-import com.nomadconnection.dapp.core.domain.user.*;
+import com.nomadconnection.dapp.core.domain.user.Events;
+import com.nomadconnection.dapp.core.domain.user.Reception;
+import com.nomadconnection.dapp.core.domain.user.Role;
+import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -54,7 +61,10 @@ import org.thymeleaf.context.Context;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -198,8 +208,8 @@ public class UserService {
 		user.email(dto.getEmail());
 		user.mdn(dto.getMdn());
 		user.name(dto.getUserName());
-		user.isSendSms(dto.getIsSendSms());
-		user.isSendEmail(dto.getIsSendEmail());
+		user.reception().setIsSendEmail(dto.getIsSendEmail());
+		user.reception().setIsSendSms(dto.getIsSendSms());
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(repoUser.save(user))
@@ -257,8 +267,10 @@ public class UserService {
 				.password(encoder.encode(userDto.getPassword()))
 				.name(userDto.getName())
 				.mdn(userDto.getMdn())
-				.isSendEmail(dto.getEmailReception())
-				.isSendSms(dto.getSmsReception())
+				.reception(new UserReception().builder()
+					.isSendEmail(dto.getEmailReception())
+					.isSendSms(dto.getSmsReception())
+					.build())
 				.authentication(new Authentication())
 				.authorities(Collections.singleton(
 						repoAuthority.findByRole(Role.ROLE_MASTER).orElseThrow(
@@ -734,6 +746,7 @@ public class UserService {
 		emailService.sendDeleteAccountEmailtoSupport(user, reason);
     }
 
+	@Transactional
 	public void enableAccount(Long idxUser) {
 		User user = repoUser.findById(idxUser).orElse(null);
 		user.authentication().setEnabled(true);
@@ -745,5 +758,16 @@ public class UserService {
 	public UserDto.EventsInfo getEvents(CustomUser user, String eventName) {
 
 		return repoEvents.findTopByEventNameAndIdxUser(eventName, user.idx()).map(UserDto.EventsInfo::from).orElse(null);
+	}
+
+	@Transactional
+	public void updateOtherServiceUsage(UserDto.UpdateOtherService dto) {
+		User user = findByEmail(dto.getEmail());
+		if (dto.getExpenseStatus() != null) {
+			user.otherServiceUsage().setExpenseStatus(dto.getExpenseStatus());
+		}
+		if (dto.getSaasUsage() != null) {
+			user.otherServiceUsage().setSaasUsage(dto.getSaasUsage());
+		}
 	}
 }
