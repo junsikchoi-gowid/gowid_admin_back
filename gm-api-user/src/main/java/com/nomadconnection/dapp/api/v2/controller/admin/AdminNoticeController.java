@@ -1,10 +1,8 @@
 package com.nomadconnection.dapp.api.v2.controller.admin;
 
-import com.nomadconnection.dapp.api.controller.UserController;
 import com.nomadconnection.dapp.api.v2.dto.BoardDto;
 import com.nomadconnection.dapp.api.v2.service.board.BoardService;
 import com.nomadconnection.dapp.core.domain.etc.NoticeBoard;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -18,12 +16,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@RestController
 @RequiredArgsConstructor
-@RequestMapping(AdminController.URI.BASE)
-@CrossOrigin(allowCredentials = "true")
-@Api(tags = "어드민 V2")
-public class AdminNoticeController {
+@RestController
+public class AdminNoticeController extends AdminBaseController {
 
 	public static class URI {
 		public static final String NOTICE = "/notice";

@@ -4,7 +4,6 @@ import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.v2.dto.AdminDto.CorpDto;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepository;
-import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminCorpService {
     private final CorpRepository corpRepository;
-    private final ConnectedMngRepository connectedMngRepository;
 
     @Transactional(readOnly = true)
     public ResponseEntity getCorpList(String keyWord, Pageable pageable) {
@@ -38,12 +36,5 @@ public class AdminCorpService {
         return ResponseEntity.ok().body(BusinessResponse.builder()
             .data(corpDto)
             .build());
-    }
-
-    @Transactional(readOnly = true)
-    public ResponseEntity getCertList(Long idxUser) {
-        return ResponseEntity.ok().body(BusinessResponse.builder().data(
-            connectedMngRepository.findIdxUser(idxUser)
-        ).build());
     }
 }

@@ -131,7 +131,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.VERIFY).permitAll()
                 .antMatchers(com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.CHANGE_PASSWORD_BEFORE_LOGIN).permitAll()
                 .antMatchers(com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.TOKEN_ISSUE).permitAll()
-                .antMatchers(com.nomadconnection.dapp.api.v2.controller.admin.AdminController.URI.BASE + AdminNoticeController.URI.NOTICE ).permitAll()
+                .antMatchers(com.nomadconnection.dapp.api.v2.controller.admin.AdminBaseController.URI.BASE + AdminNoticeController.URI.NOTICE).permitAll()
                 .antMatchers(SurveyController.URI.BASE).permitAll()
                 .antMatchers(LimitInquiryController.URI.BASE).permitAll()
 	            .antMatchers(AdminController.URI.BASE).permitAll()

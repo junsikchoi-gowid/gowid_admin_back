@@ -1,24 +1,22 @@
 package com.nomadconnection.dapp.api.v2.controller.admin;
 
 import com.nomadconnection.dapp.api.v2.dto.DashBoardDto;
-import com.nomadconnection.dapp.api.v2.service.admin.*;
-import io.swagger.annotations.Api;
+import com.nomadconnection.dapp.api.v2.service.admin.DashBoardService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 
 @Slf4j
-@RestController
 @RequiredArgsConstructor
-@RequestMapping(AdminController.URI.BASE)
-@CrossOrigin(allowCredentials = "true")
-@Api(tags = "어드민 V2")
-public class AdminStatisticsController {
+@RestController
+public class AdminStatisticsController extends AdminBaseController {
 
 	public static class URI {
 		public static final String DASHBOARD_CARD = "/dashboard/card";
