@@ -156,6 +156,7 @@ public class ErrorCode {
 		ALREADY_EXIST("ALREADY_EXIST", "already exist"),
 		SURVEY_ALREADY_EXIST("ALREADY_EXIST", "user survey already exist"),
 		RECALCULATION_ALREADY_EXIST("RECALCULATION_ALREADY_EXIST", "The corp has already requested it on that date."),
+		RECALCULATION_ALREADY_REVIEWING("RECALCULATION_ALREADY_REVIEWING", "It's already under review."),
 		ALREADY_ISSUED("ALREADY_ISSUED", "already been issued"),
 		INTERNAL_ERROR("INTERNAL_ERROR", "internal error");
 

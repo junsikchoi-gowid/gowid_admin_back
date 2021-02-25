@@ -2,8 +2,8 @@ package com.nomadconnection.dapp.core.domain.repository.limit;
 
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.limit.ReviewStatus;
-import com.nomadconnection.dapp.core.dto.limit.LimitRecalculationDto;
-import com.nomadconnection.dapp.core.dto.limit.LimitRecalculationDto.LimitRecalculationCondition;
+import com.nomadconnection.dapp.core.dto.limit.LimitRecalculationPageDto;
+import com.nomadconnection.dapp.core.dto.limit.LimitRecalculationPageDto.LimitRecalculationCondition;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,23 +24,22 @@ public class LimitRecalculationQueryRepository {
 
 	private final JPAQueryFactory queryFactory;
 
-	public List<LimitRecalculationDto> findAll(LimitRecalculationCondition dto, int pageNo, int limit){
+	public List<LimitRecalculationPageDto.LimitRecalculationResult> findAll(LimitRecalculationCondition dto, int pageNo, int limit){
 
 		return queryFactory
 			.select(
-				Projections.fields(LimitRecalculationDto.class,
+				Projections.fields(LimitRecalculationPageDto.LimitRecalculationResult.class,
 					limitRecalculation.corp.idx.as("idxCorp"),
 					corp.resCompanyNm.as("companyName"),
 					corp.resCompanyIdentityNo.as("licenseNo"),
 					cardIssuanceInfo.cardCompany.as("cardCompany"),
-					limitRecalculation.hopeLimit.as("hopeLimit"),
 					cardIssuanceInfo.card.calculatedLimit.castToNum(Long.class).as("calculatedLimit"),
 					cardIssuanceInfo.card.grantLimit.castToNum(Long.class).as("grantLimit")
 				)
 			)
 			.from(limitRecalculation)
 			.innerJoin(corp).on(corp.eq(limitRecalculation.corp))
-			.innerJoin(user).on(user.idx.eq(limitRecalculation.corp.user.idx))
+			.innerJoin(user).on(user.eq(limitRecalculation.corp.user))
 			.innerJoin(cardIssuanceInfo).on(cardIssuanceInfo.corp.eq(limitRecalculation.corp))
 			.where(
 				likeCorpName(dto.getCompanyName()),
@@ -50,9 +49,9 @@ public class LimitRecalculationQueryRepository {
 				eqReviewStatus(dto.getReviewStatus()),
 				eqIssuanceStatus(dto.getIssuanceStatus())
 			)
+			.groupBy(limitRecalculation.corp.idx)
 			.offset(pageNo)
 			.limit(limit)
-			.orderBy(limitRecalculation.date.desc())
 			.fetch();
 	}
 

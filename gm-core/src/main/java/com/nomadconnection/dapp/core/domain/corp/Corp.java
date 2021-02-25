@@ -11,7 +11,6 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Getter
 @Setter
@@ -39,10 +38,10 @@ public class Corp extends BaseTime {
     @JoinColumn(name = "idxRiskConfig", foreignKey = @ForeignKey(name = "FK_Corp_RiskConfig"))
     private RiskConfig riskConfig; // 법인 리스크 정보
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "corp")
-    private List<LimitRecalculation> limitRecalculation;
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "corp")
+    private LimitRecalculation limitRecalculation;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "corp")
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "corp")
     private CardIssuanceInfo cardIssuanceInfo;
 
     private String resBusinessItems; // 종목

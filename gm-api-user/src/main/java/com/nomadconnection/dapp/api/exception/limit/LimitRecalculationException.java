@@ -5,15 +5,21 @@ import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.Getter;
 
 @Getter
-public class LimitAlreadyExistException extends AlreadyExistException {
+public class LimitRecalculationException extends AlreadyExistException {
 
 	private String code;
 	private String message;
 
-	public LimitAlreadyExistException(ErrorCode.Api errorCodeType) {
+	public LimitRecalculationException(ErrorCode.Api errorCodeType) {
 		super(errorCodeType);
 		code = errorCodeType.getCode();
 		message = errorCodeType.getDesc();
+	}
+
+	public LimitRecalculationException(ErrorCode.Api errorCodeType, String extraMessage) {
+		super(errorCodeType);
+		code = errorCodeType.getCode();
+		message = errorCodeType.getDesc() + " : " + extraMessage;
 	}
 
 }

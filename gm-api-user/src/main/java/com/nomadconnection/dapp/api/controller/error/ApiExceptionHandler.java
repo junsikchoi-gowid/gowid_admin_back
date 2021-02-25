@@ -9,7 +9,7 @@ import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.NotRegisteredException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.exception.api.UnauthorizedException;
-import com.nomadconnection.dapp.api.exception.limit.LimitAlreadyExistException;
+import com.nomadconnection.dapp.api.exception.limit.LimitRecalculationException;
 import com.nomadconnection.dapp.api.exception.survey.SurveyAlreadyExistException;
 import com.nomadconnection.dapp.core.exception.ImageConvertException;
 import org.springframework.http.HttpStatus;
@@ -80,7 +80,7 @@ public class ApiExceptionHandler {
             .build();
     }
 
-    @ExceptionHandler({CorpAlreadyExistException.class, SurveyAlreadyExistException.class, LimitAlreadyExistException.class })
+    @ExceptionHandler({CorpAlreadyExistException.class, SurveyAlreadyExistException.class, LimitRecalculationException.class })
     @ResponseStatus(HttpStatus.CONFLICT)
     protected ApiResponse<?> handleCorpAlreadyExistException(AlreadyExistException e) {
 
