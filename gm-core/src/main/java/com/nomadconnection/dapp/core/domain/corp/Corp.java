@@ -52,7 +52,7 @@ public class Corp extends BaseTime {
     @EqualsAndHashCode.Include
     private String resCompanyIdentityNo; // 사업자등록번호
 
-    private String resCompanyNm; // 법인명드
+    private String resCompanyNm; // 법인명
     private String resCompanyEngNm; // 법인명(영문)
     private String resCompanyNumber; // 사업장전화번호
     private String resCompanyZipCode; // 사업장우편번호

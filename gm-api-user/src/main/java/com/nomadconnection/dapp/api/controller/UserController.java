@@ -1,19 +1,17 @@
 package com.nomadconnection.dapp.api.controller;
 
+import com.nomadconnection.dapp.api.dto.CorpDto;
 import com.nomadconnection.dapp.api.dto.UserDto;
-import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -24,13 +22,14 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequestMapping(UserController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "사용자", description = UserController.URI.BASE)
+@Api(tags = "사용자")
 public class UserController {
 
 	public static class URI {
 		public static final String BASE = "/user/v1";
 		public static final String REGISTRATION_USER = "/registration/user";
 		public static final String REGISTRATION_CORP = "/registration/corp";
+		public static final String REGISTRATION_CORP_BRANCH = "/registration/corp-branch";
 		public static final String REGISTRATION_INFO = "/registration/info";
 		public static final String REGISTRATION_PW = "/registrationpw/pw";
 		public static final String INFO = "/info";
@@ -46,7 +45,6 @@ public class UserController {
 	}
 
 	private final UserService service;
-	private final AuthService serviceAuth;
 
 	//==================================================================================================================
 	//
@@ -109,7 +107,7 @@ public class UserController {
 	@Deprecated
 	@ApiOperation(value = "Brand 회원가입 법인정보")
 	@PostMapping(path = URI.REGISTRATION_CORP, consumes = {MediaType.APPLICATION_JSON_VALUE})
-	public ResponseEntity registerBrandCorp(
+	public ResponseEntity<?> registerBrandCorp(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody UserDto.RegisterBrandCorp dto
 	) {
@@ -122,7 +120,7 @@ public class UserController {
 
 	@ApiOperation(value = "Brand 회원가입 법인정보")
 	@GetMapping(path = URI.REGISTRATION_CORP)
-	public ResponseEntity getBrandCorp(
+	public ResponseEntity<?> getBrandCorp(
 			@ApiIgnore @CurrentUser CustomUser user
 	) {
 		if (log.isInfoEnabled()) {
@@ -136,6 +134,16 @@ public class UserController {
 		return service.getBrandCorp(user.idx()); 
 	}
 
+	@Secured({"ROLE_MASTER","ROLE_ADMIN"})
+	@ApiOperation(value = "Brand 회원가입 법인정보 추가정보")
+	@GetMapping(path = URI.REGISTRATION_CORP_BRANCH)
+	public ResponseEntity<CorpDto.CorpInfoDto> getBrandCorpBranch(@ApiIgnore @CurrentUser CustomUser user){
+
+		CorpDto.CorpInfoDto data = service.getBrandCorpBranch(user.idx());
+
+		return ResponseEntity.ok().body(data);
+	}
+
 	@ApiOperation(value = "Brand 내 정보 수정")
 	@ApiResponses(value={
 			@ApiResponse(code = 200, message = "정상"),
@@ -146,7 +154,7 @@ public class UserController {
 			@ApiResponse(code = 500, message = "")
 	})
 	@PostMapping(URI.REGISTRATION_INFO)
-	public ResponseEntity registerUserUpdate(
+	public ResponseEntity<?> registerUserUpdate(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody UserDto.registerUserUpdate dto
 	) {
@@ -160,7 +168,7 @@ public class UserController {
 	@Deprecated
 	@ApiOperation(value = "Brand 비밀번호 수정")
 	@PostMapping(URI.REGISTRATION_PW)
-	public ResponseEntity registerUserPasswordUpdate(
+	public ResponseEntity<?> registerUserPasswordUpdate(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody UserDto.registerUserPasswordUpdate dto
 	) {
@@ -174,7 +182,7 @@ public class UserController {
 	@Deprecated
 	@ApiOperation(value = "Brand 비밀번호 수정 2")
 	@PostMapping(URI.REGISTRATION_PW + 2)
-	public ResponseEntity registerUserPasswordUpdate2(
+	public ResponseEntity<?> registerUserPasswordUpdate2(
 			@RequestParam Long idxUser,
 			@RequestBody UserDto.registerUserPasswordUpdate dto
 	) {
@@ -187,7 +195,7 @@ public class UserController {
 
 	@ApiOperation(value = "사용자별 이용약관 등록")
 	@PostMapping(URI.REGISTRATION_CONSENT)
-	public ResponseEntity registerUserConsent(
+	public ResponseEntity<?> registerUserConsent(
 			@RequestParam Long idxUser,
 			@RequestBody UserDto.RegisterUserConsent dto
 	) {
@@ -212,7 +220,7 @@ public class UserController {
 
 	@ApiOperation(value = "한도 재심사 요청")
 	@PostMapping(URI.LIMIT_REVIEW)
-	public ResponseEntity limitReview(
+	public ResponseEntity<?> limitReview(
 			@ApiIgnore @CurrentUser CustomUser user,
 			@RequestBody UserDto.LimitReview dto
 	) {

@@ -25,6 +25,7 @@ import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.Stockhol
 import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CeoInfoRepository;
+import com.nomadconnection.dapp.core.domain.repository.corp.CorpBranchRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.ManagerRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ReceptionRepository;
@@ -89,12 +90,14 @@ public class UserService {
 	private final RiskConfigRepository repoRiskConfig;
 	private final CeoInfoRepository repoCeoInfo;
 	private final ManagerRepository repoManager;
+	private final CorpBranchRepository repoCorpBranch;
 	private final StockholderFileRepository repoStockholderFile;
 
 	private final JwtService jwt;
 	private final FullTextService fullTextService;
 	private final EmailService emailService;
 	private final ExpenseService expenseService;
+
 
 	public User getEnabledUserByEmailIfNotExistError(String email) {
 		User user = repoUser.findByAuthentication_EnabledAndEmail(true, email).orElse(null);
@@ -555,6 +558,26 @@ public class UserService {
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(corpDto.get())
 				.build()); 
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public CorpDto.CorpInfoDto getBrandCorpBranch(Long idxUser) {
+
+		User user = repoUser.findById(idxUser).orElseThrow(() -> UserNotFoundException.builder().build());
+		if( user.corp() == null ){
+			throw CorpNotRegisteredException.builder().build();
+		}
+
+		CorpDto corpDto = Optional.ofNullable(user.corp()).map(CorpDto::from).orElseThrow(
+				() -> CorpNotRegisteredException.builder().build()
+		);
+
+		List<CorpDto.CorpBranchDto> corpBranch = repoCorpBranch.findByCorp(user.corp()).stream().map(CorpDto.CorpBranchDto::from).collect(Collectors.toList());
+
+		return CorpDto.CorpInfoDto.builder()
+						.corpBranchDtos(corpBranch)
+						.corpDto(corpDto)
+						.build();
 	}
 
 	public ResponseEntity registerUserConsent(UserDto.RegisterUserConsent dto, Long idxUser) {
