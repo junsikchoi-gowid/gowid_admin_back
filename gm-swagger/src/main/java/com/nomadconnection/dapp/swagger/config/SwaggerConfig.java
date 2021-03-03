@@ -31,6 +31,9 @@ import java.util.List;
 @SuppressWarnings({"unused", "SpellCheckingInspection"})
 public class SwaggerConfig {
 
+	private String version;
+	private String title;
+
 	@Slf4j
 	@Profile("prod")
 	@RestController
@@ -54,7 +57,7 @@ public class SwaggerConfig {
 		private ContactConfig contact = new ContactConfig();
 		private String title = "API Server";
 		private String description = "SWAGGER for APIs";
-		private String version = "1.0.0";
+		private String version = "2.0.0";
 		private String termsOfServiceUrl = "";
 		private String license = "";
 		private String licenseUrl = "";
@@ -75,10 +78,43 @@ public class SwaggerConfig {
 	}
 
 	@Bean
-	public Docket apiDocket() {
+	public Docket apiDocV1() {
+		version = "v1";
+		title = "gowid API" + version;
 		return new Docket(DocumentationType.SWAGGER_2)
+				.useDefaultResponseMessages(false)
+				.groupName(version)
 				.select()
 				.apis(RequestHandlerSelectors.basePackage(basePackage))
+				.paths(PathSelectors.any())
+				.build()
+				.apiInfo(getApiInfo())
+				.ignoredParameterTypes()
+				.securityContexts(Lists.newArrayList(securityContext()))
+				.securitySchemes(Lists.newArrayList(apiKey()))
+				/*.globalOperationParameters(
+						Collections.singletonList(
+								new ParameterBuilder()
+										.name("Authorization")
+										.parameterType("header")
+										.modelRef(new ModelRef("string"))
+										.description("액세스토큰(e.g. Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdHJpb...ijFzeCcP19mJjd5g)")
+										.required(false)
+										.build()
+						)
+				)*/
+				;
+	}
+
+	@Bean
+	public Docket apiDocV2() {
+		version = "v2";
+		title = "gowid API" + version;
+		return new Docket(DocumentationType.SWAGGER_2)
+				.useDefaultResponseMessages(false)
+				.groupName(version)
+				.select()
+				.apis(RequestHandlerSelectors.basePackage(basePackage + ".api.v2"))
 				.paths(PathSelectors.any())
 				.build()
 				.apiInfo(getApiInfo())
