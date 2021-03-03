@@ -710,7 +710,7 @@ public class UserService {
 			{
 				Context context = new Context();
 				{
-					context.setVariable("userName", GowidUtils.getEmptyStringToString(user.name()));
+					context.setVariable("companyName", GowidUtils.getEmptyStringToString(dto.getCompanyName()));
 					context.setVariable("cardLimit", GowidUtils.getEmptyStringToString(dto.getCardLimit()));
 					context.setVariable("accountInfo", GowidUtils.getEmptyStringToString(dto.getAccountInfo()));
 					context.setVariable("etc", GowidUtils.getEmptyStringToString(dto.getEtc()));

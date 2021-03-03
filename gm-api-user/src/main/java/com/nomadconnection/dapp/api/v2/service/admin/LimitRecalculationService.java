@@ -83,8 +83,8 @@ public class LimitRecalculationService {
 		);
 
 		save(corp, dto);
-//		sendToSupport(customUser, dto);
-//		sendToUser(customUser, dto);
+		sendToSupport(customUser, dto);
+		sendToUser(customUser, dto);
 	}
 
 	private void save(Corp corp, LimitRecalculationRequestDto dto){
@@ -127,7 +127,7 @@ public class LimitRecalculationService {
 		String email = customUser.email();
 
 		EmailDto sendToUser = EmailDto.builder()
-			.context(getUserEmailContext(customUser.getUsername(), dto))
+			.context(getUserEmailContext(dto))
 			.sender(emailService.getSender())
 			.receiver(email)
 			.subject(LIMIT_RECALCULATION_USER.getSubject())
@@ -137,9 +137,9 @@ public class LimitRecalculationService {
 		emailService.send(sendToUser);
 	}
 
-	private Map<String, Object> getUserEmailContext(String userName, LimitRecalculationRequestDto dto){
+	private Map<String, Object> getUserEmailContext(LimitRecalculationRequestDto dto){
 		Map<String, Object> context = new HashMap<>();
-		context.put("userName", userName);
+		context.put("companyName", dto.getCompanyName());
 		context.put("cardLimit", dto.getCardLimit());
 		context.put("accountInfo", dto.getAccountInfo());
 		context.put("etc", dto.getContents());
