@@ -154,46 +154,46 @@ public interface CorpCustomRepository {
     @AllArgsConstructor
     class CorpListDto {
 
-        @ApiModelProperty("idxUser")
+        @ApiModelProperty(value = "idxUser", example = "1")
         public Long idxUser;
 
-        @ApiModelProperty("idxCorp")
+        @ApiModelProperty(value = "idxCorp", example = "1")
         public Long idxCorp;
 
-        @ApiModelProperty("idxCardIssuanceInfo")
+        @ApiModelProperty(value = "idxCardIssuanceInfo", example = "1")
         public Long idxCardIssuanceInfo;
 
-        @ApiModelProperty("법인명")
+        @ApiModelProperty(value = "법인명", example = "고위드")
         private String resCompanyNm;
 
-        @ApiModelProperty("사업자등록번호")
+        @ApiModelProperty(value = "사업자등록번호", example = "1111-1111-1111")
         private String resCompanyIdentityNo;
 
-        @ApiModelProperty("담당자")
+        @ApiModelProperty(value = "담당자", example = "류제용")
         private String userName;
 
-        @ApiModelProperty("카드사")
+        @ApiModelProperty(value = "카드사", example = "SHINHAN")
         private CardCompany cardCompany;
 
-        @ApiModelProperty("희망한도")
+        @ApiModelProperty(value = "희망한도", example = "10000000")
         private String hopeLimit;
 
-        @ApiModelProperty("실제카드한도")
+        @ApiModelProperty(value = "실제카드한도", example = "10000000")
         private String grantLimit;
 
-        @ApiModelProperty("신청 상태")
+        @ApiModelProperty(value = "신청 상태", example = "ISSUED")
         public IssuanceStatus issuanceStatus;
 
-        @ApiModelProperty("마지막 신청 단계")
+        @ApiModelProperty(value = "마지막 신청 단계", example = "SIGN_SIGNATURE")
         private IssuanceDepth issuanceDepth;
 
-        @ApiModelProperty("인증서등록일")
+        @ApiModelProperty(value = "인증서등록일", example = "9999-99-99 99:99:99")
         private LocalDateTime certRegisterDate;
 
-        @ApiModelProperty("신청완료일")
+        @ApiModelProperty(value = "신청완료일", example = "9999-99-99 99:99:99")
         private LocalDateTime applyDate;
 
-        @ApiModelProperty("심사완료일")
+        @ApiModelProperty(value = "심사완료일", example = "9999-99-99 99:99:99")
         private LocalDateTime decisionDate;
     }
 
@@ -201,7 +201,7 @@ public interface CorpCustomRepository {
 
     Page<SearchCorpResultDto> adminCorpList(SearchCorpListDto dto, Long idxUser, Pageable pageable);
 
-    Page<CorpListDto> adminCorpListV2(String keyWord, Pageable pageable);
+    Page<CorpListDto> adminCorpListV2(CorpListDto dto, Pageable pageable);
 
     @Data
     @Builder

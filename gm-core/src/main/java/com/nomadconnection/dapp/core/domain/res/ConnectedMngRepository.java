@@ -30,7 +30,7 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 	Optional<ConnectedMng> findTopByIdxUserAndType(Long idxUser, String type);
 
 	@Query(value = "select c.* FROM ConnectedMng c where c.idxUser = :idxUser order by createdAt " ,nativeQuery = true)
-	List<CconnectedMngDto> findIdxUser(@Param("idxUser")Long idxUser);
+	List<ConnectedMngDto> findIdxUser(@Param("idxUser")Long idxUser);
 
 	@Query(value = "select ifnull(max(a),0) from (select if(endFlag is null , 0 , endFlag) a from ResBatch where idxUser = :idxUser order by idx desc limit 1 ) a " ,nativeQuery = true)
 	Integer findRefresh(@Param("idxUser")Long idxUser);
@@ -42,7 +42,7 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 
 	List<ConnectedMng> findByIdxUserAndType(Long idxUser, String type);
 
-    public static interface CconnectedMngDto {
+    public static interface ConnectedMngDto {
 		Long getIdx();
 		String getConnectedId();
 		Long getIdxUser();

@@ -4,12 +4,10 @@ import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.v2.dto.AdminDto.CorpDto;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepository;
-import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,21 +18,14 @@ public class AdminCorpService {
     private final CorpRepository corpRepository;
 
     @Transactional(readOnly = true)
-    public ResponseEntity getCorpList(String keyWord, Pageable pageable) {
-        Page<CorpCustomRepository.CorpListDto> corpList = corpRepository.adminCorpListV2(keyWord, pageable);
-        return ResponseEntity.ok().body(
-            BusinessResponse.builder().data(corpList).build()
-        );
+    public Page<CorpCustomRepository.CorpListDto> getCorpList(CorpCustomRepository.CorpListDto dto, Pageable pageable) {
+        return corpRepository.adminCorpListV2(dto, pageable);
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity getCorpInfo(Long idxCorp) {
-        CorpDto corpDto = corpRepository.findById(idxCorp).map(CorpDto::from).orElseThrow(
+    public CorpDto getCorpInfo(Long idxCorp) {
+        return corpRepository.findById(idxCorp).map(CorpDto::from).orElseThrow(
             () -> CorpNotRegisteredException.builder().build()
         );
-
-        return ResponseEntity.ok().body(BusinessResponse.builder()
-            .data(corpDto)
-            .build());
     }
 }

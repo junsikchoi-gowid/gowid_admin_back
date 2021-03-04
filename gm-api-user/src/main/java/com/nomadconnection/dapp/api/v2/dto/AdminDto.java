@@ -35,31 +35,31 @@ public class AdminDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CorpDto {
-        @ApiModelProperty("법인명(상호)")
+        @ApiModelProperty(value = "법인명(상호)", example = "주식회사 고위드(GOWID Inc)")
         public String resCompanyNm;
 
-        @ApiModelProperty("사업자등록번호")
+        @ApiModelProperty(value = "사업자등록번호", example = "261-81-25793")
         public String resCompanyIdentityNo;
 
-        @ApiModelProperty("사업자종류")
+        @ApiModelProperty(value = "사업자종류", example = "법인사업자")
         public String resBusinessmanType;
 
-        @ApiModelProperty("대표자")
+        @ApiModelProperty(value = "대표자", example = "김항기")
         public String resUserNm;
 
-        @ApiModelProperty("사업장 소재지")
+        @ApiModelProperty(value = "사업장 소재지", example = "서울특별시 강남구 도산대로 317, 14층(신사동, 호림아트센터 1빌딩)")
         public String resUserAddr;
 
-        @ApiModelProperty("업태")
+        @ApiModelProperty(value = "업태", example = "응용 소프트웨어 개발 및 공급업|전자상거래 소매업|전자상거래 소매 중개업|컴퓨터 및 사무용 기계ㆍ장비 임대업|경영컨설팅")
         public String resBusinessItems;
 
-        @ApiModelProperty("종목")
+        @ApiModelProperty(value = "종목", example = "정보통신업|도매 및 소매업|도매 및 소매업|사업시설 관리, 사업지원 및 임대 서비스업|서비스")
         public String resBusinessTypes;
 
-        @ApiModelProperty("개업일")
+        @ApiModelProperty(value = "개업일", example = "20150210")
         public String resOpenDate;
 
-        @ApiModelProperty("사업자등록일")
+        @ApiModelProperty(value = "사업자등록일", example = "20150213")
         public String resRegisterDate;
 
         public static CorpDto from(Corp corp) {

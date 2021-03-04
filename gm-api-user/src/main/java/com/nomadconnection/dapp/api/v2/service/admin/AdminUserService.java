@@ -25,19 +25,13 @@ public class AdminUserService {
     private final UserService userService;
 
     @Transactional(readOnly = true)
-    public ResponseEntity getUserList(String keyWord, Pageable pageable) {
-        Page<UserCustomRepository.UserListDto> userList = userRepository.userList(keyWord, pageable);
-        return ResponseEntity.ok().body(
-            BusinessResponse.builder().data(userList).build()
-        );
+    public Page<UserCustomRepository.UserListDto> getUserList(UserCustomRepository.UserListDto dto, Pageable pageable) {
+        return userRepository.userList(dto, pageable);
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity getUserInfo(Long idxUser) {
-        UserCustomRepository.UserInfoDto userInfo = userRepository.userInfo(idxUser);
-        return ResponseEntity.ok().body(
-            BusinessResponse.builder().data(userInfo).build()
-        );
+    public UserCustomRepository.UserInfoDto getUserInfo(Long idxUser) {
+        return userRepository.userInfo(idxUser);
     }
 
     @Transactional(rollbackFor = Exception.class)

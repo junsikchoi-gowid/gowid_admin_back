@@ -30,7 +30,7 @@ public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implemen
     }
 
     @Override
-    public Page<UserListDto> userList(String keyWord, Pageable pageable) {
+    public Page<UserListDto> userList(UserListDto dto, Pageable pageable) {
         List<UserListDto> list;
 
         JPQLQuery<UserListDto> query = from(user)
@@ -46,7 +46,7 @@ public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implemen
                 user.name.as("userName"),
                 user.email.as("email"),
                 user.position.as("position"),
-                user.cardCompany.as("cardCompany"),
+                corp.user.cardCompany.as("cardCompany"),
                 corp.resCompanyNm.as("resCompanyNm"),
                 cardIssuanceInfo.issuanceDepth.as("issuanceDepth"),
                 cardIssuanceInfo.issuanceStatus.as("issuanceStatus"),
@@ -56,9 +56,29 @@ public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implemen
             ));
         query.where(user.authentication.enabled.isTrue());
 
-//        if (dto.getKeyWord() != null) {
-//            query.where(corp.resCompanyNm.toLowerCase().contains(dto.getKeyWord().toLowerCase()));
-//        }
+        if (dto.getUserName() != null) {
+            query.where(user.name.toLowerCase().contains(dto.getUserName().toLowerCase()));
+        }
+
+        if (dto.getEmail() != null) {
+            query.where(user.email.toLowerCase().contains(dto.getEmail().toLowerCase()));
+        }
+
+        if (dto.getCardCompany() != null) {
+            query.where(user.cardCompany.eq(dto.getCardCompany()));
+        }
+
+        if (dto.getResCompanyNm() != null) {
+            query.where(corp.resCompanyNm.toLowerCase().contains(dto.getResCompanyNm().toLowerCase()));
+        }
+
+        if (dto.getIssuanceStatus() != null) {
+            query.where(cardIssuanceInfo.issuanceStatus.eq(dto.getIssuanceStatus()));
+        }
+
+        if (dto.getIssuanceDepth() != null) {
+            query.where(cardIssuanceInfo.issuanceDepth.eq(dto.getIssuanceDepth()));
+        }
 
         list = getQuerydsl().applyPagination(pageable, query).fetch();
 

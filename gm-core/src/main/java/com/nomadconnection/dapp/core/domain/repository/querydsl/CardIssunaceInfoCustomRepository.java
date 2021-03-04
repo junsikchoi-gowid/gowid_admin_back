@@ -17,43 +17,43 @@ public interface CardIssunaceInfoCustomRepository {
     @NoArgsConstructor
     @AllArgsConstructor
     class CardIssuanceInfoDto {
-        @ApiModelProperty("카드사")
+        @ApiModelProperty(value = "카드사", example = "SHINHAN")
         public CardCompany cardCompany;
 
-        @ApiModelProperty("마지막 신청 단계")
+        @ApiModelProperty(value = "마지막 신청 단계", example = "SIGN_SIGNATURE")
         private IssuanceDepth issuanceDepth;
 
-        @ApiModelProperty("신청 상태")
+        @ApiModelProperty(value = "신청 상태", example = "ISSUED")
         public IssuanceStatus issuanceStatus;
 
-        @ApiModelProperty("희망한도")
+        @ApiModelProperty(value = "희망한도", example = "10000000")
         private String hopeLimit;
 
-        @ApiModelProperty("실제 카드한도")
+        @ApiModelProperty(value = "실제 카드한도", example = "10000000")
         private String grantLimit;
 
-        @ApiModelProperty("카드 신청 매수")
+        @ApiModelProperty(value = "카드 신청 매수", example = "1")
         private Long requestCount;
 
-        @ApiModelProperty("롯데 비교통그린카드")
+        @ApiModelProperty(value = "롯데 비교통그린카드", example = "1")
         private Long lotteGreenCount;
 
-        @ApiModelProperty("롯데 비교통블랙카드")
+        @ApiModelProperty(value = "롯데 비교통블랙카드", example = "1")
         private Long lotteBlackCount;
 
-        @ApiModelProperty("롯데 교통그린카드")
+        @ApiModelProperty(value = "롯데 교통그린카드", example = "1")
         private Long lotteGreenTrafficCount;
 
-        @ApiModelProperty("롯데 교통블랙카드")
+        @ApiModelProperty(value = "롯데 교통블랙카드", example = "1")
         private Long lotteBlackTrafficCount;
 
-        @ApiModelProperty("롯데 하이패스")
+        @ApiModelProperty(value = "롯데 하이패스", example = "1")
         private Long lotteHiPassCount;
 
-        @ApiModelProperty("신청완료일")
+        @ApiModelProperty(value = "신청완료일", example = "9999-99-99 99:99:99")
         private LocalDateTime applyDate;
 
-        @ApiModelProperty("심사완료일")
+        @ApiModelProperty(value = "심사완료일", example = "9999-99-99 99:99:99")
         private LocalDateTime decisionDate;
     }
 

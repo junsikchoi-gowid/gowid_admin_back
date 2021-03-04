@@ -20,90 +20,90 @@ public interface UserCustomRepository {
     @NoArgsConstructor
     @AllArgsConstructor
     class UserListDto {
-        @ApiModelProperty("idxUser")
+        @ApiModelProperty(value = "idxUser", example = "1")
         public Long idxUser;
 
-        @ApiModelProperty("idxCorp")
+        @ApiModelProperty(value = "idxCorp", example = "1")
         public Long idxCorp;
 
-        @ApiModelProperty("idxCardIssuanceInfo")
+        @ApiModelProperty(value = "idxCardIssuanceInfo", example = "1")
         public Long idxCardIssuanceInfo;
 
-        @ApiModelProperty("담당자")
+        @ApiModelProperty(value = "담당자", example = "류제용")
         private String userName;
 
-        @ApiModelProperty("이메일주소")
+        @ApiModelProperty(value = "이메일주소", example = "angryong@gowid.com")
         private String email;
 
-        @ApiModelProperty("직책")
+        @ApiModelProperty(value = "직책", example = "사원")
         public String position;
 
-        @ApiModelProperty("카드사")
+        @ApiModelProperty(value = "카드사", example = "SHINHAN")
         public CardCompany cardCompany;
 
-        @ApiModelProperty("법인명")
+        @ApiModelProperty(value = "법인명", example = "고위드")
         public String resCompanyNm;
 
-        @ApiModelProperty("마지막 신청 단계")
+        @ApiModelProperty(value = "마지막 신청 단계", example = "SIGN_SIGNATURE")
         private IssuanceDepth issuanceDepth;
 
-        @ApiModelProperty("신청 상태")
+        @ApiModelProperty(value = "신청 상태", example = "ISSUED")
         public IssuanceStatus issuanceStatus;
 
-        @ApiModelProperty("가입 경로")
+        @ApiModelProperty(value = "가입 경로", example = "포잉")
         public String surveyAnswer;
 
-        @ApiModelProperty("회원가입일")
+        @ApiModelProperty(value = "회원가입일", example = "9999-99-99 99:99:99")
         private LocalDateTime signUpDate;
 
-        @ApiModelProperty("인증서등록일")
+        @ApiModelProperty(value = "인증서등록일", example = "9999-99-99 99:99:99")
         private LocalDateTime certRegisterDate;
     }
 
-    Page<UserListDto> userList(String keyWord, Pageable pageable);
+    Page<UserListDto> userList(UserListDto dto, Pageable pageable);
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     class UserInfoDto {
-        @ApiModelProperty("idxUser")
+        @ApiModelProperty(value = "idxUser", example = "1")
         public Long idxUser;
 
-        @ApiModelProperty("이름")
+        @ApiModelProperty(value = "이름", example = "류제용")
         private String userName;
 
-        @ApiModelProperty("휴대폰 번호")
+        @ApiModelProperty(value = "휴대폰 번호", example = "010-1234-1234")
         private String phone;
 
-        @ApiModelProperty("회사명")
+        @ApiModelProperty(value = "회사명", example = "고위드")
         private String corpName;
 
-        @ApiModelProperty("직책")
+        @ApiModelProperty(value = "직책", example = "사원")
         private String position;
 
-        @ApiModelProperty("sms 수신여부")
+        @ApiModelProperty(value = "sms 수신여부", example = "true")
         private Boolean smsReception;
 
-        @ApiModelProperty("email 수신여부")
+        @ApiModelProperty(value = "email 수신여부", example = "true")
         private Boolean emailReception;
 
-        @ApiModelProperty("지출관리 상태")
+        @ApiModelProperty(value = "지출관리 상태", example = "SETUP_COMPANY")
         private ExpenseStatus expenseStatus;
 
-        @ApiModelProperty("SaaS 사용여부")
+        @ApiModelProperty(value = "SaaS 사용여부", example = "true")
         private Boolean saasUsage;
 
-        @ApiModelProperty("이메일주소")
+        @ApiModelProperty(value = "이메일주소", example = "angryong@gowid.com")
         private String email;
 
-        @ApiModelProperty("설문조사 답변")
+        @ApiModelProperty(value = "설문조사 답변", example = "SNS")
         private String surveyAnswer;
 
-        @ApiModelProperty("답변 상세 내용")
+        @ApiModelProperty(value = "답변 상세 내용", example = "페이스북")
         private String surveyAnswerDetail;
 
-        @ApiModelProperty("회원가입일")
+        @ApiModelProperty(value = "회원가입일", example = "9999-99-99 99:99:99")
         private LocalDateTime signUpDate;
     }
 

@@ -19,13 +19,8 @@ public class AdminCardIssuanceService {
     private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
 
     @Transactional(readOnly = true)
-    public ResponseEntity getIssuanceInfo(Long idxCardIssuanceInfo) {
-        CardIssunaceInfoCustomRepository.CardIssuanceInfoDto issuanceInfo =
-            cardIssuanceInfoRepository.issuanceInfo(idxCardIssuanceInfo);
-
-        return ResponseEntity.ok().body(
-            BusinessResponse.builder().data(issuanceInfo).build()
-        );
+    public CardIssunaceInfoCustomRepository.CardIssuanceInfoDto getIssuanceInfo(Long idxCardIssuanceInfo) {
+        return cardIssuanceInfoRepository.issuanceInfo(idxCardIssuanceInfo);
     }
 
     @Transactional(rollbackFor = Exception.class)
