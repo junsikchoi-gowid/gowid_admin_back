@@ -18,6 +18,7 @@ import org.springframework.util.ObjectUtils;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,26 +35,23 @@ public class EmailService {
 	private final EmailRepository repository;
 	private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
 
-	public void sendApproveEmail(String licenseNo) {
-		EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
+	public void send(EmailDto emailDto){
 		MimeMessagePreparator preparator = mimeMessage -> {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 			{
 				Context context = new Context();
 				{
-					context.setVariable("licenseNo", emailDto.getLicenseNo());
-					context.setVariable("companyName", emailDto.getCompanyName());
-					context.setVariable("hopeLimit", emailDto.getHopeLimit());
-					context.setVariable("grantLimit", emailDto.getGrantLimit());
-					context.setVariable("email", emailDto.getEmail());
+					emailDto.getContext().forEach((attributeName, attributeValue)
+							-> context.setVariable(attributeName, attributeValue));
 				}
-
 				helper.setFrom(emailConfig.getSender());
-				helper.setTo(emailConfig.getSender());
-				helper.setSubject("[Gowid] 신한카드 심사완료 " + emailDto.getCompanyName());
-				helper.setText(templateEngine.process("mail-template-issuance-approve", context), true);
-
-
+				if(emailDto.getReceivers() != null){
+					helper.setTo(emailDto.getReceivers());
+				} else {
+					helper.setTo(emailDto.getReceiver());
+				}
+				helper.setSubject(emailDto.getSubject());
+				helper.setText(templateEngine.process(emailDto.getTemplate(), context), true);
 			}
 		};
 		sender.send(preparator);
@@ -159,28 +157,6 @@ public class EmailService {
 		}
 
 		return true;
-	}
-
-	public void send(EmailDto emailDto){
-		MimeMessagePreparator preparator = mimeMessage -> {
-			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
-			{
-				Context context = new Context();
-				{
-					emailDto.getContext().forEach((attributeName, attributeValue)
-						-> context.setVariable(attributeName, attributeValue));
-				}
-				helper.setFrom(emailConfig.getSender());
-				if(emailDto.getReceivers() != null){
-					helper.setTo(emailDto.getReceivers());
-				} else {
-					helper.setTo(emailDto.getReceiver());
-				}
-				helper.setSubject(emailDto.getSubject());
-				helper.setText(templateEngine.process(emailDto.getTemplate(), context), true);
-			}
-		};
-		sender.send(preparator);
 	}
 
 	public void sendDeleteAccountEmailtoUser(User user){
@@ -292,11 +268,30 @@ public class EmailService {
 		sender.send(preparator);
 	}
 
+	public void induceEmailMobile(String email) {
+		MimeMessagePreparator preparator = mimeMessage -> {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+			{
+				Context context = new Context();
+
+				{
+					context.setVariable("email", URLEncoder.encode(email, "UTF-8"));
+				}
+
+				helper.setFrom(emailConfig.getSender());
+				helper.setTo(email);
+				helper.setSubject("[고위드] 고위드 법인카드 신청 절차 안내드립니다.");
+				helper.setText(templateEngine.process("mobile-induce-email-template", context), true);
+			}
+		};
+
+		sender.send(preparator);
+	}
+
 	public String getSender(){
 		return emailConfig.getSender();
 	}
 
-	public String getRiskTeam(){
-		return emailConfig.getRiskteam();
-	}
+	public String getRiskTeam(){ return emailConfig.getRiskteam(); }
+
 }

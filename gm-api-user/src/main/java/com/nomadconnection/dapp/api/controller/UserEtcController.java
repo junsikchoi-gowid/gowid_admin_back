@@ -35,6 +35,7 @@ public class UserEtcController {
         public static final String USERPASSWORDCHANGE_AFTER = "/password/after";
         public static final String RECEPTION = "/reception";
         public static final String INDUCE_EMAIL = "/induceemail";
+        public static final String INDUCE_EMAIL_MOBILE = "/induce-email-mobile";
     }
 
     private final UserService service;
@@ -114,7 +115,16 @@ public class UserEtcController {
     @PutMapping(URI.INDUCE_EMAIL)
     public ResponseEntity<?> induceEmail(@RequestParam String email) {
         emailService.induceEmail(email);
-        return new ResponseEntity<>(null,HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
+
+    @ApiOperation(value = "가입 안내 메일", notes = "" +
+            "\n ### Remarks" +
+            "\n")
+    @PutMapping(URI.INDUCE_EMAIL_MOBILE)
+    public ResponseEntity<Boolean> induceEmailMobile(@RequestParam String email) {
+        emailService.induceEmailMobile(email);
+        return ResponseEntity.ok().build();
+    }
 }

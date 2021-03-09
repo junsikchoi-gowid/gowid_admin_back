@@ -112,7 +112,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_CORP).permitAll() // to be deprecated
                 .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.ACCOUNT).permitAll() // to be deprecated
                 .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.USERDELETE).permitAll() // to be deprecated
-                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.INDUCE_EMAIL).permitAll() // to be deprecated
+                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.INDUCE_EMAIL).permitAll()
+                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.INDUCE_EMAIL_MOBILE).permitAll()
                 .antMatchers(ConsentController.URI.BASE + ConsentController.URI.CONSENT).permitAll()
                 .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.RECEPTION).permitAll()
                 .antMatchers(RiskController.URI.BASE + RiskController.URI.RISK).permitAll()
