@@ -154,6 +154,7 @@ public class ErrorCode {
 		AUTHENTICATION_FAILURE("AUTHENTICATION_FAILURE", "Authentication failed."),
 		SUCCESS("SUCCESS", null),
 		ALREADY_EXIST("ALREADY_EXIST", "already exist"),
+		CORP_NOT_BUSINESS("CORP_NOT_BUSINESS", "corp is not business"),
 		SURVEY_ALREADY_EXIST("ALREADY_EXIST", "user survey already exist"),
 		RECALCULATION_ALREADY_EXIST("RECALCULATION_ALREADY_EXIST", "The corp has already requested it on that date."),
 		RECALCULATION_ALREADY_REVIEWING("RECALCULATION_ALREADY_REVIEWING", "It's already under review."),

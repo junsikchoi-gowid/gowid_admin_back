@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.dto.ConnectedMngDto.AccountNt;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.exception.CodefApiException;
 import com.nomadconnection.dapp.api.exception.CorpAlreadyExistException;
+import com.nomadconnection.dapp.api.exception.survey.CorpNotBusinessException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
 import com.nomadconnection.dapp.api.service.UserService;
@@ -237,7 +238,10 @@ public class ScrapingService {
 					log.info("[scrapCorpLicense] $user={}, $message=Already exist Corp", user.email());
 					throw new CorpAlreadyExistException(ErrorCode.Api.ALREADY_EXIST);
 				}
-			} else {
+			} else if (!ScrapingCommonUtils.isCorporateBusiness(jsonData)) {
+				log.info("[scrapCorpLicense] $user={}, $message=Corp is not Business", user.email());
+				throw new CorpNotBusinessException(ErrorCode.Api.CORP_NOT_BUSINESS);
+			}else {
 				corp = repoCorp.save(
 						Corp.builder()
 								.resJointRepresentativeNm(GowidUtils.getEmptyStringToString(jsonData, "resJointRepresentativeNm"))

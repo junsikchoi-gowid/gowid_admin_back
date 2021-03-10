@@ -101,6 +101,10 @@ public final class ScrapingCommonUtils {
 		return false;
 	}
 
+	public static boolean isCorporateBusiness(JSONObject jsonDataCorpLicense) {
+		return GowidUtils.getEmptyStringToString(jsonDataCorpLicense, "resBusinessmanType").contains("법인사업자");
+	}
+
 	public static boolean isBeforeApril(LocalDate baseDate){
 		LocalDate preBaseStartDate = LocalDate.now().withMonth(1).withDayOfMonth(1);
 		LocalDate preBaseEndDate = LocalDate.now().withMonth(4).withDayOfMonth(30);
