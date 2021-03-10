@@ -502,8 +502,8 @@ public class RiskService {
 			return "F";
 		}else if(isConstructionSector){
 			return "G";
-		}else if( d1530 != null && Double.parseDouble(d1530.getD042()) < minBalance &&
-				Integer.parseInt(LocalDate.now().minusMonths(1).format(DateTimeFormatter.BASIC_ISO_DATE)) < Integer.parseInt(d1530.getD057())){
+		}else if( d1530 != null &&
+				Integer.parseInt(LocalDate.now().minusMonths(3).format(DateTimeFormatter.BASIC_ISO_DATE)) < Integer.parseInt(d1530.getD057())){
 			return "E";
 		}else if(riskConfig.ventureCertification() && riskConfig.vcInvestment()){
 			return "A";
