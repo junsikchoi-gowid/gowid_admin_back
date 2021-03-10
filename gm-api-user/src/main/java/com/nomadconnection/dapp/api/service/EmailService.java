@@ -224,7 +224,7 @@ public class EmailService {
 				helper.setFrom(emailConfig.getSender());
 				helper.setTo(sendTo);
 				helper.setSubject("[고위드] 고위드 카드 심사 승인 및 이용 안내");
-				helper.setText(templateEngine.process("shinhan-welcome", context), true);
+				helper.setText(templateEngine.process("shinhan-welcome-ver2", context), true);
 			}
 		};
 		sender.send(preparator);
