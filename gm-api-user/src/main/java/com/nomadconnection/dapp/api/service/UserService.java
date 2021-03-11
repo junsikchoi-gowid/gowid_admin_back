@@ -171,8 +171,10 @@ public class UserService {
             fullTextService.deleteAllLotteFulltext(idxCorp);
             repoRisk.deleteByCorpIdx(idxCorp);
             // Todo 추후 corp테이블의 idxRiskConfig 값 & AdminService 수정시 반영
-            repoRiskConfig.delete(user.corp().riskConfig());
-            repoRiskConfig.flush();
+			if (!ObjectUtils.isEmpty(user.corp().riskConfig())) {
+				repoRiskConfig.delete(user.corp().riskConfig());
+				repoRiskConfig.flush();
+			}
             repoCorp.delete(user.corp());
             repoCorp.flush();
             user.corp().riskConfig(null);

@@ -170,10 +170,9 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
     public Page<CorpListDto> adminCorpListV2(CorpListDto dto, Pageable pageable) {
             List<CorpListDto> list;
 
-            JPQLQuery<CorpListDto> query = from(user)
-                .leftJoin(corp).on(user.idx.eq(corp.user.idx))
+            JPQLQuery<CorpListDto> query = from(corp)
+                .leftJoin(user).on(corp.user.idx.eq(user.idx))
                 .leftJoin(cardIssuanceInfo).on(user.idx.eq(cardIssuanceInfo.user.idx))
-                .leftJoin(connectedMng).on(connectedMng.idxUser.eq(user.idx))
                 .leftJoin(issuanceProgress).on(corp.idx.eq(issuanceProgress.corpIdx))
                 .select(Projections.bean(CorpListDto.class,
                     user.idx.as("idxUser"),
@@ -182,16 +181,20 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
                     corp.resCompanyNm.as("resCompanyNm"),
                     corp.resCompanyIdentityNo.as("resCompanyIdentityNo"),
                     user.name.as("userName"),
-                    corp.user.cardCompany.as("cardCompany"),
+                    user.cardCompany.as("cardCompany"),
                     cardIssuanceInfo.card.hopeLimit.as("hopeLimit"),
                     cardIssuanceInfo.card.grantLimit.as("grantLimit"),
                     cardIssuanceInfo.issuanceStatus.as("issuanceStatus"),
                     cardIssuanceInfo.issuanceDepth.as("issuanceDepth"),
-                    connectedMng.createdAt.as("certRegisterDate"),
+                    ExpressionUtils.as(
+                        JPAExpressions.select(connectedMng.createdAt.max())
+                            .from(connectedMng)
+                            .where(connectedMng.idxUser.eq(user.idx)),
+                        "certRegisterDate"),
                     issuanceProgress.createdAt.as("applyDate"),
                     issuanceProgress.updatedAt.as("decisionDate")
                 ));
-            query.where(user.authentication.enabled.isTrue());
+            query.where(corp.user.authentication.enabled.isTrue());
 
             if (dto.getResCompanyNm() != null) {
                 query.where(corp.resCompanyNm.toLowerCase().contains(dto.getResCompanyNm().toLowerCase()));

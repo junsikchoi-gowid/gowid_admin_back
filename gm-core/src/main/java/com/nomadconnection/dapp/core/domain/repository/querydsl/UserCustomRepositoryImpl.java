@@ -7,7 +7,9 @@ import com.nomadconnection.dapp.core.domain.etc.QSurvey;
 import com.nomadconnection.dapp.core.domain.etc.QSurveyAnswer;
 import com.nomadconnection.dapp.core.domain.user.QUser;
 import com.nomadconnection.dapp.core.domain.user.User;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -36,9 +38,6 @@ public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implemen
         JPQLQuery<UserListDto> query = from(user)
             .leftJoin(corp).on(user.idx.eq(corp.user.idx))
             .leftJoin(cardIssuanceInfo).on(user.idx.eq(cardIssuanceInfo.user.idx))
-            .leftJoin(surveyAnswer).on(user.idx.eq(surveyAnswer.user.idx))
-            .leftJoin(survey).on(surveyAnswer.answer.eq(survey.answer))
-            .leftJoin(connectedMng).on(connectedMng.idxUser.eq(user.idx))
             .select(Projections.bean(UserListDto.class,
                 user.idx.as("idxUser"),
                 corp.idx.as("idxCorp"),
@@ -46,13 +45,22 @@ public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implemen
                 user.name.as("userName"),
                 user.email.as("email"),
                 user.position.as("position"),
-                corp.user.cardCompany.as("cardCompany"),
+                user.cardCompany.as("cardCompany"),
                 corp.resCompanyNm.as("resCompanyNm"),
                 cardIssuanceInfo.issuanceDepth.as("issuanceDepth"),
                 cardIssuanceInfo.issuanceStatus.as("issuanceStatus"),
-                survey.answerName.as("surveyAnswer"),
+                ExpressionUtils.as(
+                    JPAExpressions.select(survey.answerName.max())
+                        .from(surveyAnswer)
+                        .leftJoin(survey).on(surveyAnswer.answer.eq(survey.answer))
+                        .where(surveyAnswer.user.idx.eq(user.idx)),
+                    "surveyAnswer"),
                 user.createdAt.as("signUpDate"),
-                connectedMng.createdAt.as("certRegisterDate")
+                ExpressionUtils.as(
+                    JPAExpressions.select(connectedMng.createdAt.max())
+                        .from(connectedMng)
+                        .where(connectedMng.idxUser.eq(user.idx)),
+                    "certRegisterDate")
             ));
         query.where(user.authentication.enabled.isTrue());
 
