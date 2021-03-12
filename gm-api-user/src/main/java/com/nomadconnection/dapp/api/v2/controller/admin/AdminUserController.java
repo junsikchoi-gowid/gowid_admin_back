@@ -29,7 +29,7 @@ public class AdminUserController extends AdminBaseController {
     @ApiPageable
     @GetMapping(value = URI.USERS)
     public ResponseEntity<Page<UserCustomRepository.UserListDto>> getUserList(
-        @ModelAttribute UserCustomRepository.UserListDto dto,
+        @ModelAttribute UserCustomRepository.SearchUserListDto dto,
         @PageableDefault Pageable pageable){
         return ResponseEntity.ok().body(adminUserService.getUserList(dto, pageable));
     }

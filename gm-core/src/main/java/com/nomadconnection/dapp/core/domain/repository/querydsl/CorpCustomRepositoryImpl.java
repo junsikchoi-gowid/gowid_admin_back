@@ -167,7 +167,7 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
     }
 
     @Override
-    public Page<CorpListDto> adminCorpListV2(CorpListDto dto, Pageable pageable) {
+    public Page<CorpListDto> adminCorpListV2(SearchCorpListDtoV2 dto, Pageable pageable) {
             List<CorpListDto> list;
 
             JPQLQuery<CorpListDto> query = from(corp)
@@ -213,7 +213,12 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
             }
 
             if (dto.getIssuanceStatus() != null) {
-                query.where(cardIssuanceInfo.issuanceStatus.eq(dto.getIssuanceStatus()));
+                if (dto.getIssuanceStatus().size() > 1) {
+                    query.where(cardIssuanceInfo.issuanceStatus.eq(dto.getIssuanceStatus().get(0))
+                        .or(cardIssuanceInfo.issuanceStatus.eq(dto.getIssuanceStatus().get(1))));
+                } else {
+                    query.where(cardIssuanceInfo.issuanceStatus.eq(dto.getIssuanceStatus().get(0)));
+                }
             }
 
             if (dto.getIssuanceDepth() != null) {

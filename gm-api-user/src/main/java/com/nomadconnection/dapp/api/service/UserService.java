@@ -174,16 +174,17 @@ public class UserService {
 			if (!ObjectUtils.isEmpty(user.corp().riskConfig())) {
 				repoRiskConfig.delete(user.corp().riskConfig());
 				repoRiskConfig.flush();
+				user.corp().riskConfig(null);
 			}
-            repoCorp.delete(user.corp());
-            repoCorp.flush();
-            user.corp().riskConfig(null);
-        }
-        repoCardIssuanceInfo.deleteAllByUserIdx(idxUser);
-        repoConnectdMng.deleteAllByUserIdx(idxUser);
-        repoConsentMapping.deleteAllByUserIdx(idxUser);
-        issuanceProgressRepository.deleteAllByUserIdx(idxUser);
-		user.corp(null);
+			user.corp().user(null);
+			user.corp().cardIssuanceInfo().corp(null);
+			user.corp(null);
+			repoCorp.deleteCorpByIdx(idxCorp);
+		}
+		repoCardIssuanceInfo.deleteAllByUserIdx(idxUser);
+		repoConnectdMng.deleteAllByUserIdx(idxUser);
+		repoConsentMapping.deleteAllByUserIdx(idxUser);
+		issuanceProgressRepository.deleteAllByUserIdx(idxUser);
 		user.cardCompany(null);
 		user.isReset(true);
 		repoUser.save(user);

@@ -29,7 +29,7 @@ public class AdminCorpController extends AdminBaseController {
     @ApiPageable
     @GetMapping(value = URI.CORPS)
     public ResponseEntity<Page<CorpCustomRepository.CorpListDto>> getCorpList(
-        @ModelAttribute CorpCustomRepository.CorpListDto dto,
+        @ModelAttribute CorpCustomRepository.SearchCorpListDtoV2 dto,
         @PageableDefault Pageable pageable){
         return ResponseEntity.ok().body(adminCorpService.getCorpList(dto, pageable));
     }

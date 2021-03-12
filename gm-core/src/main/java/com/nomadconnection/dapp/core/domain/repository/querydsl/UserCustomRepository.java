@@ -13,8 +13,33 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface UserCustomRepository {
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class SearchUserListDto {
+        @ApiModelProperty(value = "담당자", example = "류제용")
+        private String userName;
+
+        @ApiModelProperty(value = "이메일주소", example = "angryong@gowid.com")
+        private String email;
+
+        @ApiModelProperty(value = "카드사", example = "SHINHAN")
+        public CardCompany cardCompany;
+
+        @ApiModelProperty(value = "법인명", example = "고위드")
+        public String resCompanyNm;
+
+        @ApiModelProperty(value = "마지막 신청 단계", example = "SIGN_SIGNATURE")
+        private IssuanceDepth issuanceDepth;
+
+        @ApiModelProperty(value = "신청 상태", example = "ISSUED")
+        public List<IssuanceStatus> issuanceStatus;
+    }
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -60,7 +85,7 @@ public interface UserCustomRepository {
         private LocalDateTime certRegisterDate;
     }
 
-    Page<UserListDto> userList(UserListDto dto, Pageable pageable);
+    Page<UserListDto> userList(SearchUserListDto dto, Pageable pageable);
 
     @Data
     @Builder

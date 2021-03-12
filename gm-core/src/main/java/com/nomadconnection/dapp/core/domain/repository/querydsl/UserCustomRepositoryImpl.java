@@ -32,7 +32,7 @@ public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implemen
     }
 
     @Override
-    public Page<UserListDto> userList(UserListDto dto, Pageable pageable) {
+    public Page<UserListDto> userList(SearchUserListDto dto, Pageable pageable) {
         List<UserListDto> list;
 
         JPQLQuery<UserListDto> query = from(user)
@@ -81,7 +81,12 @@ public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implemen
         }
 
         if (dto.getIssuanceStatus() != null) {
-            query.where(cardIssuanceInfo.issuanceStatus.eq(dto.getIssuanceStatus()));
+            if (dto.getIssuanceStatus().size() > 1) {
+                query.where(cardIssuanceInfo.issuanceStatus.eq(dto.getIssuanceStatus().get(0))
+                    .or(cardIssuanceInfo.issuanceStatus.eq(dto.getIssuanceStatus().get(1))));
+            } else {
+                query.where(cardIssuanceInfo.issuanceStatus.eq(dto.getIssuanceStatus().get(0)));
+            }
         }
 
         if (dto.getIssuanceDepth() != null) {

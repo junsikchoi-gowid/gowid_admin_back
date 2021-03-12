@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface CorpCustomRepository {
     @Data
@@ -152,6 +153,31 @@ public interface CorpCustomRepository {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    // Todo: deprecate code 정리 후 SearchCorpListDto로 함수명 변경
+    class SearchCorpListDtoV2 {
+        @ApiModelProperty(value = "담당자", example = "류제용")
+        private String userName;
+
+        @ApiModelProperty(value = "사업자등록번호", example = "***-**-*****")
+        private String resCompanyIdentityNo;
+
+        @ApiModelProperty(value = "카드사", example = "SHINHAN")
+        public CardCompany cardCompany;
+
+        @ApiModelProperty(value = "법인명", example = "고위드")
+        public String resCompanyNm;
+
+        @ApiModelProperty(value = "마지막 신청 단계", example = "SIGN_SIGNATURE")
+        private IssuanceDepth issuanceDepth;
+
+        @ApiModelProperty(value = "신청 상태", example = "ISSUED")
+        public List<IssuanceStatus> issuanceStatus;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     class CorpListDto {
 
         @ApiModelProperty(value = "idxUser", example = "1")
@@ -166,7 +192,7 @@ public interface CorpCustomRepository {
         @ApiModelProperty(value = "법인명", example = "고위드")
         private String resCompanyNm;
 
-        @ApiModelProperty(value = "사업자등록번호", example = "1111-1111-1111")
+        @ApiModelProperty(value = "사업자등록번호", example = "***-**-*****")
         private String resCompanyIdentityNo;
 
         @ApiModelProperty(value = "담당자", example = "류제용")
@@ -201,7 +227,7 @@ public interface CorpCustomRepository {
 
     Page<SearchCorpResultDto> adminCorpList(SearchCorpListDto dto, Long idxUser, Pageable pageable);
 
-    Page<CorpListDto> adminCorpListV2(CorpListDto dto, Pageable pageable);
+    Page<CorpListDto> adminCorpListV2(SearchCorpListDtoV2 dto, Pageable pageable);
 
     @Data
     @Builder

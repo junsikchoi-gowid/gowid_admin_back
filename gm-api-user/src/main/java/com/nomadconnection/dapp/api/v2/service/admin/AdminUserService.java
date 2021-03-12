@@ -28,7 +28,7 @@ public class AdminUserService {
     private final UserService userService;
 
     @Transactional(readOnly = true)
-    public Page<UserCustomRepository.UserListDto> getUserList(UserCustomRepository.UserListDto dto, Pageable pageable) {
+    public Page<UserCustomRepository.UserListDto> getUserList(UserCustomRepository.SearchUserListDto dto, Pageable pageable) {
         return userRepository.userList(dto, pageable);
     }
 

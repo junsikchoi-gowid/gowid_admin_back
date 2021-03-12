@@ -18,7 +18,7 @@ public class AdminCorpService {
     private final CorpRepository corpRepository;
 
     @Transactional(readOnly = true)
-    public Page<CorpCustomRepository.CorpListDto> getCorpList(CorpCustomRepository.CorpListDto dto, Pageable pageable) {
+    public Page<CorpCustomRepository.CorpListDto> getCorpList(CorpCustomRepository.SearchCorpListDtoV2 dto, Pageable pageable) {
         return corpRepository.adminCorpListV2(dto, pageable);
     }
 
