@@ -208,7 +208,7 @@ public class AdminService {
                 );
 
         if(deposit > 0){
-            updateDeposit(riskConfig, dto, idxUser);
+            updateDeposit(riskConfig, dto);
         }
 
         riskConfig.enabled(true);
@@ -222,8 +222,11 @@ public class AdminService {
                 ).build());
     }
 
-    private void updateDeposit(RiskConfig riskConfig, RiskDto.RiskConfigDto dto, Long idxUser){
-        User user = repoUser.getOne(idxUser);
+    private void updateDeposit(RiskConfig riskConfig, RiskDto.RiskConfigDto dto){
+        Corp corp = repoCorp.findById(dto.getIdxCorp()).orElseThrow(
+            () -> CorpNotRegisteredException.builder().build()
+        );
+        User user = corp.user();
         double deposit = dto.getDepositGuarantee();
         String depositString = NumberUtils.doubleToString(deposit);
 
@@ -231,7 +234,7 @@ public class AdminService {
         riskConfig.depositGuarantee(dto.depositGuarantee);
         riskConfig.grantLimit(depositString);
 
-        repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(idxUser).ifPresent(
+        repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(user.idx()).ifPresent(
                     cardIssuanceInfo -> cardIssuanceInfo.card().grantLimit(depositString)
         );
 
