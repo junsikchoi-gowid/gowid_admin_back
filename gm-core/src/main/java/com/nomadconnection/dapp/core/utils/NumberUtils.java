@@ -14,4 +14,10 @@ public class NumberUtils {
 
 		return formatter.format(number);
 	}
+
+	public static String doubleToString(double number){
+		DecimalFormat formatter = new DecimalFormat("###.#####");
+
+		return formatter.format(number);
+	}
 }

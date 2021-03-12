@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.core.domain.repository.corp;
 
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepository;
+import com.nomadconnection.dapp.core.domain.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,6 +37,8 @@ public interface CorpRepository extends JpaRepository<Corp, Long> , CorpCustomRe
 			" LEFT JOIN CardIssuanceInfo AS ci ON ci.idxCorp = c.idx" +
 			" WHERE ci.issuanceStatus IN (:issuanceStatus)", nativeQuery = true)
 	List<Corp> findCorpByIssuanceStatus(@Param("issuanceStatus") List<String> issuanceStatus);
+
+	Optional<Corp> findByUser(User user);
 
 	@Transactional
 	@Modifying

@@ -8,6 +8,9 @@ import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
+import com.nomadconnection.dapp.api.v2.service.card.LotteCardServiceV2;
+import com.nomadconnection.dapp.api.v2.service.card.ShinhanCardServiceV2;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceDepth;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
@@ -15,6 +18,7 @@ import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
+import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1100Repository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CorpCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.ResBatchListCustomRepository;
@@ -24,6 +28,8 @@ import com.nomadconnection.dapp.core.domain.repository.res.ResBatchListRepositor
 import com.nomadconnection.dapp.core.domain.repository.res.ResBatchRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
+import com.nomadconnection.dapp.core.domain.repository.shinhan.D1400Repository;
 import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.risk.Risk;
@@ -31,6 +37,7 @@ import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
+import com.nomadconnection.dapp.core.utils.NumberUtils;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -76,6 +83,8 @@ public class AdminService {
     private final CardIssuanceInfoRepository repoCardIssuance;
     private final IssuanceProgressRepository repoIssuanceProgress;
 
+    private final ShinhanCardServiceV2 shinhanCardService;
+    private final LotteCardServiceV2 lotteCardService;
 
     private Boolean isGowidMaster(Long idxUser) {
 
@@ -192,24 +201,47 @@ public class AdminService {
     public ResponseEntity riskIdLevelChange(Long idxUser, RiskDto.RiskConfigDto dto) {
 
         Boolean isMaster = isGowidMaster(idxUser);
-
+        double deposit = dto.getDepositGuarantee();
         RiskConfig riskConfig = repoRiskConfig.findByCorpAndEnabled(Corp.builder().idx(dto.idxCorp).build(), true)
                 .orElseThrow(
                         () -> CorpNotRegisteredException.builder().account(dto.idxCorp.toString()).build()
                 );
 
+        if(deposit > 0){
+            updateDeposit(riskConfig, dto, idxUser);
+        }
+
         riskConfig.enabled(true);
         riskConfig.ceoGuarantee(dto.isCeoGuarantee());
         riskConfig.ventureCertification(dto.isVentureCertification());
         riskConfig.vcInvestment(dto.isVcInvestment());
-        riskConfig.depositPayment(dto.isDepositPayment());
-        riskConfig.depositGuarantee(dto.getDepositGuarantee());
 
         return ResponseEntity.ok().body(
                 BusinessResponse.builder()
                         .data(repoRiskConfig.save(riskConfig)
                 ).build());
     }
+
+    private void updateDeposit(RiskConfig riskConfig, RiskDto.RiskConfigDto dto, Long idxUser){
+        User user = repoUser.getOne(idxUser);
+        double deposit = dto.getDepositGuarantee();
+        String depositString = NumberUtils.doubleToString(deposit);
+
+        riskConfig.depositPayment(dto.isDepositPayment());
+        riskConfig.depositGuarantee(dto.depositGuarantee);
+        riskConfig.grantLimit(depositString);
+
+        repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(idxUser).ifPresent(
+                    cardIssuanceInfo -> cardIssuanceInfo.card().grantLimit(depositString)
+        );
+
+        if(CardCompany.SHINHAN.equals(user.cardCompany())){
+            shinhanCardService.updateShinhanFulltextLimit(user, depositString);
+        } else if(CardCompany.LOTTE.equals(user.cardCompany())){
+            lotteCardService.updateD1100Limit(user, depositString, riskConfig.hopeLimit());
+        }
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity saveEmergencyStop(Long idxUser, Long idxCorp, String booleanValue) {

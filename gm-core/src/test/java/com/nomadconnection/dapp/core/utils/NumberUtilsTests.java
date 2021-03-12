@@ -24,4 +24,18 @@ class NumberUtilsTests {
 		assertThat(convertWithDoubleDecimalPoint).isEqualTo("400,000.123");
 	}
 
+	@Test
+	void doubleToString() {
+		double value = 20000000;
+		Double wrapperValue = 20000000d;
+
+		String doubleString = NumberUtils.doubleToString(value);
+		String wrapperDoubleString = NumberUtils.doubleToString(wrapperValue);
+
+		assertThat(doubleString).isEqualTo("20000000");
+		assertThat(doubleString).isNotEqualTo("2.0E7");
+		assertThat(wrapperDoubleString).isEqualTo("20000000");
+		assertThat(wrapperDoubleString).isNotEqualTo(wrapperValue.toString());
+	}
+
 }
