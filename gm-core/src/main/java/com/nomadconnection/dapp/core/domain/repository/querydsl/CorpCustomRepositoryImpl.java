@@ -186,11 +186,7 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
                     cardIssuanceInfo.card.grantLimit.as("grantLimit"),
                     cardIssuanceInfo.issuanceStatus.as("issuanceStatus"),
                     cardIssuanceInfo.issuanceDepth.as("issuanceDepth"),
-                    ExpressionUtils.as(
-                        JPAExpressions.select(connectedMng.createdAt.max())
-                            .from(connectedMng)
-                            .where(connectedMng.idxUser.eq(user.idx)),
-                        "certRegisterDate"),
+                    corp.createdAt.as("corpRegisterDate"),
                     issuanceProgress.createdAt.as("applyDate"),
                     issuanceProgress.updatedAt.as("decisionDate")
                 ));

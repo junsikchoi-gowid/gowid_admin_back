@@ -56,11 +56,7 @@ public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implemen
                         .where(surveyAnswer.user.idx.eq(user.idx)),
                     "surveyAnswer"),
                 user.createdAt.as("signUpDate"),
-                ExpressionUtils.as(
-                    JPAExpressions.select(connectedMng.createdAt.max())
-                        .from(connectedMng)
-                        .where(connectedMng.idxUser.eq(user.idx)),
-                    "certRegisterDate")
+                corp.createdAt.as("corpRegisterDate")
             ));
         query.where(user.authentication.enabled.isTrue());
 

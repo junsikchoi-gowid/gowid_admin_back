@@ -162,26 +162,26 @@ public class UserService {
 	public void initUserInfo(Long idxUser) {
 		User user = getUser(idxUser);
     if (!ObjectUtils.isEmpty(user.corp())) {
-        Long idxCorp = user.corp().idx();
-        Long idxCardInfo = repoCardIssuanceInfo.findIdxByUserIdx(idxUser);
-        repoCeoInfo.deleteByCardIssuanceInfoIdx(idxCardInfo);
-        repoManager.deleteByCardIssuanceInfoIdx(idxCardInfo);
-        repoStockholderFile.deleteByCardIssuanceInfoIdx(idxCardInfo);
-        fullTextService.deleteAllShinhanFulltext(idxCorp);
-        fullTextService.deleteAllLotteFulltext(idxCorp);
-        repoRisk.deleteByCorpIdx(idxCorp);
-        // Todo 추후 corp테이블의 idxRiskConfig 값 & AdminService 수정시 반영
-        if (!ObjectUtils.isEmpty(user.corp().riskConfig())) {
-            user.corp().riskConfig().user(null);
-            user.corp().riskConfig().corp(null);
-            user.corp().riskConfig(null);
-            repoRiskConfig.deleteByCorpIdx(idxCorp);
-        }
-        user.corp().user(null);
-        user.corp().cardIssuanceInfo().corp(null);
-        user.corp(null);
-        repoCorp.deleteCorpByIdx(idxCorp);
-    }
+      Long idxCorp = user.corp().idx();
+      Long idxCardInfo = repoCardIssuanceInfo.findIdxByUserIdx(idxUser);
+      repoCeoInfo.deleteByCardIssuanceInfoIdx(idxCardInfo);
+      repoManager.deleteByCardIssuanceInfoIdx(idxCardInfo);
+      repoStockholderFile.deleteByCardIssuanceInfoIdx(idxCardInfo);
+      fullTextService.deleteAllShinhanFulltext(idxCorp);
+      fullTextService.deleteAllLotteFulltext(idxCorp);
+      repoRisk.deleteByCorpIdx(idxCorp);
+      // Todo 추후 corp테이블의 idxRiskConfig 값 & AdminService 수정시 반영
+			if (!ObjectUtils.isEmpty(user.corp().riskConfig())) {
+        user.corp().riskConfig().user(null);
+        user.corp().riskConfig().corp(null);
+        user.corp().riskConfig(null);
+        repoRiskConfig.deleteByCorpIdx(idxCorp);
+			}
+			user.corp().user(null);
+			user.corp().cardIssuanceInfo().corp(null);
+			user.corp(null);
+			repoCorp.deleteCorpByIdx(idxCorp);
+		}
 		repoCardIssuanceInfo.deleteAllByUserIdx(idxUser);
 		repoConnectdMng.deleteAllByUserIdx(idxUser);
 		repoConsentMapping.deleteAllByUserIdx(idxUser);
@@ -189,7 +189,7 @@ public class UserService {
 		user.cardCompany(null);
 		user.isReset(true);
 		repoUser.save(user);
-	}
+  }
 
 	/**
 	 * 사용자 등록
