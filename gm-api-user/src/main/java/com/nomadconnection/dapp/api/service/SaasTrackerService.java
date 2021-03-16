@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.RecoveryNotiReq.getSlackRecoveryMessage;
 import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.SaasTrackerNotiReq.getSlackSaasTrackerMessage;
+import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.SaasTrackerNotiReq.getSlackSaasTrackerUsageRequestMessage;
 
 @Slf4j
 @Service
@@ -43,6 +44,27 @@ public class SaasTrackerService {
 	private final CorpService corpService;
 	private final UserService userService;
 	private final SlackNotiService slackNotiService;
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity saveUsageRequest(SaasTrackerDto.SaasTrackerUsageReq req) {
+
+		log.info(">>>>> saveUsageRequest.start");
+
+		try {
+			// 제보 Slack Notification
+			this.sendSlackNotificationForUsageRequest(req);
+
+			return ResponseEntity.ok().body(BusinessResponse.builder()
+				.normal(BusinessResponse.Normal.builder()
+					.status(true)
+					.build())
+				.build());
+
+		}catch(Exception e) {
+			log.error(e.getMessage(), e);
+			throw new SystemException(ErrorCode.Api.INTERNAL_ERROR);
+		}
+	}
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity saveSaasTrackerReports(Long userIdx, SaasTrackerDto.SaasTrackerReportsReq dto) {
@@ -67,7 +89,7 @@ public class SaasTrackerService {
 			log.info(">>>>> saveSaasTrackerReports.complete");
 
 			// 제보 Slack Notification
-			this.sendSlackNotification(userIdx, dto);
+			this.sendSlackNotificationForWrongInformation(userIdx, dto);
 
 			return ResponseEntity.ok().body(BusinessResponse.builder()
 					.normal(BusinessResponse.Normal.builder()
@@ -522,14 +544,18 @@ public class SaasTrackerService {
 	}
 
 	private void sendSlackNotification(Long userIdx) {
-		this.sendSlackNotification(userIdx, getSlackSaasTrackerMessage(corpService.getCorpByUserIdx(userIdx)));
+		this.sendSlackNotification(getSlackSaasTrackerMessage(corpService.getCorpByUserIdx(userIdx)));
 	}
 
-	private void sendSlackNotification(Long userIdx, SaasTrackerDto.SaasTrackerReportsReq dto) {
-		this.sendSlackNotification(userIdx, getSlackSaasTrackerMessage(corpService.getCorpByUserIdx(userIdx), dto));
+	private void sendSlackNotificationForWrongInformation(Long userIdx, SaasTrackerDto.SaasTrackerReportsReq req) {
+		this.sendSlackNotification(getSlackSaasTrackerMessage(corpService.getCorpByUserIdx(userIdx), req));
 	}
 
-	private void sendSlackNotification(Long userIdx, String slackMessage) {
+	private void sendSlackNotificationForUsageRequest(SaasTrackerDto.SaasTrackerUsageReq req) {
+		this.sendSlackNotification(getSlackSaasTrackerUsageRequestMessage(req));
+	}
+
+	private void sendSlackNotification(String slackMessage) {
 		slackNotiService.sendSlackNotification(slackMessage, slackNotiService.getSlackSaasTrackerUrl());
 	}
 

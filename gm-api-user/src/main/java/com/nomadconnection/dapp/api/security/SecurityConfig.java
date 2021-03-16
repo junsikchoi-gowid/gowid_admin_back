@@ -136,6 +136,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(SurveyController.URI.BASE).permitAll()
                 .antMatchers(LimitInquiryController.URI.BASE).permitAll()
 	            .antMatchers(AdminController.URI.BASE).permitAll()
+                .antMatchers(SaasTrackerController.URI.BASE + SaasTrackerController.URI.USAGE_REQUEST).permitAll()
                 .anyRequest().authenticated();
     }
 }

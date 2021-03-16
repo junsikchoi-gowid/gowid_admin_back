@@ -22,6 +22,25 @@ public class SaasTrackerDto {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
+	public static class SaasTrackerUsageReq {
+
+		@ApiModelProperty("회사명")
+		@NotNull
+		private String companyName;
+
+		@ApiModelProperty("담당자명")
+		@NotNull
+		private String managerName;
+
+		@ApiModelProperty("이메일")
+		@NotNull
+		private String managerEmail;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class SaasTrackerReportsReq {
 
 		@ApiModelProperty("제보타입")

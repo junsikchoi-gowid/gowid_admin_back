@@ -30,6 +30,9 @@ public class SaasTrackerController {
 		// Base
 		public static final String BASE = "/saas/v1/tracker";
 
+		// 신청
+		public static final String USAGE_REQUEST = "/usage-requests";
+
 		// Progress
 		public static final String PROGRESS = "/progress";
 
@@ -68,6 +71,18 @@ public class SaasTrackerController {
 	}
 
 	private final SaasTrackerService service;
+
+	@ApiOperation(value = "사용 신청")
+	@PostMapping(URI.USAGE_REQUEST)
+	public ResponseEntity saveUsageRequest(
+		@RequestBody @Valid SaasTrackerDto.SaasTrackerUsageReq dto) {
+
+		if (log.isDebugEnabled()) {
+			log.debug("([saveUsageRequest]) $dto='{}'", dto.toString());
+		}
+
+		return service.saveUsageRequest(dto);
+	}
 
 	@ApiOperation(value = "잘못된 정보 제보")
 	@PostMapping(URI.REPORTS)
