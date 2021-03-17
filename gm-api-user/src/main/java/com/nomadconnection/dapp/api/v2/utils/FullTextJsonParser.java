@@ -194,7 +194,7 @@ public class FullTextJsonParser {
 	}
 
 	public static String setNoContents(String corpRegisterScrapingResult){
-		String noContents[] = {
+		String[] noContents = {
 			"resStockOptionList\" : [ {\n" +
 				"        \"resStockOption\" : \"내용 없음\",\n" +
 				"        \"resNumber\" : \"0\"\n" +

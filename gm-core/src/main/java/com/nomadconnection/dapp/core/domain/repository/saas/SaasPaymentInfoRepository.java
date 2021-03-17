@@ -174,7 +174,7 @@ public interface SaasPaymentInfoRepository extends JpaRepository<SaasPaymentInfo
                                   @Param("idxSaasInfo") Long idxSaasInfo,
                                   @Param("isSubscription") Boolean isSubscription);
 
-    public static interface SubscriptSaasDto {
+    interface SubscriptSaasDto {
         Long getIdxSaasInfo();
         String getCurrentPaymentDate();
         Long getCurrentPaymentPrice();

@@ -80,7 +80,7 @@ public class BenefitService {
 
 		List<BenefitDto.BenefitCategoryRes> resBenefitCategories = repoBenefitCategory.findAll()
 																						.stream().map(BenefitDto.BenefitCategoryRes::from)
-																						.collect(Collectors.toList());;
+																						.collect(Collectors.toList());
 
 		return ResponseEntity.ok().body(
 				BusinessResponse.builder().data(resBenefitCategories).build()

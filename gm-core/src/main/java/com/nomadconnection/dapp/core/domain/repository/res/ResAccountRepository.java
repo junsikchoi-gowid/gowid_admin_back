@@ -59,7 +59,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
 
 
 
-    public static interface CaccountCountDto {
+    interface CaccountCountDto {
         String getSumDate();
 
         Long getSumResAccountIn();
@@ -87,7 +87,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
                                           @Param("endDate") String endDate,
                                           @Param("idxUser") Long idxUser);
 
-    public static interface CaccountMonthDto {
+    interface CaccountMonthDto {
         String getSumDate();
 
         Long getSumResAccountIn();
@@ -193,7 +193,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
 
     Optional<ResAccount> findByResAccount(String resAccount);
 
-    public static interface CRisk {
+    interface CRisk {
         Integer getDsc();
         String getDs();
         float getCurrentBalance();
@@ -281,7 +281,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             , nativeQuery = true)
     Double findNowBalance(@Param("idxCorp") Long idxCorp);
 
-    public static interface CaccountHistoryDto {
+    interface CaccountHistoryDto {
         String getResAccount();
 
         String getAccountName();
@@ -317,7 +317,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
     Page<ResAccount> findExternalAccount(@Param("pageable") Pageable pageable, @Param("idxUser") Long idxUser);
 
 
-    public static interface CashResultDto {
+    interface CashResultDto {
         Long getIdxUser();
 
         Long getIdxCorp();

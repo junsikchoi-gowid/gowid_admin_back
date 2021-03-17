@@ -19,7 +19,7 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
     @Query("delete from ResAccountHistory c where c.resAccount = :resAccount and c.resAccountTrDate between :startDate and :endDate")
     void deleteResAccountTrDate(@Param("resAccount") String resAccount, @Param("startDate") String startDate, @Param("endDate") String endDate );
 
-    public static interface CMonthInOutSumDto {
+    interface CMonthInOutSumDto {
         Long getSumResAccountIn();
         Long getSumResAccountOut();
     }

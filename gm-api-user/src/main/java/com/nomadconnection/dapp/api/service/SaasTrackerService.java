@@ -461,7 +461,7 @@ public class SaasTrackerService {
 			SaasTrackerDto.SaasPaymentDetailInfoRes saasPaymentDetailInfoRes = new SaasTrackerDto.SaasPaymentDetailInfoRes();
 			saasPaymentDetailInfoRes.setIdxSaasInfo(saasInfo.idx());
 			saasPaymentDetailInfoRes.setSaasName(saasInfo.name());
-			saasPaymentDetailInfoRes.setActiveSubscription(repoSaasPaymentInfo.findSaasSubscriptionByUserAndSaasInfo(userIdx, saasInfoIdx) > 0 ? true : false);
+			saasPaymentDetailInfoRes.setActiveSubscription(repoSaasPaymentInfo.findSaasSubscriptionByUserAndSaasInfo(userIdx, saasInfoIdx) > 0);
 			saasPaymentDetailInfoRes.setManagerName(hasSaasPaymentMangeInfo ? saasPaymentInfos.get(0).saasPaymentManageInfo().managerName() : null);
 			saasPaymentDetailInfoRes.setManagerEmail(hasSaasPaymentMangeInfo? saasPaymentInfos.get(0).saasPaymentManageInfo().managerEmail() : null);
 			saasPaymentDetailInfoRes.setActiveAlert(hasSaasPaymentMangeInfo ? saasPaymentInfos.get(0).saasPaymentManageInfo().activeAlert() : null);
@@ -611,7 +611,7 @@ public class SaasTrackerService {
 	public ResponseEntity getSaasInfos() {
 		List<SaasTrackerDto.SaasInfoRes> resSaasInfos = repoSaasInfo.findAllByOrderByName()
 				.stream().map(SaasTrackerDto.SaasInfoRes::from)
-				.collect(Collectors.toList());;
+				.collect(Collectors.toList());
 
 		return ResponseEntity.ok().body(
 				BusinessResponse.builder().data(resSaasInfos).build()

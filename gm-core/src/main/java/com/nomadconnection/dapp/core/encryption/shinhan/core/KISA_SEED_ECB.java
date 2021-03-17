@@ -19,7 +19,7 @@ public class KISA_SEED_ECB {
 		return ((/*ROTL(dwS,8)*/(((dwS) << (8)) | (((dwS) >> (32 - (8))) & 0x000000ff)) & 0x00ff00ff) | (/*ROTL(dwS,24)*/(((dwS) << (24)) | (((dwS) >> (32 - (24))) & 0x00ffffff)) & 0xff00ff00));
 	}
 
-	private static final int SS0[] = {
+	private static final int[] SS0 = {
 			0x2989a1a8, 0x05858184, 0x16c6d2d4, 0x13c3d3d0, 0x14445054, 0x1d0d111c, 0x2c8ca0ac, 0x25052124,
 			0x1d4d515c, 0x03434340, 0x18081018, 0x1e0e121c, 0x11415150, 0x3cccf0fc, 0x0acac2c8, 0x23436360,
 			0x28082028, 0x04444044, 0x20002020, 0x1d8d919c, 0x20c0e0e0, 0x22c2e2e0, 0x08c8c0c8, 0x17071314,
@@ -54,7 +54,7 @@ public class KISA_SEED_ECB {
 			0x28c8e0e8, 0x1b0b1318, 0x05050104, 0x39497178, 0x10809090, 0x2a4a6268, 0x2a0a2228, 0x1a8a9298
 	};
 
-	private static final int SS1[] = {
+	private static final int[] SS1 = {
 			0x38380830, 0xe828c8e0, 0x2c2d0d21, 0xa42686a2, 0xcc0fcfc3, 0xdc1eced2, 0xb03383b3, 0xb83888b0,
 			0xac2f8fa3, 0x60204060, 0x54154551, 0xc407c7c3, 0x44044440, 0x6c2f4f63, 0x682b4b63, 0x581b4b53,
 			0xc003c3c3, 0x60224262, 0x30330333, 0xb43585b1, 0x28290921, 0xa02080a0, 0xe022c2e2, 0xa42787a3,
@@ -89,7 +89,7 @@ public class KISA_SEED_ECB {
 			0xd819c9d1, 0x4c0c4c40, 0x80038383, 0x8c0f8f83, 0xcc0ecec2, 0x383b0b33, 0x480a4a42, 0xb43787b3
 	};
 
-	private static final int SS2[] = {
+	private static final int[] SS2 = {
 			0xa1a82989, 0x81840585, 0xd2d416c6, 0xd3d013c3, 0x50541444, 0x111c1d0d, 0xa0ac2c8c, 0x21242505,
 			0x515c1d4d, 0x43400343, 0x10181808, 0x121c1e0e, 0x51501141, 0xf0fc3ccc, 0xc2c80aca, 0x63602343,
 			0x20282808, 0x40440444, 0x20202000, 0x919c1d8d, 0xe0e020c0, 0xe2e022c2, 0xc0c808c8, 0x13141707,
@@ -124,7 +124,7 @@ public class KISA_SEED_ECB {
 			0xe0e828c8, 0x13181b0b, 0x01040505, 0x71783949, 0x90901080, 0x62682a4a, 0x22282a0a, 0x92981a8a
 	};
 
-	private static final int SS3[] = {
+	private static final int[] SS3 = {
 			0x08303838, 0xc8e0e828, 0x0d212c2d, 0x86a2a426, 0xcfc3cc0f, 0xced2dc1e, 0x83b3b033, 0x88b0b838,
 			0x8fa3ac2f, 0x40606020, 0x45515415, 0xc7c3c407, 0x44404404, 0x4f636c2f, 0x4b63682b, 0x4b53581b,
 			0xc3c3c003, 0x42626022, 0x03333033, 0x85b1b435, 0x09212829, 0x80a0a020, 0xc2e2e022, 0x87a3a427,
@@ -181,7 +181,7 @@ public class KISA_SEED_ECB {
 	// L0, L1 : left input values at each round
 	// R0, R1 : right input values at each round
 	// K : round keys at each round
-	private static final void SeedRound(int[] T, int LR[], int L0, int L1, int R0, int R1, int[] K, int K_offset) {
+	private static final void SeedRound(int[] T, int[] LR, int L0, int L1, int R0, int R1, int[] K, int K_offset) {
 		T[0] = LR[R0] ^ K[K_offset + 0];
 		T[1] = LR[R1] ^ K[K_offset + 1];
 		T[1] ^= T[0];
@@ -210,9 +210,9 @@ public class KISA_SEED_ECB {
 
 
 	private static void KISA_SEED_Encrypt_Block_forECB(int[] in, int in_offset, int[] out, int out_offset, KISA_SEED_KEY ks) {
-		int LR[] = new int[4];        // Iuput/output values at each rounds
-		int T[] = new int[2];        // Temporary variables for round function F
-		int K[] = ks.key_data;        // Pointer of round keys
+		int[] LR = new int[4];        // Iuput/output values at each rounds
+		int[] T = new int[2];        // Temporary variables for round function F
+		int[] K = ks.key_data;        // Pointer of round keys
 
 		// Set up input values for first round
 		LR[LR_L0] = in[in_offset + 0];
@@ -281,7 +281,7 @@ public class KISA_SEED_ECB {
 	}
 
 
-	public static byte[] int32tochar_for_SEED_ECB(int in[], int inLen) {
+	public static byte[] int32tochar_for_SEED_ECB(int[] in, int inLen) {
 		byte[] data;
 		int i;
 
@@ -306,8 +306,8 @@ public class KISA_SEED_ECB {
 		int[] data;
 		byte[] cdata;
 		int outlen;
-		int nRetOutLeng[] = new int[]{0};
-		int nPaddingLeng[] = new int[]{0};
+		int[] nRetOutLeng = new int[]{0};
+		int[] nPaddingLeng = new int[]{0};
 
 		byte[] pbszPlainText = pbData;
 		int nPlainTextLen = length;
@@ -344,9 +344,9 @@ public class KISA_SEED_ECB {
 
 	// Same as encrypt, except that round keys are applied in reverse order
 	public static void KISA_SEED_Decrypt_Block_forECB(int[] in, int in_offset, int[] out, int out_offset, KISA_SEED_KEY ks) {
-		int LR[] = new int[4];                // Iuput/output values at each rounds
-		int T[] = new int[2];                // Temporary variables for round function F
-		int K[] = ks.key_data;                // Pointer of round keys
+		int[] LR = new int[4];                // Iuput/output values at each rounds
+		int[] T = new int[2];                // Temporary variables for round function F
+		int[] K = ks.key_data;                // Pointer of round keys
 
 		// Set up input values for first round
 		LR[LR_L0] = in[in_offset + 0];
@@ -402,8 +402,8 @@ public class KISA_SEED_ECB {
 		int[] data;
 		byte[] cdata;
 		int outlen = 0;
-		int nRetOutLeng[] = new int[]{0};
-		int nPaddingLeng[] = new int[]{0};
+		int[] nRetOutLeng = new int[]{0};
+		int[] nPaddingLeng = new int[]{0};
 
 		byte[] pbszCipherText = pbData;
 		int nCipherTextLen = length;
@@ -449,9 +449,9 @@ public class KISA_SEED_ECB {
 
 	public static final class KISA_SEED_INFO {
 		public int encrypt;
-		public int ivec[] = new int[4];
+		public int[] ivec = new int[4];
 		public KISA_SEED_KEY seed_key = new KISA_SEED_KEY();
-		public int ecb_buffer[] = new int[4];
+		public int[] ecb_buffer = new int[4];
 		public int buffer_length;
 		public int[] ecb_last_block = new int[4];
 		public int last_block_flag;
@@ -496,9 +496,9 @@ public class KISA_SEED_ECB {
 
 
 	public static int SEED_ECB_init(KISA_SEED_INFO pInfo, KISA_ENC_DEC enc, byte[] pbszUserKey) {
-		int ABCD[] = new int[4];            // Iuput/output values at each rounds(�� ���� ��/���)
-		int T[] = new int[2];                // Temporary variable
-		int K[];
+		int[] ABCD = new int[4];            // Iuput/output values at each rounds(�� ���� ��/���)
+		int[] T = new int[2];                // Temporary variable
+		int[] K;
 
 		if (null == pInfo ||
 				null == pbszUserKey)
@@ -647,7 +647,7 @@ public class KISA_SEED_ECB {
 	private static final int KC15 = 0xbcdccf1b;
 
 	/************************** Macros for Key schedule ***************************/
-	private static final void RoundKeyUpdate0(int T[], int[] K, int K_offset, int ABCD[], int KC) {
+	private static final void RoundKeyUpdate0(int[] T, int[] K, int K_offset, int[] ABCD, int KC) {
 		T[0] = ABCD[ABCD_A] + ABCD[ABCD_C] - KC;
 		T[1] = ABCD[ABCD_B] + KC - ABCD[ABCD_D];
 		K[K_offset + 0] = SS0[GetB0(T[0]) & 0x0ff] ^ SS1[GetB1(T[0]) & 0x0ff] ^ SS2[GetB2(T[0]) & 0x0ff] ^ SS3[GetB3(T[0]) & 0x0ff];
@@ -657,7 +657,7 @@ public class KISA_SEED_ECB {
 		ABCD[ABCD_B] = ((ABCD[ABCD_B] >> 8) & 0x00ffffff) ^ (T[0] << 24);
 	}
 
-	private static final void RoundKeyUpdate1(int T[], int[] K, int K_offset, int ABCD[], int KC) {
+	private static final void RoundKeyUpdate1(int[] T, int[] K, int K_offset, int[] ABCD, int KC) {
 		T[0] = ABCD[ABCD_A] + ABCD[ABCD_C] - KC;
 		T[1] = ABCD[ABCD_B] + KC - ABCD[ABCD_D];
 		K[K_offset + 0] = SS0[GetB0(T[0]) & 0x0ff] ^ SS1[GetB1(T[0]) & 0x0ff] ^ SS2[GetB2(T[0]) & 0x0ff] ^ SS3[GetB3(T[0]) & 0x0ff];
@@ -680,9 +680,9 @@ public class KISA_SEED_ECB {
 	 * @brief UserKey�� �̿��Ͽ� RoundKey ����
 	 */
 	public static void SeedRoundKey(int[] pdwRoundKey /* [out] round keys for encryption or decryption */, byte[] pbUserKey/* [in] secret user key*/) {
-		int ABCD[] = new int[4];        // Iuput/output values at each rounds
-		int T[] = new int[2];            // Temporary variable
-		int K[] = pdwRoundKey;            // Pointer of round keys
+		int[] ABCD = new int[4];        // Iuput/output values at each rounds
+		int[] T = new int[2];            // Temporary variable
+		int[] K = pdwRoundKey;            // Pointer of round keys
 
 		// Set up input values for Key Schedule
 		ABCD[ABCD_A] = Common.byte_to_int(pbUserKey, 0 * 4, ENDIAN);
@@ -875,15 +875,15 @@ public class KISA_SEED_ECB {
 	public static void main(String[] args) {
 
 		// User secret key
-		byte pbUserKey[] = {(byte) 0x88, (byte) 0xE3, (byte) 0x4F, (byte) 0x8F, (byte) 0x08, (byte) 0x17, (byte) 0x79, (byte) 0xF1,
+		byte[] pbUserKey = {(byte) 0x88, (byte) 0xE3, (byte) 0x4F, (byte) 0x8F, (byte) 0x08, (byte) 0x17, (byte) 0x79, (byte) 0xF1,
 				(byte) 0xE9, (byte) 0xF3, (byte) 0x94, (byte) 0x37, (byte) 0x0A, (byte) 0xD4, (byte) 0x05, (byte) 0x89};
 
-		byte pbData[] = {(byte) 0xD7, (byte) 0x6D, (byte) 0x0D, (byte) 0x18, (byte) 0x32, (byte) 0x7E, (byte) 0xC5, (byte) 0x62, (byte) 0xB1, (byte) 0x5E, (byte) 0x6B, (byte) 0xC3, (byte) 0x65, (byte) 0xAC, (byte) 0x0C, (byte) 0x0F};
+		byte[] pbData = {(byte) 0xD7, (byte) 0x6D, (byte) 0x0D, (byte) 0x18, (byte) 0x32, (byte) 0x7E, (byte) 0xC5, (byte) 0x62, (byte) 0xB1, (byte) 0x5E, (byte) 0x6B, (byte) 0xC3, (byte) 0x65, (byte) 0xAC, (byte) 0x0C, (byte) 0x0F};
 
-		byte pbData1[] = {(byte) 0x00, (byte) 0x01};
-		byte pbData2[] = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09, (byte) 0x0A, (byte) 0x0B, (byte) 0x0C, (byte) 0x0D, (byte) 0x0E, (byte) 0x0F, (byte) 0x00, (byte) 0x01};
-		byte pbCipher[] = new byte[50];
-		byte pbPlain[] = new byte[16];
+		byte[] pbData1 = {(byte) 0x00, (byte) 0x01};
+		byte[] pbData2 = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09, (byte) 0x0A, (byte) 0x0B, (byte) 0x0C, (byte) 0x0D, (byte) 0x0E, (byte) 0x0F, (byte) 0x00, (byte) 0x01};
+		byte[] pbCipher = new byte[50];
+		byte[] pbPlain = new byte[16];
 
 		System.out.print("\n");
 		System.out.print("[ Test SEED reference code ECB ]" + "\n");
@@ -979,8 +979,8 @@ public class KISA_SEED_ECB {
 		int i;
 		int[] data;
 		byte[] cdata;
-		int nRetOutLeng[] = new int[]{0};
-		int nPaddingLeng[] = new int[]{0};
+		int[] nRetOutLeng = new int[]{0};
+		int[] nPaddingLeng = new int[]{0};
 		byte[] pbszPlainText = new byte[process_blockLeng];
 		int nPlainTextPadding = (BLOCK_SIZE_SEED - (PLAINTEXT_LENGTH) % BLOCK_SIZE_SEED);
 

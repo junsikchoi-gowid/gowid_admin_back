@@ -19,14 +19,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest(classes = UserApiApplication.class)
 public class FullTextJsonParserTests extends AbstractMockitoTest {
 
-    private FullTextJsonParser fullTextJsonParser;
-
     @Test
     @Order(1)
     @DisplayName("한글추출 테스트")
     void getOnlyKorLan() {
         log.info("start");
-        String result = fullTextJsonParser.getOnlyKorLan("남산성(NAM SAMUEL SANSUNG)");
+        String result = FullTextJsonParser.getOnlyKorLan("남산성(NAM SAMUEL SANSUNG)");
         log.info("result {}", result);
         log.info("end");
     }

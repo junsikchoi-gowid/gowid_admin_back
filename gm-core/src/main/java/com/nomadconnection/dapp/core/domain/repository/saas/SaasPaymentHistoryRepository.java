@@ -47,7 +47,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                                                  @Param("fromDt") String fromDt,
                                                  @Param("toDt") String toDt);
 
-    public static interface UsageSumsDto {
+    interface UsageSumsDto {
         String getPDate();
         Long getPSum();
     }
@@ -74,7 +74,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                                                 @Param("fromDt") String fromDt,
                                                 @Param("toDt") String toDt);
 
-    public static interface UsageSumsDetailsDto {
+    interface UsageSumsDetailsDto {
         String getName();
         Long getIdxSaasInfo();
         Long getPrice();
@@ -123,7 +123,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                                           @Param("fromDt") String fromDt,
                                           @Param("toDt") String toDt);
 
-    public static interface UsageCategoriesDto {
+    interface UsageCategoriesDto {
         Long getIdxSaasCategory();
         String getCategoryName();
         Long getCategorySum();
@@ -191,7 +191,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                     "ORDER BY b.psum DESC\n" +
                     "LIMIT 5", nativeQuery = true)
     List<BestPaymentTop5Dto> getBestPaymentTop5(@Param("idxUser") Long idxUser);
-    public static interface BestPaymentTop5Dto {
+    interface BestPaymentTop5Dto {
         Long getIdxSaasInfo();
         String getName();
         Long getbSum();
@@ -220,7 +220,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                     "ORDER BY count DESC\n" +
                     "LIMIT 5", nativeQuery = true)
     List<DuplicatePaymentDto> getDuplicatePaymentList(@Param("idxUser") Long idxUser);
-    public static interface DuplicatePaymentDto {
+    interface DuplicatePaymentDto {
         Long getIdxSaasInfo();
         String getName();
         Integer getCount();

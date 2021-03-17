@@ -204,7 +204,7 @@ public class LotteCardService {
 				.isVC(dto.getIsVC())
 				.isVerifiedVenture(dto.getIsVerifiedVenture())
 				.investor(investorName != null ? investorName : dto.getInvestorName())
-				.isExist(investorName != null ? true : false)
+				.isExist(investorName != null)
 				.build()
 		);
 
@@ -865,7 +865,7 @@ public class LotteCardService {
 					.engName(dto.getEngName())
 					.name(dto.getName())
 					.nationality(dto.getNation())
-					.isForeign("KR".equalsIgnoreCase(dto.getNation()) ? false : true)
+					.isForeign(!"KR".equalsIgnoreCase(dto.getNation()))
 					.phoneNumber(dto.getPhoneNumber())
 					.agencyCode(dto.getAgency())
 					.genderCode(dto.getGenderCode())
@@ -878,7 +878,7 @@ public class LotteCardService {
 			ceo.engName(dto.getEngName())
 					.name(dto.getName())
 					.nationality(dto.getNation())
-					.isForeign("KR".equalsIgnoreCase(dto.getNation()) ? false : true)
+					.isForeign(!"KR".equalsIgnoreCase(dto.getNation()))
 					.phoneNumber(dto.getPhoneNumber())
 					.agencyCode(dto.getAgency())
 					.genderCode(dto.getGenderCode())
@@ -998,9 +998,7 @@ public class LotteCardService {
                 return true;
 			} else {
 				idNum = Seed128.decryptEcb(idNum);
-				if (dto.getIdentificationNumberFront().substring(0, 6).equals(idNum.substring(0, 6))) {
-                    return true;
-				}
+				return dto.getIdentificationNumberFront().substring(0, 6).equals(idNum.substring(0, 6));
 			}
 		}
 

@@ -19,7 +19,7 @@ public class Lotte_Seed128 {
 	private final EnvUtil envUtil;
 
 	private static int SeedBlockSize = 16;    // block length in bytes
-	private static int RoundKey[] = new int[32];
+	private static int[] RoundKey = new int[32];
 	private static final byte PADDING_VALUE_00 = 0x00; // Null
 
 	static String charset = "EUC-KR";
@@ -75,8 +75,8 @@ public class Lotte_Seed128 {
 
 		int rt = inDataBuffer.length / SeedBlockSize;
 		for (int j = 0; j < rt; j++) {
-			byte sSource[] = new byte[SeedBlockSize];
-			byte sTarget[] = new byte[SeedBlockSize];
+			byte[] sSource = new byte[SeedBlockSize];
+			byte[] sTarget = new byte[SeedBlockSize];
 
 			System.arraycopy(inDataBuffer, (j * SeedBlockSize), sSource, 0, SeedBlockSize);
 			SEED_KISA.SeedEncrypt(sSource, RoundKey, sTarget);
@@ -101,8 +101,8 @@ public class Lotte_Seed128 {
 		byte[] decryptBytes = new byte[encryptBytes.length];
 		int rt = encryptBytes.length / SeedBlockSize;
 
-		byte sSource[] = new byte[SeedBlockSize];
-		byte sTarget[] = new byte[SeedBlockSize];
+		byte[] sSource = new byte[SeedBlockSize];
+		byte[] sTarget = new byte[SeedBlockSize];
 		for (int j = 0; j < rt; j++) {
 			System.arraycopy(encryptBytes, (j * SeedBlockSize), sSource, 0,
 					SeedBlockSize);
@@ -116,7 +116,7 @@ public class Lotte_Seed128 {
 
 	private static byte[] removePadding(byte[] sourceBytes, int nBlockSize,
 										String padMod) {
-		byte paddingResult[] = null;
+		byte[] paddingResult = null;
 		if (sourceBytes.length == 0 || nBlockSize < 1
 				|| sourceBytes.length < nBlockSize
 				|| sourceBytes.length % nBlockSize != 0) {
@@ -125,7 +125,7 @@ public class Lotte_Seed128 {
 
 		int lastindex = sourceBytes.length;
 		// byte lastByte = sourceBytes[lastindex-1];
-		byte lastByte = (("PKCS5".equals(padMod) ? sourceBytes[lastindex - 1] : (byte) PADDING_VALUE_00));
+		byte lastByte = (("PKCS5".equals(padMod) ? sourceBytes[lastindex - 1] : PADDING_VALUE_00));
 
 		while (lastindex > 0) {
 			if (sourceBytes[lastindex - 1] != lastByte) {
@@ -150,7 +150,7 @@ public class Lotte_Seed128 {
 
 	private static byte[] addPadding(byte[] sourceBytes, int nBlockSize,
 									 String padMod) {
-		byte paddingResult[] = null;
+		byte[] paddingResult = null;
 		if (sourceBytes.length == 0 || nBlockSize < 1) {
 			return null;
 		}
@@ -164,7 +164,7 @@ public class Lotte_Seed128 {
 		if (needBlankLength > 0) {
 			paddingResult = new byte[sourceBytes.length + needBlankLength];
 			System.arraycopy(sourceBytes, 0, paddingResult, 0, sourceBytes.length);
-			byte padByte = (("PKCS5".equals(padMod) ? (byte) needBlankLength : (byte) PADDING_VALUE_00));
+			byte padByte = (("PKCS5".equals(padMod) ? (byte) needBlankLength : PADDING_VALUE_00));
 			for (int i = 0; i < needBlankLength; i++) {
 				paddingResult[paddingResult.length - 1 - i] = padByte;
 			}
@@ -212,7 +212,7 @@ public class Lotte_Seed128 {
 
 		// Round keys for encryption or decryption
 		// User secret key
-		byte pbUserKey[] = new byte[]{(byte) 0x43, (byte) 0x50, (byte) 0x47, (byte) 0x57, (byte) 0x30, (byte) 0x37, (byte) 0x30, (byte) 0x32,
+		byte[] pbUserKey = new byte[]{(byte) 0x43, (byte) 0x50, (byte) 0x47, (byte) 0x57, (byte) 0x30, (byte) 0x37, (byte) 0x30, (byte) 0x32,
 				(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30};
 
 		// Derive roundkeys from user secret key

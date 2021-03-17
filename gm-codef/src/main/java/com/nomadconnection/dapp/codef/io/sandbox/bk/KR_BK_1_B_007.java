@@ -18,7 +18,7 @@ public class KR_BK_1_B_007 {
 
     public static String krbk1b007(
 
-    ) throws IOException, InterruptedException, ParseException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
+    ) throws IOException, InterruptedException, ParseException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
         // 요청 URL 설정
         String urlPath = CommonConstant.getRequestDomain() + CommonConstant.KR_BK_1_B_007;
 

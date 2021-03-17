@@ -255,7 +255,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
     @Query("select max(idx) from ResBatch where idxUser = :idxUser")
     Long getMaxIdx(@Param("idxUser") Long idxUser);
 
-    public static interface CResBatchDto {
+    interface CResBatchDto {
         String getMin();
         String getEndFlag();
         String getErrCode();
@@ -267,7 +267,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
         String getErrTypeCnt();
     }
 
-    public static interface CResYears {
+    interface CResYears {
         String getStartDay();
         String getEndDay();
         String getResAccount();
