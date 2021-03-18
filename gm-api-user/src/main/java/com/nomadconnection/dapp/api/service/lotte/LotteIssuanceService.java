@@ -129,7 +129,7 @@ public class LotteIssuanceService {
 			// 1200 전자서명값 제출
 			userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
 			proc1200(userCorp, resultOfD1100);
-			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
+			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
 
 			cardIssuanceInfoService.updateIssuanceStatus(userIdx, IssuanceStatus.APPLY);
 		} catch (Exception e){
