@@ -33,6 +33,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONTokener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
@@ -2096,7 +2098,7 @@ public class ScrapingService {
         return true;
     }
 
-    void scrapingBatchTaxInvoice(Long idxUser, Long idxResBatchParent) {
+    void scrapingBatchTaxInvoice(Long idxUser, Long idxResBatchParent) throws JSONException {
         User user = repoUser.findById(idxUser).get();
         Corp corp = repoCorp.findById(repoCorp.searchIdxCorp(idxUser)).get();
 
@@ -2109,7 +2111,7 @@ public class ScrapingService {
             //가져와야할 기간 추출 2년치 가져와야할 경우
             if(user != null && corp != null){
 
-                for(int i = 24 ; i > 0 ; i--) {
+                for(int i = 24 ; i >= 0 ; i--) {
                     YearMonth ym = YearMonth.from(LocalDate.now().minusMonths(i));
                     String startDate = ym.format(DateTimeFormatter.ofPattern("yyyyMM")) + "01";
                     String endDate = ym.atEndOfMonth().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -2127,7 +2129,16 @@ public class ScrapingService {
                                 corp.resCompanyIdentityNo());
 
                         if (strResult[0].get("code").toString().equals("CF-00000")) {
-                            saveTaxInvoice((JSONArray) strResult[1].get("data")
+
+                            log.debug(" save befo {}, {}", startDate, endDate);
+                            JSONArray jsonData = new JSONArray();
+                            if (strResult[1].get("data") instanceof List){
+                                jsonData = (JSONArray) strResult[1].get("data");
+                            }else{
+                                jsonData.add(strResult[1].get("data"));
+                            }
+
+                            saveTaxInvoice( jsonData
                                     , idxUser
                                     , corp.idx()
                                     , startDate
