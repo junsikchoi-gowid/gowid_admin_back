@@ -2,7 +2,6 @@ package com.nomadconnection.dapp.core.domain.embed;
 
 import lombok.*;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -14,9 +13,9 @@ import javax.persistence.Enumerated;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OtherServiceUsage {
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "varchar(20)  DEFAULT 'SETUP_COMPANY' COMMENT '지출관리 상태'")
-    private ExpenseStatus expenseStatus;
+    private ExpenseStatus expenseStatus = ExpenseStatus.SETUP_COMPANY;
 
     @Builder.Default
     private Boolean saasUsage = false; // SaaS 사용여부
