@@ -33,8 +33,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONTokener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
@@ -2098,7 +2096,7 @@ public class ScrapingService {
         return true;
     }
 
-    void scrapingBatchTaxInvoice(Long idxUser, Long idxResBatchParent) throws JSONException {
+    void scrapingBatchTaxInvoice(Long idxUser, Long idxResBatchParent) {
         User user = repoUser.findById(idxUser).get();
         Corp corp = repoCorp.findById(repoCorp.searchIdxCorp(idxUser)).get();
 
