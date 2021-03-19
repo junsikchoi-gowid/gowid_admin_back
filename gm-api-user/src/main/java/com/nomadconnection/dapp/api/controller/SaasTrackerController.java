@@ -57,6 +57,10 @@ public class SaasTrackerController {
 		// 사용중인 SaaS 정보 수정
 		public static final String INFO_DETAILS = "/infos/{idx}";
 
+		public static final String INFO_DETAILS_HISTORIES = "/infos/{idxSaasInfo}/histories";
+		public static final String INFO_DETAILS_CHARTS = "/infos/{idxSaasInfo}/charts";
+		public static final String INFO_DETAILS_PAYMENT_INFOS = "/payment-infos/{idxSaasPaymentInfo}";
+
 		// 결제 예정 목록
 		public static final String SCHEDULES = "/schedules";
 		public static final String SCHEDULES_CALENDAR = "/schedules/calendars";
@@ -231,6 +235,50 @@ public class SaasTrackerController {
 		}
 		return service.getSaasPaymentDetailInfo(user.idx(), idx);
 	}
+
+
+	@ApiOperation(value = "수단에 따른 SaaS 결제 내역 조회")
+	@GetMapping(URI.INFO_DETAILS_HISTORIES)
+	public ResponseEntity getSaasPaymentDetailHistories(@ApiIgnore @CurrentUser CustomUser user,
+														@PathVariable Long idxSaasInfo,
+														@RequestParam(required = false) Long idxSaasPaymentInfo,
+														@RequestParam(required = true) String fromDt,
+														@RequestParam(required = true) String toDt) {
+
+		if (log.isInfoEnabled()) {
+			log.info("([ getSaasPaymentDetailHistories ]) $user='{}' $idxSaasInfo='{}' idxSaaspaymentInfo='{}' fromDt='{}' toDt='{}'"
+					, user, idxSaasInfo, idxSaasPaymentInfo, fromDt, toDt);
+		}
+		return service.getSaasPaymentDetailHistories(user.idx(), idxSaasInfo, idxSaasPaymentInfo, fromDt, toDt);
+	}
+
+	@ApiOperation(value = "수단에 따른 SaaS 지출 추이 조회")
+	@GetMapping(URI.INFO_DETAILS_CHARTS)
+	public ResponseEntity getSaasPaymentDetailCharts(@ApiIgnore @CurrentUser CustomUser user,
+													 @PathVariable Long idxSaasInfo,
+													 @RequestParam(required = false) Long idxSaasPaymentInfo) {
+
+		if (log.isInfoEnabled()) {
+			log.info("([ getSaasPaymentDetailCharts ]) $user='{}' $idxSaasInfo='{}' $idxSaasPaymentInfo='{}'", user, idxSaasInfo, idxSaasPaymentInfo);
+		}
+		return service.getSaasPaymentDetailCharts(user.idx(), idxSaasInfo, idxSaasPaymentInfo);
+	}
+
+
+	@ApiOperation(value = "SaaS 결제 수단의 관리 정보 수정")
+	@PutMapping(URI.INFO_DETAILS_PAYMENT_INFOS)
+	public ResponseEntity updateSaasPaymentInfo(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@PathVariable Long idxSaasPaymentInfo,
+			@RequestBody @Valid SaasTrackerDto.UpdateSaasPaymentInfoReq req) {
+
+		if (log.isInfoEnabled()) {
+			log.info("([ updateSaasPaymentInfo ]) $user='{}' $idxSaasPaymentInfo='{}' $req='{}'", user, idxSaasPaymentInfo, req);
+		}
+		return service.updateSaasPaymentInfo(user.idx(), idxSaasPaymentInfo, req);
+	}
+
+
 
 	@ApiOperation("Insight 조회")
 	@GetMapping(URI.INSIGHTS)

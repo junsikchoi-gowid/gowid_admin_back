@@ -10,11 +10,24 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
 @Repository
 public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentHistory, Long> {
+
+    List<SaasPaymentHistory> findTop5ByUserOrderByPaymentDateDesc(User user);
+
+    List<SaasPaymentHistory> findAllByUserAndPaymentDateBetweenOrderByPaymentDateDesc(User user, String startDate, String endDate);
+
+    List<SaasPaymentHistory> findAllByUserAndSaasInfoOrderByPaymentDateDesc(User user, SaasInfo sassInfo);
+
+    Page<SaasPaymentHistory> findAllByUser(User user, Pageable pageable);
+
+    Page<SaasPaymentHistory> findAllByUserAndPaymentDateBetween(User user, String fromPaymentDate, String toPaymentDate, Pageable pageable);
+
+    List<SaasPaymentHistory> findAllByUserAndSaasInfoAndPaymentDateBetweenOrderByPaymentDateDesc(User user, SaasInfo saasInfo, String fromDt, String toDt);
 
     /**
      * 월별 총 SaaS 결제 금액 조회
@@ -42,15 +55,82 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                     "and idxSaasInfo = :idxSaasInfo \n" +
                     "and paymentDate between :fromDt and :toDt \n" +
                     "group by pdate", nativeQuery = true)
-    List<UsageSumsDto> getUsageSumsBySaasInfoIdx(@Param("idxUser") Long idxUser,
+    List<UsageSumsDto> getUsageSumsBySaasInfoIdxAll(@Param("idxUser") Long idxUser,
                                                  @Param("idxSaasInfo") Long idxSaasInfo,
                                                  @Param("fromDt") String fromDt,
                                                  @Param("toDt") String toDt);
 
-    interface UsageSumsDto {
+    @Query(value = "select left(paymentDate, 6) as pDate, \n" +
+                    "       sum(paymentPrice) as pSum \n" +
+                    "from SaasPaymentHistory\n" +
+                    "where idxUser = :idxUser \n" +
+                    "and idxSaasInfo = :idxSaasInfo \n" +
+                    "and paymentDate between :fromDt and :toDt \n" +
+                    "and organization = :organization \n" +
+                    "and accountNumber = :accountNumber \n" +
+                    "and cardNumber = :cardNumber \n" +
+                    "group by pdate", nativeQuery = true)
+    List<UsageSumsDto> getUsageSumsBySaasInfoIdx(@Param("idxUser") Long idxUser,
+                                                 @Param("idxSaasInfo") Long idxSaasInfo,
+                                                 @Param("fromDt") String fromDt,
+                                                 @Param("toDt") String toDt,
+                                                 @Param("organization") String organization,
+                                                 @Param("accountNumber") String accountNumber,
+                                                 @Param("cardNumber") String cardNumber);
+
+    @Query(value = "select ROUND(((IFNULL(b.psum, 0) - IFNULL(a.psum, 0)) / IFNULL(a.psum, 0) * 100),2) AS mom\n" +
+                    "from (select sum(paymentPrice) psum\n" +
+                    "from gowid.SaasPaymentHistory\n" +
+                    "where idxUser = :idxUser \n" +
+                    "and idxSaasInfo = :idxSaasInfo \n" +
+                    "and left(paymentDate, 6) = :beforeDate ) a,\n" +
+                    "     (select sum(paymentPrice) psum\n" +
+                    "from gowid.SaasPaymentHistory\n" +
+                    "where idxUser = :idxUser \n" +
+                    "and idxSaasInfo = :idxSaasInfo \n" +
+                    "and left(paymentDate, 6) = :searchDate ) b", nativeQuery = true)
+    String getPaymentMomAtMonthAll(@Param("idxUser") Long idxUser,
+                                @Param("idxSaasInfo") Long idxSaasInfo,
+                                @Param("beforeDate") String beforeDate,
+                                @Param("searchDate") String searchDate);
+
+    @Query(value = "select ROUND(((IFNULL(b.psum, 0) - IFNULL(a.psum, 0)) / IFNULL(a.psum, 0) * 100),2) AS mom\n" +
+                    "from (select sum(paymentPrice) psum\n" +
+                    "from gowid.SaasPaymentHistory\n" +
+                    "where idxUser = :idxUser \n" +
+                    "and idxSaasInfo = :idxSaasInfo \n" +
+                    "and organization = :organization \n" +
+                    "and accountNumber = :accountNumber \n" +
+                    "and cardNumber = :cardNumber \n" +
+                    "and left(paymentDate, 6) = :beforeDate ) a,\n" +
+                    "     (select sum(paymentPrice) psum\n" +
+                    "from gowid.SaasPaymentHistory\n" +
+                    "where idxUser = :idxUser \n" +
+                    "and idxSaasInfo = :idxSaasInfo \n" +
+                    "and organization = :organization \n" +
+                    "and accountNumber = :accountNumber \n" +
+                    "and cardNumber = :cardNumber \n" +
+                    "and left(paymentDate, 6) = :searchDate ) b", nativeQuery = true)
+    String getPaymentMomAtMonth(@Param("idxUser") Long idxUser,
+                                @Param("idxSaasInfo") Long idxSaasInfo,
+                                @Param("beforeDate") String beforeDate,
+                                @Param("searchDate") String searchDate,
+                                @Param("organization") String organization,
+                                @Param("accountNumber") String accountNumber,
+                                @Param("cardNumber") String cardNumber);
+
+    public static interface UsageSumsDto {
         String getPDate();
         Long getPSum();
     }
+
+    @Query(value = "select round(sum(paymentPrice) / 3) psumAvg \n" +
+                    "from gowid.SaasPaymentHistory \n" +
+                    "where idxUser = :idxUser \n" +
+                    "and paymentDate between :fromDt and :toDt", nativeQuery = true)
+    Long getUsageAvgAtMonth(@Param("idxUser") Long idxUser,
+                            @Param("fromDt") String fromDt,
+                            @Param("toDt") String toDt);
 
     /**
      * 해당 월 SaaS 결제 금액 조회
@@ -79,8 +159,6 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
         Long getIdxSaasInfo();
         Long getPrice();
     }
-
-    List<SaasPaymentHistory> findAllByUserAndPaymentDateBetweenOrderByPaymentDateDesc(User user, String startDate, String endDate);
 
     /**
      *
@@ -152,10 +230,6 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                                                         @Param("fromDt") String fromDt,
                                                         @Param("toDt") String toDt);
 
-
-    List<SaasPaymentHistory> findAllByUserAndSaasInfoOrderByPaymentDateDesc(User user, SaasInfo sassInfo);
-
-
     @Query(value = "SELECT \n" +
                     "    info.name,\n" +
                     "    hist.idxSaasInfo,\n" +
@@ -187,9 +261,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                     "    GROUP BY idxSaasInfo) b ON hist.idxSaasInfo = b.idxSaasInfo\n" +
                     "WHERE\n" +
                     "    idxUser = :idxUser AND b.psum IS NOT NULL\n" +
-                    "GROUP BY hist.idxSaasInfo\n" +
-                    "ORDER BY b.psum DESC\n" +
-                    "LIMIT 5", nativeQuery = true)
+                    "GROUP BY hist.idxSaasInfo", nativeQuery = true)
     List<BestPaymentTop5Dto> getBestPaymentTop5(@Param("idxUser") Long idxUser);
     interface BestPaymentTop5Dto {
         Long getIdxSaasInfo();
@@ -243,9 +315,4 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                     "ORDER BY paymentDate DESC\n" +
                     "LIMIT 5", nativeQuery = true)
     List<SaasPaymentHistory> findTop5ByUserIsNew(@Param("idxUser") Long idxUser);
-
-    Page<SaasPaymentHistory> findAllByUser(User user, Pageable pageable);
-
-    Page<SaasPaymentHistory> findAllByUserAndPaymentDateBetween(User user, String fromPaymentDate, String toPaymentDate, Pageable pageable);
-
 }

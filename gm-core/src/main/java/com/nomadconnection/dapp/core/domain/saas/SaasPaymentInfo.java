@@ -54,6 +54,15 @@ public class SaasPaymentInfo extends BaseTime {
     @Column(nullable = false, columnDefinition = "BIT COMMENT '중복 결제 여부'")
     private Boolean isDup;
 
+    @Column(columnDefinition = "VARCHAR(8) COMMENT '이용기한'")
+    private String expirationDate;
+
+    @Lob
+    private String memo;
+
+    @Column(nullable = false, columnDefinition = "BIT COMMENT '결제수단 사용 여부'")
+    private Boolean disabled;
+
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_SaaSPaymentInfo"))
     private User user;
