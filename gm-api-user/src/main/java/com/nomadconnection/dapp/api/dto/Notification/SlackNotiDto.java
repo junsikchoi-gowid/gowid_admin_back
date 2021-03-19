@@ -188,28 +188,6 @@ public class SlackNotiDto {
         /**
          * SaaS Tracker 제보하기 알림
          *
-         * @param req
-         * @return
-         */
-        public static String getSlackSaasTrackerUsageRequestMessage(SaasTrackerDto.SaasTrackerUsageReq req){
-            StringBuffer message = new StringBuffer();
-            message.append(">    - 회사명: ").append(req.getCompanyName()).append("\n")
-                   .append(">    - 담당자명: ").append(req.getManagerName()).append("\n")
-                   .append(">    - 이메일: ").append(req.getManagerEmail());
-
-            return SaasTrackerNotiReq.builder()
-                .title("*새로운 회사가 사용 신청했어요!*")
-//                .company(corp.resCompanyNm())
-//                .name(corp.user().name())
-//                .email(corp.user().email())
-                .message(message.toString())
-                .build()
-                .toString();
-        }
-
-        /**
-         * SaaS Tracker 제보하기 알림
-         *
          * @param corp
          * @param req
          * @return
