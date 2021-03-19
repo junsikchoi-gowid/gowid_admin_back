@@ -16,7 +16,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
 public class TokenDto {
 
 	@Slf4j
@@ -42,6 +41,7 @@ public class TokenDto {
 		TOKEN_TYPE,
 		IDX,
 		IDX_REFERENCE,
+		ROLE,
 	}
 
 	private TokenType tokenType;
@@ -52,12 +52,14 @@ public class TokenDto {
 	private Long idxReference;
 	private Date issuedAt;
 	private Date expiration;
+	private String role;
 
 	public TokenDto(Claims claims) {
 		issuer = claims.getIssuer();
 		identifier = claims.getSubject();
 		idx = claims.get(CustomClaim.IDX.name(), Long.class);
 		idxReference = claims.get(CustomClaim.IDX_REFERENCE.name(), Long.class);
+		role = claims.get(CustomClaim.ROLE.name(), String.class);
 		issuedAt = claims.getIssuedAt();
 		expiration = claims.getExpiration();
 		tokenType = TokenType.from(claims.get(CustomClaim.TOKEN_TYPE.name(), String.class));

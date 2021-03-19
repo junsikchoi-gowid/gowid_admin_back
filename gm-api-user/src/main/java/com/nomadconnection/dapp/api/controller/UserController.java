@@ -5,7 +5,10 @@ import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -42,6 +45,7 @@ public class UserController {
 		public static final String ENABLE = "/enable";
 		public static final String EVENTS = "/events";
 		public static final String OTHER_SERVICE = "/other-service";
+		public static final String MEMBERS = "/members";
 	}
 
 	private final UserService service;
@@ -80,6 +84,47 @@ public class UserController {
 			log.info("([ getUserInfo ]) $user='{}'", user);
 		}
 		return service.getUserInfo(user.idx());
+	}
+
+	@ApiOperation(value ="내부 API 멤버 추가")
+	@PostMapping(URI.MEMBERS)
+	public UserDto addMember(
+			@ApiIgnore @CurrentUser CustomUser user, @RequestBody UserDto.MemberRegister memberInfo
+	) {
+		if (log.isInfoEnabled()) {
+			log.info("([ addMember ]) $memberInfo='{}'", memberInfo);
+		}
+
+    	return service.addMember(user.idx(), memberInfo);
+	}
+
+	@ApiOperation(value ="내부 API 멤버 정보 수정")
+	@PatchMapping(URI.MEMBERS + "/{email}")
+	public ResponseEntity<?> modifyMember(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@PathVariable String email,
+			@RequestBody UserDto.MemberRegister memberInfo
+			) {
+		if (log.isInfoEnabled()) {
+			log.info("([ ModifyManager ]) $admin = {} $email = {} memberInfo='{}'", user.idx(), email, memberInfo.toString());
+		}
+
+		service.changeMemberInfo(user.idx(), email, memberInfo);
+		return ResponseEntity.ok().build();
+	}
+
+	@ApiOperation(value ="내부 API 멤버 삭제")
+	@DeleteMapping(URI.MEMBERS + "/{email}")
+	public ResponseEntity<?> removeMember(
+			@ApiIgnore @CurrentUser CustomUser user,
+			@PathVariable String email
+	) {
+		if (log.isInfoEnabled()) {
+			log.info("([ RemoveAccount ]) $admin = {} $email='{}'", user.idx(), email);
+		}
+
+		service.removeMember(user.idx(), email);
+		return ResponseEntity.ok().build();
 	}
 
 	@ApiOperation(
@@ -134,7 +179,7 @@ public class UserController {
 		return service.getBrandCorp(user.idx()); 
 	}
 
-	@Secured({"ROLE_MASTER","ROLE_ADMIN"})
+	@Secured({"ROLE_MASTER","ROLE_VIEWER"})
 	@ApiOperation(value = "Brand 회원가입 법인정보 추가정보")
 	@GetMapping(path = URI.REGISTRATION_CORP_BRANCH)
 	public ResponseEntity<CorpDto.CorpInfoDto> getBrandCorpBranch(@ApiIgnore @CurrentUser CustomUser user){

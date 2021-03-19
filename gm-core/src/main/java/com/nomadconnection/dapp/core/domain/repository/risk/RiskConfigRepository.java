@@ -15,6 +15,8 @@ import java.util.Optional;
 @Repository
 public interface RiskConfigRepository extends JpaRepository<RiskConfig, Long> {
 
+    Optional<RiskConfig> findByUser(User user);
+
     Optional<RiskConfig> findByUserAndEnabled(User user, boolean isEnabled);
 
     Optional<RiskConfig> findByCorpAndEnabled(Corp corp, boolean enabled);
@@ -29,4 +31,9 @@ public interface RiskConfigRepository extends JpaRepository<RiskConfig, Long> {
     @Modifying
     @Query("delete from RiskConfig  where idxCorp = :idxCorp")
     void deleteByCorpIdx(@Param("idxCorp") Long idxCorp);
+
+    @Transactional
+    @Modifying
+    @Query("delete from RiskConfig  where idxUser = :idxUser")
+    void deleteByIdxUser(@Param("idxUser") Long idxUser);
 }

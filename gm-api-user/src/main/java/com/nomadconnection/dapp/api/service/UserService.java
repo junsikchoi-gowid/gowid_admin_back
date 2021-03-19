@@ -35,6 +35,7 @@ import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.EventsRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
+import com.nomadconnection.dapp.core.domain.risk.Risk;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.user.Events;
 import com.nomadconnection.dapp.core.domain.user.Reception;
@@ -151,6 +152,103 @@ public class UserService {
 
 	public UserDto getUserInfo(Long idxUser) {
 		return UserDto.from(getUser(idxUser));
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public UserDto addMember(Long idxAdminUser, UserDto.MemberRegister member) {
+		Long idxCorp = getCorpIdx(idxAdminUser);
+		User adminUser = getUser(idxAdminUser);
+
+		Corp corp = repoCorp.findById(idxCorp)
+				.orElseThrow(() -> new BadRequestException(ErrorCode.Api.CORP_NOT_BUSINESS));
+		String plainPassword = member.getPassword();
+
+		User user = User.builder()
+				.consent(false)
+				.email(member.getEmail())
+				.password(encoder.encode(plainPassword))
+				.name(member.getName())
+				.mdn(null)
+				.reception(new UserReception(false, false))
+				.authentication(new Authentication())
+				.authorities(Collections.singleton(
+						repoAuthority.findByRole(member.getRole()).orElseThrow(
+								() -> new RuntimeException(member.getRole() + " NOT FOUND")
+						)))
+				.corpName(corp.resCompanyNm())
+				.cardCompany(adminUser.cardCompany())
+				.position(null)
+				.build();
+
+		user.corp(corp);
+		repoUser.save(user);
+
+		return UserDto.from(user);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public User changeMemberInfo(Long idxAdminUser, String email, UserDto.MemberRegister memberInfo) {
+		User adminUser = repoUser.findById(idxAdminUser).orElseThrow(() -> UserNotFoundException.builder().build());
+		User targetUser = findByEmail(email);
+
+		if(adminUser.corp().idx().equals(targetUser.corp().idx())) {
+			throw UserNotFoundException.builder().email(email).build();
+		}
+
+		if(memberInfo.getEmail() != null) {
+			targetUser.email(memberInfo.getEmail());
+		}
+
+		if(memberInfo.getName() != null) {
+			targetUser.name(memberInfo.getName());
+		}
+
+		if(memberInfo.getPassword() != null) {
+			targetUser.password(encoder.encode(memberInfo.getPassword()));
+		}
+
+		if(memberInfo.getRole() != null) {
+			targetUser.authorities(Collections.singleton(
+					repoAuthority.findByRole(memberInfo.getRole()).orElseThrow(
+							() -> new RuntimeException(memberInfo.getRole() + " NOT FOUND")
+					)));
+		}
+
+		return repoUser.save(targetUser);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public boolean removeMember(Long idxAdminUser, String email) {
+		log.info("[removeMember] to be deleted ({})", email);
+
+		try {
+			User adminUser = repoUser.findById(idxAdminUser).orElse(null);
+			User targetUser = findByEmail(email);
+			log.debug("admin {} targetUer {} {} ", adminUser.corp().idx(), targetUser.corp().idx(), targetUser.idx());
+			if(targetUser == null || !adminUser.corp().idx().equals(targetUser.corp().idx())) {
+				throw UserNotFoundException.builder().build();
+			}
+
+			// 사용자 관련 링크 제거
+			List<Risk> risks = repoRisk.findByUser(targetUser);
+			System.out.println(risks.toString());
+
+			for(Risk risk: risks) {
+				risk.user(null);
+			}
+
+			Optional<RiskConfig> riskConfig = repoRiskConfig.findByUser(targetUser);
+			if(riskConfig.isPresent()) {
+				riskConfig.get().user(null);
+			}
+
+			repoAuthority.deleteAll(targetUser.authorities());
+			repoUser.delete(targetUser);
+			return true;
+		} catch (Exception e) {
+			log.error("[removeMember] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
+			return false;
+		}
 	}
 
 	/**
@@ -401,11 +499,13 @@ public class UserService {
 					.account(dto.getEmail())
 					.build();
 		}
+		//	사용자 조회
+		String role = Role.ROLE_MASTER.name();
 
 		boolean corpMapping = StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = StringUtils.isEmpty(user.cardCompany());
 
-		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping);
+		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping, role);
 	}
 
 
@@ -685,6 +785,10 @@ public class UserService {
 			return null;
 		}
 		return !ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null;
+	}
+
+	private Corp getCorBpyRegistrationNumber(String registrationNumber) {
+		return repoCorp.findByResCompanyIdentityNo(registrationNumber).orElse(null);
 	}
 
 	/**
