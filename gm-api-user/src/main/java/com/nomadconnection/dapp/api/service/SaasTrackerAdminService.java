@@ -206,6 +206,7 @@ public class SaasTrackerAdminService {
 					.paymentScheduleDate(req.getPaymentScheduleDate())
 					.activeSubscription(req.getActiveSubscription())
 					.isDup(req.getIsDup())
+					.disabled(req.getDisabled())
 					.user(user)
 					.saasInfo(saasInfo)
 					.build();
@@ -265,6 +266,7 @@ public class SaasTrackerAdminService {
 			if(!StringUtils.isEmpty(req.getPaymentScheduleDate())) saasPaymentInfo.paymentScheduleDate(req.getPaymentScheduleDate());
 			if(!ObjectUtils.isEmpty(req.getActiveSubscription())) saasPaymentInfo.activeSubscription(req.getActiveSubscription());
 			if(!ObjectUtils.isEmpty(req.getIsDup())) saasPaymentInfo.isDup(req.getIsDup());
+			if(!ObjectUtils.isEmpty(req.getDisabled())) saasPaymentInfo.disabled(req.getDisabled());
 
 			log.info(">>>>> admin.updateSaasInfo.end");
 

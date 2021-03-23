@@ -178,6 +178,9 @@ public class SaasTrackerAdminDto {
 		@ApiModelProperty("중복 여부")
 		private Boolean isDup;
 
+		@ApiModelProperty("사용 여부")
+		private Boolean disabled;
+
 		public static SaasPaymentInfoRes from(SaasPaymentInfo saasPaymentInfo) {
 			if(saasPaymentInfo != null) {
 				return SaasPaymentInfoRes.builder()
@@ -196,6 +199,7 @@ public class SaasTrackerAdminDto {
 						.paymentScheduleDate(saasPaymentInfo.paymentScheduleDate())
 						.activeSubscription(saasPaymentInfo.activeSubscription())
 						.isDup(saasPaymentInfo.isDup())
+						.disabled(saasPaymentInfo.disabled())
 						.build();
 			}
 			return null;
@@ -300,6 +304,10 @@ public class SaasTrackerAdminDto {
 		@ApiModelProperty("중복 여부")
 		@NotNull(message = "중복 여부는 반드시 입력되어야 합니다.")
 		private Boolean isDup;
+
+		@ApiModelProperty("사용 여부")
+		@NotNull(message = "사용 여부는 반드시 입력되어야 합니다.")
+		private Boolean disabled;
 	}
 
 	@Data
