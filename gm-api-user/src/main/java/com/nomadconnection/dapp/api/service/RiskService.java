@@ -350,14 +350,14 @@ public class RiskService {
 		Risk risk = saveRiskData(idxUser, idxCorp, calcDate);
 
 		try{
-			D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(risk.corp().user().idx())
+			String cardLimitNow = String.valueOf(Math.round(risk.cardLimitNow()));
+			D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(risk.corp().idx())
 					.orElseThrow(() -> CorpNotRegisteredException.builder().build());
-			repoD1000.save(d1000);
+			d1000.setD050(cardLimitNow);
 
-			D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(risk.corp().user().idx())
+			D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(risk.corp().idx())
 					.orElseThrow(() -> CorpNotRegisteredException.builder().build());
-			d1400.setD014(String.valueOf(Math.round(risk.cardLimit())));
-			repoD1400.save(d1400);
+			d1400.setD014(cardLimitNow);
 		}catch (Exception e){
 			log.error("[saveRisk45] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
 		}
