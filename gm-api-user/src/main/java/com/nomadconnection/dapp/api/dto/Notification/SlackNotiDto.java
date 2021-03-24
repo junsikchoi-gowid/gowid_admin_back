@@ -230,7 +230,7 @@ public class SlackNotiDto {
          */
         public static String getSlackSaasTrackerMessage(Corp corp){
             return SaasTrackerNotiReq.builder()
-                    .title("*새로운 회사가 준비를 완료했습니다!*")
+                    .title("*새로운 회사가 결제수단 연동을 완료했습니다!*")
                     .company(corp.resCompanyNm())
                     .name(corp.user().name())
                     .email(corp.user().email())
