@@ -19,10 +19,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.SaasTrackerNotiReq.getSlackSaasTrackerMessage;
@@ -165,10 +162,22 @@ public class SaasTrackerService {
 			SaasTrackerDto.UsageSumsRes usageSumsRes = new SaasTrackerDto.UsageSumsRes();
 
 			// 1. 월별 결제 금액
-			List<SaasTrackerDto.UsageSumsByPaymentRes> usageSumsByPaymentList =
-					repoSaasPaymentHistory.getUsageSums(userIdx, fromDt + "01", toDt + "31")
-							.stream().map(SaasTrackerDto.UsageSumsByPaymentRes::from).collect(Collectors.toList());
-			usageSumsRes.setPaymentList(usageSumsByPaymentList);
+			List<SaasTrackerDto.UsageSumsByPaymentRes> usageSumsByPaymentRes = new ArrayList<>();
+			List<SaasPaymentHistoryRepository.UsageSumsDto> usageSums =
+				repoSaasPaymentHistory.getUsageSums(userIdx, fromDt + "01", toDt + "31");
+			Map<String, Long> usageSumsMap = usageSums.stream().collect(Collectors.toMap(SaasPaymentHistoryRepository.UsageSumsDto::getPDate, SaasPaymentHistoryRepository.UsageSumsDto::getPSum));
+
+			String tempToDt = CommonUtil.addMonths(toDt, 1);
+			while(!fromDt.equals(tempToDt)) {
+				SaasTrackerDto.UsageSumsByPaymentRes tempUsageSum = new SaasTrackerDto.UsageSumsByPaymentRes();
+				tempUsageSum.setPdate(fromDt);
+				tempUsageSum.setPsum(ObjectUtils.isEmpty(usageSumsMap.get(fromDt)) ? 0 : usageSumsMap.get(fromDt));
+				usageSumsByPaymentRes.add(tempUsageSum);
+
+				fromDt = CommonUtil.addMonths(fromDt, 1);
+			}
+			usageSumsRes.setPaymentList(usageSumsByPaymentRes);
+
 
 			// 2. 예상 결제 금액(toDt, toDt+1) total :2
 			List<SaasTrackerDto.UsageSumsByPaymentRes> usageSumsByForecastList = new ArrayList<>();
