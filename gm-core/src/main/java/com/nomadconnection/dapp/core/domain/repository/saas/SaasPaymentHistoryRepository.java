@@ -10,9 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Repository
 public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentHistory, Long> {
@@ -25,7 +23,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
 
     Page<SaasPaymentHistory> findAllByUser(User user, Pageable pageable);
 
-    Page<SaasPaymentHistory> findAllByUserAndPaymentDateBetween(User user, String fromPaymentDate, String toPaymentDate, Pageable pageable);
+    Page<SaasPaymentHistory> findAllByUserAndPaymentDateBetweenOrderByPaymentDateDesc(User user, String fromPaymentDate, String toPaymentDate, Pageable pageable);
 
     List<SaasPaymentHistory> findAllByUserAndSaasInfoAndPaymentDateBetweenOrderByPaymentDateDesc(User user, SaasInfo saasInfo, String fromDt, String toDt);
 

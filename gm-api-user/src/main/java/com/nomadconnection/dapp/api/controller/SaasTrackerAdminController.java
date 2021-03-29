@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.dto.SaasTrackerAdminDto;
-import com.nomadconnection.dapp.api.dto.SaasTrackerDto;
 import com.nomadconnection.dapp.api.service.SaasTrackerAdminService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -32,8 +31,10 @@ public class SaasTrackerAdminController {
         // Base
         public static final String BASE = "/admin/v1/saas/tracker";
 
-        // (공통) SaaS tracker User 조회
+        // SaaS tracker User 관리
         public static final String SAAS_TRACKER_USER = "/users";
+        public static final String SAAS_TRACKER_FIND_USER = "/find-users";
+        public static final String SAAS_TRACKER_USER_DETAIL = "/users/{idxUser}";
 
         // SaaS 지출 내역(Rule #1) 관리
         public static final String SAAS_PAYMENT_HISTORY = "/payment/histories";
@@ -59,18 +60,52 @@ public class SaasTrackerAdminController {
         return service.getSaasTrackerUser(user.idx());
     }
 
+    @ApiOperation("SaaS Tracker 사용을 위한 사용자 조회")
+    @GetMapping(URI.SAAS_TRACKER_FIND_USER)
+    public ResponseEntity findUserAtSaasTracker(@ApiIgnore @CurrentUser CustomUser user,
+                                                @RequestParam(required = true) String email) {
+        if (log.isInfoEnabled()) {
+            log.info("([ admin.findUserAtSaasTracker ]) $email='{}'", email);
+        }
+        return service.findUserAtSaasTracker(email);
+    }
+
+    @ApiOperation("SaaS Tracker 사용자 등록")
+    @PostMapping(URI.SAAS_TRACKER_USER)
+    public ResponseEntity saveSaasTrackerUser(@ApiIgnore @CurrentUser CustomUser user,
+                                              @RequestBody @Valid SaasTrackerAdminDto.SaasTrackerUserReq req) {
+
+        if (log.isDebugEnabled()) {
+            log.info("([saveSaasTrackerUser]) $req='{}'", req.toString());
+        }
+        return service.saveSaasTrackerUser(req);
+    }
+
+    @ApiOperation("SaaS Tracker 사용자 권한 수정")
+    @PutMapping(URI.SAAS_TRACKER_USER_DETAIL)
+    public ResponseEntity updateSaasTrackerUser(@ApiIgnore @CurrentUser CustomUser user,
+                                                @PathVariable Long idxUser,
+                                                @RequestBody @Valid SaasTrackerAdminDto.SaasTrackerUserUpdateReq req) {
+
+        if (log.isDebugEnabled()) {
+            log.info("([updateSaasTrackerUser]) $idxUser='{}' $req='{}'", idxUser, req.toString());
+        }
+        return service.updateSaasTrackerUser(idxUser, req);
+    }
+
+
     @ApiOperation("SaaS 지출 내역 조회")
     @GetMapping(URI.SAAS_PAYMENT_HISTORY)
     public ResponseEntity getSaasPaymentHistories(@ApiIgnore @CurrentUser CustomUser user,
                                                   @RequestParam(required = true) Long idxUser,
-                                                  @RequestParam(required = false) String fromPaymentDate,
-                                                  @RequestParam(required = false) String toPaymentDate,
+                                                  @RequestParam(required = false) String from,
+                                                  @RequestParam(required = false) String to,
                                                   @PageableDefault Pageable pageable) {
         if (log.isInfoEnabled()) {
             log.info("([ admin.getSaasPaymentHistories ]) $idxUser='{}', fromPaymentDate='{}', toPaymentDate='{}'"
-                    , idxUser, fromPaymentDate, toPaymentDate);
+                    , idxUser, from, to);
         }
-        return service.getSaasPaymentHistories(idxUser, fromPaymentDate, toPaymentDate, pageable);
+        return service.getSaasPaymentHistories(idxUser, from, to, pageable);
     }
 
     @ApiOperation("SaaS 지출 내역 상세 조회")
