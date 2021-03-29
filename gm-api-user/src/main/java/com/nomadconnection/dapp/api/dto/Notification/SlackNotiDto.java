@@ -167,27 +167,46 @@ public class SlackNotiDto {
         private String message;
 
         /**
+         * SaaS Tracker 사용 신청
+         *
+         * @param req
+         * @return
+         */
+        public static String getSlackSaasTrackerUsageRequestMessage(SaasTrackerDto.SaasTrackerUsageReq req){
+            StringBuffer message = new StringBuffer();
+            message.append(">    - 회사명: ").append(req.getCompanyName()).append("\n")
+                .append(">    - 담당자명: ").append(req.getManagerName()).append("\n")
+                .append(">    - 이메일: ").append(req.getManagerEmail());
+
+            return SaasTrackerNotiReq.builder()
+                .title("*새로운 회사가 사용 신청했어요!*")
+                .message(message.toString())
+                .build()
+                .toString();
+        }
+
+        /**
          * SaaS Tracker 제보하기 알림
          *
          * @param corp
-         * @param dto
+         * @param req
          * @return
          */
-        public static String getSlackSaasTrackerMessage(Corp corp, SaasTrackerDto.SaasTrackerReportsReq dto){
+        public static String getSlackSaasTrackerMessage(Corp corp, SaasTrackerDto.SaasTrackerReportsReq req){
             StringBuffer message = new StringBuffer();
-            switch(dto.getReportType()) {
+            switch(req.getReportType()) {
                 case 1:         // 항목 미표시
-                    message.append(">    - SaaS 이름: ").append(dto.getSaasName()).append("\n")
-                            .append(">    - 결제 수단: ").append(dto.getPaymentMethod() == 1 ? "신용카드" : "계좌이체").append("\n")
-                            .append(">    - 최근 결제 금액: ").append(dto.getPaymentPrice());
+                    message.append(">    - SaaS 이름: ").append(req.getSaasName()).append("\n")
+                            .append(">    - 결제 수단: ").append(req.getPaymentMethod() == 1 ? "신용카드" : "계좌이체").append("\n")
+                            .append(">    - 최근 결제 금액: ").append(req.getPaymentPrice());
                     break;
                 case 2:         // 정보 불일치
-                    message.append(">    ").append(dto.getIssue());
+                    message.append(">    ").append(req.getIssue());
                     break;
                 case 3:         // 무료 이용중인 항목
-                    message.append(">    - SaaS 이름: ").append(dto.getSaasName()).append("\n")
-                            .append(">    - 무료 사용 만료일: ").append(dto.getExperationDate()).append("\n")
-                            .append(">    - 만료 알림 여부: ").append(dto.getActiveExperationAlert() ? "알림" : "미알림");
+                    message.append(">    - SaaS 이름: ").append(req.getSaasName()).append("\n")
+                            .append(">    - 무료 사용 만료일: ").append(req.getExperationDate()).append("\n")
+                            .append(">    - 만료 알림 여부: ").append(req.getActiveExperationAlert() ? "알림" : "미알림");
                     break;
                 default:
                     break;
@@ -211,7 +230,7 @@ public class SlackNotiDto {
          */
         public static String getSlackSaasTrackerMessage(Corp corp){
             return SaasTrackerNotiReq.builder()
-                    .title("*새로운 회사가 준비를 완료했습니다!*")
+                    .title("*새로운 회사가 결제수단 연동을 완료했습니다!*")
                     .company(corp.resCompanyNm())
                     .name(corp.user().name())
                     .email(corp.user().email())
@@ -222,11 +241,16 @@ public class SlackNotiDto {
         @Override
         public String toString() {
             StringBuffer sb = new StringBuffer();
-            sb.append(">").append(title).append("\n").append(">").append("\n")
-                    .append(">• 회사명 : ").append(company).append("\n")
-                    .append(">• 사용자 : ").append(name).append("(").append(email).append(")").append("\n");
+            sb.append(">").append(title).append("\n").append(">").append("\n");
+
+            if(!StringUtils.isEmpty(company)) {
+                sb.append(">• 회사명 : ").append(company).append("\n");
+            }
+            if(!StringUtils.isEmpty(name)) {
+                sb.append(">• 사용자 : ").append(name).append("(").append(email).append(")").append("\n");
+            }
             if(!StringUtils.isEmpty(message)) {
-                sb.append(">• 제보내용 : ").append("\n").append(message);
+                sb.append(">• 내용 : ").append("\n").append(message);
             }
             return sb.toString();
         }

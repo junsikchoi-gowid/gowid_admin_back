@@ -44,7 +44,7 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 
 	List<ConnectedMng> findByIdxUserAndType(Long idxUser, String type);
 
-    public static interface ConnectedMngDto {
+    interface ConnectedMngDto {
 		Long getIdx();
 		String getConnectedId();
 		Long getIdxUser();

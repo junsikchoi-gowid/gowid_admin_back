@@ -14,6 +14,8 @@ import java.util.List;
 public interface ConsentMappingRepository extends JpaRepository<ConsentMapping, Long> {
     ConsentMapping findTopByIdxUserAndIdxConsentOrderByIdxDesc(Long idxUser, Long idxConsent);
 
+    ConsentMapping findByIdxUserAndIdxConsent(Long idxUser, Long idxConsent);
+
     List<ConsentMapping> findAllByIdxUser(Long idxUser);
 
     @Transactional

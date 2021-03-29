@@ -25,7 +25,7 @@ public interface SaasCategoryRepository extends JpaRepository<SaasCategory, Long
     List<SaasCategoryRepository.UseSaasByCategoryDto> getUseSaasByCategoryId(@Param("idxUser") Long idxUser,
                                                                              @Param("idxSaasCategory") Long idxSaasCategory);
 
-    public static interface UseSaasByCategoryDto {
+    interface UseSaasByCategoryDto {
         Long getIdxSaasInfo();
         String getName();
         String getImageName();

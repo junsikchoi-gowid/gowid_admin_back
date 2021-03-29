@@ -14,7 +14,7 @@ package com.nomadconnection.dapp.core.encryption.lotte.core;
 /********************************* S-box table ********************************/
 
 public class SEED_KISA {
-	private static int SS0[] = {
+	private static int[] SS0 = {
 			0x2989a1a8, 0x05858184, 0x16c6d2d4, 0x13c3d3d0, 0x14445054, 0x1d0d111c, 0x2c8ca0ac, 0x25052124,
 			0x1d4d515c, 0x03434340, 0x18081018, 0x1e0e121c, 0x11415150, 0x3cccf0fc, 0x0acac2c8, 0x23436360,
 			0x28082028, 0x04444044, 0x20002020, 0x1d8d919c, 0x20c0e0e0, 0x22c2e2e0, 0x08c8c0c8, 0x17071314,
@@ -49,7 +49,7 @@ public class SEED_KISA {
 			0x28c8e0e8, 0x1b0b1318, 0x05050104, 0x39497178, 0x10809090, 0x2a4a6268, 0x2a0a2228, 0x1a8a9298
 	};
 
-	private static int SS1[] = {
+	private static int[] SS1 = {
 			0x38380830, 0xe828c8e0, 0x2c2d0d21, 0xa42686a2, 0xcc0fcfc3, 0xdc1eced2, 0xb03383b3, 0xb83888b0,
 			0xac2f8fa3, 0x60204060, 0x54154551, 0xc407c7c3, 0x44044440, 0x6c2f4f63, 0x682b4b63, 0x581b4b53,
 			0xc003c3c3, 0x60224262, 0x30330333, 0xb43585b1, 0x28290921, 0xa02080a0, 0xe022c2e2, 0xa42787a3,
@@ -84,7 +84,7 @@ public class SEED_KISA {
 			0xd819c9d1, 0x4c0c4c40, 0x80038383, 0x8c0f8f83, 0xcc0ecec2, 0x383b0b33, 0x480a4a42, 0xb43787b3
 	};
 
-	private static int SS2[] = {
+	private static int[] SS2 = {
 			0xa1a82989, 0x81840585, 0xd2d416c6, 0xd3d013c3, 0x50541444, 0x111c1d0d, 0xa0ac2c8c, 0x21242505,
 			0x515c1d4d, 0x43400343, 0x10181808, 0x121c1e0e, 0x51501141, 0xf0fc3ccc, 0xc2c80aca, 0x63602343,
 			0x20282808, 0x40440444, 0x20202000, 0x919c1d8d, 0xe0e020c0, 0xe2e022c2, 0xc0c808c8, 0x13141707,
@@ -119,7 +119,7 @@ public class SEED_KISA {
 			0xe0e828c8, 0x13181b0b, 0x01040505, 0x71783949, 0x90901080, 0x62682a4a, 0x22282a0a, 0x92981a8a
 	};
 
-	private static int SS3[] = {
+	private static int[] SS3 = {
 			0x08303838, 0xc8e0e828, 0x0d212c2d, 0x86a2a426, 0xcfc3cc0f, 0xced2dc1e, 0x83b3b033, 0x88b0b838,
 			0x8fa3ac2f, 0x40606020, 0x45515415, 0xc7c3c407, 0x44404404, 0x4f636c2f, 0x4b63682b, 0x4b53581b,
 			0xc3c3c003, 0x42626022, 0x03333033, 0x85b1b435, 0x09212829, 0x80a0a020, 0xc2e2e022, 0x87a3a427,
@@ -185,22 +185,22 @@ public class SEED_KISA {
 	/****************************** Common functions ******************************/
 
 	private static int GetB0(int A) {
-		return (int) (0x000000ff & (A));
+		return 0x000000ff & (A);
 	}
 
 	private static int GetB1(int A) {
-		return (int) (0x000000ff & ((A) >>> 8));
+		return 0x000000ff & ((A) >>> 8);
 	}
 
 	private static int GetB2(int A) {
-		return (int) (0x000000ff & ((A) >>> 16));
+		return 0x000000ff & ((A) >>> 16);
 	}
 
 	private static int GetB3(int A) {
-		return (int) (0x000000ff & ((A) >>> 24));
+		return 0x000000ff & ((A) >>> 24);
 	}
 
-	private static void EndianChange(int dws[]) {
+	private static void EndianChange(int[] dws) {
 		dws[0] = (dws[0] >>> 24) | (dws[0] << 24) | ((dws[0] << 8) & 0x00ff0000) | ((dws[0] >>> 8) & 0x0000ff00);
 	}
 
@@ -212,9 +212,9 @@ public class SEED_KISA {
 	/***************************** SEED round function ****************************/
 
 	private static void SeedRound(
-			int L0[], int L1[],            // [in, out] left-side variable at each round
-			int R0[], int R1[],            // [in] right-side variable at each round
-			int K[])                                    // [in] round keys at each round
+		int[] L0, int[] L1,            // [in, out] left-side variable at each round
+		int[] R0, int[] R1,            // [in] right-side variable at each round
+		int[] K)                                    // [in] round keys at each round
 	{
 		int T0, T1;
 		long T00 = 0, T11 = 0;
@@ -243,19 +243,19 @@ public class SEED_KISA {
 	/************************** SEED encrtyption function *************************/
 
 	public static void SeedEncrypt(
-			byte pbData[],                    // [in] data to be encrypted
-			int pdwRoundKey[],            // [in] round keys for encryption
-			byte outData[])                    // [out] encrypted data
+		byte[] pbData,                    // [in] data to be encrypted
+		int[] pdwRoundKey,            // [in] round keys for encryption
+		byte[] outData)                    // [out] encrypted data
 	{
-		int L0[] = new int[1];
-		int L1[] = new int[1];
-		int R0[] = new int[1];
-		int R1[] = new int[1];
+		int[] L0 = new int[1];
+		int[] L1 = new int[1];
+		int[] R0 = new int[1];
+		int[] R1 = new int[1];
 		L0[0] = 0x0;
 		L1[0] = 0x0;
 		R0[0] = 0x0;
 		R1[0] = 0x0;
-		int K[] = new int[2];
+		int[] K = new int[2];
 		int nCount = 0;
 
 // Set up input values for encryption	  
@@ -359,15 +359,15 @@ public class SEED_KISA {
 
 // Same as encrypt, except that round keys are applied in reverse order
 	public static void SeedDecrypt(
-			byte pbData[],                    // [in] encrypted data
-			int pdwRoundKey[],            // [in] round keys for decryption
-			byte outData[])                    // [out] data to be encrypted
+		byte[] pbData,                    // [in] encrypted data
+		int[] pdwRoundKey,            // [in] round keys for decryption
+		byte[] outData)                    // [out] data to be encrypted
 	{
-		int L0[] = new int[1];
-		int L1[] = new int[1];
-		int R0[] = new int[1];
-		int R1[] = new int[1];
-		int K[] = new int[2];
+		int[] L0 = new int[1];
+		int[] L1 = new int[1];
+		int[] R0 = new int[1];
+		int[] R1 = new int[1];
+		int[] K = new int[2];
 		L0[0] = 0x0;
 		L1[0] = 0x0;
 		R0[0] = 0x0;
@@ -471,42 +471,42 @@ public class SEED_KISA {
 
 	/************************ Functions for Key schedule **************************/
 
-	private static void EncRoundKeyUpdate0(int K[], int A[], int B[], int C[], int D[], int Z) {
+	private static void EncRoundKeyUpdate0(int[] K, int[] A, int[] B, int[] C, int[] D, int Z) {
 		int T0, T1;
 		int T00, T11;
 		T0 = A[0];
 		A[0] = (A[0] >>> 8) ^ (B[0] << 24);
 		B[0] = (B[0] >>> 8) ^ (T0 << 24);
-		T00 = (int) A[0] + (int) C[0] - (int) KC[Z];
-		T11 = (int) B[0] + (int) KC[Z] - (int) D[0];
-		K[0] = SS0[GetB0((int) T00)] ^ SS1[GetB1((int) T00)] ^ SS2[GetB2((int) T00)] ^ SS3[GetB3((int) T00)];
-		K[1] = SS0[GetB0((int) T11)] ^ SS1[GetB1((int) T11)] ^ SS2[GetB2((int) T11)] ^ SS3[GetB3((int) T11)];
+		T00 = A[0] + C[0] - KC[Z];
+		T11 = B[0] + KC[Z] - D[0];
+		K[0] = SS0[GetB0(T00)] ^ SS1[GetB1(T00)] ^ SS2[GetB2(T00)] ^ SS3[GetB3(T00)];
+		K[1] = SS0[GetB0(T11)] ^ SS1[GetB1(T11)] ^ SS2[GetB2(T11)] ^ SS3[GetB3(T11)];
 	}
 
-	private static void EncRoundKeyUpdate1(int K[], int A[], int B[], int C[], int D[], int Z) {
+	private static void EncRoundKeyUpdate1(int[] K, int[] A, int[] B, int[] C, int[] D, int Z) {
 		int T0, T1;
 		int T00, T11;
 		T0 = C[0];
 		C[0] = (C[0] << 8) ^ (D[0] >>> 24);
 		D[0] = (D[0] << 8) ^ (T0 >>> 24);
-		T00 = (int) A[0] + (int) C[0] - (int) KC[Z];
-		T11 = (int) B[0] + (int) KC[Z] - (int) D[0];
-		K[0] = SS0[GetB0((int) T00)] ^ SS1[GetB1((int) T00)] ^ SS2[GetB2((int) T00)] ^ SS3[GetB3((int) T00)];
-		K[1] = SS0[GetB0((int) T11)] ^ SS1[GetB1((int) T11)] ^ SS2[GetB2((int) T11)] ^ SS3[GetB3((int) T11)];
+		T00 = A[0] + C[0] - KC[Z];
+		T11 = B[0] + KC[Z] - D[0];
+		K[0] = SS0[GetB0(T00)] ^ SS1[GetB1(T00)] ^ SS2[GetB2(T00)] ^ SS3[GetB3(T00)];
+		K[1] = SS0[GetB0(T11)] ^ SS1[GetB1(T11)] ^ SS2[GetB2(T11)] ^ SS3[GetB3(T11)];
 	}
 
 
 	/******************************** Key Schedule ********************************/
 
 	public static void SeedRoundKey(
-			int pdwRoundKey[],            // [out] round keys for encryption or decryption
-			byte pbUserKey[])                // [in]	secret user key
+		int[] pdwRoundKey,            // [out] round keys for encryption or decryption
+		byte[] pbUserKey)                // [in]	secret user key
 	{
-		int A[] = new int[1];
-		int B[] = new int[1];
-		int C[] = new int[1];
-		int D[] = new int[1];
-		int K[] = new int[2];
+		int[] A = new int[1];
+		int[] B = new int[1];
+		int[] C = new int[1];
+		int[] D = new int[1];
+		int[] K = new int[2];
 		int T0, T1;
 		int nCount = 2;
 
@@ -539,11 +539,11 @@ public class SEED_KISA {
 			D[0] = EndianChange(D[0]);
 		}
 
-		T0 = (int) A[0] + (int) C[0] - (int) KC[0];
-		T1 = (int) B[0] - (int) D[0] + (int) KC[0];
+		T0 = A[0] + C[0] - KC[0];
+		T1 = B[0] - D[0] + KC[0];
 
-		pdwRoundKey[0] = SS0[GetB0((int) T0)] ^ SS1[GetB1((int) T0)] ^ SS2[GetB2((int) T0)] ^ SS3[GetB3((int) T0)];
-		pdwRoundKey[1] = SS0[GetB0((int) T1)] ^ SS1[GetB1((int) T1)] ^ SS2[GetB2((int) T1)] ^ SS3[GetB3((int) T1)];
+		pdwRoundKey[0] = SS0[GetB0(T0)] ^ SS1[GetB1(T0)] ^ SS2[GetB2(T0)] ^ SS3[GetB3(T0)];
+		pdwRoundKey[1] = SS0[GetB0(T1)] ^ SS1[GetB1(T1)] ^ SS2[GetB2(T1)] ^ SS3[GetB3(T1)];
 
 		EncRoundKeyUpdate0(K, A, B, C, D, 1);
 		pdwRoundKey[nCount++] = K[0];

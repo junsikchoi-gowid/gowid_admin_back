@@ -1,23 +1,19 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.api.util.CommonUtil;
-import com.nomadconnection.dapp.core.domain.repository.saas.SaasCategoryRepository;
-import com.nomadconnection.dapp.core.domain.repository.saas.SaasPaymentHistoryRepository;
-import com.nomadconnection.dapp.core.domain.repository.saas.SaasPaymentInfoRepository;
+import com.nomadconnection.dapp.core.domain.repository.saas.SaasTrackerProgressRepository;
 import com.nomadconnection.dapp.core.domain.saas.SaasOrganizationType;
 import com.nomadconnection.dapp.core.domain.saas.SaasPaymentHistory;
 import com.nomadconnection.dapp.core.domain.saas.SaasPaymentInfo;
-import com.nomadconnection.dapp.core.domain.saas.SaasTrackerProgress;
+import com.nomadconnection.dapp.core.domain.user.User;
+import com.nomadconnection.dapp.core.utils.DateUtils;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 public class SaasTrackerAdminDto {
 
@@ -29,6 +25,9 @@ public class SaasTrackerAdminDto {
 
 		@ApiModelProperty("idxUser")
 		private Long idxUser;
+
+		@ApiModelProperty("idxCorp")
+		private Long idxCorp;
 
 		@ApiModelProperty("회사명")
 		private String companyName;
@@ -48,16 +47,25 @@ public class SaasTrackerAdminDto {
 		@ApiModelProperty("진행단계")
 		private Integer step;
 
-		public static SaasTrackerUserRes from(SaasTrackerProgress saasTrackerProgress) {
-			if(saasTrackerProgress != null) {
+		@ApiModelProperty("최초 생성일")
+		private String createdAt;
+
+		@ApiModelProperty("최종 수정일")
+		private String updatedAt;
+
+		public static SaasTrackerUserRes from(SaasTrackerProgressRepository.SaasTrackerUserDto saasTrackerUser) {
+			if(saasTrackerUser != null) {
 				return SaasTrackerUserRes.builder()
-						.idxUser(saasTrackerProgress.user().idx())
-						.companyName(ObjectUtils.isEmpty(saasTrackerProgress.user().corp()) ? null : saasTrackerProgress.user().corp().resCompanyNm())
-						.userName(saasTrackerProgress.user().name())
-						.email(saasTrackerProgress.user().email())
-						.processDate(saasTrackerProgress.processDate())
-						.status(saasTrackerProgress.status())
-						.step(saasTrackerProgress.step())
+						.idxUser(saasTrackerUser.getIdxUser())
+						.idxCorp(saasTrackerUser.getIdxCorp())
+						.companyName(saasTrackerUser.getCompanyName())
+						.userName(saasTrackerUser.getUserName())
+						.email(saasTrackerUser.getEmail())
+						.processDate(StringUtils.isEmpty(saasTrackerUser.getProcessDate()) ? "" : DateUtils.convertDateFormat(saasTrackerUser.getProcessDate(), DateUtils.DATE_FORMAT_YYYY_MM_DD))
+						.status(saasTrackerUser.getStatus())
+						.step(saasTrackerUser.getStep())
+						.createdAt(saasTrackerUser.getCreatedAt())
+						.updatedAt(saasTrackerUser.getUpdatedAt())
 						.build();
 			}
 			return null;
@@ -178,6 +186,9 @@ public class SaasTrackerAdminDto {
 		@ApiModelProperty("중복 여부")
 		private Boolean isDup;
 
+		@ApiModelProperty("사용 여부")
+		private Boolean disabled;
+
 		public static SaasPaymentInfoRes from(SaasPaymentInfo saasPaymentInfo) {
 			if(saasPaymentInfo != null) {
 				return SaasPaymentInfoRes.builder()
@@ -196,11 +207,42 @@ public class SaasTrackerAdminDto {
 						.paymentScheduleDate(saasPaymentInfo.paymentScheduleDate())
 						.activeSubscription(saasPaymentInfo.activeSubscription())
 						.isDup(saasPaymentInfo.isDup())
+						.disabled(saasPaymentInfo.disabled())
 						.build();
 			}
 			return null;
 		}
+	}
 
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class SaasTrackerFindUserRes {
+
+		@ApiModelProperty("idxUser")
+		private Long idxUser;
+
+		@ApiModelProperty("회사명")
+		private String companyName;
+
+		@ApiModelProperty("사용자명")
+		private String userName;
+
+		@ApiModelProperty("이메일")
+		private String email;
+
+		public static SaasTrackerFindUserRes from(User user) {
+			if(user != null) {
+				return SaasTrackerFindUserRes.builder()
+					.idxUser(user.idx())
+					.companyName(user.corp().resCompanyNm())
+					.userName(user.name())
+					.email(user.email())
+					.build();
+			}
+			return null;
+		}
 	}
 
 	@Data
@@ -300,6 +342,10 @@ public class SaasTrackerAdminDto {
 		@ApiModelProperty("중복 여부")
 		@NotNull(message = "중복 여부는 반드시 입력되어야 합니다.")
 		private Boolean isDup;
+
+		@ApiModelProperty("사용 여부")
+		@NotNull(message = "사용 여부는 반드시 입력되어야 합니다.")
+		private Boolean disabled;
 	}
 
 	@Data
@@ -340,5 +386,30 @@ public class SaasTrackerAdminDto {
 		@ApiModelProperty("중복 여부")
 		@NotNull(message = "중복 여부는 반드시 입력되어야 합니다.")
 		private Boolean isDup;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class SaasTrackerUserReq {
+
+		@ApiModelProperty("idxUser")
+		@NotNull(message = "사용자는 반드시 입력되어야 합니다.")
+		private Long idxUser;
+	}
+
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class SaasTrackerUserUpdateReq {
+
+		@ApiModelProperty("status")
+		@NotNull(message = "권한은 반드시 입력되어야 합니다.")
+		private Integer status;
+
+		@ApiModelProperty("step")
+		private Integer step;
 	}
 }

@@ -16,7 +16,7 @@ public class EnvUtil implements EnvironmentAware {
 
 	@Override
 	public void setEnvironment(Environment environment) {
-		this.environment = environment;
+		EnvUtil.environment = environment;
 	}
 
 	public static String[] getActiveProfiles() {

@@ -522,7 +522,7 @@ public class CommonCardServiceV2 {
             CardIssuanceDto.ConsentRes resTemp = CardIssuanceDto.ConsentRes.builder()
                 .consentIdx(item.getIdx())
                 .title(item.getTitle())
-                .boolConsent(consentMapping != null ? consentMapping.status() : false)
+                .boolConsent(consentMapping != null && consentMapping.status())
                 .consentType(item.getTypeCode())
                 .essential(item.getEssential())
                 .build();
@@ -585,7 +585,7 @@ public class CommonCardServiceV2 {
             .isVC(dto.getIsVC())
             .isVerifiedVenture(dto.getIsVerifiedVenture())
             .investor(investorName != null ? investorName : dto.getInvestorName())
-            .isExist(investorName != null ? true : false)
+            .isExist(investorName != null)
             .build()
         );
 
@@ -972,9 +972,7 @@ public class CommonCardServiceV2 {
                 return true;
             } else {
                 idNum = Seed128.decryptEcb(idNum);
-                if (dto.getIdentificationNumberFront().substring(0, 6).equals(idNum.substring(0, 6))) {
-                    return true;
-                }
+                return dto.getIdentificationNumberFront().substring(0, 6).equals(idNum.substring(0, 6));
             }
         }
 

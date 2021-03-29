@@ -298,7 +298,7 @@ public class CommonCardService {
 			CardIssuanceDto.ConsentRes resTemp = CardIssuanceDto.ConsentRes.builder()
 					.consentIdx(item.getIdx())
 					.title(item.getTitle())
-					.boolConsent(consentMapping != null ? consentMapping.status() : false)
+					.boolConsent(consentMapping != null && consentMapping.status())
 					.consentType(item.getTypeCode())
 					.build();
 			consentInfo.add(resTemp);

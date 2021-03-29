@@ -2109,7 +2109,7 @@ public class ScrapingService {
             //가져와야할 기간 추출 2년치 가져와야할 경우
             if(user != null && corp != null){
 
-                for(int i = 24 ; i > 0 ; i--) {
+                for(int i = 24 ; i >= 0 ; i--) {
                     YearMonth ym = YearMonth.from(LocalDate.now().minusMonths(i));
                     String startDate = ym.format(DateTimeFormatter.ofPattern("yyyyMM")) + "01";
                     String endDate = ym.atEndOfMonth().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -2127,7 +2127,16 @@ public class ScrapingService {
                                 corp.resCompanyIdentityNo());
 
                         if (strResult[0].get("code").toString().equals("CF-00000")) {
-                            saveTaxInvoice((JSONArray) strResult[1].get("data")
+
+                            log.debug(" save befo {}, {}", startDate, endDate);
+                            JSONArray jsonData = new JSONArray();
+                            if (strResult[1].get("data") instanceof List){
+                                jsonData = (JSONArray) strResult[1].get("data");
+                            }else{
+                                jsonData.add(strResult[1].get("data"));
+                            }
+
+                            saveTaxInvoice( jsonData
                                     , idxUser
                                     , corp.idx()
                                     , startDate
@@ -2500,12 +2509,8 @@ public class ScrapingService {
     }
 
     private boolean checkCode(JSONObject jsonObject) {
-        if (ResponseCode.CF00000.getCode().equals(jsonObject.get("code").toString())
-                || ResponseCode.CF04012.getCode().equals(jsonObject.get("code").toString())){
-            return true;
-        }else {
-            return false;
-        }
+        return ResponseCode.CF00000.getCode().equals(jsonObject.get("code").toString())
+            || ResponseCode.CF04012.getCode().equals(jsonObject.get("code").toString());
     }
 
     private JSONObject[] getBatchAccountList(String connectedId, String organization, Long idxResBatchList) {
@@ -2593,7 +2598,7 @@ public class ScrapingService {
 
     private Integer getServerIp() throws UnknownHostException {
         String serverIp = InetAddress.getLocalHost().getHostAddress();
-        String iServerIp = serverIp.substring(serverIp.length()-1, serverIp.length());
+        String iServerIp = serverIp.substring(serverIp.length()-1);
         return Integer.parseInt(serverIp)/2;
     }
 
@@ -2661,11 +2666,7 @@ public class ScrapingService {
         Callable task = () -> procGetPeriodData(finalStartDate, finalEndDate, resAccount, corp, user, idxResBatchParent);
 
         Future future = executor.submit(task);
-        if(future.get(1000*60*5, TimeUnit.MILLISECONDS).equals(null)){
-            return true;
-        }else{
-            return false;
-        }
+        return future.get(1000 * 60 * 5, TimeUnit.MILLISECONDS).equals(null);
     }
     public static int diffDays(String startDate, String endDate) throws java.text.ParseException {
         DateFormat df = new SimpleDateFormat("yyyyMMdd");

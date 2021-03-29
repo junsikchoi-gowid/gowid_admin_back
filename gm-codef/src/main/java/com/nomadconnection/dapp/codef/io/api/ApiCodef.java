@@ -27,7 +27,7 @@ public class ApiCodef{
 
         if(listCorp != null) {
             istCorpString = arrayList.toArray(new String[listCorp.size()]);
-            listCorp.forEach(l -> {arrayList.add(l.toString());});
+            listCorp.forEach(l -> arrayList.add(l));
         }
 
         if(type.equals(CommonConstant.BUSINESSTYPE) && listCorp == null){

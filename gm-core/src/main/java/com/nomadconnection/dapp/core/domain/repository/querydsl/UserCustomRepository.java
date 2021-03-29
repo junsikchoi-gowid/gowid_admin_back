@@ -81,8 +81,8 @@ public interface UserCustomRepository {
         @ApiModelProperty(value = "회원가입일", example = "9999-99-99 99:99:99")
         private LocalDateTime signUpDate;
 
-        @ApiModelProperty(value = "인증서등록일", example = "9999-99-99 99:99:99")
-        private LocalDateTime certRegisterDate;
+        @ApiModelProperty(value = "법인등록일(Gowid)", example = "9999-99-99 99:99:99")
+        private LocalDateTime corpRegisterDate;
     }
 
     Page<UserListDto> userList(SearchUserListDto dto, Pageable pageable);

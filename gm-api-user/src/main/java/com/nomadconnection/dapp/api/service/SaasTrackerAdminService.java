@@ -1,17 +1,17 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.amazonaws.services.kms.model.NotFoundException;
-import com.nomadconnection.dapp.api.dto.AdminDto;
 import com.nomadconnection.dapp.api.dto.SaasTrackerAdminDto;
-import com.nomadconnection.dapp.api.dto.SaasTrackerDto;
-import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
-import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
+import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
-import com.nomadconnection.dapp.api.service.notification.SlackNotiService;
-import com.nomadconnection.dapp.api.util.CommonUtil;
-import com.nomadconnection.dapp.core.domain.corp.Corp;
-import com.nomadconnection.dapp.core.domain.repository.saas.*;
-import com.nomadconnection.dapp.core.domain.saas.*;
+import com.nomadconnection.dapp.core.domain.repository.saas.SaasPaymentHistoryRepository;
+import com.nomadconnection.dapp.core.domain.repository.saas.SaasPaymentInfoRepository;
+import com.nomadconnection.dapp.core.domain.repository.saas.SaasTrackerProgressRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
+import com.nomadconnection.dapp.core.domain.saas.SaasInfo;
+import com.nomadconnection.dapp.core.domain.saas.SaasPaymentHistory;
+import com.nomadconnection.dapp.core.domain.saas.SaasPaymentInfo;
+import com.nomadconnection.dapp.core.domain.saas.SaasTrackerProgress;
+import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -25,13 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.SaasTrackerNotiReq.getSlackSaasTrackerMessage;
 
 @Slf4j
 @Service
@@ -41,6 +36,8 @@ public class SaasTrackerAdminService {
 	private final SaasTrackerProgressRepository repoSaasTrackerProgress;
 	private final SaasPaymentHistoryRepository repoSaasPaymentHistory;
 	private final SaasPaymentInfoRepository repoSaasPaymentInfo;
+
+	private final AuthorityRepository authorityRepository;
 
 	private final UserService userService;
 	private final SaasTrackerService saasTrackerService;
@@ -53,7 +50,7 @@ public class SaasTrackerAdminService {
 
 		try {
 			List<SaasTrackerAdminDto.SaasTrackerUserRes> saasTrackerUserList =
-					repoSaasTrackerProgress.findAllByStatusGreaterThanEqual(1).stream().map(SaasTrackerAdminDto.SaasTrackerUserRes::from).collect(Collectors.toList());
+					repoSaasTrackerProgress.getSaasTrackerUsers().stream().map(SaasTrackerAdminDto.SaasTrackerUserRes::from).collect(Collectors.toList());
 
 			log.info(">>>>> admin.getSaasTrackerUser.end");
 
@@ -74,7 +71,7 @@ public class SaasTrackerAdminService {
 
 		try {
 			Page<SaasTrackerAdminDto.SaasPaymentHistoryRes> saasPaymentHistories =
-					repoSaasPaymentHistory.findAllByUserAndPaymentDateBetween(user,
+					repoSaasPaymentHistory.findAllByUserAndPaymentDateBetweenOrderByPaymentDateDesc(user,
 							StringUtils.isEmpty(fromPaymentDate) ? "20190101" : fromPaymentDate,
 							StringUtils.isEmpty(toPaymentDate) ? "20301231" : toPaymentDate,
 							pageable)
@@ -206,6 +203,7 @@ public class SaasTrackerAdminService {
 					.paymentScheduleDate(req.getPaymentScheduleDate())
 					.activeSubscription(req.getActiveSubscription())
 					.isDup(req.getIsDup())
+					.disabled(req.getDisabled())
 					.user(user)
 					.saasInfo(saasInfo)
 					.build();
@@ -265,6 +263,7 @@ public class SaasTrackerAdminService {
 			if(!StringUtils.isEmpty(req.getPaymentScheduleDate())) saasPaymentInfo.paymentScheduleDate(req.getPaymentScheduleDate());
 			if(!ObjectUtils.isEmpty(req.getActiveSubscription())) saasPaymentInfo.activeSubscription(req.getActiveSubscription());
 			if(!ObjectUtils.isEmpty(req.getIsDup())) saasPaymentInfo.isDup(req.getIsDup());
+			if(!ObjectUtils.isEmpty(req.getDisabled())) saasPaymentInfo.disabled(req.getDisabled());
 
 			log.info(">>>>> admin.updateSaasInfo.end");
 
@@ -282,5 +281,52 @@ public class SaasTrackerAdminService {
 
 	public ResponseEntity getSaasSubscriptions(Long idx) {
 		return saasTrackerService.getUseSaasList(idx);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity findUserAtSaasTracker(String email) {
+		log.info(">>>>> admin.findUserAtSaasTracker.start");
+		SaasTrackerAdminDto.SaasTrackerFindUserRes findUser = SaasTrackerAdminDto.SaasTrackerFindUserRes.from(userService.findByEmail(email));
+		log.info(">>>>> admin.findUserAtSaasTracker.end");
+
+		return ResponseEntity.ok().body(
+			BusinessResponse.builder().data(findUser).build());
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity saveSaasTrackerUser(SaasTrackerAdminDto.SaasTrackerUserReq req) {
+
+		log.info(">>>>> admin.saveSaasTrackerUser.start");
+		User user = userService.getUser(req.getIdxUser());
+		user.authorities().add(authorityRepository.findByRole(Role.GOWID_SAASTRACKER).get());
+		log.info(">>>>> admin.saveSaasTrackerUser.end");
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+			.normal(BusinessResponse.Normal.builder()
+				.status(true)
+				.build())
+			.build());
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseEntity updateSaasTrackerUser(Long idxUser, SaasTrackerAdminDto.SaasTrackerUserUpdateReq req) {
+
+		log.info(">>>>> admin.saveSaasTrackerUser.start");
+
+		SaasTrackerProgress progress = repoSaasTrackerProgress.findByUser(userService.getUser(idxUser)).orElseThrow(
+			() -> UserNotFoundException.builder()
+			.id(idxUser)
+			.build());
+
+		progress.status(req.getStatus());
+		if(!ObjectUtils.isEmpty(req.getStep())) progress.step(req.getStep());
+
+		log.info(">>>>> admin.saveSaasTrackerUser.end");
+
+		return ResponseEntity.ok().body(BusinessResponse.builder()
+			.normal(BusinessResponse.Normal.builder()
+				.status(true)
+				.build())
+			.build());
 	}
 }

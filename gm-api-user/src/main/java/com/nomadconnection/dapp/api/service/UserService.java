@@ -259,20 +259,21 @@ public class UserService {
 	@Transactional(rollbackFor = Exception.class)
 	public void initUserInfo(Long idxUser) {
 		User user = getUser(idxUser);
-        if (!ObjectUtils.isEmpty(user.corp())) {
-            Long idxCorp = user.corp().idx();
-            Long idxCardInfo = repoCardIssuanceInfo.findIdxByUserIdx(idxUser);
-            repoCeoInfo.deleteByCardIssuanceInfoIdx(idxCardInfo);
-            repoManager.deleteByCardIssuanceInfoIdx(idxCardInfo);
-            repoStockholderFile.deleteByCardIssuanceInfoIdx(idxCardInfo);
-            fullTextService.deleteAllShinhanFulltext(idxCorp);
-            fullTextService.deleteAllLotteFulltext(idxCorp);
-            repoRisk.deleteByCorpIdx(idxCorp);
-            // Todo 추후 corp테이블의 idxRiskConfig 값 & AdminService 수정시 반영
+		if (!ObjectUtils.isEmpty(user.corp())) {
+			Long idxCorp = user.corp().idx();
+			Long idxCardInfo = repoCardIssuanceInfo.findIdxByUserIdx(idxUser);
+			repoCeoInfo.deleteByCardIssuanceInfoIdx(idxCardInfo);
+			repoManager.deleteByCardIssuanceInfoIdx(idxCardInfo);
+			repoStockholderFile.deleteByCardIssuanceInfoIdx(idxCardInfo);
+			fullTextService.deleteAllShinhanFulltext(idxCorp);
+			fullTextService.deleteAllLotteFulltext(idxCorp);
+			repoRisk.deleteByCorpIdx(idxCorp);
+			// Todo 추후 corp테이블의 idxRiskConfig 값 & AdminService 수정시 반영
 			if (!ObjectUtils.isEmpty(user.corp().riskConfig())) {
-				repoRiskConfig.delete(user.corp().riskConfig());
-				repoRiskConfig.flush();
+				user.corp().riskConfig().user(null);
+				user.corp().riskConfig().corp(null);
 				user.corp().riskConfig(null);
+				repoRiskConfig.deleteByCorpIdx(idxCorp);
 			}
 			user.corp().user(null);
 			user.corp().cardIssuanceInfo().corp(null);
@@ -387,13 +388,20 @@ public class UserService {
 
 		// 이용약관 매핑
 		for(ConsentDto.RegDto regDto : dto.getConsents()) {
-			repoConsentMapping.save(
+			ConsentMapping consentMapping = repoConsentMapping.findByIdxUserAndIdxConsent(user.idx(), regDto.idxConsent);
+			if (consentMapping == null) {
+				repoConsentMapping.save(
 					ConsentMapping.builder()
-							.idxConsent(regDto.idxConsent)
-							.idxUser(user.idx())
-							.status(regDto.status)
-							.build()
-			);
+						.idxConsent(regDto.idxConsent)
+						.idxUser(user.idx())
+						.status(regDto.status)
+						.build()
+				);
+			} else {
+				repoConsentMapping.save(
+					consentMapping.status(regDto.status)
+				);
+			}
 		}
 
 		TokenDto.TokenSet tokenSet = issueTokenSet(AccountDto.builder()
@@ -691,13 +699,20 @@ public class UserService {
 
 		// 이용약관 매핑
 		for(ConsentDto.RegDto regDto : dto.getConsents()) {
-			repoConsentMapping.save(
+			ConsentMapping consentMapping = repoConsentMapping.findByIdxUserAndIdxConsent(user.idx(), regDto.idxConsent);
+			if (consentMapping == null) {
+				repoConsentMapping.save(
 					ConsentMapping.builder()
-							.idxConsent(regDto.idxConsent)
-							.idxUser(user.idx())
-							.status(regDto.status)
-							.build()
-			);
+						.idxConsent(regDto.idxConsent)
+						.idxUser(idxUser)
+						.status(regDto.status)
+						.build()
+				);
+			} else {
+				repoConsentMapping.save(
+					consentMapping.status(regDto.status)
+				);
+			}
 		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
@@ -865,7 +880,7 @@ public class UserService {
 		return UserDto.ExternalIdRes.builder().externalId(user.externalId()).build();
 	}
 
-    @Transactional(readOnly = true)
+	@Transactional(readOnly = true)
 	public void sendEmailDeleteAccount(String email, String password, String reason) {
 		User user = findByEmail(email);
 		if (!encoder.matches(password, user.password())) {
@@ -874,7 +889,7 @@ public class UserService {
 		}
 		emailService.sendDeleteAccountEmailtoUser(user);
 		emailService.sendDeleteAccountEmailtoSupport(user, reason);
-    }
+	}
 
 	@Transactional
 	public void enableAccount(Long idxUser) {

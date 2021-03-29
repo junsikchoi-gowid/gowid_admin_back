@@ -16,7 +16,7 @@ public interface ResConCorpListRepository extends JpaRepository<ResConCorpList, 
 
     List<ResConCorpList> findByConnectedId(String connectedId);
 
-    public interface distinctData{
+    interface distinctData{
         String getBusinessType();
         String getOrganization();
     }

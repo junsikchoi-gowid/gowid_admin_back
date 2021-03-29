@@ -138,13 +138,20 @@ public class ConsentService {
 
         // 이용약관 매핑
         for(ConsentDto.RegDto regDto : dto.getConsents()) {
-            repoConsentMapping.save(
+            ConsentMapping consentMapping = repoConsentMapping.findByIdxUserAndIdxConsent(user.idx(), regDto.idxConsent);
+            if (consentMapping == null) {
+                repoConsentMapping.save(
                     ConsentMapping.builder()
-                            .idxConsent(regDto.idxConsent)
-                            .idxUser(idxUser)
-                            .status(regDto.status)
-                            .build()
-            );
+                        .idxConsent(regDto.idxConsent)
+                        .idxUser(idxUser)
+                        .status(regDto.status)
+                        .build()
+                );
+            } else {
+                repoConsentMapping.save(
+                    consentMapping.status(regDto.status)
+                );
+            }
         }
 
         CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(user).orElseThrow(

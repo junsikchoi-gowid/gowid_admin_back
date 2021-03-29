@@ -30,6 +30,15 @@ public class SaasInfo extends BaseTime {
     @Column(columnDefinition = "VARCHAR(100) COMMENT '이미지 이름'")
     private String imageName;
 
+    @Lob
+    private String homepageUrl;
+
+    @Lob
+    private String priceUrl;
+
+    @Lob
+    private String description;
+
     @ManyToOne(targetEntity = SaasCategory.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "idxSaasCategory", foreignKey = @ForeignKey(name = "FK_SaasCategory_SaasInfo"))
     private SaasCategory saasCategory;

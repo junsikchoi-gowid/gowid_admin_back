@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 public class AdminDto {
     @Getter
     @Builder
@@ -35,6 +37,7 @@ public class AdminDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CorpDto {
+
         @ApiModelProperty(value = "법인명(상호)", example = "주식회사 고위드(GOWID Inc)")
         public String resCompanyNm;
 
@@ -62,6 +65,9 @@ public class AdminDto {
         @ApiModelProperty(value = "사업자등록일", example = "20150213")
         public String resRegisterDate;
 
+        @ApiModelProperty(value = "법인등록일(Gowid)", example = "9999-99-99 99:99:99")
+        public LocalDateTime corpRegisterDate;
+
         public static CorpDto from(Corp corp) {
             CorpDto corpDto = CorpDto.builder()
                 .resBusinessItems(corp.resBusinessItems())
@@ -73,6 +79,7 @@ public class AdminDto {
                 .resRegisterDate(corp.resRegisterDate())
                 .resUserAddr(corp.resUserAddr())
                 .resUserNm(corp.resUserNm())
+                .corpRegisterDate(corp.getCreatedAt())
                 .build();
             return corpDto;
         }

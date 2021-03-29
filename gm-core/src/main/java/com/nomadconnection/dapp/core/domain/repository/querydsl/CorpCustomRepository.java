@@ -213,8 +213,8 @@ public interface CorpCustomRepository {
         @ApiModelProperty(value = "마지막 신청 단계", example = "SIGN_SIGNATURE")
         private IssuanceDepth issuanceDepth;
 
-        @ApiModelProperty(value = "인증서등록일", example = "9999-99-99 99:99:99")
-        private LocalDateTime certRegisterDate;
+        @ApiModelProperty(value = "법인등록일(Gowid)", example = "9999-99-99 99:99:99")
+        private LocalDateTime corpRegisterDate;
 
         @ApiModelProperty(value = "신청완료일", example = "9999-99-99 99:99:99")
         private LocalDateTime applyDate;

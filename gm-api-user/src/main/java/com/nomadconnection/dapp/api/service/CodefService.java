@@ -386,8 +386,8 @@ public class CodefService {
 											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
 											.resAccountStartDate(startDate)
 											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
-											.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate").toString())
-											.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName").toString())
+											.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate"))
+											.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName"))
 											.build()
 									);
 								}
@@ -411,15 +411,15 @@ public class CodefService {
 											.organization(s)
 											.type("ResFund")
 											.resAccount(obj.get("resAccount").toString())
-											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay").toString())
+											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay"))
 											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit").toString())
-											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName").toString())
-											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency").toString())
+											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
+											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
+											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
 											.resAccountStartDate(startDate)
-											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate").toString())
-											.resAccountInvestedCost(GowidUtils.getEmptyStringToString(obj,"resAccountInvestedCost").toString())
-											.resEarningsRate(GowidUtils.getEmptyStringToString(obj,"resEarningsRate").toString())
+											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
+											.resAccountInvestedCost(GowidUtils.getEmptyStringToString(obj,"resAccountInvestedCost"))
+											.resEarningsRate(GowidUtils.getEmptyStringToString(obj,"resEarningsRate"))
 											.build()
 									);
 								}
@@ -1081,7 +1081,7 @@ public class CodefService {
 
 				//파일생성 및 전송
 
-				String strChange[] = {
+				String[] strChange = {
 						"resStockOptionList\" : [ {\n" +
 								"        \"resStockOption\" : \"내용 없음\",\n" +
 								"        \"resNumber\" : \"0\"\n" +
@@ -1201,25 +1201,25 @@ public class CodefService {
 						.d020(ifNullreplaceObject(listResTCntStockIssueList,2,ResCorpEstablishDate))// 발행할주식의총수_등기일자
 						.d021(ifNullreplaceObject(listResStockList, 0, ""))// 발행주식현황_총수
 						.d022(listD.size()>=1?listD.get(0):"")// 발행주식현황_종류1
-						.d023(listD.size()>=2?listD.get(1).substring(listD.get(1).indexOf(" ")+1 , listD.get(1).length()).trim():"")// 발행주식현황_종류1_수량
+						.d023(listD.size()>=2?listD.get(1).substring(listD.get(1).indexOf(" ")+1).trim():"")// 발행주식현황_종류1_수량
 						.d024(listD.size()>=3?listD.get(2):"")// 발행주식현황_종류2
-						.d025(listD.size()>=4?listD.get(3).substring(listD.get(3).indexOf(" ")+1 , listD.get(3).length()).trim():"")// 발행주식현황_종류2_수량
+						.d025(listD.size()>=4?listD.get(3).substring(listD.get(3).indexOf(" ")+1).trim():"")// 발행주식현황_종류2_수량
 						.d026(listD.size()>=5?listD.get(4):"")// 발행주식현황_종류3
-						.d027(listD.size()>=6?listD.get(5).substring(listD.get(5).indexOf(" ")+1 , listD.get(5).length()).trim():"")// 발행주식현황_종류3_수량
+						.d027(listD.size()>=6?listD.get(5).substring(listD.get(5).indexOf(" ")+1).trim():"")// 발행주식현황_종류3_수량
 						.d028(listD.size()>=7?listD.get(6):"")// 발행주식현황_종류4
-						.d029(listD.size()>=8?listD.get(7).substring(listD.get(7).indexOf(" ")+1 , listD.get(7).length()).trim():"")// 발행주식현황_종류4_수량
+						.d029(listD.size()>=8?listD.get(7).substring(listD.get(7).indexOf(" ")+1).trim():"")// 발행주식현황_종류4_수량
 						.d030(listD.size()>=9?listD.get(8):"")// 발행주식현황_종류5
-						.d031(listD.size()>=10?listD.get(9).substring(listD.get(9).indexOf(" ")+1 , listD.get(9).length()).trim():"")// 발행주식현황_종류5_수량
+						.d031(listD.size()>=10?listD.get(9).substring(listD.get(9).indexOf(" ")+1).trim():"")// 발행주식현황_종류5_수량
 						.d032(listD.size()>=11?listD.get(10):"")// 발행주식현황_종류6
-						.d033(listD.size()>=12?listD.get(11).substring(listD.get(11).indexOf(" ")+1 , listD.get(11).length()).trim():"")// 발행주식현황_종류6_수량
+						.d033(listD.size()>=12?listD.get(11).substring(listD.get(11).indexOf(" ")+1).trim():"")// 발행주식현황_종류6_수량
 						.d034(listD.size()>=13?listD.get(12):"")// 발행주식현황_종류7
-						.d035(listD.size()>=14?listD.get(13).substring(listD.get(13).indexOf(" ")+1 , listD.get(13).length()).trim():"")// 발행주식현황_종류7_수량
+						.d035(listD.size()>=14?listD.get(13).substring(listD.get(13).indexOf(" ")+1).trim():"")// 발행주식현황_종류7_수량
 						.d036(listD.size()>=15?listD.get(14):"")// 발행주식현황_종류8
-						.d037(listD.size()>=16?listD.get(15).substring(listD.get(15).indexOf(" ")+1 , listD.get(15).length()).trim():"")// 발행주식현황_종류8_수량
+						.d037(listD.size()>=16?listD.get(15).substring(listD.get(15).indexOf(" ")+1).trim():"")// 발행주식현황_종류8_수량
 						.d038(listD.size()>=17?listD.get(16):"")// 발행주식현황_종류9
-						.d039(listD.size()>=18?listD.get(17).substring(listD.get(17).indexOf(" ")+1 , listD.get(17).length()).trim():"")// 발행주식현황_종류9_수량
+						.d039(listD.size()>=18?listD.get(17).substring(listD.get(17).indexOf(" ")+1).trim():"")// 발행주식현황_종류9_수량
 						.d040(listD.size()>=19?listD.get(18):"")// 발행주식현황_종류10
-						.d041(listD.size()>=20?listD.get(19).substring(listD.get(19).indexOf(" ")+1 , listD.get(19).length()).trim():"")// 발행주식현황_종류10_수량
+						.d041(listD.size()>=20?listD.get(19).substring(listD.get(19).indexOf(" ")+1).trim():"")// 발행주식현황_종류10_수량
 						.d042(ifNullreplaceObject(listResStockList,1, ""))// 발행주식현황_자본금의액
 						.d043(ifNullreplaceObject(listResStockList, 3, ResCorpEstablishDate))// 발행주식현황_변경일자
 						.d044(ifNullreplaceObject(listResStockList, 4, ResCorpEstablishDate))// 발행주식현황_등기일자
@@ -2164,8 +2164,8 @@ public class CodefService {
 									.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
 									.resAccountStartDate(startDate)
 									.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
-									.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate").toString())
-									.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName").toString())
+									.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate"))
+									.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName"))
 									.build()
 							);
 						}
@@ -2189,15 +2189,15 @@ public class CodefService {
 									.organization(s)
 									.type("ResFund")
 									.resAccount(obj.get("resAccount").toString())
-									.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay").toString())
+									.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay"))
 									.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
-									.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit").toString())
-									.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName").toString())
-									.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency").toString())
+									.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
+									.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
+									.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
 									.resAccountStartDate(startDate)
-									.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate").toString())
-									.resAccountInvestedCost(GowidUtils.getEmptyStringToString(obj,"resAccountInvestedCost").toString())
-									.resEarningsRate(GowidUtils.getEmptyStringToString(obj,"resEarningsRate").toString())
+									.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
+									.resAccountInvestedCost(GowidUtils.getEmptyStringToString(obj,"resAccountInvestedCost"))
+									.resEarningsRate(GowidUtils.getEmptyStringToString(obj,"resEarningsRate"))
 									.build()
 							);
 						}
