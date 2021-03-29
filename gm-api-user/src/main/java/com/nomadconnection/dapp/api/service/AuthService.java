@@ -254,7 +254,7 @@ public class AuthService {
 	}
 
 	private UserDto.IssuanceProgressRes issuanceProgress(User user) {
-		IssuanceProgress issuanceProgress = issuanceProgressRepository.findById(user.idx()).orElse(
+		IssuanceProgress issuanceProgress = issuanceProgressRepository.findByCorpIdx(user.corp().idx()).orElse(
 				IssuanceProgress.builder()
 						.userIdx(user.idx())
 						.corpIdx(!ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null)
