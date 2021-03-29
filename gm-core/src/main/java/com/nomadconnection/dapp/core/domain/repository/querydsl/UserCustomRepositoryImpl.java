@@ -100,7 +100,7 @@ public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implemen
             .leftJoin(surveyAnswer).on(user.idx.eq(surveyAnswer.user.idx))
             .leftJoin(survey).on(surveyAnswer.answer.eq(survey.answer))
             .leftJoin(connectedMng).on(connectedMng.idxUser.eq(user.idx))
-            .select(Projections.constructor(UserInfoDto.class,
+            .select(Projections.bean(UserInfoDto.class,
                 user.idx.as("idxUser"),
                 user.name.as("userName"),
                 user.mdn.as("phone"),
@@ -108,8 +108,6 @@ public class UserCustomRepositoryImpl extends QuerydslRepositorySupport implemen
                 user.position.as("position"),
                 user.reception.isSendSms.as("smsReception"),
                 user.reception.isSendEmail.as("emailReception"),
-                user.otherServiceUsage.expenseStatus.as("expenseStatus"),
-                user.otherServiceUsage.saasUsage.as("saasUsage"),
                 user.email.as("email"),
                 survey.answerName.as("surveyAnswer"),
                 surveyAnswer.detail.as("surveyAnswerDetail"),

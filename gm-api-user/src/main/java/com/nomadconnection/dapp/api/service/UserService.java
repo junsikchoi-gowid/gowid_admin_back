@@ -800,15 +800,4 @@ public class UserService {
 
 		return repoEvents.findTopByEventNameAndIdxUser(eventName, user.idx()).map(UserDto.EventsInfo::from).orElse(null);
 	}
-
-	@Transactional
-	public void updateOtherServiceUsage(UserDto.UpdateOtherService dto) {
-		User user = findByEmail(dto.getEmail());
-		if (dto.getExpenseStatus() != null) {
-			user.otherServiceUsage().setExpenseStatus(dto.getExpenseStatus());
-		}
-		if (dto.getSaasUsage() != null) {
-			user.otherServiceUsage().setSaasUsage(dto.getSaasUsage());
-		}
-	}
 }

@@ -110,7 +110,7 @@ public class RiskController {
 		return ResponseEntity.ok().body(service.getCardLimit(user.idx()));
 	}
 
-	@Deprecated
+
 	@ApiOperation(value = "부여 한도 금액 조회")
 	@GetMapping(URI.GRANT_LIMIT)
 	public ResponseEntity<?> getGrantLimit(

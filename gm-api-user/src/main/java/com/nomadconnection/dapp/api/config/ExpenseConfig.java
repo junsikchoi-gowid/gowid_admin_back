@@ -12,5 +12,7 @@ import org.springframework.context.annotation.Configuration;
 public class ExpenseConfig {
 	private String domainUrl;
 	private String userUrl;
+	private String statusUrl;
 	private String apiKey;
+	private String accessKey;
 }

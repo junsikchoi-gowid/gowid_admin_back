@@ -115,7 +115,9 @@ quotabook:
 expense:
   domain-url: https://stg-expense-auth.gowid.com
   user-url: /user
+  status-url: /admin/corporations
   api-key: expapisvR2021!
+  access-key: b9b50278-93cf-49f4-9b5a-4a45e8e9f401
 
 encryption:
   keypad:
@@ -200,7 +202,9 @@ quotabook:
 expense:
   domain-url: https://stg-expense-auth.gowid.com
   user-url: /user
+  status-url: /admin/corporations
   api-key: expapisvR2021!
+  access-key: b9b50278-93cf-49f4-9b5a-4a45e8e9f401
 
 encryption:
   keypad:
@@ -282,7 +286,9 @@ quotabook:
 expense:
   domain-url: https://expense-auth.gowid.com
   user-url: /user
+  status-url: /admin/corporations
   api-key: expapIsvR2021!
+  access-key: b9b50278-93cf-49f4-9b5a-4a45e8e9f401
 
 encryption:
   keypad:

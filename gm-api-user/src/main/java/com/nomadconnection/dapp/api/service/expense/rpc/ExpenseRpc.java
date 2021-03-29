@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service.expense.rpc;
 
 import com.nomadconnection.dapp.api.config.ExpenseConfig;
+import com.nomadconnection.dapp.api.service.expense.rpc.dto.ExpenseStatusRes;
 import com.nomadconnection.dapp.api.service.expense.rpc.dto.UserRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,17 @@ public class ExpenseRpc {
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("apiKey", expenseConfig.getApiKey());
         return headerMap;
+    }
+
+    private Map<String, String> getStatusHeaderMap() {
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("accessKey", expenseConfig.getAccessKey());
+        return headerMap;
+    }
+
+    public ExpenseStatusRes requestStatus(String resCompanyIdentityNo) {
+        String url = expenseConfig.getDomainUrl() + expenseConfig.getStatusUrl() + "/" + resCompanyIdentityNo;
+        return commonRpc.requestApi(url, HttpMethod.GET, getStatusHeaderMap(), null, ExpenseStatusRes.class);
     }
 
 }
