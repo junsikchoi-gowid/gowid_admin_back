@@ -246,7 +246,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                     "        SaasPaymentHistory\n" +
                     "    WHERE\n" +
                     "        idxUser = :idxUser \n" +
-                    "            AND paymentDate BETWEEN DATE_FORMAT(DATE_SUB(DATE_SUB(CURDATE(), INTERVAL 2 MONTH), INTERVAL DAY(CURDATE()) - 1 DAY), '%Y%m%d') AND DATE_FORMAT(LAST_DAY(DATE_SUB(DATE_SUB(CURDATE(), INTERVAL 2 MONTH), INTERVAL DAY(CURDATE()) - 1 DAY)), '%Y%m%d')\n" +
+                    "            AND paymentDate BETWEEN DATE_FORMAT(date_add(date_add(LAST_DAY(curdate()),interval 1 DAY),interval -3 MONTH), '%Y%m%d') AND DATE_FORMAT(date_add(LAST_DAY(curdate()),interval -2 MONTH), '%Y%m%d')\n" +
                     "    GROUP BY idxSaasInfo) a ON hist.idxSaasInfo = a.idxSaasInfo\n" +
                     "        LEFT JOIN\n" +
                     "    (SELECT \n" +
@@ -255,7 +255,7 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                     "        SaasPaymentHistory\n" +
                     "    WHERE\n" +
                     "        idxUser = :idxUser \n" +
-                    "            AND paymentDate BETWEEN DATE_FORMAT(DATE_SUB(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), INTERVAL DAY(CURDATE()) - 1 DAY), '%Y%m%d') AND DATE_FORMAT(LAST_DAY(DATE_SUB(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), INTERVAL DAY(CURDATE()) - 1 DAY)), '%Y%m%d')\n" +
+                    "            AND paymentDate BETWEEN DATE_FORMAT(date_add(date_add(LAST_DAY(curdate()),interval 1 DAY),interval -2 MONTH), '%Y%m%d') AND DATE_FORMAT(date_add(LAST_DAY(curdate()),interval -1 MONTH), '%Y%m%d')\n" +
                     "    GROUP BY idxSaasInfo) b ON hist.idxSaasInfo = b.idxSaasInfo\n" +
                     "WHERE\n" +
                     "    idxUser = :idxUser AND b.psum IS NOT NULL\n" +
