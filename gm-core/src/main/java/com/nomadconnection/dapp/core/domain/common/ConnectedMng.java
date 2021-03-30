@@ -34,6 +34,8 @@ public class ConnectedMng extends BaseTime {
 	private String endDate;
 	private String desc1;
 	private String desc2;
+	private String issuer;
+	private String serialNumber;
 
 	@Column(columnDefinition = "varchar(2)    DEFAULT '' COMMENT '업무구분'")
 	private String type;

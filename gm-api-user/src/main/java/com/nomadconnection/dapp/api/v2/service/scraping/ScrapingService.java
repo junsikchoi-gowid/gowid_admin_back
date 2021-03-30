@@ -121,6 +121,8 @@ public class ScrapingService {
 					.endDate(dto.getEndDate())
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
+					.issuer(dto.getIssuer())
+					.serialNumber(dto.getSerialNumber())
 					.type(CommonConstant.REVENUETYPE)
 					.status(ConnectedMngStatus.NORMAL)
 					.build()

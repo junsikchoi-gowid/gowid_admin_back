@@ -159,6 +159,13 @@ public class 	ConnectedMngDto {
 		@ApiModelProperty("설명2")
 		private String desc2;
 
+		@ApiModelProperty("인증서발행기관")
+		private String issuer;
+
+		@ApiModelProperty("SN 키값")
+		private String serialNumber;
+
+
 		@ApiModelProperty("certFile")
 		private String certFile;
 	}
@@ -188,6 +195,12 @@ public class 	ConnectedMngDto {
 
 		@ApiModelProperty("certFile")
 		private String certFile;
+
+		@ApiModelProperty("인증서발행기관")
+		private String issuer;
+
+		@ApiModelProperty("SN 키값")
+		private String serialNumber;
 
 		@ApiModelProperty("type ex) 은행:bk, 국세청:nt")
 		private String type;
@@ -219,6 +232,12 @@ public class 	ConnectedMngDto {
 
 		@ApiModelProperty("설명2")
 		private String desc2;
+
+		@ApiModelProperty("인증서발행기관")
+		private String issuer;
+
+		@ApiModelProperty("SN 키값")
+		private String serialNumber;
 
 		@ApiModelProperty("der")
 		private String derPath;

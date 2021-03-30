@@ -42,6 +42,12 @@ public class AccessManageDto {
 	@ApiModelProperty("기관타입")
 	private String businessType;
 
+	@ApiModelProperty("인증서발행기관")
+	private String issuer;
+
+	@ApiModelProperty("SN 키값")
+	private String serialNumber;
+
 	@ApiModelProperty("인증서 타입")
 	private String type;
 

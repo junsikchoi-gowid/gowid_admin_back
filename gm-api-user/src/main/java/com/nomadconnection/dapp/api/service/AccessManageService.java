@@ -172,6 +172,8 @@ public class AccessManageService {
                     .endDate(dto.getEndDate())
                     .desc1(dto.getDesc1())
                     .desc2(dto.getDesc2())
+                    .issuer(dto.getIssuer())
+                    .serialNumber(dto.getSerialNumber())
                     // .idxCorp()
                     .status(ConnectedMngStatus.NORMAL)
                     .build()

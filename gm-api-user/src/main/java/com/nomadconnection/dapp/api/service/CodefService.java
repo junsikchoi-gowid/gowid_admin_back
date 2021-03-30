@@ -80,7 +80,6 @@ public class CodefService {
 	private final ResAccountRepository repoResAccount;
 	private final ConnectedMngRepository repoConnectedMng;
 	private final CorpRepository repoCorp;
-	private final Environment environment;
 
 	private final D1000Repository repoD1000;
 	private final D1100Repository repoD1100;
@@ -145,18 +144,18 @@ public class CodefService {
 			list.add(accountMap1);
 		}
 
-		for( String s : CommonConstant.LISTCARD){
-			accountMap1 = new HashMap<>();
-			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
-			accountMap1.put("businessType",	CommonConstant.CARDTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
-			accountMap1.put("organization",	s);// 기관코드
-			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
-			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
-			accountMap1.put("certType",     CommonConstant.CERTTYPE);
-			accountMap1.put("certFile",     dto.getCertFile());
-			list.add(accountMap1);
-		} 
+//		for( String s : CommonConstant.LISTCARD){
+//			accountMap1 = new HashMap<>();
+//			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
+//			accountMap1.put("businessType",	CommonConstant.CARDTYPE);  // 업무구분코드
+//			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
+//			accountMap1.put("organization",	s);// 기관코드
+//			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+//			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
+//			accountMap1.put("certType",     CommonConstant.CERTTYPE);
+//			accountMap1.put("certFile",     dto.getCertFile());
+//			list.add(accountMap1);
+//		}
 
 		bodyMap.put("accountList", list);
 		String strObject = ApiRequest.request(createUrlPath, bodyMap);
@@ -191,6 +190,8 @@ public class CodefService {
 					.endDate(dto.getEndDate())
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
+					.issuer(dto.getIssuer())
+					.serialNumber(dto.getSerialNumber())
 					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);
@@ -233,6 +234,8 @@ public class CodefService {
 						.endDate(dto.getEndDate())
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
+						.issuer(dto.getIssuer())
+						.serialNumber(dto.getSerialNumber())
 						.status(ConnectedMngStatus.NORMAL)
 						.build()
 				);
@@ -502,6 +505,8 @@ public class CodefService {
 					.endDate(dto.getEndDate())
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
+					.issuer(dto.getIssuer())
+					.serialNumber(dto.getSerialNumber())
 					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);
@@ -522,6 +527,8 @@ public class CodefService {
 						.endDate(dto.getEndDate())
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
+						.issuer(dto.getIssuer())
+						.serialNumber(dto.getSerialNumber())
 						.status(ConnectedMngStatus.NORMAL)
 						.build()
 				);
@@ -593,6 +600,8 @@ public class CodefService {
 						.endDate(dto.getEndDate())
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
+						.issuer(dto.getIssuer())
+						.serialNumber(dto.getSerialNumber())
 						.status(ConnectedMngStatus.NORMAL)
 						.build()
 				);
@@ -832,6 +841,8 @@ public class CodefService {
 						.endDate(dto.getEndDate())
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
+						.issuer(dto.getIssuer())
+						.serialNumber(dto.getSerialNumber())
 						.status(ConnectedMngStatus.NORMAL)
 						.type("NT")
 						.build()
@@ -1974,6 +1985,8 @@ public class CodefService {
 					.endDate(dto.getEndDate())
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
+					.issuer(dto.getIssuer())
+					.serialNumber(dto.getSerialNumber())
 					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);
@@ -2036,6 +2049,8 @@ public class CodefService {
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
 					.idxCorp(idxCorp)
+					.issuer(dto.getIssuer())
+					.serialNumber(dto.getSerialNumber())
 					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);
