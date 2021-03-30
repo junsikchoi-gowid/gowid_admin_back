@@ -36,6 +36,8 @@ public class ScrapingController {
         public static final String SCRAPING_BANK_ID = "/bank/id";    // 계좌별 조회
 
         public static final String SCRAPING_YEAR = "/scraping/year";    // 스크래핑 전체
+        public static final String SCRAPING_EXCHANGE = "/scraping/exchange"; // 환율정보
+
     }
 
     private final ScrapingService service;
@@ -103,4 +105,15 @@ public class ScrapingController {
         service.scraping3Years(user, idxUser, null);
         return new ResponseEntity<>(null,HttpStatus.OK);
     }
+
+    @ApiOperation(value = "환율정보"
+            , notes = "" + "\n"
+            + "관리자만 스크래핑 가능 " + "\n"
+    )
+    @GetMapping( URI.SCRAPING_EXCHANGE )
+    public ResponseEntity<?> scrapExchange(@ApiIgnore @CurrentUser CustomUser user) throws Exception {
+        service.scrapExchange();
+        return new ResponseEntity<>(null,HttpStatus.OK);
+    }
+
 }

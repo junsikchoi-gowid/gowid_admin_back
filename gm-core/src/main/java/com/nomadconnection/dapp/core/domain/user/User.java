@@ -80,7 +80,7 @@ public class User extends BaseTime {
 	@Builder.Default
 	private Set<Authority> authorities = new HashSet<>();
 
-	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinTable(
 			name = "ConsentMapping",
 			joinColumns = @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_ConsentMapping")),

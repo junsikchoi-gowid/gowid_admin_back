@@ -243,6 +243,7 @@ spring:
     risk-enabled: true
     risk-time: 0 0 6 * * *
     reset-corp-time : 0 0 10 * * *
+    koreaexim : 0 0 23 * * *
   mail:
     sender: gowid <support@gowid.com>
     riskteam: gowid <risk@gowid.com>
@@ -289,6 +290,10 @@ expense:
   status-url: /admin/corporations
   api-key: expapIsvR2021!
   access-key: b9b50278-93cf-49f4-9b5a-4a45e8e9f401
+
+koreaexim:
+  domain-url: https://www.koreaexim.go.kr/site/program/financial/exchangeJSON
+    api-key: KZEOVRso22DQO3vPggbHszOlv8GP7TBw
 
 encryption:
   keypad:
