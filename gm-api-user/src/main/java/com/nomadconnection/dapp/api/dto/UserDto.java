@@ -2,7 +2,6 @@ package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
-import com.nomadconnection.dapp.core.domain.embed.ExpenseStatus;
 import com.nomadconnection.dapp.core.domain.user.Events;
 import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -194,22 +193,6 @@ public class UserDto {
 		@ApiModelProperty("이용약관 정보")
 		private List<ConsentDto.RegDto> consents;
 	}
-
-	@Getter
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public static class UpdateOtherService {
-		@ApiModelProperty("email")
-		private String email;
-
-		@ApiModelProperty("지출관리 상태")
-		private ExpenseStatus expenseStatus;
-
-		@ApiModelProperty("SaaS 사용여부")
-		private Boolean saasUsage;
-	}
-
 
 	@Data
 	@Builder

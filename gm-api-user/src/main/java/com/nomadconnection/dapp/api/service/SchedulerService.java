@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -133,6 +134,19 @@ public class SchedulerService {
                 }
             }
             log.info("[ resetExpiredCorp ] scheduler end!");
+        }
+    }
+
+    @Scheduled(cron = "${spring.cron.koreaexim}")
+    public void getKoreaexim(){
+        log.info("[getKoreaexim] scheduler start");
+        try {
+            if (envUtil.isProd() && InetAddress.getLocalHost().getHostName().equals(LIV1_HOSTNAME)) {
+                service.scrapExchange();
+                log.info("[getKoreaexim] scheduler end");
+            }
+        }catch (Exception e){
+            log.error("[getKoreaexim] scheduler error {}", e);
         }
     }
 }

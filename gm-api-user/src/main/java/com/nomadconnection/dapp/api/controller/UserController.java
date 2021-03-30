@@ -5,10 +5,7 @@ import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -44,7 +41,6 @@ public class UserController {
 		public static final String DELETE_ACCOUNT = "/delete-account";
 		public static final String ENABLE = "/enable";
 		public static final String EVENTS = "/events";
-		public static final String OTHER_SERVICE = "/other-service";
 		public static final String MEMBERS = "/members";
 	}
 
@@ -329,17 +325,4 @@ public class UserController {
 
 		return new ResponseEntity<>(events,HttpStatus.OK);
 	}
-
-	@ApiOperation(value = "타서비스사용여부 업데이트")
-	@PostMapping(URI.OTHER_SERVICE)
-	public ResponseEntity<?> updateOtherServiceUsage(
-		@RequestBody UserDto.UpdateOtherService dto
-	) {
-		if (log.isInfoEnabled()) {
-			log.info("([ updateOtherServiceUsage ]) $dto='{}'", dto);
-		}
-		service.updateOtherServiceUsage(dto);
-		return ResponseEntity.ok().build();
-	}
-
 }

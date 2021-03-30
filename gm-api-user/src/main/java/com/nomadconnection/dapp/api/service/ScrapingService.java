@@ -1,14 +1,17 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.EmailConfig;
+import com.nomadconnection.dapp.api.config.KoreaeximConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.ProcessKillException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
+import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
+import com.nomadconnection.dapp.codef.io.helper.HttpRequest;
 import com.nomadconnection.dapp.codef.io.helper.ResponseCode;
 import com.nomadconnection.dapp.codef.io.sandbox.bk.*;
 import com.nomadconnection.dapp.codef.io.sandbox.pb.TAX_INVOICE;
@@ -26,8 +29,10 @@ import com.nomadconnection.dapp.core.domain.saas.SaasTrackerProgress;
 import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
+import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -39,9 +44,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.thymeleaf.ITemplateEngine;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -77,6 +85,8 @@ public class ScrapingService {
     private final BatchDateRepository repoBatchDate;
     private final ResTaxInvoiceRepository repoResTaxInvoice;
     private final SaasTrackerProgressRepository repoSaasTrackerProgress;
+    private final ResExchangeRateRepository repoExchangeRate;
+    private final KoreaeximConfig koreaeximConfig;
 
     private final String urlPath = CommonConstant.getRequestDomain();
     final Thread currentThread = Thread.currentThread();
@@ -2063,6 +2073,11 @@ public class ScrapingService {
      */
     @Async
     public Object scraping3Years(CustomUser user, Long idxUser, Long idxCorp) {
+
+        if(idxCorp != null ){
+            idxUser = repoCorp.searchIdxUser(idxCorp);
+        }
+
         ResBatch idxLog = startBatchLog(idxUser);
         try {
             scrapingBatch(idxUser, idxCorp, idxLog.idx());
@@ -2825,5 +2840,58 @@ public class ScrapingService {
                         }
                     }
                 });
+    }
+
+
+
+    @SneakyThrows
+    public void scrapExchange(){
+        String exchangeKey = koreaeximConfig.getDomainUrl();
+        String searchdate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String urlExchangePath = "?data=AP01&authkey=".concat(koreaeximConfig.getApiKey())
+                .concat("&searchdate=").concat(searchdate);
+
+        URL url = new URL(urlExchangePath);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setDoOutput(true);
+        con.setRequestMethod("GET");
+        int responseCode = con.getResponseCode();
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine; StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        JSONParser jsonParse = new JSONParser();
+        JSONArray jsonObject = (JSONArray) jsonParse.parse(response.toString());
+
+        if(ObjectUtils.isEmpty(jsonObject)){
+            throw new SystemException(ErrorCode.Api.NOT_FOUND);
+        }
+
+        if(jsonObject != null) {
+            for (Object item : jsonObject) {
+                JSONObject obj = (JSONObject) item;
+
+                ResExchangeRate resExchangeRate = repoExchangeRate.findByDateAndCountry(searchdate,
+                        GowidUtils.getEmptyStringToString(obj, "cur_unit"));
+
+                if(GowidUtils.getEmptyStringToString(obj, "result").equals("1")
+                        && ObjectUtils.isEmpty(resExchangeRate)) {
+                    repoExchangeRate.save(
+                            ResExchangeRate.builder()
+                                    .country(GowidUtils.getEmptyStringToString(obj, "cur_unit"))
+                                    .date(searchdate)
+                                    .standardPrice(Float.valueOf(GowidUtils.getEmptyStringToString(obj, "deal_bas_r").replaceAll(",","")))
+                                    .standard(Float.valueOf(GowidUtils.getEmptyStringToString(obj, "bkpr").replaceAll(",","")))
+                                    .sending(Float.valueOf(GowidUtils.getEmptyStringToString(obj, "tts").replaceAll(",","")))
+                                    .receiving(Float.valueOf(GowidUtils.getEmptyStringToString(obj, "ttb").replaceAll(",","")))
+                            .build()
+                    );
+                }
+            }
+        }
     }
 }

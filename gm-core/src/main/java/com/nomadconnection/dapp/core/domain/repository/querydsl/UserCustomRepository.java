@@ -116,8 +116,8 @@ public interface UserCustomRepository {
         @ApiModelProperty(value = "지출관리 상태", example = "SETUP_COMPANY")
         private ExpenseStatus expenseStatus;
 
-        @ApiModelProperty(value = "SaaS 사용여부", example = "true")
-        private Boolean saasUsage;
+        @ApiModelProperty(value = "SaaS 사용여부", example = "0")
+        private Integer saasStatus;
 
         @ApiModelProperty(value = "이메일주소", example = "angryong@gowid.com")
         private String email;

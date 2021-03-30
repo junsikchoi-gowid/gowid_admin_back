@@ -36,6 +36,12 @@ public class Common {
         @ApiModelProperty("설명2")
         private String desc2;
 
+        @ApiModelProperty("인증서발행기관")
+        private String issuer;
+
+        @ApiModelProperty("SN 키값")
+        private String serialNumber;
+
         @ApiModelProperty("certFile")
         private String certFile;
     }

@@ -4,8 +4,11 @@ import com.nomadconnection.dapp.api.exception.AlreadyExistException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.helper.EmailValidator;
+import com.nomadconnection.dapp.api.service.SaasTrackerService;
 import com.nomadconnection.dapp.api.service.UserService;
+import com.nomadconnection.dapp.api.service.expense.rpc.ExpenseRpc;
 import com.nomadconnection.dapp.api.v2.dto.AdminDto;
+import com.nomadconnection.dapp.core.domain.embed.ExpenseStatus;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.UserCustomRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -26,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminUserService {
     private final UserRepository userRepository;
     private final UserService userService;
+    private final SaasTrackerService saasTrackerService;
+    private final ExpenseRpc expenseRpc;
 
     @Transactional(readOnly = true)
     public Page<UserCustomRepository.UserListDto> getUserList(UserCustomRepository.SearchUserListDto dto, Pageable pageable) {
@@ -34,7 +39,24 @@ public class AdminUserService {
 
     @Transactional(readOnly = true)
     public UserCustomRepository.UserInfoDto getUserInfo(Long idxUser) {
-        return userRepository.userInfo(idxUser);
+        User user = userService.getUser(idxUser);
+        UserCustomRepository.UserInfoDto userInfo = userRepository.userInfo(idxUser);
+
+        try {
+            Integer status = saasTrackerService.findSaasTrackerProgress(user).status();
+            userInfo.setSaasStatus(status);
+        } catch (Exception e){
+            log.info("[AdminUserService findSaasTrackerProgress] {}", e);
+        }
+
+        try {
+            ExpenseStatus expenseStatus = expenseRpc.requestStatus(user.corp().resCompanyIdentityNo()).getSetupStatus();
+            userInfo.setExpenseStatus(expenseStatus);
+        } catch (Exception e){
+            log.info("[AdminUserService expenseStatus] {}", e);
+        }
+
+        return userInfo;
     }
 
     @Transactional(rollbackFor = Exception.class)

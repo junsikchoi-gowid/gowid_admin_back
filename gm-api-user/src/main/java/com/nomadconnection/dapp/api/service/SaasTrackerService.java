@@ -813,7 +813,7 @@ public class SaasTrackerService {
 		);
 	}
 
-	SaasTrackerProgress findSaasTrackerProgress(User user) {
+	public SaasTrackerProgress findSaasTrackerProgress(User user) {
 		return repoSaasTrackerProgress.findByUser(user).orElseThrow(
 				() -> EntityNotFoundException.builder()
 						.message("Saas Tracker's User is not found.")
