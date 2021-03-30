@@ -331,7 +331,7 @@ public class BankService {
 							.value("Request again after 3 minutes").build()
 			).build());
 		}
-		serviceScraping.scrapingRegister1YearList(idx);
+		serviceScraping.scraping3Years(null ,idx, null);
 		Thread.sleep(1000);
 		return refresh(idx,null);
 	}

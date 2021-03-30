@@ -2073,6 +2073,11 @@ public class ScrapingService {
      */
     @Async
     public Object scraping3Years(CustomUser user, Long idxUser, Long idxCorp) {
+
+        if(idxCorp != null ){
+            idxUser = repoCorp.searchIdxUser(idxCorp);
+        }
+
         ResBatch idxLog = startBatchLog(idxUser);
         try {
             scrapingBatch(idxUser, idxCorp, idxLog.idx());

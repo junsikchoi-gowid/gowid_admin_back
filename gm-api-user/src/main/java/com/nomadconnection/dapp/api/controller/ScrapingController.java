@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.controller;
 
 import com.nomadconnection.dapp.api.service.ScrapingService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,7 +49,11 @@ public class ScrapingController {
         if (log.isInfoEnabled()) {
             log.info("([ scrapingRegister ]) $user='{}' $idxCorp='{}'", user, idxCorp);
         }
-        return service.scrapingRegister1YearAll2(user.idx(), idxCorp);
+        // return service.scrapingRegister1YearAll2(user.idx(), idxCorp);
+        service.scraping3Years(null, null, idxCorp);
+
+        return ResponseEntity.ok().body(
+                BusinessResponse.builder().normal(BusinessResponse.Normal.builder().status(true).build()).build());
     }
 
     @ApiOperation(value = "10년간 데이터 가져오기", notes = "" + "\n")
