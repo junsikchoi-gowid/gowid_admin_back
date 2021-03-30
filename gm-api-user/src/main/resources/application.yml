@@ -72,6 +72,7 @@ spring:
     risk-enabled: true
     risk-time: 0 0 6 * * *
     reset-corp-time : 0 0 10 * * *
+    koreaexim : 0 0 23 * * *
   mail:
     sender: gowid <support@gowid.com>
     riskteam: gowid <risk@gowid.com>
@@ -148,6 +149,9 @@ slack:
   saastracker-url: https://hooks.slack.com/services/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
   enable: true
 
+koreaexim:
+  domain-url: https://www.koreaexim.go.kr/site/program/financial/exchangeJSON
+  api-key: KZEOVRso22DQO3vPggbHszOlv8GP7TBw
 ---
 
 spring:
@@ -159,6 +163,7 @@ spring:
     risk-enabled: true
     risk-time: 0 0 6 * * *
     reset-corp-time : 0 0 10 * * *
+    koreaexim : 0 0 23 * * *
   mail:
     sender: gowid <support@gowid.com>
     riskteam: gowid <risk@gowid.com>
@@ -232,6 +237,10 @@ slack:
 sentry:
   dsn: https://f8c647c716454cbbbecab48e6650fa95@o432031.ingest.sentry.io/5394758
   enabled: true
+
+koreaexim:
+  domain-url: https://www.koreaexim.go.kr/site/program/financial/exchangeJSON
+  api-key: KZEOVRso22DQO3vPggbHszOlv8GP7TBw
 ---
 
 spring:
@@ -292,7 +301,7 @@ expense:
   access-key: b9b50278-93cf-49f4-9b5a-4a45e8e9f401
 
 koreaexim:
-  domain-url: https://www.koreaexim.go.kr/site/program/financial/exchangeJSON
+    domain-url: https://www.koreaexim.go.kr/site/program/financial/exchangeJSON
     api-key: KZEOVRso22DQO3vPggbHszOlv8GP7TBw
 
 encryption:
