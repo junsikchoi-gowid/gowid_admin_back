@@ -726,7 +726,7 @@ public class UserService {
 				() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "userIdx=" + userIdx)
 		);
 
-		IssuanceProgress issuanceProgress = issuanceProgressRepository.findById(userIdx).orElse(
+		IssuanceProgress issuanceProgress = issuanceProgressRepository.findByCorpIdx(user.corp().idx()).orElse(
 				IssuanceProgress.builder()
 						.userIdx(userIdx)
 						.corpIdx(!ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null)
