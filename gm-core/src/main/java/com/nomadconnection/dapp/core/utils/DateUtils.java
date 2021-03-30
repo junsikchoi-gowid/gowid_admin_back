@@ -10,7 +10,7 @@ import java.util.Date;
 @Slf4j
 public class DateUtils {
 
-    public static final String DATE_FORMAT_YYYY_MM_DD = "YYYY-MM-DD";
+    public static final String DATE_FORMAT_YYYY_MM_DD = "yyyy-MM-dd";
 
     public static boolean isBetweenDate(LocalDate baseDate, LocalDate startDate, LocalDate endDate){
         return  (baseDate.isEqual(startDate) || baseDate.isAfter(startDate))
@@ -19,7 +19,7 @@ public class DateUtils {
 
     public static String convertDateFormat(String dateStr, String dateFormat) {
 
-        SimpleDateFormat beforeFormat = new SimpleDateFormat("yyyymmdd");
+        SimpleDateFormat beforeFormat = new SimpleDateFormat("yyyyMMdd");
         SimpleDateFormat afterFormat = new SimpleDateFormat(dateFormat);
 
         try {
