@@ -478,6 +478,7 @@ public class ShinhanCardServiceV2 {
         );
         String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
         idNum = Seed128.encryptEcb(idNum);
+        String ceoType = d1000.getD009();
 
         if ("0".equals(dto.getCeoSeqNo())) {
             d1000.setD034(idNum);      // 신청관리자주민등록번호
@@ -493,6 +494,10 @@ public class ShinhanCardServiceV2 {
             throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
         }
 
+        if(CeoType.EACH.getShinhanCode().equals(ceoType)){
+            d1000.cleanUpOtherCeoInfo();
+        }
+
         repoD1000.save(d1000);
     }
 
@@ -504,6 +509,7 @@ public class ShinhanCardServiceV2 {
 
         String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
         idNum = Seed128.encryptEcb(idNum);
+        String ceoType = d1400.getD031();
 
         if ("0".equals(dto.getCeoSeqNo())) {
             d1400.setD056(idNum);       // 신청관리자주민등록번호
@@ -518,6 +524,10 @@ public class ShinhanCardServiceV2 {
         } else {
             log.error("invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
             throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
+        }
+
+        if(CeoType.EACH.getShinhanCode().equals(ceoType)){
+            d1400.cleanUpOtherCeoInfo();
         }
 
         repoD1400.save(d1400);

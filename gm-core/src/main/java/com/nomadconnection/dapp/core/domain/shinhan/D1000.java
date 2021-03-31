@@ -171,31 +171,23 @@ public class D1000 extends BaseTime {
     private String d069;    //법인신청대리인부서명
     @Column(columnDefinition = "varchar(20)    DEFAULT '' COMMENT '법인신청대리인직위명'")
     private String d070;    //법인신청대리인직위명
-
-//    @Column(columnDefinition = "varchar(1)    DEFAULT '' COMMENT '고위드 기업 등급'")
-//    private String d071;    //고위드 기업 등급
-//    @Column(columnDefinition = "varchar(1)    DEFAULT '' COMMENT '벤처확인서보유여부'")
-//    private String d072;    //벤처확인서보유여부
-//    @Column(columnDefinition = "varchar(1)    DEFAULT '' COMMENT 'VC투자유치여부'")
-//    private String d073;    //VC투자유치여부
-//    @Column(columnDefinition = "varchar(15)    DEFAULT '' COMMENT '고위드계산한도'")
-//    private String d074;    //고위드계산한도
-//    @Column(columnDefinition = "varchar(15)    DEFAULT '' COMMENT '기준잔고'")
-//    private String d075;    //기준잔고
-//    @Column(columnDefinition = "varchar(15)    DEFAULT '' COMMENT '45일평균잔고'")
-//    private String d076;    //45일평균잔고
-//    @Column(columnDefinition = "varchar(15)    DEFAULT '' COMMENT '45일중간잔고'")
-//    private String d077;    //45일중간잔고
-//    @Column(columnDefinition = "varchar(15)    DEFAULT '' COMMENT '현재잔고'")
-//    private String d078;    //현재잔고
-//    @Column(columnDefinition = "varchar(8)    DEFAULT '' COMMENT '접수일자'")
-//    private String d079;    //접수일자
-//    @Column(columnDefinition = "varchar(5)    DEFAULT '' COMMENT '접수순번'")
-//    private String d080;    //접수순번
-
-
     @Column(columnDefinition = "varchar(8)    DEFAULT '' COMMENT '접수일자'")
     private String d071;    //접수일자
     @Column(columnDefinition = "varchar(5)    DEFAULT '' COMMENT '접수순번'")
     private String d072;    //접수순번
+
+    public void cleanUpOtherCeoInfo(){
+        String emptyString = "";
+        this.setD014(emptyString);
+        this.setD015(emptyString);
+        this.setD016(emptyString);
+        this.setD017(emptyString);
+        this.setD018(emptyString);
+        this.setD019(emptyString);
+        this.setD020(emptyString);
+        this.setD021(emptyString);
+    }
+
+
+
 }

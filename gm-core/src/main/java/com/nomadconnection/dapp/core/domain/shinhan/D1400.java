@@ -205,4 +205,17 @@ public class D1400 extends BaseTime {
 
     @Column(columnDefinition = "varchar(25)    DEFAULT '' COMMENT '도로명참조KEY값'")
     private String d066;    // 도로명참조KEY값
+
+    public void cleanUpOtherCeoInfo(){
+        String emptyString = "";
+
+        this.setD036(emptyString);
+        this.setD037(emptyString);
+        this.setD038(emptyString);
+        this.setD039(emptyString);
+        this.setD040(emptyString);
+        this.setD041(emptyString);
+        this.setD042(emptyString);
+        this.setD043(emptyString);
+    }
 }
