@@ -143,7 +143,7 @@ public class ResumeService {
         );
 
         emailService.sendApproveEmail(d1200.getD001(), d1100.getD039(), d1200.getD003());
-        emailService.sendWelcomeEmail(d1200.getD001(), d1100.getD039());
+//        emailService.sendWelcomeEmail(d1200.getD001(), d1100.getD039());
         log.debug("## approved email sent. biz no = " + d1200.getD001());
     }
 
