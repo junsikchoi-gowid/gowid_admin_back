@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.core.security;
 
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,13 +16,14 @@ import java.util.stream.Collectors;
 @Setter
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true)
-@SuppressWarnings({"WeakerAccess"})
 public class CustomUser extends org.springframework.security.core.userdetails.User {
 
     private Long idx;
     private String email;
     private String name;
     private String uriProfileImage;
+    private User user;
+    private Corp corp;
 
     public CustomUser(User user) {
         super(
@@ -38,6 +40,9 @@ public class CustomUser extends org.springframework.security.core.userdetails.Us
         idx = user.idx();
         name = user.name();
         email = user.email();
+
+        corp = user.corp();
+        this.user = user;
     }
 
     @Override

@@ -98,6 +98,7 @@ public class UserService {
 	private final FullTextService fullTextService;
 	private final EmailService emailService;
 	private final ExpenseService expenseService;
+	private final SurveyService surveyService;
 
 
 	public User getEnabledUserByEmailIfNotExistError(String email) {
@@ -229,9 +230,8 @@ public class UserService {
 				throw UserNotFoundException.builder().build();
 			}
 
-			// 사용자 관련 링크 제거
+			// TODO hyuntak 사용자 관련 링크 제거. 향후 리스크 생성을 사용자가 아닌 법인 별로 해야 할 듯
 			List<Risk> risks = repoRisk.findByUser(targetUser);
-			System.out.println(risks.toString());
 
 			for(Risk risk: risks) {
 				risk.user(null);
@@ -240,6 +240,12 @@ public class UserService {
 			Optional<RiskConfig> riskConfig = repoRiskConfig.findByUser(targetUser);
 			if(riskConfig.isPresent()) {
 				riskConfig.get().user(null);
+			}
+
+//			// TODO hyuntak survey answer 삭제. 향후 서베이 정책이 반영되면 삭제되어야 할 코드
+			SurveyDto surveyDto = surveyService.findAnswerByUser(targetUser);
+			if(surveyDto != null) {
+				surveyService.deleteAnswer(targetUser, surveyDto);
 			}
 
 			repoAuthority.deleteAll(targetUser.authorities());

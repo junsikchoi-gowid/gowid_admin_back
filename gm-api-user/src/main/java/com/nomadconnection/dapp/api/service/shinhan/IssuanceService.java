@@ -194,7 +194,7 @@ public class IssuanceService {
         );
         Map<String, String> issuanceCounts = new HashMap<>();
         issuanceCounts.put("counts", d1100.getD039());
-        SurveyDto surveyResult = surveyService.findAnswerByUser(userCorp.user().idx());
+        SurveyDto surveyResult = surveyService.findAnswerByUser(userCorp.user());
         emailService.sendReceiptEmail(resultOfD1200.getD001(), issuanceCounts, CardCompany.SHINHAN, resultOfD1200.getD003(),
             surveyResult, d1100.getD033() + " " + d1100.getD034());
         log.debug("## receipt email sent. biz no = " + resultOfD1200.getD001());
@@ -679,8 +679,8 @@ public class IssuanceService {
     }
 
     private String changeOldDriverLicenseErrorCode(String code, String message){
-        final String OLD_DRIVER_LICENSE_CODE = "999";
-        final String OLD_DRIVER_LICENSE_MSG = "예전 면허";
+        String OLD_DRIVER_LICENSE_CODE = "999";
+        String OLD_DRIVER_LICENSE_MSG = "예전 면허";
         if(message.contains(OLD_DRIVER_LICENSE_MSG)){
             code = OLD_DRIVER_LICENSE_CODE;
         }
