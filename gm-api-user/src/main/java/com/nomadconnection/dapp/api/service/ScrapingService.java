@@ -2848,7 +2848,7 @@ public class ScrapingService {
     public void scrapExchange(){
         String exchangeKey = koreaeximConfig.getDomainUrl();
         String searchdate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String urlExchangePath = "?data=AP01&authkey=".concat(koreaeximConfig.getApiKey())
+        String urlExchangePath = exchangeKey.concat("?data=AP01&authkey=").concat(koreaeximConfig.getApiKey())
                 .concat("&searchdate=").concat(searchdate);
 
         URL url = new URL(urlExchangePath);
