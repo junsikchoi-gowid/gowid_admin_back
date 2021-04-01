@@ -160,31 +160,41 @@ public class UserService {
 		Long idxCorp = getCorpIdx(idxAdminUser);
 		User adminUser = getUser(idxAdminUser);
 
-		Corp corp = repoCorp.findById(idxCorp)
-				.orElseThrow(() -> new BadRequestException(ErrorCode.Api.CORP_NOT_BUSINESS));
-		String plainPassword = member.getPassword();
+		try {
+			findByEmail(member.getEmail());
+			throw AlreadyExistException.builder()
+					.category("email")
+					.resource(member.getEmail())
+					.build();
+		} catch (UserNotFoundException e){
+			Corp corp = repoCorp.findById(idxCorp)
+					.orElseThrow(() -> new BadRequestException(ErrorCode.Api.CORP_NOT_BUSINESS));
+			String plainPassword = member.getPassword();
 
-		User user = User.builder()
-				.consent(false)
-				.email(member.getEmail())
-				.password(encoder.encode(plainPassword))
-				.name(member.getName())
-				.mdn(null)
-				.reception(new UserReception(false, false))
-				.authentication(new Authentication())
-				.authorities(Collections.singleton(
-						repoAuthority.findByRole(member.getRole()).orElseThrow(
-								() -> new RuntimeException(member.getRole() + " NOT FOUND")
-						)))
-				.corpName(corp.resCompanyNm())
-				.cardCompany(adminUser.cardCompany())
-				.position(null)
-				.build();
+			User user = User.builder()
+					.consent(false)
+					.email(member.getEmail())
+					.password(encoder.encode(plainPassword))
+					.name(member.getName())
+					.mdn(null)
+					.reception(new UserReception(false, false))
+					.authentication(new Authentication())
+					.authorities(Collections.singleton(
+							repoAuthority.findByRole(member.getRole()).orElseThrow(
+									() -> new RuntimeException(member.getRole() + " NOT FOUND")
+							)))
+					.corpName(corp.resCompanyNm())
+					.cardCompany(adminUser.cardCompany())
+					.position(null)
+					.build();
 
-		user.corp(corp);
-		repoUser.save(user);
+			user.corp(corp);
+			repoUser.save(user);
 
-		return UserDto.from(user);
+			return UserDto.from(user);
+		} catch(Exception e) {
+			throw e;
+		}
 	}
 
 	@Transactional(rollbackFor = Exception.class)
@@ -243,14 +253,16 @@ public class UserService {
 			}
 
 //			// TODO hyuntak survey answer 삭제. 향후 서베이 정책이 반영되면 삭제되어야 할 코드
-			SurveyDto surveyDto = surveyService.findAnswerByUser(targetUser);
-			if(surveyDto != null) {
+			try {
+				SurveyDto surveyDto = surveyService.findAnswerByUser(targetUser);
 				surveyService.deleteAnswer(targetUser, surveyDto);
+			} catch(Exception e) {
+			} finally {
+				repoAuthority.deleteAll(targetUser.authorities());
+				repoUser.delete(targetUser);
+				return true;
 			}
 
-			repoAuthority.deleteAll(targetUser.authorities());
-			repoUser.delete(targetUser);
-			return true;
 		} catch (Exception e) {
 			log.error("[removeMember] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
 			return false;
