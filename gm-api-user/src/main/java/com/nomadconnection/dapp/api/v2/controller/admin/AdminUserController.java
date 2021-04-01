@@ -3,7 +3,9 @@ package com.nomadconnection.dapp.api.v2.controller.admin;
 import com.nomadconnection.dapp.api.v2.dto.AdminDto;
 import com.nomadconnection.dapp.api.v2.service.admin.AdminUserService;
 import com.nomadconnection.dapp.core.annotation.ApiPageable;
+import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.UserCustomRepository;
+import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -42,20 +45,28 @@ public class AdminUserController extends AdminBaseController {
         return ResponseEntity.ok().body(adminUserService.getUserInfo(idxUser));
     }
 
-    @PreAuthorize("hasAnyAuthority('GOWID_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('GOWID_CARD')")
     @ApiOperation( value = "유저정보 업데이트")
     @PatchMapping(value = URI.USERS + "/{idxUser}")
     public ResponseEntity<?> updateUserInfo(
         @RequestBody AdminDto.UpdateUserDto dto,
-        @PathVariable Long idxUser){
+        @PathVariable Long idxUser,
+        @ApiIgnore @CurrentUser CustomUser user){
+        if (log.isInfoEnabled()) {
+            log.info("([ admin updateUserInfo ]) $user='{}' $idxUser='{}'", user, idxUser);
+        }
         return adminUserService.updateUserInfo(idxUser, dto);
     }
 
-    @PreAuthorize("hasAnyAuthority('GOWID_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('GOWID_CARD')")
     @ApiOperation( value = "유저정보 초기화")
     @DeleteMapping(value = URI.USERS + "/{idxUser}")
     public ResponseEntity<?> initUserInfo(
-        @PathVariable Long idxUser){
+        @PathVariable Long idxUser,
+        @ApiIgnore @CurrentUser CustomUser user){
+        if (log.isInfoEnabled()) {
+            log.info("([ admin initUserInfo ]) $user='{}' $idxUser='{}'", user, idxUser);
+        }
         return adminUserService.initUserInfo(idxUser);
     }
 }

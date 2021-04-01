@@ -51,7 +51,7 @@ public class SchedulerServiceTest extends AbstractSpringBootTest {
 //                log.info("notice");
 //            }
 //            if (Duration.between(corp.getCreatedAt(), now).toDays() >= EXPIRATION_DAYS) {
-            if (corp.resCompanyNm().contains("갓잇코리아")) {
+            if (corp.resCompanyNm().contains("")) {
                 userService.initUserInfo(repoCorp.searchIdxUser(corp.idx()));
             }
         }

@@ -1,9 +1,6 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.CronConfig;
-import com.nomadconnection.dapp.api.util.CommonUtil;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
-import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResBatchRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
@@ -16,10 +13,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -105,37 +98,38 @@ public class SchedulerService {
         return true;
     }
 
-    @Scheduled(cron = "${spring.cron.reset-corp-time}")
-    public void resetExpiredCorp() {
-        if (envUtil.isProd()) {
-            log.info("[ resetExpiredCorp ] scheduler start!");
-            boolean boolSchedule = true;
-            try {
-                String hostName = InetAddress.getLocalHost().getHostName();
-                if(!hostName.equals(LIV1_HOSTNAME)){
-                    boolSchedule = false ;
-                }
-            } catch (Exception e) {
-                log.error("[resetExpiredCorp] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
-            }
-            if (boolSchedule) {
-                List<String> statusList = new ArrayList<>();
-                statusList.add(IssuanceStatus.UNISSUED.toString());
-                statusList.add(IssuanceStatus.INPROGRESS.toString());
-                List<Corp> corps = repoCorp.findCorpByIssuanceStatus(statusList);
-                LocalDateTime now = LocalDateTime.now();
-                for (Corp corp : corps) {
-                    if (Duration.between(corp.getCreatedAt(), now).toDays() == NOTICE_DAYS) {
-                        emailService.sendResetEmail(CommonUtil.replaceHyphen(corp.resCompanyIdentityNo()));
-                    }
-                    if (Duration.between(corp.getCreatedAt(), now).toDays() >= EXPIRATION_DAYS) {
-                        userService.initUserInfo(repoCorp.searchIdxUser(corp.idx()));
-                    }
-                }
-            }
-            log.info("[ resetExpiredCorp ] scheduler end!");
-        }
-    }
+//    @Scheduled(cron = "${spring.cron.reset-corp-time}")
+//    public void resetExpiredCorp() {
+//        if (envUtil.isProd()) {
+//            log.info("[ resetExpiredCorp ] scheduler start!");
+//            boolean boolSchedule = true;
+//            try {
+//                String hostName = InetAddress.getLocalHost().getHostName();
+//                if(!hostName.equals(LIV1_HOSTNAME)){
+//                    boolSchedule = false ;
+//                }
+//            } catch (Exception e) {
+//                log.error("[resetExpiredCorp] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
+//            }
+//            if (boolSchedule) {
+//                List<String> statusList = new ArrayList<>();
+//                statusList.add(IssuanceStatus.UNISSUED.toString());
+//                statusList.add(IssuanceStatus.INPROGRESS.toString());
+//                List<Corp> corps = repoCorp.findCorpByIssuanceStatus(statusList);
+//                LocalDateTime now = LocalDateTime.now();
+//                for (Corp corp : corps) {
+//                    if (Duration.between(corp.getCreatedAt(), now).toDays() == NOTICE_DAYS) {
+//                        emailService.sendResetEmail(CommonUtil.replaceHyphen(corp.resCompanyIdentityNo()));
+//                    }
+//                    if (Duration.between(corp.getCreatedAt(), now).toDays() >= EXPIRATION_DAYS) {
+//                        log.info("[resetExpiredCorp] {}", corp.resCompanyNm());
+//                        userService.initUserInfo(repoCorp.searchIdxUser(corp.idx()));
+//                    }
+//                }
+//            }
+//            log.info("[ resetExpiredCorp ] scheduler end!");
+//        }
+//    }
 
     @Scheduled(cron = "${spring.cron.koreaexim}")
     public void getKoreaexim(){
