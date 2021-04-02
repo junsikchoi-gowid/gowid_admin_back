@@ -130,6 +130,8 @@ public class AuthService {
 		if(code.equals(storedVerifyCode)){
 			User user = userService.findByEmail(email);
 			user.password(authValidator.encodePassword(newPassword));
+			user.hasTmpPassword(false);
+			//TODO hyuntak send changepassword
 
 			redisService.deleteByKey(RedisKey.VERIFICATION_CODE, email);
 		}
@@ -147,6 +149,8 @@ public class AuthService {
 		User user = userService.getUser(idxUser);
 		authValidator.matchedPassword(oldPassword, user.password()); // 현재패스워드 검사
 		user.password(authValidator.encodePassword(newPassword));
+		user.hasTmpPassword(false);
+		//TODO hyuntak send changepassword
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 			.normal(BusinessResponse.Normal.builder()
