@@ -118,7 +118,7 @@ expense:
   user-url: /user
   status-url: /admin/corporations
   api-key: expapisvR2021!
-  access-key: b9b50278-93cf-49f4-9b5a-4a45e8e9f401
+  access-key: 94d5e8d4-92a3-11eb-a8b3-0242ac130003
 
 encryption:
   keypad:
@@ -209,7 +209,7 @@ expense:
   user-url: /user
   status-url: /admin/corporations
   api-key: expapisvR2021!
-  access-key: b9b50278-93cf-49f4-9b5a-4a45e8e9f401
+  access-key: 94d5e8d4-92a3-11eb-a8b3-0242ac130003
 
 encryption:
   keypad:
