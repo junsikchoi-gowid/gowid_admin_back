@@ -50,7 +50,8 @@ public class JwtService {
 		}
 	}
 
-	public TokenDto.TokenSet issue(String identifier, Set<Authority> authorities, Long idx, boolean corpMapping, boolean cardCompanyMapping, String role) {
+	public TokenDto.TokenSet issue(String identifier, Set<Authority> authorities, Long idx,
+								   boolean corpMapping, boolean cardCompanyMapping, boolean hasTmpPassword, String role) {
 		Date now = new Date();
 		List<TokenDto.Token> jwts = Arrays.asList(
 				issue(identifier, TokenDto.TokenType.JWT_FOR_ACCESS, now, idx, role),
@@ -67,6 +68,7 @@ public class JwtService {
 						.authorities(authorities.stream().map(Authority::role).collect(Collectors.toList()))
 						.cardCompanyMapping(cardCompanyMapping)
 						.corpMapping(corpMapping)
+						.hasTmpPassword(hasTmpPassword)
 						.build())
 				.build();
 	}

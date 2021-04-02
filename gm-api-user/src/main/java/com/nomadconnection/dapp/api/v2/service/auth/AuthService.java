@@ -73,7 +73,7 @@ public class AuthService {
 
 		Role role = Authority.from(user.authorities());
 
-		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping, role.name());
+		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
 	}
 
 	/**

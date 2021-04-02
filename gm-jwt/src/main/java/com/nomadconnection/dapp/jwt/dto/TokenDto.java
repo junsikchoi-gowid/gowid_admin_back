@@ -110,6 +110,9 @@ public class TokenDto {
 
 			@ApiModelProperty("카드발급정보 idx")
 			private Long idxCardIssuance;
+
+			@ApiModelProperty("임시비밀번호 여부")
+			private boolean hasTmpPassword;
 		}
 
 		@ApiModelProperty("인증토큰(액세스)")
