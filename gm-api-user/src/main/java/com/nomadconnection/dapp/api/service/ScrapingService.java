@@ -2278,7 +2278,7 @@ public class ScrapingService {
         for( ConnectedMng connectedMng : getConnectedMng(idxUser)){
             if(connectedMng.status().equals(ConnectedMngStatus.NORMAL)){
                 for( ResConCorpList resConCorpList : repoResConCorpList.findByConnectedId(connectedMng.connectedId())){
-                    if(resConCorpList.status().equals(ConnectedMngStatus.NORMAL)){
+                    if(resConCorpList.status().equals(ConnectedMngStatus.NORMAL) && resConCorpList.businessType().equals("BK") ){
                         Long idxResBatchList = checkProcess(connectedMng.connectedId(), idxResBatchParent, idxUser);
 
                         JSONObject[] strResult = getBatchAccountList(
