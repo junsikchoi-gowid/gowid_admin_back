@@ -208,14 +208,14 @@ public class AuthService {
 	@Transactional
 	public AuthDto.AuthInfo info(Long idxUser) {
 		User user = serviceUser.getUser(idxUser);
-		Long idxCorp = user.corp().idx();
+		Long idxCorp = user.corp() == null ? null: user.corp().idx();
 
 		Set<Authority> authorities = user.authorities();
 
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 		boolean signMapping = false;
-		if(repoConnectedMng.findByIdxCorp(user.corp().idx()).size() > 0 ){
+		if(repoConnectedMng.findByIdxCorp(idxCorp).size() > 0 ){
 			signMapping = true;
 		}
 
@@ -254,7 +254,8 @@ public class AuthService {
 	}
 
 	private UserDto.IssuanceProgressRes issuanceProgress(User user) {
-		IssuanceProgress issuanceProgress = issuanceProgressRepository.findByCorpIdx(user.corp().idx()).orElse(
+		Long idxCorp = user.corp() == null ? null: user.corp().idx();
+		IssuanceProgress issuanceProgress = issuanceProgressRepository.findByCorpIdx(idxCorp).orElse(
 				IssuanceProgress.builder()
 						.userIdx(user.idx())
 						.corpIdx(!ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null)
