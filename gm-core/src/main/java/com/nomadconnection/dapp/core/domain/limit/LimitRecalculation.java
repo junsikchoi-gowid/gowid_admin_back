@@ -6,7 +6,6 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -33,7 +32,7 @@ public class LimitRecalculation extends BaseTime {
 	private ReviewStatus reviewStatus;
 
 	@OneToMany(mappedBy = "limitRecalculation")
-	private List<LimitRecalculationHistory> limitRecalculationHistories = new ArrayList<>();
+	private List<LimitRecalculationHistory> limitRecalculationHistories /*= new ArrayList<>()*/;
 
 	public static LimitRecalculation of(Corp corp){
 		return LimitRecalculation.builder()

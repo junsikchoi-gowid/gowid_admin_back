@@ -37,10 +37,7 @@ import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.risk.Risk;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
-import com.nomadconnection.dapp.core.domain.user.Events;
-import com.nomadconnection.dapp.core.domain.user.Reception;
-import com.nomadconnection.dapp.core.domain.user.Role;
-import com.nomadconnection.dapp.core.domain.user.User;
+import com.nomadconnection.dapp.core.domain.user.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -63,10 +60,7 @@ import org.thymeleaf.context.Context;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -201,8 +195,9 @@ public class UserService {
 	public User changeMemberInfo(Long idxAdminUser, String email, UserDto.MemberRegister memberInfo) {
 		User adminUser = repoUser.findById(idxAdminUser).orElseThrow(() -> UserNotFoundException.builder().build());
 		User targetUser = findByEmail(email);
+		boolean isSameCorp = adminUser.corp().idx() == targetUser.corp().idx();
 
-		if(adminUser.corp().idx().equals(targetUser.corp().idx())) {
+		if(!isSameCorp) {
 			throw UserNotFoundException.builder().email(email).build();
 		}
 
@@ -219,10 +214,13 @@ public class UserService {
 		}
 
 		if(memberInfo.getRole() != null) {
-			targetUser.authorities(Collections.singleton(
+			Set<Authority> list = targetUser.authorities();
+			list.clear();
+			list.add(
 					repoAuthority.findByRole(memberInfo.getRole()).orElseThrow(
 							() -> new RuntimeException(memberInfo.getRole() + " NOT FOUND")
-					)));
+					));
+			targetUser.authorities(list);
 		}
 
 		return repoUser.save(targetUser);
