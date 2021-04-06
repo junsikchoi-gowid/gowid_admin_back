@@ -157,32 +157,39 @@ public class SaasTrackerService {
 
 		log.info(">>>>> getUsageSums.start");
 
+		if(Integer.parseInt(fromDt) > Integer.parseInt(toDt)) {
+			log.error("'$toDt' must be greater than '$fromDt'...");
+			throw new SystemException(ErrorCode.Api.VALIDATION_FAILED);
+		}
+
 		try {
 
 			SaasTrackerDto.UsageSumsRes usageSumsRes = new SaasTrackerDto.UsageSumsRes();
 
-			// 1. 월별 결제 금액
 			List<SaasTrackerDto.UsageSumsByPaymentRes> usageSumsByPaymentRes = new ArrayList<>();
+			List<SaasTrackerDto.UsageSumsByPaymentRes> usageSumsByForecastList = new ArrayList<>();
+
+			// 1. 월별 결제 금액
 			List<SaasPaymentHistoryRepository.UsageSumsDto> usageSums =
 				repoSaasPaymentHistory.getUsageSums(userIdx, fromDt + "01", toDt + "31");
-			Map<String, Long> usageSumsMap = usageSums.stream().collect(Collectors.toMap(SaasPaymentHistoryRepository.UsageSumsDto::getPDate, SaasPaymentHistoryRepository.UsageSumsDto::getPSum));
+			if(!ObjectUtils.isEmpty(usageSums)) {
+				Map<String, Long> usageSumsMap = usageSums.stream().collect(Collectors.toMap(SaasPaymentHistoryRepository.UsageSumsDto::getPDate, SaasPaymentHistoryRepository.UsageSumsDto::getPSum));
 
-			String tempToDt = CommonUtil.addMonths(toDt, 1);
-			while(!fromDt.equals(tempToDt)) {
-				SaasTrackerDto.UsageSumsByPaymentRes tempUsageSum = new SaasTrackerDto.UsageSumsByPaymentRes();
-				tempUsageSum.setPdate(fromDt);
-				tempUsageSum.setPsum(ObjectUtils.isEmpty(usageSumsMap.get(fromDt)) ? 0 : usageSumsMap.get(fromDt));
-				usageSumsByPaymentRes.add(tempUsageSum);
+				String tempToDt = CommonUtil.addMonths(toDt, 1);
+				while(!fromDt.equals(tempToDt)) {
+					SaasTrackerDto.UsageSumsByPaymentRes tempUsageSum = new SaasTrackerDto.UsageSumsByPaymentRes();
+					tempUsageSum.setPdate(fromDt);
+					tempUsageSum.setPsum(ObjectUtils.isEmpty(usageSumsMap.get(fromDt)) ? 0 : usageSumsMap.get(fromDt));
+					usageSumsByPaymentRes.add(tempUsageSum);
 
-				fromDt = CommonUtil.addMonths(fromDt, 1);
+					fromDt = CommonUtil.addMonths(fromDt, 1);
+				}
+
+				// 2. 예상 결제 금액(toDt, toDt+1) total :2
+				usageSumsByForecastList.add(this.getForecastPaymentAtMonth(userIdx, toDt, true));
+				usageSumsByForecastList.add(this.getForecastPaymentAtMonth(userIdx, CommonUtil.addMonths(toDt, 1), false));
 			}
 			usageSumsRes.setPaymentList(usageSumsByPaymentRes);
-
-
-			// 2. 예상 결제 금액(toDt, toDt+1) total :2
-			List<SaasTrackerDto.UsageSumsByPaymentRes> usageSumsByForecastList = new ArrayList<>();
-			usageSumsByForecastList.add(this.getForecastPaymentAtMonth(userIdx, toDt, true));
-			usageSumsByForecastList.add(this.getForecastPaymentAtMonth(userIdx, CommonUtil.addMonths(toDt, 1), false));
 			usageSumsRes.setForecastList(usageSumsByForecastList);
 
 			log.info(">>>>> getUsageSums.complete");
@@ -562,6 +569,9 @@ public class SaasTrackerService {
 		User user = userService.getUser(userIdx);
 		SaasInfo saasInfo = findSaasInfo(saasInfoIdx);
 		List<SaasPaymentInfo> saasPaymentInfos = repoSaasPaymentInfo.findAllByUserAndSaasInfoOrderByDisabledAscCurrentPaymentDateDesc(user, saasInfo);
+
+
+
 
 		try {
 

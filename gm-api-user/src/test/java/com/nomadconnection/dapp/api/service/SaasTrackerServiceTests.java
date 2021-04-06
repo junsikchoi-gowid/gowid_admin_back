@@ -54,7 +54,7 @@ class SaasTrackerServiceTests extends AbstractSpringBootTest {
 	@Order(1)
 	@DisplayName("기간별 SaaS 지출 내역 조회")
 	void getUsageSums() {
-		service.getUsageSums(66L, "202001", "202005");
+		service.getUsageSums(467L, "202005", "202104");
 	}
 
 	@Test
@@ -122,7 +122,7 @@ class SaasTrackerServiceTests extends AbstractSpringBootTest {
 	@Order(9)
 	@DisplayName("SaaS Payment Info 상세조회")
 	void getSaasPaymentInfoByIdx() {
-		service.getSaasPaymentDetailInfo(66L, 1L);
+		service.getSaasPaymentDetailInfo(467L, 14L);
 	}
 
 	@Test

@@ -698,7 +698,7 @@ public class SaasTrackerDto {
 						.currentPaymentDate(saasPaymentInfo.currentPaymentDate())
 						.paymentMethod(saasPaymentInfo.paymentMethod())
 						.organizationCode(saasPaymentInfo.organization())
-						.organization(SaasOrganizationType.getType(saasPaymentInfo.organization()).getOrgName())
+						.organization(StringUtils.isEmpty(saasPaymentInfo.organization()) ? "" : SaasOrganizationType.getType(saasPaymentInfo.organization()).getOrgName())
 						.cardNumber(StringUtils.isEmpty(saasPaymentInfo.cardNumber()) ? null : CommonUtil.extractTextFromLast(saasPaymentInfo.cardNumber(), 4))
 						.accountNumber(saasPaymentInfo.accountNumber())
 						.paymentType(saasPaymentInfo.paymentType())
