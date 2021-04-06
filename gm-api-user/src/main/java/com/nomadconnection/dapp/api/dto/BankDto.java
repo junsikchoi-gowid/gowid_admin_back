@@ -181,6 +181,9 @@ public class BankDto {
 
 		@ApiModelProperty("외화검색여부 ")
 		private Boolean boolForeign;
+
+		@ApiModelProperty("통화 USD KRW ... ")
+		private String currency;
 	}
 
 	@Data

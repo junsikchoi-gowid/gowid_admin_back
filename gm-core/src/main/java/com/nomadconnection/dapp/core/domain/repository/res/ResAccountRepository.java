@@ -22,12 +22,6 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             " order by field(resAccountDeposit , 10,11,12,13,14,30,20,40), resAccountNickName ASC, resAccountName ASC ")
     List<ResAccount> findResAccount(@Param("idxUser") Long idxUser);
 
-    @Query(value = " select R " +
-            " from ResAccount R" +
-            " where connectedId = :connectedId " +
-            " order by field(resAccountDeposit , 10,11,12,13,14,30,20,40), resAccountNickName ASC, resAccountName ASC ")
-    List<ResAccount> findConnectedId(@Param("connectedId") String connectedId);
-
     @Query(value = " select      " +
             " R.resAccountDeposit,     " +
             " R.resAccountDisplay AS resAccount,      " +
@@ -41,11 +35,12 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             " A.resAccountDesc3,      " +
             " A.resAccountDesc4,      " +
             " A.resAfterTranBalance,      " +
-            " R.resAccountCurrency      " +
+            " A.resAccountCurrency      " +
             " from ResAccountHistory A      " +
-            " join ResAccount R on R.ResAccount = A.ResAccount       " +
+            " join ResAccount R on R.ResAccount = A.ResAccount and A.resAccountCurrency = R.resAccountCurrency      " +
             " and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser)     " +
             " where (A.resAccountTrDate between :startDate and :endDate or :endDate is null)      " +
+            " and A.resAccountCurrency = :resAccountCurrency " +
             " and (R.resAccount = :resAccount or :resAccount is null)      " +
             " and R.resAccountDeposit != if( :boolF = 1 , '00' , '20')  " +
             " and cast(resAccountIn as signed) >= :resAccountIn and cast(resAccountOut as signed) >= :resAccountOut " +
@@ -55,9 +50,10 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
                                                 @Param("resAccount") String resAccount, @Param("idxUser") Long idxUser,
                                                 @Param("limit") Integer limit, @Param("offset") Integer offset,
                                                 @Param("resAccountIn") Integer resAccountIn,
-                                                @Param("resAccountOut") Integer resAccountOut, @Param("boolF") Integer boolF);
+                                                @Param("resAccountOut") Integer resAccountOut, @Param("boolF") Integer boolF,
+                                                @Param("resAccountCurrency") String resAccountCurrency);
 
-
+    ResAccount findTopByResAccount(String resAccount);
 
     interface CaccountCountDto {
         String getSumDate();

@@ -1,15 +1,10 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.BankDto;
-import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.util.CommonUtil;
-import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
-import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountHistoryRepository;
@@ -18,39 +13,26 @@ import com.nomadconnection.dapp.core.domain.repository.res.ResBatchListRepositor
 import com.nomadconnection.dapp.core.domain.repository.res.ResBatchRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
-import com.nomadconnection.dapp.core.domain.res.ResBatch;
 import com.nomadconnection.dapp.core.domain.res.ResBatchList;
 import com.nomadconnection.dapp.core.domain.risk.Risk;
 import com.nomadconnection.dapp.core.domain.user.Authority;
 import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
-import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-import org.thymeleaf.ITemplateEngine;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import org.springframework.util.StringUtils;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ForkJoinPool;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -61,17 +43,13 @@ import java.util.stream.Stream;
 public class BankService {
 
 	private final ScrapingService serviceScraping;
-
 	private final UserRepository repoUser;
 	private final CorpRepository repoCorp;
 	private final RiskRepository repoRisk;
 	private final ResBatchListRepository repoResBatchList;
-
 	private final ResAccountRepository repoResAccount;
 	private final ResAccountHistoryRepository repoResAccountHistory;
-
 	private final ResBatchRepository repoResBatch;
-
 	private final PasswordEncoder encoder;
 
 	/**
@@ -87,7 +65,6 @@ public class BankService {
 		if(strDate == null){
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 			Calendar c1 = Calendar.getInstance();
-			// strDate = sdf.format(c1.getTime());
 			endDate = sdf.format(c1.getTime());
 			c1.add(Calendar.MONTH, -1);
 			c1.add(Calendar.DATE, 1);
@@ -283,12 +260,20 @@ public class BankService {
 			}
 		}
 
+		String currency = dto.getCurrency();
+		if(StringUtils.isEmpty(currency)){
+			ResAccount resAccount = repoResAccount.findTopByResAccount(dto.getResAccount());
+			if( resAccount != null ){
+				currency = resAccount.resAccountCurrency();
+			}
+		}
+
 		List<ResAccountRepository.CaccountHistoryDto> transactionList ;
 
 		if(strDate != null && strDate.length() == 6){
-			transactionList = repoResAccount.findAccountHistory( strDate + "00" , strDate + "32", dto.getResAccount() , idxUser, pageSize, pageSize*(page-1), intIn, intOut, booleanForeign);
+			transactionList = repoResAccount.findAccountHistory( strDate + "00" , strDate + "32", dto.getResAccount() , idxUser, pageSize, pageSize*(page-1), intIn, intOut, booleanForeign, currency.toUpperCase());
 		}else{
-			transactionList = repoResAccount.findAccountHistory( strDate , strDate, dto.getResAccount(), idxUser, pageSize, pageSize*(page-1), intIn, intOut, booleanForeign);
+			transactionList = repoResAccount.findAccountHistory( strDate , strDate, dto.getResAccount(), idxUser, pageSize, pageSize*(page-1), intIn, intOut, booleanForeign, currency.toUpperCase());
 		}
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(transactionList).build());
 	}
