@@ -22,6 +22,12 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             " order by field(resAccountDeposit , 10,11,12,13,14,30,20,40), resAccountNickName ASC, resAccountName ASC ")
     List<ResAccount> findResAccount(@Param("idxUser") Long idxUser);
 
+    @Query(value = " select R " +
+            " from ResAccount R" +
+            " where connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser and status = 'NORMAL') " +
+            " order by field(resAccountDeposit , 10,11,12,13,14,30,20,40), resAccountNickName ASC, resAccountName ASC ")
+    List<ResAccount> findResAccountStatus(@Param("idxUser") Long idxUser);
+
     @Query(value = " select      " +
             " R.resAccountDeposit,     " +
             " R.resAccountDisplay AS resAccount,      " +
@@ -53,7 +59,10 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
                                                 @Param("resAccountOut") Integer resAccountOut, @Param("boolF") Integer boolF,
                                                 @Param("resAccountCurrency") String resAccountCurrency);
 
-    ResAccount findTopByResAccount(String resAccount);
+    Optional<ResAccount> findByResAccountAndResAccountEndDate(String resAccount, String strResLastTranDate);
+
+    Optional<ResAccount> findTopByConnectedIdAndResAccount(String connectedId, String resAccount);
+
 
     interface CaccountCountDto {
         String getSumDate();
@@ -106,7 +115,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "       where Date_Format(resAccountTrDate,  '%Y%m') >= ms and b.resAccount = r.resAccount      " +
             "       order by Date_Format(resAccountTrDate,  '%Y%m') asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1)     " +
             "     ),     " +
-            "           (select if(ms >= left(resAccountStartDate,6) ,resAccountBalance,0 ) resAccountBalance      " +
+            "           (select if(ms >= left(searchStartDate,6) ,resAccountBalance,0 ) resAccountBalance      " +
             "      from ResAccount r where b.resAccount = r.resAccount limit 1 )      " +
             "           )     " +
             "   ) lastResAfterTranBalance     " +
@@ -140,7 +149,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "       where Date_Format(resAccountTrDate,  '%Y%m') >= ms and b.resAccount = r.resAccount      " +
             "       order by Date_Format(resAccountTrDate,  '%Y%m') asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1)     " +
             "     ),     " +
-            "           (select if(ms >= left(resAccountStartDate,6) ,resAccountBalance,0 ) resAccountBalance      " +
+            "           (select if(ms >= left(searchStartDate,6) ,resAccountBalance,0 ) resAccountBalance      " +
             "      from ResAccount r where b.resAccount = r.resAccount limit 1 )      " +
             "           )     " +
             "   ) lastResAfterTranBalance     " +
@@ -175,7 +184,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "       where Date_Format(resAccountTrDate,  '%Y%m') >= ms and b.resAccount = r.resAccount   " +
             "       order by Date_Format(resAccountTrDate,  '%Y%m') asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1)  " +
             "     ),  " +
-            "       (select if(ms >= left(resAccountStartDate,6),resAccountBalance,0 ) resAccountBalance   " +
+            "       (select if(ms >= left(searchStartDate,6),resAccountBalance,0 ) resAccountBalance   " +
             "      from ResAccount r where b.resAccount = r.resAccount  limit 1 )   " +
             "                )  " +
             "   ) lastResAfterTranBalance  " +
@@ -187,7 +196,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
 
     Optional<ResAccount> findByConnectedIdAndResAccount(String connectedId, String resAccount);
 
-    Optional<ResAccount> findByResAccount(String resAccount);
+    Optional<ResAccount> findTopByResAccount(String resAccount);
 
     interface CRisk {
         Integer getDsc();
@@ -208,7 +217,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "  , (select resAfterTranBalance - ABS(resAccountIn) + ABS(resAccountOut) from ResAccountHistory r       " +
             "    where resAccountTrDate >= ds and b.resAccount = r.resAccount" +
             "    order by resAccountTrDate asc , resAccountTrDate asc, resAccountTrTime asc, idx asc limit 1) value2   " +
-            "  , (select if( ds >= resAccountStartDate ,resAccountBalance,0 ) resAccountBalance " +
+            "  , (select if( ds >= searchStartDate ,resAccountBalance,0 ) resAccountBalance " +
             "  from ResAccount r where b.resAccount = r.resAccount limit 1 ) value3 " +
             "    from (select ds from date_t c where d between date_add(:calcDate, INTERVAL - 44 day) and :calcDate) g     " +
             "    join ResAccount b on b.connectedId in (select connectedId from  ConnectedMng c where c.idxUser = :idxUser  ) and resAccountDeposit in ('10','11','12','13','14') " +
@@ -243,7 +252,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
                 "                AND b.resAccount = r.resAccount" +
                 "              ORDER BY resAccountTrDate ASC, resAccountTrTime ASC, idx ASC" +
                 "              LIMIT 1) value2" +
-                "           , (SELECT IF(:setDate >= resAccountStartDate, resAccountBalance, 0) resAccountBalance" +
+                "           , (SELECT IF(:setDate >= searchStartDate, resAccountBalance, 0) resAccountBalance" +
                 "              FROM ResAccount r" +
                 "              WHERE b.resAccount = r.resAccount" +
                 "              LIMIT 1) value3" +

@@ -123,7 +123,7 @@ public class CodefService {
 
 	@SneakyThrows
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity registerAccount(ConnectedMngDto.Account dto, Long idx) {
+	public ResponseEntity registerAccount(ConnectedMngDto.Account dto, Long idx, String clientType) {
 		HashMap<String, Object> bodyMap = new HashMap<>();
 		List<HashMap<String, Object>> list = new ArrayList<>();
 		HashMap<String, Object> accountMap1;
@@ -135,7 +135,7 @@ public class CodefService {
 			accountMap1 = new HashMap<>();
 			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
 			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
+			accountMap1.put("clientType",  	clientType);   // 고객구분(P: 개인, B: 기업)
 			accountMap1.put("organization",	s);// 기관코드
 			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
 			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
@@ -286,30 +286,27 @@ public class CodefService {
 
 							jsonArrayResDepositTrust.forEach(item -> {
 								JSONObject obj = (JSONObject) item;
-								Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+								Optional<ResAccount> idxLongTemp = repoResAccount.findTopByResAccount(obj.get("resAccount").toString());
 								Long idxTemp = null;
 								if(idxLongTemp.isPresent()){
 									idxTemp = idxLongTemp.get().idx();
 								}
 								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
 
-								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
-									startDate = obj.get("resAccountStartDate").toString();
-								}
-
-								if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
+								if(!repoResAccount.findTopByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
 									repoResAccount.save(ResAccount.builder()
 											.idx(idxTemp)
 											.connectedId(connId)
 											.organization(s)
 											.type("DepositTrust")
+											.searchStartDate(startDate)
+											.resAccountStartDate(GowidUtils.getEmptyStringToString(obj,"resAccountStartDate"))
 											.resAccount(GowidUtils.getEmptyStringToString(obj, "resAccount"))
 											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
 											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
 											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
 											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
 											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
-											.resAccountStartDate(startDate)
 											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
 											.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate"))
 											.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName"))
@@ -320,28 +317,26 @@ public class CodefService {
 
 							jsonArrayResLoan.forEach(item -> {
 								JSONObject obj = (JSONObject) item;
-								Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+								Optional<ResAccount> idxLongTemp = repoResAccount.findTopByResAccount(obj.get("resAccount").toString());
 								Long idxTemp = null;
 								if(idxLongTemp.isPresent()){
 									idxTemp = idxLongTemp.get().idx();
 								}
 								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
-								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
-									startDate = obj.get("resAccountStartDate").toString();
-								}
-								if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
+								if(!repoResAccount.findTopByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
 									repoResAccount.save(ResAccount.builder()
 											.idx(idxTemp)
 											.connectedId(connId)
 											.organization(s)
 											.type("Loan")
+											.searchStartDate(startDate)
+											.resAccountStartDate(GowidUtils.getEmptyStringToString(obj,"resAccountStartDate"))
 											.resAccount(obj.get("resAccount").toString())
 											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay"))
 											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
 											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
 											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
 											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
-											.resAccountStartDate(startDate)
 											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
 											.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName"))
 											.resAccountLoanExecNo(GowidUtils.getEmptyStringToString(obj,"resAccountLoanExecNo"))
@@ -352,28 +347,26 @@ public class CodefService {
 
 							jsonArrayResForeignCurrency.forEach(item -> {
 								JSONObject obj = (JSONObject) item;
-								Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+								Optional<ResAccount> idxLongTemp = repoResAccount.findTopByResAccount(obj.get("resAccount").toString());
 								Long idxTemp = null;
 								if(idxLongTemp.isPresent()){
 									idxTemp = idxLongTemp.get().idx();
 								}
 								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
-								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
-									startDate = obj.get("resAccountStartDate").toString();
-								}
-								if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
+								if(!repoResAccount.findTopByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
 									repoResAccount.save(ResAccount.builder()
 											.idx(idxTemp)
 											.connectedId(connId)
 											.organization(s)
 											.type("ResForeignCurrency")
+											.searchStartDate(startDate)
+											.resAccountStartDate(GowidUtils.getEmptyStringToString(obj,"resAccountStartDate"))
 											.resAccount(obj.get("resAccount").toString())
 											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay"))
 											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
 											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
 											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
 											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
-											.resAccountStartDate(startDate)
 											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
 											.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate"))
 											.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName"))
@@ -384,28 +377,26 @@ public class CodefService {
 
 							jsonArrayResFund.forEach(item -> {
 								JSONObject obj = (JSONObject) item;
-								Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+								Optional<ResAccount> idxLongTemp = repoResAccount.findTopByResAccount(obj.get("resAccount").toString());
 								Long idxTemp = null;
 								if(idxLongTemp.isPresent()){
 									idxTemp = idxLongTemp.get().idx();
 								}
 								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
-								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
-									startDate = obj.get("resAccountStartDate").toString();
-								}
-								if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
+								if(!repoResAccount.findTopByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
 									repoResAccount.save(ResAccount.builder()
 											.idx(idxTemp)
 											.connectedId(connId)
 											.organization(s)
 											.type("ResFund")
+											.searchStartDate(startDate)
+											.resAccountStartDate(GowidUtils.getEmptyStringToString(obj,"resAccountStartDate"))
 											.resAccount(obj.get("resAccount").toString())
 											.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay"))
 											.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
 											.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
 											.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
 											.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
-											.resAccountStartDate(startDate)
 											.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
 											.resAccountInvestedCost(GowidUtils.getEmptyStringToString(obj,"resAccountInvestedCost"))
 											.resEarningsRate(GowidUtils.getEmptyStringToString(obj,"resEarningsRate"))
@@ -2074,30 +2065,27 @@ public class CodefService {
 
 					jsonArrayResDepositTrust.forEach(item -> {
 						JSONObject obj = (JSONObject) item;
-						Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+						Optional<ResAccount> idxLongTemp = repoResAccount.findTopByResAccount(obj.get("resAccount").toString());
 						Long idxTemp = null;
 						if(idxLongTemp.isPresent()){
 							idxTemp = idxLongTemp.get().idx();
 						}
 						String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
 
-						if(!obj.get("resAccountStartDate").toString().isEmpty()) {
-							startDate = obj.get("resAccountStartDate").toString();
-						}
-
-						if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
+						if(!repoResAccount.findTopByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
 							repoResAccount.save(ResAccount.builder()
 									.idx(idxTemp)
 									.connectedId(connId)
 									.organization(s)
 									.type("DepositTrust")
+									.searchStartDate(startDate)
+									.resAccountStartDate(GowidUtils.getEmptyStringToString(obj,"resAccountStartDate"))
 									.resAccount(GowidUtils.getEmptyStringToString(obj, "resAccount"))
 									.resAccountDisplay(GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"))
 									.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
 									.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
 									.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
 									.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
-									.resAccountStartDate(startDate)
 									.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
 									.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate"))
 									.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName"))
@@ -2108,28 +2096,26 @@ public class CodefService {
 
 					jsonArrayResLoan.forEach(item -> {
 						JSONObject obj = (JSONObject) item;
-						Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+						Optional<ResAccount> idxLongTemp = repoResAccount.findTopByResAccount(obj.get("resAccount").toString());
 						Long idxTemp = null;
 						if(idxLongTemp.isPresent()){
 							idxTemp = idxLongTemp.get().idx();
 						}
 						String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
-						if(!obj.get("resAccountStartDate").toString().isEmpty()) {
-							startDate = obj.get("resAccountStartDate").toString();
-						}
-						if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
+						if(!repoResAccount.findTopByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
 							repoResAccount.save(ResAccount.builder()
 									.idx(idxTemp)
 									.connectedId(connId)
 									.organization(s)
 									.type("Loan")
 									.resAccount(obj.get("resAccount").toString())
+									.searchStartDate(startDate)
+									.resAccountStartDate(GowidUtils.getEmptyStringToString(obj,"resAccountStartDate"))
 									.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay"))
 									.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
 									.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
 									.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
 									.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
-									.resAccountStartDate(startDate)
 									.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
 									.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName"))
 									.resAccountLoanExecNo(GowidUtils.getEmptyStringToString(obj,"resAccountLoanExecNo"))
@@ -2140,28 +2126,26 @@ public class CodefService {
 
 					jsonArrayResForeignCurrency.forEach(item -> {
 						JSONObject obj = (JSONObject) item;
-						Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+						Optional<ResAccount> idxLongTemp = repoResAccount.findTopByResAccount(obj.get("resAccount").toString());
 						Long idxTemp = null;
 						if(idxLongTemp.isPresent()){
 							idxTemp = idxLongTemp.get().idx();
 						}
 						String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
-						if(!obj.get("resAccountStartDate").toString().isEmpty()) {
-							startDate = obj.get("resAccountStartDate").toString();
-						}
-						if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
+						if(!repoResAccount.findTopByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
 							repoResAccount.save(ResAccount.builder()
 									.idx(idxTemp)
 									.connectedId(connId)
 									.organization(s)
 									.type("ResForeignCurrency")
 									.resAccount(obj.get("resAccount").toString())
+									.searchStartDate(startDate)
+									.resAccountStartDate(GowidUtils.getEmptyStringToString(obj,"resAccountStartDate"))
 									.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay"))
 									.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
 									.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
 									.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
 									.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
-									.resAccountStartDate(startDate)
 									.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
 									.resLastTranDate(GowidUtils.getEmptyStringToString(obj,"resLastTranDate"))
 									.resAccountName(GowidUtils.getEmptyStringToString(obj,"resAccountName"))
@@ -2172,28 +2156,26 @@ public class CodefService {
 
 					jsonArrayResFund.forEach(item -> {
 						JSONObject obj = (JSONObject) item;
-						Optional<ResAccount> idxLongTemp = repoResAccount.findByResAccount(obj.get("resAccount").toString());
+						Optional<ResAccount> idxLongTemp = repoResAccount.findTopByResAccount(obj.get("resAccount").toString());
 						Long idxTemp = null;
 						if(idxLongTemp.isPresent()){
 							idxTemp = idxLongTemp.get().idx();
 						}
 						String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
-						if(!obj.get("resAccountStartDate").toString().isEmpty()) {
-							startDate = obj.get("resAccountStartDate").toString();
-						}
-						if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
+						if(!repoResAccount.findTopByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
 							repoResAccount.save(ResAccount.builder()
 									.idx(idxTemp)
 									.connectedId(connId)
 									.organization(s)
 									.type("ResFund")
+									.searchStartDate(startDate)
+									.resAccountStartDate(GowidUtils.getEmptyStringToString(obj,"resAccountStartDate"))
 									.resAccount(obj.get("resAccount").toString())
 									.resAccountDisplay(GowidUtils.getEmptyStringToString(obj,"resAccountDisplay"))
 									.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()))
 									.resAccountDeposit(GowidUtils.getEmptyStringToString(obj,"resAccountDeposit"))
 									.resAccountNickName(GowidUtils.getEmptyStringToString(obj,"resAccountNickName"))
 									.resAccountCurrency(GowidUtils.getEmptyStringToString(obj,"resAccountCurrency"))
-									.resAccountStartDate(startDate)
 									.resAccountEndDate(GowidUtils.getEmptyStringToString(obj,"resAccountEndDate"))
 									.resAccountInvestedCost(GowidUtils.getEmptyStringToString(obj,"resAccountInvestedCost"))
 									.resEarningsRate(GowidUtils.getEmptyStringToString(obj,"resEarningsRate"))

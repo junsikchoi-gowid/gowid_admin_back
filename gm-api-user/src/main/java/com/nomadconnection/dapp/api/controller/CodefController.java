@@ -89,11 +89,12 @@ public class CodefController {
 	@PostMapping(URI.ACCOUNT_CREATE)
 	public ResponseEntity RegisterAccount(
 			@ApiIgnore @CurrentUser CustomUser user,
-			@RequestBody ConnectedMngDto.Account dto) {
+			@RequestBody ConnectedMngDto.Account dto,
+			@RequestParam String clientType) {
 		if (log.isInfoEnabled()) {
 			log.info("([ Codef RegisterAccount ]) $user='{}' $dto='{}'", user, dto);
 		}
-		return service.registerAccount(dto, user.idx());
+		return service.registerAccount(dto, user.idx(), clientType);
 	}
 
 	@ApiOperation(value = "인증서 등록(커넥티드아이디 추가등록)", notes = "" +

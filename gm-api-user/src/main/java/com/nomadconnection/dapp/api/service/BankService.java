@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -186,7 +187,7 @@ public class BankService {
 		//todo auth
 		idxUser = getaLong(idxUser, idxCorp);
 
-		List<BankDto.ResAccountDto> resAccount = repoResAccount.findResAccount(idxUser).stream()
+		List<BankDto.ResAccountDto> resAccount = repoResAccount.findResAccountStatus(idxUser).stream()
 				.map(account -> BankDto.ResAccountDto.from(account, isMasking))
 				.collect(Collectors.toList());
 
@@ -262,9 +263,9 @@ public class BankService {
 
 		String currency = dto.getCurrency();
 		if(StringUtils.isEmpty(currency)){
-			ResAccount resAccount = repoResAccount.findTopByResAccount(dto.getResAccount());
+			Optional<ResAccount> resAccount = repoResAccount.findTopByResAccount(dto.getResAccount());
 			if( resAccount != null ){
-				currency = resAccount.resAccountCurrency();
+				currency = resAccount.get().resAccountCurrency();
 			}
 		}
 

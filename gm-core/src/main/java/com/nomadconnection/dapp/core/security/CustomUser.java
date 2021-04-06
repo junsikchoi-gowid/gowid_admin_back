@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.core.security;
 
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -20,8 +21,9 @@ public class CustomUser extends org.springframework.security.core.userdetails.Us
 
     private Long idx;
     private String email;
-    private String name;
     private String uriProfileImage;
+    private String name;
+
 
     public CustomUser(User user) {
         super(
@@ -35,9 +37,10 @@ public class CustomUser extends org.springframework.security.core.userdetails.Us
                         .map(authority -> new SimpleGrantedAuthority(authority.role().name()))
                         .collect(Collectors.toList())
         );
+
         idx = user.idx();
-        name = user.name();
         email = user.email();
+        name = user.name();
     }
 
     @Override

@@ -51,4 +51,5 @@ public class ResAccountHistory extends BaseTime {
     private String resFee; //수수료
     private String resLoanBalance; //대출잔액
     private String resInterestRate; //대출이율
+    private String resAccountCurrency; //통화코드
 }

@@ -23,4 +23,7 @@ public class ResBatch extends BaseTime {
     private Long idx;
     private Long idxUser;
     private boolean endFlag;
+
+
+
 }
