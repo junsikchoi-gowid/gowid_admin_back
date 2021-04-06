@@ -21,10 +21,10 @@ public class SaasPaymentInfo extends BaseTime {
     @Column(nullable = false, updatable = false)
     private Long idx;
 
-    @Column(nullable = false, columnDefinition = "VARCHAR(10) COMMENT '최근 결제 일'")
+    @Column(columnDefinition = "VARCHAR(10) COMMENT '최근 결제 일'")
     private String currentPaymentDate;
 
-    @Column(nullable = false, columnDefinition = "BIGINT(20) COMMENT '최근 결제 금액'")
+    @Column(columnDefinition = "BIGINT(20) COMMENT '최근 결제 금액'")
     private Long currentPaymentPrice;
 
     @Column(nullable = false)

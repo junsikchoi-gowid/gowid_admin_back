@@ -52,6 +52,9 @@ public enum SaasOrganizationType implements EnumValue<Object> {
 	CODE_0316("0316", "광주카드"),
 	CODE_0320("0320", "수협카드"),
 	CODE_0321("0321", "제주카드"),
+
+	// Etc
+	CODE_9991("9991", "Free-Trial"),
 	;
 
 	private String value;
