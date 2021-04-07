@@ -2189,7 +2189,7 @@ public class ScrapingService {
                                 idxResBatchParent
                         );
 
-                        if(checkCode(strResult[0])){
+                        if(checkCode(strResult[0])) {
                             JSONObject jsonData = strResult[1];
                             JSONArray jsonArrayResDepositTrust = (JSONArray) jsonData.get("resDepositTrust");
                             JSONArray jsonArrayResForeignCurrency = (JSONArray) jsonData.get("resForeignCurrency");
@@ -2198,10 +2198,20 @@ public class ScrapingService {
 
                             String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0, 6).concat("01");
 
-                            saveJsonDataToResAccount("DepositTrust", jsonArrayResDepositTrust,connectedMng.connectedId(),resConCorpList.organization(),startDate);
-                            saveJsonDataToResAccount("ResForeignCurrency", jsonArrayResForeignCurrency,connectedMng.connectedId(),resConCorpList.organization(),startDate);
-                            saveJsonDataToResAccount("ResFund", jsonArrayResFund,connectedMng.connectedId(),resConCorpList.organization(),startDate);
-                            saveJsonDataToResAccount("resLoan", jsonArrayResLoan,connectedMng.connectedId(),resConCorpList.organization(),startDate);
+                            if (jsonArrayResDepositTrust.size() > 0) {
+                                saveJsonDataToResAccount("DepositTrust", jsonArrayResDepositTrust, connectedMng.connectedId(), resConCorpList.organization(), startDate);
+                            }
+
+                            if (jsonArrayResForeignCurrency.size() > 0) {
+                                saveJsonDataToResAccount("ResForeignCurrency", jsonArrayResForeignCurrency, connectedMng.connectedId(), resConCorpList.organization(), startDate);
+                            }
+
+                            if (jsonArrayResFund.size() > 0) {
+                                saveJsonDataToResAccount("ResFund", jsonArrayResFund, connectedMng.connectedId(), resConCorpList.organization(), startDate);
+                            }
+                            if(jsonArrayResLoan.size() > 0) {
+                                saveJsonDataToResAccount("resLoan", jsonArrayResLoan, connectedMng.connectedId(), resConCorpList.organization(), startDate);
+                            }
                         }
                     }
                 }
@@ -2390,21 +2400,43 @@ public class ScrapingService {
 
 
     private void saveJsonDataToResAccount(String accountType, JSONArray jsonArray, String connectedId, String bank, String startDate) {
+
+        List<String> accountList = new ArrayList<>();
+        List<String> deleteAccountList = new ArrayList<>();
+
+        for(Object objJson : jsonArray) {
+            JSONObject o = (JSONObject) objJson;
+            String account = GowidUtils.getEmptyStringToString(o, "resAccount");
+            accountList.add(account);
+
+            if( accountList.stream().filter(a -> a.equals(account)).count() > 1 ){
+                repoResAccount.deleteByResAccount(account);
+            }
+        }
+
         for( Object item :jsonArray ){
             JSONObject obj = (JSONObject) item;
-            String resAccountEndDate = "";
+            String resAccountCurrency = "";
 
-            if( !ObjectUtils.isEmpty(obj.get("resAccountEndDate"))){
-                resAccountEndDate = obj.get("resAccountEndDate").toString();
+            if( !ObjectUtils.isEmpty(obj.get("resAccountCurrency"))){
+                resAccountCurrency = obj.get("resAccountCurrency").toString();
             }
 
-            ResAccount resAccount = repoResAccount.findByResAccountAndResAccountEndDate(obj.get("resAccount").toString(), resAccountEndDate ).orElse(
-                    ResAccount.builder()
-                            .connectedId(connectedId)
-                            .organization(bank)
-                            .type(accountType)
-                            .build()
-            );
+            ResAccount resAccount = ResAccount.builder()
+                    .connectedId(connectedId)
+                    .organization(bank)
+                    .type(accountType)
+                    .build();
+
+            if( accountList.stream().filter(a -> a.equals(obj.get("resAccount"))).count() < 2 ) {
+                resAccount = repoResAccount.findTopByResAccountAndResAccountCurrency(obj.get("resAccount").toString(), resAccountCurrency).orElse(
+                        ResAccount.builder()
+                                .connectedId(connectedId)
+                                .organization(bank)
+                                .type(accountType)
+                                .build()
+                );
+            }
 
             resAccount.searchStartDate(startDate);
             resAccount.resAccountStartDate(GowidUtils.getEmptyStringToString(obj, "resAccountStartDate"));

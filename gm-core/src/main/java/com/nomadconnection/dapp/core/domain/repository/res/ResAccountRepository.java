@@ -5,9 +5,11 @@ import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -63,6 +65,14 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
 
     Optional<ResAccount> findTopByConnectedIdAndResAccount(String connectedId, String resAccount);
 
+    Optional<ResAccount> findByResAccountAndResAccountCurrency(String resAccount, String resAccountCurrency);
+
+    @Transactional
+    @Modifying
+    @Query("delete from ResAccount where resAccount = :resAccount")
+    void deleteByResAccount(@Param("resAccount") String resAccount);
+
+    Optional<ResAccount> findTopByResAccountAndResAccountCurrency(String resAccount, String resAccountCurrency);
 
     interface CaccountCountDto {
         String getSumDate();
