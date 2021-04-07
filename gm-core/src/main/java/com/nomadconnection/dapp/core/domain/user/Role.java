@@ -1,10 +1,10 @@
 package com.nomadconnection.dapp.core.domain.user;
 
-@SuppressWarnings("unused")
 public enum Role {
 
 	ROLE_MASTER,
-	ROLE_ADMIN,
+	ROLE_VIEWER,
+	ROLE_EXPENSE_MANAGER,
 	ROLE_MEMBER,
 	GOWID_ADMIN,
 	GOWID_USER,
@@ -17,8 +17,8 @@ public enum Role {
 		return ROLE_MASTER.equals(role);
 	}
 
-	public static boolean isAdmin(Role role) {
-		return ROLE_ADMIN.equals(role);
+	public static boolean isViewer(Role role) {
+		return ROLE_VIEWER.equals(role);
 	}
 
 	public static boolean isGowidAdmin(Role role) {
@@ -30,10 +30,10 @@ public enum Role {
 	}
 
 	public static boolean isUpdatableCreditLimit(Role role) {
-		return ROLE_MASTER.equals(role) || ROLE_ADMIN.equals(role);
+		return ROLE_MASTER.equals(role) || ROLE_VIEWER.equals(role);
 	}
 
 	public static boolean isUpdatableDeptName(Role role) {
-		return ROLE_MASTER.equals(role) || ROLE_ADMIN.equals(role);
+		return ROLE_MASTER.equals(role) || ROLE_VIEWER.equals(role);
 	}
 }

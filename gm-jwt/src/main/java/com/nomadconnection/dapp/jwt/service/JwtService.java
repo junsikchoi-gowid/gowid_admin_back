@@ -50,11 +50,12 @@ public class JwtService {
 		}
 	}
 
-	public TokenDto.TokenSet issue(String identifier, Set<Authority> authorities, Long idx, boolean corpMapping, boolean cardCompanyMapping) {
+	public TokenDto.TokenSet issue(String identifier, Set<Authority> authorities, Long idx,
+								   boolean corpMapping, boolean cardCompanyMapping, boolean hasTmpPassword, String role) {
 		Date now = new Date();
 		List<TokenDto.Token> jwts = Arrays.asList(
-				issue(identifier, TokenDto.TokenType.JWT_FOR_ACCESS, now, idx),
-				issue(identifier, TokenDto.TokenType.JWT_FOR_REFRESH, now, idx)
+				issue(identifier, TokenDto.TokenType.JWT_FOR_ACCESS, now, idx, role),
+				issue(identifier, TokenDto.TokenType.JWT_FOR_REFRESH, now, idx, role)
 		);
 
 		return TokenDto.TokenSet.builder()
@@ -67,40 +68,20 @@ public class JwtService {
 						.authorities(authorities.stream().map(Authority::role).collect(Collectors.toList()))
 						.cardCompanyMapping(cardCompanyMapping)
 						.corpMapping(corpMapping)
+						.hasTmpPassword(hasTmpPassword)
 						.build())
 				.build();
 	}
 
-	public TokenDto.TokenSet issueOut(String identifier, Set<Authority> authorities, Long idx, boolean corpMapping, boolean cardCompanyMapping) {
-		Date now = new Date();
-		List<TokenDto.Token> jwts = Arrays.asList(
-				issue(identifier, TokenDto.TokenType.JWT_OUTER_ACCESS, now, idx),
-				issue(identifier, TokenDto.TokenType.JWT_FOR_REFRESH, now, idx)
-		);
-
-		return TokenDto.TokenSet.builder()
-				.jwtAccess(jwts.get(0).getJwt())
-				.jwtRefresh(jwts.get(1).getJwt())
-				.issuedAt(now)
-				.jwtAccessExpiration(jwts.get(0).getExpiration())
-				.jwtRefreshExpiration(jwts.get(1).getExpiration())
-				.info(TokenDto.TokenSet.AccountInfo.builder()
-						.authorities(authorities.stream().map(Authority::role).collect(Collectors.toList()))
-						.cardCompanyMapping(cardCompanyMapping)
-						.corpMapping(corpMapping)
-						.build())
-				.build();
+	public TokenDto.Token issue(String identifier, TokenDto.TokenType tokenType, Date now, String role) {
+		return issue(identifier, tokenType, now, null, null, role);
 	}
 
-	public TokenDto.Token issue(String identifier, TokenDto.TokenType tokenType, Date now) {
-		return issue(identifier, tokenType, now, null, null);
+	public TokenDto.Token issue(String identifier, TokenDto.TokenType tokenType, Date now, Long idx, String role) {
+		return issue(identifier, tokenType, now, idx, null, role);
 	}
 
-	public TokenDto.Token issue(String identifier, TokenDto.TokenType tokenType, Date now, Long idx) {
-		return issue(identifier, tokenType, now, idx, null);
-	}
-
-	public TokenDto.Token issue(String identifier, TokenDto.TokenType tokenType, Date now, Long idx, Long idxReference) {
+	public TokenDto.Token issue(String identifier, TokenDto.TokenType tokenType, Date now, Long idx, Long idxReference, String role) {
 		Date expiration;
 		{
 			switch (tokenType) {
@@ -126,6 +107,7 @@ public class JwtService {
 						.setExpiration(expiration)
 						.claim(TokenDto.CustomClaim.TOKEN_TYPE.name(), tokenType)
 						.claim(TokenDto.CustomClaim.IDX.name(), idx)
+						.claim(TokenDto.CustomClaim.ROLE.name(), role)
 						.claim(TokenDto.CustomClaim.IDX_REFERENCE.name(), idxReference)
 						.signWith(SignatureAlgorithm.HS512, config.getBase64SecretKey())
 						.compact())

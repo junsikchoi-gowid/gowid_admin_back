@@ -15,6 +15,7 @@ import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRe
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.user.Authority;
+import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import com.nomadconnection.dapp.jwt.exception.UnacceptableJwtException;
@@ -102,7 +103,9 @@ public class AuthService {
 						.email(email)
 						.build()
 		);
-		TokenDto.Token token = jwt.issue(email, TokenDto.TokenType.JWT_FOR_AUTHENTICATION, new Date());
+		Role role = Authority.from(user.authorities());
+
+		TokenDto.Token token = jwt.issue(email, TokenDto.TokenType.JWT_FOR_AUTHENTICATION, new Date(), role.name());
 		MimeMessagePreparator preparator = mimeMessage -> {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 			helper.setFrom(config.getSender());
@@ -167,6 +170,7 @@ public class AuthService {
 						.email(dto.getEmail())
 						.build()
 		);
+		Role role = Authority.from(user.authorities());
 
 		if (!encoder.matches(dto.getPassword(), user.password())) {
 			throw UnauthorizedException.builder()
@@ -177,24 +181,7 @@ public class AuthService {
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 
-		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping);
-	}
-
-	public TokenDto.TokenSet issueTokenSetOut(AccountDto dto) {
-		User user = repoUser.findByAuthentication_EnabledAndEmail(true, dto.getEmail()).orElseThrow(
-				() -> UserNotFoundException.builder()
-						.email(dto.getEmail())
-						.build()
-		);
-
-		if(!dto.getPassword().equals("string")){
-			throw new RuntimeException("what ~?");
-		}
-
-		boolean corpMapping = !StringUtils.isEmpty(user.corp());
-		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
-
-		return jwt.issueOut(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping);
+		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
 	}
 
 	/**
@@ -221,17 +208,19 @@ public class AuthService {
 	@Transactional
 	public AuthDto.AuthInfo info(Long idxUser) {
 		User user = serviceUser.getUser(idxUser);
+		Long idxCorp = user.corp() == null ? null: user.corp().idx();
+
 		Set<Authority> authorities = user.authorities();
 
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 		boolean signMapping = false;
-		if(repoConnectedMng.findByIdxUser(idxUser).size() > 0 ){
+		if(repoConnectedMng.findByIdxCorp(idxCorp).size() > 0 ){
 			signMapping = true;
 		}
 
 		boolean refreshMapping = true;
-		if(repoConnectedMng.findRefresh(idxUser) > 0 ){
+		if(repoConnectedMng.findRefresh(idxCorp) > 0 ){
 			refreshMapping = false;
 		}
 
@@ -265,7 +254,8 @@ public class AuthService {
 	}
 
 	private UserDto.IssuanceProgressRes issuanceProgress(User user) {
-		IssuanceProgress issuanceProgress = issuanceProgressRepository.findById(user.idx()).orElse(
+		Long idxCorp = user.corp() == null ? null: user.corp().idx();
+		IssuanceProgress issuanceProgress = issuanceProgressRepository.findByCorpIdx(idxCorp).orElse(
 				IssuanceProgress.builder()
 						.userIdx(user.idx())
 						.corpIdx(!ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null)

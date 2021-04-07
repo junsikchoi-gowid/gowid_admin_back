@@ -37,21 +37,21 @@ public class SurveyController {
 	@GetMapping(URI.ANSWER)
 	@ApiOperation(value = "설문조사 응답내역 조회")
 	public ApiResponse<?> find(@ApiIgnore @CurrentUser CustomUser user, @RequestParam String surveyTitle) {
-		return ApiResponse.OK(surveyService.findAnswerByTitle(user.idx(), surveyTitle));
+		return ApiResponse.OK(surveyService.findAnswerByTitle(user.user(), surveyTitle));
 	}
 
 	@PostMapping(URI.ANSWER)
 	@ApiOperation(value = "설문조사 저장")
 	public ApiResponse<?> save(@ApiIgnore @CurrentUser CustomUser user,
 	                                 @RequestBody SurveyDto dto) {
-		return ApiResponse.OK(surveyService.saveAnswer(user.idx(), dto));
+		return ApiResponse.OK(surveyService.saveAnswer(user.user(), dto));
 	}
 
 	@DeleteMapping(URI.ANSWER)
 	@ApiOperation(value = "설문조사 삭제")
 	public ApiResponse<?> delete(@ApiIgnore @CurrentUser CustomUser user,
 	                                 @RequestBody SurveyDto dto) {
-		surveyService.deleteAnswer(user.idx(), dto);
+		surveyService.deleteAnswer(user.user(), dto);
 		return ApiResponse.OK();
 	}
 

@@ -180,7 +180,7 @@ public class LotteIssuanceService {
 		if (!StringUtils.isEmpty(d1100.getRgAkCt5())) {
 			issuanceCounts.put(d1100.getUnitCdC5(), getLotteCardsCount(d1100.getRgAkCt5()));
 		}
-		SurveyDto surveyResult = surveyService.findAnswerByUser(userCorp.user().idx());
+		SurveyDto surveyResult = surveyService.findAnswerByUser(userCorp.user());
 		emailService.sendReceiptEmail(CommonUtil.replaceHyphen(userCorp.resCompanyIdentityNo()), issuanceCounts,
 			CardCompany.LOTTE, null, surveyResult, d1100.getTkpPnadd() + " " + d1100.getTkpBpnoAdd());
 		log.info("[ sendReceiptEmail ] Complete send email {}", userCorp.resCompanyNm());

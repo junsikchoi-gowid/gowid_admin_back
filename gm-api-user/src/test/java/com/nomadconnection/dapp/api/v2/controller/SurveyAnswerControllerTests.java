@@ -5,6 +5,7 @@ import com.nomadconnection.dapp.api.abstracts.AbstractWebMvcTest;
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.SurveyDto;
 import com.nomadconnection.dapp.api.service.SurveyService;
+import com.nomadconnection.dapp.core.domain.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ class SurveyAnswerControllerTests extends AbstractWebMvcTest {
 	}
 
 	SurveyDto buildFunnelsSurveys(String answer, String detail){
-		final String DEFAULT = "DEFAULT";
+		String DEFAULT = "DEFAULT";
 		return SurveyDto.builder().title(DEFAULT).answer(answer).detail(detail).build();
 	}
 
@@ -41,7 +42,9 @@ class SurveyAnswerControllerTests extends AbstractWebMvcTest {
 	void shouldSuccessWhenFindByTitle() throws Exception {
 		SurveyDto survey = buildFunnelsSurveys("SNS", "페이스북");
 
-		given(surveyService.findAnswerByTitle(67L , survey.getTitle()))
+		User user = User.builder().idx(67L).build();
+
+		given(surveyService.findAnswerByTitle(user, survey.getTitle()))
 			.willReturn(Arrays.asList(buildFunnelsSurveys("KEYWORD", ""), survey));
 
 		mockMvc.perform(

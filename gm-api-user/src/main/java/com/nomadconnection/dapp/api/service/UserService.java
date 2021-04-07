@@ -35,11 +35,9 @@ import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.EventsRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
+import com.nomadconnection.dapp.core.domain.risk.Risk;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
-import com.nomadconnection.dapp.core.domain.user.Events;
-import com.nomadconnection.dapp.core.domain.user.Reception;
-import com.nomadconnection.dapp.core.domain.user.Role;
-import com.nomadconnection.dapp.core.domain.user.User;
+import com.nomadconnection.dapp.core.domain.user.*;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -62,10 +60,7 @@ import org.thymeleaf.context.Context;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -97,6 +92,7 @@ public class UserService {
 	private final FullTextService fullTextService;
 	private final EmailService emailService;
 	private final ExpenseService expenseService;
+	private final SurveyService surveyService;
 
 
 	public User getEnabledUserByEmailIfNotExistError(String email) {
@@ -151,6 +147,124 @@ public class UserService {
 
 	public UserDto getUserInfo(Long idxUser) {
 		return UserDto.from(getUser(idxUser));
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public UserDto addMember(Long idxAdminUser, UserDto.MemberRegister member) {
+		Long idxCorp = getCorpIdx(idxAdminUser);
+		User adminUser = getUser(idxAdminUser);
+
+		try {
+			findByEmail(member.getEmail());
+			throw AlreadyExistException.builder()
+					.category("email")
+					.resource(member.getEmail())
+					.build();
+		} catch (UserNotFoundException e){
+			Corp corp = repoCorp.findById(idxCorp)
+					.orElseThrow(() -> new BadRequestException(ErrorCode.Api.CORP_NOT_BUSINESS));
+			String plainPassword = member.getPassword();
+
+			User user = User.builder()
+					.consent(false)
+					.email(member.getEmail())
+					.password(encoder.encode(plainPassword))
+					.name(member.getName())
+					.mdn(null)
+					.reception(new UserReception(false, false))
+					.authentication(new Authentication())
+					.authorities(Collections.singleton(
+							repoAuthority.findByRole(member.getRole()).orElseThrow(
+									() -> new RuntimeException(member.getRole() + " NOT FOUND")
+							)))
+					.corpName(corp.resCompanyNm())
+					.cardCompany(adminUser.cardCompany())
+					.position(null)
+					.build();
+
+			user.corp(corp);
+			repoUser.save(user);
+
+			return UserDto.from(user);
+		} catch(Exception e) {
+			throw e;
+		}
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public User changeMemberInfo(Long idxAdminUser, String email, UserDto.MemberRegister memberInfo) {
+		User adminUser = repoUser.findById(idxAdminUser).orElseThrow(() -> UserNotFoundException.builder().build());
+		User targetUser = findByEmail(email);
+		boolean isSameCorp = adminUser.corp().idx() == targetUser.corp().idx();
+
+		if(!isSameCorp) {
+			throw UserNotFoundException.builder().email(email).build();
+		}
+
+		if(memberInfo.getEmail() != null) {
+			targetUser.email(memberInfo.getEmail());
+		}
+
+		if(memberInfo.getName() != null) {
+			targetUser.name(memberInfo.getName());
+		}
+
+		if(memberInfo.getPassword() != null) {
+			targetUser.password(encoder.encode(memberInfo.getPassword()));
+		}
+
+		if(memberInfo.getRole() != null) {
+			Set<Authority> list = targetUser.authorities();
+			list.clear();
+			list.add(
+					repoAuthority.findByRole(memberInfo.getRole()).orElseThrow(
+							() -> new RuntimeException(memberInfo.getRole() + " NOT FOUND")
+					));
+			targetUser.authorities(list);
+		}
+
+		return repoUser.save(targetUser);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public boolean removeMember(Long idxAdminUser, String email) {
+		log.info("[removeMember] to be deleted ({})", email);
+
+		try {
+			User adminUser = repoUser.findById(idxAdminUser).orElse(null);
+			User targetUser = findByEmail(email);
+			log.debug("admin {} targetUer {} {} ", adminUser.corp().idx(), targetUser.corp().idx(), targetUser.idx());
+			if(targetUser == null || !adminUser.corp().idx().equals(targetUser.corp().idx())) {
+				throw UserNotFoundException.builder().build();
+			}
+
+			// TODO hyuntak 사용자 관련 링크 제거. 향후 리스크 생성을 사용자가 아닌 법인 별로 해야 할 듯
+			List<Risk> risks = repoRisk.findByUser(targetUser);
+
+			for(Risk risk: risks) {
+				risk.user(null);
+			}
+
+			Optional<RiskConfig> riskConfig = repoRiskConfig.findByUser(targetUser);
+			if(riskConfig.isPresent()) {
+				riskConfig.get().user(null);
+			}
+
+//			// TODO hyuntak survey answer 삭제. 향후 서베이 정책이 반영되면 삭제되어야 할 코드
+			try {
+				SurveyDto surveyDto = surveyService.findAnswerByUser(targetUser);
+				surveyService.deleteAnswer(targetUser, surveyDto);
+			} catch(Exception e) {
+			} finally {
+				repoAuthority.deleteAll(targetUser.authorities());
+				repoUser.delete(targetUser);
+				return true;
+			}
+
+		} catch (Exception e) {
+			log.error("[removeMember] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
+			return false;
+		}
 	}
 
 	/**
@@ -409,11 +523,13 @@ public class UserService {
 					.account(dto.getEmail())
 					.build();
 		}
+		//	사용자 조회
+		String role = Role.ROLE_MASTER.name();
 
 		boolean corpMapping = StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = StringUtils.isEmpty(user.cardCompany());
 
-		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping);
+		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role);
 	}
 
 
@@ -626,10 +742,11 @@ public class UserService {
 				() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "userIdx=" + userIdx)
 		);
 
-		IssuanceProgress issuanceProgress = issuanceProgressRepository.findById(userIdx).orElse(
+		Long idxCorp = !ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null;
+		IssuanceProgress issuanceProgress = issuanceProgressRepository.findByCorpIdx(idxCorp).orElse(
 				IssuanceProgress.builder()
 						.userIdx(userIdx)
-						.corpIdx(!ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null)
+						.corpIdx(idxCorp)
 						.progress(IssuanceProgressType.NOT_SIGNED)
 						.status(IssuanceStatusType.SUCCESS)
 						.build()
@@ -700,6 +817,10 @@ public class UserService {
 			return null;
 		}
 		return !ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null;
+	}
+
+	private Corp getCorBpyRegistrationNumber(String registrationNumber) {
+		return repoCorp.findByResCompanyIdentityNo(registrationNumber).orElse(null);
 	}
 
 	/**

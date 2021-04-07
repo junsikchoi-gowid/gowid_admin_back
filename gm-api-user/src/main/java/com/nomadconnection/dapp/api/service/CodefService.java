@@ -106,6 +106,7 @@ public class CodefService {
 		).build());
 	}
 
+	//FIXME hyuntak idxUser -> idxCorp
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity findConnectedIdListCorp(Long idxUser, Long idxCorp) {
 
@@ -916,6 +917,7 @@ public class CodefService {
 			if (repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).isPresent()) {
 				corp = repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).get();
 			} else {
+				//FIXME hyuntak update
 				corp = repoCorp.save(
 						Corp.builder()
 								.resJointRepresentativeNm(GowidUtils.getEmptyStringToString(jsonData, "resJointRepresentativeNm"))
@@ -939,6 +941,7 @@ public class CodefService {
 				);
 			}
 
+			//TODO hyuntak 여기에서 세팅합니다.
 			user.corp(corp);
 			repoUser.save(user);
 

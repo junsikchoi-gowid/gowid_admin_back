@@ -107,6 +107,14 @@ public class User extends BaseTime {
 	@Builder.Default
 	private boolean isReset = false; // 초기화여부
 
+	@Builder.Default
+	@Column(columnDefinition = "bit(1) NOT NULL default b'1' comment '서비스 담당자 여부' ")
+	private boolean isMaster = true;
+
+	@Builder.Default
+	@Column(columnDefinition = "bit(1) NOT NULL default b'0' comment '임시비밀번호 인지 여부' ")
+	private boolean hasTmpPassword = false;
+
 	@OneToMany(mappedBy = "user")
 	private List<SaasIssueReport> saasIssueReports;
 
@@ -118,5 +126,4 @@ public class User extends BaseTime {
 
 	@OneToOne(mappedBy = "user")
 	private SaasTrackerProgress saasTrackerProgress;
-
 }

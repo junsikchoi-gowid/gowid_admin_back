@@ -15,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -36,6 +37,7 @@ public interface RiskRepository extends JpaRepository<Risk, Long>, AdminCustomRe
     Double findCardLimitNowFirst(@Param("idxUser") Long idxUser,
                                  @Param("setDate") String setDate);
 
+    List<Risk> findByUser(User user);
     Optional<Risk> findByUserAndDate(User user, String Date);
 
     Optional<Risk> findByCorpAndDate(Corp corp, String Date);
