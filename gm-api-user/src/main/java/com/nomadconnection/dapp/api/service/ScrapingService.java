@@ -2438,6 +2438,7 @@ public class ScrapingService {
                 );
             }
 
+            resAccount.connectedId(connectedId);
             resAccount.searchStartDate(startDate);
             resAccount.resAccountStartDate(GowidUtils.getEmptyStringToString(obj, "resAccountStartDate"));
             resAccount.resAccount(GowidUtils.getEmptyStringToString(obj, "resAccount"));
