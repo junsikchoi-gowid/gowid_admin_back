@@ -112,72 +112,44 @@ public class ScrapingService {
             String account = jsonData.get("resAccount").toString();
             String accountCurrency = GowidUtils.getEmptyStringToString(jsonData, "resAccountCurrency");
             //   10 :실시간 적금  40:대출  20:외화  30:펀드
-            if (iType == 10) {
-                if (!jsonArrayResTrHistoryList.isEmpty()) {
-                    ((List<?>) jsonArrayResTrHistoryList).forEach(item2 -> {
-                        JSONObject obj = (JSONObject) item2;
+            try {
 
-                        ResAccountHistory accountHistory = repoResAccountHistory.findByResAccountAndResAccountInAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(
-                                jsonData.get("resAccount").toString(),
-                                GowidUtils.getEmptyStringToString(obj, "resAccountIn"),
-                                GowidUtils.getEmptyStringToString(obj, "resAccountOut"),
-                                GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"),
-                                GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"),
-                                GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"),
-                                accountCurrency
-                        ).orElse(
-                            repoResAccountHistory.save(
-                                ResAccountHistory.builder()
-                                    .resAccountTrDate(GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
-                                    .resAccountTrTime(GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"))
-                                    .resAccountOut(GowidUtils.getEmptyStringToString(obj, "resAccountOut"))
-                                    .resAccountIn(GowidUtils.getEmptyStringToString(obj, "resAccountIn"))
-                                    .resAccountDesc1(GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
-                                    .resAccountDesc2(GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
-                                    .resAccountDesc3(GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
-                                    .resAccountDesc4(GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
-                                    .resAfterTranBalance(GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
-                                    .resAccountCurrency(accountCurrency)
-                                    .resAccount(account)
-                                    .build())
-                        );
-                    });
-                }
-            } else if (iType == 12) {
-                for(Object objectJson : jsonArrayResTrHistoryList){
-                    JSONObject obj = (JSONObject) objectJson;
-                    ResAccountHistory accountHistory = repoResAccountHistory.findByResAccountAndResAccountInAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(
-                            jsonData.get("resAccount").toString(),
-                            GowidUtils.getEmptyStringToString(obj, "resAccountIn"),
-                            GowidUtils.getEmptyStringToString(obj, "resAccountOut"),
-                            GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"),
-                            GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"),
-                            GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"),
-                            accountCurrency
-                    ).orElse(
-                            repoResAccountHistory.save(
-                            ResAccountHistory.builder()
-                                    .resRoundNo(GowidUtils.getEmptyStringToString(obj, "resRoundNo"))
-                                    .resMonth(GowidUtils.getEmptyStringToString(obj, "resMonth"))
-                                    .resAccountTrDate(GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
-                                    .resAccountIn( GowidUtils.getEmptyStringToString(obj, "resAccountIn"))
-                                    .resAccountDesc1( GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
-                                    .resAccountDesc2( GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
-                                    .resAccountDesc3( GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
-                                    .resAccountDesc4( GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
-                                    .resAfterTranBalance( GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
-                                    .resAccountCurrency(accountCurrency)
-                                    .resAccount(account)
-                                    .build())
-                    );
-                }
-            } else if (iType == 40) {
 
-                if (!jsonArrayResTrHistoryList.isEmpty()) {
-                    jsonArrayResTrHistoryList.forEach(item2 -> {
-                        JSONObject obj = (JSONObject) item2;
+                if (iType == 10) {
+                    if (!jsonArrayResTrHistoryList.isEmpty()) {
+                        ((List<?>) jsonArrayResTrHistoryList).forEach(item2 -> {
+                            JSONObject obj = (JSONObject) item2;
 
-                        ResAccountHistory accountHistory = repoResAccountHistory.findByResAccountAndResAccountInAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(
+                            ResAccountHistory accountHistory = repoResAccountHistory.findByResAccountAndResAccountInEqualsAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(
+                                    jsonData.get("resAccount").toString(),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountIn"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountOut"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"),
+                                    accountCurrency
+                            ).orElse(
+                                    repoResAccountHistory.save(
+                                            ResAccountHistory.builder()
+                                                    .resAccountTrDate(GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
+                                                    .resAccountTrTime(GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"))
+                                                    .resAccountOut(GowidUtils.getEmptyStringToString(obj, "resAccountOut"))
+                                                    .resAccountIn(GowidUtils.getEmptyStringToString(obj, "resAccountIn"))
+                                                    .resAccountDesc1(GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
+                                                    .resAccountDesc2(GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
+                                                    .resAccountDesc3(GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
+                                                    .resAccountDesc4(GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
+                                                    .resAfterTranBalance(GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
+                                                    .resAccountCurrency(accountCurrency)
+                                                    .resAccount(account)
+                                                    .build())
+                            );
+                        });
+                    }
+                } else if (iType == 12) {
+                    for (Object objectJson : jsonArrayResTrHistoryList) {
+                        JSONObject obj = (JSONObject) objectJson;
+                        ResAccountHistory accountHistory = repoResAccountHistory.findByResAccountAndResAccountInEqualsAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(
                                 jsonData.get("resAccount").toString(),
                                 GowidUtils.getEmptyStringToString(obj, "resAccountIn"),
                                 GowidUtils.getEmptyStringToString(obj, "resAccountOut"),
@@ -187,89 +159,123 @@ public class ScrapingService {
                                 accountCurrency
                         ).orElse(
                                 repoResAccountHistory.save(
-                                ResAccountHistory.builder()
-                                        .resAccountTrDate( GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
-                                        .resTransTypeNm( GowidUtils.getEmptyStringToString(obj, "resTransTypeNm"))
-                                        .resType( GowidUtils.getEmptyStringToString(obj, "resType"))
-                                        .resTranAmount( GowidUtils.getEmptyStringToString(obj, "resTranAmount"))
-                                        .resPrincipal( GowidUtils.getEmptyStringToString(obj, "resPrincipal"))
-                                        .resInterest( GowidUtils.getEmptyStringToString(obj, "resInterest"))
-                                        .resOverdueInterest(GowidUtils.getEmptyStringToString(obj,"resOverdueInterest"))
-                                        .resReturnInterest(GowidUtils.getEmptyStringToString(obj,"resReturnInterest"))
-                                        .resFee(GowidUtils.getEmptyStringToString(obj,"resFee"))
-                                        .commStartDate( GowidUtils.getEmptyStringToString(obj, "commStartDate"))
-                                        .commEndDate( GowidUtils.getEmptyStringToString(obj, "commEndDate"))
-                                        .resLoanBalance( GowidUtils.getEmptyStringToString(obj, "resLoanBalance"))
-                                        .resInterestRate( GowidUtils.getEmptyStringToString(obj, "resInterestRate"))
-                                        .resAccountCurrency(accountCurrency)
-                                        .resAccount(account)
-                                        .build())
+                                        ResAccountHistory.builder()
+                                                .resRoundNo(GowidUtils.getEmptyStringToString(obj, "resRoundNo"))
+                                                .resMonth(GowidUtils.getEmptyStringToString(obj, "resMonth"))
+                                                .resAccountTrDate(GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
+                                                .resAccountIn(GowidUtils.getEmptyStringToString(obj, "resAccountIn"))
+                                                .resAccountDesc1(GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
+                                                .resAccountDesc2(GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
+                                                .resAccountDesc3(GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
+                                                .resAccountDesc4(GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
+                                                .resAfterTranBalance(GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
+                                                .resAccountCurrency(accountCurrency)
+                                                .resAccount(account)
+                                                .build())
                         );
-                    });
+                    }
+                } else if (iType == 40) {
+
+                    if (!jsonArrayResTrHistoryList.isEmpty()) {
+                        jsonArrayResTrHistoryList.forEach(item2 -> {
+                            JSONObject obj = (JSONObject) item2;
+
+                            ResAccountHistory accountHistory = repoResAccountHistory.findByResAccountAndResAccountInEqualsAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(
+                                    jsonData.get("resAccount").toString(),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountIn"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountOut"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"),
+                                    accountCurrency
+                            ).orElse(
+                                    repoResAccountHistory.save(
+                                            ResAccountHistory.builder()
+                                                    .resAccountTrDate(GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
+                                                    .resTransTypeNm(GowidUtils.getEmptyStringToString(obj, "resTransTypeNm"))
+                                                    .resType(GowidUtils.getEmptyStringToString(obj, "resType"))
+                                                    .resTranAmount(GowidUtils.getEmptyStringToString(obj, "resTranAmount"))
+                                                    .resPrincipal(GowidUtils.getEmptyStringToString(obj, "resPrincipal"))
+                                                    .resInterest(GowidUtils.getEmptyStringToString(obj, "resInterest"))
+                                                    .resOverdueInterest(GowidUtils.getEmptyStringToString(obj, "resOverdueInterest"))
+                                                    .resReturnInterest(GowidUtils.getEmptyStringToString(obj, "resReturnInterest"))
+                                                    .resFee(GowidUtils.getEmptyStringToString(obj, "resFee"))
+                                                    .commStartDate(GowidUtils.getEmptyStringToString(obj, "commStartDate"))
+                                                    .commEndDate(GowidUtils.getEmptyStringToString(obj, "commEndDate"))
+                                                    .resLoanBalance(GowidUtils.getEmptyStringToString(obj, "resLoanBalance"))
+                                                    .resInterestRate(GowidUtils.getEmptyStringToString(obj, "resInterestRate"))
+                                                    .resAccountCurrency(accountCurrency)
+                                                    .resAccount(account)
+                                                    .build())
+                            );
+                        });
+                    }
+                } else if (iType == 30) {
+                    if (!jsonArrayResTrHistoryList.isEmpty()) {
+                        jsonArrayResTrHistoryList.forEach(item2 -> {
+                            JSONObject obj = (JSONObject) item2;
+                            ResAccountHistory accountHistory = repoResAccountHistory.findByResAccountAndResAccountInEqualsAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(
+                                    jsonData.get("resAccount").toString(),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountIn"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountOut"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"),
+                                    accountCurrency
+                            ).orElse(
+                                    repoResAccountHistory.save(
+                                            ResAccountHistory.builder()
+                                                    .resAccountTrDate(GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
+                                                    .resAccountTrTime(GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"))
+                                                    .resTranAmount(GowidUtils.getEmptyStringToString(obj, "resTranAmount"))
+                                                    .resTranNum(GowidUtils.getEmptyStringToString(obj, "resTranNum"))
+                                                    .resBasePrice(GowidUtils.getEmptyStringToString(obj, "resBasePrice"))
+                                                    .resBalanceNum(GowidUtils.getEmptyStringToString(obj, "resBalanceNum"))
+                                                    .resAccountDesc1(GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
+                                                    .resAccountDesc2(GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
+                                                    .resAccountDesc3(GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
+                                                    .resAccountDesc4(GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
+                                                    .resAfterTranBalance(GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
+                                                    .resValuationAmt("" + GowidUtils.getEmptyStringToString(obj, "resValuationAmt"))
+                                                    .resAccountCurrency(accountCurrency)
+                                                    .resAccount(account)
+                                                    .build())
+                            );
+                        });
+                    }
+                } else if (iType == 20) {
+                    if (!jsonArrayResTrHistoryList.isEmpty()) {
+                        jsonArrayResTrHistoryList.forEach(item2 -> {
+                            JSONObject obj = (JSONObject) item2;
+                            ResAccountHistory accountHistory = repoResAccountHistory.findByResAccountAndResAccountInEqualsAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(
+                                    jsonData.get("resAccount").toString(),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountIn"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountOut"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"),
+                                    accountCurrency
+                            ).orElse(
+                                    repoResAccountHistory.save(
+                                            ResAccountHistory.builder()
+                                                    .resAccountTrDate(GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
+                                                    .resAccountTrTime(GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"))
+                                                    .resAccountOut(GowidUtils.getEmptyStringToString(obj, "resAccountOut"))
+                                                    .resAccountIn(GowidUtils.getEmptyStringToString(obj, "resAccountIn"))
+                                                    .resAccountDesc1(GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
+                                                    .resAccountDesc2(GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
+                                                    .resAccountDesc3(GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
+                                                    .resAccountDesc4(GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
+                                                    .resAfterTranBalance(GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
+                                                    .resAccountCurrency(accountCurrency)
+                                                    .resAccount(account)
+                                                    .build())
+                            );
+                        });
+                    }
                 }
-            } else if (iType == 30) {
-                if (!jsonArrayResTrHistoryList.isEmpty()) {
-                    jsonArrayResTrHistoryList.forEach(item2 -> {
-                        JSONObject obj = (JSONObject) item2;
-                        ResAccountHistory accountHistory = repoResAccountHistory.findByResAccountAndResAccountInAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(
-                                jsonData.get("resAccount").toString(),
-                                GowidUtils.getEmptyStringToString(obj, "resAccountIn"),
-                                GowidUtils.getEmptyStringToString(obj, "resAccountOut"),
-                                GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"),
-                                GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"),
-                                GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"),
-                                accountCurrency
-                        ).orElse(
-                                repoResAccountHistory.save(
-                                ResAccountHistory.builder()
-                                        .resAccountTrDate( GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
-                                        .resAccountTrTime( GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"))
-                                        .resTranAmount( GowidUtils.getEmptyStringToString(obj, "resTranAmount"))
-                                        .resTranNum( GowidUtils.getEmptyStringToString(obj, "resTranNum"))
-                                        .resBasePrice( GowidUtils.getEmptyStringToString(obj, "resBasePrice"))
-                                        .resBalanceNum( GowidUtils.getEmptyStringToString(obj, "resBalanceNum"))
-                                        .resAccountDesc1( GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
-                                        .resAccountDesc2( GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
-                                        .resAccountDesc3( GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
-                                        .resAccountDesc4( GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
-                                        .resAfterTranBalance( GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
-                                        .resValuationAmt("" + GowidUtils.getEmptyStringToString(obj, "resValuationAmt") )
-                                        .resAccountCurrency(accountCurrency)
-                                        .resAccount(account)
-                                        .build())
-                        );
-                    });
-                }
-            } else if (iType == 20) {
-                if (!jsonArrayResTrHistoryList.isEmpty()) {
-                    jsonArrayResTrHistoryList.forEach(item2 -> {
-                        JSONObject obj = (JSONObject) item2;
-                        ResAccountHistory accountHistory = repoResAccountHistory.findByResAccountAndResAccountInAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(
-                                jsonData.get("resAccount").toString(),
-                                GowidUtils.getEmptyStringToString(obj, "resAccountIn"),
-                                GowidUtils.getEmptyStringToString(obj, "resAccountOut"),
-                                GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"),
-                                GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"),
-                                GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"),
-                                accountCurrency
-                        ).orElse(
-                                repoResAccountHistory.save(
-                                ResAccountHistory.builder()
-                                        .resAccountTrDate( GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
-                                        .resAccountTrTime( GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"))
-                                        .resAccountOut( GowidUtils.getEmptyStringToString(obj, "resAccountOut"))
-                                        .resAccountIn( GowidUtils.getEmptyStringToString(obj, "resAccountIn"))
-                                        .resAccountDesc1( GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
-                                        .resAccountDesc2( GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
-                                        .resAccountDesc3( GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
-                                        .resAccountDesc4( GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
-                                        .resAfterTranBalance( GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
-                                        .resAccountCurrency(accountCurrency)
-                                        .resAccount(account)
-                                        .build())
-                        );
-                    });
-                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }else{
             log.error("[saveAccount] $jsonData = {}, $jsonArrayResTrHistoryList = {}, $connectedId = {}, $dto= {}, $nowFlag = {} ", jsonData, jsonArrayResTrHistoryList, connectedId, dto, nowFlag);
