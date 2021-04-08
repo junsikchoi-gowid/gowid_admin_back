@@ -187,7 +187,7 @@ public class BankService {
 		//todo auth
 		idxUser = getaLong(idxUser, idxCorp);
 
-		List<BankDto.ResAccountDto> resAccount = repoResAccount.findResAccountStatus(idxUser).stream()
+		List<BankDto.ResAccountDto> resAccount = repoResAccount.findResAccount(idxUser).stream()
 				.map(account -> BankDto.ResAccountDto.from(account, isMasking))
 				.collect(Collectors.toList());
 
