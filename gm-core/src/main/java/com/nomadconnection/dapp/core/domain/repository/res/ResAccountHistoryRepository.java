@@ -21,7 +21,6 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
 
     ResAccountHistory findTopByResAccountAndResAccountInEqualsAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(String resAccount, String resAccountIn, String resAccountOut, String resAccountTrDate, String resAccountTrTime, String resAfterTranBalance, String accountCurrency);
 
-
     interface CMonthInOutSumDto {
         Long getSumResAccountIn();
         Long getSumResAccountOut();

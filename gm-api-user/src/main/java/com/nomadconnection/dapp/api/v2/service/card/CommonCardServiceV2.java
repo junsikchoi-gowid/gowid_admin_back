@@ -450,27 +450,26 @@ public class CommonCardServiceV2 {
             }
         }
 
-        Double cardLimitNow = repoRisk.findCardLimitNowFirst(idxUser, CommonUtil.getNowYYYYMMDD());
-        Long calculatedLimitLong = 0L;
-        if (!ObjectUtils.isEmpty(cardLimitNow)) {
-            calculatedLimitLong = Long.parseLong(String.valueOf(Math.round(cardLimitNow)));
-        }
-        String calculatedLimit = String.valueOf(calculatedLimitLong);
+        // 계산한도
+        Double calculatedLimit = repoRisk.findCardLimitNowFirst(idxUser, CommonUtil.getNowYYYYMMDD());
+        String strCalculatedLimit = calculatedLimit.toString();
 
-        String hopeLimit = calculatedLimit;
+        // 희망한도
+        String hopeLimit = "0";
         if (!ObjectUtils.isEmpty(cardInfo.card()) && !ObjectUtils.isEmpty(cardInfo.card().hopeLimit())) {
             hopeLimit = cardInfo.card().hopeLimit();
         }
 
-        String grantLimit = calculatedLimitLong < Long.parseLong(hopeLimit) ? calculatedLimit : hopeLimit;
+        // 부여한도
+        String grantLimit = calculatedLimit < Double.valueOf(hopeLimit) ? strCalculatedLimit : hopeLimit;
 
-        updateRiskConfigCard(user, grantLimit, calculatedLimit, hopeLimit);
+        updateRiskConfigCard(user, grantLimit, strCalculatedLimit, hopeLimit);
         if (CardCompany.isShinhan(user.cardCompany())) {
             shinhanCardService.updateShinhanFulltextCard(user.corp().idx(), grantLimit, dto);
-            shinhanCardService.setCardInfoCard(cardInfo, dto, calculatedLimit, grantLimit);
+            shinhanCardService.setCardInfoCard(cardInfo, dto, strCalculatedLimit, grantLimit);
         } else if (CardCompany.isLotte(user.cardCompany())) {
-            lotteCardService.updateD1100Card(user, grantLimit, calculatedLimit, hopeLimit, dto);
-            lotteCardService.setCardInfoCard(cardInfo, dto, calculatedLimit, grantLimit);
+            lotteCardService.updateD1100Card(user, grantLimit, strCalculatedLimit, hopeLimit, dto);
+            lotteCardService.setCardInfoCard(cardInfo, dto, strCalculatedLimit, grantLimit);
         }
 
         if (StringUtils.hasText(depthKey)) {
