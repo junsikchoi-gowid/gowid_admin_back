@@ -452,7 +452,7 @@ public class CommonCardServiceV2 {
 
         // 계산한도
         Double calculatedLimit = repoRisk.findCardLimitNowFirst(idxUser, CommonUtil.getNowYYYYMMDD());
-        String strCalculatedLimit = calculatedLimit.toString();
+        String strCalculatedLimit = String.valueOf(Math.round(calculatedLimit));
 
         // 희망한도
         String hopeLimit = "0";
