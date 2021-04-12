@@ -47,7 +47,7 @@ public class AccessManageService {
 
     private final String urlPath = CommonConstant.getRequestDomain();
     private final List<ConnectedMngStatus> connectedMngStatusList
-            = Arrays.asList(ConnectedMngStatus.NORMAL, ConnectedMngStatus.ERROR);
+            = Arrays.asList(ConnectedMngStatus.NORMAL, ConnectedMngStatus.ERROR, ConnectedMngStatus.STOP);
 
     @Transactional
     public List<AccessManageDto.AccessCodeType> commonCorp(CustomUser user, CommonCodeType corpType) {
@@ -173,7 +173,7 @@ public class AccessManageService {
                     .desc1(dto.getDesc1())
                     .desc2(dto.getDesc2())
                     .issuer(dto.getIssuer())
-                    .serialNumber(dto.getSerialNumber())
+                    .serialNumber(dto.getSerial())
                     // .idxCorp()
                     .status(ConnectedMngStatus.NORMAL)
                     .build()
@@ -335,7 +335,7 @@ public class AccessManageService {
 
             if (optResConCorpList.isPresent()) {
                 ResConCorpList resConCorpList = optResConCorpList.get();
-                resConCorpList.status(ConnectedMngStatus.STOP);
+                resConCorpList.status(ConnectedMngStatus.DELETE);
                 repoResConCorpList.save(resConCorpList);
             }
         }

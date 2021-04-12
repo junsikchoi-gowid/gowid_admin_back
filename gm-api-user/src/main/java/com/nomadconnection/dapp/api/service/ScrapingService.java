@@ -218,7 +218,6 @@ public class ScrapingService {
                         jsonArrayResTrHistoryList.forEach(item2 -> {
                             JSONObject obj = (JSONObject) item2;
                             ResAccountHistory accountHistory = repoResAccountHistory.findTopByResAccountAndResAccountInEqualsAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(
-
                                     jsonData.get("resAccount").toString(),
                                     GowidUtils.getEmptyStringToString(obj, "resAccountIn"),
                                     GowidUtils.getEmptyStringToString(obj, "resAccountOut"),
@@ -254,7 +253,6 @@ public class ScrapingService {
                         jsonArrayResTrHistoryList.forEach(item2 -> {
                             JSONObject obj = (JSONObject) item2;
                             ResAccountHistory accountHistory = repoResAccountHistory.findTopByResAccountAndResAccountInEqualsAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(
-
                                     jsonData.get("resAccount").toString(),
                                     GowidUtils.getEmptyStringToString(obj, "resAccountIn"),
                                     GowidUtils.getEmptyStringToString(obj, "resAccountOut"),

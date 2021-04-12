@@ -179,7 +179,7 @@ public class CodefService {
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
 					.issuer(dto.getIssuer())
-					.serialNumber(dto.getSerialNumber())
+					.serialNumber(dto.getSerial())
 					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);
@@ -223,7 +223,7 @@ public class CodefService {
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
 						.issuer(dto.getIssuer())
-						.serialNumber(dto.getSerialNumber())
+						.serialNumber(dto.getSerial())
 						.status(ConnectedMngStatus.NORMAL)
 						.build()
 				);
@@ -485,7 +485,7 @@ public class CodefService {
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
 					.issuer(dto.getIssuer())
-					.serialNumber(dto.getSerialNumber())
+					.serialNumber(dto.getSerial())
 					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);
@@ -507,7 +507,7 @@ public class CodefService {
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
 						.issuer(dto.getIssuer())
-						.serialNumber(dto.getSerialNumber())
+						.serialNumber(dto.getSerial())
 						.status(ConnectedMngStatus.NORMAL)
 						.build()
 				);
@@ -580,7 +580,7 @@ public class CodefService {
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
 						.issuer(dto.getIssuer())
-						.serialNumber(dto.getSerialNumber())
+						.serialNumber(dto.getSerial())
 						.status(ConnectedMngStatus.NORMAL)
 						.build()
 				);
@@ -821,7 +821,7 @@ public class CodefService {
 						.desc1(dto.getDesc1())
 						.desc2(dto.getDesc2())
 						.issuer(dto.getIssuer())
-						.serialNumber(dto.getSerialNumber())
+						.serialNumber(dto.getSerial())
 						.status(ConnectedMngStatus.NORMAL)
 						.type("NT")
 						.build()
@@ -1967,7 +1967,7 @@ public class CodefService {
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
 					.issuer(dto.getIssuer())
-					.serialNumber(dto.getSerialNumber())
+					.serialNumber(dto.getSerial())
 					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);
@@ -2031,7 +2031,7 @@ public class CodefService {
 					.desc2(dto.getDesc2())
 					.idxCorp(idxCorp)
 					.issuer(dto.getIssuer())
-					.serialNumber(dto.getSerialNumber())
+					.serialNumber(dto.getSerial())
 					.status(ConnectedMngStatus.NORMAL)
 					.build()
 			);

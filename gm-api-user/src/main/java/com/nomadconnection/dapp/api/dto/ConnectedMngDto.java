@@ -163,7 +163,7 @@ public class 	ConnectedMngDto {
 		private String issuer;
 
 		@ApiModelProperty("SN 키값")
-		private String serialNumber;
+		private String serial;
 
 
 		@ApiModelProperty("certFile")
@@ -200,7 +200,7 @@ public class 	ConnectedMngDto {
 		private String issuer;
 
 		@ApiModelProperty("SN 키값")
-		private String serialNumber;
+		private String serial;
 
 		@ApiModelProperty("type ex) 은행:bk, 국세청:nt")
 		private String type;
@@ -237,7 +237,7 @@ public class 	ConnectedMngDto {
 		private String issuer;
 
 		@ApiModelProperty("SN 키값")
-		private String serialNumber;
+		private String serial;
 
 		@ApiModelProperty("der")
 		private String derPath;

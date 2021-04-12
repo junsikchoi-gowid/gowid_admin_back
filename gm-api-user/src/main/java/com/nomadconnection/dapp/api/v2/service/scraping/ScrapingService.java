@@ -122,7 +122,7 @@ public class ScrapingService {
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
 					.issuer(dto.getIssuer())
-					.serialNumber(dto.getSerialNumber())
+					.serialNumber(dto.getSerial())
 					.type(CommonConstant.REVENUETYPE)
 					.status(ConnectedMngStatus.NORMAL)
 					.build()
