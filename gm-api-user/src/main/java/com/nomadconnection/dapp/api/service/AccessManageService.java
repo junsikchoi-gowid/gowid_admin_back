@@ -246,7 +246,7 @@ public class AccessManageService {
             idxConnectedIdList.add(connectedMng.idx());
         }
 
-        List<ConnectedMngStatus> statusList = Arrays.asList(ConnectedMngStatus.NORMAL, ConnectedMngStatus.ERROR);
+        List<ConnectedMngStatus> statusList = Arrays.asList(ConnectedMngStatus.NORMAL, ConnectedMngStatus.ERROR, ConnectedMngStatus.STOP);
         List<AccessManageDto.ResConCorpListDto> resConCorpListDtoList = new ArrayList<>();
         List<ResConCorpListRepository.distinctData> distinctData = repoResConCorpList.findDistinctByConnectedIdInAndStatusIn(connectedIdList, statusList);
 
@@ -254,11 +254,11 @@ public class AccessManageService {
             List<ResConCorpList> resConCorpListList = repoResConCorpList.findByConnectedIdInAndStatusInAndBusinessTypeAndOrganization(
                     connectedIdList, statusList, obj.getBusinessType(), obj.getOrganization());
 
-            ConnectedMngStatus status = ConnectedMngStatus.NORMAL;
+            ConnectedMngStatus status = ConnectedMngStatus.ERROR;
 
             for(ResConCorpList objList : resConCorpListList){
-                if( objList.status().equals(ConnectedMngStatus.ERROR)){
-                    status = ConnectedMngStatus.ERROR;
+                if( objList.status().equals(ConnectedMngStatus.NORMAL)){
+                    status = ConnectedMngStatus.NORMAL;
                 }
             }
 
