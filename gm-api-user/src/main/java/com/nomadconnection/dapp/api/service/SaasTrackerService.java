@@ -416,14 +416,14 @@ public class SaasTrackerService {
 			List<SaasPaymentInfo> infos = repoSaasPaymentInfo.findAllByUserAndSaasInfo(user, saasInfo);
 			if(ObjectUtils.isEmpty(infos.get(0).saasPaymentManageInfo())) {
 				SaasPaymentManageInfo manageInfo = new SaasPaymentManageInfo();
-				if(!StringUtils.isEmpty(dto.getManagerName())) manageInfo.managerName(dto.getManagerName());
-				if(!StringUtils.isEmpty(dto.getManagerEmail())) manageInfo.managerEmail(dto.getManagerEmail());
+				manageInfo.managerName(dto.getManagerName());
+				manageInfo.managerEmail(dto.getManagerEmail());
 				repoSaasPaymentManageInfo.save(manageInfo);
 				infos.forEach(paymentInfo -> paymentInfo.saasPaymentManageInfo(manageInfo));
 			}else {
 				SaasPaymentManageInfo manageInfo = infos.get(0).saasPaymentManageInfo();
-				if(!StringUtils.isEmpty(dto.getManagerName())) manageInfo.managerName(dto.getManagerName());
-				if(!StringUtils.isEmpty(dto.getManagerEmail())) manageInfo.managerEmail(dto.getManagerEmail());
+				manageInfo.managerName(dto.getManagerName());
+				manageInfo.managerEmail(dto.getManagerEmail());
 			}
 			log.info(">>>>> updateSaasInfo.complete");
 			return ResponseEntity.ok().body(BusinessResponse.builder()
