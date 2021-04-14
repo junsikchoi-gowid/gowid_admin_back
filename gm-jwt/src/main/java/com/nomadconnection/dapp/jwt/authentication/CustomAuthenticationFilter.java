@@ -37,7 +37,6 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 	private String API_KEY;
 
 	private boolean isAPIKeyAuth(HttpServletRequest request) {
-		log.debug("isAPIKEYAuth");
 		String apikey = request.getHeader(HttpHeaders.AUTHORIZATION);
 
 		if(Strings.isEmpty(apikey)) {

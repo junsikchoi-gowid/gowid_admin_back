@@ -32,11 +32,10 @@ public class AccessManageController {
     public static class URI {
         public static final String BASE = "/accessManagement/v1";
         public static final String COMMON_CORP = "/common-corp"; // 기관리스트
+        public static final String CONNECTEDID_ALL = "/connected-id/all";
         public static final String CONNECTEDID = "/connected-id"; // connectedId
         public static final String CONNECTEDID_PUT = "/connected-id/{idxConnectedMng}"; // connectedId - 사용중지
         public static final String CONNECTEDID_IDXCORP = "/connected-id/{idxConnectedMng}/corp"; // connectedId, corpType
-        public static final String CONNECTEDID_IDXCORP_PUT = "/connected-id/{idxConnectedMng}/corp/{corpCode}"; // connectedId, corpCode
-        public static final String CONNECTEDID_ALL = "/connected-id/all";
         public static final String CONNECTEDID_STOP = "/connected-id/stop";
     }
 
@@ -93,15 +92,15 @@ public class AccessManageController {
     }
 
     @ApiOperation(value = "CONNECTED ID 사용중지", notes = "" +
-            "connected id 사용 중지 \n" +
-            "\n - " +
-            "\n")
+        "connected id 사용 중지 \n" +
+        "\n - " +
+        "\n")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "idxConnectedMng", value="CONNECTED ID")
+        @ApiImplicitParam(name = "idxConnectedMng", value="CONNECTED ID")
     })
     @PutMapping(URI.CONNECTEDID_PUT)
     public ResponseEntity<?> updateConnectedId(@ApiIgnore @CurrentUser CustomUser user
-            ,@PathVariable Long idxConnectedMng) {
+        ,@PathVariable Long idxConnectedMng) {
 
         ConnectedMngDto connectedMng = accessManageService.updateConnectedId(user, idxConnectedMng);
 
@@ -111,7 +110,6 @@ public class AccessManageController {
 
         return new ResponseEntity<>(connectedMng,HttpStatus.OK);
     }
-
 
     @ApiOperation(value = "CONNECTED, CORP 목록", notes = "" +
             "\n" +
@@ -152,28 +150,6 @@ public class AccessManageController {
         }
 
         return new ResponseEntity<>(data,HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "CONNECTED, CORP 사용중지 ", notes = "" +
-            "\n" +
-            "\n - " +
-            "\n")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "idxConnectedMng", value="CONNECTED ID"),
-            @ApiImplicitParam(name = "corpCode", value="CORP CODE")
-    })
-    @PutMapping(URI.CONNECTEDID_IDXCORP_PUT)
-    public ResponseEntity<?> updateConnectedIdCorp(@ApiIgnore @CurrentUser CustomUser user
-            ,@PathVariable Long idxConnectedMng
-            ,@PathVariable String corpCode) {
-
-        Boolean boolData = accessManageService.updateConnectedIdCorp(user, idxConnectedMng, corpCode);
-
-        if(boolData == null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<>(boolData,HttpStatus.OK);
     }
 
     @ApiOperation(value = "CONNECTED ID 목록", notes = "" +

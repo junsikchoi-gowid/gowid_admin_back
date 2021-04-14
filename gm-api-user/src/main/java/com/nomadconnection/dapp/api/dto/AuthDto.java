@@ -49,9 +49,6 @@ public class AuthDto {
 		@ApiModelProperty("부가정보")
 		private TokenDto.TokenSet.AccountInfo info;
 
-		@ApiModelProperty("전자서명 발급 진행상태")
-		private UserDto.IssuanceProgressRes issuanceProgressRes;
-
 		@ApiModelProperty("sms 수신 동의여부")
 		private Boolean isSendSms;
 

@@ -63,56 +63,60 @@ public class FinancialStatementsService {
 	}
 
 	private ApiResponse.ApiResult scrapFinancialStatements(User user, ConnectedMngDto.CorpInfo dto) throws Exception {
-		Corp corp = user.corp();
-		Long corpIdx = corp.idx();
-		String licenseNo = corp.resCompanyIdentityNo();
-		String connectedId = connectedMngService.getConnectedId(user.idx());
-		String resClosingStandards = StringUtils.isEmpty(dto.getResClosingStandards()) ? ScrapingCommonUtils.DEFAULT_CLOSING_STANDARDS_MONTH : dto.getResClosingStandards();
-		List<String> listYyyyMm = ScrapingCommonUtils.getFindClosingStandards(LocalDate.now(), resClosingStandards);
-		ApiResponse.ApiResult response = null;
+		try{
+			Corp corp = user.corp();
+			Long corpIdx = corp.idx();
+			String licenseNo = corp.resCompanyIdentityNo();
+			String connectedId = connectedMngService.getConnectedId(user.idx());
+			String resClosingStandards = StringUtils.isEmpty(dto.getResClosingStandards()) ? ScrapingCommonUtils.DEFAULT_CLOSING_STANDARDS_MONTH : dto.getResClosingStandards();
+			List<String> listYyyyMm = ScrapingCommonUtils.getFindClosingStandards(LocalDate.now(), resClosingStandards);
+			ApiResponse.ApiResult response = null;
 
-		// 국세청 - 증명발급 표준재무재표
-		for(String yyyyMm : listYyyyMm){
-			String standardFinancialResult = codefApiService.requestStandardFinancialScraping(connectedId, yyyyMm, licenseNo);
-			ScrapingResponse scrapingResponse = scrapingResultService.getApiResult(standardFinancialResult);
-			String code = scrapingResponse.getCode();
-			String message = scrapingResponse.getMessage();
-			String extraMessage = scrapingResponse.getExtraMessage();
-			response = scrapingResultService.getCodeAndMessage(scrapingResponse);
-			ScrapingLogDto logDto = ScrapingLogDto.builder().email(user.email()).code(code).message(message).extraMessage(extraMessage).build();
+			// 국세청 - 증명발급 표준재무재표
+			for(String yyyyMm : listYyyyMm){
+				String standardFinancialResult = codefApiService.requestStandardFinancialScraping(connectedId, yyyyMm, licenseNo);
+				ScrapingResponse scrapingResponse = scrapingResultService.getApiResult(standardFinancialResult);
+				String code = scrapingResponse.getCode();
+				String message = scrapingResponse.getMessage();
+				String extraMessage = scrapingResponse.getExtraMessage();
+				response = scrapingResultService.getCodeAndMessage(scrapingResponse);
+				ScrapingLogDto logDto = ScrapingLogDto.builder().email(user.email()).code(code).message(message).extraMessage(extraMessage).build();
 
-			if(ScrapingCommonUtils.isNewCorp(Integer.parseInt(resClosingStandards), LocalDate.parse(corp.resOpenDate(), DateTimeFormatter.ofPattern("yyyyMMdd")))){
-				D1530 d1530 = fullTextService.findFirstByIdxCorpIn1530(corpIdx);
-				fullTextService.saveDefault1520(d1530, corp);
-				printScrapingErrorLog("It is a new corporation.", logDto);
-				break;
+				if(ScrapingCommonUtils.isNewCorp(Integer.parseInt(resClosingStandards), LocalDate.parse(corp.resOpenDate(), DateTimeFormatter.ofPattern("yyyyMMdd")))){
+					D1530 d1530 = fullTextService.findFirstByIdxCorpIn1530(corpIdx);
+					fullTextService.saveDefault1520(d1530, corp);
+					printScrapingErrorLog("It is a new corporation.", logDto);
+					break;
+				}
+
+				if(isScrapingSuccess(code)) {
+					JSONObject scrapingResult = scrapingResponse.getScrapingResponse()[1];
+					D1520 d1520 = fullTextService.build1520(corp, scrapingResult);
+					fullTextService.save1520(d1520);
+					imageService.sendFinancialStatementsImage(user.cardCompany(), yyyyMm, standardFinancialResult, licenseNo);
+				} else if(isNotAvailableFinancialStatementsScrapingTime(code)) {
+					printScrapingErrorLog("It is not the time allowed for scraping.", logDto);
+					break;
+				} else {
+					printScrapingErrorLog("scraping failed.", logDto);
+					break;
+				}
 			}
 
-			if(isScrapingSuccess(code)) {
-				JSONObject scrapingResult = scrapingResponse.getScrapingResponse()[1];
-				D1520 d1520 = fullTextService.build1520(corp, scrapingResult);
-				fullTextService.save1520(d1520);
-				imageService.sendFinancialStatementsImage(user.cardCompany(), yyyyMm, standardFinancialResult, licenseNo);
-			} else if(isNotAvailableFinancialStatementsScrapingTime(code)) {
-				printScrapingErrorLog("It is not the time allowed for scraping.", logDto);
-				break;
-			} else {
-				printScrapingErrorLog("scraping failed.", logDto);
-				break;
-			}
+			// TODO: 기업주소 입력변경으로 인하여 해당로직 필요여부 논의 필요
+			corpService.save(user.corp()
+				.resCompanyEngNm(dto.getResCompanyEngNm())
+				.resCompanyNumber(dto.getResCompanyPhoneNumber())
+				.resBusinessCode(dto.getResBusinessCode())
+			);
+
+			// 지급보증 파일생성 및 전송
+			imageService.sendGuaranteeImage(corp, user.cardCompany(), licenseNo);
+			return response;
+		} catch (Exception e){
+			log.error("scrapFinancialStatements {} ", e);
+			throw e;
 		}
-
-		// TODO: 기업주소 입력변경으로 인하여 해당로직 필요여부 논의 필요
-		corpService.save(user.corp()
-			.resCompanyEngNm(dto.getResCompanyEngNm())
-			.resCompanyNumber(dto.getResCompanyPhoneNumber())
-			.resBusinessCode(dto.getResBusinessCode())
-		);
-
-		// 지급보증 파일생성 및 전송
-		imageService.sendGuaranteeImage(corp, user.cardCompany(), licenseNo);
-
-		return response;
 	}
 
 	private void printScrapingErrorLog(String customErrorMessage, ScrapingLogDto dto){

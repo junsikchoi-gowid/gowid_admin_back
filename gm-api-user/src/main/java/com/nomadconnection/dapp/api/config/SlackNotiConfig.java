@@ -12,5 +12,6 @@ public class SlackNotiConfig {
 	private String progressUrl;
 	private String recoveryUrl;
 	private String saastrackerUrl;
+	private String kisedUrl;
 	private Boolean enable;
 }

@@ -206,6 +206,12 @@ public class D1400 extends BaseTime {
     @Column(columnDefinition = "varchar(25)    DEFAULT '' COMMENT '도로명참조KEY값'")
     private String d066;    // 도로명참조KEY값
 
+    @Column(columnDefinition = "varchar(6)    DEFAULT '' COMMENT '법인카드신청구분코드'")
+    private String d067; //법인카드신청구분코드
+
+    @Column(columnDefinition = "varchar(1)    DEFAULT '' COMMENT '금융소비자정보유형코드'")
+    private String d068; //금융소비자정보유형코드
+
     public void cleanUpOtherCeoInfo(){
         String emptyString = "";
 

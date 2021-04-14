@@ -175,6 +175,10 @@ public class D1000 extends BaseTime {
     private String d071;    //접수일자
     @Column(columnDefinition = "varchar(5)    DEFAULT '' COMMENT '접수순번'")
     private String d072;    //접수순번
+    @Column(columnDefinition = "varchar(6)    DEFAULT '' COMMENT '법인카드신청구분코드'")
+    private String d073; //법인카드신청구분코드
+    @Column(columnDefinition = "varchar(1)    DEFAULT '' COMMENT '금융소비자정보유형코드'")
+    private String d074; //금융소비자정보유형코드
 
     public void cleanUpOtherCeoInfo(){
         String emptyString = "";
@@ -187,7 +191,5 @@ public class D1000 extends BaseTime {
         this.setD020(emptyString);
         this.setD021(emptyString);
     }
-
-
 
 }

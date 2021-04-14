@@ -117,4 +117,6 @@ public class DataPart1100 extends CommonPart {
 
     private String d050;  // 전자서명식별번전호
 
+    private String d051;  // 법인카드신청구분코드
+
 }

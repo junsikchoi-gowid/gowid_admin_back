@@ -184,6 +184,7 @@ public enum ResponseCode {
     UNKNOWN("UNKNOWN", "CODEF 서비스에서 알 수 없는 오류", GP99999),
     REQUEST_ERROR("REQUEST_ERROR", "CODEF 요청 실패", GP99999),
     LIMITED("LIMITED", "유힌회사", GP00010),
+    KISED("KISED", "창진원 대상 법인", GP00010),
     INDIVIDUAL("INDIVIDUAL","(해당 기관 오류 메시지가 있습니다.)", GP00011)
     ;
 

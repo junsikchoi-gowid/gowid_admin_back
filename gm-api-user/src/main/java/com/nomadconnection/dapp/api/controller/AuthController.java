@@ -5,7 +5,6 @@ import com.nomadconnection.dapp.api.dto.AuthDto;
 import com.nomadconnection.dapp.api.service.AuthService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
-import com.nomadconnection.dapp.core.dto.response.ErrorResponse;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import com.nomadconnection.dapp.jwt.dto.TokenDto;
 import io.swagger.annotations.Api;
@@ -34,7 +33,6 @@ public class AuthController {
         public static final String BASE = "/auth/v1";
         public static final String EXISTS = "/exists";
         public static final String ACCOUNT = "/account";
-        public static final String PASSWORD_RESET_EMAIL = "/passwordResetEmail";
         public static final String TOKEN_ISSUE = "/token/issue";
         public static final String TOKEN_REISSUE = "/token/reissue";
         public static final String INFO = "/info";
@@ -93,35 +91,6 @@ public class AuthController {
             log.info("([ getAccount ]) $dto='{}'", dto);
         }
         return service.findAccount(dto.getName(), dto.getMdn());
-    }
-
-    //==================================================================================================================
-    //
-    //	비밀번호 재설정
-    //
-    //==================================================================================================================
-
-    @Deprecated
-    @ApiOperation(value = "비밀번호 재설정 - 이메일 발송 요청", notes = "" +
-            "\n ### Remarks" +
-            "\n" +
-            "\n - <mark>액세스토큰 불필요</mark>" +
-            "\n - <mark>개발서버에서는 링크대신 인증키를 메일로 발송</mark>" +
-            "\n" +
-            "\n ### Errors" +
-            "\n" +
-            "\n - 404 NOT FOUND: 등록되지 않은 이메일" +
-            "\n 	- <pre>{ \"error\": \"USER_NOT_FOUND\" }</pre>" +
-            "\n")
-    @PostMapping(URI.PASSWORD_RESET_EMAIL)
-    public ResponseEntity<?> sendPasswordResetEmail(
-            @RequestParam String email
-    ) {
-        if (log.isInfoEnabled()) {
-            log.info("([ sendPasswordResetEmail ]) $email='{}'", email);
-        }
-        service.sendPasswordResetEmail(email);
-        return ResponseEntity.ok().body(ErrorResponse.from("","정상처리"));
     }
 
     //==================================================================================================================

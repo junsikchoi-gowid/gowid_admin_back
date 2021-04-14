@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import io.swagger.annotations.ApiModelProperty;
@@ -207,6 +208,9 @@ public class 	ConnectedMngDto {
 
 		@ApiModelProperty("사업자번호")
 		private String identity;
+
+		@ApiModelProperty("카드종류")
+		private CardType cardType;
 	}
 
 	@Data
@@ -273,6 +277,9 @@ public class 	ConnectedMngDto {
 		@ApiModelProperty("사업장 전화번호 (ex. 00-000-0000)")
 		@NotEmpty
 		private String resCompanyPhoneNumber;
+
+		@ApiModelProperty("카드종류")
+		private CardType cardType;
 	}
 
 	@Data

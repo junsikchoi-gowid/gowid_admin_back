@@ -27,9 +27,10 @@ class SurveyAnswerControllerTests extends AbstractWebMvcTest {
 	private String token;
 
 	@BeforeEach
-	public void getToken() throws Exception {
+	public String getToken() throws Exception {
 		AccountDto account = AccountDto.builder().email("lhjang@gowid.com").password("wkdfogur1!").build();
 		token = extractToken(login(account).andReturn());
+		return null;
 	}
 
 	SurveyDto buildFunnelsSurveys(String answer, String detail){

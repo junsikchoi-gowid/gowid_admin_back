@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.api.security;
 
 import com.nomadconnection.dapp.api.controller.*;
 import com.nomadconnection.dapp.api.v2.controller.admin.AdminNoticeController;
+import com.nomadconnection.dapp.api.v2.controller.card.ShinhanCardControllerV2;
 import com.nomadconnection.dapp.api.v2.controller.card.SurveyController;
 import com.nomadconnection.dapp.core.security.CustomUserDetailsService;
 import com.nomadconnection.dapp.jwt.authentication.CustomAuthenticationEntryPoint;
@@ -104,25 +105,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(PERMITTED_URIS).permitAll()
                 .antMatchers(AuthController.URI.BASE + AuthController.URI.EXISTS).permitAll()
                 .antMatchers(AuthController.URI.BASE + AuthController.URI.ACCOUNT).permitAll()
-                .antMatchers(AuthController.URI.BASE + AuthController.URI.PASSWORD_RESET_EMAIL).permitAll() // to be deprecated
                 .antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_ISSUE).permitAll()
                 .antMatchers(AuthController.URI.BASE + AuthController.URI.TOKEN_REISSUE).permitAll()
                 .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_USER).permitAll()
                 .antMatchers(UserController.URI.BASE + UserController.URI.ENABLE).permitAll()
                 .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_CORP).permitAll() // to be deprecated
-                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.ACCOUNT).permitAll() // to be deprecated
-                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.USERDELETE).permitAll() // to be deprecated
+                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.INDUCE_EMAIL).permitAll()
+                .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.INDUCE_EMAIL_MOBILE).permitAll()
                 .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.INDUCE_EMAIL).permitAll()
                 .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.INDUCE_EMAIL_MOBILE).permitAll()
                 .antMatchers(ConsentController.URI.BASE + ConsentController.URI.CONSENT).permitAll()
                 .antMatchers(UserEtcController.URI.BASE + UserEtcController.URI.RECEPTION).permitAll()
-                .antMatchers(RiskController.URI.BASE + RiskController.URI.RISK).permitAll()
-                .antMatchers(ScrapingController.URI.BASE + ScrapingController.URI.SCRAPING_ACCOUNT_HISTORY).permitAll()
                 .antMatchers(ScrapingController.URI.BASE + ScrapingController.URI.SCRAPING_ACCOUNT).permitAll()
                 .antMatchers(IrDashBoardController.URI.BASE + IrDashBoardController.URI.IRDASHBOARD).permitAll()
-                .antMatchers(UserController.URI.BASE + UserController.URI.REGISTRATION_PW + 2).permitAll() // to be deprecated
-                .antMatchers(BankController.URI.BASE + BankController.URI.MONTH_BALANCE_EXT).permitAll()
-                .antMatchers(ShinhanCardController.URI.BASE + ShinhanCardController.URI.RESUME).permitAll()
                 .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFITS).permitAll()
                 .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFIT).permitAll()
                 .antMatchers(BenefitController.URI.BASE + BenefitController.URI.BENEFIT_CATEGORIES).permitAll()
@@ -133,6 +128,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.CHANGE_PASSWORD_BEFORE_LOGIN).permitAll()
                 .antMatchers(com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.BASE + com.nomadconnection.dapp.api.v2.controller.auth.AuthController.URI.TOKEN_ISSUE).permitAll()
                 .antMatchers(com.nomadconnection.dapp.api.v2.controller.admin.AdminBaseController.URI.BASE + AdminNoticeController.URI.NOTICE).permitAll()
+	            .antMatchers(ShinhanCardControllerV2.URI.BASE + ShinhanCardControllerV2.URI.RESUME).permitAll()
                 .antMatchers(SurveyController.URI.BASE).permitAll()
                 .antMatchers(LimitInquiryController.URI.BASE).permitAll()
 	            .antMatchers(AdminController.URI.BASE).permitAll()

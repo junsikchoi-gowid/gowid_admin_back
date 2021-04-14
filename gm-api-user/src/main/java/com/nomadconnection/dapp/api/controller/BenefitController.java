@@ -120,6 +120,7 @@ public class BenefitController {
 	}
 
 
+	@Deprecated
 	@ApiOperation("베네핏 카테고리 목록 조회")
 	@GetMapping(URI.BENEFIT_CATEGORIES)
 	public ResponseEntity getBenefitCategories() {
@@ -130,6 +131,7 @@ public class BenefitController {
 	}
 
 
+	@Deprecated
 	@ApiOperation(value = "베네핏 검색어 저장")
 	@PostMapping(URI.BENEFIT_SEARCH)
 	public ResponseEntity saveBenefitSearchHistory(

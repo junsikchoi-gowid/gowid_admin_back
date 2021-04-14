@@ -19,6 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
@@ -49,28 +50,35 @@ public abstract class AbstractWebMvcTest {
 	@BeforeEach
 	public void setup() {
 		mockMvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
-		user = userService.getUser(67L);
+		user = userService.getUser(487L);
 		customUser = new CustomUser(user);
+	}
+
+	protected String getToken() throws Exception {
+		AccountDto account = AccountDto.builder().email("backend-test@gowid.com").password("1234").build();
+		return extractToken(login(account).andReturn());
+	}
+
+
+	protected String getToken(String email, String password) throws Exception {
+		AccountDto account = AccountDto.builder().email(email).password(password).build();
+		return extractToken(login(account).andReturn());
+	}
+
+	protected ResultActions login(AccountDto dto) throws Exception {
+
+		return mockMvc.perform(
+			post("/auth/v2/token/issue")
+				.content(json(dto))
+				.contentType(MediaType.APPLICATION_JSON));
 	}
 
 	protected String json(Object o) throws IOException {
 		return mapper.writeValueAsString(o);
 	}
 
-	protected ResultActions login(AccountDto dto) throws Exception {
-		return mockMvc.perform(
-			post("/auth/v1/token/issue")
-				.content(json(dto))
-				.contentType(MediaType.APPLICATION_JSON));
-	}
-
 	protected String extractToken(MvcResult result) throws UnsupportedEncodingException {
 		return JsonPath.read(result.getResponse().getContentAsString(), "$.jwtAccess");
-	}
-
-	protected String getToken(String email, String password) throws Exception {
-		AccountDto account = AccountDto.builder().email(email).password(password).build();
-		return extractToken(login(account).andReturn());
 	}
 
 }

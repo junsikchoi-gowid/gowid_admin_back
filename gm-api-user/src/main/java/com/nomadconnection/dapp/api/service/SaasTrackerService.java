@@ -179,7 +179,7 @@ public class SaasTrackerService {
 				while(!fromDt.equals(tempToDt)) {
 					SaasTrackerDto.UsageSumsByPaymentRes tempUsageSum = new SaasTrackerDto.UsageSumsByPaymentRes();
 					tempUsageSum.setPdate(fromDt);
-					tempUsageSum.setPsum(ObjectUtils.isEmpty(usageSumsMap.get(fromDt)) ? 0 : usageSumsMap.get(fromDt));
+					tempUsageSum.setPsum(ObjectUtils.isEmpty(usageSumsMap.get(fromDt)) ? 0L : usageSumsMap.get(fromDt));
 					usageSumsByPaymentRes.add(tempUsageSum);
 
 					fromDt = CommonUtil.addMonths(fromDt, 1);

@@ -39,9 +39,10 @@ class AdminLimitControllerTests extends AbstractWebMvcTest {
 	private LimitRecalculationHistoryRepository limitRecalculationHistoryRepository;
 
 	@BeforeEach
-	public void getToken() throws Exception {
+	public String getToken() throws Exception {
 		AccountDto account = AccountDto.builder().email("lhjang@gowid.com").password("wkdfogur1!").build();
 		token = extractToken(login(account).andReturn());
+		return null;
 	}
 
 	@BeforeEach

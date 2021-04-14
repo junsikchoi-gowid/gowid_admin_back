@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.Card;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.AdminCustomRepository;
@@ -612,9 +611,6 @@ public class AdminDto {
 
 		@ApiModelProperty("카드사")
 		private CardCompany cardCompany;
-
-		@ApiModelProperty("마지막단계")
-		private String depth;
 
 		@ApiModelProperty("고객 희망한도")
 		private String hopeLimit;

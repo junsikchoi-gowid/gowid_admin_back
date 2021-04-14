@@ -10,7 +10,6 @@ import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
-import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
@@ -30,7 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-import org.thymeleaf.ITemplateEngine;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -38,7 +36,6 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -47,7 +44,6 @@ import java.util.stream.Collectors;
 public class AuthService {
 
 	private final EmailConfig config;
-	private final ITemplateEngine templateEngine;
 
 	private final JwtService jwt;
 	private final JavaMailSenderImpl sender;
@@ -56,7 +52,6 @@ public class AuthService {
 	private final UserRepository repoUser;
 	private final ConnectedMngRepository repoConnectedMng;
 	private final PasswordEncoder encoder;
-	private final CardIssuanceInfoRepository repoCardIssuance;
 	private final IssuanceProgressRepository issuanceProgressRepository;
 
 	/**
@@ -224,13 +219,6 @@ public class AuthService {
 			refreshMapping = false;
 		}
 
-		AtomicReference<Long> idxCardIssuance = new AtomicReference<>(0L);
-
-
-		repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(user).ifPresent(
-				cardIssuanceInfo -> { idxCardIssuance.set(cardIssuanceInfo.idx()); }
-		);
-
 		return AuthDto.AuthInfo.builder()
 				.idx(user.idx())
 				.idxCorp(user.corp() != null ? user.corp().idx() : null)
@@ -245,9 +233,7 @@ public class AuthService {
 						.corpMapping(corpMapping)
 						.signMapping(signMapping)
 						.refreshMapping(refreshMapping)
-						.idxCardIssuance(idxCardIssuance.get())
 						.build())
-				.issuanceProgressRes(issuanceProgress(user))
 				.isSendSms(user.reception().getIsSendSms())
 				.isSendEmail(user.reception().getIsSendEmail())
 				.build();

@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
 import com.nomadconnection.dapp.core.domain.user.Events;
@@ -192,6 +193,9 @@ public class UserDto {
 	public static class RegisterUserConsent {
 		@ApiModelProperty("이용약관 정보")
 		private List<ConsentDto.RegDto> consents;
+
+		@ApiModelProperty("카드종류")
+		private CardType cardType;
 	}
 
 	@Data

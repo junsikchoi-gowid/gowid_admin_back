@@ -5,7 +5,10 @@ import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.security.CustomUser;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,19 +30,17 @@ public class UserController {
 
 	public static class URI {
 		public static final String BASE = "/user/v1";
-		public static final String REGISTRATION_USER = "/registration/user";
-		public static final String REGISTRATION_CORP = "/registration/corp";
+		public static final String REGISTRATION_USER = "/registration/user"; // 유저등록
+		public static final String REGISTRATION_CORP = "/registration/corp"; // 가능 한도 확인, 결제계좌 선택??
+		public static final String REGISTRATION_INFO = "/registration/info"; //
 		public static final String REGISTRATION_CORP_BRANCH = "/registration/corp-branch";
-		public static final String REGISTRATION_INFO = "/registration/info";
-		public static final String REGISTRATION_PW = "/registrationpw/pw";
-		public static final String INFO = "/info";
-		public static final String REGISTRATION_CONSENT = "/registration/consent";
-		public static final String ISSUANCE_PROGRESS = "/issuance-progress";
+		public static final String REGISTRATION_CONSENT = "/registration/consent"; // 약관동의, 카드관리자등록
 		public static final String LIMIT_REVIEW = "/limit-review";
-		public static final String INIT_USER_INFO = "/init/user";
 		public static final String EXTERNAL_ID = "/external-id";
 		public static final String DELETE_ACCOUNT = "/delete-account";
+		public static final String INIT_USER_INFO = "/init/user";
 		public static final String ENABLE = "/enable";
+		public static final String INFO = "/info";
 		public static final String EVENTS = "/events";
 		public static final String MEMBERS = "/members";
 	}
@@ -206,34 +207,6 @@ public class UserController {
 		return service.registerUserUpdate(dto, user.idx());
 	}
 
-	@Deprecated
-	@ApiOperation(value = "Brand 비밀번호 수정")
-	@PostMapping(URI.REGISTRATION_PW)
-	public ResponseEntity<?> registerUserPasswordUpdate(
-			@ApiIgnore @CurrentUser CustomUser user,
-			@RequestBody UserDto.registerUserPasswordUpdate dto
-	) {
-		if (log.isInfoEnabled()) {
-			log.info("([ registerUserPasswordUpdate ]) $user='{}' $dto='{}'", user, dto);
-		}
-
-		return service.registerUserPasswordUpdate(dto, user.idx());
-	}
-
-	@Deprecated
-	@ApiOperation(value = "Brand 비밀번호 수정 2")
-	@PostMapping(URI.REGISTRATION_PW + 2)
-	public ResponseEntity<?> registerUserPasswordUpdate2(
-			@RequestParam Long idxUser,
-			@RequestBody UserDto.registerUserPasswordUpdate dto
-	) {
-		if (log.isInfoEnabled()) {
-			log.info("([ registerUserPasswordUpdate2 ]) $idxUser='{}' $dto='{}'", idxUser, dto);
-		}
-
-		return service.registerUserPasswordUpdate(dto, idxUser);
-	}
-
 	@ApiOperation(value = "사용자별 이용약관 등록")
 	@PostMapping(URI.REGISTRATION_CONSENT)
 	public ResponseEntity<?> registerUserConsent(
@@ -245,18 +218,6 @@ public class UserController {
 		}
 
 		return service.registerUserConsent(dto, idxUser);
-	}
-
-	@ApiOperation(value = "카드발급 진행상태")
-	@GetMapping(URI.ISSUANCE_PROGRESS)
-	public ResponseEntity<UserDto.IssuanceProgressRes> registerUserConsent(
-			@ApiIgnore @CurrentUser CustomUser user
-	) {
-		if (log.isInfoEnabled()) {
-			log.info("([ registerUserConsent ]) $user='{}'", user);
-		}
-
-		return service.issuanceProgress(user.idx());
 	}
 
 	@ApiOperation(value = "한도 재심사 요청")

@@ -86,7 +86,7 @@ spring:
       use-new-id-generator-mappings: true
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
@@ -141,6 +141,11 @@ stockholder:
   file:
     size: 2097152
     type: jpg, jpeg, tif, tiff
+
+confirmation:
+  file:
+    size: 2097152
+    type: pdf
 
 mail:
   approved:

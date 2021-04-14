@@ -2,9 +2,6 @@ package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
-import com.nomadconnection.dapp.api.exception.UnauthorizedException;
-import com.nomadconnection.dapp.api.exception.UserNotFoundException;
-import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountHistoryRepository;
@@ -15,10 +12,7 @@ import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.res.ResBatchList;
-import com.nomadconnection.dapp.core.domain.risk.Risk;
-import com.nomadconnection.dapp.core.domain.user.Authority;
 import com.nomadconnection.dapp.core.domain.user.Role;
-import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+
 import org.springframework.util.StringUtils;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -36,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -95,34 +89,6 @@ public class BankService {
 		}
 
 		List<ResAccountRepository.CaccountMonthDto> transactionList = repoResAccount.findMonthHistory(startDate, endDate, idx);
-
-		return ResponseEntity.ok().body(BusinessResponse.builder().data(transactionList).build());
-	}
-
-	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity findMonthHistory_External(String id, String pw, String startDate, String endDate, String companyId) {
-		User user = repoUser.findByAuthentication_EnabledAndEmail(true, id).orElseThrow(
-				() -> UserNotFoundException.builder()
-						.email(id)
-						.build()
-		);
-
-		if (!encoder.matches(pw, user.password())) {
-			throw UnauthorizedException.builder()
-					.account(id)
-					.build();
-		}
-		List<ResAccountRepository.CaccountMonthDto> transactionList = null;
-
-		Stream<Authority> authStream = repoUser.findById(user.idx()).get().authorities().stream();
-
-
-		if(authStream.anyMatch(o -> (o.role().equals(Role.GOWID_EXTERNAL)))){
-			Long idxCorpUser = repoCorp.searchResCompanyIdentityNo(companyId);
-			transactionList = repoResAccount.findMonthHistory_External(startDate, endDate, idxCorpUser);
-		}else{
-			throw new RuntimeException("DOES NOT HAVE GOWID-EXTERNAL");
-		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(transactionList).build());
 	}
@@ -317,7 +283,7 @@ public class BankService {
 							.value("Request again after 3 minutes").build()
 			).build());
 		}
-		serviceScraping.scraping3Years(null ,idx, null);
+		serviceScraping.scrapingRegister1YearList(idx);
 		Thread.sleep(1000);
 		return refresh(idx,null);
 	}
@@ -366,36 +332,5 @@ public class BankService {
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 				.data(CMonthInOutSumDto).build());
-	}
-
-
-	public ResponseEntity check_scraping_risk(Long idxUser, Long idxCorp) {
-		BusinessResponse.Normal normal = new BusinessResponse.Normal();
-
-		idxUser = getaLong(idxUser, idxCorp);
-		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idxUser);
-
-		Risk risk = repoRisk.findByCorpAndDate(Corp.builder().idx(idxCorp).build(), CommonUtil.getNowYYYYMMDD()).get();
-
-		if(returnData.size() > 0 && returnData.get(0).getEndFlag().equals("0") && risk.pause()){
-			// progress
-			normal.setKey("1");
-			normal.setValue("progress");
-
-		}else if(returnData.size() > 0
-				&& returnData.get(0).getEndFlag().equals("1")
-				&& returnData.get(0).getTotal().equals(returnData.get(0).getProgressCnt())){
-			// complete
-			normal.setKey("2");
-			normal.setValue("complete");
-		}else{
-			// stop
-			normal.setKey("3");
-			normal.setValue("stop");
-		}
-
-		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.normal(normal)
-				.data(null).build());
 	}
 }

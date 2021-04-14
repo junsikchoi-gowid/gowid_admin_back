@@ -1,9 +1,15 @@
 package com.nomadconnection.dapp.api.v2.controller.card;
 
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
+import com.nomadconnection.dapp.api.dto.FinancialConsumersRequestDto;
+import com.nomadconnection.dapp.api.dto.FinancialConsumersResponseDto;
+import com.nomadconnection.dapp.api.v2.dto.cardissuanceinfo.IssuanceDepthResponseDto;
 import com.nomadconnection.dapp.api.v2.service.card.CommonCardServiceV2;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceDepth;
 import com.nomadconnection.dapp.core.security.CustomUser;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -27,6 +33,7 @@ import java.util.List;
 @RequestMapping(CommonCardControllerV2.URI.BASE)
 @RequiredArgsConstructor
 @Validated
+@Api(tags = "카드사공통 법인카드 발급")
 public class CommonCardControllerV2 {
     public static class URI {
         public static final String BASE = "/card/v2";
@@ -43,6 +50,8 @@ public class CommonCardControllerV2 {
         public static final String CEO = "/ceo";
         public static final String CEO_ID = "/ceo/identification";
         public static final String MANAGER = "/manager";
+        public static final String CARDS = "/cards";
+        public static final String FINANCIAL_CONSUMERS = "/financial-consumers";
     }
 
     private final CommonCardServiceV2 commonCardService;
@@ -52,13 +61,13 @@ public class CommonCardControllerV2 {
     public ResponseEntity<CardIssuanceDto.CorporationRes> updateCorporation(
         @ApiIgnore @CurrentUser CustomUser user,
         @RequestParam Long idxCardInfo,
-        @RequestParam(required = false) String depthKey,
+        @RequestParam(defaultValue = "GOWID") CardType cardType,
         @RequestBody @Valid CardIssuanceDto.RegisterCorporation dto) {
         if (log.isInfoEnabled()) {
             log.info("([ updateCorporation ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(commonCardService.updateCorporation(user.idx(), dto, idxCardInfo, depthKey));
+        return ResponseEntity.ok().body(commonCardService.updateCorporation(user.idx(), dto, idxCardInfo, cardType));
     }
 
     @ApiOperation("법인정보 업종종류 조회")
@@ -79,13 +88,13 @@ public class CommonCardControllerV2 {
     public ResponseEntity<CardIssuanceDto.CorporationExtendRes> updateCorporationExtend(
         @ApiIgnore @CurrentUser CustomUser user,
         @RequestParam Long idxCardInfo,
-        @RequestParam(required = false) String depthKey,
+        @RequestParam(defaultValue = "GOWID") CardType cardType,
         @RequestBody @Valid CardIssuanceDto.RegisterCorporationExtend dto) {
         if (log.isInfoEnabled()) {
             log.info("([ updateCorporationExtend ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(commonCardService.updateCorporationExtend(user.idx(), dto, idxCardInfo, depthKey));
+        return ResponseEntity.ok().body(commonCardService.updateCorporationExtend(user.idx(), dto, idxCardInfo, cardType));
     }
 
     @ApiOperation("주주정보 등록")
@@ -93,13 +102,13 @@ public class CommonCardControllerV2 {
     public ResponseEntity<CardIssuanceDto.VentureRes> registerStockholder(
         @ApiIgnore @CurrentUser CustomUser user,
         @RequestParam Long idxCardInfo,
-        @RequestParam(required = false) String depthKey,
+        @RequestParam(defaultValue = "GOWID") CardType cardType,
         @RequestBody @Valid CardIssuanceDto.RegisterStockholder dto) {
         if (log.isInfoEnabled()) {
             log.info("([ registerStockholder ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(commonCardService.registerStockholder(user.idx(), dto, idxCardInfo, depthKey));
+        return ResponseEntity.ok().body(commonCardService.registerStockholder(user.idx(), dto, idxCardInfo, cardType));
     }
 
     @ApiOperation("주주명부 파일 등록")
@@ -109,7 +118,7 @@ public class CommonCardControllerV2 {
     @PostMapping(URI.STOCKHOLDER_FILES)
     public ResponseEntity<List<CardIssuanceDto.StockholderFileRes>> uploadStockholderFile(
         @ApiIgnore @CurrentUser CustomUser user,
-        @RequestParam(required = false) String depthKey,
+        @RequestParam(defaultValue = "GOWID") CardType cardType,
         @RequestParam Long idxCardInfo,
         @RequestParam String fileType,
         @RequestPart MultipartFile[] file_1,
@@ -118,18 +127,18 @@ public class CommonCardControllerV2 {
             log.info("([ uploadStockholderFile ]) $user='{}' $file_1='{}' $file_2='{}' $idx_cardInfo='{}'", user, file_1, file_2, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(commonCardService.registerStockholderFile(user.idx(), file_1, file_2, fileType, idxCardInfo, depthKey));
+        return ResponseEntity.ok().body(commonCardService.registerStockholderFile(user.idx(), file_1, file_2, fileType, idxCardInfo, cardType));
     }
 
     @ApiOperation("카드발급정보 전체조회")
-    @GetMapping(URI.CARD)
-    public ResponseEntity<CardIssuanceDto.CardIssuanceInfoRes> getCardIssuanceByUser(
+    @GetMapping(URI.CARDS)
+    public ResponseEntity<List<CardIssuanceDto.CardIssuanceInfoRes>> getCards(
         @ApiIgnore @CurrentUser CustomUser user) {
         if (log.isInfoEnabled()) {
-            log.info("([ getCardIssuanceByUser ]) $user='{}'", user);
+            log.info("([ getCards ]) $user='{}'", user);
         }
 
-        return ResponseEntity.ok().body(commonCardService.getCardIssuanceInfoByUser(user.idx()));
+        return ResponseEntity.ok().body(commonCardService.getCards(user.idx()));
     }
 
     @ApiOperation("카드발급정보 등록")
@@ -137,13 +146,13 @@ public class CommonCardControllerV2 {
     public ResponseEntity<CardIssuanceDto.CardRes> registerCard(
         @ApiIgnore @CurrentUser CustomUser user,
         @RequestParam Long idxCardInfo,
-        @RequestParam(required = false) String depthKey,
+        @RequestParam(defaultValue = "GOWID") CardType cardType,
         @RequestBody @Valid CardIssuanceDto.RegisterCard dto) {
         if (log.isInfoEnabled()) {
             log.info("([ registerStockholder ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(commonCardService.registerCard(user.idx(), dto, idxCardInfo, depthKey));
+        return ResponseEntity.ok().body(commonCardService.registerCard(user.idx(), dto, idxCardInfo, cardType));
     }
 
     @ApiOperation("벤처기업사 조회")
@@ -162,26 +171,25 @@ public class CommonCardControllerV2 {
     public ResponseEntity<CardIssuanceDto.VentureRes> registerVenture(
         @ApiIgnore @CurrentUser CustomUser user,
         @RequestParam Long idxCardInfo,
-        @RequestParam(required = false) String depthKey,
+        @RequestParam(defaultValue = "GOWID") CardType cardType,
         @RequestBody @Valid CardIssuanceDto.RegisterVenture dto) {
         if (log.isInfoEnabled()) {
             log.info("([ registerVenture ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(commonCardService.registerVenture(user.idx(), dto, idxCardInfo, depthKey));
+        return ResponseEntity.ok().body(commonCardService.registerVenture(user.idx(), dto, idxCardInfo, cardType));
     }
 
     @ApiOperation("카드 희망한도 저장")
     @PostMapping(URI.CARD_HOPE_LIMIT)
     public ResponseEntity<CardIssuanceDto.CardRes> saveHopeLimit(
         @ApiIgnore @CurrentUser CustomUser user,
-        @RequestParam(required = false) String depthKey,
         @RequestBody @Valid CardIssuanceDto.HopeLimitReq dto) {
         if (log.isInfoEnabled()) {
             log.info("([ saveHopeLimit ]) $user='{}' $dto='{}'", user, dto);
         }
 
-        return ResponseEntity.ok().body(commonCardService.saveHopeLimit(user.idx(), dto, depthKey));
+        return ResponseEntity.ok().body(commonCardService.saveHopeLimit(user.idx(), dto));
     }
 
     @ApiOperation("결제계좌 등록")
@@ -189,13 +197,13 @@ public class CommonCardControllerV2 {
     public ResponseEntity<CardIssuanceDto.AccountRes> registerAccount(
         @ApiIgnore @CurrentUser CustomUser user,
         @RequestParam Long idxCardInfo,
-        @RequestParam(required = false) String depthKey,
+        @RequestParam(defaultValue = "GOWID") CardType cardType,
         @RequestBody @Valid CardIssuanceDto.RegisterAccount dto) {
         if (log.isInfoEnabled()) {
             log.info("([ registerAccount ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(commonCardService.registerAccount(user.idx(), dto, idxCardInfo, depthKey));
+        return ResponseEntity.ok().body(commonCardService.registerAccount(user.idx(), dto, idxCardInfo, cardType));
     }
 
     @ApiOperation("대표자 종류")
@@ -214,13 +222,13 @@ public class CommonCardControllerV2 {
     public ResponseEntity<CardIssuanceDto.CeoRes> registerCEO(
         @ApiIgnore @CurrentUser CustomUser user,
         @RequestParam Long idxCardInfo,
-        @RequestParam(required = false) String depthKey,
+        @RequestParam(defaultValue = "GOWID") CardType cardType,
         @RequestBody @Valid CardIssuanceDto.RegisterCeo dto) {
         if (log.isInfoEnabled()) {
             log.info("([ registerCEO ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(commonCardService.registerCeo(user.idx(), dto, idxCardInfo, depthKey));
+        return ResponseEntity.ok().body(commonCardService.registerCeo(user.idx(), dto, idxCardInfo, cardType));
     }
 
     @ApiOperation("관리책임자 업데이트")
@@ -228,13 +236,13 @@ public class CommonCardControllerV2 {
     public ResponseEntity<CardIssuanceDto.ManagerRes> registerManager(
         @ApiIgnore @CurrentUser CustomUser user,
         @RequestParam Long idxCardInfo,
-        @RequestParam(required = false) String depthKey,
+        @RequestParam(defaultValue = "GOWID") CardType cardType,
         @RequestBody @Valid CardIssuanceDto.RegisterManager dto) {
         if (log.isInfoEnabled()) {
             log.info("([ registerManager ]) $user='{}' $dto='{}' $idx_cardInfo='{}'", user, dto, idxCardInfo);
         }
 
-        return ResponseEntity.ok().body(commonCardService.registerManager(user.idx(), dto, idxCardInfo, depthKey));
+        return ResponseEntity.ok().body(commonCardService.registerManager(user.idx(), dto, idxCardInfo, cardType));
     }
 
     @ApiOperation(value = "신분증 본인 확인")
@@ -242,25 +250,42 @@ public class CommonCardControllerV2 {
     public ResponseEntity<?> verifyIdentification(
         HttpServletRequest request,
         @ApiIgnore @CurrentUser CustomUser user,
+        @RequestParam(defaultValue = "GOWID") CardType cardType,
         @ModelAttribute @Valid CardIssuanceDto.IdentificationReq dto) {
         if (log.isInfoEnabled()) {
             log.info("([ verifyIdentification ]) $user='{}' $dto='{}'", user, dto);
         }
 
-        commonCardService.verifyCeoIdentification(request, user.idx(), dto);
+        commonCardService.verifyCeoIdentification(request, user.idx(), cardType, dto);
         return ResponseEntity.ok().build();
     }
 
     @ApiOperation("발급화면 진행상황 저장")
-    @PostMapping(URI.ISSUANCE_DEPTH)
+    @PatchMapping(URI.ISSUANCE_DEPTH)
     public ResponseEntity saveIssuanceDepth(
         @ApiIgnore @CurrentUser CustomUser user,
-        @RequestParam String depthKey) {
+        @RequestParam IssuanceDepth depthKey,
+        @RequestParam(defaultValue = "GOWID") CardType cardType) {
         if (log.isInfoEnabled()) {
-            log.info("([ saveIssuanceDepth ]) $user='{}' $depthKey='{}'", user, depthKey);
+            log.info("([ saveIssuanceDepth ]) $user='{}' $depthKey='{}', $cardType='{}'", user, depthKey, cardType);
         }
 
-        commonCardService.saveIssuanceDepth(user.idx(), depthKey);
-        return ResponseEntity.ok().build();
+        IssuanceDepthResponseDto issuanceDepthResponseDto = commonCardService.saveIssuanceDepth(user.idx(), depthKey, cardType);
+        return ResponseEntity.ok().body(issuanceDepthResponseDto);
     }
+
+    @ApiOperation("금융소비자 정보 유형 정보 업데이트")
+    @PatchMapping(URI.FINANCIAL_CONSUMERS)
+    public ResponseEntity saveConsumerType(
+        @ApiIgnore @CurrentUser CustomUser user,
+        @RequestParam(defaultValue = "GOWID") CardType cardType,
+        @RequestBody FinancialConsumersRequestDto financialConsumersRequestDto) {
+        if (log.isInfoEnabled()) {
+            log.info("([ saveIssuanceDepth ]) $user='{}', $cardType='{}'", user, cardType);
+        }
+
+        FinancialConsumersResponseDto response = commonCardService.updateFinancialConsumersInfo(user.idx(), cardType, financialConsumersRequestDto);
+        return ResponseEntity.ok().body(response);
+    }
+
 }

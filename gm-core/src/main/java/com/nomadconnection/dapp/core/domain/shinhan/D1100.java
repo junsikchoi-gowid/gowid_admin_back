@@ -131,4 +131,7 @@ public class D1100 extends BaseTime {
     private String d049; //제휴정보
     @Column(columnDefinition = "varchar(30)    DEFAULT '' COMMENT ' 전자서명식별번전호'")
     private String d050; //전자서명식별번전호
+    @Column(columnDefinition = "varchar(6)    DEFAULT '' COMMENT '법인카드신청구분코드'")
+    private String d051; //법인카드신청구분코드
+
 }

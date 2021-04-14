@@ -148,4 +148,8 @@ public class DataPart1400 extends CommonPart {
     private String d065;    // 신청관리자이메일주소
 
     private String d066;    // 도로명참조KEY값
+
+    private String d067;    // 법인카드신청구분코드
+
+    private String d068;    // 금융소비자정보유형코드
 }

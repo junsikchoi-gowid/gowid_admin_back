@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nomadconnection.dapp.api.dto.shinhan.DataPart1600;
 import com.nomadconnection.dapp.api.util.MaskingUtils;
+import com.nomadconnection.dapp.api.v2.dto.kised.KisedResponseDto;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
@@ -11,11 +12,14 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.util.ObjectUtils;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CardIssuanceDto {
 
@@ -578,7 +582,7 @@ public class CardIssuanceDto {
                         .addressDetail(cardInfo.card().addressDetail())
                         .addressKey(cardInfo.card().addressKey())
                         .zipCode(cardInfo.card().zipCode())
-                        .cardName(cardInfo.card().cardName())
+                        .cardName(cardInfo.cardType().getName())
                         .isUnsigned(cardInfo.card().isUnsigned())
                         .isOverseas(cardInfo.card().isOverseas())
                         .paymentDay(cardInfo.card().paymentDay())
@@ -744,6 +748,8 @@ public class CardIssuanceDto {
         @JsonIgnore
         private Long userIdx;
 
+        private CardType cardType;
+
     }
 
     @Data
@@ -803,18 +809,56 @@ public class CardIssuanceDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CardIssuanceInfoRes {
+
+        private Long cardIssuanceInfoIdx;
         private String issuanceDepth;
         private String cardCompany;
         private List<ConsentRes> consentRes;
+        private List<CeoRes> ceoRes;
+        private List<StockholderFileRes> stockholderFileRes;
+
         private CorporationRes corporationRes;
         private CorporationExtendRes corporationExtendRes;
         private VentureRes ventureRes;
         private StockholderRes stockholderRes;
         private CardRes cardRes;
         private AccountRes accountRes;
-        private List<CeoRes> ceoRes;
-        private List<StockholderFileRes> stockholderFileRes;
         private ManagerRes managerRes;
+        private com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType cardType;
+        private IssuanceStatus issuanceStatus;
+        private KisedResponseDto kisedResponse;
+        private FinancialConsumersResponseDto financialConsumers;
+        private LocalDateTime appliedAt;
+        private LocalDateTime issuedAt;
+
+        public static CardIssuanceInfoRes toDefault(List<ConsentRes> consents){
+            return CardIssuanceDto.CardIssuanceInfoRes.builder()
+                .consentRes(consents).build();
+        }
+
+        public static CardIssuanceInfoRes toDto(CardIssuanceInfo cardIssuanceInfo, List<ConsentRes> consents, CorporationRes corporationRes, CorporationExtendRes corporationExtendRes, AccountRes accountRes){
+            return CardIssuanceInfoRes.builder()
+                .cardIssuanceInfoIdx(cardIssuanceInfo.idx())
+                .issuanceDepth(cardIssuanceInfo.issuanceDepth().toString())
+                .cardCompany(!ObjectUtils.isEmpty(cardIssuanceInfo.cardCompany()) ? cardIssuanceInfo.cardCompany().name() : null)
+                .ventureRes(VentureRes.from(cardIssuanceInfo))
+                .stockholderRes(StockholderRes.from(cardIssuanceInfo))
+                .cardRes(CardRes.from(cardIssuanceInfo))
+                .ceoRes(cardIssuanceInfo.ceoInfos() != null ? cardIssuanceInfo.ceoInfos().stream().map(CeoRes::from).collect(Collectors.toList()) : null)
+                .managerRes(ManagerRes.from(cardIssuanceInfo.managerInfo()))
+                .stockholderFileRes(cardIssuanceInfo.stockholderFiles() != null ? cardIssuanceInfo.stockholderFiles().stream().map(file -> StockholderFileRes.from(file, cardIssuanceInfo.idx())).collect(Collectors.toList()) : null)
+                .consentRes(consents)
+                .corporationRes(corporationRes)
+                .corporationExtendRes(corporationExtendRes)
+                .accountRes(accountRes)
+                .cardType(cardIssuanceInfo.cardType())
+                .issuanceStatus(cardIssuanceInfo.issuanceStatus())
+                .kisedResponse(KisedResponseDto.from(cardIssuanceInfo.kised()))
+                .financialConsumers(FinancialConsumersResponseDto.from(cardIssuanceInfo))
+                .appliedAt(cardIssuanceInfo.appliedAt())
+                .issuedAt(cardIssuanceInfo.issuedAt())
+                .build();
+        }
     }
 
     @Data
@@ -891,7 +935,7 @@ public class CardIssuanceDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CardType {
+    public static class CardCompanyType {
 
         @ApiModelProperty("코드")
         private String code;
@@ -899,9 +943,9 @@ public class CardIssuanceDto {
         @ApiModelProperty("이름")
         private String name;
 
-        public static CardType from(CommonCodeDetail code) {
+        public static CardCompanyType from(CommonCodeDetail code) {
             if (code != null) {
-                return CardType.builder()
+                return CardCompanyType.builder()
                         .code(code.code1())
                         .name(code.value1())
                         .build();

@@ -7,6 +7,7 @@ import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1100;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
@@ -62,7 +63,7 @@ class AdminServiceTest extends AbstractSpringBootTest {
 
 		adminService.riskIdLevelChange(user.idx(), dto);
 
-		CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByCorpAndDisabledFalseOrderByIdxDesc(corp).get();
+		CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByCorpAndCardType(corp, CardType.GOWID).get();
 		D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corp.idx()).get();
 		D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corp.idx()).get();
 		D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corp.idx()).get();
@@ -86,7 +87,7 @@ class AdminServiceTest extends AbstractSpringBootTest {
 
 		adminService.riskIdLevelChange(user.idx(), dto);
 
-		CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByCorpAndDisabledFalseOrderByIdxDesc(corp).get();
+		CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByCorpAndCardType(corp, CardType.GOWID).get();
 		Lotte_D1100 d1000 = lotteD1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corp.idx()).get();
 
 		assertThat(cardIssuanceInfo.card().grantLimit()).isEqualTo(String.valueOf(deposit));

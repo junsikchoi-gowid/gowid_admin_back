@@ -8,7 +8,6 @@ import com.nomadconnection.dapp.api.v2.service.scraping.FinancialStatementsServi
 import com.nomadconnection.dapp.api.v2.service.scraping.ScrapingService;
 import com.nomadconnection.dapp.codef.io.helper.ResponseCode;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,7 +38,6 @@ public class ScrapingController {
 		}
 		Long userIdx = user.idx();
 		scrapingService.scrap(userIdx, dto);
-		cardIssuanceInfoService.updateIssuanceStatus(userIdx , IssuanceStatus.INPROGRESS);
 
 		return ApiResponse.builder()
 			.result(ApiResponse.ApiResult.builder()

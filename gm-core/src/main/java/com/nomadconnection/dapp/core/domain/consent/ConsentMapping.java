@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.domain.consent;
 
 
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,4 +28,8 @@ public class ConsentMapping {
 
 	@Column(nullable = false)
 	private boolean status;
+
+	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "varchar(20) DEFAULT 'GOWID' COMMENT '카드 종류'")
+	private CardType cardType;
 }

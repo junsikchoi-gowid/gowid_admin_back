@@ -21,7 +21,7 @@ public class SlackNotiDto {
     public static class NotiReq {
 
         @ApiModelProperty("Slack 에 전송할 텍스트")
-        @NotEmpty(message = "email is empty")
+        @NotEmpty(message = "text is empty")
         private String text;
     }
 

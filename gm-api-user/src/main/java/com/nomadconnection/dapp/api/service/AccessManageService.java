@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings("unused")
 public class AccessManageService {
 
     private final CorpRepository repoCorp;
@@ -53,12 +52,6 @@ public class AccessManageService {
     public List<AccessManageDto.AccessCodeType> commonCorp(CustomUser user, CommonCodeType corpType) {
 
         return repoCodeDetail.findAllByCode(corpType).stream().map(AccessManageDto.AccessCodeType::from).collect(Collectors.toList());
-    }
-
-    @Transactional
-    public List<ConnectedMngDto> getConnectedId(CustomUser user) {
-
-        return repoConnectedMng.findByIdxUser(user.idx()).stream().map(ConnectedMngDto::from).collect(Collectors.toList());
     }
 
     @Transactional
@@ -218,9 +211,9 @@ public class AccessManageService {
         }
 
         return ConnectedMngDto.builder()
-                .idx(connectedMng.idx())
-                .status(connectedMng.status())
-                .build();
+            .idx(connectedMng.idx())
+            .status(connectedMng.status())
+            .build();
     }
 
     @Transactional
@@ -354,7 +347,6 @@ public class AccessManageService {
 
         return accessInfoAll;
     }
-
 
     @Transactional
     public Boolean procConnectedIdStop(CustomUser customUser, AccessManageDto.ResConCorpStatusDto dto) {

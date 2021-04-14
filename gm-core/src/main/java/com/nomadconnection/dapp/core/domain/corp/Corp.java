@@ -11,6 +11,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -41,8 +43,8 @@ public class Corp extends BaseTime {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "corp")
     private LimitRecalculation limitRecalculation;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "corp")
-    private CardIssuanceInfo cardIssuanceInfo;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "corp")
+    private List<CardIssuanceInfo> cardIssuanceInfo = new ArrayList<>();
 
     private String resBusinessItems; // 종목
     private String resBusinessTypes; // 업태

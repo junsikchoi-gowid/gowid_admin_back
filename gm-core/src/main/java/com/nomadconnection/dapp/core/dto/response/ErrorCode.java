@@ -113,6 +113,10 @@ public class ErrorCode {
 		REJECTED_SHINHAN_1700("REJECTED_SHINHAN_1700", "rejected(shinhan - 1700) "),
 		INTERNAL_ERROR_SHINHAN_1700("INTERNAL_ERROR_SHINHAN_1700", "internal error(shinhan - 1700)"),
 
+		EXTERNAL_ERROR_SHINHAN_1710("EXTERNAL_ERROR_SHINHAN_1710", "external error(shinhan - 1710)"),
+		REJECTED_SHINHAN_1710("REJECTED_SHINHAN_1710", "rejected(shinhan - 1710) "),
+		INTERNAL_ERROR_SHINHAN_1710("INTERNAL_ERROR_SHINHAN_1710", "internal error(shinhan - 1710)"),
+
 		EXTERNAL_ERROR_SHINHAN_1800("EXTERNAL_ERROR_SHINHAN_1800", "external error(shinhan - 1800)"),
 		REJECTED_SHINHAN_1800("REJECTED_SHINHAN_1800", "rejected(shinhan - 1800) "),
 		INTERNAL_ERROR_SHINHAN_1800("INTERNAL_ERROR_SHINHAN_1800", "internal error(shinhan - 1800)"),
@@ -155,6 +159,7 @@ public class ErrorCode {
 		SUCCESS("SUCCESS", null),
 		ALREADY_EXIST("ALREADY_EXIST", "already exist"),
 		CORP_NOT_BUSINESS("CORP_NOT_BUSINESS", "corp is not business"),
+		CORP_NOT_MATCHED("CORP_NOT_MATCHED", "corp is not matched"),
 		SURVEY_ALREADY_EXIST("ALREADY_EXIST", "user survey already exist"),
 		RECALCULATION_ALREADY_EXIST("RECALCULATION_ALREADY_EXIST", "The corp has already requested it on that date."),
 		RECALCULATION_ALREADY_REVIEWING("RECALCULATION_ALREADY_REVIEWING", "It's already under review."),

@@ -4,6 +4,8 @@ import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.embed.BankAccount;
+import com.nomadconnection.dapp.core.domain.kised.Kised;
+import com.nomadconnection.dapp.core.domain.shinhan.D1200;
 import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -11,6 +13,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 
@@ -22,6 +25,10 @@ import java.util.Collection;
 @AllArgsConstructor
 @DynamicUpdate
 @DynamicInsert
+@Table(uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"idxCorp", "cardCompany", "cardType"}, name = "UK_Corp_CardCompany_CardType"),
+    @UniqueConstraint(columnNames = {"idxKised"}, name = "UK_Kised")
+})
 @Entity
 public class CardIssuanceInfo extends BaseTime {
 
@@ -30,16 +37,21 @@ public class CardIssuanceInfo extends BaseTime {
     @Column(nullable = false, updatable = false)
     private Long idx;
 
-    @Builder.Default
-    private Boolean disabled = false; // 해당정보가 유효한 정보인지 아닌지 확인 (false 이면 폐기된 정보)
-
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "FK_Corp_cardIssuance"))
     private Corp corp; // 소속법인
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_cardIssuance"), nullable = false)
     private User user;
+
+    @OneToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name="idxKised", foreignKey = @ForeignKey(name = "FK_CardIssuanceInfo_Kised"), referencedColumnName = "idx")
+    private Kised kised;
+
+    @OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name="idxD1200", foreignKey = @ForeignKey(name = "FK_CardIssuanceInfo_D1200"), referencedColumnName = "idx")
+    private D1200 d1200;
 
     @Embedded
     private Venture venture; //벤처기업정보
@@ -61,9 +73,8 @@ public class CardIssuanceInfo extends BaseTime {
     @ToString.Exclude
     private Collection<StockholderFile> stockholderFiles;
 
-    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private CardCompany cardCompany = CardCompany.SHINHAN;
+    private CardCompany cardCompany;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(20)  DEFAULT 'SIGNUP' COMMENT '카드발급신청 진행상황'")
@@ -73,10 +84,46 @@ public class CardIssuanceInfo extends BaseTime {
     @Column(columnDefinition = "varchar(20)  DEFAULT 'UNISSUED' COMMENT '카드발급 상태'")
     private IssuanceStatus issuanceStatus;
 
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(20) NOT NULL DEFAULT 'GOWID' COMMENT '카드 종류'")
+    private CardType cardType;
+
     @Embedded
     private CorpExtend corpExtend;
 
     @OneToOne(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     private ManagerInfo managerInfo;
+
+    @Embedded
+    private FinancialConsumers financialConsumers;
+
+    @Column(columnDefinition = "DATETIME default null COMMENT '신청완료일'")
+    private LocalDateTime appliedAt;
+
+    @Column(columnDefinition = "DATETIME default null COMMENT '발급완료일'")
+    private LocalDateTime issuedAt;
+
+    public void updateIssuanceDepth(IssuanceDepth issuanceDepth){
+        this.issuanceDepth = issuanceDepth;
+    }
+
+    public FinancialConsumers getFinancialConsumers(){
+        return this.financialConsumers == null ?
+            this.financialConsumers = new FinancialConsumers() : this.financialConsumers;
+    }
+
+    public BankAccount getBankAccount(){
+        return this.bankAccount == null ?
+            this.bankAccount = new BankAccount() : this.bankAccount;
+    }
+
+    public void updateCardCompany(CardCompany cardCompany){
+        this.cardCompany = cardCompany;
+    }
+
+    public void updateIssuanceStatus(IssuanceStatus issuanceStatus){
+        this.issuanceStatus = issuanceStatus;
+    }
+
 }

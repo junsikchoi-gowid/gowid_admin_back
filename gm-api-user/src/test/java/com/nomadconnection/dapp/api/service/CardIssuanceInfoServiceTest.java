@@ -1,9 +1,9 @@
 package com.nomadconnection.dapp.api.service;
 
-import com.amazonaws.services.kms.model.NotFoundException;
 import com.nomadconnection.dapp.UserApiApplication;
 import com.nomadconnection.dapp.api.abstracts.AbstractMockitoTest;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
@@ -53,13 +53,13 @@ class CardIssuanceInfoServiceTest extends AbstractMockitoTest {
 		CardIssuanceInfo expected = CardIssuanceInfo.builder().idx(1L).issuanceStatus(IssuanceStatus.UNISSUED).build();
 
 		//given
-		given(cardIssuanceInfoRepository.findByCorpAndDisabledFalseOrderByIdxDesc(corp)).willReturn(Optional.of(expected));
+		given(cardIssuanceInfoRepository.findByCorpAndCardType(corp, CardType.GOWID)).willReturn(Optional.of(expected));
 
 		//when
-		CardIssuanceInfo result = cardIssuanceInfoService.updateIssuanceStatus(corp, issuanceStatus);
+		CardIssuanceInfo result = cardIssuanceInfoService.updateIssuanceStatus(corp, CardType.GOWID, issuanceStatus);
 
 		//then
-		verify(cardIssuanceInfoRepository, atLeastOnce()).findByCorpAndDisabledFalseOrderByIdxDesc(corp);
+		verify(cardIssuanceInfoRepository, atLeastOnce()).findByCorpAndCardType(corp, CardType.GOWID);
 		assertEquals(issuanceStatus, result.issuanceStatus());
 	}
 
@@ -71,11 +71,8 @@ class CardIssuanceInfoServiceTest extends AbstractMockitoTest {
 		Corp corp = corpService.findByCorpIdx(241L);
 		CardIssuanceInfo cardIssuanceInfo = CardIssuanceInfo.builder().user(user).build();
 		cardIssuanceInfoService2.saveCardIssuanceInfo(cardIssuanceInfo);
-		cardIssuanceInfoService2.updateCorpByUser(user, corp);
 
-		CardIssuanceInfo issuanceInfo = cardIssuanceInfoService2.findTopByUser(user).orElseThrow(
-			() -> new NotFoundException("Not Found CardIssuanceInfo")
-		);
+		CardIssuanceInfo issuanceInfo = cardIssuanceInfoService2.findByUserAndCardType(user, CardType.GOWID);
 
 		assertEquals(corp.idx(), issuanceInfo.corp().idx());
 		cardIssuanceInfoService2.deleteCardIssuanceInfo(cardIssuanceInfo);

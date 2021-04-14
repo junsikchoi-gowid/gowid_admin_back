@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo;
 
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFile;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.StockholderFileType;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
@@ -13,6 +14,8 @@ import java.util.List;
 
 public interface StockholderFileRepository extends JpaRepository<StockholderFile, Long> {
     List<StockholderFile> findAllByCorpAndType(Corp corp, StockholderFileType type);
+
+    List<StockholderFile> findAllByCardIssuanceInfoAndType(CardIssuanceInfo cardIssuanceInfo, StockholderFileType type);
 
     @Transactional
     @Modifying

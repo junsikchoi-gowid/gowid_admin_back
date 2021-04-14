@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.QCardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.common.QConnectedMng;
 import com.nomadconnection.dapp.core.domain.common.QIssuanceProgress;
@@ -14,7 +13,6 @@ import com.nomadconnection.dapp.core.domain.risk.QRisk;
 import com.nomadconnection.dapp.core.domain.user.QUser;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
@@ -45,125 +43,6 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
      */
     public CorpCustomRepositoryImpl() {
         super(Corp.class);
-    }
-
-    @Override
-    public Page<SearchCorpResultDto> corpList(SearchCorpDto dto, Long idxUser, Pageable pageable) {
-
-        List<SearchCorpResultDto> riskList;
-        JPQLQuery<SearchCorpResultDto> query = from(corp)
-                .select(Projections.bean(SearchCorpResultDto.class,
-                        corp.idx.as("idx"),
-                        corp.resCompanyNm.as("resCompanyNm"),
-                        corp.resCompanyIdentityNo.as("resCompanyIdentityNo"),
-                        corp.resUserNm.as("resUserNm"),
-                        corp.createdAt.as("createdAt"),
-                        corp.resBusinessItems.as("resBusinessItems"),
-                        corp.resBusinessTypes.as("resBusinessTypes"),
-                        corp.riskConfig.ceoGuarantee.as("ceoGuarantee"),
-                        corp.riskConfig.depositGuarantee.as("depositGuarantee"),
-                        corp.riskConfig.depositPayment.as("depositPayment"),
-                        corp.riskConfig.cardIssuance.as("cardIssuance"),
-                        corp.riskConfig.ventureCertification.as("ventureCertification"),
-                        corp.riskConfig.vcInvestment.as("vcInvestment"),
-//                        ExpressionUtils.as(
-//                                JPAExpressions.select(resBatchList.count().eq((long) 0))
-//                                        .from(resBatchList)
-//                                        .where(resBatchList.errCode.notEqualsIgnoreCase("CF-00000"))
-//                                        .where(resBatchList.resBatchType.eq(ResBatchType.BANK))
-//                                        .where(resBatchList.idxResBatch.eq(
-//                                                JPAExpressions.select(resBatch.idx.max())
-//                                                        .from(resBatch)
-//                                                        .where(resBatch.idxUser.eq(corp.user.idx))))
-//                                , "boolError"),
-                        ExpressionUtils.as(
-                                JPAExpressions.select((risk.emergencyStop.castToNum(Long.class).add(risk.emergencyStop.castToNum(Long.class))).eq((long)0))
-                                        .from(risk)
-                                        .where(risk.idx.eq(
-                                                JPAExpressions.select(risk.idx.max())
-                                                        .from(risk)
-                                                        .where(risk.corp.idx.eq(corp.idx))))
-                                , "boolPauseStop")
-                ));
-
-        query.where(corp.riskConfig.enabled.isTrue());
-
-        if (dto.getResCompanyNm() != null) {
-            query.where(corp.resCompanyNm.contains(dto.getResCompanyNm()));
-        }
-
-        if (dto.getResCompanyIdentityNo() != null) {
-            query.where(corp.resCompanyIdentityNo.eq(dto.getResCompanyIdentityNo()));
-        }
-
-        if (dto.getVentureCertification() != null) {
-            query.where(corp.riskConfig.ventureCertification.eq(dto.getVentureCertification().toLowerCase().equals("true")));
-        }
-
-        if (dto.getVcInvestment() != null) {
-            query.where(corp.riskConfig.vcInvestment.eq(dto.getVcInvestment().toLowerCase().equals("true")));
-        }
-
-        riskList = getQuerydsl().applyPagination(pageable, query).fetch();
-
-        return new PageImpl(riskList, pageable, query.fetchCount());
-    }
-
-    @Override
-    public Page<SearchCorpResultDto> adminCorpList(SearchCorpListDto dto, Long idxUser, Pageable pageable) {
-
-        List<SearchCorpListDto> riskList;
-        JPQLQuery<SearchCorpListDto> query = from(corp)
-                .leftJoin(issuanceProgress).on(corp.idx.eq(issuanceProgress.corpIdx))
-                .leftJoin(cardIssuanceInfo).on(corp.idx.eq(cardIssuanceInfo.corp.idx))
-                .select(Projections.bean(SearchCorpListDto.class,
-                        corp.idx.as("idx"),
-                        corp.resCompanyNm.as("resCompanyNm"),
-                        corp.resCompanyIdentityNo.as("resCompanyIdentityNo"),
-                        corp.resUserNm.as("ceoName"),
-                        corp.user.cardCompany.as("cardCompany"),
-                    new CaseBuilder()
-                        .when(cardIssuanceInfo.issuanceStatus.eq(IssuanceStatus.ISSUED))
-                        .then(true)
-                        .otherwise(false).as("cardIssuance"),
-                        cardIssuanceInfo.issuanceDepth.as("issuanceDepth"),
-                        cardIssuanceInfo.issuanceStatus.as("issuanceStatus"),
-                        corp.user.name.as("userName"),
-                        corp.user.email.as("email"),
-                        corp.resRegisterDate.as("registerDate"),
-                        issuanceProgress.createdAt.as("applyDate"),
-                        issuanceProgress.updatedAt.as("decisionDate")
-                ));
-
-        query.where(corp.riskConfig.enabled.isTrue());
-
-        if (dto.getResCompanyNm() != null) {
-            query.where(corp.resCompanyNm.toLowerCase().contains(dto.getResCompanyNm().toLowerCase()));
-        }
-
-        if (dto.getResCompanyIdentityNo() != null) {
-            query.where(corp.resCompanyIdentityNo.toLowerCase().contains(dto.getResCompanyIdentityNo().toLowerCase()));
-        }
-
-        if (dto.getCardCompany() != null) {
-            query.where(corp.user.cardCompany.eq(dto.getCardCompany()));
-        }
-
-        if (dto.getUserName() != null) {
-            query.where(corp.user.name.toLowerCase().contains(dto.getUserName().toLowerCase()));
-        }
-
-        if (dto.getEmail() != null) {
-            query.where(corp.user.email.toLowerCase().contains(dto.getEmail().toLowerCase()));
-        }
-
-        if (dto.getIssuanceStatus() != null) {
-            query.where(cardIssuanceInfo.issuanceStatus.eq(dto.getIssuanceStatus()));
-        }
-
-        riskList = getQuerydsl().applyPagination(pageable, query).fetch();
-
-        return new PageImpl(riskList, pageable, query.fetchCount());
     }
 
     @Override

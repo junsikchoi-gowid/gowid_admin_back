@@ -4,7 +4,6 @@ import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.SurveyDto;
 import com.nomadconnection.dapp.api.dto.lotte.*;
 import com.nomadconnection.dapp.api.dto.lotte.enums.LotteGwApiType;
-import com.nomadconnection.dapp.api.dto.lotte.enums.LotteUserStatus;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.*;
@@ -13,13 +12,11 @@ import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
-import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1000;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1100;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1200;
-import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1100Repository;
@@ -46,19 +43,16 @@ import java.util.Map;
 public class LotteIssuanceService {
 
 	private final UserRepository repoUser;
-	private final IssuanceProgressRepository repoIssuanceProgress;
 	private final Lotte_D1100Repository repoD1100;
 	private final Lotte_D1000Repository repoD1000;
 	private final Lotte_D1200Repository repoD1200;
 	private final SignatureHistoryRepository repoSignatureHistory;
 	private final RiskService riskService;
 
-	private final UserService userService;
 	private final CorpService corpService;
 	private final LotteCommonService commonService;
 	private final LotteGwRpc lotteGwRpc;
 	private final EmailService emailService;
-	private final CommonCardService commonCardService;
 	private final CardIssuanceInfoService cardIssuanceInfoService;
 	private final SurveyService surveyService;
 
@@ -66,72 +60,26 @@ public class LotteIssuanceService {
 	boolean sendReceiptEmailEnable;
 
 	@Transactional(noRollbackFor = Exception.class)
-	public StatusDto verifyNewMember(Long userIdx) {
-		// 1000(법인회원신규여부검증)
-		Corp userCorp = corpService.getCorpByUserIdx(userIdx);
-		userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1000, CardCompany.LOTTE);
-		DataPart1000 resultOfD1000 = proc1000(userCorp);
-		userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1000, CardCompany.LOTTE);
-
-		if ("Y".equals(resultOfD1000.getBzNewYn())) {
-			repoD1100.save(Lotte_D1100.builder().idxCorp(userCorp.idx()).build());
-			repoD1200.save(Lotte_D1200.builder().idxCorp(userCorp.idx()).build());
-			return StatusDto.builder().status(LotteUserStatus.SUCCESS).build();
-		} else if ("N".equals(resultOfD1000.getBzNewYn())) {
-			Lotte_D1100 d1100 = repoD1100.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
-			if (d1100 == null && CardCompany.LOTTE.equals(userCorp.user().cardCompany())) {
-				commonCardService.deleteAllIssuanceInfo(userCorp.user());
-			}
-			return StatusDto.builder().status(LotteUserStatus.FAIL).build();
-		} else {
-			String msg = "bzNewYn is not Y/N. resultOfD1000.getBzNewYn() = " + resultOfD1000.getBzNewYn();
-			CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_LOTTE_1000, msg);
-		}
-		return StatusDto.builder().status(LotteUserStatus.NONE).build();
-	}
-
-	// 테스트 용도
-	@Transactional(noRollbackFor = Exception.class)
-	public String verifyNewMemberTest(Long userIdx) {
-		Corp userCorp = corpService.getCorpByUserIdx(userIdx);
-		Lotte_D1000 d1000 = Lotte_D1000.builder().idxCorp(userCorp.idx()).build();
-		d1000.setBzno(CommonUtil.replaceHyphen(userCorp.resCompanyIdentityNo()));
-		repoD1000.save(d1000);
-		repoD1100.save(Lotte_D1100.builder().idxCorp(userCorp.idx()).build());
-		repoD1200.save(Lotte_D1200.builder().idxCorp(userCorp.idx()).build());
-		return "SUCCESS";
-	}
-
-	@Transactional(noRollbackFor = Exception.class)
 	public void issuance(Long userIdx, CardIssuanceDto.IssuanceReq request, Long signatureHistoryIdx) {
 		try {
 			paramsLogging(request);
 			request.setUserIdx(userIdx);
-			userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED, CardCompany.LOTTE);
 			Corp userCorp = corpService.getCorpByUserIdx(userIdx);
-			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.SIGNED, CardCompany.LOTTE);
-			repoIssuanceProgress.flush();
 
 			// 신규(1100) 신청
-			userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1100, CardCompany.LOTTE);
 			DataPart1100 resultOfD1100 = proc1100(userCorp);
 			saveSignatureHistory(signatureHistoryIdx, resultOfD1100);
-			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_1100, CardCompany.LOTTE);
 
 			// 이미지 zip파일 생성요청
-			userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
 			procImageZip(resultOfD1100.getBzno(), resultOfD1100.getApfRcpno());
-			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
 
 			// 이메일 전송
 			sendReceiptEmail(userCorp);
 
 			// 1200 전자서명값 제출
-			userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.LP_1200, CardCompany.LOTTE);
 			proc1200(userCorp, resultOfD1100);
-			userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.LP_ZIP, CardCompany.LOTTE);
 
-			cardIssuanceInfoService.updateIssuanceStatus(userIdx, IssuanceStatus.APPLY);
+			cardIssuanceInfoService.updateIssuanceStatus(request.getCardIssuanceInfoIdx(), IssuanceStatus.APPLY);
 		} catch (Exception e){
 			log.error("[lotte issuance] {}", e);
 			throw e;
@@ -255,11 +203,6 @@ public class LotteIssuanceService {
 		//d1100.setGowidCriBalAm(getGowidCriBalAm(gowid45DAvBalAm, gowid45DMidBalAm, gowidPsBalAm));
 		d1100.setGowidCriBalAm(String.valueOf(Math.round(Math.floor(risk.cashBalance()))));
 		return d1100;
-	}
-
-	private String getGowidCriBalAm(String dma45, String dmm45, String currentBalance) {
-		String step1Num = CommonUtil.getLowerStringNumber(dma45, dmm45);
-		return CommonUtil.getLowerStringNumber(step1Num, currentBalance);
 	}
 
 	private Lotte_D1100 setD1100Corp(Lotte_D1100 d1100, Corp corp) {

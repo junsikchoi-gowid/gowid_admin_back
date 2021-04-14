@@ -51,7 +51,7 @@ public class LimitRecalculationHistory extends BaseTime {
 
 		return LimitRecalculationHistory.builder()
 			.limitRecalculation(limitRecalculation).date(now)
-			.hopeLimit(Long.parseLong(limitRecalculation.corp().cardIssuanceInfo().card().hopeLimit()))
+			.hopeLimit(Long.parseLong(limitRecalculation.corp().riskConfig().hopeLimit()))
 			.currentUsedAmount(dto.getCurrentUsedAmount())
 			.contents(dto.getContents())
 			.contactType(dto.getContactType())

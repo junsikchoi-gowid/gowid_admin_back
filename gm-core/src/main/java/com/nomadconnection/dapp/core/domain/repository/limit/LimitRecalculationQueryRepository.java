@@ -24,6 +24,7 @@ public class LimitRecalculationQueryRepository {
 
 	private final JPAQueryFactory queryFactory;
 
+	//FIXME : fix query to be successful
 	public List<LimitRecalculationPageDto.LimitRecalculationResult> findAll(LimitRecalculationCondition dto, int pageNo, int limit){
 
 		return queryFactory
@@ -94,7 +95,7 @@ public class LimitRecalculationQueryRepository {
 		if (StringUtils.isEmpty(issuanceStatus)) {
 			return null;
 		}
-		return limitRecalculation.corp.cardIssuanceInfo.issuanceStatus.eq(issuanceStatus);
+		return limitRecalculation.corp.cardIssuanceInfo.any().issuanceStatus.eq(issuanceStatus);
 	}
 
 }

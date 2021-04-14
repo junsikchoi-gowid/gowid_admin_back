@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.api.service.lotte.LotteIssuanceService;
 import com.nomadconnection.dapp.api.v2.dto.ImageReqDto;
 import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
 import com.nomadconnection.dapp.api.v2.service.scraping.RecoveryService;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,9 +30,10 @@ public class RecoveryController {
 	@ApiOperation(value = "수동 스크래핑")
 	@PostMapping("/scrap/{userIdx}")
 	public ApiResponse<?> scrapByScrapingType(@PathVariable Long userIdx,
-	                                            @RequestParam ScrapingType scrapingType,
-	                                            @RequestParam(required = false) String resClosingStandards) throws Exception {
-		recoveryService.scrapByScrapingType(userIdx, scrapingType, resClosingStandards);
+	                                          @RequestParam ScrapingType scrapingType,
+	                                          @RequestParam(required = false) String resClosingStandards,
+	                                          @RequestParam CardType cardType) throws Exception {
+		recoveryService.scrapByScrapingType(userIdx, scrapingType, resClosingStandards, cardType);
 		return ApiResponse.OK();
 	}
 

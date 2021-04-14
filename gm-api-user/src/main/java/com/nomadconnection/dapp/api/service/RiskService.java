@@ -1,16 +1,16 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.BankDto;
-import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
-import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
-import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
@@ -45,10 +45,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static com.nomadconnection.dapp.core.domain.common.IssuanceProgressType.LP_ZIP;
-import static com.nomadconnection.dapp.core.domain.common.IssuanceProgressType.P_1800;
-import static com.nomadconnection.dapp.core.domain.common.IssuanceStatusType.SUCCESS;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -59,33 +55,18 @@ public class RiskService {
 	private final UserRepository repoUser;
 	private final RiskConfigRepository repoRiskConfig;
 	private final ResAccountRepository repoResAccount;
-	private final IssuanceProgressRepository repoIssuanceProgress;
 	private final ResAccountHistoryRepository repoResAccountHistory;
 	private final CommonCodeDetailRepository repoCommonCodeDetail;
 	private final D1000Repository repoD1000;
 	private final D1400Repository repoD1400;
 	private final D1530Repository repoD1530;
+	private final CardIssuanceInfoService cardIssuanceInfoService;
 
 	final List<String> ACCOUNT_TYPE = Arrays.asList("10", "11", "12", "13", "14");
 	final Double minBalance = 10000000d;
 	final Double minCashBalance = 50000000d;
 	final Double maxLimit = 200000000d;
 
-	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity<?> saveRiskConfig(RiskDto.RiskConfigDto riskConfig){
-		return ResponseEntity.ok().body(BusinessResponse.builder().data(repoRiskConfig.save(
-				RiskConfig.builder()
-						.user(User.builder().idx(riskConfig.getIdxUser()).build())
-						.ceoGuarantee(riskConfig.isCeoGuarantee())
-						.depositGuarantee(riskConfig.getDepositGuarantee())
-						.depositPayment(riskConfig.isDepositPayment())
-						.cardIssuance(riskConfig.isCardIssuance())
-						.ventureCertification(riskConfig.isVentureCertification())
-						.vcInvestment(riskConfig.isVcInvestment())
-						.enabled(riskConfig.isEnabled())
-						.build()
-		)).build());
-	}
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity<?> saveRisk(Long idxUser, Long idxCorp, String calcDate) {
@@ -123,8 +104,6 @@ public class RiskService {
 			);
 			corp = user.corp();
 		}
-
-		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(user.idx()).orElse(null);
 
 		if(StringUtils.isEmpty(calcDate)){
 			calcDate = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
@@ -262,19 +241,14 @@ public class RiskService {
 		risk.recentBalance(repoResAccount.findRecentBalance(idxUser, calcDate));
 		risk.actualBalance(risk.recentBalance());
 
-
-		boolean isIssuanceSuccess = false;
-
-		if(issuanceProgress != null){
-			isIssuanceSuccess = isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name());
-		}
-
 		// risk.cardLimitNow(Math.max(risk.depositGuarantee(),risk.realtimeLimit()));
 
 		// CardRestart
 		// risk.cardRestart(risk.cardRestartCount() >= 45);
 
-		if(issuanceProgress != null && isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())){
+		CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findByUserOrElseThrow(user, CardType.GOWID);
+
+		if(cardIssuanceInfo.issuanceStatus().equals(IssuanceStatus.APPLY) || cardIssuanceInfo.issuanceStatus().equals(IssuanceStatus.ISSUED)){
 			riskconfig.cardIssuance(true);
 			risk.cardIssuance(true);
 			risk.confirmedLimit(Double.parseDouble(riskconfig.grantLimit()));
@@ -392,96 +366,6 @@ public class RiskService {
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(
 				repoRiskConfig.getTopByCorpAndEnabled(user.corp(),true).grantLimit()
 		).build());
-	}
-
-
-	@Transactional(readOnly = true)
-	public ResponseEntity<?> getRiskConfig(Long idxUser, Long idxCorp) {
-		User user = repoUser.findById(idxUser).orElseThrow(
-				() -> UserNotFoundException.builder().build()
-		);
-
-		if(idxCorp == null){
-			idxCorp = user.corp().idx();
-		}
-
-		Long finalIdxCorp = idxCorp;
-
-		RiskDto.RiskConfigDto riskConfig = repoRiskConfig.findByCorpAndEnabled(Corp.builder().idx(finalIdxCorp).build(), true).map(RiskDto.RiskConfigDto::from)
-				.orElseThrow(
-						() -> CorpNotRegisteredException.builder().account(finalIdxCorp.toString()).build()
-				);
-
-		return ResponseEntity.ok().body(BusinessResponse.builder().data(riskConfig).build());
-	}
-
-	private boolean isIssuanceSuccess(String progress, String status){
-		return (P_1800.name().equals(progress) || LP_ZIP.name().equals(progress)) && SUCCESS.name().equals(status);
-	}
-
-	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity<?> saveRiskVer2(Long idxCorp, String calcDate) {
-
-		Corp corp = repoCorp.findById(idxCorp).orElseThrow(() -> CorpNotRegisteredException.builder().build());
-
-		RiskConfig riskConfig = CheckSettingRiskConfig(corp);
-
-		Risk risk = saveRisk30(idxCorp, calcDate, riskConfig);
-
-		return ResponseEntity.ok().body(BusinessResponse.builder().data(risk).build());
-	}
-
-	private RiskConfig CheckSettingRiskConfig(Corp corp) {
-		return repoRiskConfig.findByUserAndEnabled(corp.user(), true).orElseGet(
-				() -> RiskConfig.builder()
-						.depositGuarantee(0F)
-						.depositPayment(false)
-						.vcInvestment(false)
-						.ventureCertification(false)
-						.cardIssuance(false)
-						.ceoGuarantee(false)
-						.enabled(true)
-						.user(corp.user())
-						.corp(corp)
-						.build()
-		);
-	}
-
-	@Transactional(rollbackFor = Exception.class)
-	public Risk saveRisk30(Long idxCorp, String calcDate, RiskConfig riskConfig) {
-		Corp corp = repoCorp.findById(idxCorp).orElseThrow(() -> CorpNotRegisteredException.builder().build());
-		IssuanceProgress issuanceProgress = repoIssuanceProgress.findById(corp.user().idx()).orElse(null);
-		D1530 d1530 = repoD1530.findTopByIdxCorp(corp.idx()).orElseThrow(() -> new RuntimeException("D1530 corp not found"));
-
-		Risk risk = repoRisk.findByUserAndDate(corp.user(), calcDate).orElseGet(
-				() -> Risk.builder().build()
-		);
-
-		risk.user(corp.user());
-		risk.corp(corp);
-		risk.date(calcDate);
-		risk.ceoGuarantee(riskConfig.ceoGuarantee());
-		risk.depositGuarantee(riskConfig.depositGuarantee());
-		risk.depositPayment(riskConfig.depositPayment());
-		risk.cardIssuance(riskConfig.cardIssuance());
-		risk.ventureCertification(riskConfig.ventureCertification());
-		risk.vcInvestment(riskConfig.vcInvestment());
-		risk.ventureCertification(riskConfig.ventureCertification());
-		risk.vcInvestment(riskConfig.vcInvestment());
-
-		//최신잔고를 구함
-		risk.recentBalance(getRecentBalance(corp, d1530, risk.recentBalance()));
-		//Grade
-		risk.grade(getGrade(d1530, riskConfig, risk.recentBalance(), corp.resBusinessCode()));
-		//실제계산금액
-		risk.cardLimitNow( risk.recentBalance() * getCardLimitNowPercent(risk.grade()) / 100 );
-
-		if(issuanceProgress != null &&
-				isIssuanceSuccess(issuanceProgress.getProgress().name(), issuanceProgress.getStatus().name())){
-			risk.cardIssuance(true);
-		}
-
-		return risk;
 	}
 
 	private Integer getCardLimitNowPercent(String grade ) {
