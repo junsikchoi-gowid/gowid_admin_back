@@ -18,9 +18,6 @@ import javax.persistence.*;
 @AllArgsConstructor
 @DynamicUpdate
 @DynamicInsert
-@Table(uniqueConstraints ={
-    @UniqueConstraint(columnNames = {"idxCardIssuanceInfo"}, name = "UK_CardIssuanceInfo")
-})
 public class D1200 extends BaseTime {
 
     @Id
@@ -53,17 +50,12 @@ public class D1200 extends BaseTime {
     @Column(columnDefinition = "varchar(6)    DEFAULT '' COMMENT '법인카드신청구분코드'")
     private String d009;
 
-    @OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name="idxCardIssuanceInfo", foreignKey = @ForeignKey(name = "FK_D1200_CardIssuanceInfo"), referencedColumnName = "idx", columnDefinition = "bigint(20) DEFAULT NULL COMMENT 'CardIssuanceInfo 식별값'")
     private CardIssuanceInfo cardIssuanceInfo;
 
     public void updateCardType(CardType cardType){
         this.d009 = cardType.getCode();
-    }
-
-    public void setCardIssuanceInfo(CardIssuanceInfo cardIssuanceInfo){
-        this.cardIssuanceInfo = cardIssuanceInfo;
-        cardIssuanceInfo.d1200(this);
     }
 
 }

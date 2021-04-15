@@ -18,6 +18,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 
 @Data
@@ -52,14 +53,14 @@ public class CardIssuanceInfo extends BaseTime {
     @JoinColumn(name="idxKised", foreignKey = @ForeignKey(name = "FK_CardIssuanceInfo_Kised"), referencedColumnName = "idx")
     private Kised kised;
 
-    @OneToOne(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY)
-    private D1000 d1000;
-    @OneToOne(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY)
-    private D1100 d1100;
-    @OneToOne(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY)
-    private D1200 d1200;
-    @OneToOne(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY)
-    private D1400 d1400;
+    @OneToMany(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<D1000> d1000;
+    @OneToMany(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<D1000> d1100;
+    @OneToMany(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<D1000> d1200;
+    @OneToMany(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<D1000> d1400;
 
     @Embedded
     private Venture venture; //벤처기업정보
