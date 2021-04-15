@@ -102,36 +102,41 @@ public class IssuanceService {
      */
     @Transactional(noRollbackFor = Exception.class)
     public void issuance(Long userIdx, CardIssuanceDto.IssuanceReq request, Long signatureHistoryIdx) throws Exception {
-        paramsLogging(request);
-        request.setUserIdx(userIdx);
-        CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(request.getCardIssuanceInfoIdx());
-        Corp userCorp = corpService.getCorpByUserIdx(userIdx);
-        encryptAndSaveD1100(userCorp.idx(), cardIssuanceInfo);
+        try {
+            paramsLogging(request);
+            request.setUserIdx(userIdx);
+            CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(request.getCardIssuanceInfoIdx());
+            Corp userCorp = corpService.getCorpByUserIdx(userIdx);
+            encryptAndSaveD1100(userCorp.idx(), cardIssuanceInfo);
 
-        fullTextService.updateEmployeesType(userCorp.idx(), cardIssuanceInfo.getFinancialConsumers().getOverFiveEmployees());
+            fullTextService.updateEmployeesType(userCorp.idx(), cardIssuanceInfo.getFinancialConsumers().getOverFiveEmployees());
 
-        // 1200(법인회원신규여부검증)
-        DataPart1200 resultOfD1200 = proc1200(userCorp, request.getCardType());
-        saveSignatureHistory(signatureHistoryIdx, resultOfD1200);
+            // 1200(법인회원신규여부검증)
+            DataPart1200 resultOfD1200 = proc1200(userCorp, request.getCardType());
+            saveSignatureHistory(signatureHistoryIdx, resultOfD1200);
 
-        // 15xx 서류제출
-        proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
+            // 15xx 서류제출
+            proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
 
-        // 신규(1000) or 변경(1400) 신청
-        if ("Y".equals(resultOfD1200.getD003())) {
-            proc1000(userCorp, resultOfD1200);         // 1000(신규-법인회원신규심사요청)
-        } else if ("N".equals(resultOfD1200.getD003())) {
-            proc1400(userCorp, resultOfD1200);         // 1400(기존-법인조건변경신청)
-        } else {
-            String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
-            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
+            // 신규(1000) or 변경(1400) 신청
+            if ("Y".equals(resultOfD1200.getD003())) {
+                proc1000(userCorp, resultOfD1200);         // 1000(신규-법인회원신규심사요청)
+            } else if ("N".equals(resultOfD1200.getD003())) {
+                proc1400(userCorp, resultOfD1200);         // 1400(기존-법인조건변경신청)
+            } else {
+                String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
+                CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
+            }
+
+            // BRP 전송(비동기)
+            asyncService.run(() -> procBpr(userCorp, resultOfD1200, userIdx, cardIssuanceInfo.cardType()));
+
+            cardIssuanceInfoService
+                .updateIssuanceStatusByApplicationDateAndNumber(resultOfD1200.getD007(), resultOfD1200.getD008(), request.getCardType(), IssuanceStatus.APPLY);
+        } catch (Exception e){
+            log.error("[issuance] issuance info error", e);
+            throw e;
         }
-
-        // BRP 전송(비동기)
-        asyncService.run(() -> procBpr(userCorp, resultOfD1200, userIdx, cardIssuanceInfo.cardType()));
-
-        cardIssuanceInfoService
-            .updateIssuanceStatusByApplicationDateAndNumber(resultOfD1200.getD007(), resultOfD1200.getD008(), request.getCardType(), IssuanceStatus.APPLY);
     }
 
     private void saveSignatureHistory(Long signatureHistoryIdx, DataPart1200 resultOfD1200) {
