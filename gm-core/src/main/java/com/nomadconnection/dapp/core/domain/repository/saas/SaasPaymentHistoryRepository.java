@@ -300,15 +300,17 @@ public interface SaasPaymentHistoryRepository extends JpaRepository<SaasPaymentH
                     "    a.*" +
                     "FROM\n" +
                     "    (SELECT \n" +
-                    "        MIN(paymentDate) paymentDate, idxSaasInfo\n" +
+                    "        MIN(paymentDate) paymentDate, idxSaasInfo, idxUser\n" +
                     "    FROM\n" +
                     "        SaasPaymentHistory\n" +
                     "    WHERE\n" +
                     "        idxUser = :idxUser \n" +
                     "    GROUP BY idxSaasInfo) t1\n" +
-                    "        INNER JOIN\n" +
-                    "    SaasPaymentHistory a ON a.idxSaasInfo = t1.idxSaasInfo\n" +
+                    "        JOIN\n" +
+                    "    SaasPaymentHistory a " +
+                    "         ON a.idxSaasInfo = t1.idxSaasInfo\n" +
                     "        AND a.paymentDate = t1.paymentDate\n" +
+                    "        AND a.idxUser = t1.idxUser\n" +
                     "GROUP BY paymentDate\n" +
                     "ORDER BY paymentDate DESC\n" +
                     "LIMIT 5", nativeQuery = true)
