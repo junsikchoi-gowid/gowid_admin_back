@@ -112,7 +112,8 @@ public class IssuanceService {
             fullTextService.updateEmployeesType(userCorp.idx(), cardIssuanceInfo.getFinancialConsumers().getOverFiveEmployees());
 
             // 1200(법인회원신규여부검증)
-            DataPart1200 resultOfD1200 = proc1200(userCorp, request.getCardType());
+            CardType cardType = request.getCardType();
+            DataPart1200 resultOfD1200 = proc1200(userCorp, cardType);
             saveSignatureHistory(signatureHistoryIdx, resultOfD1200);
 
             // 15xx 서류제출
@@ -120,9 +121,9 @@ public class IssuanceService {
 
             // 신규(1000) or 변경(1400) 신청
             if ("Y".equals(resultOfD1200.getD003())) {
-                proc1000(userCorp, resultOfD1200);         // 1000(신규-법인회원신규심사요청)
+                proc1000(userCorp, resultOfD1200, cardType);         // 1000(신규-법인회원신규심사요청)
             } else if ("N".equals(resultOfD1200.getD003())) {
-                proc1400(userCorp, resultOfD1200);         // 1400(기존-법인조건변경신청)
+                proc1400(userCorp, resultOfD1200, cardType);         // 1400(기존-법인조건변경신청)
             } else {
                 String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
                 CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
@@ -132,7 +133,7 @@ public class IssuanceService {
             asyncService.run(() -> procBpr(userCorp, resultOfD1200, userIdx, cardIssuanceInfo.cardType()));
 
             cardIssuanceInfoService
-                .updateIssuanceStatusByApplicationDateAndNumber(resultOfD1200.getD007(), resultOfD1200.getD008(), request.getCardType(), IssuanceStatus.APPLY);
+                .updateIssuanceStatusByApplicationDateAndNumber(resultOfD1200.getD007(), resultOfD1200.getD008(), cardType, IssuanceStatus.APPLY);
         } catch (Exception e){
             log.error("[issuance] issuance info error", e);
             throw e;
@@ -212,7 +213,7 @@ public class IssuanceService {
         );
 
         d1100.setD025(Seed128.encryptEcb(cardIssuanceInfo.bankAccount().getBankAccount()));
-        d1100.setD040(Const.ID_VERIFICATION_NO);
+        d1100.setD040(cardIssuanceInfo.cardType().getRecommender());
         d1100.setD041(Const.ID_VERIFICATION_NO);
         d1100.setD044("Y");
         d1100.setD045("Y");
@@ -254,7 +255,7 @@ public class IssuanceService {
     private DataPart1200 proc1200(Corp userCorp, CardType cardType) {
         CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findByUserAndCardType(userCorp.user(), cardType);
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1200);
-        D1200 d1200 = d1200Repository.findByCardIssuanceInfo(cardIssuanceInfo).orElseGet(
+        D1200 d1200 = d1200Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseGet(
             () -> D1200.builder().build()
         );
 
@@ -415,12 +416,13 @@ public class IssuanceService {
     }
 
     //    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
-    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200) throws Exception {
+    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200, CardType cardType) throws Exception {
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findByUserAndCardType(userCorp.user(), cardType);
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1000);
 
         // 데이터부 - db 추출, 세팅
-        D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx()).orElseThrow(
+        D1000 d1000 = d1000Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
                 () -> CorpNotRegisteredException.builder().build()
         );
 
@@ -456,13 +458,13 @@ public class IssuanceService {
         shinhanGwRpc.request1000(requestRpc, userCorp.user().idx());
     }
 
-    //    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
-    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200) {
+    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, CardType cardType) {
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findByUserAndCardType(userCorp.user(), cardType);
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1400);
 
         // 데이터부 - db 추출, 세팅
-        D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx()).orElseThrow(
+        D1400 d1400 = d1400Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
                 () -> CorpNotRegisteredException.builder().build()
         );
 

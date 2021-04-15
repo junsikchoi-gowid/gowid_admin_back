@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.core.domain.shinhan;
 
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicInsert;
@@ -18,6 +19,9 @@ import javax.persistence.*;
 @AllArgsConstructor
 @DynamicUpdate
 @DynamicInsert
+@Table(uniqueConstraints ={
+    @UniqueConstraint(columnNames = {"idxCardIssuanceInfo"}, name = "UK_CardIssuanceInfo")
+})
 public class D1100 extends BaseTime {
 
     @Id
@@ -133,5 +137,9 @@ public class D1100 extends BaseTime {
     private String d050; //전자서명식별번전호
     @Column(columnDefinition = "varchar(6)    DEFAULT '' COMMENT '법인카드신청구분코드'")
     private String d051; //법인카드신청구분코드
+
+    @OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name="idxCardIssuanceInfo", foreignKey = @ForeignKey(name = "FK_D1100_CardIssuanceInfo"), referencedColumnName = "idx", columnDefinition = "bigint(20) DEFAULT NULL COMMENT 'CardIssuanceInfo 식별값'")
+    private CardIssuanceInfo cardIssuanceInfo;
 
 }

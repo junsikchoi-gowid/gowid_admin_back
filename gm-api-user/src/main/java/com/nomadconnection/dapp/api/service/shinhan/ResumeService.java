@@ -11,6 +11,7 @@ import com.nomadconnection.dapp.api.dto.shinhan.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
+import com.nomadconnection.dapp.api.service.CorpService;
 import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.shinhan.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
@@ -19,6 +20,7 @@ import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.common.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1100Repository;
@@ -54,6 +56,7 @@ public class ResumeService {
 
     private final D1200Service d1200Service;
     private final CardIssuanceInfoService cardIssuanceInfoService;
+    private final CorpService corpService;
 
     @Value("${encryption.seed128.enable}")
     private boolean ENC_SEED128_ENABLE;
@@ -84,7 +87,7 @@ public class ResumeService {
             return response;
         }
 
-        asyncService.run(() -> procResume(request));
+        asyncService.run(() -> procResume(request, cardIssuanceInfo.cardType()));
 
         log.debug("## response 1600 => " + response.toString());
 
@@ -103,10 +106,10 @@ public class ResumeService {
     }
 
     @Async
-    void procResume(CardIssuanceDto.ResumeReq request) {
+    void procResume(CardIssuanceDto.ResumeReq request, CardType cardType) {
         log.debug("## start thread for 1100/1800 ");
         SignatureHistory signatureHistory = getSignatureHistory(request);
-        proc1100(request, signatureHistory, signatureHistory.getUserIdx());  // 1100(법인카드신청)
+        proc1100(request, signatureHistory, signatureHistory.getUserIdx(), cardType);  // 1100(법인카드신청)
         proc1800(request, signatureHistory, signatureHistory.getUserIdx());  // 1800(전자서명값전달)
 
         updateIssuanceStatus(request);
@@ -200,14 +203,16 @@ public class ResumeService {
         dataPart1800.setD003(signedValue);
     }
 
-    private void proc1100(CardIssuanceDto.ResumeReq request, SignatureHistory signatureHistory, Long idxUser) {
+    private void proc1100(CardIssuanceDto.ResumeReq request, SignatureHistory signatureHistory, Long idxUser, CardType cardType) {
         // 공통부
         log.debug("## 1100 start");
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1100);
 
         // 데이터부
         Long corpIdx = getCorpIdxFromLastRequest(request);
-        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
+        Corp corp =corpService.findByCorpIdx(corpIdx);
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findTopByCorp(corp, cardType);
+        D1100 d1100 = d1100Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );

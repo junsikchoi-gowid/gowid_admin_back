@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.shinhan;
 
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.shinhan.D1400;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,6 +12,8 @@ import java.util.Optional;
 
 public interface D1400Repository extends JpaRepository<D1400, Long> {
     Optional<D1400> findFirstByIdxCorpOrderByUpdatedAtDesc(long idxCorp);
+
+    Optional<D1400> findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(CardIssuanceInfo cardIssuanceInfo);
 
     D1400 findFirstByD025AndD026OrderByUpdatedAtDesc(String d025, String d026);
 

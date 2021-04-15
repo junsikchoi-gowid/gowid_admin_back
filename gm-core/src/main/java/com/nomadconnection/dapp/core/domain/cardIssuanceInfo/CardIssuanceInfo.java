@@ -5,7 +5,10 @@ import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.embed.BankAccount;
 import com.nomadconnection.dapp.core.domain.kised.Kised;
+import com.nomadconnection.dapp.core.domain.shinhan.D1000;
+import com.nomadconnection.dapp.core.domain.shinhan.D1100;
 import com.nomadconnection.dapp.core.domain.shinhan.D1200;
+import com.nomadconnection.dapp.core.domain.shinhan.D1400;
 import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -49,9 +52,14 @@ public class CardIssuanceInfo extends BaseTime {
     @JoinColumn(name="idxKised", foreignKey = @ForeignKey(name = "FK_CardIssuanceInfo_Kised"), referencedColumnName = "idx")
     private Kised kised;
 
-    @OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name="idxD1200", foreignKey = @ForeignKey(name = "FK_CardIssuanceInfo_D1200"), referencedColumnName = "idx")
+    @OneToOne(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY)
+    private D1000 d1000;
+    @OneToOne(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY)
+    private D1100 d1100;
+    @OneToOne(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY)
     private D1200 d1200;
+    @OneToOne(mappedBy = "cardIssuanceInfo", fetch = FetchType.LAZY)
+    private D1400 d1400;
 
     @Embedded
     private Venture venture; //벤처기업정보
