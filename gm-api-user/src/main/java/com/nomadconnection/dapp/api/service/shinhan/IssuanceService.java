@@ -254,9 +254,10 @@ public class IssuanceService {
     private DataPart1200 proc1200(Corp userCorp, CardType cardType) {
         CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findByUserAndCardType(userCorp.user(), cardType);
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1200);
-        D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx()).orElseGet(
+        D1200 d1200 = d1200Repository.findByCardIssuanceInfo(cardIssuanceInfo).orElseGet(
             () -> D1200.builder().build()
         );
+
         d1200.setD001(CommonUtil.replaceHyphen(userCorp.resCompanyIdentityNo()));
         d1200.setD002(cardType.getCorpType());
         d1200.updateCardType(cardType);
