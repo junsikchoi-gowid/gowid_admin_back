@@ -3,10 +3,13 @@ package com.nomadconnection.dapp.api.v2.service.scraping;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
+import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.ShinhanConsumerEmployeesType;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1100Repository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1200Repository;
@@ -42,7 +45,6 @@ public class FullTextService {
 
 	//TODO: 파라미터 확인 Corp
 
-
 	private final D1000Repository repoD1000;
 	private final D1100Repository repoD1100;
 	private final D1200Repository repoD1200;
@@ -53,16 +55,33 @@ public class FullTextService {
 	private final Lotte_D1000Repository repoD1000Lotte;
 	private final Lotte_D1100Repository repoD1100Lotte;
 	private final Lotte_D1200Repository repoD1200Lotte;
-	
+	private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
+
+	@Deprecated
 	public D1000 findFirstByIdxCorpIn1000(Long corpIdx){
 		return repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
 				() -> CorpNotRegisteredException.builder().build()
 		);
 	}
 
+	@Deprecated
 	public D1400 findFirstByIdxCorpIn1400(Long corpIdx){
 		return repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
 				() -> CorpNotRegisteredException.builder().build()
+		);
+	}
+
+	@Transactional(readOnly = true)
+	public D1000 findFirstByCardIssuanceInfoIn1000(CardIssuanceInfo cardIssuanceInfo){
+		return repoD1000.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
+			() -> CorpNotRegisteredException.builder().build()
+		);
+	}
+
+	@Transactional(readOnly = true)
+	public D1400 findFirstByCardIssuanceInfoIn1400(CardIssuanceInfo cardIssuanceInfo){
+		return repoD1400.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
+			() -> CorpNotRegisteredException.builder().build()
 		);
 	}
 
@@ -89,7 +108,7 @@ public class FullTextService {
 		repoD1000.save(d1000);
 	}
 
-	public D1100 build1100(Corp corp){
+	public D1100 build1100(Corp corp, CardIssuanceInfo cardIssuanceInfo){
 		return D1100.builder()
 			.idxCorp(corp.idx())
 			.c007(CommonUtil.getNowYYYYMMDD())
@@ -139,6 +158,7 @@ public class FullTextService {
 			.d047("")
 			.d048("Y")
 			.d049(null)
+			.cardIssuanceInfo(cardIssuanceInfo)
 			.build();
 	}
 
@@ -200,7 +220,7 @@ public class FullTextService {
 		repoD1530.save(d1530);
 	}
 
-	public D1000 build1000(Corp corp, JSONArray jsonArrayResCEOList){
+	public D1000 build1000(Corp corp, JSONArray jsonArrayResCEOList, CardIssuanceInfo cardIssuanceInfo){
 		List<String> listResCeoList = getJSONArrayCeo(jsonArrayResCEOList);
 		String ceoType = getCeoType(jsonArrayResCEOList);
 
@@ -242,10 +262,11 @@ public class FullTextService {
 			.d068(null)
 			.d069(null)
 			.d070(null)
+			.cardIssuanceInfo(cardIssuanceInfo)
 			.build();
 	}
 
-	public D1400 build1400(Corp corp, JSONArray jsonArrayResCEOList){
+	public D1400 build1400(Corp corp, JSONArray jsonArrayResCEOList, CardIssuanceInfo cardIssuanceInfo){
 		List<String> listResCeoList = getJSONArrayCeo(jsonArrayResCEOList);
 		String ceoType = getJSONArrayCeoType(jsonArrayResCEOList);
 		return D1400.builder()
@@ -272,6 +293,7 @@ public class FullTextService {
 			.d055("대표이사")    // 신청관리자직위명
 			.d056(listResCeoList.size() >= 3 ? replaceHyphen(Seed128.encryptEcb(listResCeoList.get(2))) : "")    // 신청관리자주민등록번호
 			.d057(listResCeoList.size() >= 2 ? getOnlyKorLan(listResCeoList.get(1)) : "")    // 신청관리자명
+			.cardIssuanceInfo(cardIssuanceInfo)
 			.build();
 	}
 
@@ -475,11 +497,14 @@ public class FullTextService {
 	}
 
 	public void saveAfterFinancialStatements(Corp corp, ConnectedMngDto.CorpInfo dto) {
-		Long corpIdx = corp.idx();
 
-		D1100 d1100 = build1100(corp);
-		D1400 d1400 = findFirstByIdxCorpIn1400(corpIdx);
-		D1000 d1000 = findFirstByIdxCorpIn1000(corpIdx);
+		CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByCorpAndCardType(corp, dto.getCardType()).orElseThrow(
+			() -> CorpNotRegisteredException.builder().build()
+		);
+
+		D1100 d1100 = build1100(corp, cardIssuanceInfo);
+		D1400 d1400 = findFirstByCardIssuanceInfoIn1400(cardIssuanceInfo);
+		D1000 d1000 = findFirstByCardIssuanceInfoIn1000(cardIssuanceInfo);
 		if (CardType.GOWID.equals(dto.getCardType())) {
 			setFinancialStatementsGowid(d1100);
 		} else if (CardType.KISED.equals(dto.getCardType())) {
@@ -488,6 +513,8 @@ public class FullTextService {
 		save1100(d1100);
 		save1400(d1400, dto);
 		save1000(d1000, dto);
+
+		updateCardIssuanceInfo(d1000, d1100, d1400, cardIssuanceInfo);
 	}
 
 	private void setFinancialStatementsGowid(D1100 d1100) {
@@ -513,9 +540,12 @@ public class FullTextService {
 
 		corp.resUserType(getCeoType(jsonArrayResCEOList));
 		corp = setCeoCount(corp, jsonArrayResCEOList);
+		CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByCorpAndCardType(corp, cardType).orElseThrow(
+			() -> CorpNotRegisteredException.builder().build()
+		);
 
-		D1000 d1000 = build1000(corp, jsonArrayResCEOList);
-		D1400 d1400 = build1400(corp, jsonArrayResCEOList);
+		D1000 d1000 = build1000(corp, jsonArrayResCEOList, cardIssuanceInfo);
+		D1400 d1400 = build1400(corp, jsonArrayResCEOList, cardIssuanceInfo);
 		D1510 d1510 = build1510(corp);
 		if (cardType.equals(CardType.GOWID)) {
 			setCorpRegistrationGowid(d1000, d1400);
@@ -525,6 +555,13 @@ public class FullTextService {
 		save1000(d1000);
 		save1400(d1400);
 		save1510(d1510);
+
+	}
+
+	private void updateCardIssuanceInfo(D1000 d1000, D1100 d1100, D1400 d1400, CardIssuanceInfo cardIssuanceInfo){
+		d1000.setCardIssuanceInfo(cardIssuanceInfo);
+		d1100.setCardIssuanceInfo(cardIssuanceInfo);
+		d1400.setCardIssuanceInfo(cardIssuanceInfo);
 	}
 
 	private void setCorpRegistrationGowid(D1000 d1000, D1400 d1400) {
@@ -556,13 +593,13 @@ public class FullTextService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public void updateEmployeesType(Long idxCorp, boolean overFiveEmployees){
+	public void updateEmployeesType(CardIssuanceInfo cardIssuanceInfo, boolean overFiveEmployees){
 		String consumerEmployeesType = ShinhanConsumerEmployeesType.from(overFiveEmployees).getCode();
 
-		repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(idxCorp).ifPresent(
+		repoD1000.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).ifPresent(
 			d1000 -> d1000.setD074(consumerEmployeesType)
 		);
-		repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(idxCorp).ifPresent(
+		repoD1400.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).ifPresent(
 			d1400 -> d1400.setD068(consumerEmployeesType)
 		);
 	}

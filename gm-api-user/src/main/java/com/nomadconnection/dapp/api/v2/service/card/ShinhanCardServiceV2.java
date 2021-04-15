@@ -53,8 +53,8 @@ public class ShinhanCardServiceV2 {
 
     private static String HIDDEN_CODE = "*******";
 
-    public D1000 updateD1000Corp(Long idxCorp, CardIssuanceDto.RegisterCorporation dto) {
-        D1000 d1000 = getD1000(idxCorp);
+    public D1000 updateD1000Corp(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.RegisterCorporation dto) {
+        D1000 d1000 = getD1000ByCardIssuanceInfo(cardIssuanceInfo);
         if (ObjectUtils.isEmpty(d1000)) {
             return d1000;
         }
@@ -71,8 +71,8 @@ public class ShinhanCardServiceV2 {
         );
     }
 
-    public D1400 updateD1400Corp(Long idxCorp, CardIssuanceDto.RegisterCorporation dto) {
-        D1400 d1400 = getD1400(idxCorp);
+    public D1400 updateD1400Corp(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.RegisterCorporation dto) {
+        D1400 d1400 = getD1400ByCardIssuanceInfo(cardIssuanceInfo);
         if (ObjectUtils.isEmpty(d1400)) {
             return d1400;
         }
@@ -89,7 +89,7 @@ public class ShinhanCardServiceV2 {
     }
 
     public D1400 updateD1400Stockholder(Long idxCorp, CardIssuanceInfo cardInfo, List<CeoInfo> ceoInfos, CardIssuanceDto.RegisterStockholder dto) {
-        D1400 d1400 = getD1400(idxCorp);
+        D1400 d1400 = getD1400ByCardIssuanceInfo(cardInfo);
         if (ObjectUtils.isEmpty(d1400)) {
             return d1400;
         }
@@ -119,7 +119,7 @@ public class ShinhanCardServiceV2 {
 
     public D1000 updateD1000Stockholder(Long idxCorp, CardIssuanceInfo cardInfo, List<CeoInfo> ceoInfos,
                                          CardIssuanceDto.RegisterStockholder dto) {
-        D1000 d1000 = getD1000(idxCorp);
+        D1000 d1000 = getD1000ByCardIssuanceInfo(cardInfo);
         if (ObjectUtils.isEmpty(d1000)) {
             return d1000;
         }
@@ -149,44 +149,44 @@ public class ShinhanCardServiceV2 {
         );
     }
 
-    public void updateShinhanFulltextLimit(User user, String grantLimit) {
-        updateD1000Limit(user, grantLimit);
-        updateD1100Limit(user, grantLimit);
-        updateD1400Limit(user, grantLimit);
+    public void updateShinhanFulltextLimit(CardIssuanceInfo cardIssuanceInfo, String grantLimit) {
+        updateD1000Limit(cardIssuanceInfo, grantLimit);
+        updateD1100Limit(cardIssuanceInfo, grantLimit);
+        updateD1400Limit(cardIssuanceInfo, grantLimit);
     }
 
-    private D1000 updateD1000Limit(User user, String grantLimit) {
-        D1000 d1000 = getD1000(user.corp().idx());
+    private D1000 updateD1000Limit(CardIssuanceInfo cardIssuanceInfo, String grantLimit) {
+        D1000 d1000 = getD1000ByCardIssuanceInfo(cardIssuanceInfo);
         if (ObjectUtils.isEmpty(d1000)) {
             return d1000;
         }
         return repoD1000.save(d1000.setD050(grantLimit));
     }
 
-    private D1100 updateD1100Limit(User user, String grantLimit) {
-        D1100 d1100 = getD1100(user.corp().idx());
+    private D1100 updateD1100Limit(CardIssuanceInfo cardIssuanceInfo, String grantLimit) {
+        D1100 d1100 = getD1100ByCardIssuanceInfo(cardIssuanceInfo);
         if (ObjectUtils.isEmpty(d1100)) {
             return d1100;
         }
         return repoD1100.save(d1100.setD020(grantLimit));
     }
 
-    private D1400 updateD1400Limit(User user, String grantLimit) {
-        D1400 d1400 = getD1400(user.corp().idx());
+    private D1400 updateD1400Limit(CardIssuanceInfo cardIssuanceInfo, String grantLimit) {
+        D1400 d1400 = getD1400ByCardIssuanceInfo(cardIssuanceInfo);
         if (ObjectUtils.isEmpty(d1400)) {
             return d1400;
         }
         return repoD1400.save(d1400.setD014(grantLimit));
     }
 
-    public void updateShinhanFulltextCard(Long idxCorp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
-        updateD1000Card(idxCorp, grantLimit, dto);
-        updateD1100Card(idxCorp, grantLimit, dto);
-        updateD1400Card(idxCorp, grantLimit, dto);
+    public void updateShinhanFulltextCard(CardIssuanceInfo cardIssuanceInfo, String grantLimit, CardIssuanceDto.RegisterCard dto) {
+        updateD1000Card(cardIssuanceInfo, grantLimit, dto);
+        updateD1100Card(cardIssuanceInfo, grantLimit, dto);
+        updateD1400Card(cardIssuanceInfo, grantLimit, dto);
     }
 
-    private D1000 updateD1000Card(Long idxCorp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
-        D1000 d1000 = getD1000(idxCorp);
+    private D1000 updateD1000Card(CardIssuanceInfo cardIssuanceInfo, String grantLimit, CardIssuanceDto.RegisterCard dto) {
+        D1000 d1000 = getD1000ByCardIssuanceInfo(cardIssuanceInfo);
         if (ObjectUtils.isEmpty(d1000)) {
             return d1000;
         }
@@ -200,8 +200,8 @@ public class ShinhanCardServiceV2 {
         );
     }
 
-    private D1400 updateD1400Card(Long idxCorp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
-        D1400 d1400 = getD1400(idxCorp);
+    private D1400 updateD1400Card(CardIssuanceInfo cardIssuanceInfo, String grantLimit, CardIssuanceDto.RegisterCard dto) {
+        D1400 d1400 = getD1400ByCardIssuanceInfo(cardIssuanceInfo);
         if (ObjectUtils.isEmpty(d1400)) {
             return d1400;
         }
@@ -215,8 +215,8 @@ public class ShinhanCardServiceV2 {
         );
     }
 
-    private D1100 updateD1100Card(Long idxCorp, String grantLimit, CardIssuanceDto.RegisterCard dto) {
-        D1100 d1100 = getD1100(idxCorp);
+    private D1100 updateD1100Card(CardIssuanceInfo cardIssuanceInfo, String grantLimit, CardIssuanceDto.RegisterCard dto) {
+        D1100 d1100 = getD1100ByCardIssuanceInfo(cardIssuanceInfo);
         if (ObjectUtils.isEmpty(d1100)) {
             return d1100;
         }
@@ -249,8 +249,8 @@ public class ShinhanCardServiceV2 {
             .requestCount(dto.getCount()));
     }
 
-    public D1100 updateD1100Account(Long idxCorp, ResAccount account) {
-        D1100 d1100 = getD1100(idxCorp);
+    public D1100 updateD1100Account(CardIssuanceInfo cardIssuanceInfo, ResAccount account) {
+        D1100 d1100 = getD1100ByCardIssuanceInfo(cardIssuanceInfo);
         if (ObjectUtils.isEmpty(d1100) || ObjectUtils.isEmpty(account)) {
             return d1100;
         }
@@ -266,9 +266,9 @@ public class ShinhanCardServiceV2 {
     }
 
     public CeoInfo updateCeo(CeoInfo ceo, Long idxCorp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, Integer ceoNum) {
-        D1000 d1000 = getD1000(idxCorp);
+        D1000 d1000 = getD1000ByCardIssuanceInfo(cardInfo);
         ceoNum = updateD1000Ceo(d1000, idxCorp, cardInfo, dto, ceoNum);
-        D1400 d1400 = getD1400(idxCorp);
+        D1400 d1400 = getD1400ByCardIssuanceInfo(cardInfo);
         ceoNum = updateD1400Ceo(d1400, cardInfo, dto, ceoNum);
 
         if (ObjectUtils.isEmpty(ceo)) {
@@ -325,7 +325,7 @@ public class ShinhanCardServiceV2 {
             repoD1000.save(d1000);
             ceoNum = 1;
 
-            updateD1100Ceo(idxCorp, dto);
+            updateD1100Ceo(cardInfo, dto);
 
         } else if (!StringUtils.hasText(d1000.getD016()) || ceoNum == 2) { // 두번째 대표자정보
             repoD1000.save(d1000
@@ -348,8 +348,8 @@ public class ShinhanCardServiceV2 {
         return ceoNum;
     }
 
-    private D1100 updateD1100Ceo(Long idxCorp, CardIssuanceDto.RegisterCeo dto) {
-        D1100 d1100 = getD1100(idxCorp);
+    private D1100 updateD1100Ceo(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.RegisterCeo dto) {
+        D1100 d1100 = getD1100ByCardIssuanceInfo(cardIssuanceInfo);
         if (d1100 != null && dto.getPhoneNumber() != null) {
             String[] phoneNumber = dto.getPhoneNumber().split("-");
             d1100 = repoD1100.save(d1100
@@ -404,8 +404,8 @@ public class ShinhanCardServiceV2 {
         return ceoNum;
     }
 
-    public void updateManager(User user, CardIssuanceDto.RegisterManager dto) {
-        D1000 d1000 = getD1000(user.corp().idx());
+    public void updateManager(User user, CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.RegisterManager dto) {
+        D1000 d1000 = getD1000ByCardIssuanceInfo(cardIssuanceInfo);
         String idNum = null;
         if ("0".equals(dto.getCeoNumber())) {
             idNum = d1000.getD034();
@@ -418,7 +418,7 @@ public class ShinhanCardServiceV2 {
         }
 
         updateD1000Manager(d1000, user, dto, idNum);
-        updateD1400Manager(user, dto, idNum);
+        updateD1400Manager(user, cardIssuanceInfo, dto, idNum);
     }
 
     private void updateD1000Manager(D1000 d1000, User user, CardIssuanceDto.RegisterManager dto, String idNum) {
@@ -442,8 +442,8 @@ public class ShinhanCardServiceV2 {
         }
     }
 
-    private void updateD1400Manager(User user, CardIssuanceDto.RegisterManager dto, String idNum) {
-        D1400 d1400 = getD1400(user.corp().idx());
+    private void updateD1400Manager(User user, CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.RegisterManager dto, String idNum) {
+        D1400 d1400 = getD1400ByCardIssuanceInfo(cardIssuanceInfo);
         if (d1400 != null) {
             String[] corNumber = user.corp().resCompanyNumber().split("-");
             String[] phoneNumber = dto.getPhoneNumber().split("-");
@@ -473,7 +473,7 @@ public class ShinhanCardServiceV2 {
 
     // 1000 테이블에 대표자1,2,3 주민번호 저장(d11,15,19)
     private void save1000Identification(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
-        D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx()).orElseThrow(
+        D1000 d1000 = repoD1000.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
             () -> CorpNotRegisteredException.builder().build()
         );
         String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
@@ -503,7 +503,7 @@ public class ShinhanCardServiceV2 {
 
     // 1400 테이블에 대표자 주민번호 저장
     private void save1400Identification(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
-        D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx()).orElseThrow(
+        D1400 d1400 = repoD1400.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
             () -> CorpNotRegisteredException.builder().build()
         );
 
@@ -576,11 +576,29 @@ public class ShinhanCardServiceV2 {
         return repoD1000.getTopByIdxCorpOrderByIdxDesc(idxCorp);
     }
 
+    public D1000 getD1000ByCardIssuanceInfo(CardIssuanceInfo cardIssuanceInfo) {
+        return repoD1000.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
+            () -> CorpNotRegisteredException.builder().build()
+        );
+    }
+
     private D1100 getD1100(Long idxCorp) {
         return repoD1100.getTopByIdxCorpOrderByIdxDesc(idxCorp);
     }
 
+    private D1100 getD1100ByCardIssuanceInfo(CardIssuanceInfo cardIssuanceInfo) {
+        return repoD1100.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
+            () -> CorpNotRegisteredException.builder().build()
+        );
+    }
+
     private D1400 getD1400(Long idxCorp) {
         return repoD1400.getTopByIdxCorpOrderByIdxDesc(idxCorp);
+    }
+
+    private D1400 getD1400ByCardIssuanceInfo(CardIssuanceInfo cardIssuanceInfo) {
+        return repoD1400.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
+            () -> CorpNotRegisteredException.builder().build()
+        );
     }
 }

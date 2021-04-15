@@ -10,7 +10,6 @@ import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.kised.Kised;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
-import com.nomadconnection.dapp.core.domain.shinhan.D1200;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -104,6 +103,12 @@ public class CardIssuanceInfoService {
     public CardIssuanceInfo findTopByCorp(Corp corp, CardType cardType){
         return cardIssuanceInfoRepository.findByCorpAndCardType(corp, cardType)
                 .orElseThrow(() -> new NotRegisteredException(ErrorCode.Api.NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public CardIssuanceInfo findTopByidxCorpAndCardType(Long idxCorp, CardType cardType){
+        Corp corp = corpService.findByCorpIdx(idxCorp);
+        return findTopByCorp(corp, cardType);
     }
 
     @Transactional(readOnly = true)

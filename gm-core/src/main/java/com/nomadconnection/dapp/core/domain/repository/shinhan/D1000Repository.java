@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface D1000Repository extends JpaRepository<D1000, Long> {
+
     D1000 getTopByIdxCorpOrderByIdxDesc(Long idxCorp);
 
+    @Deprecated
     Optional<D1000> findFirstByIdxCorpOrderByUpdatedAtDesc(long idxCorp);
 
     Optional<D1000> findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(CardIssuanceInfo cardIssuanceInfo);

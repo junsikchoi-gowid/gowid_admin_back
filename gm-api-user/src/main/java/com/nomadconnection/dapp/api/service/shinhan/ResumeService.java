@@ -114,7 +114,7 @@ public class ResumeService {
 
         updateIssuanceStatus(request);
 
-        sendApprovedEmail(request, signatureHistory.getCorpIdx());
+        sendApprovedEmail(request, signatureHistory.getCorpIdx(), cardType);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -123,10 +123,12 @@ public class ResumeService {
         cardIssuanceInfo.updateIssuanceStatus(IssuanceStatus.ISSUED);
     }
 
-    private void sendApprovedEmail(CardIssuanceDto.ResumeReq request, long corpIdx) {
+    private void sendApprovedEmail(CardIssuanceDto.ResumeReq request, long corpIdx, CardType cardType) {
         if (!sendEmailEnable) {
             return;
         }
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findTopByidxCorpAndCardType(corpIdx, cardType);
+
         D1200 d1200 = d1200Service.getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
         if (StringUtils.isEmpty(d1200.getD001())) {
             log.error("## biz no is empty! email not sent!");
@@ -134,7 +136,7 @@ public class ResumeService {
             return;
         }
 
-        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
+        D1100 d1100 = d1100Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_SERVER_ERROR,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );

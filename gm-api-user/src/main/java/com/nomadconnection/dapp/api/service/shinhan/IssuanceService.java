@@ -109,7 +109,7 @@ public class IssuanceService {
             Corp userCorp = corpService.getCorpByUserIdx(userIdx);
             encryptAndSaveD1100(userCorp.idx(), cardIssuanceInfo);
 
-            fullTextService.updateEmployeesType(userCorp.idx(), cardIssuanceInfo.getFinancialConsumers().getOverFiveEmployees());
+            fullTextService.updateEmployeesType(cardIssuanceInfo, cardIssuanceInfo.getFinancialConsumers().getOverFiveEmployees());
 
             // 1200(법인회원신규여부검증)
             CardType cardType = request.getCardType();
@@ -140,6 +140,12 @@ public class IssuanceService {
         }
     }
 
+    public void updateCardIssuanceInfo(CardIssuanceInfo cardIssuanceInfo){
+
+
+    }
+
+
     private void saveSignatureHistory(Long signatureHistoryIdx, DataPart1200 resultOfD1200) {
         SignatureHistory signatureHistory = getSignatureHistory(signatureHistoryIdx);
         signatureHistory.setApplicationDate(resultOfD1200.getD007());
@@ -155,7 +161,7 @@ public class IssuanceService {
         try {
             Thread.sleep(5000L);
             if (proc3000(userCorp, resultOfD1200, userIdx, cardType)) {
-                sendReceiptEmail(resultOfD1200, userCorp);
+                sendReceiptEmail(resultOfD1200, userCorp, cardType);
             }
         } catch (Exception e) {
             log.error("[procBpr] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
@@ -173,11 +179,13 @@ public class IssuanceService {
         }
     }
 
-    private void sendReceiptEmail(DataPart1200 resultOfD1200, Corp userCorp) {
+    private void sendReceiptEmail(DataPart1200 resultOfD1200, Corp userCorp, CardType cardType) {
         if (!sendReceiptEmailEnable) {
             return;
         }
-        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx()).orElseThrow(
+
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findTopByCorp(userCorp, cardType);
+        D1100 d1100 = d1100Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_SERVER_ERROR,
                         "data of d1100 is not exist(corpIdx=" + userCorp.idx() + ")")
         );
@@ -207,7 +215,7 @@ public class IssuanceService {
 
     // 1100 데이터 저장
     private void encryptAndSaveD1100(Long corpIdx, CardIssuanceInfo cardIssuanceInfo) {
-        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
+        D1100 d1100 = d1100Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );

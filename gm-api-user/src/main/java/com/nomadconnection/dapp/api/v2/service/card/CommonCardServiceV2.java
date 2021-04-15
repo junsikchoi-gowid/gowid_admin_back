@@ -124,8 +124,8 @@ public class CommonCardServiceV2 {
         }
 
         if (CardCompany.isShinhan(user.cardCompany())) {
-            shinhanCardService.updateD1000Corp(user.corp().idx(), dto);
-            shinhanCardService.updateD1400Corp(user.corp().idx(), dto);
+            shinhanCardService.updateD1000Corp(cardInfo, dto);
+            shinhanCardService.updateD1400Corp(cardInfo, dto);
         } else if (CardCompany.isLotte(user.cardCompany())) {
             lotteCardService.updateD1100Corp(user.corp().idx(), dto);
         }
@@ -454,7 +454,7 @@ public class CommonCardServiceV2 {
 
             updateRiskConfigCard(user, grantLimit, strCalculatedLimit, hopeLimit);
             if (CardCompany.isShinhan(user.cardCompany())) {
-                shinhanCardService.updateShinhanFulltextCard(user.corp().idx(), grantLimit, dto);
+                shinhanCardService.updateShinhanFulltextCard(cardInfo, grantLimit, dto);
                 shinhanCardService.setCardInfoCard(cardInfo, dto, strCalculatedLimit, grantLimit);
             } else if (CardCompany.isLotte(user.cardCompany())) {
                 lotteCardService.updateD1100Card(user, grantLimit, strCalculatedLimit, hopeLimit, dto);
@@ -645,14 +645,14 @@ public class CommonCardServiceV2 {
         String grantLimit = card.grantLimit();
 
         if (StringUtils.hasText(grantLimit)) {
-            calculateGrantLimit(user, card);
+            calculateGrantLimit(user, cardIssuanceInfo, card);
         }
 
         repoCardIssuance.save(cardIssuanceInfo);
         return CardIssuanceDto.CardRes.from(cardIssuanceInfo);
     }
 
-    private void calculateGrantLimit(User user, Card card) {
+    private void calculateGrantLimit(User user, CardIssuanceInfo cardIssuanceInfo, Card card) {
         String calculatedLimit = card.calculatedLimit();
         Long calculatedLimitLong = Long.parseLong(calculatedLimit);
 
@@ -664,7 +664,7 @@ public class CommonCardServiceV2 {
 
         if (CardCompany.isShinhan(cardCompany)) {
             grantLimit = calculateShinhanGrantLimit(grantLimit);
-            shinhanCardService.updateShinhanFulltextLimit(user, grantLimit);
+            shinhanCardService.updateShinhanFulltextLimit(cardIssuanceInfo, grantLimit);
         } else if (CardCompany.isLotte(cardCompany)) {
             lotteCardService.updateD1100Limit(user, grantLimit, hopeLimit);
         }
@@ -713,7 +713,7 @@ public class CommonCardServiceV2 {
         }
 
         if (CardCompany.isShinhan(user.cardCompany())) {
-            shinhanCardService.updateD1100Account(user.corp().idx(), account);
+            shinhanCardService.updateD1100Account(cardInfo, account);
         } else if (CardCompany.isLotte(user.cardCompany())) {
             lotteCardService.updateD1100Account(user.corp().idx(), account);
         }
@@ -861,7 +861,7 @@ public class CommonCardServiceV2 {
 
 
         if (CardCompany.isShinhan(user.cardCompany())) {
-            shinhanCardService.updateManager(user, dto);
+            shinhanCardService.updateManager(user, cardInfo,  dto);
         } else if (CardCompany.isLotte(user.cardCompany())) {
             lotteCardService.updateManager(user, dto);
         }

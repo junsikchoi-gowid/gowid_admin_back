@@ -67,7 +67,6 @@ public class ScrapingService {
 	private final ResConCorpListRepository repoResConCorpList;
 	private final CommonCodeDetailRepository commonCodeDetailRepository;
 	private final ResBatchListRepository repoResBatchList;
-	private final CardIssuanceInfoRepository repoCardIssuanceInfo;
 
 	private final UserService userService;
 	private final ImageService imageService;

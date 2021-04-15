@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface D1400Repository extends JpaRepository<D1400, Long> {
+
+    @Deprecated
     Optional<D1400> findFirstByIdxCorpOrderByUpdatedAtDesc(long idxCorp);
 
     Optional<D1400> findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(CardIssuanceInfo cardIssuanceInfo);

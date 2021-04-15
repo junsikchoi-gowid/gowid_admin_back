@@ -143,20 +143,23 @@ public class AdminService {
         Corp corp = repoCorp.findById(dto.getIdxCorp()).orElseThrow(
             () -> CorpNotRegisteredException.builder().build()
         );
+
+        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findByCorpAndCardType(corp, CardType.GOWID).orElseThrow(
+            () -> CorpNotRegisteredException.builder().build()
+        );
+
         User user = corp.user();
         double deposit = dto.getDepositGuarantee();
         String depositString = NumberUtils.doubleToString(deposit);
 
+        cardIssuanceInfo.card().grantLimit(depositString);
         riskConfig.depositPayment(dto.isDepositPayment());
         riskConfig.depositGuarantee(dto.depositGuarantee);
         riskConfig.grantLimit(depositString);
 
-        repoCardIssuance.findTopByUserAndDisabledFalseOrderByIdxDesc(user.idx()).ifPresent(
-            cardIssuanceInfo -> cardIssuanceInfo.card().grantLimit(depositString)
-        );
 
         if(CardCompany.SHINHAN.equals(user.cardCompany())){
-            shinhanCardService.updateShinhanFulltextLimit(user, depositString);
+            shinhanCardService.updateShinhanFulltextLimit(cardIssuanceInfo, depositString);
         } else if(CardCompany.LOTTE.equals(user.cardCompany())){
             lotteCardService.updateD1100Limit(user, depositString, riskConfig.hopeLimit());
         }

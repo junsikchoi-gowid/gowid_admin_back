@@ -399,7 +399,7 @@ public class LotteCardServiceV2 {
     }
 
     public CeoInfo updateCeo(CeoInfo ceo, Long idxCorp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, Integer ceoNum) {
-        D1000 shinhanD1000 = shinhanCardService.getD1000(idxCorp);
+        D1000 shinhanD1000 = shinhanCardService.getD1000ByCardIssuanceInfo(cardInfo);
         String ceoTypeCode = CeoType.convertShinhanToLotte(shinhanD1000.getD009()); // 대표자 유형
 
         Lotte_D1100 d1100 = getD1100(idxCorp);
