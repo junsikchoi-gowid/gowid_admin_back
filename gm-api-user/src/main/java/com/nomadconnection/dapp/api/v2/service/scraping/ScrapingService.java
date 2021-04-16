@@ -329,6 +329,7 @@ public class ScrapingService {
 			if (isScrapingSuccess(scrapingResponse.getCode())) {
 				response = retryScrapingWhenMultipleResult(scrapingResponse, user, response);
 				scrapingResponse = scrapingResultService.getApiResult(response);
+				cardIssuanceInfoService.updateCorpByUser(user, corp, cardType);
 
 				if (isFinalSuccess(user, scrapingResponse)) {
 					if (ScrapingCommonUtils.isLimitedCompany(scrapingResponse.getScrapingResponse()[1])) {
@@ -339,7 +340,6 @@ public class ScrapingService {
 						fullTextService.save1530(scrapingResponse.getScrapingResponse()[1], corp);
 						imageService.sendCorpRegistrationImage(user.cardCompany(), response, licenseNo);
 					}
-					cardIssuanceInfoService.updateCorpByUser(user, corp, cardType);
 				}
 			} else {
 				saveResBatchListAndPrintErrorLog(user, scrapingResponse, "");
