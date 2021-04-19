@@ -44,17 +44,12 @@ public class UploadService {
 
 	private final CardIssuanceInfoService cardIssuanceInfoService;
 
-	private final KisedService kisedService;
-
 	private final ConfirmationFileService confirmationFileService;
-
-	@Value("${confirmation.file.size}")
-	private Long CONFIRMATION_FILE_SIZE;
 
 	@Value("${confirmation.file.type}")
 	private List<String> CONFIRMATION_FILE_TYPE;
 
-	private String CODE = "1701";
+	private String CONFIRMATION_CODE = "1710";
 
 	@Transactional
 	public ConfirmationFileResponse uploadSelectionConfirmation(Long idxUser, MultipartFile file, Long cardIssuanceInfoIdx) throws Exception {
@@ -78,7 +73,7 @@ public class UploadService {
 
 			uploadFile = makeFile(file, fileName);
 			s3Link = uploadS3(uploadFile, s3Key);
-			uploadGw(cardCompany, uploadFile, CODE, licenseNo);
+			uploadGw(cardCompany, uploadFile, CONFIRMATION_CODE, licenseNo);
 
 			ConfirmationFile confirmationFile = saveConfirmationFile(dto, s3Link, kised);
 
@@ -123,7 +118,7 @@ public class UploadService {
 	}
 
 	private String makeSelectionFileName(MultipartFile file, String licenseNo) {
-		return licenseNo + CODE + "0001" + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+		return licenseNo + CONFIRMATION_CODE + "0001" + "." + FilenameUtils.getExtension(file.getOriginalFilename());
 	}
 
 	private File makeFile(MultipartFile file, String fileName) throws IOException {

@@ -105,10 +105,10 @@ public class ScrapingService {
     void saveAccount(int iType, JSONObject jsonData, JSONArray jsonArrayResTrHistoryList, String connectedId,  BankDto.AccountBatch dto, String nowFlag) {
         String strDefault = null;
         Optional<ResAccount> optResAccount = repoResAccount.findTopByConnectedIdAndResAccount(connectedId, jsonData.get("resAccount").toString().trim());
-        ResAccount resAccount;
         String account = GowidUtils.getEmptyStringToString(jsonData, "resAccount");
 
         if(!StringUtils.isEmpty(account) && optResAccount.isPresent()){
+            String organization = optResAccount.get().organization();
             String accountCurrency = GowidUtils.getEmptyStringToString(jsonData, "resAccountCurrency");
             //   10 :실시간 적금  40:대출  20:외화  30:펀드
             try {
@@ -127,6 +127,14 @@ public class ScrapingService {
                                     accountCurrency
                             );
 
+                            List<String> desc = Arrays.asList(
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"));
+
+                            desc = changeDesc(organization, desc);
+
                             if(ObjectUtils.isEmpty(accountHistory)){
                                 repoResAccountHistory.save(
                                         ResAccountHistory.builder()
@@ -134,10 +142,10 @@ public class ScrapingService {
                                                 .resAccountTrTime(GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"))
                                                 .resAccountOut(GowidUtils.getEmptyStringToString(obj, "resAccountOut"))
                                                 .resAccountIn(GowidUtils.getEmptyStringToString(obj, "resAccountIn"))
-                                                .resAccountDesc1(GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
-                                                .resAccountDesc2(GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
-                                                .resAccountDesc3(GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
-                                                .resAccountDesc4(GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
+                                                .resAccountDesc1(desc.get(3))
+                                                .resAccountDesc2(desc.get(1))
+                                                .resAccountDesc3(desc.get(0))
+                                                .resAccountDesc4(desc.get(2))
                                                 .resAfterTranBalance(GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
                                                 .resAccountCurrency(accountCurrency)
                                                 .resAccount(account)
@@ -158,6 +166,14 @@ public class ScrapingService {
                                 accountCurrency
                         );
 
+                        List<String> desc = Arrays.asList(
+                                GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"),
+                                GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"),
+                                GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"),
+                                GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"));
+
+                        desc = changeDesc(organization, desc);
+
                         if(ObjectUtils.isEmpty(accountHistory)) {
                             repoResAccountHistory.save(
                                     ResAccountHistory.builder()
@@ -165,10 +181,10 @@ public class ScrapingService {
                                             .resMonth(GowidUtils.getEmptyStringToString(obj, "resMonth"))
                                             .resAccountTrDate(GowidUtils.getEmptyStringToString(obj, "resAccountTrDate"))
                                             .resAccountIn(GowidUtils.getEmptyStringToString(obj, "resAccountIn"))
-                                            .resAccountDesc1(GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
-                                            .resAccountDesc2(GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
-                                            .resAccountDesc3(GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
-                                            .resAccountDesc4(GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
+                                            .resAccountDesc1(desc.get(3))
+                                            .resAccountDesc2(desc.get(1))
+                                            .resAccountDesc3(desc.get(0))
+                                            .resAccountDesc4(desc.get(2))
                                             .resAfterTranBalance(GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
                                             .resAccountCurrency(accountCurrency)
                                             .resAccount(account)
@@ -190,6 +206,14 @@ public class ScrapingService {
                                     GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"),
                                     accountCurrency
                             );
+
+                            List<String> desc = Arrays.asList(
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"));
+
+                            desc = changeDesc(organization, desc);
 
                             if(ObjectUtils.isEmpty(accountHistory)) {
                                 repoResAccountHistory.save(
@@ -227,6 +251,14 @@ public class ScrapingService {
                                     accountCurrency
                             );
 
+                            List<String> desc = Arrays.asList(
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"));
+
+                            desc = changeDesc(organization, desc);
+
                             if(ObjectUtils.isEmpty(accountHistory)) {
                                     repoResAccountHistory.save(
                                             ResAccountHistory.builder()
@@ -236,10 +268,10 @@ public class ScrapingService {
                                                     .resTranNum(GowidUtils.getEmptyStringToString(obj, "resTranNum"))
                                                     .resBasePrice(GowidUtils.getEmptyStringToString(obj, "resBasePrice"))
                                                     .resBalanceNum(GowidUtils.getEmptyStringToString(obj, "resBalanceNum"))
-                                                    .resAccountDesc1(GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
-                                                    .resAccountDesc2(GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
-                                                    .resAccountDesc3(GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
-                                                    .resAccountDesc4(GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
+                                                    .resAccountDesc1(desc.get(3))
+                                                    .resAccountDesc2(desc.get(1))
+                                                    .resAccountDesc3(desc.get(0))
+                                                    .resAccountDesc4(desc.get(2))
                                                     .resAfterTranBalance(GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
                                                     .resValuationAmt("" + GowidUtils.getEmptyStringToString(obj, "resValuationAmt"))
                                                     .resAccountCurrency(accountCurrency)
@@ -262,6 +294,14 @@ public class ScrapingService {
                                     accountCurrency
                             );
 
+                            List<String> desc = Arrays.asList(
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"),
+                                    GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"));
+
+                            desc = changeDesc(organization, desc);
+
                             if(ObjectUtils.isEmpty(accountHistory)) {
                                     repoResAccountHistory.save(
                                             ResAccountHistory.builder()
@@ -269,10 +309,10 @@ public class ScrapingService {
                                                     .resAccountTrTime(GowidUtils.getEmptyStringToString(obj, "resAccountTrTime"))
                                                     .resAccountOut(GowidUtils.getEmptyStringToString(obj, "resAccountOut"))
                                                     .resAccountIn(GowidUtils.getEmptyStringToString(obj, "resAccountIn"))
-                                                    .resAccountDesc1(GowidUtils.getEmptyStringToString(obj, "resAccountDesc1"))
-                                                    .resAccountDesc2(GowidUtils.getEmptyStringToString(obj, "resAccountDesc2"))
-                                                    .resAccountDesc3(GowidUtils.getEmptyStringToString(obj, "resAccountDesc3"))
-                                                    .resAccountDesc4(GowidUtils.getEmptyStringToString(obj, "resAccountDesc4"))
+                                                    .resAccountDesc1(desc.get(3))
+                                                    .resAccountDesc2(desc.get(1))
+                                                    .resAccountDesc3(desc.get(0))
+                                                    .resAccountDesc4(desc.get(2))
                                                     .resAfterTranBalance(GowidUtils.getEmptyStringToString(obj, "resAfterTranBalance"))
                                                     .resAccountCurrency(accountCurrency)
                                                     .resAccount(account)
@@ -287,6 +327,53 @@ public class ScrapingService {
         }else{
             log.error("[saveAccount] $jsonData = {}, $jsonArrayResTrHistoryList = {}, $connectedId = {}, $dto= {}, $nowFlag = {} ", jsonData, jsonArrayResTrHistoryList, connectedId, dto, nowFlag);
         }
+    }
+
+    /**
+    desc 1 (의뢰인/수취인)
+    desc 2 (거래구분)
+    desc 3 (적요)
+    desc 4 (거래점)
+     **/
+    private List<String> changeDesc(String organization, List<String> desc) {
+
+        List<String> descList = Arrays.asList(new String[]{"", "", "", ""});
+
+        HashMap<String, int[]> hashMap = new HashMap<>();
+        hashMap.put("0002", new int[]{3, 1, 0, 2});
+        hashMap.put("0003", new int[]{2, 1, 0, 3});
+        hashMap.put("0004", new int[]{3, 0, 1, 2});
+        hashMap.put("0007", new int[]{3, 1, 0, 2});
+        hashMap.put("0011", new int[]{3, 1, 0, 2});
+        hashMap.put("0020", new int[]{3, 0, 1, 2});
+        hashMap.put("0023", new int[]{3, 1, 0, 2});
+        hashMap.put("0027", new int[]{3, 1, 0, 2});
+        hashMap.put("0031", new int[]{3, 1, 0, 2});
+        hashMap.put("0032", new int[]{3, 0, 1, 2});
+        hashMap.put("0034", new int[]{3, 1, 0, 2});
+        hashMap.put("0035", new int[]{3, 0, 1, 2});
+        hashMap.put("0037", new int[]{3, 1, 0, 2});
+        hashMap.put("0039", new int[]{3, 1, 0, 2});
+        hashMap.put("0045", new int[]{3, 0, 1, 2});
+        hashMap.put("0048", new int[]{3, 1, 0, 2});
+        hashMap.put("0071", new int[]{3, 0, 1, 2});
+        hashMap.put("0081", new int[]{3, 1, 0, 2});
+        hashMap.put("0088", new int[]{3, 0, 1, 2});
+        hashMap.put("0089", new int[]{3, 1, 0, 2});
+
+        for(Map.Entry<String, int[]> map: hashMap.entrySet()) {
+            int[] i = map.getValue();
+
+            if (organization.equals(map.getKey())) {
+                descList.set(i[0],desc.get(0));
+                descList.set(i[1],desc.get(1));
+                descList.set(i[2],desc.get(2));
+                descList.set(i[3],desc.get(3));
+                break;
+            }
+        }
+
+        return descList;
     }
 
     @Transactional
@@ -329,7 +416,16 @@ public class ScrapingService {
 
         try{
             result[0] = (JSONObject) jsonObject.get("result");
-            result[1] = (JSONObject) jsonObject.get("data"); 
+//            result[1] = (JSONObject) jsonObject.get("data");
+
+            JSONArray jsonData = new JSONArray();
+            if (jsonObject.get("data") instanceof List){
+                JSONObject data = new JSONObject();
+                data.put("data",jsonObject.get("data"));
+                result[1] = data;
+            }else{
+                result[1] = (JSONObject) jsonObject.get("data");
+            }
 
         }catch (Exception e){
             log.error("[getApiResult] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
@@ -346,7 +442,15 @@ public class ScrapingService {
 
         try{
             result[0] = (JSONObject) jsonObject.get("result");
-            result[1] = (JSONObject) jsonObject.get("data");
+
+            JSONArray jsonData = new JSONArray();
+            if (jsonObject.get("data") instanceof List){
+                JSONObject data = new JSONObject();
+                data.put("data",jsonObject.get("data"));
+                result[1] = data;
+            }else{
+                result[1] = (JSONObject) jsonObject.get("data");
+            }
 
         }catch (Exception e){
             log.error("[getApiResult] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage(), e);
@@ -2162,33 +2266,39 @@ public class ScrapingService {
     }
 
     private void scrapingBatchStock(Long idxUser, Long idxResBatchParent) {
-        for( ConnectedMng connectedMng : getConnectedMng(idxUser)){
-            if(connectedMng.status().equals(ConnectedMngStatus.NORMAL)){
-                for( ResConCorpList resConCorpList : repoResConCorpList.findByConnectedId(connectedMng.connectedId())){
-                    if(resConCorpList.status().equals(ConnectedMngStatus.NORMAL) && resConCorpList.businessType().equals("ST")){
-                        Long idxResBatchList = checkProcess(connectedMng.connectedId(), idxResBatchParent, idxUser);
+        try{
+            for( ConnectedMng connectedMng : getConnectedMng(idxUser)){
+                if(connectedMng.status().equals(ConnectedMngStatus.NORMAL)){
+                    for( ResConCorpList resConCorpList : repoResConCorpList.findByConnectedId(connectedMng.connectedId())){
+                        if(resConCorpList.status().equals(ConnectedMngStatus.NORMAL) && resConCorpList.businessType().equals("ST")){
+                            Long idxResBatchList = checkProcess(connectedMng.connectedId(), idxResBatchParent, idxUser);
 
-                        log.debug("scrapingBatchStock $organization='{}'",resConCorpList);
-                        JSONObject[] strResult = getBatchStockList(
-                                connectedMng.connectedId(),
-                                resConCorpList.organization(),
-                                idxResBatchParent
-                        );
+                            log.debug("scrapingBatchStock $organization='{}'",resConCorpList);
+                            JSONObject[] strResult = getBatchStockList(
+                                    connectedMng.connectedId(),
+                                    resConCorpList.organization(),
+                                    idxResBatchParent
+                            );
 
-                        if(strResult[0] != null && checkCode(strResult[0])){
-                            JSONArray jsonData = new JSONArray();
-                            if (strResult[1].get("data") instanceof List){
-                                jsonData = (JSONArray) strResult[1].get("data");
-                            }else{
-                                jsonData.add(strResult[1].get("data"));
+                            if(strResult[0] != null && checkCode(strResult[0])){
+                                JSONArray jsonData = new JSONArray();
+                                if (strResult[1].get("data") instanceof List){
+                                    jsonData = (JSONArray) strResult[1].get("data");
+                                }else{
+                                    jsonData.add(strResult[1].get("data"));
+                                }
+
+                                String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0, 6).concat("01");
+                                saveJsonDataToResAccount("Stock", jsonData,connectedMng.connectedId(),resConCorpList.organization(),startDate);
                             }
-
-                            String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0, 6).concat("01");
-                            saveJsonDataToResAccount("Stock", jsonData,connectedMng.connectedId(),resConCorpList.organization(),startDate);
                         }
                     }
                 }
             }
+        }catch (Exception e){
+            log.debug("void [scrapingBatchStock] e = {}", e);
+        }finally {
+            log.debug("end [scrapingBatchStock] idxUser = {}", idxUser);
         }
     }
 
@@ -2432,7 +2542,7 @@ public class ScrapingService {
             JSONObject obj = (JSONObject) item;
             String resAccountCurrency = "";
 
-            if( !ObjectUtils.isEmpty(obj.get("resAccountCurrency"))){
+            if( !GowidUtils.getEmptyStringToString(obj, "resAccountCurrency").isEmpty()){
                 resAccountCurrency = obj.get("resAccountCurrency").toString();
             }
 
@@ -2457,7 +2567,13 @@ public class ScrapingService {
             resAccount.resAccountStartDate(GowidUtils.getEmptyStringToString(obj, "resAccountStartDate"));
             resAccount.resAccount(GowidUtils.getEmptyStringToString(obj, "resAccount"));
             resAccount.resAccountDisplay(GowidUtils.getEmptyStringToString(obj, "resAccountDisplay"));
-            resAccount.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()));
+
+            if(accountType.equals("Stock")){
+                resAccount.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resValuationAmt").toString()));
+            }else{
+                resAccount.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()));
+            }
+
             resAccount.resAccountDeposit(GowidUtils.getEmptyStringToString(obj, "resAccountDeposit"));
             resAccount.resAccountNickName(GowidUtils.getEmptyStringToString(obj, "resAccountNickName"));
             resAccount.resAccountCurrency(GowidUtils.getEmptyStringToString(obj, "resAccountCurrency"));
@@ -2468,7 +2584,6 @@ public class ScrapingService {
             resAccount.resAccountInvestedCost( GowidUtils.getEmptyStringToString(obj, "resAccountInvestedCost"));
             resAccount.resEarningsRate( GowidUtils.getEmptyStringToString(obj, "resEarningsRate"));
             resAccount.resAccountLoanExecNo( GowidUtils.getEmptyStringToString(obj, "resAccountLoanExecNo"));
-            resAccount.resAccountBalance(GowidUtils.doubleTypeGet(obj.get("resAccountBalance").toString()));
             resAccount.resOverdraftAcctYN(GowidUtils.getEmptyStringToString(obj, "resOverdraftAcctYN"));
             resAccount.resAccountEndDate(GowidUtils.getEmptyStringToString(obj, "resAccountEndDate"));
 
@@ -2502,7 +2617,7 @@ public class ScrapingService {
     private JSONObject[] getBatchStockList(String connectedId, String organization, Long idxResBatchList) {
         JSONObject[] strResult = new JSONObject[1];
         try {
-            strResult = getApiResult(KR_ST_1_S_001.krst1a001(connectedId, organization));
+            strResult = getApiResultStock(KR_ST_1_S_001.krst1a001(connectedId, organization));
         } catch (Exception e) {
             log.debug("scrapingAccountHistory10year $message={}" , e.getMessage());
         } finally {
