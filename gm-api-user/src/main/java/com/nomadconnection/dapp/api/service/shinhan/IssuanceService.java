@@ -294,6 +294,7 @@ public class IssuanceService {
             return;
         } else if(ALREADY_UNDER_REVIEW.equals(code)){
             cardIssuanceInfoService.updateIssuanceStatus(corp, cardType, IssuanceStatus.EXISTING);
+            throw new SystemException(ErrorCode.External.EXISTING_SHINHAN_1200, code + "/" + message);
         }
 
         throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1200, code + "/" + message);

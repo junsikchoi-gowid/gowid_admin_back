@@ -73,6 +73,7 @@ public class ErrorCode {
 		// 신한카드
 		EXTERNAL_ERROR_SHINHAN_1200("EXTERNAL_ERROR_SHINHAN_1200", "external error(shinhan - 1200)"),
 		REJECTED_SHINHAN_1200("REJECTED_SHINHAN_1200", "rejected(shinhan - 1200)"),
+		EXISTING_SHINHAN_1200("EXISTING_SHINHAN_1200", "exist(shinhan - 1200)"),
 		INTERNAL_ERROR_SHINHAN_1200("INTERNAL_ERROR_SHINHAN_1200", "internal error(shinhan - 1200)"),
 
 		EXTERNAL_ERROR_SHINHAN_3000("EXTERNAL_ERROR_SHINHAN_3000", "external error(shinhan - 3000)"),
