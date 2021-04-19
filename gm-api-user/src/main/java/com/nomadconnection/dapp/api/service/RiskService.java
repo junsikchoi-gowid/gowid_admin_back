@@ -10,6 +10,7 @@ import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountHistoryRepository;
@@ -61,6 +62,7 @@ public class RiskService {
 	private final D1400Repository repoD1400;
 	private final D1530Repository repoD1530;
 	private final CardIssuanceInfoService cardIssuanceInfoService;
+	private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
 
 	final List<String> ACCOUNT_TYPE = Arrays.asList("10", "11", "12", "13", "14");
 	final Double minBalance = 10000000d;
@@ -322,18 +324,22 @@ public class RiskService {
 	public ResponseEntity<?> saveRisk45(Long idxUser, Long idxCorp, String calcDate) {
 
 		Risk risk = saveRiskData(idxUser, idxCorp, calcDate);
+		Optional<CardIssuanceInfo> cardIssuanceInfo = cardIssuanceInfoRepository.findByUserAndCardType(risk.user(), CardType.GOWID);
 
-		try{
-			String cardLimitNow = String.valueOf(Math.round(risk.cardLimitNow()));
-			D1000 d1000 = repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(risk.corp().idx())
+		if (cardIssuanceInfo.isPresent() && cardIssuanceInfo.get().card().grantLimit() != null
+            && IssuanceStatus.INPROGRESS.equals(cardIssuanceInfo.get().issuanceStatus())) {
+			try{
+				String cardLimitNow = String.valueOf(Math.round(risk.cardLimitNow()));
+				D1000 d1000 = repoD1000.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo.get())
 					.orElseThrow(() -> CorpNotRegisteredException.builder().build());
-			d1000.setD050(cardLimitNow);
+				d1000.setD050(cardLimitNow);
 
-			D1400 d1400 = repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(risk.corp().idx())
+				D1400 d1400 = repoD1400.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo.get())
 					.orElseThrow(() -> CorpNotRegisteredException.builder().build());
-			d1400.setD014(cardLimitNow);
-		}catch (Exception e){
-			log.error("[saveRisk45] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
+				d1400.setD014(cardLimitNow);
+			} catch (Exception e){
+				log.error("[saveRisk45] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
+			}
 		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(risk).build());
