@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.core.domain.shinhan;
 
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicInsert;
@@ -205,6 +206,16 @@ public class D1400 extends BaseTime {
 
     @Column(columnDefinition = "varchar(25)    DEFAULT '' COMMENT '도로명참조KEY값'")
     private String d066;    // 도로명참조KEY값
+
+    @Column(columnDefinition = "varchar(6)    DEFAULT '' COMMENT '법인카드신청구분코드'")
+    private String d067; //법인카드신청구분코드
+
+    @Column(columnDefinition = "varchar(1)    DEFAULT '' COMMENT '금융소비자정보유형코드'")
+    private String d068; //금융소비자정보유형코드
+
+    @ManyToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name="idxCardIssuanceInfo", foreignKey = @ForeignKey(name = "FK_D1400_CardIssuanceInfo"), referencedColumnName = "idx", columnDefinition = "bigint(20) DEFAULT NULL COMMENT 'CardIssuanceInfo 식별값'")
+    private CardIssuanceInfo cardIssuanceInfo;
 
     public void cleanUpOtherCeoInfo(){
         String emptyString = "";

@@ -10,7 +10,8 @@ import lombok.experimental.Accessors;
 public class FileUploadException extends RuntimeException {
 
 	public enum Category {
-		UPLOAD_STOCKHOLDER_FILE
+		UPLOAD_STOCKHOLDER_FILE,
+		UPLOAD_CONFIRMATION_FILE
 	}
 
 	private Category category;

@@ -46,7 +46,7 @@ public class AccessManageDto {
 	private String issuer;
 
 	@ApiModelProperty("SN 키값")
-	private String serialNumber;
+	private String serial;
 
 	@ApiModelProperty("인증서 타입")
 	private String type;

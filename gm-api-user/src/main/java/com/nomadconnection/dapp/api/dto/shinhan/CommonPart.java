@@ -46,6 +46,14 @@ public class CommonPart {
 
     protected String c014;  // 예비
 
+    public String getResponseCode(){
+        return c009;
+    }
+
+    public String getResponseMessage(){
+        return c013;
+    }
+
 }
 
 

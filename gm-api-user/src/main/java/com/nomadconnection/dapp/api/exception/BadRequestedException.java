@@ -15,6 +15,7 @@ public class BadRequestedException extends RuntimeException {
         EXCESS_UPLOAD_FILE_LENGTH,
         INVALID_UPLOAD_FILE_SIZE,
         INVALID_CEO_IDENTIFICATION,
+        NOT_ALLOWED_EXTENSION
     }
 
     private final Category category;

@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo;
 
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.CardIssunaceInfoCustomRepository;
@@ -12,19 +13,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 public interface CardIssuanceInfoRepository extends JpaRepository<CardIssuanceInfo, Long>, CardIssunaceInfoCustomRepository {
-    Optional<CardIssuanceInfo> findTopByUserAndDisabledFalseOrderByIdxDesc(User user);
-    CardIssuanceInfo getTopByUserAndDisabledFalseOrderByIdxDesc(User user);
+    Optional<CardIssuanceInfo> findByCorpAndCardType(Corp corp, CardType cardType);
     Optional<CardIssuanceInfo> findByIdx(Long idx);
-    Optional<CardIssuanceInfo> findByCorpAndDisabledFalseOrderByIdxDesc(Corp corp);
-
-    @Query(value = "select idx FROM CardIssuanceInfo where idxUser = :idxUser and disabled = false", nativeQuery = true)
-    Long findIdxByUserIdx(@Param("idxUser") Long idxUser);
+    Optional<CardIssuanceInfo> findByUserAndCardType(User user, CardType cardType);
+    Optional<List<CardIssuanceInfo>> findAllByUser(User user);
 
     @Query(value = "select idx FROM CardIssuanceInfo where idxUser = :idxUser and disabled = false", nativeQuery = true)
     List<Long> findAllIdxByUserIdx(@Param("idxUser") Long idxUser);

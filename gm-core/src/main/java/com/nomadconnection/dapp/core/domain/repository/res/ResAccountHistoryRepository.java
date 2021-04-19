@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHistory, Long> {
@@ -20,7 +19,6 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
     void deleteResAccountTrDate(@Param("resAccount") String resAccount, @Param("startDate") String startDate, @Param("endDate") String endDate );
 
     ResAccountHistory findTopByResAccountAndResAccountInEqualsAndResAccountOutAndResAccountTrDateAndResAccountTrTimeAndResAfterTranBalanceAndResAccountCurrency(String resAccount, String resAccountIn, String resAccountOut, String resAccountTrDate, String resAccountTrTime, String resAfterTranBalance, String accountCurrency);
-
 
     interface CMonthInOutSumDto {
         Long getSumResAccountIn();

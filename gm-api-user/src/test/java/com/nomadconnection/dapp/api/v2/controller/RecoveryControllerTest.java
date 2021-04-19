@@ -1,13 +1,10 @@
 package com.nomadconnection.dapp.api.v2.controller;
 
 import com.nomadconnection.dapp.api.abstracts.AbstractWebMvcTest;
-import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
-import com.nomadconnection.dapp.api.v2.service.scraping.ScrapingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -18,10 +15,11 @@ class RecoveryControllerTest extends AbstractWebMvcTest {
 	String token;
 
 	@BeforeEach
-	public void getToken() throws Exception {
+	public String getToken() throws Exception {
 		String email = "lhjang@gowid.com";
 		String password = "wkdfogur1!";
 		token = getToken(email, password);
+		return email;
 	}
 
 	@Test

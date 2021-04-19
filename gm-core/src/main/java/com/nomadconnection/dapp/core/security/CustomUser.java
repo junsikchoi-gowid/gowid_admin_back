@@ -16,14 +16,14 @@ import java.util.stream.Collectors;
 @Setter
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true)
-@SuppressWarnings({"WeakerAccess"})
 public class CustomUser extends org.springframework.security.core.userdetails.User {
 
     private Long idx;
     private String email;
-    private String uriProfileImage;
     private String name;
-
+    private String uriProfileImage;
+    private User user;
+    private Corp corp;
 
     public CustomUser(User user) {
         super(
@@ -37,10 +37,12 @@ public class CustomUser extends org.springframework.security.core.userdetails.Us
                         .map(authority -> new SimpleGrantedAuthority(authority.role().name()))
                         .collect(Collectors.toList())
         );
-
         idx = user.idx();
-        email = user.email();
         name = user.name();
+        email = user.email();
+
+        corp = user.corp();
+        this.user = user;
     }
 
     @Override

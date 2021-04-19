@@ -11,15 +11,16 @@ import com.nomadconnection.dapp.api.dto.shinhan.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
+import com.nomadconnection.dapp.api.service.CorpService;
 import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.shinhan.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
-import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
-import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.common.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.D1100Repository;
@@ -48,7 +49,6 @@ public class ResumeService {
     private final D1400Repository d1400Repository;
     private final D1100Repository d1100Repository;
     private final SignatureHistoryRepository signatureHistoryRepository;
-    private final IssuanceProgressRepository issuanceProgressRepository;
     private final ShinhanGwRpc shinhanGwRpc;
     private final AsyncService asyncService;
     private final CommonService issCommonService;
@@ -56,6 +56,7 @@ public class ResumeService {
 
     private final D1200Service d1200Service;
     private final CardIssuanceInfoService cardIssuanceInfoService;
+    private final CorpService corpService;
 
     @Value("${encryption.seed128.enable}")
     private boolean ENC_SEED128_ENABLE;
@@ -66,16 +67,13 @@ public class ResumeService {
     // 1600(신청재개) 수신 후, 1100(법인카드 신청) 진행
     @Transactional(noRollbackFor = Exception.class)
     public CardIssuanceDto.ResumeRes resumeApplication(CardIssuanceDto.ResumeReq request) {
-        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.getCardIssuanceInfoByApplicationDateAndNumber(request.getD001(), request.getD002());
+        D1200 d1200 = d1200Service.getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
+        CardIssuanceInfo cardIssuanceInfo = d1200.getCardIssuanceInfo();
         if(cardIssuanceInfoService.isIssuedCorp(cardIssuanceInfo.issuanceStatus())){
             throw new BadRequestException(ErrorCode.Api.ALREADY_ISSUED);
         }
 
         issCommonService.saveGwTranForD1600(request);
-        log.debug("### saveProgressFailed start");
-        issCommonService.saveProgressFailed(request, IssuanceProgressType.P_1600);
-        log.debug("### saveProgressFailed end");
-        issuanceProgressRepository.flush();
 
         CardIssuanceDto.ResumeRes response = getResumeRes(request);
         issCommonService.saveGwTranForD1600(response);
@@ -89,9 +87,8 @@ public class ResumeService {
             return response;
         }
 
-        asyncService.run(() -> procResume(request));
+        asyncService.run(() -> procResume(request, cardIssuanceInfo.cardType()));
 
-        issCommonService.saveProgressSuccess(request, IssuanceProgressType.P_1600);
         log.debug("## response 1600 => " + response.toString());
 
         return response;
@@ -109,27 +106,29 @@ public class ResumeService {
     }
 
     @Async
-    void procResume(CardIssuanceDto.ResumeReq request) {
+    void procResume(CardIssuanceDto.ResumeReq request, CardType cardType) {
         log.debug("## start thread for 1100/1800 ");
         SignatureHistory signatureHistory = getSignatureHistory(request);
-
-        issCommonService.saveProgressFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
-        proc1100(request, signatureHistory, signatureHistory.getUserIdx());  // 1100(법인카드신청)
-        issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1100);
-
-        issCommonService.saveProgressFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
+        proc1100(request, signatureHistory, signatureHistory.getUserIdx(), cardType);  // 1100(법인카드신청)
         proc1800(request, signatureHistory, signatureHistory.getUserIdx());  // 1800(전자서명값전달)
-        issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
 
-        cardIssuanceInfoService.updateIssuanceStatusByApplicationDateAndNumber(request.getD001(), request.getD002() , IssuanceStatus.ISSUED);
+        updateIssuanceStatus(request);
 
-        sendApprovedEmail(request, signatureHistory.getCorpIdx());
+        sendApprovedEmail(request, signatureHistory.getCorpIdx(), cardType);
     }
 
-    private void sendApprovedEmail(CardIssuanceDto.ResumeReq request, long corpIdx) {
+    @Transactional(rollbackFor = Exception.class)
+    public void updateIssuanceStatus(CardIssuanceDto.ResumeReq request) {
+        CardIssuanceInfo cardIssuanceInfo = d1200Service.getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002()).getCardIssuanceInfo();
+        cardIssuanceInfo.updateIssuanceStatus(IssuanceStatus.ISSUED);
+    }
+
+    private void sendApprovedEmail(CardIssuanceDto.ResumeReq request, long corpIdx, CardType cardType) {
         if (!sendEmailEnable) {
             return;
         }
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findTopByidxCorpAndCardType(corpIdx, cardType);
+
         D1200 d1200 = d1200Service.getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
         if (StringUtils.isEmpty(d1200.getD001())) {
             log.error("## biz no is empty! email not sent!");
@@ -137,7 +136,7 @@ public class ResumeService {
             return;
         }
 
-        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
+        D1100 d1100 = d1100Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_SERVER_ERROR,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
@@ -174,9 +173,7 @@ public class ResumeService {
         request1800.setD001(signatureHistory.getApplicationDate());
         request1800.setD002(signatureHistory.getApplicationNum());
 
-        issCommonService.saveProgressFailed(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
         proc1800(request1800, signatureHistory, signatureHistory.getUserIdx());  // 1800(전자서명값전달)
-        issCommonService.saveProgressSuccess(signatureHistory.getUserIdx(), IssuanceProgressType.P_1800);
     }
 
     private void proc1800(CardIssuanceDto.ResumeReq request, SignatureHistory signatureHistory, Long idxUser) {
@@ -208,14 +205,16 @@ public class ResumeService {
         dataPart1800.setD003(signedValue);
     }
 
-    private void proc1100(CardIssuanceDto.ResumeReq request, SignatureHistory signatureHistory, Long idxUser) {
+    private void proc1100(CardIssuanceDto.ResumeReq request, SignatureHistory signatureHistory, Long idxUser, CardType cardType) {
         // 공통부
         log.debug("## 1100 start");
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1100);
 
         // 데이터부
         Long corpIdx = getCorpIdxFromLastRequest(request);
-        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
+        Corp corp =corpService.findByCorpIdx(corpIdx);
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findTopByCorp(corp, cardType);
+        D1100 d1100 = d1100Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1100,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );

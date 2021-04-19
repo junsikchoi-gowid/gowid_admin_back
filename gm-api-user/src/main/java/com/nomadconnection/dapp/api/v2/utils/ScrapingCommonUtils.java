@@ -46,6 +46,17 @@ public final class ScrapingCommonUtils {
 		return NON_PROFIT_CORP.equals(licenseMiddleNo);
 	}
 
+	public static boolean isKisedCorp(String licenseNo){
+		final String[] KISED_COPR_ARRAY = {"81", "86", "87" ,"88"};
+		String licenseMiddleNo = licenseNo.split("-")[1];
+		for (String kisedCorp : KISED_COPR_ARRAY) {
+			if (kisedCorp.equals(licenseMiddleNo)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static List<String> getFindClosingStandards(LocalDate date, String closingMonth) {
 		List<String> yyyyMm = new ArrayList<>();
 		int minusYear = 1;

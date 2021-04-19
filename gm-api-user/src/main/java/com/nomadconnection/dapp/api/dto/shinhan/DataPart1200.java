@@ -31,4 +31,6 @@ public class DataPart1200 extends CommonPart {
 
     private String d008;    // 신청접수순번
 
+    private String d009;    // 법인카드신청구분코드
+
 }

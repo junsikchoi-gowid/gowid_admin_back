@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.api.controller;
 
-import com.nomadconnection.dapp.api.dto.BrandConsentDto;
 import com.nomadconnection.dapp.api.dto.ConsentDto;
 import com.nomadconnection.dapp.api.service.ConsentService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
@@ -26,8 +25,6 @@ public class ConsentController {
     public static class URI {
         public static final String BASE = "/brand/v1";
         public static final String CONSENT = "/consent";
-        public static final String CONSENT_SAVE = "/consentsave";
-        public static final String CONSENT_DEL = "/consentdel/{consent}";
         public static final String CONSENT_CARD = "/consentcard";
         public static final String CONSENT_CARD_SAVE = "/consentcard/save";
     }
@@ -55,45 +52,6 @@ public class ConsentController {
         return service.consents(typeCode);
     }
 
-    //==================================================================================================================
-    //
-    //	새로운 정보 등록: 부서명
-    //
-    //==================================================================================================================
-
-    @ApiOperation(value = "Brand 이용약관 등록",
-            notes = "### Remarks \n - <mark>액세스 필요</mark> \n - <mark> 마스터권한 필요</mark>")
-    @PostMapping(URI.CONSENT_SAVE)
-    public ResponseEntity consentSave(
-            @ApiIgnore @CurrentUser org.springframework.security.core.userdetails.User user,
-            @RequestBody BrandConsentDto dto
-    ) {
-        if (log.isInfoEnabled()) {
-            log.info("([ consentSave ]) $user='{}' $dto='{}'", user, dto);
-        }
-
-        return service.postConsent(user, dto);
-    }
-
-    //==================================================================================================================
-    //
-    //	새로운 정보 등록: 부서명
-    //
-    //==================================================================================================================
-
-    @ApiOperation(value = "Brand 이용약관 삭제",
-            notes = "### Remarks \n - <mark>액세스 필요</mark> \n - <mark> 마스터권한 필요</mark>")
-    @DeleteMapping(URI.CONSENT_DEL)
-    public ResponseEntity putConsentDel(
-            @ApiIgnore @CurrentUser org.springframework.security.core.userdetails.User user,
-            @PathVariable Long consent
-    ) {
-        if (log.isInfoEnabled()) {
-            log.info("([ putConsentDel ]) $user='{}' $consent='{}'", user, consent);
-        }
-
-        return service.consentDel(user, consent);
-    }
 
     @ApiOperation(value = "신용카드 제휴 리스트",
             notes = "### Remarks \n - <mark>액세스 필요</mark> \n - <mark> 마스터권한 필요</mark>")

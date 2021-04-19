@@ -1,5 +1,7 @@
 package com.nomadconnection.dapp.core.utils;
 
+import org.springframework.util.StringUtils;
+
 import java.text.DecimalFormat;
 
 public class NumberUtils {
@@ -16,8 +18,34 @@ public class NumberUtils {
 	}
 
 	public static String doubleToString(double number){
-		DecimalFormat formatter = new DecimalFormat("###.#####");
-
-		return formatter.format(number);
+		String result = "0";
+		try {
+			DecimalFormat formatter = new DecimalFormat("###.#####");
+			result = formatter.format(number);
+		} catch (NumberFormatException e){
+			// do nothing
+		}
+		return result;
 	}
+
+	public static Long stringToLong(String value){
+		Long longValue = 0L;
+		try {
+			if(!StringUtils.isEmpty(value)){
+				longValue = Long.valueOf(value);
+			}
+		} catch (NumberFormatException e){
+			// do nothing
+		}
+		return longValue;
+	}
+
+	public static String emptyStringToZero(String number){
+		if(StringUtils.isEmpty(number)){
+			return ZERO;
+		}
+
+		return number;
+	}
+
 }

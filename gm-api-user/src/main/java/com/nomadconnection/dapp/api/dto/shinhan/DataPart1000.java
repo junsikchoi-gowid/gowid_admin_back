@@ -160,4 +160,8 @@ public class DataPart1000 extends CommonPart {
     private String d071;    // 접수일자
 
     private String d072;    // 접수순번
+
+    private String d073;    // 법인카드신청구분코드
+
+    private String d074;    // 금융소비자정보유형코드
 }

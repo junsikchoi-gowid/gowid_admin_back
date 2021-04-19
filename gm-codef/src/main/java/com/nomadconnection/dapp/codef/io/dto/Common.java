@@ -40,7 +40,7 @@ public class Common {
         private String issuer;
 
         @ApiModelProperty("SN 키값")
-        private String serialNumber;
+        private String serial;
 
         @ApiModelProperty("certFile")
         private String certFile;

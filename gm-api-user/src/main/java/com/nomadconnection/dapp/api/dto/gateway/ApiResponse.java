@@ -1,9 +1,11 @@
 package com.nomadconnection.dapp.api.dto.gateway;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 
+@JsonInclude
 @ToString
 @Setter
 @Getter
@@ -11,37 +13,37 @@ import org.springframework.http.HttpStatus;
 @NoArgsConstructor
 public class ApiResponse<T> {
 
-    private T data;
-
     private ApiResult result;
 
-    public ApiResponse(T data, ApiResult result) {
+    private T data;
+
+    public ApiResponse(ApiResult result, T data) {
         this.data = data;
         this.result = result;
     }
 
     public static <T> ApiResponse<T> OK() {
-        return new ApiResponse<>(null, new ApiResult(HttpStatus.OK));
+        return new ApiResponse<>(new ApiResult(HttpStatus.OK), null);
     }
 
     public static <T> ApiResponse<T> SUCCESS() {
-        return new ApiResponse<>(null, new ApiResult(ErrorCode.Api.SUCCESS));
+        return new ApiResponse<>(new ApiResult(ErrorCode.Api.SUCCESS), null);
     }
 
     public static <T> ApiResponse<T> SUCCESS(T data) {
-        return new ApiResponse<>(data, new ApiResult(ErrorCode.Api.SUCCESS));
+        return new ApiResponse<>(new ApiResult(ErrorCode.Api.SUCCESS), data);
     }
 
     public static <T> ApiResponse<T> OK(T data) {
-        return new ApiResponse<>(data, new ApiResult(HttpStatus.OK));
+        return new ApiResponse<>(new ApiResult(HttpStatus.OK), data);
     }
 
     public static <T> ApiResponse<T> ERROR(Throwable throwable, HttpStatus status) {
-        return new ApiResponse<>(null, new ApiResult(throwable, status));
+        return new ApiResponse<>(new ApiResult(throwable, status), null);
     }
 
     public static <T> ApiResponse<T> ERROR(String errorMessage, HttpStatus status) {
-        return new ApiResponse<>(null, new ApiResult(errorMessage, status));
+        return new ApiResponse<>(new ApiResult(errorMessage, status), null);
     }
 
     public ApiResult getResult() {
@@ -52,6 +54,7 @@ public class ApiResponse<T> {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    @JsonInclude
     public static class ApiResult {
 
         private String code;

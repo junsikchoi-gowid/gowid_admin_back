@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import io.swagger.annotations.ApiModelProperty;
@@ -163,7 +164,7 @@ public class 	ConnectedMngDto {
 		private String issuer;
 
 		@ApiModelProperty("SN 키값")
-		private String serialNumber;
+		private String serial;
 
 
 		@ApiModelProperty("certFile")
@@ -200,13 +201,16 @@ public class 	ConnectedMngDto {
 		private String issuer;
 
 		@ApiModelProperty("SN 키값")
-		private String serialNumber;
+		private String serial;
 
 		@ApiModelProperty("type ex) 은행:bk, 국세청:nt")
 		private String type;
 
 		@ApiModelProperty("사업자번호")
 		private String identity;
+
+		@ApiModelProperty("카드종류")
+		private CardType cardType;
 	}
 
 	@Data
@@ -237,7 +241,7 @@ public class 	ConnectedMngDto {
 		private String issuer;
 
 		@ApiModelProperty("SN 키값")
-		private String serialNumber;
+		private String serial;
 
 		@ApiModelProperty("der")
 		private String derPath;
@@ -273,6 +277,9 @@ public class 	ConnectedMngDto {
 		@ApiModelProperty("사업장 전화번호 (ex. 00-000-0000)")
 		@NotEmpty
 		private String resCompanyPhoneNumber;
+
+		@ApiModelProperty("카드종류")
+		private CardType cardType;
 	}
 
 	@Data

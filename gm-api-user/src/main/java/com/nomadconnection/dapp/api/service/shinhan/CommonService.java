@@ -1,14 +1,12 @@
 package com.nomadconnection.dapp.api.service.shinhan;
 
 import com.nomadconnection.dapp.api.common.AsyncService;
-import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.shinhan.CommonPart;
 import com.nomadconnection.dapp.api.dto.shinhan.DataPart1600;
 import com.nomadconnection.dapp.api.dto.shinhan.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
-import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.common.SignatureHistoryRepository;
@@ -44,47 +42,6 @@ public class CommonService {
     private final CorpRepository corpRepository;
     private final D1200Repository d1200Repository;
 
-    public void saveProgressFailed(Long userIdx, IssuanceProgressType progressType) {
-        asyncService.run(() -> saveIssuanceProgFailedBg(userIdx, progressType));
-    }
-
-    public void saveProgressFailed(CardIssuanceDto.ResumeReq request, IssuanceProgressType progressType) {
-        asyncService.run(() -> saveIssuanceProgFailedBg(request, progressType));
-    }
-
-    @Async
-    public void saveIssuanceProgFailedBg(Long userIdx, IssuanceProgressType progressType) {
-        userService.saveIssuanceProgFailed(userIdx, progressType);
-    }
-
-    @Async
-    public void saveIssuanceProgFailedBg(CardIssuanceDto.ResumeReq request, IssuanceProgressType progressType) {
-        log.debug("### start saveIssuanceProgFailedBg");
-        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
-        userService.saveIssuanceProgFailed(signatureHistory.getUserIdx(), progressType);
-        log.debug("### end saveIssuanceProgFailedBg");
-    }
-
-    public void saveProgressSuccess(Long userIdx, IssuanceProgressType progressType) {
-        asyncService.run(() -> saveIssuanceProgSuccessBg(userIdx, progressType));
-    }
-
-    public void saveProgressSuccess(CardIssuanceDto.ResumeReq request, IssuanceProgressType progressType) {
-        asyncService.run(() -> saveIssuanceProgSuccessBg(request, progressType));
-    }
-
-    @Async
-    public void saveIssuanceProgSuccessBg(Long userIdx, IssuanceProgressType progressType) {
-        userService.saveIssuanceProgSuccess(userIdx, progressType);
-    }
-
-    @Async
-    public void saveIssuanceProgSuccessBg(CardIssuanceDto.ResumeReq request, IssuanceProgressType progressType) {
-        log.debug("### start saveIssuanceProgSuccessBg");
-        SignatureHistory signatureHistory = getSignatureHistoryByApplicationInfo(request.getD001(), request.getD002());
-        userService.saveIssuanceProgSuccess(signatureHistory.getUserIdx(), progressType);
-        log.debug("### end saveIssuanceProgSuccessBg");
-    }
 
     public SignatureHistory getSignatureHistoryByApplicationInfo(String applicationDate, String applicationNum) {
         return signatureHistoryRepository.findFirstByApplicationDateAndApplicationNumOrderByUpdatedAtDesc(applicationDate, applicationNum).orElseThrow(
@@ -98,7 +55,6 @@ public class CommonService {
                 () -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "not found signatureHistoryRepository. userIdx[" + userIdx + "]")
         );
     }
-
 
     // 연동 기록 저장
     @Async

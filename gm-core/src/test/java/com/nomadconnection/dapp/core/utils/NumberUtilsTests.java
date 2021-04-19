@@ -38,4 +38,19 @@ class NumberUtilsTests {
 		assertThat(wrapperDoubleString).isNotEqualTo(wrapperValue.toString());
 	}
 
+	@Test
+	void stringToLong() {
+		String value1 = "0";
+		String value2 = "20000";
+		String value3 = "text";
+
+		Long convertedValue1 = NumberUtils.stringToLong(value1);
+		Long convertedValue2 = NumberUtils.stringToLong(value2);
+		Long convertedValue3 = NumberUtils.stringToLong(value3);
+
+		assertThat(convertedValue1).isEqualTo(0L);
+		assertThat(convertedValue2).isEqualTo(20000L);
+		assertThat(convertedValue3).isEqualTo(0L);
+	}
+
 }

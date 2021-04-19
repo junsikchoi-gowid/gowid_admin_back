@@ -46,6 +46,7 @@ gateway:
       1530: /shinhan/d1530
       1100: /shinhan/d1100
       1700: /shinhan/d1700
+      1710: /shinhan/d1710
       1800: /shinhan/d1800
       bpr-transfer: /shinhan/transfer/images/
       bpr-single-transfer: /shinhan/transfer/image/
@@ -131,6 +132,11 @@ stockholder:
     size: 2097152
     type: jpg, jpeg, tif, tiff
 
+confirmation:
+  file:
+    size: 2097152
+    type: pdf
+
 mail:
   approved:
     send-enable: false
@@ -147,6 +153,7 @@ slack:
   progress-url: https://hooks.slack.com/services/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
   recovery-url: https://hooks.slack.com/services/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
   saastracker-url: https://hooks.slack.com/services/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
+  kised-url: https://hooks.slack.com/services/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
   enable: true
 
 koreaexim:
@@ -222,6 +229,11 @@ stockholder:
     size: 2097152
     type: jpg, jpeg, tif, tiff
 
+confirmation:
+  file:
+    size: 2097152
+    type: pdf
+
 mail:
   approved:
     send-enable: false
@@ -232,6 +244,7 @@ slack:
   progress-url: https://hooks.slack.com/services/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
   recovery-url: https://hooks.slack.com/services/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
   saastracker-url: https://hooks.slack.com/services/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
+  kised-url: https://hooks.slack.com/services/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
   enable: true
 
 sentry:
@@ -315,6 +328,11 @@ stockholder:
     size: 2097152
     type: jpg, jpeg, tif, tiff
 
+confirmation:
+  file:
+    size: 2097152
+    type: pdf
+
 mail:
   approved:
     send-enable: true
@@ -325,4 +343,5 @@ slack:
   progress-url: https://hooks.slack.com/services/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
   recovery-url: https://hooks.slack.com/services/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
   saastracker-url: https://hooks.slack.com/services/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
+  kised-url: https://hooks.slack.com/services/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
   enable: true

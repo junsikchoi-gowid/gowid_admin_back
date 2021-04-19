@@ -24,7 +24,7 @@ public class SaasPaymentManageInfo extends BaseTime {
     @Column(nullable = false, columnDefinition = "VARCHAR(30) COMMENT '담당자 이름'")
     private String managerName;
 
-    @Column(nullable = false, columnDefinition = "VARCHAR(50) COMMENT '담당자 이메일'")
+    @Column(columnDefinition = "VARCHAR(50) COMMENT '담당자 이메일'")
     private String managerEmail;
 
     @Column(columnDefinition = "BIT COMMENT '결제 알림 여부'")

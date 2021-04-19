@@ -7,6 +7,8 @@ import com.nomadconnection.dapp.api.service.EmailService;
 import com.nomadconnection.dapp.api.service.UserService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.v2.dto.AuthDto;
+import com.nomadconnection.dapp.core.domain.user.Authority;
+import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.EmailDto;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
@@ -69,7 +71,9 @@ public class AuthService {
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 
-		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping);
+		Role role = Authority.from(user.authorities());
+
+		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
 	}
 
 	/**
@@ -126,6 +130,8 @@ public class AuthService {
 		if(code.equals(storedVerifyCode)){
 			User user = userService.findByEmail(email);
 			user.password(authValidator.encodePassword(newPassword));
+			user.hasTmpPassword(false);
+			//TODO hyuntak send changepassword
 
 			redisService.deleteByKey(RedisKey.VERIFICATION_CODE, email);
 		}
@@ -143,6 +149,8 @@ public class AuthService {
 		User user = userService.getUser(idxUser);
 		authValidator.matchedPassword(oldPassword, user.password()); // 현재패스워드 검사
 		user.password(authValidator.encodePassword(newPassword));
+		user.hasTmpPassword(false);
+		//TODO hyuntak send changepassword
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
 			.normal(BusinessResponse.Normal.builder()
@@ -152,7 +160,7 @@ public class AuthService {
 	}
 
 	private EmailDto buildVerifyEmailDto(String email, String code, VerifyCode type){
-		final String VERIFICATION_CODE = "verification_code";
+		String VERIFICATION_CODE = "verification_code";
 		Map<String, Object> context = new HashMap<>();
 		context.put(VERIFICATION_CODE, code);
 		String template = VERIFY_CODE_DEFAULT.getTemplate();

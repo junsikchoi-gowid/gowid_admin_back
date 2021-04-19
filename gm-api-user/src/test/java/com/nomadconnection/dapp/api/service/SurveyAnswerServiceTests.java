@@ -52,7 +52,7 @@ class SurveyAnswerServiceTests extends AbstractSpringBootTest {
 		SurveyAnswer surveyAnswer = build(user, surveyTitle, KEYWORD.toString());
 
 		try {
-			SurveyDto surveyResult = surveyService.saveAnswer(user.idx(), SurveyDto.from(surveyAnswer));
+			SurveyDto surveyResult = surveyService.saveAnswer(user, SurveyDto.from(surveyAnswer));
 			SurveyDto expectedResult = SurveyDto.from(surveyAnswer);
 
 			assertEquals(surveyResult.getTitle(), expectedResult.getTitle());
@@ -71,7 +71,7 @@ class SurveyAnswerServiceTests extends AbstractSpringBootTest {
 		SurveyAnswer surveyAnswer = build(user, surveyTitle, SNS.toString());
 		surveyAnswer.setDetail("페이스북");
 		try {
-			SurveyDto surveyResult = surveyService.saveAnswer(user.idx(), SurveyDto.from(surveyAnswer));
+			SurveyDto surveyResult = surveyService.saveAnswer(user, SurveyDto.from(surveyAnswer));
 			SurveyDto expectedResult = SurveyDto.from(surveyAnswer);
 			assertEquals(surveyResult.getDetail(), expectedResult.getDetail());
 		} catch (SurveyAlreadyExistException e){
@@ -84,7 +84,7 @@ class SurveyAnswerServiceTests extends AbstractSpringBootTest {
 	@DisplayName("유저_설문조사정보_상세정보_미포함_저장")
 	void saveUserSurveyWithOutDetail()  {
 		SurveyAnswer surveyAnswer = build(user, surveyTitle, SNS.toString());
-		assertThrows(BadRequestException.class, () -> surveyService.saveAnswer(user.idx(), SurveyDto.from(surveyAnswer)));
+		assertThrows(BadRequestException.class, () -> surveyService.saveAnswer(user, SurveyDto.from(surveyAnswer)));
 	}
 
 	@Test
@@ -93,8 +93,8 @@ class SurveyAnswerServiceTests extends AbstractSpringBootTest {
 	void saveDuplicateSurvey()  {
 		SurveyAnswer surveyAnswer = build(user, surveyTitle, NEWS.toString());
 		try {
-			surveyService.saveAnswer(user.idx(), SurveyDto.from(surveyAnswer));
-			assertThrows(SurveyAlreadyExistException.class, () -> surveyService.saveAnswer(user.idx(), SurveyDto.from(surveyAnswer)));
+			surveyService.saveAnswer(user, SurveyDto.from(surveyAnswer));
+			assertThrows(SurveyAlreadyExistException.class, () -> surveyService.saveAnswer(user, SurveyDto.from(surveyAnswer)));
 		} catch (SurveyAlreadyExistException e){
 			// Do nothing
 		}
@@ -104,7 +104,7 @@ class SurveyAnswerServiceTests extends AbstractSpringBootTest {
 	@Order(5)
 	@DisplayName("유저_설문조사정보_주제별_조회")
 	void findUserSurveyByTitleResult() {
-		List<SurveyDto> userSurveys = surveyService.findAnswerByTitle(user.idx(), surveyTitle);
+		List<SurveyDto> userSurveys = surveyService.findAnswerByTitle(user, surveyTitle);
 		assertThat(userSurveys).filteredOn(survey -> survey.getTitle().equals(surveyTitle));
 	}
 
@@ -114,8 +114,8 @@ class SurveyAnswerServiceTests extends AbstractSpringBootTest {
 	void delete() {
 		SurveyAnswer surveyAnswer = build(user, surveyTitle, VC.toString());
 		SurveyDto dto = SurveyDto.from(surveyAnswer);
-		surveyService.saveAnswer(user.idx(), dto);
-		surveyService.deleteAnswer(user.idx(), dto);
+		surveyService.saveAnswer(user, dto);
+		surveyService.deleteAnswer(user, dto);
 	}
 
 	@Test
@@ -123,7 +123,7 @@ class SurveyAnswerServiceTests extends AbstractSpringBootTest {
 	@DisplayName("유저_설문조사정보_상세정보_공백_저장")
 	void saveUserSurveyWithEmptyStringDetail()  {
 		SurveyAnswer surveyAnswer = build(user, surveyTitle, ETC.toString());
-		SurveyDto surveyResult = surveyService.saveAnswer(user.idx(), SurveyDto.from(surveyAnswer));
+		SurveyDto surveyResult = surveyService.saveAnswer(user, SurveyDto.from(surveyAnswer));
 		assertEquals("", surveyResult.getDetail());
 	}
 
@@ -131,7 +131,7 @@ class SurveyAnswerServiceTests extends AbstractSpringBootTest {
 	@Order(8)
 	@DisplayName("유저_설문조사정보_유저별_조회")
 	void findUserSurveyResult()  {
-		SurveyDto surveyResult = surveyService.findAnswerByUser(user.idx());
+		SurveyDto surveyResult = surveyService.findAnswerByUser(user);
 		assertEquals("", surveyResult.getAnswer());
 	}
 

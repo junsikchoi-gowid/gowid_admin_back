@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.controller;
 import com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto;
 import com.nomadconnection.dapp.api.service.notification.SlackNotiService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,17 +39,22 @@ public class SlackNotiController {
     @PostMapping(URI.SEND)
     public ResponseEntity<Object> application(
             @ApiIgnore @CurrentUser CustomUser user,
-            @RequestBody @Valid SlackNotiDto.NotiReq req) {
-        slackNotiService.sendSlackNotification(req, user);
-        slackNotiService.saveProgress(req.getText());
+            @RequestBody @Valid SlackNotiDto.NotiReq req,
+            @RequestParam(defaultValue = "GOWID") CardType cardType) {
+        slackNotiService.sendSlackNotification(req, user, cardType);
+        if (CardType.GOWID.equals(cardType)) {
+            slackNotiService.saveProgress(req.getText());
+        }
         return ResponseEntity.ok().build();
     }
 
     @ApiOperation(value = "회원가입 완료 Slack 알림 텍스트 발송")
     @PostMapping(URI.SEND_SIGNED)
     public ResponseEntity<Object> sendSignedUser(
-            @ApiIgnore @CurrentUser CustomUser user) {
-        slackNotiService.sendSlackNotification(getSlackSignedUserMessage(user), slackNotiService.getSlackProgressUrl());
+        @ApiIgnore @CurrentUser CustomUser user,
+        @RequestParam(defaultValue = "GOWID") CardType cardType) {
+        slackNotiService.sendSlackNotification(getSlackSignedUserMessage(user),
+            (CardType.GOWID.equals(cardType) ? slackNotiService.getSlackProgressUrl() : slackNotiService.getSlackKisedUrl()));
         return ResponseEntity.ok().build();
     }
 

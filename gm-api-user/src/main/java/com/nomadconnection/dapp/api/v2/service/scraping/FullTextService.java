@@ -3,20 +3,27 @@ package com.nomadconnection.dapp.api.v2.service.scraping;
 import com.nomadconnection.dapp.api.dto.ConnectedMngDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
+import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.ShinhanConsumerEmployeesType;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1100Repository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1200Repository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.domain.shinhan.*;
 import com.nomadconnection.dapp.core.encryption.shinhan.Seed128;
+import com.nomadconnection.dapp.core.utils.NumberUtils;
 import com.nomadconnection.dapp.core.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -38,7 +45,6 @@ public class FullTextService {
 
 	//TODO: 파라미터 확인 Corp
 
-
 	private final D1000Repository repoD1000;
 	private final D1100Repository repoD1100;
 	private final D1200Repository repoD1200;
@@ -49,16 +55,33 @@ public class FullTextService {
 	private final Lotte_D1000Repository repoD1000Lotte;
 	private final Lotte_D1100Repository repoD1100Lotte;
 	private final Lotte_D1200Repository repoD1200Lotte;
-	
+	private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
+
+	@Deprecated
 	public D1000 findFirstByIdxCorpIn1000(Long corpIdx){
 		return repoD1000.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
 				() -> CorpNotRegisteredException.builder().build()
 		);
 	}
 
+	@Deprecated
 	public D1400 findFirstByIdxCorpIn1400(Long corpIdx){
 		return repoD1400.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
 				() -> CorpNotRegisteredException.builder().build()
+		);
+	}
+
+	@Transactional(readOnly = true)
+	public D1000 findFirstByCardIssuanceInfoIn1000(CardIssuanceInfo cardIssuanceInfo){
+		return repoD1000.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
+			() -> CorpNotRegisteredException.builder().build()
+		);
+	}
+
+	@Transactional(readOnly = true)
+	public D1400 findFirstByCardIssuanceInfoIn1400(CardIssuanceInfo cardIssuanceInfo){
+		return repoD1400.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
+			() -> CorpNotRegisteredException.builder().build()
 		);
 	}
 
@@ -85,8 +108,8 @@ public class FullTextService {
 		repoD1000.save(d1000);
 	}
 
-	public void save1100(Corp corp){
-		repoD1100.save(D1100.builder()
+	public D1100 build1100(Corp corp, CardIssuanceInfo cardIssuanceInfo){
+		return D1100.builder()
 			.idxCorp(corp.idx())
 			.c007(CommonUtil.getNowYYYYMMDD())
 			.c007("")
@@ -94,7 +117,6 @@ public class FullTextService {
 			.d002("01")
 			.d003("3")
 			.d004(null)
-			.d005("DAAC6F")
 			.d006("G1")
 			.d007("1")
 			.d008("00")
@@ -103,10 +125,7 @@ public class FullTextService {
 			.d011("0")
 			.d012("0")
 			.d013("0")
-			.d014("1")
 			.d015("N")
-			.d016("고위드 스타트업 T&E")
-			.d017("10")
 			.d018("01")
 			.d019("Y")
 			.d020("")
@@ -139,7 +158,12 @@ public class FullTextService {
 			.d047("")
 			.d048("Y")
 			.d049(null)
-			.build());
+			.cardIssuanceInfo(cardIssuanceInfo)
+			.build();
+	}
+
+	private void save1100(D1100 d1100){
+		repoD1100.save(d1100);
 	}
 
 	private void save1400(D1400 d1400){
@@ -196,7 +220,7 @@ public class FullTextService {
 		repoD1530.save(d1530);
 	}
 
-	public D1000 build1000(Corp corp, JSONArray jsonArrayResCEOList){
+	public D1000 build1000(Corp corp, JSONArray jsonArrayResCEOList, CardIssuanceInfo cardIssuanceInfo){
 		List<String> listResCeoList = getJSONArrayCeo(jsonArrayResCEOList);
 		String ceoType = getCeoType(jsonArrayResCEOList);
 
@@ -225,13 +249,10 @@ public class FullTextService {
 			.d035(listResCeoList.size() >= 2 ? getOnlyKorLan(listResCeoList.get(1)) : "")// 대표이사_성명1
 			.d044("0113")
 			.d045("5")
-			.d046("Y")
 			.d047("N")
 			.d048("09")
-			.d049("DAAC6F")
 			.d051("10")
 			.d052("N")
-			.d053("고위드제휴카드신규입회")
 			.d054("1")
 			.d056("N")
 			.d057("N")
@@ -241,10 +262,11 @@ public class FullTextService {
 			.d068(null)
 			.d069(null)
 			.d070(null)
+			.cardIssuanceInfo(cardIssuanceInfo)
 			.build();
 	}
 
-	public D1400 build1400(Corp corp, JSONArray jsonArrayResCEOList){
+	public D1400 build1400(Corp corp, JSONArray jsonArrayResCEOList, CardIssuanceInfo cardIssuanceInfo){
 		List<String> listResCeoList = getJSONArrayCeo(jsonArrayResCEOList);
 		String ceoType = getJSONArrayCeoType(jsonArrayResCEOList);
 		return D1400.builder()
@@ -252,13 +274,9 @@ public class FullTextService {
 			.c007(CommonUtil.getNowYYYYMMDD())
 			.d001("2")
 			.d002(replaceHyphen(corp.resCompanyIdentityNo()))
-			.d003("01")
 			.d004(replaceHyphen(corp.resCompanyNm()))
 			.d005("06")
-			.d008("261-81-25793")
-			.d009("고위드")
 			.d011("")
-			.d012("DAAC6F")
 			.d013("12")
 			.d015("GOWID1")
 			.d016("GOWID1")
@@ -275,6 +293,7 @@ public class FullTextService {
 			.d055("대표이사")    // 신청관리자직위명
 			.d056(listResCeoList.size() >= 3 ? replaceHyphen(Seed128.encryptEcb(listResCeoList.get(2))) : "")    // 신청관리자주민등록번호
 			.d057(listResCeoList.size() >= 2 ? getOnlyKorLan(listResCeoList.get(1)) : "")    // 신청관리자명
+			.cardIssuanceInfo(cardIssuanceInfo)
 			.build();
 	}
 
@@ -345,8 +364,8 @@ public class FullTextService {
 			.d015(GowidUtils.getEmptyStringToString(jsonData2, "resAttrYear")) // 귀속연도
 			.d016(strCode228.get()) // 총자산   대차대조표 상의 자본총계(없으면 등기부등본상의 자본금의 액)
 			.d017(strCode001.get()) // 매출   손익계산서 상의 매출액
-			.d018(strCode334.get()) // 납입자본금   대차대조표 상의 자본금
-			.d019(strCode382.get()) // 자기자본금   대차대조표 상의 자본 총계
+			.d018(NumberUtils.emptyStringToZero(strCode334.get())) // 납입자본금   대차대조표 상의 자본금
+			.d019(NumberUtils.emptyStringToZero(strCode382.get())) // 자기자본금   대차대조표 상의 자본 총계
 			.d020(GowidUtils.getEmptyStringToString(jsonData2, "commEndDate")) // 재무조사일   종료일자 (없으면 등기부등본상의 회사성립연월일)
 			.build();
 	}
@@ -478,35 +497,111 @@ public class FullTextService {
 	}
 
 	public void saveAfterFinancialStatements(Corp corp, ConnectedMngDto.CorpInfo dto) {
-		Long corpIdx = corp.idx();
 
-		save1100(corp);
-		D1400 d1400 = findFirstByIdxCorpIn1400(corpIdx);
+		CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByCorpAndCardType(corp, dto.getCardType()).orElseThrow(
+			() -> CorpNotRegisteredException.builder().build()
+		);
+
+		D1100 d1100 = build1100(corp, cardIssuanceInfo);
+		D1400 d1400 = findFirstByCardIssuanceInfoIn1400(cardIssuanceInfo);
+		D1000 d1000 = findFirstByCardIssuanceInfoIn1000(cardIssuanceInfo);
+		if (CardType.GOWID.equals(dto.getCardType())) {
+			setFinancialStatementsGowid(d1100);
+		} else if (CardType.KISED.equals(dto.getCardType())) {
+			setFinancialStatementsKised(d1100);
+		}
+		save1100(d1100);
 		save1400(d1400, dto);
-		D1000 d1000 = findFirstByIdxCorpIn1000(corpIdx);
 		save1000(d1000, dto);
+
+		updateCardIssuanceInfo(d1000, d1100, d1400, cardIssuanceInfo);
 	}
 
-	public void saveAfterCorpRegistration(JSONObject jsonDataCorpRegister, Corp corp){
+	private void setFinancialStatementsGowid(D1100 d1100) {
+		d1100.setD005(CardType.GOWID.getNumber());
+		d1100.setD014("1");
+		d1100.setD016("고위드 스타트업 T&E");
+		d1100.setD017("10");
+		d1100.setD051(CardType.GOWID.getCode());
+	}
+
+	private void setFinancialStatementsKised(D1100 d1100) {
+		d1100.setD005(CardType.KISED.getNumber());
+		d1100.setD014("0");
+		d1100.setD016("고위드창진원");
+		d1100.setD017("40");
+		d1100.setD051(CardType.KISED.getCode());
+	}
+
+	public void saveAfterCorpRegistration(JSONObject jsonDataCorpRegister, Corp corp, CardType cardType){
 		JSONArray resRegisterEntriesList = (JSONArray) jsonDataCorpRegister.get("resRegisterEntriesList");
 		JSONObject resRegisterEntry = (JSONObject) resRegisterEntriesList.get(0);
 		JSONArray jsonArrayResCEOList = (JSONArray) resRegisterEntry.get("resCEOList");
 
 		corp.resUserType(getCeoType(jsonArrayResCEOList));
 		corp = setCeoCount(corp, jsonArrayResCEOList);
+		CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByCorpAndCardType(corp, cardType).orElseThrow(
+			() -> CorpNotRegisteredException.builder().build()
+		);
 
-		D1000 d1000 = build1000(corp, jsonArrayResCEOList);
-		save1000(d1000);
-		D1400 d1400 = build1400(corp, jsonArrayResCEOList);
-		save1400(d1400);
+		D1000 d1000 = build1000(corp, jsonArrayResCEOList, cardIssuanceInfo);
+		D1400 d1400 = build1400(corp, jsonArrayResCEOList, cardIssuanceInfo);
 		D1510 d1510 = build1510(corp);
+		if (cardType.equals(CardType.GOWID)) {
+			setCorpRegistrationGowid(d1000, d1400);
+		} else if (cardType.equals(CardType.KISED)) {
+			setCorpRegistrationKised(d1000, d1400);
+		}
+		save1000(d1000);
+		save1400(d1400);
 		save1510(d1510);
+
+	}
+
+	private void updateCardIssuanceInfo(D1000 d1000, D1100 d1100, D1400 d1400, CardIssuanceInfo cardIssuanceInfo){
+		d1000.setCardIssuanceInfo(cardIssuanceInfo);
+		d1100.setCardIssuanceInfo(cardIssuanceInfo);
+		d1400.setCardIssuanceInfo(cardIssuanceInfo);
+	}
+
+	private void setCorpRegistrationGowid(D1000 d1000, D1400 d1400) {
+		d1000.setD046("Y");
+		d1000.setD049(CardType.GOWID.getNumber());
+		d1000.setD053("고위드제휴카드신규입회");
+		d1000.setD073(CardType.GOWID.getCode());
+		d1400.setD003("01");
+		d1400.setD008("261-81-25793");
+		d1400.setD009("고위드");
+		d1400.setD012(CardType.GOWID.getNumber());
+		d1400.setD067(CardType.GOWID.getCode());
+	}
+
+	private void setCorpRegistrationKised(D1000 d1000, D1400 d1400) {
+		d1000.setD046("N");
+		d1000.setD049(CardType.KISED.getNumber());
+		d1000.setD053("창진원카드신규입회");
+		d1000.setD073(CardType.KISED.getCode());
+		d1400.setD003("06");
+		d1400.setD012(CardType.KISED.getNumber());
+		d1400.setD067(CardType.KISED.getCode());
 	}
 
 	public void save1530(JSONObject jsonDataCorpRegister, Corp corp){
 		JSONArray resRegisterEntriesList = (JSONArray) jsonDataCorpRegister.get("resRegisterEntriesList");
 		D1530 d1530 = build1530(corp, resRegisterEntriesList);
 		save1530(d1530);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public void updateEmployeesType(CardIssuanceInfo cardIssuanceInfo, boolean overFiveEmployees){
+		String consumerEmployeesType = ShinhanConsumerEmployeesType.from(overFiveEmployees).getCode();
+
+		repoD1000.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).ifPresent(
+			d1000 -> d1000.setD074(consumerEmployeesType)
+		);
+		repoD1400.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).ifPresent(
+			d1400 -> d1400.setD068(consumerEmployeesType)
+		);
 	}
 
 }

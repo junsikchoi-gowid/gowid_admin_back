@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings("unused")
 public class AccessManageService {
 
     private final CorpRepository repoCorp;
@@ -47,18 +46,12 @@ public class AccessManageService {
 
     private final String urlPath = CommonConstant.getRequestDomain();
     private final List<ConnectedMngStatus> connectedMngStatusList
-            = Arrays.asList(ConnectedMngStatus.NORMAL, ConnectedMngStatus.ERROR);
+            = Arrays.asList(ConnectedMngStatus.NORMAL, ConnectedMngStatus.ERROR, ConnectedMngStatus.STOP);
 
     @Transactional
     public List<AccessManageDto.AccessCodeType> commonCorp(CustomUser user, CommonCodeType corpType) {
 
         return repoCodeDetail.findAllByCode(corpType).stream().map(AccessManageDto.AccessCodeType::from).collect(Collectors.toList());
-    }
-
-    @Transactional
-    public List<ConnectedMngDto> getConnectedId(CustomUser user) {
-
-        return repoConnectedMng.findByIdxUser(user.idx()).stream().map(ConnectedMngDto::from).collect(Collectors.toList());
     }
 
     @Transactional
@@ -173,7 +166,7 @@ public class AccessManageService {
                     .desc1(dto.getDesc1())
                     .desc2(dto.getDesc2())
                     .issuer(dto.getIssuer())
-                    .serialNumber(dto.getSerialNumber())
+                    .serialNumber(dto.getSerial())
                     // .idxCorp()
                     .status(ConnectedMngStatus.NORMAL)
                     .build()
@@ -218,9 +211,9 @@ public class AccessManageService {
         }
 
         return ConnectedMngDto.builder()
-                .idx(connectedMng.idx())
-                .status(connectedMng.status())
-                .build();
+            .idx(connectedMng.idx())
+            .status(connectedMng.status())
+            .build();
     }
 
     @Transactional
@@ -335,7 +328,7 @@ public class AccessManageService {
 
             if (optResConCorpList.isPresent()) {
                 ResConCorpList resConCorpList = optResConCorpList.get();
-                resConCorpList.status(ConnectedMngStatus.STOP);
+                resConCorpList.status(ConnectedMngStatus.DELETE);
                 repoResConCorpList.save(resConCorpList);
             }
         }
@@ -354,7 +347,6 @@ public class AccessManageService {
 
         return accessInfoAll;
     }
-
 
     @Transactional
     public Boolean procConnectedIdStop(CustomUser customUser, AccessManageDto.ResConCorpStatusDto dto) {

@@ -7,9 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 public interface IssuanceProgressRepository extends JpaRepository<IssuanceProgress, Long> {
     @Transactional
     @Modifying
     @Query("delete from IssuanceProgress  where userIdx = :idxUser")
     void deleteAllByUserIdx(@Param("idxUser") Long idxUser);
+
+    @Transactional
+    Optional<IssuanceProgress> findByCorpIdx(Long corpIdx);
 }

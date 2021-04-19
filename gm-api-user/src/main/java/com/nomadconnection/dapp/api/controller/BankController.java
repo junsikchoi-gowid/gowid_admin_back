@@ -32,19 +32,13 @@ public class BankController {
 		public static final String CHECK_ACCOUNTLIST	= "/check/accountlist";         // 계좌리스트 스크래핑
 		public static final String CHECK_ACCOUNTLIST45	= "/check/accountlist45";         // 계좌리스트 스크래핑 45일간
 		public static final String CHECK_REFRESH		= "/check/refresh";             // 새로고침
-		public static final String CHECK_S_R			= "/check/scraping_risk";             // 새로고침
-
-
 		public static final String DAY_BALANCE	 	= "/balance/day";	// (기간별) 일별 입출금 잔고
 		public static final String MONTH_BALANCE 	= "/balance/month";	// (기간별) 월별 입출금 잔고
-		public static final String MONTH_BALANCE_EXT 	= "/balance/month_ext";	// (기간별) 월별 입출금 잔고
 		public static final String MONTH_INOUTSUM 	= "/monthinoutsum";	// 월 총 입출금
-
 		public static final String BURN_RATE 	 	= "/burn-rate";		// Burn Rate
 		public static final String ACCOUNT_LIST		= "/account";		// 계좌정보 리스트
 		public static final String TRANSACTION_LIST	= "/accounts";		// 계좌별 거래내역
 		public static final String NICKNAME 		= "/nickname";    	// 계좌 별명수정
-
 	}
 
 	private final BankService service;
@@ -89,18 +83,6 @@ public class BankController {
 		return service.monthBalance(dto, user.idx());
 	}
 
-	@ApiOperation(value = "(기간별) 월별 입출금 잔고 외부", notes = "" + "\n")
-	@GetMapping( URI.MONTH_BALANCE_EXT )
-	public ResponseEntity MonthBalance(@RequestParam String id,
-									   @RequestParam String pw,
-									   @RequestParam String startDate,
-									   @RequestParam String endDate,
-									   @RequestParam String companyId) {
-		if (log.isInfoEnabled()) {
-			log.info("([ MonthBalance ]) $id='{}'", id);
-		}
-		return service.findMonthHistory_External(id , pw, startDate , endDate , companyId);
-	}
 
 	@ApiOperation(value = "입출금 합계", notes = "" + "\n")
 	@GetMapping( URI.MONTH_INOUTSUM )
@@ -167,14 +149,5 @@ public class BankController {
 			log.info("([ checkRefresh ]) $user='{}' $idxCorp='{}'", user, idxCorp);
 		}
 		return service.refresh(user.idx(), idxCorp);
-	}
-
-	@ApiOperation(value = "스크래핑 상태확인 및 리스크 저장 확인", notes = "" + "\n")
-	@GetMapping( URI.CHECK_S_R )
-	public ResponseEntity check_scraping_risk(@ApiIgnore @CurrentUser CustomUser user, @RequestParam(required = false) Long idxCorp) {
-		if (log.isInfoEnabled()) {
-			log.info("([ check_scraping_risk ]) $user='{}' $idxCorp='{}'", user, idxCorp);
-		}
-		return service.check_scraping_risk(user.idx(), idxCorp);
 	}
 }

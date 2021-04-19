@@ -179,7 +179,7 @@ public class SaasTrackerService {
 				while(!fromDt.equals(tempToDt)) {
 					SaasTrackerDto.UsageSumsByPaymentRes tempUsageSum = new SaasTrackerDto.UsageSumsByPaymentRes();
 					tempUsageSum.setPdate(fromDt);
-					tempUsageSum.setPsum(ObjectUtils.isEmpty(usageSumsMap.get(fromDt)) ? 0 : usageSumsMap.get(fromDt));
+					tempUsageSum.setPsum(ObjectUtils.isEmpty(usageSumsMap.get(fromDt)) ? 0L : usageSumsMap.get(fromDt));
 					usageSumsByPaymentRes.add(tempUsageSum);
 
 					fromDt = CommonUtil.addMonths(fromDt, 1);
@@ -416,14 +416,14 @@ public class SaasTrackerService {
 			List<SaasPaymentInfo> infos = repoSaasPaymentInfo.findAllByUserAndSaasInfo(user, saasInfo);
 			if(ObjectUtils.isEmpty(infos.get(0).saasPaymentManageInfo())) {
 				SaasPaymentManageInfo manageInfo = new SaasPaymentManageInfo();
-				if(!StringUtils.isEmpty(dto.getManagerName())) manageInfo.managerName(dto.getManagerName());
-				if(!StringUtils.isEmpty(dto.getManagerEmail())) manageInfo.managerEmail(dto.getManagerEmail());
+				manageInfo.managerName(dto.getManagerName());
+				manageInfo.managerEmail(dto.getManagerEmail());
 				repoSaasPaymentManageInfo.save(manageInfo);
 				infos.forEach(paymentInfo -> paymentInfo.saasPaymentManageInfo(manageInfo));
 			}else {
 				SaasPaymentManageInfo manageInfo = infos.get(0).saasPaymentManageInfo();
-				if(!StringUtils.isEmpty(dto.getManagerName())) manageInfo.managerName(dto.getManagerName());
-				if(!StringUtils.isEmpty(dto.getManagerEmail())) manageInfo.managerEmail(dto.getManagerEmail());
+				manageInfo.managerName(dto.getManagerName());
+				manageInfo.managerEmail(dto.getManagerEmail());
 			}
 			log.info(">>>>> updateSaasInfo.complete");
 			return ResponseEntity.ok().body(BusinessResponse.builder()

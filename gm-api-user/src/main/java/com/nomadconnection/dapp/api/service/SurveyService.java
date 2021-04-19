@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SurveyService {
 
-	private final UserService userService;
 	private final SurveyRepository surveyRepository;
 	private final SurveyAnswerRepository surveyAnswerRepository;
 
@@ -54,26 +53,23 @@ public class SurveyService {
 			.key(contents.getTitle()).title(contents.getTitleName()).answers(answers).build();
 	}
 
-	public List<SurveyDto> findAnswerByTitle(Long userIdx, String title) throws NotRegisteredException {
+	public List<SurveyDto> findAnswerByTitle(User user, String title) throws NotRegisteredException {
 		Survey survey = findSurveyTitle(title);
-		User user = userService.getUser(userIdx);
 		List<SurveyAnswer> surveyAnswers = surveyAnswerRepository.findAllByUserAndTitle(user, survey.getTitle()).orElseThrow(
 			() -> new NotRegisteredException(ErrorCode.Api.NOT_FOUND));
 		return SurveyDto.from(surveyAnswers);
 	}
 
-	public SurveyDto findAnswerByUser(Long userIdx) throws NotRegisteredException {
-		User user = userService.getUser(userIdx);
+	public SurveyDto findAnswerByUser(User user) throws NotRegisteredException {
 		List<SurveyAnswer> surveyAnswers = surveyAnswerRepository.findAllByUser(user).orElseThrow(
 			() -> new NotRegisteredException(ErrorCode.Api.NOT_FOUND));
 		return SurveyDto.from(surveyAnswers.get(0));
 	}
 
 	@Transactional(rollbackFor = SurveyAlreadyExistException.class)
-	public SurveyDto saveAnswer(Long userIdx, SurveyDto dto) {
+	public SurveyDto saveAnswer(User user, SurveyDto dto) {
 		try {
 			Survey survey = findSurveyTitle(dto.getTitle());
-			User user = userService.getUser(userIdx);
 			SurveyAnswer surveyAnswer = SurveyAnswer.builder().title(survey.getTitle()).answer(dto.getAnswer()).detail(dto.getDetail()).user(user).build();
 			existsDetail(surveyAnswer);
 			return SurveyDto.from(surveyAnswerRepository.save(surveyAnswer));
@@ -83,9 +79,8 @@ public class SurveyService {
 	}
 
 	@Transactional(rollbackFor = SurveyAlreadyExistException.class)
-	public void deleteAnswer(Long userIdx, SurveyDto dto) {
+	public void deleteAnswer(User user, SurveyDto dto) {
 		Survey survey = findSurveyTitle(dto.getTitle());
-		User user = userService.getUser(userIdx);
 		SurveyAnswer surveyAnswer = surveyAnswerRepository.findAllByUserAndTitleAndAnswer(user, survey.getTitle(), dto.getAnswer()).orElseThrow(
 			() -> new BadRequestException(ErrorCode.Api.NOT_FOUND, "Already deleted.")
 		);

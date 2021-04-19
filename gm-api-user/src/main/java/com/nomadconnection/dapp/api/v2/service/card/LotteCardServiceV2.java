@@ -18,7 +18,6 @@ import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
-import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
 import com.nomadconnection.dapp.core.domain.consent.ConsentMapping;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1000;
@@ -28,7 +27,6 @@ import com.nomadconnection.dapp.core.domain.lotte.Lotte_GatewayTransactionIdx;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.StockholderFileRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
-import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CeoInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
@@ -69,7 +67,6 @@ public class LotteCardServiceV2 {
     private final CorpRepository repoCorp;
     private final CardIssuanceInfoRepository repoCardIssuanceInfo;
     private final ConsentMappingRepository repoConsentMapping;
-    private final IssuanceProgressRepository repoIssuanceProgress;
     private final StockholderFileRepository repoFile;
     private final RiskRepository repoRisk;
     private final RiskConfigRepository repoRiskConfig;
@@ -364,13 +361,6 @@ public class LotteCardServiceV2 {
         }
         log.debug("Complete delete from gowid.ConsentMapping where idxUser = @idxUser");
 
-        IssuanceProgress issuanceProgress = getIssuanceProgress(user.idx());
-        if (!ObjectUtils.isEmpty(issuanceProgress)) {
-            repoIssuanceProgress.delete(issuanceProgress);
-            repoIssuanceProgress.flush();
-        }
-        log.debug("Complete delete from gowid.IssuanceProgress WHERE userIdx = @idxUser");
-
         repoRisk.deleteByCorpIdx(corp.idx());
         log.debug("Complete delete from gowid.Risk where idxCorp = @idxCorp");
 
@@ -409,7 +399,7 @@ public class LotteCardServiceV2 {
     }
 
     public CeoInfo updateCeo(CeoInfo ceo, Long idxCorp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, Integer ceoNum) {
-        D1000 shinhanD1000 = shinhanCardService.getD1000(idxCorp);
+        D1000 shinhanD1000 = shinhanCardService.getD1000ByCardIssuanceInfo(cardInfo);
         String ceoTypeCode = CeoType.convertShinhanToLotte(shinhanD1000.getD009()); // 대표자 유형
 
         Lotte_D1100 d1100 = getD1100(idxCorp);
@@ -591,9 +581,5 @@ public class LotteCardServiceV2 {
 
     private Lotte_D1100 getD1100(Long idxCorp) {
         return repoD1100.getTopByIdxCorpOrderByIdxDesc(idxCorp);
-    }
-
-    private IssuanceProgress getIssuanceProgress(Long idx_user) {
-        return repoIssuanceProgress.findById(idx_user).orElse(null);
     }
 }

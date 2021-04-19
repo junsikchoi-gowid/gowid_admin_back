@@ -3,7 +3,6 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.SurveyDto;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.EmailRepository;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -179,8 +178,6 @@ public class EmailService {
 
 
     public void sendDeleteAccountEmailtoSupport(User user, String reason){
-        CardIssuanceInfo cardInfo = cardIssuanceInfoRepository.findTopByUserAndDisabledFalseOrderByIdxDesc(user).orElse(null);
-
         MimeMessagePreparator preparator = mimeMessage -> {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
             {
@@ -192,9 +189,6 @@ public class EmailService {
                 	if (user.corp() != null) {
 						context.setVariable("companyName", user.corp().resCompanyNm());
 						context.setVariable("licenseNo", user.corp().resCompanyIdentityNo());
-					}
-					if (cardInfo != null) {
-						context.setVariable("issuanceStatus", cardInfo.issuanceStatus().getStatus());
 					}
 					context.setVariable("email", user.email());
 					context.setVariable("reason", reason);

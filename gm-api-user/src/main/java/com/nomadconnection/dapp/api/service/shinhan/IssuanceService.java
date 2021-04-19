@@ -7,27 +7,28 @@ import com.nomadconnection.dapp.api.dto.SurveyDto;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.dto.shinhan.*;
 import com.nomadconnection.dapp.api.dto.shinhan.enums.ShinhanGwApiType;
-import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
-import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
-import com.nomadconnection.dapp.api.service.*;
+import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
+import com.nomadconnection.dapp.api.service.CorpService;
+import com.nomadconnection.dapp.api.service.EmailService;
+import com.nomadconnection.dapp.api.service.SurveyService;
 import com.nomadconnection.dapp.api.service.notification.SlackNotiService;
 import com.nomadconnection.dapp.api.service.shinhan.rpc.ShinhanGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.util.SignVerificationUtil;
+import com.nomadconnection.dapp.api.v2.dto.kised.KisedRequestDto;
 import com.nomadconnection.dapp.api.v2.service.scraping.FinancialStatementsService;
+import com.nomadconnection.dapp.api.v2.service.scraping.FullTextService;
 import com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CertificationType;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
-import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
-import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.SignatureHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.shinhan.*;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
@@ -35,9 +36,7 @@ import com.nomadconnection.dapp.core.domain.shinhan.*;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.encryption.shinhan.Seed128;
-import com.nomadconnection.dapp.core.utils.EnvUtil;
 import com.nomadconnection.dapp.secukeypad.EncryptParam;
-import com.nomadconnection.dapp.secukeypad.SecuKeypad;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -49,7 +48,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,29 +70,23 @@ public class IssuanceService {
     private final D1100Repository d1100Repository;
     private final SignatureHistoryRepository signatureHistoryRepository;
     private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
-    private final IssuanceProgressRepository issuanceProgressRepository;
 
     private final ShinhanGwRpc shinhanGwRpc;
     private final CommonService issCommonService;
     private final AsyncService asyncService;
-    private final UserService userService;
     private final CorpService corpService;
     private final EmailService emailService;
-    private final CommonCardService commonCardService;
-    private final ShinhanCardService shinhanCardService;
     private final FinancialStatementsService financialStatementsService;
     private final SlackNotiService slackNotiService;
-    private final EnvUtil envUtil;
     private final CardIssuanceInfoService cardIssuanceInfoService;
     private final SurveyService surveyService;
+    private final FullTextService fullTextService;
 
     @Value("${mail.receipt.send-enable}")
     boolean sendReceiptEmailEnable;
 
     @Value("${encryption.seed128.enable}")
     private boolean ENC_SEED128_ENABLE;
-
-    private static String HIDDEN_CODE = "*******";
 
     /**
      * 카드 신청
@@ -110,44 +102,49 @@ public class IssuanceService {
      */
     @Transactional(noRollbackFor = Exception.class)
     public void issuance(Long userIdx, CardIssuanceDto.IssuanceReq request, Long signatureHistoryIdx) throws Exception {
-        paramsLogging(request);
-        request.setUserIdx(userIdx);
-        CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(request.getCardIssuanceInfoIdx());
-        userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.SIGNED);
-        Corp userCorp = corpService.getCorpByUserIdx(userIdx);
-        encryptAndSaveD1100(userCorp.idx(), cardIssuanceInfo);
-        userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.SIGNED);
-        issuanceProgressRepository.flush();
+        try {
+            paramsLogging(request);
+            request.setUserIdx(userIdx);
+            CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(request.getCardIssuanceInfoIdx());
+            Corp userCorp = corpService.getCorpByUserIdx(userIdx);
+            encryptAndSaveD1100(userCorp.idx(), cardIssuanceInfo);
 
-        // 1200(법인회원신규여부검증)
-        userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_1200);
-        DataPart1200 resultOfD1200 = proc1200(userCorp);
-        saveSignatureHistory(signatureHistoryIdx, resultOfD1200);
-        userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_1200);
+            fullTextService.updateEmployeesType(cardIssuanceInfo, cardIssuanceInfo.getFinancialConsumers().getOverFiveEmployees());
 
-        // 15xx 서류제출
-        userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_15XX);
-        proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
-        userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_15XX);
+            // 1200(법인회원신규여부검증)
+            CardType cardType = request.getCardType();
+            DataPart1200 resultOfD1200 = proc1200(userCorp, cardType);
+            saveSignatureHistory(signatureHistoryIdx, resultOfD1200);
 
-        // 신규(1000) or 변경(1400) 신청
-        userService.saveIssuanceProgFailed(userIdx, IssuanceProgressType.P_AUTO_CHECK);
-        if ("Y".equals(resultOfD1200.getD003())) {
-            proc1000(userCorp, resultOfD1200);         // 1000(신규-법인회원신규심사요청)
-        } else if ("N".equals(resultOfD1200.getD003())) {
-            proc1400(userCorp, resultOfD1200);         // 1400(기존-법인조건변경신청)
-        } else {
-            String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
-            CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
+            // 15xx 서류제출
+            proc15xx(userCorp, resultOfD1200.getD007(), resultOfD1200.getD008());
+
+            // 신규(1000) or 변경(1400) 신청
+            if ("Y".equals(resultOfD1200.getD003())) {
+                proc1000(userCorp, resultOfD1200, cardType);         // 1000(신규-법인회원신규심사요청)
+            } else if ("N".equals(resultOfD1200.getD003())) {
+                proc1400(userCorp, resultOfD1200, cardType);         // 1400(기존-법인조건변경신청)
+            } else {
+                String msg = "d003 is not Y/N. resultOfD1200.getD003() = " + resultOfD1200.getD003();
+                CommonUtil.throwBusinessException(ErrorCode.External.INTERNAL_ERROR_SHINHAN_1200, msg);
+            }
+
+            // BRP 전송(비동기)
+            asyncService.run(() -> procBpr(userCorp, resultOfD1200, userIdx, cardIssuanceInfo.cardType()));
+
+            cardIssuanceInfoService
+                .updateIssuanceStatusByApplicationDateAndNumber(resultOfD1200.getD007(), resultOfD1200.getD008(), cardType, IssuanceStatus.APPLY);
+        } catch (Exception e){
+            log.error("[issuance] issuance info error", e);
+            throw e;
         }
-        userService.saveIssuanceProgSuccess(userIdx, IssuanceProgressType.P_AUTO_CHECK);
-
-        // BRP 전송(비동기)
-        asyncService.run(() -> procBpr(userCorp, resultOfD1200, userIdx));
-
-        cardIssuanceInfoService
-            .updateIssuanceStatusByApplicationDateAndNumber(resultOfD1200.getD007(), resultOfD1200.getD008(), IssuanceStatus.APPLY);
     }
+
+    public void updateCardIssuanceInfo(CardIssuanceInfo cardIssuanceInfo){
+
+
+    }
+
 
     private void saveSignatureHistory(Long signatureHistoryIdx, DataPart1200 resultOfD1200) {
         SignatureHistory signatureHistory = getSignatureHistory(signatureHistoryIdx);
@@ -160,13 +157,11 @@ public class IssuanceService {
     }
 
     @Async
-    void procBpr(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
+    void procBpr(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx, CardType cardType) {
         try {
             Thread.sleep(5000L);
-            issCommonService.saveProgressFailed(userIdx, IssuanceProgressType.P_IMG);
-            if (proc3000(userCorp, resultOfD1200, userIdx)) {
-                issCommonService.saveProgressSuccess(userIdx, IssuanceProgressType.P_IMG);
-                sendReceiptEmail(resultOfD1200, userCorp);
+            if (proc3000(userCorp, resultOfD1200, userIdx, cardType)) {
+                sendReceiptEmail(resultOfD1200, userCorp, cardType);
             }
         } catch (Exception e) {
             log.error("[procBpr] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
@@ -184,26 +179,28 @@ public class IssuanceService {
         }
     }
 
-    private void sendReceiptEmail(DataPart1200 resultOfD1200, Corp userCorp) {
+    private void sendReceiptEmail(DataPart1200 resultOfD1200, Corp userCorp, CardType cardType) {
         if (!sendReceiptEmailEnable) {
             return;
         }
-        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx()).orElseThrow(
+
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findTopByCorp(userCorp, cardType);
+        D1100 d1100 = d1100Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_SERVER_ERROR,
                         "data of d1100 is not exist(corpIdx=" + userCorp.idx() + ")")
         );
         Map<String, String> issuanceCounts = new HashMap<>();
         issuanceCounts.put("counts", d1100.getD039());
-        SurveyDto surveyResult = surveyService.findAnswerByUser(userCorp.user().idx());
+        SurveyDto surveyResult = surveyService.findAnswerByUser(userCorp.user());
         emailService.sendReceiptEmail(resultOfD1200.getD001(), issuanceCounts, CardCompany.SHINHAN, resultOfD1200.getD003(),
             surveyResult, d1100.getD033() + " " + d1100.getD034());
         log.debug("## receipt email sent. biz no = " + resultOfD1200.getD001());
     }
 
-    private boolean proc3000(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx) {
+    private boolean proc3000(Corp userCorp, DataPart1200 resultOfD1200, Long userIdx, CardType cardType) {
         DataPart3000 resultOfD3000 = proc3000(resultOfD1200, userIdx);                    // 3000(이미지 제출여부)
         if ("Y".equals(resultOfD3000.getD001())) {
-            procBrpTransfer(resultOfD3000, userCorp.resCompanyIdentityNo(), userIdx);     // 이미지 전송요청
+            procBrpTransfer(resultOfD3000, userCorp.resCompanyIdentityNo(), userIdx, cardType);     // 이미지 전송요청
             return true;
         }
         return false;
@@ -218,13 +215,13 @@ public class IssuanceService {
 
     // 1100 데이터 저장
     private void encryptAndSaveD1100(Long corpIdx, CardIssuanceInfo cardIssuanceInfo) {
-        D1100 d1100 = d1100Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseThrow(
+        D1100 d1100 = d1100Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
                 () -> new SystemException(ErrorCode.External.INTERNAL_ERROR_GW,
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
 
         d1100.setD025(Seed128.encryptEcb(cardIssuanceInfo.bankAccount().getBankAccount()));
-        d1100.setD040(Const.ID_VERIFICATION_NO);
+        d1100.setD040(cardIssuanceInfo.cardType().getRecommender());
         d1100.setD041(Const.ID_VERIFICATION_NO);
         d1100.setD044("Y");
         d1100.setD045("Y");
@@ -253,9 +250,9 @@ public class IssuanceService {
         return shinhanGwRpc.request3000(requestRpc, idxUser);
     }
 
-    private void procBrpTransfer(DataPart3000 resultOfD3000, String companyIdentityNo, Long idxUser) {
+    private void procBrpTransfer(DataPart3000 resultOfD3000, String companyIdentityNo, Long idxUser, CardType cardType) {
         BprTransferReq requestRpc = new BprTransferReq(resultOfD3000);
-        shinhanGwRpc.requestBprTransfer(requestRpc, companyIdentityNo, idxUser);
+        shinhanGwRpc.requestBprTransfer(requestRpc, companyIdentityNo, idxUser, cardType);
     }
 
     private void procBrpTransferByHand(DataPart3000 resultOfD3000, String licenseNo, Long idxUser, int fileType) {
@@ -263,15 +260,18 @@ public class IssuanceService {
         shinhanGwRpc.requestBprSingleTransfer(requestRpc, licenseNo, idxUser, fileType);
     }
 
-    private DataPart1200 proc1200(Corp userCorp) {
+    private DataPart1200 proc1200(Corp userCorp, CardType cardType) {
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findByUserAndCardType(userCorp.user(), cardType);
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1200);
-        D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx());
-        if (d1200 == null) {
-            d1200 = new D1200();
-        }
+        D1200 d1200 = d1200Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseGet(
+            () -> D1200.builder().build()
+        );
+
         d1200.setD001(CommonUtil.replaceHyphen(userCorp.resCompanyIdentityNo()));
-        d1200.setD002(Const.D1200_MEMBER_TYPE_CODE);
+        d1200.setD002(cardType.getCorpType());
+        d1200.updateCardType(cardType);
         d1200.setIdxCorp(userCorp.idx());
+        d1200.setCardIssuanceInfo(cardIssuanceInfo);
 
         // 연동
         DataPart1200 requestRpc = new DataPart1200();
@@ -282,7 +282,21 @@ public class IssuanceService {
         BeanUtils.copyProperties(responseRpc, d1200);
         d1200Repository.save(d1200);
 
+        handleError1200(userCorp, cardType, responseRpc.getC009(), responseRpc.getC013());
+
         return responseRpc;
+    }
+
+    public void handleError1200(Corp corp, CardType cardType, String code, String message){
+        final String ALREADY_UNDER_REVIEW = "03";
+
+        if(Const.API_SHINHAN_RESULT_SUCCESS.equals(code)){
+            return;
+        } else if(ALREADY_UNDER_REVIEW.equals(code)){
+            cardIssuanceInfoService.updateIssuanceStatus(corp, cardType, IssuanceStatus.EXISTING);
+        }
+
+        throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1200, code + "/" + message);
     }
 
     private void proc15xx(Corp userCorp, String applyDate, String applyNo) throws Exception {
@@ -410,12 +424,13 @@ public class IssuanceService {
     }
 
     //    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
-    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200) throws Exception {
+    private void proc1000(Corp userCorp, DataPart1200 resultOfD1200, CardType cardType) throws Exception {
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findByUserAndCardType(userCorp.user(), cardType);
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1000);
 
         // 데이터부 - db 추출, 세팅
-        D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx()).orElseThrow(
+        D1000 d1000 = d1000Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
                 () -> CorpNotRegisteredException.builder().build()
         );
 
@@ -451,13 +466,13 @@ public class IssuanceService {
         shinhanGwRpc.request1000(requestRpc, userCorp.user().idx());
     }
 
-    //    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, HttpServletRequest httpServletRequest) {
-    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200) {
+    private void proc1400(Corp userCorp, DataPart1200 resultOfD1200, CardType cardType) {
+        CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findByUserAndCardType(userCorp.user(), cardType);
         // 공통부
         CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1400);
 
         // 데이터부 - db 추출, 세팅
-        D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(userCorp.idx()).orElseThrow(
+        D1400 d1400 = d1400Repository.findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(cardIssuanceInfo).orElseThrow(
                 () -> CorpNotRegisteredException.builder().build()
         );
 
@@ -521,6 +536,14 @@ public class IssuanceService {
         return shinhanGwRpc.request1700(requestRpc, idxUser);
     }
 
+    public DataPart1710 proc1710(Long idxUser, KisedRequestDto dto){
+        CommonPart commonPart = issCommonService.getCommonPart(ShinhanGwApiType.SH1710);
+        DataPart1710 request = DataPart1710.of(dto.getLicenseNo(), dto.getProjectId());
+        BeanUtils.copyProperties(commonPart, request);
+
+        return shinhanGwRpc.request1710(request, idxUser);
+    }
+
 
     private User findUser(Long idx_user) {
         return userRepository.findById(idx_user).orElseThrow(
@@ -529,126 +552,6 @@ public class IssuanceService {
                         .idx(idx_user)
                         .build()
         );
-    }
-
-    /**
-     * 카드 신청
-     * <p>
-     * 1700 신분증 위조확인
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void verifyCeoIdentification(HttpServletRequest request, Long idxUser, CardIssuanceDto.IdentificationReq dto) {
-        Map<String, String> decryptData;
-        if (dto.getIdentityType().equals(CertificationType.DRIVER)) {
-            decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER, EncryptParam.DRIVER_NUMBER});
-            dto.setDriverLocal(commonCardService.findShinhanDriverLocalCode(dto.getDriverLocal()));
-        } else {
-            decryptData = SecuKeypad.decrypt(request, "encryptData", new String[]{EncryptParam.IDENTIFICATION_NUMBER});
-        }
-
-        verifyCeo(idxUser, dto, decryptData);
-        CardIssuanceInfo cardIssuanceInfo = findCardIssuanceInfo(dto.getCardIssuanceInfoIdx());
-        // stage 환경에서 원활한 테스트를 위함
-        if(!envUtil.isStg() && !"0".equals(dto.getCeoSeqNo())) {
-            // 실제 법인 ceo가 맞는지 확인
-            shinhanCardService.verifyCorrespondCeo(cardIssuanceInfo.corp().idx(), CardIssuanceDto.CeoValidReq.builder()
-                .identificationNumberFront(dto.getIdentificationNumberFront())
-                .name(dto.getKorName())
-                .nation(dto.getNation()).build());
-            save1530(cardIssuanceInfo, dto);
-        }
-        save1400(cardIssuanceInfo, dto, decryptData);
-        save1000(cardIssuanceInfo, dto, decryptData);
-    }
-
-    public void verifyCeo(Long idxUser, CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData){
-        // 1700(신분증검증)
-        DataPart1700 resultOfD1700 = proc1700(idxUser, dto, decryptData);
-        String code = resultOfD1700.getD008();
-        String message = resultOfD1700.getD009();
-
-        if (!Const.API_SHINHAN_RESULT_SUCCESS.equals(code)) {
-            code = changeOldDriverLicenseErrorCode(code, message);
-            throw BadRequestedException.builder().category(BadRequestedException.Category.INVALID_CEO_IDENTIFICATION).desc(code).build();
-        }
-    }
-
-    // 1530 테이블에 대표자 주민번호 저장
-    private void save1530(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.IdentificationReq dto) {
-        D1530 d1530 = d1530Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx()).orElseThrow(
-                () -> CorpNotRegisteredException.builder().build()
-        );
-
-        String idNum = dto.getIdentificationNumberFront().substring(0, 6) + HIDDEN_CODE;
-        idNum = Seed128.encryptEcb(idNum);
-
-        // 외국인 신분증 진위여부시 한글명, 영문명으로 두번 요청(dto.getName : 한글명 or 영문명)하기때문에
-        // 영문명으로 진위확인이 되는 경우 전문에 영문명이 저장되어 있지 않으므로
-        // korName으로 체크
-        if (d1530.getD046().contains(dto.getKorName())) {
-            d1530.setD047(idNum);       // 대표자주민등록번호1
-        } else if (d1530.getD050().contains(dto.getKorName())) {
-            d1530.setD051(idNum);       // 대표자주민등록번호2
-        } else if (d1530.getD054().contains(dto.getKorName())) {
-            d1530.setD055(idNum);       // 대표자주민등록번호3
-        } else {
-            log.error("Not matched ceoInfo in D1530. ceoInfo=" + dto);
-            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "Not matched ceoInfo in D1530. ceoName=" + dto.getName());
-        }
-
-        d1530Repository.save(d1530);
-    }
-
-    // 1400 테이블에 대표자 주민번호 저장
-    private void save1400(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
-        D1400 d1400 = d1400Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx()).orElseThrow(
-                () -> CorpNotRegisteredException.builder().build()
-        );
-
-        String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
-        idNum = Seed128.encryptEcb(idNum);
-
-        if ("0".equals(dto.getCeoSeqNo())) {
-            d1400.setD056(idNum);       // 신청관리자주민등록번호
-        } else if ("1".equals(dto.getCeoSeqNo())) {
-            d1400.setD006(idNum);
-            d1400.setD033(idNum);       // 대표자주민등록번호1
-            d1400.setD056(idNum);       // 신청관리자주민등록번호
-        } else if ("2".equals(dto.getCeoSeqNo())) {
-            d1400.setD037(idNum);       // 대표자주민등록번호2
-        } else if ("3".equals(dto.getCeoSeqNo())) {
-            d1400.setD041(idNum);       // 대표자주민등록번호3
-        } else {
-            log.error("invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
-            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
-        }
-
-        d1400Repository.save(d1400);
-    }
-
-    // 1000 테이블에 대표자1,2,3 주민번호 저장(d11,15,19)
-    private void save1000(CardIssuanceInfo cardIssuanceInfo, CardIssuanceDto.IdentificationReq dto, Map<String, String> decryptData) {
-        D1000 d1000 = d1000Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(cardIssuanceInfo.corp().idx()).orElseThrow(
-                () -> CorpNotRegisteredException.builder().build()
-        );
-        String idNum = dto.getIdentificationNumberFront() + decryptData.get(EncryptParam.IDENTIFICATION_NUMBER);
-        idNum = Seed128.encryptEcb(idNum);
-
-        if ("0".equals(dto.getCeoSeqNo())) {
-            d1000.setD034(idNum);      // 신청관리자주민등록번호
-        } else if ("1".equals(dto.getCeoSeqNo())) {
-            d1000.setD011(idNum);
-            d1000.setD034(idNum);
-        } else if ("2".equals(dto.getCeoSeqNo())) {
-            d1000.setD015(idNum);
-        } else if ("3".equals(dto.getCeoSeqNo())) {
-            d1000.setD019(idNum);
-        } else {
-            log.error("invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
-            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "invalid ceoSeqNo. ceoSeqNo=" + dto.getCeoSeqNo());
-        }
-
-        d1000Repository.save(d1000);
     }
 
     private CardIssuanceInfo findCardIssuanceInfo(Long idx) {
@@ -679,8 +582,8 @@ public class IssuanceService {
     }
 
     private String changeOldDriverLicenseErrorCode(String code, String message){
-        final String OLD_DRIVER_LICENSE_CODE = "999";
-        final String OLD_DRIVER_LICENSE_MSG = "예전 면허";
+        String OLD_DRIVER_LICENSE_CODE = "999";
+        String OLD_DRIVER_LICENSE_MSG = "예전 면허";
         if(message.contains(OLD_DRIVER_LICENSE_MSG)){
             code = OLD_DRIVER_LICENSE_CODE;
         }
@@ -688,7 +591,9 @@ public class IssuanceService {
     }
 
     public DataPart1200 makeDataPart1200(Long corpIdx){
-        D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx);
+        D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseGet(
+            () -> D1200.builder().build()
+        );
         DataPart1200 resultOfD1200 = new DataPart1200();
         BeanUtils.copyProperties(d1200, resultOfD1200);
 

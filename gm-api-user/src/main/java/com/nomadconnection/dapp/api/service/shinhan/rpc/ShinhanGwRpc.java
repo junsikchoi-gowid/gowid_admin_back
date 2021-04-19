@@ -7,6 +7,7 @@ import com.nomadconnection.dapp.api.dto.shinhan.*;
 import com.nomadconnection.dapp.api.dto.shinhan.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
 import com.nomadconnection.dapp.api.service.shinhan.CommonService;
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,9 @@ public class ShinhanGwRpc extends BaseRpc {
     @Value("${gateway.shinhan.uri.1700}")
     private String GATEWAY_SHINHAN_URI_1700;
 
+    @Value("${gateway.shinhan.uri.1710}")
+    private String GATEWAY_SHINHAN_URI_1710;
+
     @Value("${gateway.shinhan.uri.1800}")
     private String GATEWAY_SHINHAN_URI_1800;
 
@@ -75,12 +79,7 @@ public class ShinhanGwRpc extends BaseRpc {
         DataPart1200 responseData = mapper.convertValue(response.getData(), DataPart1200.class);
         issCommonService.saveGwTran(responseData, idxUser);
 
-        if (!responseData.getC009().equals(Const.API_SHINHAN_RESULT_SUCCESS)) {
-            throw new SystemException(ErrorCode.External.REJECTED_SHINHAN_1200, responseData.getC009() + "/" + responseData.getC013());
-        }
-
         return responseData;
-
     }
 
     public DataPart3000 request3000(DataPart3000 request, Long idxUser) {
@@ -104,11 +103,11 @@ public class ShinhanGwRpc extends BaseRpc {
         return responseData;
     }
 
-    public void requestBprTransfer(BprTransferReq request, String licenseNo, Long idxUser) {
+    public void requestBprTransfer(BprTransferReq request, String licenseNo, Long idxUser, CardType cardType) {
 
         issCommonService.saveGwTran(request, idxUser);
 
-        ApiResponse<BprTransferRes> response = requestGateWayByJson(GATEWAY_IDC_URL + GATEWAY_SHINHAN_URI_BPR_TRANSFER + "/" + licenseNo
+        ApiResponse<BprTransferRes> response = requestGateWayByJson(GATEWAY_IDC_URL + GATEWAY_SHINHAN_URI_BPR_TRANSFER + "/" + licenseNo + "/" + cardType
                 , HttpMethod.POST, null, request, ApiResponse.class, ShinhanGwApiType.BPR_TRANSFER);
 
         if (!Const.API_GW_RESULT_SUCCESS.equals(response.getResult().getCode())) {
@@ -272,6 +271,23 @@ public class ShinhanGwRpc extends BaseRpc {
 
         return response1700;
 
+    }
+
+    public DataPart1710 request1710(DataPart1710 request, Long idxUser) {
+        issCommonService.saveGwTran(request, idxUser);
+
+        ApiResponse<DataPart1710> responseRpc = requestGateWayByJson(GATEWAY_IDC_URL + GATEWAY_SHINHAN_URI_1710, HttpMethod.POST,
+            null, request, ApiResponse.class, ShinhanGwApiType.SH1710);
+
+        if (!Const.API_GW_RESULT_SUCCESS.equals(responseRpc.getResult().getCode())) {
+            throw new SystemException(ErrorCode.External.EXTERNAL_ERROR_SHINHAN_1710, "gateway error");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        DataPart1710 response1710 = mapper.convertValue(responseRpc.getData(), DataPart1710.class);
+        issCommonService.saveGwTran(response1710, idxUser);
+
+        return response1710;
     }
 
     public DataPart1800 request1800(DataPart1800 request, Long idxUser) {

@@ -13,34 +13,6 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 
 public interface AdminCustomRepository {
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    class SearchRiskDto {
-        @ApiModelProperty("법인 idx")
-        public String idxCorp;
-
-        @ApiModelProperty("법인명 order : user.corp.resCompanyNm")
-        public String idxCorpName;
-
-        @ApiModelProperty("법인 등급")
-        private String grade;
-
-        @ApiModelProperty("긴급중지")
-        private String emergencyStop;
-
-        @ApiModelProperty("카드발급여부")
-        private IssuanceStatus cardIssuance;
-
-        @ApiModelProperty("updatedStatus")
-        private String updatedStatus;
-
-        @ApiModelProperty("일시정지")
-        private String pause;
-    }
-
     @Data
     @Builder
     @NoArgsConstructor
@@ -99,50 +71,6 @@ public interface AdminCustomRepository {
 
         @ApiModelProperty("전략seg")
         private String cardType;
-    }
-
-    Page<SearchRiskResultDto> riskList(SearchRiskDto risk, Long idxUser, Pageable pageable);
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    class CashResultDto {
-        @ApiModelProperty("법인ID")
-        private String idxCorp;
-
-        @ApiModelProperty("법인명")
-        private String resCompanyNm;
-
-        @ApiModelProperty("입금")
-        private Double resAccountIn;
-
-        @ApiModelProperty("출금")
-        private Double resAccountOut;
-
-        @ApiModelProperty("순입출")
-        private Double resAccountInOut; 
-
-        @ApiModelProperty("전일잔고")
-        private Double befoBalance;
-
-        @ApiModelProperty("승인한도")
-        private Double confirmedLimit;
-
-        @ApiModelProperty("Burn Rate")
-        private String BurnRate;
-
-        @ApiModelProperty("RunWay")
-        private String RunWay;
-
-        @ApiModelProperty("createdAt")
-        private LocalDateTime createdAt;
-
-        @ApiModelProperty("errorCode")
-        private String errorCode;
-
-        @ApiModelProperty("errStatus")
-        private String errStatus;
     }
 
     @Data
@@ -248,35 +176,6 @@ public interface AdminCustomRepository {
     }
 
     Page<SearchRiskResultV2Dto> riskList(RiskOriginal risk, Long idxUser, Pageable pageable);
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    class ScrapCardList {
-        @ApiModelProperty("법인 idx")
-        public String idxCorp;
-
-        @ApiModelProperty("법인명")
-        public String corpName;
-
-        @ApiModelProperty("기준일")
-        private String baseDate;
-
-        @ApiModelProperty("타입")
-        private String cardType;
-
-        @ApiModelProperty("카드사")
-        private String cardCompany;
-
-        @ApiModelProperty("등급")
-        private String grade;
-
-        @ApiModelProperty("업데이트일시")
-        private String updatedAt;
-    }
-
-    Page<RiskTransDto> riskTransList(RiskOriginal risk, Long idxUser, Pageable pageable);
 
     @Data
     @Builder

@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.shinhan;
 
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.shinhan.D1100;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,9 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface D1100Repository extends JpaRepository<D1100, Long> {
+
+    @Deprecated
     D1100 getTopByIdxCorpOrderByIdxDesc(Long idxCorp);
 
+    @Deprecated
     Optional<D1100> findFirstByIdxCorpOrderByUpdatedAtDesc(long idxCorp);
+
+    Optional<D1100> findFirstByCardIssuanceInfoOrderByUpdatedAtDesc(CardIssuanceInfo cardIssuanceInfo);
 
     @Transactional
     @Modifying

@@ -1,9 +1,10 @@
 package com.nomadconnection.dapp.api.dto;
 
+import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
 import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
 import com.nomadconnection.dapp.core.domain.user.Events;
-import com.nomadconnection.dapp.core.domain.user.MemberAuthority;
+import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -79,21 +80,17 @@ public class UserDto {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class MemberRegister {
-
 		@ApiModelProperty("이름")
 		private String name;
 
 		@ApiModelProperty("이메일(계정)")
 		private String email;
 
-		@ApiModelProperty("멤버권한")
-		private MemberAuthority authority;
+		@ApiModelProperty("비밀번호")
+		private String password;
 
-		@ApiModelProperty("식별자(부서)")
-		private Long idxDept;
-
-		@ApiModelProperty("월한도(단위: 원)")
-		private Long creditLimit;
+		@ApiModelProperty("멤버역할")
+		private Role role;
 	}
 
 	@Data
@@ -196,6 +193,9 @@ public class UserDto {
 	public static class RegisterUserConsent {
 		@ApiModelProperty("이용약관 정보")
 		private List<ConsentDto.RegDto> consents;
+
+		@ApiModelProperty("카드종류")
+		private CardType cardType;
 	}
 
 	@Data
