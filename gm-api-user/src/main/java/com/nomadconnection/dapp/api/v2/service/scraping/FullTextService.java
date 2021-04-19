@@ -518,6 +518,7 @@ public class FullTextService {
 	}
 
 	private void setFinancialStatementsGowid(D1100 d1100) {
+		d1100.setD002(CardType.GOWID.getCorpType());
 		d1100.setD005(CardType.GOWID.getNumber());
 		d1100.setD014("1");
 		d1100.setD016("고위드 스타트업 T&E");
@@ -526,6 +527,7 @@ public class FullTextService {
 	}
 
 	private void setFinancialStatementsKised(D1100 d1100) {
+		d1100.setD002(CardType.KISED.getCorpType());
 		d1100.setD005(CardType.KISED.getNumber());
 		d1100.setD014("0");
 		d1100.setD016("고위드창진원");
