@@ -24,7 +24,6 @@ import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.CorpStatus;
-import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResBatchListRepository;
@@ -138,9 +137,6 @@ public class ScrapingService {
 			log.error("[createAccount] $user={}, $code={}, $message={} ", user.email(), code, message);
 			slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, result, ScrapingType.CREATE_ACCOUNT),
 				(CardType.GOWID.equals(dto.getCardType()) ? slackNotiService.getSlackProgressUrl() : slackNotiService.getSlackKisedUrl()));
-			if (code.equals(ResponseCode.CF12100.getCode()) && result.getExtraMessage().contains("개인납세자")) {
-				throw new CodefApiException(ResponseCode.INDIVIDUAL);
-			}
 			throw new CodefApiException(ResponseCode.findByCode(code));
 		}
 	}
@@ -307,7 +303,9 @@ public class ScrapingService {
 				log.error("[scrapCorpLicense] $user={}, $code={}, $message={} ", user.email(), code, message);
 				slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(scrapingResponse), ScrapingType.CORP_LICENSE),
 					(CardType.GOWID.equals(cardType) ? slackNotiService.getSlackProgressUrl() : slackNotiService.getSlackKisedUrl()));
-
+				if (code.equals(ResponseCode.CF12100.getCode()) && scrapingResponse.getExtraMessage().contains("개인납세자")) {
+					throw new CodefApiException(ResponseCode.INDIVIDUAL);
+				}
 				throw new CodefApiException(ResponseCode.findByCode(code));
 			}
 		} catch (Exception e) {
