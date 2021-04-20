@@ -1,8 +1,7 @@
 package com.nomadconnection.dapp.api.service.expense.rpc;
 
 import com.nomadconnection.dapp.api.config.ExpenseConfig;
-import com.nomadconnection.dapp.api.service.expense.rpc.dto.ExpenseStatusRes;
-import com.nomadconnection.dapp.api.service.expense.rpc.dto.UserRes;
+import com.nomadconnection.dapp.api.service.expense.rpc.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -24,6 +23,19 @@ public class ExpenseRpc {
         return commonRpc.requestApi(url, HttpMethod.GET, getHeaderMap(), null, UserRes.class);
     }
 
+    public UserSyncRes requestSyncUser(String email, String password) {
+        String url = expenseConfig.getDomainUrl() + expenseConfig.getUserUrl() + "/sync";
+        UserSyncReq userSyncReq = new UserSyncReq(email, password);
+        return commonRpc.requestApi(url, HttpMethod.POST, null, userSyncReq, UserSyncRes.class);
+    }
+
+    public UserRes requestUpdateCredential(String email, String password) {
+        String url = expenseConfig.getDomainUrl() + expenseConfig.getUserUrl() + "/" + email;
+        UserCredentialReq userSyncReq = new UserCredentialReq(email, password);
+
+        return commonRpc.requestApi(url, HttpMethod.PATCH, getHeaderMap(), userSyncReq, UserRes.class);
+    }
+
     private Map<String, String> getHeaderMap() {
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("apiKey", expenseConfig.getApiKey());
@@ -40,5 +52,4 @@ public class ExpenseRpc {
         String url = expenseConfig.getDomainUrl() + expenseConfig.getStatusUrl() + "/" + resCompanyIdentityNo;
         return commonRpc.requestApi(url, HttpMethod.GET, getStatusHeaderMap(), null, ExpenseStatusRes.class);
     }
-
 }

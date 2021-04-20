@@ -94,17 +94,7 @@ public class UserService {
 
 
 	public User getEnabledUserByEmailIfNotExistError(String email) {
-		User user = repoUser.findByAuthentication_EnabledAndEmail(true, email).orElse(null);
-		if (user != null) {
-			return user;
-		}
-
-		// 지출관리 App 유저이면, 해당 에러코드 throw
-		if (expenseService.isAppUser(email)) {
-			throw new BadRequestException(ErrorCode.Api.EXPENSE_APP_USER);
-		}
-
-		throw new BadRequestException(ErrorCode.Api.NOT_FOUND, "email");
+		return repoUser.findByAuthentication_EnabledAndEmail(true, email).orElse(null);
 	}
 
 	/**
@@ -263,6 +253,16 @@ public class UserService {
 			log.error("[removeMember] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
 			return false;
 		}
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public void initializePassword(String email) {
+		User member = findByEmail(email);
+		if(member == null) {
+			throw UserNotFoundException.builder().email(email).build();
+		}
+		String garbagePassword = encoder.encode(UUID.randomUUID().toString().substring(0,8));
+		member.password(garbagePassword);  //to set random
 	}
 
 	/**

@@ -34,9 +34,11 @@ public class AuthController {
         public static final String CHANGE_PASSWORD_BEFORE_LOGIN = "/password/before-login";
         public static final String CHANGE_PASSWORD_AFTER_LOGIN = "/password/after-login";
         public static final String TOKEN_ISSUE = "/token/issue";
+        public static final String PASSWORD_SYNC = "/password/sync";
     }
 
     private final AuthService authService;
+
 
     @ApiOperation(value = "인증코드(4 digits, EMAIL) 발송 요청", notes = "" +
             "\n ### Remarks" +

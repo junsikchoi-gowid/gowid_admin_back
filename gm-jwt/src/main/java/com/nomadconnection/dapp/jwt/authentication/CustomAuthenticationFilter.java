@@ -36,6 +36,9 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 	@Value("${quotabook.api-key}")
 	private String API_KEY;
 
+	@Value("${expense.api-key}")
+	private String EXPENSE_API_KEY;
+
 	private boolean isAPIKeyAuth(HttpServletRequest request) {
 		String apikey = request.getHeader(HttpHeaders.AUTHORIZATION);
 
@@ -47,11 +50,10 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 			return false;
 		}
 
-		if(!API_KEY.equals(apikey)) {
+		if(!API_KEY.equals(apikey) && !EXPENSE_API_KEY.equals(apikey)) {
 			throw new UnauthorizedException("Invalid api key");
 		}
 		return true;
-
 	}
 
 	@Override
