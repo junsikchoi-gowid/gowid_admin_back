@@ -3,9 +3,11 @@ package com.nomadconnection.dapp.api.v2.controller.scraping;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.service.lotte.LotteIssuanceService;
+import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.api.v2.dto.ImageReqDto;
 import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
 import com.nomadconnection.dapp.api.v2.service.scraping.RecoveryService;
+import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.common.SignatureHistory;
 import io.swagger.annotations.Api;
@@ -26,6 +28,8 @@ public class RecoveryController {
 	private final RecoveryService recoveryService;
 
 	private final LotteIssuanceService lotteIssuanceService;
+
+	private final IssuanceService issuanceService;
 
 	@ApiOperation(value = "수동 스크래핑")
 	@PostMapping("/scrap/{userIdx}")
@@ -52,12 +56,19 @@ public class RecoveryController {
 		return ApiResponse.OK();
 	}
 
-	@ApiOperation(value = "롯데카드 수동 전자서명")
+	@ApiOperation(value = "수동 전자서명")
 	@PostMapping("/apply/{userIdx}")
 	public ApiResponse<?> application(@PathVariable Long userIdx,
-	                                  @ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) {
-		SignatureHistory signatureHistory = lotteIssuanceService.verifySignedBinaryAndSave(userIdx, request.getSignedBinaryString());
-		lotteIssuanceService.issuance(userIdx, request, signatureHistory.getIdx());
+	                                  @RequestParam CardCompany cardCompany,
+	                                  @ModelAttribute @Valid CardIssuanceDto.IssuanceReq request) throws Exception {
+		if(CardCompany.isShinhan(cardCompany)){
+			SignatureHistory signatureHistory = issuanceService.verifySignedBinaryAndSave(userIdx, request.getSignedBinaryString());
+			issuanceService.issuance(userIdx, request, signatureHistory.getIdx());
+		} else if(CardCompany.isLotte(cardCompany)){
+			SignatureHistory signatureHistory = lotteIssuanceService.verifySignedBinaryAndSave(userIdx, request.getSignedBinaryString());
+			lotteIssuanceService.issuance(userIdx, request, signatureHistory.getIdx());
+		}
+
 		return ApiResponse.OK();
 	}
 
