@@ -124,6 +124,18 @@ public class UserController {
 		return ResponseEntity.ok().build();
 	}
 
+	@DeleteMapping(URI.MEMBERS + "/{email}/password")
+	public ResponseEntity<?> initializeMemberPassword(
+			@PathVariable String email
+	) {
+		if (log.isInfoEnabled()) {
+			log.info("([ InitPassword ]) $email='{}'", email);
+		}
+
+		service.initializePassword(email);
+		return ResponseEntity.ok().build();
+	}
+
 	@ApiOperation(
 			value = "Brand 회원가입 유저정보",
 			notes = "### Remarks \n - <mark>액세스토큰 불필요</mark>"

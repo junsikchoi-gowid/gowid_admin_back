@@ -51,7 +51,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/index",
             "/pluginfree/**",
             "/nppfs.servlet.do/**",
-			"/recovery/**"
+			"/recovery/**",
+            "/user/v1/members/{email}/password", // for sync user info
     };
 
 	private final CustomUserDetailsService service;

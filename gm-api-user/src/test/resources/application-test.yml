@@ -65,6 +65,7 @@ spring:
     risk-enabled: true
     risk-time: 0 0 6 * * *
     reset-corp-time : 0 0 10 * * *
+    koreaexim : 0 0 23 * * *
   mail:
     sender: gowid <support@gowid.com>
     riskteam: gowid <risk@gowid.com>
@@ -156,7 +157,13 @@ mail:
 slack:
   progress-url: https://hooks.slack.com/services/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
   recovery-url: https://hooks.slack.com/services/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
+  saastracker-url: https://hooks.slack.com/services/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
+  kised-url: https://hooks.slack.com/services/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
   enable: true
+
+koreaexim:
+  domain-url: https://www.koreaexim.go.kr/site/program/financial/exchangeJSON
+  api-key: KZEOVRso22DQO3vPggbHszOlv8GP7TBw
 
 logging:
   level:

@@ -21,7 +21,8 @@ import java.util.Collection;
 import java.util.List;
 
 
-@Data
+@Getter
+@Setter
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true, of = "idx")
 @Builder

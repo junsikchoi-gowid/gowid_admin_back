@@ -1,7 +1,10 @@
 package com.nomadconnection.dapp.api.v2.dto;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 public class AuthDto {
 
@@ -31,5 +34,14 @@ public class AuthDto {
 
 		@ApiModelProperty("이후 비밀번호")
 		private String newPassword;
+	}
+
+	@Getter
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class PasswordSync {
+		@ApiModelProperty("비밀번호")
+		private String password;
 	}
 }
