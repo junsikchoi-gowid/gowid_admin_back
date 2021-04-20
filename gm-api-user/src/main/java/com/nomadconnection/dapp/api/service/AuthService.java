@@ -210,12 +210,12 @@ public class AuthService {
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 		boolean signMapping = false;
-		if(repoConnectedMng.findByIdxCorp(idxCorp).size() > 0 ){
+		if(idxCorp != null & repoConnectedMng.findByIdxCorp(idxCorp).size() > 0 ){
 			signMapping = true;
 		}
 
 		boolean refreshMapping = true;
-		if(repoConnectedMng.findRefresh(idxCorp) > 0 ){
+		if(idxCorp != null & repoConnectedMng.findRefresh(idxCorp) > 0 ){
 			refreshMapping = false;
 		}
 

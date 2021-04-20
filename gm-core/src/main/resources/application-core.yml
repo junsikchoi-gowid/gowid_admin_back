@@ -25,7 +25,7 @@ spring:
     open-in-view: false
   datasource:
     initialization-mode: always
-    url: jdbc:mysql://10.10.40.173:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://10.10.40.173:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
     username: gowid
     password: Gowid%0115
 
@@ -46,7 +46,7 @@ spring:
     open-in-view: false
   datasource:
     initialization-mode: always
-    url: jdbc:mysql://10.10.40.173:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://10.10.40.173:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
     username: gowid
     password: Gowid%0115
 
@@ -67,7 +67,7 @@ spring:
     open-in-view: false
   datasource:
     initialization-mode: always
-    url: jdbc:mysql://10.10.30.71:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://10.10.30.71:3306/gowid?characterEncoding=UTF-8&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
     username: gowid
     password: Gowid%0115
 
@@ -89,7 +89,7 @@ spring:
     open-in-view: false
   datasource:
     initialization-mode: always
-    url: jdbc:mysql://127.0.0.1:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://127.0.0.1:3306/MyCard?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
     username: card
     password: card2019
 
