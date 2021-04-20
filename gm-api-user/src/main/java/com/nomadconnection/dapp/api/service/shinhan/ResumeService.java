@@ -119,7 +119,8 @@ public class ResumeService {
 
     @Transactional(rollbackFor = Exception.class)
     public void updateIssuanceStatus(CardIssuanceDto.ResumeReq request) {
-        CardIssuanceInfo cardIssuanceInfo = d1200Service.getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002()).getCardIssuanceInfo();
+        D1200 d1200 = d1200Service.getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
+        CardIssuanceInfo cardIssuanceInfo = d1200.getCardIssuanceInfo();
         cardIssuanceInfo.updateIssuanceStatus(IssuanceStatus.ISSUED);
     }
 
