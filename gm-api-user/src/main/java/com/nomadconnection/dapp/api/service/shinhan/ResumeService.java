@@ -88,6 +88,7 @@ public class ResumeService {
         }
 
         asyncService.run(() -> procResume(request, cardIssuanceInfo.cardType()));
+        updateIssuanceStatus(request);
 
         log.debug("## response 1600 => " + response.toString());
 
@@ -111,8 +112,6 @@ public class ResumeService {
         SignatureHistory signatureHistory = getSignatureHistory(request);
         proc1100(request, signatureHistory, signatureHistory.getUserIdx(), cardType);  // 1100(법인카드신청)
         proc1800(request, signatureHistory, signatureHistory.getUserIdx());  // 1800(전자서명값전달)
-
-        updateIssuanceStatus(request);
 
         sendApprovedEmail(request, signatureHistory.getCorpIdx(), cardType);
     }
