@@ -260,7 +260,7 @@ public class SaasTrackerAdminService {
 				saasPaymentInfo.cardNumber(null);
 				saasPaymentInfo.accountNumber(req.getAccountNumber());
 			}
-			if(!StringUtils.isEmpty(req.getPaymentScheduleDate())) saasPaymentInfo.paymentScheduleDate(req.getPaymentScheduleDate());
+			saasPaymentInfo.paymentScheduleDate(req.getPaymentScheduleDate());
 			if(!ObjectUtils.isEmpty(req.getActiveSubscription())) saasPaymentInfo.activeSubscription(req.getActiveSubscription());
 			if(!ObjectUtils.isEmpty(req.getIsDup())) saasPaymentInfo.isDup(req.getIsDup());
 			if(!ObjectUtils.isEmpty(req.getDisabled())) saasPaymentInfo.disabled(req.getDisabled());
