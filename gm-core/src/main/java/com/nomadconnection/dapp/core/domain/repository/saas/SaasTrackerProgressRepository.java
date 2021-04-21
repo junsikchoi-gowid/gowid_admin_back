@@ -29,7 +29,7 @@ public interface SaasTrackerProgressRepository extends JpaRepository<SaasTracker
                     "         left join Corp c on u.idxCorp = c.idx\n" +
                     "         left join expense.user eu on u.email = eu.email\n" +
                     "         left join SaasTrackerProgress stp on u.idx = stp.idxUser\n" +
-                    "where am.idxAuthority = 8\n" +
+                    "where am.idxAuthority = 9\n" +
                     "  and c.resCompanyNm is not null\n" +
                     "order by resCompanyNm", nativeQuery = true)
     List<SaasTrackerUserDto> getSaasTrackerUsers();
