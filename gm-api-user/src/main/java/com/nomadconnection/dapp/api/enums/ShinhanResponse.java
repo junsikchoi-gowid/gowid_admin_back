@@ -16,9 +16,10 @@ public enum ShinhanResponse {
 	SH1710_NOT_MATCHED_PROJECT_ID(ShinhanInterfaceId.SH1710, "02", "projectId is not matched"),
 	SH1710_SHINHAN_INTERNAL_ERROR(ShinhanInterfaceId.SH1710, "03", "shinhan internal error"),
 	SH1710_ACCOUNT_NOT_EXISTS(ShinhanInterfaceId.SH1710, "04", "account does not exists"),
+	SH1710_INVALID_PROJECT(ShinhanInterfaceId.SH1710, "05", "It's a invalid project"),
 
 	// DEFAULT
-	SH_DEFAULT(null, "99", "code doese not exists")
+	SH_DEFAULT(null, "99", "code does not exists")
 	;
 
 	private final ShinhanInterfaceId interfaceId;
