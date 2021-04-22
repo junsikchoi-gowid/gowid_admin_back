@@ -19,8 +19,8 @@ dependencies {
             "com.amazonaws:aws-java-sdk-s3:1.11.792",
             "commons-fileupload:commons-fileupload:1.3.2",
             "commons-io:commons-io:2.0.1",
-            "io.sentry:sentry-spring-boot-starter:1.7.30",
-            "io.sentry:sentry-logback:1.7.30"
+            "io.sentry:sentry-logback:4.3.0",
+            "io.sentry:sentry-spring-boot-starter:4.3.0",
     )
 
     compile fileTree(dir: 'libs', include: ['*.jar'])   // 인증서 검증 라이브러리
