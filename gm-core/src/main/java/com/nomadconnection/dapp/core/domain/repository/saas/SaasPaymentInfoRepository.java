@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.saas;
 
 import com.nomadconnection.dapp.core.domain.saas.SaasInfo;
-import com.nomadconnection.dapp.core.domain.saas.SaasPaymentHistory;
 import com.nomadconnection.dapp.core.domain.saas.SaasPaymentInfo;
 import com.nomadconnection.dapp.core.domain.user.User;
 import org.springframework.data.domain.Page;
@@ -33,6 +32,7 @@ public interface SaasPaymentInfoRepository extends JpaRepository<SaasPaymentInfo
             "    SaasPaymentInfo\n" +
             "WHERE\n" +
             "    idxUser = :idxUser \n" +
+            "        and disabled = false\n" +
             "        AND paymentScheduleDate >= NOW()\n" +
             "ORDER BY paymentScheduleDate\n" +
             "LIMIT 5", nativeQuery = true)
