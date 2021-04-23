@@ -59,7 +59,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotEmpty;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -455,6 +454,7 @@ public class CommonCardServiceV2 {
 
             updateRiskConfigCard(user, grantLimit, strCalculatedLimit, hopeLimit);
             if (CardCompany.isShinhan(user.cardCompany())) {
+                grantLimit = calculateShinhanGrantLimit(grantLimit);
                 shinhanCardService.updateShinhanFulltextCard(cardInfo, grantLimit, dto);
                 shinhanCardService.setCardInfoCard(cardInfo, dto, strCalculatedLimit, grantLimit);
             } else if (CardCompany.isLotte(user.cardCompany())) {
@@ -674,8 +674,9 @@ public class CommonCardServiceV2 {
     }
 
     private String calculateShinhanGrantLimit(String grantLimit) {
-        int maxGrantLimit = 50000000;   //FIXME : To CommonCode
-        int parsedGrantLimit = Integer.valueOf(grantLimit);
+        double maxGrantLimit = Double.valueOf(
+            repoCodeDetail.getByCodeAndCode1(CommonCodeType.CARD_LIMIT, CardCompany.SHINHAN.getName()).value1());
+        double parsedGrantLimit = Double.valueOf(grantLimit);
 
         return String.valueOf(Math.min(parsedGrantLimit, maxGrantLimit));
     }
