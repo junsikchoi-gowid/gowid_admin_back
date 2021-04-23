@@ -2,7 +2,6 @@ package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.QCardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.common.QConnectedMng;
-import com.nomadconnection.dapp.core.domain.common.QIssuanceProgress;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.QCorp;
 import com.nomadconnection.dapp.core.domain.res.QResAccount;
@@ -34,7 +33,6 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
     private final QConnectedMng connectedMng = QConnectedMng.connectedMng;
     private final QResBatch resBatch = QResBatch.resBatch;
     private final QResBatchList resBatchList = QResBatchList.resBatchList;
-    private final QIssuanceProgress issuanceProgress = QIssuanceProgress.issuanceProgress;
     private final QCardIssuanceInfo cardIssuanceInfo = QCardIssuanceInfo.cardIssuanceInfo;
 
 
@@ -52,7 +50,6 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
             JPQLQuery<CorpListDto> query = from(corp)
                 .leftJoin(user).on(corp.user.idx.eq(user.idx))
                 .leftJoin(cardIssuanceInfo).on(user.idx.eq(cardIssuanceInfo.user.idx))
-                .leftJoin(issuanceProgress).on(corp.idx.eq(issuanceProgress.corpIdx))
                 .select(Projections.bean(CorpListDto.class,
                     user.idx.as("idxUser"),
                     corp.idx.as("idxCorp"),
@@ -66,8 +63,8 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
                     cardIssuanceInfo.issuanceStatus.as("issuanceStatus"),
                     cardIssuanceInfo.issuanceDepth.as("issuanceDepth"),
                     corp.createdAt.as("corpRegisterDate"),
-                    issuanceProgress.createdAt.as("applyDate"),
-                    issuanceProgress.updatedAt.as("decisionDate")
+                    cardIssuanceInfo.appliedAt.as("applyDate"),
+                    cardIssuanceInfo.issuedAt.as("decisionDate")
                 ));
             query.where(corp.user.authentication.enabled.isTrue());
 

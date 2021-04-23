@@ -1,9 +1,11 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.dto.AdminDto;
+import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.CorpDto;
 import com.nomadconnection.dapp.api.dto.RiskDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
+import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.v2.service.card.LotteCardServiceV2;
 import com.nomadconnection.dapp.api.v2.service.card.ShinhanCardServiceV2;
@@ -132,6 +134,24 @@ public class AdminService {
         riskConfig.ceoGuarantee(dto.isCeoGuarantee());
         riskConfig.ventureCertification(dto.isVentureCertification());
         riskConfig.vcInvestment(dto.isVcInvestment());
+
+        CardIssuanceInfo cardIssuanceInfo = repoCardIssuance.findByUserAndCardType(riskConfig.user(), CardType.GOWID).orElseThrow(
+            () -> EntityNotFoundException.builder()
+                .entity("CardIssuanceInfo")
+                .build()
+        );
+
+        cardIssuanceInfo.venture()
+            .isVC(dto.vcInvestment)
+            .isVerifiedVenture(dto.ventureCertification);
+
+        if (CardCompany.LOTTE.equals(cardIssuanceInfo.cardCompany())) {
+            lotteCardService.updateD1100Venture(dto.idxCorp, CardIssuanceDto.RegisterVenture.builder()
+                .isVerifiedVenture(dto.isVentureCertification())
+                .isVC(dto.isVcInvestment())
+                .build()
+            );
+        }
 
         return ResponseEntity.ok().body(
             BusinessResponse.builder()

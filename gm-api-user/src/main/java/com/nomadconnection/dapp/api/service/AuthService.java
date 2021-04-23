@@ -3,14 +3,9 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.AccountDto;
 import com.nomadconnection.dapp.api.dto.AuthDto;
-import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
-import com.nomadconnection.dapp.core.domain.common.IssuanceProgress;
-import com.nomadconnection.dapp.core.domain.common.IssuanceProgressType;
-import com.nomadconnection.dapp.core.domain.common.IssuanceStatusType;
-import com.nomadconnection.dapp.core.domain.repository.common.IssuanceProgressRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.user.Authority;
@@ -52,7 +47,6 @@ public class AuthService {
 	private final UserRepository repoUser;
 	private final ConnectedMngRepository repoConnectedMng;
 	private final PasswordEncoder encoder;
-	private final IssuanceProgressRepository issuanceProgressRepository;
 
 	/**
 	 * 아이디(이메일) 존재여부 확인
@@ -238,22 +232,4 @@ public class AuthService {
 				.isSendEmail(user.reception().getIsSendEmail())
 				.build();
 	}
-
-	private UserDto.IssuanceProgressRes issuanceProgress(User user) {
-		Long idxCorp = user.corp() == null ? null: user.corp().idx();
-		IssuanceProgress issuanceProgress = issuanceProgressRepository.findByCorpIdx(idxCorp).orElse(
-				IssuanceProgress.builder()
-						.userIdx(user.idx())
-						.corpIdx(!ObjectUtils.isEmpty(user.corp()) ? user.corp().idx() : null)
-						.progress(IssuanceProgressType.NOT_SIGNED)
-						.status(IssuanceStatusType.SUCCESS)
-						.build()
-		);
-
-		return UserDto.IssuanceProgressRes.builder()
-				.progress(issuanceProgress.getProgress())
-				.status(issuanceProgress.getStatus())
-				.build();
-	}
-
 }

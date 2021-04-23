@@ -2,7 +2,6 @@ package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.QCardIssuanceInfo;
-import com.nomadconnection.dapp.core.domain.common.QIssuanceProgress;
 import com.nomadconnection.dapp.core.domain.corp.QCorp;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
@@ -11,7 +10,6 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 public class CardIssunaceInfoCustomRepositoryImpl extends QuerydslRepositorySupport implements CardIssunaceInfoCustomRepository {
     private final QCorp corp = QCorp.corp;
     private final QCardIssuanceInfo cardIssuanceInfo = QCardIssuanceInfo.cardIssuanceInfo;
-    private final QIssuanceProgress issuanceProgress = QIssuanceProgress.issuanceProgress;
 
     public CardIssunaceInfoCustomRepositoryImpl() {
         super(CardIssuanceInfo.class);
@@ -21,7 +19,6 @@ public class CardIssunaceInfoCustomRepositoryImpl extends QuerydslRepositorySupp
     public CardIssuanceInfoDto issuanceInfo(Long idxCardIssuanceInfo) {
         JPQLQuery<CardIssuanceInfoDto> query = from(cardIssuanceInfo)
             .leftJoin(corp).on(cardIssuanceInfo.corp.idx.eq(corp.idx))
-            .leftJoin(issuanceProgress).on(cardIssuanceInfo.corp.idx.eq(issuanceProgress.corpIdx))
             .select(Projections.constructor(CardIssuanceInfoDto.class,
                 cardIssuanceInfo.cardCompany.as("cardCompany"),
                 cardIssuanceInfo.issuanceDepth.as("issuanceDepth"),
@@ -34,8 +31,8 @@ public class CardIssunaceInfoCustomRepositoryImpl extends QuerydslRepositorySupp
                 cardIssuanceInfo.card.lotteGreenTrafficCount.as("lotteGreenTrafficCount"),
                 cardIssuanceInfo.card.lotteBlackTrafficCount.as("lotteBlackTrafficCount"),
                 cardIssuanceInfo.card.lotteHiPassCount.as("lotteHiPassCount"),
-                issuanceProgress.createdAt.as("applyDate"),
-                issuanceProgress.updatedAt.as("decisionDate")
+                cardIssuanceInfo.appliedAt.as("applyDate"),
+                cardIssuanceInfo.issuedAt.as("decisionDate")
             ));
         query.where(cardIssuanceInfo.idx.eq(idxCardIssuanceInfo));
 
