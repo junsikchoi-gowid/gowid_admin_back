@@ -83,7 +83,7 @@ public class ShinhanCardControllerV2 {
         KisedResponseDto response = kisedService.verify(user.idx(), dto);
         Kised kised = kisedService.save(response);
         cardIssuanceInfoService.updateKised(dto.getCardIssuanceInfoIdx(), kised);
-        cardIssuanceInfoService.updateAccount(dto.getCardIssuanceInfoIdx(), response.getAccountNo());
+        cardIssuanceInfoService.updateAccount(dto.getCardIssuanceInfoIdx(), response);
 
         return ResponseEntity.ok(response);
     }

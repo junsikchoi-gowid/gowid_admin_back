@@ -27,6 +27,7 @@ public class Const {
     public static final String LOTTE_CORP_rlOwrVdMdc_CODE_01 = "01";
     public static final String LOTTE_CORP_rlOwrDc_CODE_4 = "4";
     public static final String LOTTE_CORP_rlOwrDc_CODE_1 = "1";
+    public static final String SHINHAN_BANK_CODE = "088";
 
     public static final String API_SHINHAN_RESULT_1000_1400_SUCCESS_CODE = "47";
 

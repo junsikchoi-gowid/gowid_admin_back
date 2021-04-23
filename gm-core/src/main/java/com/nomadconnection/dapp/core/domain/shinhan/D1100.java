@@ -139,4 +139,10 @@ public class D1100 extends BaseTime {
     @JoinColumn(name="idxCardIssuanceInfo", foreignKey = @ForeignKey(name = "FK_D1100_CardIssuanceInfo"), referencedColumnName = "idx", columnDefinition = "bigint(20) DEFAULT NULL COMMENT 'CardIssuanceInfo 식별값'")
     private CardIssuanceInfo cardIssuanceInfo;
 
+    public void updateBankInfo(String bankCode, String account, String accountHolder){
+        this.d024 = bankCode;
+        this.d025 = account;
+        this.d026 = accountHolder;
+    }
+
 }

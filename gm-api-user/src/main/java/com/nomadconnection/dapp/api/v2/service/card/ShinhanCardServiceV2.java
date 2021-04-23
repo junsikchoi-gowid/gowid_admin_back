@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
+import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.Card;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CeoInfo;
@@ -249,20 +250,12 @@ public class ShinhanCardServiceV2 {
             .requestCount(dto.getCount()));
     }
 
-    public D1100 updateD1100Account(CardIssuanceInfo cardIssuanceInfo, ResAccount account) {
+    public void updateD1100Account(CardIssuanceInfo cardIssuanceInfo, ResAccount account) {
         D1100 d1100 = getD1100ByCardIssuanceInfo(cardIssuanceInfo);
-        if (ObjectUtils.isEmpty(d1100) || ObjectUtils.isEmpty(account)) {
-            return d1100;
-        }
         String bankCode = account.organization();
-        if (bankCode != null && bankCode.length() > 3) {
-            bankCode = bankCode.substring(bankCode.length() - 3);
-        }
-        return repoD1100.save(d1100
-            .setD024(bankCode)
-            .setD025(Seed128.encryptEcb(account.resAccount()))
-            .setD026(account.resAccountHolder())
-        );
+        bankCode = GowidUtils.get3digitsBankCode(bankCode);
+
+        d1100.updateBankInfo(bankCode, Seed128.encryptEcb(account.resAccount()), account.resAccountHolder());
     }
 
     public CeoInfo updateCeo(CeoInfo ceo, Long idxCorp, CardIssuanceInfo cardInfo, CardIssuanceDto.RegisterCeo dto, Integer ceoNum) {

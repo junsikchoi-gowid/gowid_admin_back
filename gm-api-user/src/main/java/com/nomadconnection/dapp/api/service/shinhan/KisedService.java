@@ -32,19 +32,23 @@ public class KisedService {
     @Transactional(rollbackFor = Exception.class)
     public Kised save(KisedResponseDto dto){
         Kised kised = kisedRepository.findByLicenseNoAndProjectId(dto.getLicenseNo(), dto.getProjectId()).orElseGet(
-            () -> Kised.builder()
-                .licenseNo(dto.getLicenseNo())
-                .projectId(dto.getProjectId())
-                .projectName(dto.getProjectName())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .orgName(dto.getOrgName())
-                .accountHolder(dto.getAccountHolder())
-                .accountNo(dto.getAccountNo())
-                .build()
+            () -> kisedRepository.save(
+                Kised.builder()
+                    .licenseNo(dto.getLicenseNo())
+                    .projectId(dto.getProjectId())
+                    .projectName(dto.getProjectName())
+                    .startDate(dto.getStartDate())
+                    .endDate(dto.getEndDate())
+                    .orgName(dto.getOrgName())
+                    .accountHolder(dto.getAccountHolder())
+                    .accountNo(dto.getAccountNo())
+                    .bankCode(dto.getBankCode())
+                    .cash(dto.getCash())
+                    .spot(dto.getSpot())
+                    .build())
         );
 
-        return kisedRepository.save(kised);
+        return kised;
     }
 
 }

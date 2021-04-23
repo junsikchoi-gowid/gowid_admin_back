@@ -88,7 +88,6 @@ public class ResumeService {
         }
 
         asyncService.run(() -> procResume(request, cardIssuanceInfo.cardType()));
-        updateIssuanceStatus(request);
 
         log.debug("## response 1600 => " + response.toString());
 
@@ -193,6 +192,8 @@ public class ResumeService {
         BeanUtils.copyProperties(commonPart, requestRpc);
 
         shinhanGwRpc.request1800(requestRpc, idxUser);
+
+        updateIssuanceStatus(request);
         log.debug("## 1800 end");
     }
 

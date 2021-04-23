@@ -10,6 +10,7 @@ import com.nomadconnection.dapp.api.dto.shinhan.enums.ShinhanGwApiType;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.SystemException;
+import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
 import com.nomadconnection.dapp.api.service.CorpService;
 import com.nomadconnection.dapp.api.service.EmailService;
@@ -220,7 +221,10 @@ public class IssuanceService {
                         "data of d1100 is not exist(corpIdx=" + corpIdx + ")")
         );
 
-        d1100.setD025(Seed128.encryptEcb(cardIssuanceInfo.bankAccount().getBankAccount()));
+        d1100.updateBankInfo(
+            GowidUtils.get3digitsBankCode(cardIssuanceInfo.bankAccount().getBankCode()),
+            Seed128.encryptEcb(cardIssuanceInfo.bankAccount().getBankAccount()),
+            cardIssuanceInfo.bankAccount().getBankAccountHolder());
         d1100.setD040(cardIssuanceInfo.cardType().getRecommender());
         d1100.setD041(Const.ID_VERIFICATION_NO);
         d1100.setD044("Y");

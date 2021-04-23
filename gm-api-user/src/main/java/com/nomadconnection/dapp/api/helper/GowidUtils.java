@@ -57,4 +57,12 @@ public class GowidUtils {
 		cal.add(Calendar.MONTH, i);
 		return df.format(cal.getTime());
 	}
+
+	public static String get3digitsBankCode(String bankCode){
+		if (bankCode != null && bankCode.length() > 3) {
+			bankCode = bankCode.substring(bankCode.length() - 3);
+		}
+
+		return bankCode;
+	}
 }

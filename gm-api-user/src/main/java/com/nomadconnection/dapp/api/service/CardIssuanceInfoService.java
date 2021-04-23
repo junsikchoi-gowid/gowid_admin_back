@@ -1,9 +1,11 @@
 package com.nomadconnection.dapp.api.service;
 
+import com.nomadconnection.dapp.api.common.Const;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.NotRegisteredException;
 import com.nomadconnection.dapp.api.exception.v2.ResourceNotFoundException;
 import com.nomadconnection.dapp.api.service.shinhan.D1200Service;
+import com.nomadconnection.dapp.api.v2.dto.kised.KisedResponseDto;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.NoResultException;
 import java.time.LocalDateTime;
@@ -130,7 +133,7 @@ public class CardIssuanceInfoService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public CardIssuanceInfo updateKised(Long cardIssuanceInfoIdx, Kised kised) throws Exception {
+    public CardIssuanceInfo updateKised(Long cardIssuanceInfoIdx, Kised kised) {
 
         CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByIdx(cardIssuanceInfoIdx)
             .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND.getCode(), RESOURCE_NOT_FOUND.getDesc(), "cardIssuanceInfoIdx : " + cardIssuanceInfoIdx));
@@ -139,11 +142,14 @@ public class CardIssuanceInfoService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public CardIssuanceInfo updateAccount(Long cardIssuanceInfoIdx, String account) throws Exception {
+    public CardIssuanceInfo updateAccount(Long cardIssuanceInfoIdx, KisedResponseDto responseDto) {
+        String bankCode = StringUtils.isEmpty(responseDto.getBankCode()) ? Const.SHINHAN_BANK_CODE : responseDto.getBankCode();
 
         CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoRepository.findByIdx(cardIssuanceInfoIdx)
             .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND.getCode(), RESOURCE_NOT_FOUND.getDesc(), "cardIssuanceInfoIdx : " + cardIssuanceInfoIdx));
-        cardIssuanceInfo.getBankAccount().setBankAccount(account);
+        cardIssuanceInfo.getBankAccount().setBankAccount(responseDto.getAccountNo());
+        cardIssuanceInfo.getBankAccount().setBankAccountHolder(responseDto.getAccountHolder());
+        cardIssuanceInfo.getBankAccount().setBankCode(bankCode);
         return cardIssuanceInfo;
     }
 

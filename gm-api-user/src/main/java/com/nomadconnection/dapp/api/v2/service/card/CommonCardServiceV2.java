@@ -9,6 +9,7 @@ import com.nomadconnection.dapp.api.dto.FinancialConsumersResponseDto;
 import com.nomadconnection.dapp.api.dto.shinhan.DataPart1700;
 import com.nomadconnection.dapp.api.exception.*;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
+import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.api.service.AwsS3Service;
 import com.nomadconnection.dapp.api.service.CardIssuanceInfoService;
 import com.nomadconnection.dapp.api.service.FinancialConsumersService;
@@ -718,10 +719,9 @@ public class CommonCardServiceV2 {
             lotteCardService.updateD1100Account(user.corp().idx(), account);
         }
 
-
         cardInfo.bankAccount(BankAccount.builder()
             .bankAccount(account.resAccount())
-            .bankCode(account.organization())
+            .bankCode(GowidUtils.get3digitsBankCode(account.organization()))
             .bankAccountHolder(account.resAccountHolder())
             .build());
 
