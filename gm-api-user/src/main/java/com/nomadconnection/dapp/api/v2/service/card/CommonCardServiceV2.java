@@ -678,7 +678,7 @@ public class CommonCardServiceV2 {
             repoCodeDetail.getByCodeAndCode1(CommonCodeType.CARD_LIMIT, CardCompany.SHINHAN.getName()).value1());
         double parsedGrantLimit = Double.valueOf(grantLimit);
 
-        return String.valueOf(Math.min(parsedGrantLimit, maxGrantLimit));
+        return NumberUtils.doubleToString(Math.min(parsedGrantLimit, maxGrantLimit));
     }
 
     private RiskConfig updateRiskConfigLimit(User user, String grantLimit, String hopeLimit) {
