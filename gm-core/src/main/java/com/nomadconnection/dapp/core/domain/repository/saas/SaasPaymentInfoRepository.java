@@ -143,6 +143,7 @@ public interface SaasPaymentInfoRepository extends JpaRepository<SaasPaymentInfo
             "WHERE\n" +
             "    idxUser = :idxUser AND idxSaasInfo = :idxSaasInfo \n" +
             "        AND activeSubscription = :isSubscription \n" +
+            "        AND disabled = false \n" +
             "GROUP BY paymentType", nativeQuery = true)
     List<Integer> findPaymentType(@Param("idxUser") Long idxUser,
                                   @Param("idxSaasInfo") Long idxSaasInfo,

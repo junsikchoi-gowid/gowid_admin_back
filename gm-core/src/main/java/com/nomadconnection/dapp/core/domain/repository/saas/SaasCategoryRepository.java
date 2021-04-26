@@ -18,9 +18,10 @@ public interface SaasCategoryRepository extends JpaRepository<SaasCategory, Long
                     "        JOIN\n" +
                     "    SaasInfo info ON payment.idxSaasInfo = info.idx\n" +
                     "WHERE\n" +
-                    "    payment.activeSubscription = 1\n" +
-                    "        AND payment.idxUser = :idxUser \n" +
+                    "        payment.idxUser = :idxUser \n" +
                     "        AND info.idxSaasCategory = :idxSaasCategory \n" +
+                    "        AND payment.activeSubscription = true\n" +
+                    "        AND payment.disabled = false \n" +
                     "GROUP BY idxSaasInfo", nativeQuery = true)
     List<SaasCategoryRepository.UseSaasByCategoryDto> getUseSaasByCategoryId(@Param("idxUser") Long idxUser,
                                                                              @Param("idxSaasCategory") Long idxSaasCategory);
@@ -30,5 +31,7 @@ public interface SaasCategoryRepository extends JpaRepository<SaasCategory, Long
         String getName();
         String getImageName();
     }
+
+
 
 }
