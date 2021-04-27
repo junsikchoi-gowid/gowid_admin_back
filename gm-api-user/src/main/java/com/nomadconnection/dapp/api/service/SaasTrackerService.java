@@ -175,19 +175,19 @@ public class SaasTrackerService {
 			if(!ObjectUtils.isEmpty(usageSums)) {
 				Map<String, Long> usageSumsMap = usageSums.stream().collect(Collectors.toMap(SaasPaymentHistoryRepository.UsageSumsDto::getPDate, SaasPaymentHistoryRepository.UsageSumsDto::getPSum));
 
-				String tempToDt = CommonUtil.addMonths(toDt, 1);
+				String tempToDt = CommonUtil.addMonths(toDt, 1, CommonUtil.DATE_FORMAT_yyyyMM);
 				while(!fromDt.equals(tempToDt)) {
 					SaasTrackerDto.UsageSumsByPaymentRes tempUsageSum = new SaasTrackerDto.UsageSumsByPaymentRes();
 					tempUsageSum.setPdate(fromDt);
 					tempUsageSum.setPsum(ObjectUtils.isEmpty(usageSumsMap.get(fromDt)) ? 0L : usageSumsMap.get(fromDt));
 					usageSumsByPaymentRes.add(tempUsageSum);
 
-					fromDt = CommonUtil.addMonths(fromDt, 1);
+					fromDt = CommonUtil.addMonths(fromDt, 1, CommonUtil.DATE_FORMAT_yyyyMM);
 				}
 
 				// 2. 예상 결제 금액(toDt, toDt+1) total :2
 				usageSumsByForecastList.add(this.getForecastPaymentAtMonth(userIdx, toDt, true));
-				usageSumsByForecastList.add(this.getForecastPaymentAtMonth(userIdx, CommonUtil.addMonths(toDt, 1), false));
+				usageSumsByForecastList.add(this.getForecastPaymentAtMonth(userIdx, CommonUtil.addMonths(toDt, 1, CommonUtil.DATE_FORMAT_yyyyMM), false));
 			}
 			usageSumsRes.setPaymentList(usageSumsByPaymentRes);
 			usageSumsRes.setForecastList(usageSumsByForecastList);
@@ -225,8 +225,10 @@ public class SaasTrackerService {
 
 	private Long getSaasUsageAvgAtMonth(Long idxUser, String dateYYYYMM, boolean isCurrent) {
 		try {
-			String searchFromDate = isCurrent ? CommonUtil.addMonths(dateYYYYMM, -3) : CommonUtil.addMonths(dateYYYYMM, -4);
-			String searchToDate = isCurrent ? CommonUtil.addMonths(dateYYYYMM, -1) : CommonUtil.addMonths(dateYYYYMM, -2);
+			String searchFromDate = isCurrent ? CommonUtil.addMonths(dateYYYYMM, -3, CommonUtil.DATE_FORMAT_yyyyMM)
+				: CommonUtil.addMonths(dateYYYYMM, -4, CommonUtil.DATE_FORMAT_yyyyMM);
+			String searchToDate = isCurrent ? CommonUtil.addMonths(dateYYYYMM, -1, CommonUtil.DATE_FORMAT_yyyyMM)
+				: CommonUtil.addMonths(dateYYYYMM, -2, CommonUtil.DATE_FORMAT_yyyyMM);
 			return repoSaasPaymentHistory.getUsageAvgAtMonth(idxUser, searchFromDate, searchToDate);
 		}catch(ParseException pe) {
 			log.error(pe.getMessage(), pe);
@@ -303,7 +305,7 @@ public class SaasTrackerService {
 		try {
 			for(int i = 0; i <= CommonUtil.subtractMonth(fromDt, toDt); i++) {
 
-				String tempMonth = i == 0 ? fromDt : CommonUtil.addMonths(fromDt, i);
+				String tempMonth = i == 0 ? fromDt : CommonUtil.addMonths(fromDt, i, CommonUtil.DATE_FORMAT_yyyyMM);
 
 				SaasTrackerDto.UsageCategoriesDetailsRes categoriesDetail = new SaasTrackerDto.UsageCategoriesDetailsRes();
 				categoriesDetail.setPdate(tempMonth);
@@ -373,7 +375,7 @@ public class SaasTrackerService {
 
 			List<SaasTrackerDto.UseSaasRes> subscriptionList = new ArrayList<>();
 			List<SaasTrackerDto.SaasMaxTop5Res> paymentRate = repoSaasPaymentHistory.getBestPaymentTop5(userIdx).stream().map(SaasTrackerDto.SaasMaxTop5Res::from).collect(Collectors.toList());
-			String nowYYYYMM = CommonUtil.addMonths(CommonUtil.getNowYYYYMM(), -1);
+			String nowYYYYMM = CommonUtil.addMonths(CommonUtil.getNowYYYYMM(), -1, CommonUtil.DATE_FORMAT_yyyyMM);
 
 			for(SaasPaymentInfoRepository.SubscriptSaasDto dto : repoSaasPaymentInfo.findAllSubscriptionByUser(user.idx(), nowYYYYMM + "01", nowYYYYMM + "31")) {
 				SaasTrackerDto.UseSaasRes res = SaasTrackerDto.UseSaasRes.from(dto);
@@ -645,7 +647,7 @@ public class SaasTrackerService {
 
 		try {
 
-			String fromDt = CommonUtil.addMonths(CommonUtil.getNowYYYYMM(), -11); // 1년 전(현재 3월이면.. 작년 4월)
+			String fromDt = CommonUtil.addMonths(CommonUtil.getNowYYYYMM(), -11, CommonUtil.DATE_FORMAT_yyyyMM); // 1년 전(현재 3월이면.. 작년 4월)
 			String toDt = CommonUtil.getNowYYYYMM(); // 현재 달(현재 3월이면.. 3월)
 
 			List<SaasPaymentHistoryRepository.UsageSumsDto> usageSums = (ObjectUtils.isEmpty(saasPaymentInfo)
@@ -658,7 +660,7 @@ public class SaasTrackerService {
 			List<SaasTrackerDto.UsageSumsByPaymentRes> usageSumsByPaymentList = new ArrayList<>();
 			for(int i = 11; i >= 0; i--) {
 
-				String tempMonth = CommonUtil.addMonths(toDt, -i);
+				String tempMonth = CommonUtil.addMonths(toDt, -i, CommonUtil.DATE_FORMAT_yyyyMM);
 
 				SaasTrackerDto.UsageSumsByPaymentRes res = new SaasTrackerDto.UsageSumsByPaymentRes();
 				Optional<SaasPaymentHistoryRepository.UsageSumsDto> tempMonthDto = usageSums.stream().filter(f -> f.getPDate().equals(tempMonth)).findFirst();
@@ -742,7 +744,11 @@ public class SaasTrackerService {
 		try {
 
 			SaasPaymentInfo paymentInfo = this.findSaasPaymentInfo(idxSaasPaymentInfo);
-			if(!ObjectUtils.isEmpty(req.getPaymentType())) paymentInfo.paymentType(req.getPaymentType());
+			if(!ObjectUtils.isEmpty(req.getPaymentType())) {
+				paymentInfo.paymentType(req.getPaymentType());
+				paymentInfo.paymentScheduleDate(this.getSchedulePaymentDate(req.getPaymentType(), paymentInfo.currentPaymentDate()));
+			}
+
 			paymentInfo.expirationDate(req.getExpirationDate());
 			paymentInfo.memo(req.getMemo());
 			if(!ObjectUtils.isEmpty(req.getDisabled())) paymentInfo.disabled(req.getDisabled());
@@ -789,8 +795,8 @@ public class SaasTrackerService {
 
 	private String getPaymentMomAtMonth(Long userIdx, Long saasInfoIdx, SaasPaymentInfo saasPaymentInfo, String date) throws ParseException {
 		return (ObjectUtils.isEmpty(saasPaymentInfo) ?
-				repoSaasPaymentHistory.getPaymentMomAtMonthAll(userIdx, saasInfoIdx, CommonUtil.addMonths(date, -1), date) :
-				repoSaasPaymentHistory.getPaymentMomAtMonth(userIdx, saasInfoIdx, CommonUtil.addMonths(date, -1), date, saasPaymentInfo.organization(), saasPaymentInfo.accountNumber(), saasPaymentInfo.cardNumber()));
+				repoSaasPaymentHistory.getPaymentMomAtMonthAll(userIdx, saasInfoIdx, CommonUtil.addMonths(date, -1, CommonUtil.DATE_FORMAT_yyyyMM), date) :
+				repoSaasPaymentHistory.getPaymentMomAtMonth(userIdx, saasInfoIdx, CommonUtil.addMonths(date, -1, CommonUtil.DATE_FORMAT_yyyyMM), date, saasPaymentInfo.organization(), saasPaymentInfo.accountNumber(), saasPaymentInfo.cardNumber()));
 	}
 
 	SaasPaymentInfo findSaasPaymentInfo(Long idx) {
@@ -842,5 +848,32 @@ public class SaasTrackerService {
 		return ResponseEntity.ok().body(
 				BusinessResponse.builder().data(resSaasInfos).build()
 		);
+	}
+
+	/**
+	 * SaaS 결제 예정일을 조회한다.
+	 *
+	 * @param paymentType
+	 * @param paymentDate
+	 * @return
+	 */
+	public static String getSchedulePaymentDate(Integer paymentType, String paymentDate) {
+		SaasPaymentType type = SaasPaymentType.getType(paymentType);
+
+		try {
+			switch (type) {
+				case YEARLY:
+					return CommonUtil.addMonths(paymentDate, 12, CommonUtil.DATE_FORMAT_yyyyMMdd);
+				case QUARTER:
+					return CommonUtil.addMonths(paymentDate, 3, CommonUtil.DATE_FORMAT_yyyyMMdd);
+				case MONTHLY:
+					return CommonUtil.addMonths(paymentDate, 1, CommonUtil.DATE_FORMAT_yyyyMMdd);
+				default:
+					return null;
+			}
+		} catch (ParseException pe) {
+			log.error(pe.getMessage(), pe);
+			return null;
+		}
 	}
 }

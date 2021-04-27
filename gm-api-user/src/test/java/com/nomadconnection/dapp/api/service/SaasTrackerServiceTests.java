@@ -146,4 +146,14 @@ class SaasTrackerServiceTests extends AbstractSpringBootTest {
 	void getSaasInfos() {
 		service.getSaasInfos();
 	}
+
+	@Test
+	@Order(13)
+	@DisplayName("SaaS 결제 정보 수정")
+	void updateSaasPaymentInfos() {
+		SaasTrackerDto.UpdateSaasPaymentInfoReq req = new SaasTrackerDto.UpdateSaasPaymentInfoReq();
+		req.setPaymentType(2);
+		service.updateSaasPaymentInfo(66L, 2078L, req);
+
+	}
 }

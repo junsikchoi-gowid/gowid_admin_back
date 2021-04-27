@@ -20,6 +20,9 @@ import java.util.*;
 @Slf4j
 public class CommonUtil {
 
+    public static final String DATE_FORMAT_yyyyMMdd = "yyyyMMdd";
+    public static final String DATE_FORMAT_yyyyMM = "yyyyMM";
+
     public static String getNowYYYYMMDD() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
     }
@@ -147,9 +150,9 @@ public class CommonUtil {
      * @param addMonths 추가할 월 수
      * @return
      */
-    public static String addMonths(String dateStr, int addMonths) throws ParseException {
+    public static String addMonths(String dateStr, int addMonths, String dateFormat) throws ParseException {
         Calendar cal = Calendar.getInstance();
-        DateFormat df = new SimpleDateFormat("yyyyMM");
+        DateFormat df = new SimpleDateFormat(dateFormat);
 
         try {
             Date date = df.parse(dateStr);
