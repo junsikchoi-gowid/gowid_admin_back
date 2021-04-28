@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @Data
@@ -266,6 +267,7 @@ public class 	ConnectedMngDto {
 	public static class CorpInfo {
 		@ApiModelProperty("업종")
 		@NotNull
+		@Pattern(regexp = "^[A-Z][0-9]{2,5}$")
 		private String resBusinessCode;
 
 		@ApiModelProperty("법인명(영문)")

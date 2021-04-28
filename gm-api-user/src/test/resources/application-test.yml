@@ -132,6 +132,13 @@ quotabook:
   rounding-url: /external/rounding
   api-key: testApiKey
 
+expense:
+  domain-url: https://stg-expense-auth.gowid.com
+  user-url: /user
+  status-url: /admin/corporations
+  api-key: expapisvR2021!
+  access-key: 94d5e8d4-92a3-11eb-a8b3-0242ac130003
+
 encryption:
   keypad:
     enable: true

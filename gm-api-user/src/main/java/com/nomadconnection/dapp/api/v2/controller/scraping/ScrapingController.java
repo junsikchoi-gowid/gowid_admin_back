@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.validation.Valid;
+
 @Slf4j
 @RestController("ScrapingV2Controller")
 @CrossOrigin(allowCredentials = "true")
@@ -51,7 +53,7 @@ public class ScrapingController {
 	@PostMapping("/account/register/corp")
 	public ApiResponse<?> scrapFinancialStatements(
 		@ApiIgnore @CurrentUser CustomUser user,
-		@RequestBody ConnectedMngDto.CorpInfo dto
+		@Valid @RequestBody ConnectedMngDto.CorpInfo dto
 	) throws Exception {
 		if (log.isInfoEnabled()) {
 			log.info("([ scrapFinancialStatements ]) $user='{}', $dto='{}'", user, dto);
