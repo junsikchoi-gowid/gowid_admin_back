@@ -119,7 +119,7 @@ public class ResumeService {
     public void updateIssuanceStatus(CardIssuanceDto.ResumeReq request) {
         D1200 d1200 = d1200Service.getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
         CardIssuanceInfo cardIssuanceInfo = d1200.getCardIssuanceInfo();
-        cardIssuanceInfo.updateIssuanceStatus(IssuanceStatus.ISSUED);
+        cardIssuanceInfoService.updateIssuanceStatus(cardIssuanceInfo.idx(), IssuanceStatus.ISSUED);
     }
 
     private void sendApprovedEmail(CardIssuanceDto.ResumeReq request, long corpIdx, CardType cardType) {
