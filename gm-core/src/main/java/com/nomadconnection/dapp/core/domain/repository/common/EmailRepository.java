@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EmailRepository extends JpaRepository<Corp, String> {
 
-	@Query("select new com.nomadconnection.dapp.core.dto.EmailDto(c.resCompanyIdentityNo, c.resCompanyNm, ci.hopeLimit, ci.grantLimit, u.email) " +
+	@Query("select new com.nomadconnection.dapp.core.dto.EmailDto(c.resCompanyIdentityNo, c.resCompanyNm, ci.card.hopeLimit, ci.card.grantLimit, u.email) " +
 			" from Corp c, CardIssuanceInfo ci, User u" +
 			" where replace(c.resCompanyIdentityNo,'-','') = :licenseNo " +
 			"  and c.idx = ci.corp " +
