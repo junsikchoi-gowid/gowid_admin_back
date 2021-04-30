@@ -28,7 +28,7 @@ import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRe
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResBatchListRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResConCorpListRepository;
-import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
+import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResBatchList;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
 import com.nomadconnection.dapp.core.domain.user.User;

@@ -3,7 +3,7 @@ package com.nomadconnection.dapp.api.v2.controller.admin;
 import com.nomadconnection.dapp.api.v2.service.admin.AdminCertService;
 import com.nomadconnection.dapp.core.annotation.ApiPageable;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
-import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
+import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;

@@ -32,6 +32,7 @@ public class LimitRecalculation extends BaseTime {
 	@Column(columnDefinition = "varchar(20) DEFAULT 'REQUESTED' COMMENT '심사상태'", nullable = false)
 	private ReviewStatus reviewStatus;
 
+	@Builder.Default
 	@OneToMany(mappedBy = "limitRecalculation")
 	private List<LimitRecalculationHistory> limitRecalculationHistories = new ArrayList<>();
 

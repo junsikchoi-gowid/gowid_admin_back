@@ -27,6 +27,7 @@ public class ResBatchList extends BaseTime {
     private String account;
     private String connectedId;
     private Long idxUser;
+    private Long idxCorp;
     private Long idxResBatch;
     private ResBatchType resBatchType; // account, history
     private String startDate;

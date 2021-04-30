@@ -64,7 +64,7 @@ public class User extends BaseTime {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "FK_Corp_User"))
-	private Corp corp; // 소속법인
+	private Corp corp;
 
 	@Embedded
 	private UserProfileResx profileResx;

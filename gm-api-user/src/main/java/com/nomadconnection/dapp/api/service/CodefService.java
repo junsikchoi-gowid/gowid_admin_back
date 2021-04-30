@@ -13,7 +13,7 @@ import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResConCorpListRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
+import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -32,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -65,18 +62,11 @@ public class CodefService {
 
 		connectedMng.forEach(mngItem->{
 					String connId = mngItem.connectedId();
-
-					JSONParser jsonParse = new JSONParser();
-
 					for (String s : CommonConstant.LISTBANK) {
 						JSONObject[] strResult = new JSONObject[0];
 						try {
 							strResult = getApiResult(KR_BK_1_B_001.krbk1b001(connId, s));
-						} catch (ParseException e) {
-							e.printStackTrace();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						} catch (IOException e) {
+						} catch (Exception e) {
 							e.printStackTrace();
 						}
 
@@ -89,8 +79,8 @@ public class CodefService {
 							JSONArray jsonArrayResFund = (JSONArray) jsonData.get("resFund");
 							JSONArray jsonArrayResLoan = (JSONArray) jsonData.get("resLoan");
 
-							jsonArrayResDepositTrust.forEach(item -> {
-								JSONObject obj = (JSONObject) item;
+							for(Object objTrust : jsonArrayResDepositTrust){
+								JSONObject obj = (JSONObject) objTrust;
 								Optional<ResAccount> idxLongTemp = repoResAccount.findTopByResAccount(obj.get("resAccount").toString());
 								Long idxTemp = null;
 								if(idxLongTemp.isPresent()){
@@ -98,7 +88,11 @@ public class CodefService {
 								}
 								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
 
-								if(!repoResAccount.findTopByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
+								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+									startDate = obj.get("resAccountStartDate").toString();
+								}
+
+								if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
 									repoResAccount.save(ResAccount.builder()
 											.idx(idxTemp)
 											.connectedId(connId)
@@ -118,7 +112,7 @@ public class CodefService {
 											.build()
 									);
 								}
-							});
+							}
 
 							jsonArrayResLoan.forEach(item -> {
 								JSONObject obj = (JSONObject) item;
@@ -128,7 +122,10 @@ public class CodefService {
 									idxTemp = idxLongTemp.get().idx();
 								}
 								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
-								if(!repoResAccount.findTopByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
+								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+									startDate = obj.get("resAccountStartDate").toString();
+								}
+								if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
 									repoResAccount.save(ResAccount.builder()
 											.idx(idxTemp)
 											.connectedId(connId)
@@ -158,7 +155,10 @@ public class CodefService {
 									idxTemp = idxLongTemp.get().idx();
 								}
 								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
-								if(!repoResAccount.findTopByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
+								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+									startDate = obj.get("resAccountStartDate").toString();
+								}
+								if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()) {
 									repoResAccount.save(ResAccount.builder()
 											.idx(idxTemp)
 											.connectedId(connId)
@@ -188,7 +188,10 @@ public class CodefService {
 									idxTemp = idxLongTemp.get().idx();
 								}
 								String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0,6).concat("01");
-								if(!repoResAccount.findTopByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
+								if(!obj.get("resAccountStartDate").toString().isEmpty()) {
+									startDate = obj.get("resAccountStartDate").toString();
+								}
+								if(!repoResAccount.findByConnectedIdAndResAccount(connId, obj.get("resAccount").toString()).isPresent()){
 									repoResAccount.save(ResAccount.builder()
 											.idx(idxTemp)
 											.connectedId(connId)
@@ -322,11 +325,6 @@ public class CodefService {
 
 		User user = repoUser.findById(idxUser).orElseThrow(() -> UserNotFoundException.builder().build());
 
-		Long idxCorp =  0L;
-		if(user.corp() != null && user.corp().idx() != null){
-			idxCorp = user.corp().idx();
-		}
-
 		BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
 		HashMap<String, Object> bodyMap = new HashMap<>();
 		List<HashMap<String, Object>> list = new ArrayList<>();
@@ -336,11 +334,11 @@ public class CodefService {
 
 		for( String bank : CommonConstant.LISTBANK){
 			accountMap1 = new HashMap<>();
-			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);  // 국가코드
-			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);  // 업무구분코드
-			accountMap1.put("clientType",  	"B");   // 고객구분(P: 개인, B: 기업)
-			accountMap1.put("organization",	bank);// 기관코드
-			accountMap1.put("loginType",  	"0");   // 로그인타입 (0: 인증서, 1: ID/PW)
+			accountMap1.put("countryCode",	CommonConstant.COUNTRYCODE);
+			accountMap1.put("businessType",	CommonConstant.BUSINESSTYPE);
+			accountMap1.put("clientType",  	"B");
+			accountMap1.put("organization",	bank);
+			accountMap1.put("loginType",  	"0");
 			accountMap1.put("password",  	RSAUtil.encryptRSA(dto.getPassword1(), CommonConstant.PUBLIC_KEY));
 			accountMap1.put("certType",     CommonConstant.CERTTYPE);
 			accountMap1.put("certFile",     dto.getCertFile());
@@ -371,7 +369,7 @@ public class CodefService {
 					.endDate(dto.getEndDate())
 					.desc1(dto.getDesc1())
 					.desc2(dto.getDesc2())
-					.idxCorp(idxCorp)
+					.corp(user.corp())
 					.issuer(dto.getIssuer())
 					.serialNumber(dto.getSerial())
 					.status(ConnectedMngStatus.NORMAL)

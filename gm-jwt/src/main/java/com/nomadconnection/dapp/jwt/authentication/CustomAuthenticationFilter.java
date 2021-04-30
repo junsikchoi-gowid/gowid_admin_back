@@ -51,7 +51,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		if(!API_KEY.equals(apikey) && !EXPENSE_API_KEY.equals(apikey)) {
-			throw new UnauthorizedException("Invalid api key");
+			throw new UnauthorizedException();
 		}
 		return true;
 	}

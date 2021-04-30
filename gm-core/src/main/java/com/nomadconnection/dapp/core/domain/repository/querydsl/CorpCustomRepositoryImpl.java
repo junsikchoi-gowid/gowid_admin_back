@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.QCardIssuanceInfo;
+import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.common.QConnectedMng;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.corp.QCorp;
@@ -17,6 +18,7 @@ import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 import java.time.LocalDate;
@@ -166,4 +168,6 @@ public class CorpCustomRepositoryImpl extends QuerydslRepositorySupport implemen
 
         return new PageImpl(list, pageable, query.fetchCount());
     }
+
+
 }

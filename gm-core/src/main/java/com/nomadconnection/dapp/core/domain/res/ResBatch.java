@@ -22,8 +22,7 @@ public class ResBatch extends BaseTime {
     @Column(nullable = false, updatable = false)
     private Long idx;
     private Long idxUser;
+    private Long idxCorp;
     private boolean endFlag;
-
-
 
 }

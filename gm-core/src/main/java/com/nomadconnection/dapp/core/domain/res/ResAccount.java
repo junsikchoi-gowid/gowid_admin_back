@@ -2,10 +2,14 @@ package com.nomadconnection.dapp.core.domain.res;
 
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
+import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @Accessors(fluent = true)
@@ -65,4 +69,18 @@ public class ResAccount extends BaseTime {
     private String resPrincipal;// 대출원금
     private String resDatePayment;// 다음이자납입일
     private String resState;// 연체여부
+
+    @Column(columnDefinition = "bit(1) DEFAULT TRUE COMMENT '즐겨찾기 보유여부'")
+    private Boolean favorite;
+
+    @Column(columnDefinition = "DATETIME default 99991231010101 comment '즐겨찾기 수정시간'")
+    private LocalDateTime favoriteDate;
+
+    //todo 향후 연결처리해줘야함
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idxConnectedMng",
+            foreignKey = @ForeignKey(name = "FK_ConnectedMng_ResAccount"),
+            columnDefinition = "bigint(20) COMMENT '인증서 idx'",
+            nullable = true)
+    private ConnectedMng connectedMng;
 }

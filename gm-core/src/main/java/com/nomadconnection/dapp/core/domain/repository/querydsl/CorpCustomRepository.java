@@ -155,4 +155,7 @@ public interface CorpCustomRepository {
     }
 
     Page<ScrapCorpListDto> scrapCorpList(ScrapCorpDto dto, Pageable pageable);
+
+
+
 }

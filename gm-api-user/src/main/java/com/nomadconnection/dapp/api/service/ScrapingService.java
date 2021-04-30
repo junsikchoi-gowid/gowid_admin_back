@@ -19,6 +19,7 @@ import com.nomadconnection.dapp.codef.io.sandbox.st.KR_ST_1_S_002;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.*;
 import com.nomadconnection.dapp.core.domain.repository.saas.SaasTrackerProgressRepository;

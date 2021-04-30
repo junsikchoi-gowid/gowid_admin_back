@@ -37,7 +37,7 @@ import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_GatewayTransa
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
+import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.shinhan.D1000;
 import com.nomadconnection.dapp.core.domain.user.User;

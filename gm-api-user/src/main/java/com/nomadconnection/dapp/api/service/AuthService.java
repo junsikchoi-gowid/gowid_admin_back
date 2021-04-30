@@ -7,7 +7,7 @@ import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.res.ConnectedMngRepository;
+import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.user.Authority;
 import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -204,12 +204,12 @@ public class AuthService {
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 		boolean signMapping = false;
-		if(idxCorp != null & repoConnectedMng.findByIdxCorp(idxCorp).size() > 0 ){
+		if(idxCorp != null & repoConnectedMng.findByCorp(user.corp()).size() > 0 ){
 			signMapping = true;
 		}
 
 		boolean refreshMapping = true;
-		if(idxCorp != null & repoConnectedMng.findRefresh(idxCorp) > 0 ){
+		if(idxCorp != null & repoConnectedMng.findRefresh(user.corp().idx()) > 0 ){
 			refreshMapping = false;
 		}
 

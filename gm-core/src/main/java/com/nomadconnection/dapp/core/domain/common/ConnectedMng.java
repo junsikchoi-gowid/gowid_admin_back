@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.core.domain.common;
 
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import lombok.*;
 import lombok.experimental.Accessors;
 
@@ -28,7 +29,14 @@ public class ConnectedMng extends BaseTime {
 	@Column(nullable = false)
 	private Long idxUser;
 
-	private Long idxCorp;
+	//todo 향후 연결처리해줘야함
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "idxCorp",
+			foreignKey = @ForeignKey(name = "FK_Corp_ConnectedMng"),
+			columnDefinition = "bigint(20) COMMENT '법인 idx'",
+			nullable = true)
+	private Corp corp;
+
 	private String name;
 	private String startDate;
 	private String endDate;

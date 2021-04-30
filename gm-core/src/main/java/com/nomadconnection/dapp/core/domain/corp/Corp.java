@@ -43,6 +43,7 @@ public class Corp extends BaseTime {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "corp")
     private LimitRecalculation limitRecalculation;
 
+    @Builder.Default
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "corp")
     private List<CardIssuanceInfo> cardIssuanceInfo = new ArrayList<>();
 

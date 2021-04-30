@@ -1,7 +1,9 @@
-package com.nomadconnection.dapp.core.domain.res;
+package com.nomadconnection.dapp.core.domain.repository.connect;
 
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.domain.repository.querydsl.ConnectedMngCustomRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,27 +11,18 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long>{
-
-	@Transactional
-	@Modifying
-	@Query("delete from ConnectedMng c where c.connectedId = :connectedId")
-	int deleteConnectedQuery(@Param("connectedId") String connectedId);
-
+public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long>, ConnectedMngCustomRepository {
 	@Deprecated
 	List<ConnectedMng> findByIdxUser(Long idxUser);
-
-	List<ConnectedMng> findByIdxCorp(Long idxCorp);
 
 	List<ConnectedMng> findByIdxUserAndStatusInOrderByCreatedAtDesc(Long idxUser, List<ConnectedMngStatus> connectedMngStatusList);
 
 	Optional<ConnectedMng> findByIdxAndIdxUser(Long idx, Long idxUser);
-
-	Optional<ConnectedMng> findTopByIdxUserAndType(Long idxUser, String type);
 
 	@Query(value = "select c.* FROM ConnectedMng c where c.idxUser = :idxUser order by createdAt " ,nativeQuery = true)
 	List<ConnectedMngDto> findIdxUser(@Param("idxUser")Long idxUser);
@@ -39,10 +32,6 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 
 	@Query(value = "select count(idx) from ResAccount where connectedId in ( select connectedId from ConnectedMng where idxUser = :idxUser)" ,nativeQuery = true)
 	Integer findResAccountCount(@Param("idxUser")Long idxUser);
-
-	Optional<ConnectedMng> findByConnectedIdAndIdxUser(String connectedId, Long idxUser);
-
-	List<ConnectedMng> findByIdxUserAndType(Long idxUser, String type);
 
     interface ConnectedMngDto {
 		Long getIdx();
@@ -60,5 +49,8 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 	@Modifying
 	@Query("delete from ConnectedMng  where idxuser = :idxUser")
 	void deleteAllByUserIdx(@Param("idxUser") Long idxUser);
+
+    List<ConnectedMng> findByCorp(Corp corp);
+
 
 }
