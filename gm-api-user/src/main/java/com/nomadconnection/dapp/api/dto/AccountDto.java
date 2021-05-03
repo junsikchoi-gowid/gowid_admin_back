@@ -20,7 +20,7 @@ public class AccountDto {
 
 	@Override
 	public String toString() {
-		return String.format("AccountDto(email='%s', password='********')", email);
+		return String.format("%s(email='%s', password='********')", getClass().getSimpleName(), email);
 	}
 
 	@Data

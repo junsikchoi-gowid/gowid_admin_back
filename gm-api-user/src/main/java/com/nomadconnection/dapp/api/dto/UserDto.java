@@ -73,6 +73,11 @@ public class UserDto {
 
 		@ApiModelProperty("인증코드(4 digits, 초대된 멤버인 경우에만)")
 		private String verificationCode;
+
+		@Override
+		public String toString() {
+			return String.format("%s(email=%s, password=********)", getClass().getSimpleName(), email);
+		}
 	}
 
 	@Data
@@ -91,6 +96,11 @@ public class UserDto {
 
 		@ApiModelProperty("멤버역할")
 		private Role role;
+
+		@Override
+		public String toString() {
+			return String.format("%s(email=%s, password=********)", getClass().getSimpleName(), email);
+		}
 	}
 
 	@Data
@@ -127,6 +137,11 @@ public class UserDto {
 
 		@ApiModelProperty("이벤트 명")
 		private String eventName;
+
+		@Override
+		public String toString() {
+			return String.format("%s(email=%s, password=********)", getClass().getSimpleName(), email);
+		}
 	}
 
 	@Data
@@ -262,7 +277,13 @@ public class UserDto {
 
 		@ApiModelProperty("탈퇴사유")
 		private String reason;
+
+		@Override
+		public String toString() {
+			return String.format("%s(reason=%s, password=********)", getClass().getSimpleName(), reason);
 	}
+
+}
 
 	@Data
 	@Builder

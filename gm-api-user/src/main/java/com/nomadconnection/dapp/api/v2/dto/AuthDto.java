@@ -43,5 +43,10 @@ public class AuthDto {
 	public static class PasswordSync {
 		@ApiModelProperty("비밀번호")
 		private String password;
+
+		@Override
+		public String toString() {
+			return String.format("%s(password=********)", getClass().getSimpleName());
+		}
 	}
 }

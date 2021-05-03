@@ -140,6 +140,10 @@ public class UserService {
 	@Transactional(rollbackFor = Exception.class)
 	public UserDto addMember(Long idxAdminUser, UserDto.MemberRegister member) {
 		Long idxCorp = getCorpIdx(idxAdminUser);
+
+		if(idxCorp == null) {
+			throw new BadRequestException(ErrorCode.Api.CORP_IS_NOT_REGISTERED);
+		}
 		User adminUser = getUser(idxAdminUser);
 
 		try {
@@ -157,6 +161,7 @@ public class UserService {
 					.consent(false)
 					.email(member.getEmail())
 					.password(encoder.encode(plainPassword))
+					.hasTmpPassword(true)
 					.name(member.getName())
 					.mdn(null)
 					.reception(new UserReception(false, false))
@@ -244,11 +249,10 @@ public class UserService {
 				surveyService.deleteAnswer(targetUser, surveyDto);
 			} catch(Exception e) {
 			} finally {
-				repoAuthority.deleteAll(targetUser.authorities());
+				targetUser.authorities().clear();
 				repoUser.delete(targetUser);
 				return true;
 			}
-
 		} catch (Exception e) {
 			log.error("[removeMember] $ERROR({}): {}", e.getClass().getSimpleName(), e.getMessage());
 			return false;

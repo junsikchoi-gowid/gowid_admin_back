@@ -38,21 +38,6 @@ public class BrandDto {
         private CardCompany companyCode;
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class PasswordPre {
-
-        @ApiModelProperty("인증번호")
-        private String code;
-
-        @ApiModelProperty("email")
-        private String email;
-
-        @ApiModelProperty("비밀번호")
-        private String password;
-    }
 
     @Data
     @Builder

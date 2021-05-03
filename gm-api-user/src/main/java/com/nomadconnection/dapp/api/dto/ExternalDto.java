@@ -25,4 +25,9 @@ public class ExternalDto {
 
     @ApiModelProperty("검색기간 to ")
     private String to;
+
+    @Override
+    public String toString() {
+        return String.format("%s(email=%s, password=********)", getClass().getSimpleName(), email);
+    }
 }

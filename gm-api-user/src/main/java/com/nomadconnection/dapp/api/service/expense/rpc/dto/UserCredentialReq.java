@@ -12,4 +12,8 @@ import lombok.Setter;
 public class UserCredentialReq {
     String newEmail;
     String password;
+
+    @Override
+    public String toString() {
+        return String.format("%s(newMail=%s, password=********)", getClass().getSimpleName(), newEmail);    }
 }

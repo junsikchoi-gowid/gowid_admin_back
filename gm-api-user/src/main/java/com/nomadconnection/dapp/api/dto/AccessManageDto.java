@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
-import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
 import io.swagger.annotations.ApiModelProperty;
@@ -122,42 +121,6 @@ public class AccessManageDto {
 					.status(dto.status())
 					.build();
 		}
-	}
-
-	@Data
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public static class Account{
-		@ApiModelProperty("idx")
-		private Long idx;
-
-		@ApiModelProperty("패스워드")
-		private String password1;
-
-		@ApiModelProperty("인증서이름")
-		private String name;
-
-		@ApiModelProperty("발급일")
-		private String startDate;
-
-		@ApiModelProperty("만료일")
-		private String endDate;
-
-		@ApiModelProperty("설명1.")
-		private String desc1;
-
-		@ApiModelProperty("설명2.")
-		private String desc2;
-
-		@ApiModelProperty("certFile")
-		private String certFile;
-
-		@ApiModelProperty("기관정보")
-		private String corpCode;
-
-		@ApiModelProperty("인증서 타입")
-		private CommonCodeType type;
 	}
 
 	@Data
