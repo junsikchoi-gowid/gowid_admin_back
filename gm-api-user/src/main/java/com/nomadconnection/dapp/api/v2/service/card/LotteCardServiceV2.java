@@ -14,11 +14,8 @@ import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.CorpService;
 import com.nomadconnection.dapp.api.service.lotte.rpc.LotteGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
-import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
-import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
-import com.nomadconnection.dapp.core.domain.consent.ConsentMapping;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1000;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1100;
@@ -27,6 +24,7 @@ import com.nomadconnection.dapp.core.domain.lotte.Lotte_GatewayTransactionIdx;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.StockholderFileRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
+import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CeoInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
@@ -37,7 +35,6 @@ import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_GatewayTransa
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskConfigRepository;
 import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.shinhan.D1000;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -271,10 +268,6 @@ public class LotteCardServiceV2 {
             repoD1200.save(Lotte_D1200.builder().idxCorp(userCorp.idx()).build());
             return StatusDto.builder().status(LotteUserStatus.SUCCESS).build();
         } else if ("N".equals(resultOfD1000.getBzNewYn())) {
-            Lotte_D1100 d1100 = repoD1100.getTopByIdxCorpOrderByIdxDesc(userCorp.idx());
-            if (d1100 == null && CardCompany.LOTTE.equals(userCorp.user().cardCompany())) {
-                deleteAllIssuanceInfo(userCorp.user());
-            }
             return StatusDto.builder().status(LotteUserStatus.FAIL).build();
         } else {
             String msg = "bzNewYn is not Y/N. resultOfD1000.getBzNewYn() = " + resultOfD1000.getBzNewYn();
@@ -326,49 +319,6 @@ public class LotteCardServiceV2 {
 
         long tmpTranId = 30000000000L + gatewayTransactionIdx.getIdx();
         return "0" + tmpTranId;     // 030000000001
-    }
-
-    // UserService.initUser와 흡사
-    private void deleteAllIssuanceInfo(User user) {
-        Corp corp = user.corp();
-
-        repoUser.saveAndFlush(user.corp(null).cardCompany(null));
-        log.debug("Complete update gowid.User set idxCorp = null, cardCompany = null where idxCorp = @idxCorp");
-
-        {
-            List<Long> cardIssuanceInfoIdx = repoCardIssuanceInfo.findAllIdxByUserIdx(user.idx());
-            repoCeoInfo.deleteAllByCardIssuanceInfoIdx(cardIssuanceInfoIdx);
-            log.debug("Complete delete FROM gowid.CeoInfo where idxCardIssuanceInfo = @idxCardIssuanceInfo");
-
-            repoFile.deleteAllByCardIssuanceInfoIdx(cardIssuanceInfoIdx);
-            log.debug("Complete delete FROM gowid.StockholderFile where idxCardIssuanceInfo = @idxCardIssuanceInfo");
-
-            repoCardIssuanceInfo.deleteAllByUserIdx(user.idx());
-            log.debug("Complete delete from gowid.CardIssuanceInfo where idxUser = @idxUser");
-        }
-
-        List<ConnectedMng> connectedMng = repoConnectedMng.findByIdxUser(user.idx());
-        if (!ObjectUtils.isEmpty(connectedMng)) {
-            repoConnectedMng.deleteInBatch(repoConnectedMng.findByIdxUser(user.idx()));
-            repoConnectedMng.flush();
-        }
-        log.debug("Complete delete from gowid.ConnectedMng where idxUser = @idxUser");
-
-        List<ConsentMapping> consentMappings = repoConsentMapping.findAllByIdxUser(user.idx());
-        if (!ObjectUtils.isEmpty(consentMappings)) {
-            repoConsentMapping.deleteInBatch(consentMappings);
-            repoConsentMapping.flush();
-        }
-        log.debug("Complete delete from gowid.ConsentMapping where idxUser = @idxUser");
-
-        repoRisk.deleteByCorpIdx(corp.idx());
-        log.debug("Complete delete from gowid.Risk where idxCorp = @idxCorp");
-
-        repoRiskConfig.deleteByCorpIdx(corp.idx());
-        log.debug("Complete delete from gowid.RiskConfig where idxCorp = @idxCorp");
-
-        repoCorp.deleteCorpByIdx(corp.idx());
-        log.debug("Complete delete from gowid.Corp where idx = @idxCorp");
     }
 
     public Lotte_D1100 updateD1100Limit(User user, String grantLimit, String hopeLimit) {
