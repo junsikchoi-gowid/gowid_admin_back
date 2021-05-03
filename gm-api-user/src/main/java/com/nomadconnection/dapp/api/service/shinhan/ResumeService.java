@@ -90,6 +90,7 @@ public class ResumeService {
         asyncService.run(() -> procResume(request, cardIssuanceInfo.cardType()));
 
         log.debug("## response 1600 => " + response.toString());
+        updateIssuanceStatus(request);
 
         return response;
     }
@@ -116,10 +117,10 @@ public class ResumeService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void updateIssuanceStatus(CardIssuanceDto.ResumeReq request) {
+    public CardIssuanceInfo updateIssuanceStatus(CardIssuanceDto.ResumeReq request) {
         D1200 d1200 = d1200Service.getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
         CardIssuanceInfo cardIssuanceInfo = d1200.getCardIssuanceInfo();
-        cardIssuanceInfoService.updateIssuanceStatus(cardIssuanceInfo.idx(), IssuanceStatus.ISSUED);
+        return cardIssuanceInfoService.updateIssuanceStatus(cardIssuanceInfo.idx(), IssuanceStatus.ISSUED);
     }
 
     private void sendApprovedEmail(CardIssuanceDto.ResumeReq request, long corpIdx, CardType cardType) {
@@ -193,7 +194,6 @@ public class ResumeService {
 
         shinhanGwRpc.request1800(requestRpc, idxUser);
 
-        updateIssuanceStatus(request);
         log.debug("## 1800 end");
     }
 
