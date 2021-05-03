@@ -13,4 +13,9 @@ public class UserSyncReq {
 
     private String email;
     private String password;
+
+    @Override
+    public String toString() {
+        return String.format("%s(email=%s, password=********)", getClass().getSimpleName(), email);
+    }
 }

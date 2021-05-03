@@ -74,7 +74,7 @@ public class AuthController {
     @PostMapping(URI.CHANGE_PASSWORD_BEFORE_LOGIN)
     public ResponseEntity changePasswordPre(
         @RequestBody AuthDto.PasswordBeforeLogin dto) {
-        log.info("([ passwordPre ]) $dto={}", dto);
+        log.info("([ passwordBefore ]) $dto={}", dto);
         return authService.changePasswordBeforeLogin(dto);
     }
 

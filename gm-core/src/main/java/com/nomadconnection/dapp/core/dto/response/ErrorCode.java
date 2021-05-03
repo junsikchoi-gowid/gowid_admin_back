@@ -161,6 +161,7 @@ public class ErrorCode {
 		ALREADY_EXIST("ALREADY_EXIST", "already exist"),
 		CORP_NOT_BUSINESS("CORP_NOT_BUSINESS", "corp is not business"),
 		CORP_NOT_MATCHED("CORP_NOT_MATCHED", "corp is not matched"),
+		CORP_IS_NOT_REGISTERED("CORP_IS_NOT_REGISTERED", "corp is not registered"),
 		SURVEY_ALREADY_EXIST("ALREADY_EXIST", "user survey already exist"),
 		RECALCULATION_ALREADY_EXIST("RECALCULATION_ALREADY_EXIST", "The corp has already requested it on that date."),
 		RECALCULATION_ALREADY_REVIEWING("RECALCULATION_ALREADY_REVIEWING", "It's already under review."),
