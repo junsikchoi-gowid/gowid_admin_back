@@ -209,13 +209,13 @@ public class AuthService {
 		}
 
 		boolean refreshMapping = true;
-		if(idxCorp != null & repoConnectedMng.findRefresh(user.corp().idx()) > 0 ){
+		if(idxCorp != null & repoConnectedMng.findRefresh(idxCorp) > 0 ){
 			refreshMapping = false;
 		}
 
 		return AuthDto.AuthInfo.builder()
 				.idx(user.idx())
-				.idxCorp(user.corp() != null ? user.corp().idx() : null)
+				.idxCorp(user.corp() != null ? idxCorp : null)
 				.email(user.email())
 				.name(user.name())
 				.mdn(user.mdn())
