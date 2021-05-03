@@ -12,14 +12,13 @@ import java.util.Optional;
 
 public interface FlowTagMonthRepository extends JpaRepository<FlowTagMonth, Long> {
 
-    @Query(" select new com.nomadconnection.dapp.core.dto.flow.FlowReportExcelDto" +
-            "( ftc.codeLv1, ftc.codeLv2, ftc.codeLv3, ftc.codeLv4, ftm.flowDate, ftm.flowTotal ) " +
+    @Query(" select new com.nomadconnection.dapp.core.dto.flow.FlowReportExcelDto(ftc.codeLv1, ftc.codeLv2, ftc.codeLv3, ftc.codeLv4, ftm.flowDate, ftm.flowTotal ) " +
             " from Corp c " +
-            " left join FlowTagMonth ftm on c.idx = ftm.idxCorp " +
-            " left join FlowTagConfig ftc on ftm.idxFlowTag = ftc.idx " +
+            " left join FlowTagMonth ftm on c.idx = ftm.corp " +
+            " left join FlowTagConfig ftc on ftc.idx = ftm.flowTagConfig " +
             " where c.idx = :idxCorp " +
             " and ftm.flowDate BETWEEN substr( :fromDate, 1, 6) and substr( :toDate, 1, 6) " +
-            " order by ftm.flowDate asc, ftc.codeLv1 desc, ftc.codeLv2 desc, ftc.codeLv3 desc, ftc.codeLv4 desc ")
+            " order by ftc.codeLv1 desc, ftc.codeLv2 desc, ftc.codeLv3 desc, ftc.codeLv4 desc ")
     List<FlowReportExcelDto> findByCorpAndFlowDateBetween(@Param("idxCorp") Long idxCorp
             , @Param("fromDate") String fromDate
             , @Param("toDate") String toDate);

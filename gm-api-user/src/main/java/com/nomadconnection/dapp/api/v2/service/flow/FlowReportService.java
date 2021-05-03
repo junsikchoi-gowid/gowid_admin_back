@@ -164,7 +164,22 @@ public class FlowReportService {
             throw new DuplicatedException("duplicated codeLv4 = " + dto.codeLv4);
         }
 
-        FlowTagConfig flowTagConfig = repoFlowTagConfig.save(FlowTagConfig.of(FlowDto.FlowTagConfigDto.of(dto), corp));
+        FlowTagConfig flowTagConfig = repoFlowTagConfig.save(
+                        FlowTagConfig.builder()
+                                .corp(corp)
+                                .flowCode(dto.flowCode)
+                                .code1(dto.code1)
+                                .code2(dto.code2)
+                                .code3(dto.code3)
+                                .code4(dto.code4)
+                                .codeLv1(dto.codeLv1)
+                                .codeLv2(dto.codeLv2)
+                                .codeLv3(dto.codeLv3)
+                                .codeLv4(dto.codeLv4)
+                                .codeDesc(dto.codeDesc)
+                                .tagOrder(dto.tagOrder)
+                                .enabled(dto.enabled)
+                                .build());
 
         return FlowDto.FlowTagConfigDto.builder().idx(flowTagConfig.idx()).build();
     }

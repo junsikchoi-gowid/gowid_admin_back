@@ -2,7 +2,7 @@ package com.nomadconnection.dapp.core.domain.flow;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
-import com.nomadconnection.dapp.core.dto.flow.flowTagConfigDto;
+import com.nomadconnection.dapp.core.dto.flow.FlowTagConfigDto;
 import lombok.*;
 import lombok.experimental.Accessors;
 
@@ -70,21 +70,21 @@ public class FlowTagConfig extends BaseTime {
     @Column(columnDefinition = "smallint DEFAULT 0 COMMENT 'tag 순서'")
     private Integer tagOrder;
 
-    public static FlowTagConfig of(flowTagConfigDto.flowTagConfig dto, Corp corp) {
+    public static FlowTagConfig of(FlowTagConfig dto, Corp corp) {
         return FlowTagConfig.builder()
                 .corp(corp)
-                .flowCode(dto.getFlowCode())
-                .code1(dto.getCode1())
-                .code2(dto.getCode2())
-                .code3(dto.getCode3())
-                .code4(dto.getCode4())
-                .codeLv1(dto.getCodeLv1())
-                .codeLv2(dto.getCodeLv2())
-                .codeLv3(dto.getCodeLv3())
-                .codeLv4(dto.getCodeLv4())
-                .codeDesc(dto.getCodeDesc())
-                .tagOrder(dto.getTagOrder())
-                .enabled(dto.getEnabled())
+                .flowCode(dto.flowCode())
+                .code1(dto.code1())
+                .code2(dto.code2())
+                .code3(dto.code3())
+                .code4(dto.code4())
+                .codeLv1(dto.codeLv1())
+                .codeLv2(dto.codeLv2())
+                .codeLv3(dto.codeLv3())
+                .codeLv4(dto.codeLv4())
+                .codeDesc(dto.codeDesc())
+                .tagOrder(dto.tagOrder())
+                .enabled(dto.enabled())
                 .build();
     }
 

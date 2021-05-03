@@ -1,9 +1,7 @@
 package com.nomadconnection.dapp.core.domain.flow;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
-import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.user.User;
-import com.nomadconnection.dapp.core.dto.flow.flowTagConfigDto;
 import lombok.*;
 import lombok.experimental.Accessors;
 
