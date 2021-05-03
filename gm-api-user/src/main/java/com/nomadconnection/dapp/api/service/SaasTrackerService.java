@@ -536,7 +536,7 @@ public class SaasTrackerService {
 			// 1. 정기 결제 목록
 			List<SaasTrackerDto.SaasPaymentScheduleDetailRes> regularList = paymentInfos.stream()
 																			.map(SaasTrackerDto.SaasPaymentScheduleDetailRes::from)
-																			.filter(p -> ((p.getPaymentType() == 1 || p.getPaymentType() == 2)) && !StringUtils.isEmpty(p.getPaymentScheduleDate()) && Integer.parseInt(p.getPaymentScheduleDate()) >= Integer.parseInt(dateStr))
+																			.filter(p -> ((p.getPaymentType() == 1 || p.getPaymentType() == 2 || p.getPaymentType() == 5)) && !StringUtils.isEmpty(p.getPaymentScheduleDate()) && Integer.parseInt(p.getPaymentScheduleDate()) >= Integer.parseInt(dateStr))
 																			.collect(Collectors.toList());
 			scheduleRes.setRegularList(regularList);
 
