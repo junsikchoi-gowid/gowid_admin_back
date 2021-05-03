@@ -21,7 +21,7 @@ public interface FlowTagConfigRepository extends JpaRepository<FlowTagConfig, Lo
 
     Optional<FlowTagConfig> findByCorpAndCodeLv3AndCodeLv4(Corp corp, String codeLv3, String codeLv4);
 
-    Optional<FlowTagConfig> findByCorpAndCodeLv3AndCodeLv4AndIdxNot(Corp corp, String codeLv3, String codeLv4, Long idx);
-
     List<FlowTagConfig> findByCorpAndDeleteYnIsFalse(Corp corp);
+
+    Optional<FlowTagConfig> findByCorpAndCodeLv1AndCodeLv2AndCodeLv3AndCodeLv4AndIdxNot(Corp corp, String trim, String trim1, String trim2, String trim3, Long idx);
 }

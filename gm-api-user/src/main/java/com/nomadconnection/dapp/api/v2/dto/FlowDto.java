@@ -1,24 +1,18 @@
 package com.nomadconnection.dapp.api.v2.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.nomadconnection.dapp.api.dto.CorpDto;
-import com.nomadconnection.dapp.api.dto.UserDto;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
-import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.flow.FlowComment;
 import com.nomadconnection.dapp.core.domain.flow.FlowReportMonth;
 import com.nomadconnection.dapp.core.domain.flow.FlowTagConfig;
 import com.nomadconnection.dapp.core.domain.flow.FlowTagMonth;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.ResAccountCustomRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccountHistory;
-import com.nomadconnection.dapp.core.domain.user.User;
-import com.nomadconnection.dapp.core.dto.flow.flowTagConfigDto;
+import com.nomadconnection.dapp.core.dto.flow.FlowReportExcelDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
-import org.hibernate.Hibernate;
 import org.springframework.util.ObjectUtils;
 
-import javax.persistence.Column;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -133,7 +127,7 @@ public class FlowDto {
         @ApiModelProperty(value = "입출금 in out all", example = "all", required = true)
         public String inOutType;
 
-        @ApiModelProperty(value = "검색어", example = "")
+        @ApiModelProperty(value = "검색어")
         public String searchWord;
 
         @ApiModelProperty(value = "시작일", example = "20200101", required = true)
@@ -155,7 +149,7 @@ public class FlowDto {
         @ApiModelProperty(value = "계좌번호", example = "123333-42-123122")
         public String resAccount;
 
-        @ApiModelProperty(value = "거래일자 거래시각", example = "")
+        @ApiModelProperty(value = "거래일자 거래시각")
         public String resAccountTrDateTime;
 
         @ApiModelProperty(value = "입금", example = "2000000")
@@ -186,7 +180,7 @@ public class FlowDto {
         @ApiModelProperty(value = "계정과목코드", example = "-")
         public String tagValue;
 
-        @ApiModelProperty(value = "메모", example = "")
+        @ApiModelProperty(value = "메모")
         public String memo;
 
         public static FlowAccountHistoryDto from (ResAccountHistory dto){
@@ -223,7 +217,7 @@ public class FlowDto {
         @ApiModelProperty(value = "계정과목코드", example = "-")
         public String tagValue;
 
-        @ApiModelProperty(value = "메모", example = "")
+        @ApiModelProperty(value = "메모")
         public String memo;
 
         public static FlowAccountHistoryUpdateDto from (ResAccountHistory dto){
@@ -299,8 +293,8 @@ public class FlowDto {
                     .build();
         }
 
-        public static flowTagConfigDto.flowTagConfig of(FlowTagConfigDto dto) {
-            return flowTagConfigDto.flowTagConfig.builder()
+        public static FlowTagConfigDto of(FlowTagConfigDto dto) {
+            return FlowTagConfigDto.builder()
                     .flowCode(dto.getFlowCode())
                     .code1(dto.getCode1())
                     .code2(dto.getCode2())
@@ -423,6 +417,17 @@ public class FlowDto {
                     .flowTotal(dto.flowTotal())
                     .build();
         }
+
+        public static FlowTagMonthDto excel(FlowReportExcelDto dto) {
+            return FlowTagMonthDto.builder()
+                    .codeLv1(dto.getCodeLv1())
+                    .codeLv2(dto.getCodeLv2())
+                    .codeLv3(dto.getCodeLv3())
+                    .codeLv4(dto.getCodeLv4())
+                    .flowDate(dto.getFlowDate())
+                    .flowTotal(dto.getFlowTotal())
+                    .build();
+        }
     }
 
     @Getter
@@ -471,9 +476,6 @@ public class FlowDto {
         @ApiModelProperty(value = "s3Link", example = "s3Link")
         public String s3Link;
 
-        @ApiModelProperty(value = "readYn", example = "readYn")
-        public boolean readYn;
-
         @ApiModelProperty("최초 생성일")
         private LocalDateTime createdAt;
 
@@ -493,7 +495,6 @@ public class FlowDto {
                     .fileSize(dto.fileSize())
                     .s3Link(dto.s3Link())
                     .orgFileName(dto.orgFileName())
-                    .readYn(dto.readYn())
                     .build();
         }
     }
@@ -541,5 +542,8 @@ public class FlowDto {
 
         @ApiModelProperty(value = "fileName", example = "temp.xls")
         public String fileName;
+
+        @ApiModelProperty(value = "file")
+        public byte[] file;
     }
 }

@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class flowTagConfigDto {
+public class FlowTagConfigDto {
 
 	@Getter
 	@Setter

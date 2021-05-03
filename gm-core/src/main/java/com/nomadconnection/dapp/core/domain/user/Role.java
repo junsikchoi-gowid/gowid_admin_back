@@ -11,7 +11,9 @@ public enum Role {
 	GOWID_EXTERNAL,
 	GOWID_BENEFIT,
 	GOWID_SAASTRACKER,
-	GOWID_CARD;
+	GOWID_CARD,
+	ROLE_COMMENT,
+	ROLE_CBT;
 
 	public static boolean isMaster(Role role) {
 		return ROLE_MASTER.equals(role);

@@ -65,7 +65,7 @@ public class FlowTagConfig extends BaseTime {
 
     @Builder.Default
     @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '삭제여부'")
-    private Boolean deleteYn = true;
+    private Boolean deleteYn = false;
 
     @Column(columnDefinition = "smallint DEFAULT 0 COMMENT 'tag 순서'")
     private Integer tagOrder;

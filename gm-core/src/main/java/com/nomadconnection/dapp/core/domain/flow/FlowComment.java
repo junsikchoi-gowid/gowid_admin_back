@@ -49,9 +49,6 @@ public class FlowComment extends BaseTime {
     @Column(columnDefinition = "BIT(1) DEFAULT NULL COMMENT '사용유무'")
     private boolean enabled;
 
-    @Column(columnDefinition = "BIT(1) DEFAULT NULL COMMENT 'read 유무'")
-    private boolean readYn;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "idxUser", foreignKey = @ForeignKey(name = "FK_User_FlowComment"), columnDefinition = "bigint(20) COMMENT '유저 idx'", nullable = false)
@@ -68,7 +65,6 @@ public class FlowComment extends BaseTime {
                 .s3Key(dto.s3Key())
                 .enabled(dto.enabled())
                 .user(user)
-                .readYn(dto.readYn())
                 .build();
     }
 

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FlowReportMonthRepository extends JpaRepository<FlowReportMonth, Long> {
+
     List<FlowReportMonth> findByCorpAndFlowDateBetween(Corp corp, String startDate, String endDate);
 
     FlowReportMonth findTopByCorpOrderByUpdatedAtDesc(Corp corp);

@@ -2,10 +2,8 @@ package com.nomadconnection.dapp.api.v2.controller.flow;
 
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.v2.dto.FlowDto;
 import com.nomadconnection.dapp.api.v2.service.flow.FlowReportService;
-import com.nomadconnection.dapp.core.annotation.ApiPageable;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.exception.response.GowidResponse;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -21,8 +19,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -47,8 +43,9 @@ public class FlowCommnetController extends FlowBaseController {
  
     private final FlowReportService flowReportService;
 
-    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
-    @ApiOperation( value = "Comment 저장")
+    @PreAuthorize("hasRole('COMMENT') and hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @ApiOperation( value = "Comment 저장" , notes = "hasRole : CBT, COMMENT "+ "\n"
+            + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @PostMapping(value = URI.COMMENT)
     public GowidResponse<Long> postReportComment(@ApiIgnore @CurrentUser CustomUser user,
                                                          @RequestPart(required = false) MultipartFile file,
@@ -59,33 +56,21 @@ public class FlowCommnetController extends FlowBaseController {
         return ok(flowReportService.saveComment(user, message, file));
     }
 
-    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
-    @ApiOperation( value = "Comment ")
-    @PutMapping(value = URI.COMMENT + "/{idx}")
-    public GowidResponse<Long> putReportComment(@ApiIgnore @CurrentUser CustomUser user,
-                                                        @ModelAttribute FlowDto.FlowCommentDto dto,
-                                                        @PathVariable(required = false) Long idx,
-                                                        @RequestParam(required = false) String message){
-
-        log.info("[putReportComment] user = {}, corp = {} " ,user.idx(), user.corp().idx());
-
-        return ok(flowReportService.saveComment(user, message, null));
-    }
-
-    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
-    @ApiOperation( value = "Comment ")
+    @PreAuthorize("hasRole('COMMENT') and hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @ApiOperation( value = "Comment ", notes = "hasRole : CBT, COMMENT "+ "\n"
+            + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @DeleteMapping(value = URI.COMMENT + "/{idx}")
     public GowidResponse<Long> delReportComment(@ApiIgnore @CurrentUser CustomUser user,
-                                                @PathVariable(required = false) Long idx,
-                                                @RequestParam(required = false) String message){
+                                                @PathVariable(required = false) Long idx){
 
         log.info("[putReportComment] user = {}, corp = {} " ,user.idx(), user.corp().idx());
 
         return ok(flowReportService.delComment(user, idx));
     }
 
-    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
-    @ApiOperation( value = "Comment")
+    @PreAuthorize("hasRole('COMMENT') and hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @ApiOperation( value = "Comment", notes = "hasRole : CBT, COMMENT "+ "\n"
+            + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = URI.COMMENT)
     public GowidResponse<List<FlowDto.FlowCommentDto>> getReportComment(@ApiIgnore @CurrentUser CustomUser user){
 
@@ -96,22 +81,24 @@ public class FlowCommnetController extends FlowBaseController {
         return ok(list);
     }
 
-    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
-    @ApiOperation( value = "last comment data")
+    @PreAuthorize("hasRole('COMMENT') and hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @ApiOperation( value = "last comment data", notes = "hasRole : CBT, COMMENT "+ "\n"
+            + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = URI.COMMENT_LAST)
     public GowidResponse<FlowDto.FlowCommentLastDto> getReportCommentLast(@ApiIgnore @CurrentUser CustomUser user){
 
         log.info("[getReportComment] user = {}, corp = {} " ,user.idx(), user.corp().idx());
 
-        FlowDto.FlowCommentLastDto data = flowReportService.getReportCommentLast(user.corp());
+        FlowDto.FlowCommentLastDto data = flowReportService.getReportCommentLast(user);
 
         return ok(data);
     }
 
-    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
-    @ApiOperation( value = "Comment File Download")
+    @PreAuthorize("hasRole('COMMENT') and hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @ApiOperation( value = "Comment File Download", notes = "hasRole : CBT, COMMENT "+ "\n"
+            + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = URI.COMMENT_FILE + "/{idx}")
-    public ResponseEntity<ByteArrayResource> getCommentFile(HttpServletRequest request, @ApiIgnore @CurrentUser CustomUser user, @PathVariable(required = false) Long idx) throws UnsupportedEncodingException {
+    public ResponseEntity<ByteArrayResource> getCommentFile(@ApiIgnore @CurrentUser CustomUser user, @PathVariable(required = false) Long idx) throws UnsupportedEncodingException {
 
         log.info("[getCommentFile] user = {}, corp = {} " ,user.idx(), user.corp().idx());
 
