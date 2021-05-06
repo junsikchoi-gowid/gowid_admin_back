@@ -897,8 +897,8 @@ public class FlowReportService {
 
             }
             String orgFileName = idxCorp + flowCashFluctuationList.get(0).getFlowDate() + ".xlsx";
-            fileDownLoadPath = "/Users/jpro/Downloads/";
-            // fileDownLoadPath = FLOW_PATH + orgFileName;
+//            fileDownLoadPath = "/Users/jpro/Downloads/";
+            fileDownLoadPath = FLOW_PATH + orgFileName;
             fos = new FileOutputStream(fileDownLoadPath + orgFileName);
             workbook.write(fos);
 
