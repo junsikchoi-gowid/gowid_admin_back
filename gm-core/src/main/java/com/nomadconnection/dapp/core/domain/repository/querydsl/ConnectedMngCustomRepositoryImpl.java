@@ -36,7 +36,7 @@ public class ConnectedMngCustomRepositoryImpl extends QuerydslRepositorySupport 
                 .join(resAccountHistory).on(resAccountHistory.resAccount.eq(resAccount1.resAccount))
                 .select(resAccountHistory)
                 .where(connectedMng.corp.eq(corp))
-                .orderBy(connectedMng.updatedAt.desc())
+                .orderBy(resAccountHistory.updatedAt.desc())
                 .limit(1L);
 
         return query.fetchOne();
@@ -48,7 +48,7 @@ public class ConnectedMngCustomRepositoryImpl extends QuerydslRepositorySupport 
                 .join(resAccount1).on(resAccount1.connectedId.eq(connectedMng.connectedId))
                 .select(resAccount1)
                 .where(connectedMng.corp.eq(corp))
-                .orderBy(connectedMng.updatedAt.desc())
+                .orderBy(resAccount1.updatedAt.desc())
                 .limit(1L);
 
         return query.fetchOne();

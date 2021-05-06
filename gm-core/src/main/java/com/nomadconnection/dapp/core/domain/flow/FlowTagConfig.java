@@ -14,7 +14,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Accessors(fluent = true)
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"idxCorp","codeLv3","codeLv4"}, name = "UK_Corp_FlowTagConfig"))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"idxCorp","codeLv1","codeLv3","codeLv4"}, name = "UK_Corp_FlowTagConfig"))
 @Entity
 public class FlowTagConfig extends BaseTime {
 

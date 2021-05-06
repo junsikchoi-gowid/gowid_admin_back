@@ -5,11 +5,10 @@ import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.core.domain.flow.FlowComment;
 import com.nomadconnection.dapp.core.domain.flow.FlowReportMonth;
 import com.nomadconnection.dapp.core.domain.flow.FlowTagConfig;
-import com.nomadconnection.dapp.core.domain.flow.FlowTagMonth;
+import com.nomadconnection.dapp.core.domain.repository.flow.FlowTagMonthRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.ResAccountCustomRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccountHistory;
 import com.nomadconnection.dapp.core.dto.flow.FlowReportExcelDto;
-import com.nomadconnection.dapp.core.dto.flow.FlowTagConfigDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.springframework.util.ObjectUtils;
@@ -107,6 +106,7 @@ public class FlowDto {
                     .idxAccount(dto.getIdxResAccount())
                     .favorite(dto.getFavorite())
                     .nickName(nickName)
+                    .type(dto.getType())
                     .currency(dto.getCurrency())
                     .organization(dto.getOrganization())
                     .resAccount(dto.getResAccount())
@@ -404,22 +404,7 @@ public class FlowDto {
         public boolean enabled;
         public Integer tagOrder;
 
-        public static FlowTagMonthDto from(FlowTagMonth dto) {
-            return FlowTagMonthDto.builder()
-                    .flowCode(dto.flowTagConfig().flowCode())
-                    .codeLv1(dto.flowTagConfig().codeLv1())
-                    .codeLv2(dto.flowTagConfig().codeLv2())
-                    .codeLv3(dto.flowTagConfig().codeLv3())
-                    .codeLv4(dto.flowTagConfig().codeLv4())
-                    .codeDesc(dto.flowTagConfig().codeDesc())
-                    .enabled(dto.flowTagConfig().enabled())
-                    .tagOrder(dto.flowTagConfig().tagOrder())
-                    .flowDate(dto.flowDate())
-                    .flowTotal(dto.flowTotal())
-                    .build();
-        }
-
-        public static FlowTagMonthDto excel(FlowReportExcelDto dto) {
+        public static FlowTagMonthDto from(FlowReportExcelDto dto) {
             return FlowTagMonthDto.builder()
                     .codeLv1(dto.getCodeLv1())
                     .codeLv2(dto.getCodeLv2())
@@ -430,6 +415,48 @@ public class FlowDto {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FlowCashInfoExcel{
+        @ApiModelProperty(value = "시작 최종 잔액", example = "F0001")
+        List<FlowCashFluctuationDto> flowCashFluctuationList;
+
+        @ApiModelProperty(value = "현금흐름 상세내역(계정, 상세)", example = "F0001")
+        List<FlowTagMonthExcelDto> flowTagMonthExcelDtoList;
+    }
+
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FlowTagMonthExcelDto {
+        public String codeLv1;
+        public String codeLv3;
+        public String codeLv4;
+        public Double before3;
+        public Double before2;
+        public Double before1;
+        public Double before0;
+        public Double beforesum;
+
+        public static FlowTagMonthExcelDto excel(FlowTagMonthRepository.FlowReportExcelGroupDto dto) {
+            return FlowTagMonthExcelDto.builder()
+                    .codeLv1(dto.getCodeLv1())
+                    .codeLv3(dto.getCodeLv3())
+                    .codeLv4(dto.getCodeLv4())
+                    .before3(dto.getBefore3())
+                    .before2(dto.getBefore2())
+                    .before1(dto.getBefore1())
+                    .before0(dto.getBefore0())
+                    .beforesum(dto.getBeforesum())
+                    .build();
+        }
+    }
+
 
     @Getter
     @Builder

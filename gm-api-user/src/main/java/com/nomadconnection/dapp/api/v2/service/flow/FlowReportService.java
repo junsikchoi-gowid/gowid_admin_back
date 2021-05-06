@@ -32,12 +32,14 @@ import com.nomadconnection.dapp.core.exception.DuplicatedException;
 import com.nomadconnection.dapp.core.exception.NotFoundException;
 import com.nomadconnection.dapp.core.exception.result.ResultType;
 import com.nomadconnection.dapp.core.security.CustomUser;
+import com.nomadconnection.dapp.core.utils.NumberUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
@@ -145,7 +147,7 @@ public class FlowReportService {
         String fromDate = now.minusMonths(6).format(DateTimeFormatter.ofPattern("yyyyMM"));
 
         return repoFlowTagMonth.findByCorpAndFlowDateBetween(corp.idx(), fromDate, toDate)
-                .stream().map(FlowDto.FlowTagMonthDto::excel).collect(Collectors.toList());
+                .stream().map(FlowDto.FlowTagMonthDto::from).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -557,14 +559,16 @@ public class FlowReportService {
         ResAccount resAccount = repoConnectedMng.accountUpdateTime(corp);
         ResAccountHistory resAccountHistory = repoConnectedMng.accountHistoryUpdateTime(corp);
 
-        if( flowReportMonth == null){
-            procCreateReport(corp);
-        }else if (flowReportMonth != null && resAccount != null && resAccountHistory != null) {
-            if (flowReportMonth.getUpdatedAt().isBefore(resAccount.getUpdatedAt())
-                    || flowReportMonth.getUpdatedAt().isBefore(resAccountHistory.getUpdatedAt())) {
-                procCreateReport(corp);
-            }
-        }
+        procCreateReport(corp);
+
+//        if( flowReportMonth == null){
+//            procCreateReport(corp);
+//        }else if (flowReportMonth != null && resAccount != null && resAccountHistory != null) {
+//            if (flowReportMonth.getUpdatedAt().isBefore(resAccount.getUpdatedAt())
+//                    || flowReportMonth.getUpdatedAt().isBefore(resAccountHistory.getUpdatedAt())) {
+//                procCreateReport(corp);
+//            }
+//        }
 
         return FlowDto.FlowReportDto.builder().createdAt(resAccountHistory.getUpdatedAt()).build();
     }
@@ -575,6 +579,12 @@ public class FlowReportService {
         List<String> arrayAccount = arrayResAccount.stream().map(ResAccount::resAccount).collect(Collectors.toList());
 
         String localDateTime = LocalDateTime.now().minusYears(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        String start = LocalDateTime.now().minusYears(1).format(DateTimeFormatter.ofPattern("yyyyMM"));
+        String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+
+        repoFlowTagMonth.delFlowTagMonth(corp.idx(), start, end);
+        repoFlowReportMonth.delFlowReportMonth(corp.idx(), start, end);
 
         repoResAccountHistory.monthStatics(arrayAccount, localDateTime).forEach(
                 dto -> {
@@ -588,32 +598,31 @@ public class FlowReportService {
                             flowCode = "A000";
                         }
 
-                        flowTagConfig = Optional.ofNullable(repoFlowTagConfig.findByCorpAndFlowCodeAndCode4(corp, "FLOW", flowCode).orElseThrow(
-                                () -> EntityNotFoundException.builder().build()
-                        ));
+                        flowTagConfig = repoFlowTagConfig.findByCorpAndFlowCodeAndCode4(corp, "FLOW", flowCode);
                     } else {
                         log.debug("dto.getIdxFlowTagConfig() = {} ", dto.getIdxFlowTagConfig());
-                        flowTagConfig = Optional.ofNullable(repoFlowTagConfig.findById(dto.getIdxFlowTagConfig()).orElseThrow(
-                                () -> EntityNotFoundException.builder().build()
-                        ));
-                    }
+                        flowTagConfig = repoFlowTagConfig.findById(dto.getIdxFlowTagConfig());
 
-                    FlowTagMonth flowTagMonth = repoFlowTagMonth.findTopByCorpAndFlowDate(corp, dto.getMonth()).orElseGet(
-                            () -> FlowTagMonth.builder().build()
-                    );
+                        log.debug("flowTagConfig() = {} ", flowTagConfig.get().code4());
+                    }
 
                     long total = dto.getFlowIn() + dto.getFlowOut();
 
-                    flowTagMonth.corp(corp)
+                    FlowTagMonth flowTagMonth = FlowTagMonth.builder()
+                            .corp(corp)
                             .flowTagConfig(flowTagConfig.get())
                             .flowDate(dto.getMonth())
-                            .flowTotal(GowidUtils.doubleTypeGet(String.valueOf(total)));
+                            .flowTotal(GowidUtils.doubleTypeGet(String.valueOf(total)))
+                            .build();
+
+                    log.debug("flowTagMonth() = {} , {} , {}", flowTagConfig.get().idx(), dto.getMonth(), total );
 
                     repoFlowTagMonth.save(flowTagMonth);
                 });
 
         LocalDate startDate = LocalDate.now().minusYears(1);
-        LocalDate endDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now().plusMonths(1);
+
         for(Long i = 1L ; startDate.isBefore(endDate) ; startDate = startDate.plusMonths(i)){
 
             log.debug("startdate = {}" , startDate );
@@ -677,6 +686,30 @@ public class FlowReportService {
         return s3Object;
     }
 
+
+    /**
+     * 4개월간의 월별 리포트 엑셀
+     */
+    @Transactional(readOnly = true)
+    public FlowDto.FlowCashInfoExcel getReportTableMonthExcel(Long idxCorp, String toDate) {
+
+        Corp corp = repoCorp.findById(idxCorp).orElseThrow(() -> CorpNotRegisteredException.builder().build());
+
+        List<FlowDto.FlowCashFluctuationDto> flowCashFluctuationLists = getFlowCashFluctuationLists(corp, toDate);
+        List<FlowDto.FlowTagMonthExcelDto> flowTagMonthExcelDtoList = getFlowCashExcel(corp, toDate);
+
+        return FlowDto.FlowCashInfoExcel.builder()
+                .flowCashFluctuationList(flowCashFluctuationLists)
+                .flowTagMonthExcelDtoList(flowTagMonthExcelDtoList)
+                .build();
+    }
+
+    private List<FlowDto.FlowTagMonthExcelDto> getFlowCashExcel(Corp corp, String toDate) {
+
+        return repoFlowTagMonth.searchExcelData(corp.idx(), toDate).stream()
+                .map(FlowDto.FlowTagMonthExcelDto::excel).collect(Collectors.toList());
+    }
+
     @Transactional(readOnly = true)
     public String getComment(Long idx) {
         return repoFlowComment.findById(idx).get().orgFileName();
@@ -684,9 +717,9 @@ public class FlowReportService {
 
     public FlowDto.FlowExcelPath getReportTableMonthFile(Long idxCorp, String searchDate) throws IOException {
 
-        FlowDto.FlowCashInfo flowCashInfo = getReportTableMonth(idxCorp, searchDate);
+        FlowDto.FlowCashInfoExcel excel = getReportTableMonthExcel(idxCorp, searchDate);
 
-        String fileName = createReportTableMonthToExcel(flowCashInfo);
+        String fileName = createReportTableMonthToExcel(excel, idxCorp);
 
         final byte[] data = getExcelFlowFile(fileName);
 
@@ -696,34 +729,39 @@ public class FlowReportService {
                 .build();
     }
 
-    private String createReportTableMonthToExcel(FlowDto.FlowCashInfo flowCashInfo) {
+    private String createReportTableMonthToExcel(FlowDto.FlowCashInfoExcel flowCashInfo, Long idxCorp) {
 
         List<FlowDto.FlowCashFluctuationDto> flowCashFluctuationList = flowCashInfo.getFlowCashFluctuationList();
-        List<FlowDto.FlowTagMonthDto> flowTagList = flowCashInfo.getFlowTagList();
+        List<FlowDto.FlowTagMonthExcelDto> flowTagList = flowCashInfo.getFlowTagMonthExcelDtoList();
+
+
 
         FileOutputStream fos = null;
         SXSSFWorkbook workbook = null;
 
         SXSSFRow row;
         SXSSFCell cell;
-        CellStyle styleMoneyFormat;
+
+        CellStyle styleDefault= null;
+        CellStyle styleTitle = null;
+        CellStyle styleMoneyFormat = null;
         String fileDownLoadPath = null;
-        int index = 0;
+        int index = 1;
 
         int rowIndex = 1;
         String[] cell1 = { flowCashFluctuationList.get(3).getFlowDate()
                 , flowCashFluctuationList.get(2).getFlowDate()
                 , flowCashFluctuationList.get(1).getFlowDate()
-                , flowCashFluctuationList.get(0).getFlowDate() , "기간총계"};
+                , flowCashFluctuationList.get(0).getFlowDate()};
 
-        Double[] cell2 = { flowCashFluctuationList.get(4).getFlowTotal()
-                , flowCashFluctuationList.get(3).getFlowTotal()
+        Double[] cell2 = { flowCashFluctuationList.get(1).getFlowTotal()
                 , flowCashFluctuationList.get(2).getFlowTotal()
-                , flowCashFluctuationList.get(1).getFlowTotal()
-                , flowCashFluctuationList.get(4).getFlowTotal() +
-                flowCashFluctuationList.get(3).getFlowTotal() +
+                , flowCashFluctuationList.get(3).getFlowTotal()
+                , flowCashFluctuationList.get(4).getFlowTotal()
+                , flowCashFluctuationList.get(1).getFlowTotal() +
                 flowCashFluctuationList.get(2).getFlowTotal() +
-                flowCashFluctuationList.get(1).getFlowTotal()
+                flowCashFluctuationList.get(3).getFlowTotal() +
+                flowCashFluctuationList.get(4).getFlowTotal()
         };
 
         try {
@@ -744,68 +782,123 @@ public class FlowReportService {
             sheet.setColumnWidth(11, 256 * 15);
             sheet.setColumnWidth(12, 256 * 15);
 
-            row = sheet.createRow(0);
-            styleMoneyFormat = workbook.createCellStyle();
+
+
             CreationHelper ch = workbook.getCreationHelper();
+
+            styleDefault = workbook.createCellStyle();;
+            styleTitle = workbook.createCellStyle();;
+            styleMoneyFormat = workbook.createCellStyle();;
+
+            styleDefault.setBorderTop(BorderStyle.THIN);
+            styleDefault.setBorderLeft(BorderStyle.THIN);
+            styleDefault.setBorderRight(BorderStyle.THIN);
+            styleDefault.setBorderBottom(BorderStyle.THIN);
+
+            styleTitle.setBorderTop(BorderStyle.THIN);
+            styleTitle.setBorderLeft(BorderStyle.THIN);
+            styleTitle.setBorderRight(BorderStyle.THIN);
+            styleTitle.setBorderBottom(BorderStyle.THIN);
+            styleTitle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+            styleTitle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            styleTitle.setAlignment(HorizontalAlignment.CENTER);
+
+            styleMoneyFormat.setBorderTop(BorderStyle.THIN);
+            styleMoneyFormat.setBorderLeft(BorderStyle.THIN);
+            styleMoneyFormat.setBorderRight(BorderStyle.THIN);
+            styleMoneyFormat.setBorderBottom(BorderStyle.THIN);
             styleMoneyFormat.setDataFormat(ch.createDataFormat().getFormat("#,##0"));
 
+            sheet.addMergedRegion(new CellRangeAddress(0,0,1,3));
+            sheet.addMergedRegion(new CellRangeAddress(1,1,1,3));
+
             // row 1
-            cell = row.createCell(index++);
-            cell.setCellValue("계정");
-            cell = row.createCell(index++);
-            cell.setCellValue("계정");
-            cell = row.createCell(index++);
-            cell.setCellValue("계정");
-            cell = row.createCell(index++);
+            row = sheet.createRow(0);
+            cell = row.createCell(1);
+            cell.setCellStyle(styleTitle);
             cell.setCellValue("계정");
 
+            cell = row.createCell(2);
+            cell.setCellStyle(styleTitle);
+
+            cell = row.createCell(3);
+            cell.setCellStyle(styleTitle);
+
+
+
+            index = 4;
             for (String obj : cell1) {
                 cell = row.createCell(index++);
-                cell.setCellValue(obj);
+                cell.setCellStyle(styleTitle);
+                cell.setCellValue(obj.substring(0,4).concat("년 ").concat(obj.substring(4,6).concat("월")));
             }
+
+            cell = row.createCell(index++);
+            cell.setCellStyle(styleTitle);
+            cell.setCellValue("기간총계");
+
 
             // row 2
             row = sheet.createRow(1);
+            cell = row.createCell(1);
+            cell.setCellStyle(styleDefault);
+            cell.setCellValue("시작잔액");
 
-            cell = row.createCell(index++);
-            cell.setCellValue("입금");
-            cell = row.createCell(index++);
-            cell.setCellValue("입금");
-            cell = row.createCell(index++);
-            cell.setCellValue("입금");
-            cell = row.createCell(index++);
-            cell.setCellValue("입금");
+            cell = row.createCell(2);
+            cell.setCellStyle(styleDefault);
 
+            cell = row.createCell(3);
+            cell.setCellStyle(styleDefault);
+
+            index = 4;
             for (Double obj : cell2) {
                 cell = row.createCell(index++);
+                cell.setCellStyle(styleMoneyFormat);
                 cell.setCellValue(obj);
             }
 
             // row 3
-
-            for (FlowDto.FlowTagMonthDto dto : flowTagList) {
+            rowIndex = 2;
+            for (FlowDto.FlowTagMonthExcelDto dto : flowTagList) {
 
                 row = sheet.createRow(rowIndex++);
                 int indexCol = 1;
-                cell = row.createCell(indexCol);
+                cell = row.createCell(indexCol++);
+                cell.setCellStyle(styleDefault);
                 cell.setCellValue(dto.getCodeLv1());
 
                 cell = row.createCell(indexCol++);
-                cell.setCellValue(dto.getCodeLv2());
-
-                cell = row.createCell(indexCol++);
+                cell.setCellStyle(styleDefault);
                 cell.setCellValue(dto.getCodeLv3());
 
                 cell = row.createCell(indexCol++);
+                cell.setCellStyle(styleDefault);
                 cell.setCellValue(dto.getCodeLv4());
 
-                if(dto.getFlowDate().equals(flowCashFluctuationList.get(3).getFlowDate())){
-                    cell = row.createCell(indexCol++);
-                    cell.setCellValue(dto.getCodeLv4());
-                }
+                cell = row.createCell(indexCol++);
+                cell.setCellStyle(styleMoneyFormat);
+                cell.setCellValue(Long.valueOf(NumberUtils.doubleToString(dto.getBefore3())));
+
+                cell = row.createCell(indexCol++);
+                cell.setCellStyle(styleMoneyFormat);
+                cell.setCellValue(Long.valueOf(NumberUtils.doubleToString(dto.getBefore2())));
+
+                cell = row.createCell(indexCol++);
+                cell.setCellStyle(styleMoneyFormat);
+                cell.setCellValue(Long.valueOf(NumberUtils.doubleToString(dto.getBefore1())));
+
+                cell = row.createCell(indexCol++);
+                cell.setCellStyle(styleMoneyFormat);
+                cell.setCellValue(Long.valueOf(NumberUtils.doubleToString(dto.getBefore0())));
+
+                cell = row.createCell(indexCol++);
+                cell.setCellStyle(styleMoneyFormat);
+                cell.setCellValue(Long.valueOf(NumberUtils.doubleToString(dto.getBeforesum())));
+
             }
-            String orgFileName = "dd" + ".xlsx";
-            fileDownLoadPath = FLOW_PATH + orgFileName;
+            String orgFileName = idxCorp + flowCashFluctuationList.get(0).getFlowDate() + ".xlsx";
+            fileDownLoadPath = "/Users/jpro/Downloads/";
+            // fileDownLoadPath = FLOW_PATH + orgFileName;
             fos = new FileOutputStream(fileDownLoadPath + orgFileName);
             workbook.write(fos);
 

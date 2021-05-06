@@ -113,7 +113,8 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
             " FROM ResAccountHistory " +
             " WHERE resAccount IN (:resAccountList) " +
             " AND resAccountTrDate > (:resAccountTrDate) " +
-            " GROUP BY idxFlowTagConfig, SUBSTR(resAccountTrDate,1,6)",
+            " GROUP BY idxFlowTagConfig, SUBSTR(resAccountTrDate,1,6)" +
+            " ORDER BY month ",
             nativeQuery = true)
     List<CMonthStaticsDto> monthStatics(@Param("resAccountList") List<String> resAccountList, @Param("resAccountTrDate") String resAccountTrDate);
 
@@ -129,7 +130,8 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
             " FROM ResAccountHistory " +
             " WHERE resAccount IN (:resAccountList) " +
             " AND resAccountTrDate >= :from AND resAccountTrDate <= :to" +
-            " GROUP BY SUBSTR(resAccountTrDate,1,6) ",
+            " GROUP BY SUBSTR(resAccountTrDate,1,6) " +
+            " ORDER BY month ",
             nativeQuery = true)
     CMonthInOutStaticsDto monthInOutStatics(@Param("resAccountList") List<String> resAccountList
             , @Param("from") String from
