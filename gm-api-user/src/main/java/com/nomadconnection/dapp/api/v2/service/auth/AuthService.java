@@ -199,9 +199,7 @@ public class AuthService {
 		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
-			.normal(BusinessResponse.Normal.builder()
-				.build())
-			.data(user)
+			.normal(BusinessResponse.Normal.builder().build())
 			.build());
 	}
 
@@ -212,11 +210,10 @@ public class AuthService {
 		User user = userService.findByEmail(email);
 		user.password(authValidator.encodePassword(password));
 		user.hasTmpPassword(false);
+		userService.saveUser(user);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.normal(BusinessResponse.Normal.builder()
-				.build())
-				.data(user)
+				.normal(BusinessResponse.Normal.builder().build())
 				.build());
 	}
 

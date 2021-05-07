@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -30,9 +30,10 @@ public class CommonRpc {
                                Class<T> responseType) {
 
         HttpHeaders headers = commonRpcService.makeHeader(headerParams);
-        RestTemplate restTemplate = new RestTemplate();
-        ((SimpleClientHttpRequestFactory) restTemplate.getRequestFactory()).setConnectTimeout(20000);
-        ((SimpleClientHttpRequestFactory) restTemplate.getRequestFactory()).setReadTimeout(200000);
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(20000);
+        factory.setReadTimeout(20000);
+        RestTemplate restTemplate = new RestTemplate(factory);
 
         try {
             ResponseEntity<T> response = commonRpcService.requestApi(url, httpMethod, bodyParams, responseType, headers, restTemplate);
