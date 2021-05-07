@@ -403,7 +403,7 @@ public class FlowReportService {
             }
             String orgFileName = searchDto.getTo() + "_" + searchDto.getFrom() + "_" + idxCorp + ".xlsx";
             fileDownLoadPath = FLOW_PATH + orgFileName;
-            fos = new FileOutputStream(fileDownLoadPath + orgFileName);
+            fos = new FileOutputStream(fileDownLoadPath);
             workbook.write(fos);
 
         } catch (Exception e) {
@@ -896,7 +896,7 @@ public class FlowReportService {
             }
             String orgFileName = idxCorp + flowCashFluctuationList.get(0).getFlowDate() + ".xlsx";
             fileDownLoadPath = FLOW_PATH + orgFileName;
-            fos = new FileOutputStream(fileDownLoadPath + orgFileName);
+            fos = new FileOutputStream(fileDownLoadPath);
             workbook.write(fos);
 
         } catch (Exception e) {
