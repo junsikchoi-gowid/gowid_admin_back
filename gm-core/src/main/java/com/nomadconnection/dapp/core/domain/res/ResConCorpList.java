@@ -54,7 +54,7 @@ public class ResConCorpList extends BaseTime {
     private String message;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "varchar(20)  DEFAULT 'NORMAL' COMMENT '카드발급 상태'")
-    private ConnectedMngStatus status;
+    @Column(columnDefinition = "varchar(20)  DEFAULT 'NORMAL' COMMENT '상태'")
+    private ResConCorpListStatus status;
 
 }

@@ -3,6 +3,7 @@ package com.nomadconnection.dapp.api.dto;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
+import com.nomadconnection.dapp.core.domain.res.ResConCorpListStatus;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -105,7 +106,7 @@ public class AccessManageDto {
 		private String message;
 
 		@ApiModelProperty("사용유무")
-		private ConnectedMngStatus status;
+		private ResConCorpListStatus status;
 
 		public static AccessManageDto.ResConCorpListDto from(ResConCorpList dto){
 			return ResConCorpListDto.builder()

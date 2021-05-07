@@ -16,6 +16,7 @@ import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
+import com.nomadconnection.dapp.core.domain.res.ResConCorpListStatus;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
@@ -311,7 +312,7 @@ public class CodefService {
 								.loginType(GowidUtils.getEmptyStringToString(obj, "loginType"))
 								.message(GowidUtils.getEmptyStringToString(obj, "message"))
 								.connectedId(connectedId)
-								.status(ConnectedMngStatus.NORMAL)
+								.status(ResConCorpListStatus.NORMAL)
 								.build()
 				);
 			});

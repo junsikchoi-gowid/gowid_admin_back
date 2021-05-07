@@ -31,6 +31,7 @@ import com.nomadconnection.dapp.core.domain.repository.res.ResConCorpListReposit
 import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResBatchList;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
+import com.nomadconnection.dapp.core.domain.res.ResConCorpListStatus;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.dto.response.ErrorCode;
@@ -426,7 +427,7 @@ public class ScrapingService {
 						.loginType(GowidUtils.getEmptyStringToString(obj, "loginType"))
 						.message(GowidUtils.getEmptyStringToString(obj, "message"))
 						.connectedId(connectedId)
-						.status(ConnectedMngStatus.NORMAL)
+						.status(ResConCorpListStatus.NORMAL)
 						.build()
 				);
 			});

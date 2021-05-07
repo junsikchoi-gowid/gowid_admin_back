@@ -15,6 +15,7 @@ import com.nomadconnection.dapp.core.domain.repository.res.ResConCorpListReposit
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
+import com.nomadconnection.dapp.core.domain.res.ResConCorpListStatus;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import com.nomadconnection.dapp.core.security.CustomUser;
@@ -185,7 +186,7 @@ public class AccessManageService {
                                 .extraMessage(GowidUtils.getEmptyStringToString(obj, "extraMessage"))
                                 .loginType(GowidUtils.getEmptyStringToString(obj, "loginType"))
                                 .message(GowidUtils.getEmptyStringToString(obj, "message"))
-                                .status(ConnectedMngStatus.NORMAL)
+                                .status(ResConCorpListStatus.NORMAL)
                                 .connectedId(connectedId)
                                 .build()
                 );
@@ -247,11 +248,11 @@ public class AccessManageService {
             List<ResConCorpList> resConCorpListList = repoResConCorpList.findByConnectedIdInAndStatusInAndBusinessTypeAndOrganization(
                     connectedIdList, statusList, obj.getBusinessType(), obj.getOrganization());
 
-            ConnectedMngStatus status = ConnectedMngStatus.ERROR;
+            ResConCorpListStatus status = ResConCorpListStatus.ERROR;
 
             for(ResConCorpList objList : resConCorpListList){
-                if( objList.status().equals(ConnectedMngStatus.NORMAL)){
-                    status = ConnectedMngStatus.NORMAL;
+                if( objList.status().equals(ResConCorpListStatus.NORMAL)){
+                    status = ResConCorpListStatus.NORMAL;
                 }
             }
 
@@ -328,7 +329,7 @@ public class AccessManageService {
 
             if (optResConCorpList.isPresent()) {
                 ResConCorpList resConCorpList = optResConCorpList.get();
-                resConCorpList.status(ConnectedMngStatus.DELETE);
+                resConCorpList.status(ResConCorpListStatus.DELETE);
                 repoResConCorpList.save(resConCorpList);
             }
         }
@@ -365,7 +366,7 @@ public class AccessManageService {
                 connectedMng.connectedId()
                 , organization
                 , connectedMngStatusList
-        )).ifPresent(resConCorpList -> resConCorpList.status(ConnectedMngStatus.STOP));
+        )).ifPresent(resConCorpList -> resConCorpList.status(ResConCorpListStatus.STOP));
 
         Optional<ConnectedMng> connectedMng = repoConnectedMng.findById(idxConnectedMng);
         if(repoResConCorpList.findByConnectedIdAndStatusIn(connectedMng.get().connectedId(), connectedMngStatusList).size() < 1){

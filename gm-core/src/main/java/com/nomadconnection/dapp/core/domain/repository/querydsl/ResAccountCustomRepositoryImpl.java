@@ -4,8 +4,8 @@ import com.nomadconnection.dapp.core.domain.common.QConnectedMng;
 import com.nomadconnection.dapp.core.domain.corp.QCorp;
 import com.nomadconnection.dapp.core.domain.res.QResAccount;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
+import com.nomadconnection.dapp.core.domain.res.ResAccountStatus;
 import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -42,8 +42,13 @@ public class ResAccountCustomRepositoryImpl extends QuerydslRepositorySupport im
                         resAccount.organization.as("organization"),
                         resAccount.resAccount.as("resAccount"),
                         resAccount.resAccountBalance.as("resAccountBalance"),
-                        resAccount.resOverdraftAcctYN.as("resOverdraftAcctYN")))
-                .where(corp.idx.eq(idxCorp));
+                        resAccount.resOverdraftAcctYN.as("resOverdraftAcctYN"),
+                        resAccount.resAccountDisplay.as("resAccountDisplay"),
+                        resAccount.status.as("status"),
+                        resAccount.statusDesc.as("statusDesc")
+                        ))
+                .where(corp.idx.eq(idxCorp).and(resAccount.status.ne(ResAccountStatus.DELETE)))
+                ;
 
         if(!ObjectUtils.isEmpty(favorite)){
             query.where(resAccount.favorite.eq(favorite));

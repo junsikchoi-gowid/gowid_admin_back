@@ -60,6 +60,10 @@ public class FlowTagConfig extends BaseTime {
     private String codeDesc;
 
     @Builder.Default
+    @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT 'View 유무'")
+    private Boolean viewEnabled = true;
+
+    @Builder.Default
     @Column(columnDefinition = "bit(1) DEFAULT NULL COMMENT '사용유무'")
     private Boolean enabled = true;
 

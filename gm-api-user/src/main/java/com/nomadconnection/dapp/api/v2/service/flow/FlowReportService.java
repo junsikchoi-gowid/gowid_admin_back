@@ -26,6 +26,7 @@ import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
 import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.res.ResAccountHistory;
+import com.nomadconnection.dapp.core.domain.res.ResAccountStatus;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.exception.BaseException;
 import com.nomadconnection.dapp.core.exception.DuplicatedException;
@@ -244,6 +245,11 @@ public class FlowReportService {
         );
 
         resAccount.favorite(dto.getFavorite());
+
+        if(!dto.getEnabled()){
+            resAccount.status(ResAccountStatus.DELETE);
+        }
+
         resAccount.enabled(dto.getEnabled());
 
         return FlowDto.FlowAccountDto.builder()
@@ -258,17 +264,19 @@ public class FlowReportService {
 
         Page<FlowDto.FlowAccountHistoryDto> flowAccountHistoryList;
 
+        List<String> accountList = searchDto.getArrayResAccount().stream().map(o -> o.replaceAll("-", "")).collect(Collectors.toList());
+
         if (searchDto.getInOutType().toLowerCase().equals("in")) {
             flowAccountHistoryList = repoResAccountHistory
-                    .searchInResAccountHistoryLikeList(searchDto.getArrayResAccount(), searchDto.getFrom(), searchDto.getTo(), searchDto.getSearchWord(), pageable)
+                    .searchInResAccountHistoryLikeList(accountList, searchDto.getFrom(), searchDto.getTo(), searchDto.getSearchWord(), pageable)
                     .map(FlowDto.FlowAccountHistoryDto::from);
         } else if (searchDto.getInOutType().toLowerCase().equals("out")) {
             flowAccountHistoryList = repoResAccountHistory
-                    .searchOutResAccountHistoryLikeList(searchDto.getArrayResAccount(), searchDto.getFrom(), searchDto.getTo(), searchDto.getSearchWord(), pageable)
+                    .searchOutResAccountHistoryLikeList(accountList, searchDto.getFrom(), searchDto.getTo(), searchDto.getSearchWord(), pageable)
                     .map(FlowDto.FlowAccountHistoryDto::from);
         } else {
             flowAccountHistoryList = repoResAccountHistory
-                    .searchAllResAccountHistoryLikeList(searchDto.getArrayResAccount(), searchDto.getFrom(), searchDto.getTo(), searchDto.getSearchWord(), pageable)
+                    .searchAllResAccountHistoryLikeList(accountList, searchDto.getFrom(), searchDto.getTo(), searchDto.getSearchWord(), pageable)
                     .map(FlowDto.FlowAccountHistoryDto::from);
         }
 
@@ -284,20 +292,21 @@ public class FlowReportService {
 
         List<FlowDto.FlowAccountHistoryDto> flowAccountHistoryList;
 
+        List<String> accountList = searchDto.getArrayResAccount().stream().map(o -> o.replaceAll("-", "")).collect(Collectors.toList());
+
         if (!ObjectUtils.isEmpty(searchDto.getInOutType()) && searchDto.getInOutType().toLowerCase().equals("in")) {
             flowAccountHistoryList = repoResAccountHistory
-                    .searchInResAccountHistoryLikeList(searchDto.getArrayResAccount(), searchDto.getTo(), searchDto.getFrom(), searchDto.getSearchWord(), pageable)
+                    .searchInResAccountHistoryLikeList(accountList, searchDto.getTo(), searchDto.getFrom(), searchDto.getSearchWord(), pageable)
                     .map(FlowDto.FlowAccountHistoryDto::from).getContent();
         } else if (!ObjectUtils.isEmpty(searchDto.getInOutType()) && searchDto.getInOutType().toLowerCase().equals("out")) {
             flowAccountHistoryList = repoResAccountHistory
-                    .searchOutResAccountHistoryLikeList(searchDto.getArrayResAccount(), searchDto.getTo(), searchDto.getFrom(), searchDto.getSearchWord(), pageable)
+                    .searchOutResAccountHistoryLikeList(accountList, searchDto.getTo(), searchDto.getFrom(), searchDto.getSearchWord(), pageable)
                     .map(FlowDto.FlowAccountHistoryDto::from).getContent();
         } else {
             flowAccountHistoryList = repoResAccountHistory
-                    .searchAllResAccountHistoryLikeList(searchDto.getArrayResAccount(), searchDto.getTo(), searchDto.getFrom(), searchDto.getSearchWord(), pageable)
+                    .searchAllResAccountHistoryLikeList(accountList, searchDto.getTo(), searchDto.getFrom(), searchDto.getSearchWord(), pageable)
                     .map(FlowDto.FlowAccountHistoryDto::from).getContent();
         }
-
 
         String fileName= createListToExcel(idxCorp, flowAccountHistoryList, searchDto);
         final byte[] data = getExcelFlowFile(fileName);

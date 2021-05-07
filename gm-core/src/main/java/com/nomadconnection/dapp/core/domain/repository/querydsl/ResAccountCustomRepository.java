@@ -1,5 +1,7 @@
 package com.nomadconnection.dapp.core.domain.repository.querydsl;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.nomadconnection.dapp.core.domain.res.ResAccountStatus;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -12,6 +14,7 @@ public interface ResAccountCustomRepository {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonInclude
     class CorpAccountDto{
         @ApiModelProperty(value = "idxAccount", example = "1")
         private Long idxResAccount;
@@ -31,9 +34,6 @@ public interface ResAccountCustomRepository {
         @ApiModelProperty(value = "통화", example = "KRW")
         private String currency;
 
-        @ApiModelProperty(value = "계좌종류", example = "예적금")
-        private String type;
-
         @ApiModelProperty(value = "은행종류", example = "신한은행")
         private String organization;
 
@@ -45,42 +45,19 @@ public interface ResAccountCustomRepository {
 
         @ApiModelProperty(value = "마이너스 통장 여부", example = "1")
         private String resOverdraftAcctYN;
-    }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    class CorpAccountHistoryDto{
-        @ApiModelProperty(value = "거래일자 거래시각", example = "")
-        private String resAccountTrDateTime;
+        @ApiModelProperty(value = "계좌종류", example = "예적금 / 입출금 / 외화 / 펀드")
+        private String type;
 
-        @ApiModelProperty(value = "입금", example = "2000000")
-        private String resAccountOut;
+        @ApiModelProperty(value = "계좌번호 Display", example = "123333-42-123122")
+        private String resAccountDisplay;
 
-        @ApiModelProperty(value = "출금", example = "2000000")
-        private String resAccountIn;
+        @ApiModelProperty(value = "상태", example = "Normal")
+        private ResAccountStatus status;
 
-        @ApiModelProperty(value = "적요1", example = "")
-        private String resAccountDesc1;
+        @ApiModelProperty(value = "상태 내역", example = "연동이 중단된 계좌입니다.")
+        private String statusDesc;
 
-        @ApiModelProperty(value = "적요2", example = "")
-        private String resAccountDesc2;
-
-        @ApiModelProperty(value = "적요3", example = "")
-        private String resAccountDesc3;
-
-        @ApiModelProperty(value = "적요4", example = "")
-        private String resAccountDesc4;
-
-        @ApiModelProperty(value = "계정과목", example = "")
-        private String tagCode;
-
-        @ApiModelProperty(value = "계정과목코드", example = "")
-        private String tagValue;
-
-        @ApiModelProperty(value = "메모", example = "")
-        private String memo;
     }
 
     List<CorpAccountDto> FlowAccountList(Long idxCorp, Boolean favorite);

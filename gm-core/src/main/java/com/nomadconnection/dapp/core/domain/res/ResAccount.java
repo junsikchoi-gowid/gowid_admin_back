@@ -34,6 +34,25 @@ public class ResAccount extends BaseTime {
     private Boolean enabled; // 유효성여부
     private String searchStartDate; // 검색가능일
 
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(20)  DEFAULT 'NORMAL' COMMENT '상태'")
+    private ResAccountStatus status;
+    private String statusDesc; // 상태내역
+
+    @Column(columnDefinition = "bit(1) DEFAULT TRUE COMMENT '즐겨찾기 보유여부'")
+    private Boolean favorite;
+
+    @Column(columnDefinition = "DATETIME default 99991231010101 comment '즐겨찾기 수정시간'")
+    private LocalDateTime favoriteDate;
+
+    //todo 향후 연결처리해줘야함
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idxConnectedMng",
+            foreignKey = @ForeignKey(name = "FK_ConnectedMng_ResAccount"),
+            columnDefinition = "bigint(20) COMMENT '인증서 idx'",
+            nullable = true)
+    private ConnectedMng connectedMng;
+
     private String resAccount; //계좌번호
     private String resAccountDisplay; //계좌번호_표시용
     private Double resAccountBalance; //현재잔액
@@ -69,18 +88,4 @@ public class ResAccount extends BaseTime {
     private String resPrincipal;// 대출원금
     private String resDatePayment;// 다음이자납입일
     private String resState;// 연체여부
-
-    @Column(columnDefinition = "bit(1) DEFAULT TRUE COMMENT '즐겨찾기 보유여부'")
-    private Boolean favorite;
-
-    @Column(columnDefinition = "DATETIME default 99991231010101 comment '즐겨찾기 수정시간'")
-    private LocalDateTime favoriteDate;
-
-    //todo 향후 연결처리해줘야함
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idxConnectedMng",
-            foreignKey = @ForeignKey(name = "FK_ConnectedMng_ResAccount"),
-            columnDefinition = "bigint(20) COMMENT '인증서 idx'",
-            nullable = true)
-    private ConnectedMng connectedMng;
 }

@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.v2.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
 import com.nomadconnection.dapp.core.domain.flow.FlowComment;
 import com.nomadconnection.dapp.core.domain.flow.FlowReportMonth;
@@ -8,6 +9,8 @@ import com.nomadconnection.dapp.core.domain.flow.FlowTagConfig;
 import com.nomadconnection.dapp.core.domain.repository.flow.FlowTagMonthRepository;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.ResAccountCustomRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccountHistory;
+import com.nomadconnection.dapp.core.domain.res.ResAccountStatus;
+import com.nomadconnection.dapp.core.domain.res.ResAccountTypeStatus;
 import com.nomadconnection.dapp.core.dto.flow.FlowReportExcelDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -64,6 +67,7 @@ public class FlowDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonInclude
     public static class FlowAccountDto{
         @ApiModelProperty(value = "즐겨찾기여부", example = "true")
         public Boolean favorite;
@@ -92,6 +96,15 @@ public class FlowDto {
         @ApiModelProperty(value = "마이너스 통장 여부", example = "1")
         public String resOverdraftAcctYN;
 
+        @ApiModelProperty(value = "계좌번호", example = "123333-42-123122")
+        public String resAccountDisplay;
+
+        @ApiModelProperty(value = "상태", example = "0002")
+        public ResAccountStatus status;
+
+        @ApiModelProperty(value = "상태 정보", example = "0002")
+        public String statusDesc;
+
         public static FlowAccountDto from(ResAccountCustomRepository.CorpAccountDto dto) {
             String nickName;
             if( !ObjectUtils.isEmpty(dto.getNickName())){
@@ -102,7 +115,24 @@ public class FlowDto {
                 nickName = dto.getResAccountName();
             }
 
-            return FlowAccountDto.builder()
+            if(dto.getStatus().equals(ResAccountStatus.STOP)){
+                dto.setStatusDesc("연동이 중단된 계좌입니다.");
+            }else if(dto.getStatus().equals(ResAccountStatus.ERROR)){
+                dto.setStatusDesc("업데이트에 실패헀습니다.");
+            }
+            if(dto.getType().equals(ResAccountTypeStatus.DepositTrust.name())) {
+                dto.setType(ResAccountTypeStatus.DepositTrust.getStatus());
+            }else if(dto.getType().equals(ResAccountTypeStatus.ForeignCurrency.name())) {
+                dto.setType(ResAccountTypeStatus.ForeignCurrency.getStatus());
+            }else if(dto.getType().equals(ResAccountTypeStatus.Fund.name())) {
+                dto.setType(ResAccountTypeStatus.Fund.getStatus());
+            }else if(dto.getType().equals(ResAccountTypeStatus.Loan.name())) {
+                dto.setType(ResAccountTypeStatus.Loan.getStatus());
+            }else if(dto.getType().equals(ResAccountTypeStatus.Stock.name())) {
+                dto.setType(ResAccountTypeStatus.Stock.getStatus());
+            }
+
+                return FlowAccountDto.builder()
                     .idxAccount(dto.getIdxResAccount())
                     .favorite(dto.getFavorite())
                     .nickName(nickName)
@@ -110,6 +140,9 @@ public class FlowDto {
                     .currency(dto.getCurrency())
                     .organization(dto.getOrganization())
                     .resAccount(dto.getResAccount())
+                    .resAccountDisplay(dto.getResAccountDisplay())
+                    .status(dto.getStatus())
+                    .statusDesc(dto.getStatusDesc())
                     .resAccountBalance(dto.getResAccountBalance())
                     .resOverdraftAcctYN(dto.getResOverdraftAcctYN())
                 .build();
@@ -270,6 +303,9 @@ public class FlowDto {
         @ApiModelProperty(value = "계정분류 codeDesc (검색어)", example = "퇴직,퇴직금,퇴사")
         public String codeDesc;
 
+        @ApiModelProperty(value = "View 유무", example = "true")
+        public Boolean viewEnabled;
+
         @ApiModelProperty(value = "사용유무", example = "true")
         public Boolean enabled;
 
@@ -289,6 +325,7 @@ public class FlowDto {
                     .codeLv3(dto.codeLv3())
                     .codeLv4(dto.codeLv4())
                     .codeDesc(dto.codeDesc())
+                    .viewEnabled(dto.viewEnabled())
                     .enabled(dto.enabled())
                     .tagOrder(dto.tagOrder())
                     .build();

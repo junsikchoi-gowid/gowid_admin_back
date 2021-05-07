@@ -2330,14 +2330,15 @@ public class ScrapingService {
                             }
 
                             if (jsonArrayResForeignCurrency.size() > 0) {
-                                saveJsonDataToResAccount("ResForeignCurrency", jsonArrayResForeignCurrency, connectedMng.connectedId(), resConCorpList.organization(), startDate);
+                                saveJsonDataToResAccount("ForeignCurrency", jsonArrayResForeignCurrency, connectedMng.connectedId(), resConCorpList.organization(), startDate);
                             }
 
                             if (jsonArrayResFund.size() > 0) {
-                                saveJsonDataToResAccount("ResFund", jsonArrayResFund, connectedMng.connectedId(), resConCorpList.organization(), startDate);
+                                saveJsonDataToResAccount("Fund", jsonArrayResFund, connectedMng.connectedId(), resConCorpList.organization(), startDate);
                             }
+
                             if(jsonArrayResLoan.size() > 0) {
-                                saveJsonDataToResAccount("resLoan", jsonArrayResLoan, connectedMng.connectedId(), resConCorpList.organization(), startDate);
+                                saveJsonDataToResAccount("Loan", jsonArrayResLoan, connectedMng.connectedId(), resConCorpList.organization(), startDate);
                             }
                         }
                     }
