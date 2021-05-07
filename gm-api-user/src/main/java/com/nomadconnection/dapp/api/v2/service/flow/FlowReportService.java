@@ -559,16 +559,14 @@ public class FlowReportService {
         ResAccount resAccount = repoConnectedMng.accountUpdateTime(corp);
         ResAccountHistory resAccountHistory = repoConnectedMng.accountHistoryUpdateTime(corp);
 
-        procCreateReport(corp);
-
-//        if( flowReportMonth == null){
-//            procCreateReport(corp);
-//        }else if (flowReportMonth != null && resAccount != null && resAccountHistory != null) {
-//            if (flowReportMonth.getUpdatedAt().isBefore(resAccount.getUpdatedAt())
-//                    || flowReportMonth.getUpdatedAt().isBefore(resAccountHistory.getUpdatedAt())) {
-//                procCreateReport(corp);
-//            }
-//        }
+        if( flowReportMonth == null){
+            procCreateReport(corp);
+        }else if (flowReportMonth != null && resAccount != null && resAccountHistory != null) {
+            if (flowReportMonth.getUpdatedAt().isBefore(resAccount.getUpdatedAt())
+                    || flowReportMonth.getUpdatedAt().isBefore(resAccountHistory.getUpdatedAt())) {
+                procCreateReport(corp);
+            }
+        }
 
         return FlowDto.FlowReportDto.builder().createdAt(resAccountHistory.getUpdatedAt()).build();
     }
