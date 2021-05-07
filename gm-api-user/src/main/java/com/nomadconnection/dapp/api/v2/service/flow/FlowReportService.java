@@ -81,7 +81,7 @@ public class FlowReportService {
     private final AwsS3Service awsS3Service;
 
     private static final DateTimeFormatter DATEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private static final String FLOW_PATH = "/flow/";
+    private static final String FLOW_PATH = "/flow/gowidapi/";
 
     @Transactional(readOnly = true)
     public List<FlowDto.FlowReportByPeriodDto> getReportStatusMonth(Long idxCorp, String toDate) {
@@ -897,7 +897,6 @@ public class FlowReportService {
 
             }
             String orgFileName = idxCorp + flowCashFluctuationList.get(0).getFlowDate() + ".xlsx";
-//            fileDownLoadPath = "/Users/jpro/Downloads/";
             fileDownLoadPath = FLOW_PATH + orgFileName;
             fos = new FileOutputStream(fileDownLoadPath + orgFileName);
             workbook.write(fos);
