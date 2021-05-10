@@ -22,6 +22,7 @@ import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.embed.UserReception;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.StockholderFileRepository;
+import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CeoInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpBranchRepository;
@@ -33,7 +34,6 @@ import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.EventsRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.risk.Risk;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.user.*;
@@ -161,7 +161,7 @@ public class UserService {
 					.consent(false)
 					.email(member.getEmail())
 					.password(encoder.encode(plainPassword))
-					.hasTmpPassword(true)
+					.hasTmpPassword(member.isHasTmpPassword())
 					.name(member.getName())
 					.mdn(null)
 					.reception(new UserReception(false, false))
