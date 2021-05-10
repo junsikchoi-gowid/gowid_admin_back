@@ -25,7 +25,7 @@ import javax.validation.Valid;
 @RequestMapping(LotteCardControllerV2.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "롯데 법인카드 발급", description = LotteCardControllerV2.URI.BASE)
+@Api(tags = "[04] 롯데 법인카드 발급", description = LotteCardControllerV2.URI.BASE)
 public class LotteCardControllerV2 {
 
     public static class URI {

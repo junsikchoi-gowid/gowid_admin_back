@@ -26,7 +26,7 @@ import java.util.List;
 @RequestMapping(BenefitController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "멤버십 혜택", description = BenefitController.URI.BASE)
+@Api(tags = "[05] 멤버십 혜택", description = BenefitController.URI.BASE)
 public class BenefitController {
 
 	public static class URI {

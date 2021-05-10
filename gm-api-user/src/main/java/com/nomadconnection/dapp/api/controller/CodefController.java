@@ -23,7 +23,7 @@ import java.io.IOException;
 @RequestMapping(CodefController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "CodeF 스크래핑", description = CodefController.URI.BASE)
+@Api(tags = "[03] CodeF 스크래핑", description = CodefController.URI.BASE)
 public class CodefController {
 
 	public static class URI {

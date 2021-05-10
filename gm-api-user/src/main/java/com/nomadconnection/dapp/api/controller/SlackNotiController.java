@@ -24,7 +24,7 @@ import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.SignedU
 @RequiredArgsConstructor
 @CrossOrigin(allowCredentials = "true")
 @RequestMapping(SlackNotiController.URI.BASE)
-@Api(tags = "Slack Notification")
+@Api(tags = "[08] Slack Notification", description = SlackNotiController.URI.BASE)
 public class SlackNotiController {
 
     public static class URI {

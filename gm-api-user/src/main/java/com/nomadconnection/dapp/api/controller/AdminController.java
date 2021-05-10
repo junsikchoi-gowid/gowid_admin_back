@@ -28,7 +28,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequestMapping(AdminController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "Admin", description = AdminController.URI.BASE)
+@Api(tags = "[01] Admin", description = AdminController.URI.BASE)
 public class AdminController {
 
 	public static class URI {

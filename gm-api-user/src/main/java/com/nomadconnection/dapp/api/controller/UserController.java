@@ -25,7 +25,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequestMapping(UserController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "사용자")
+@Api(tags = "[02] 사용자", description = UserController.URI.BASE)
 public class UserController {
 
 	public static class URI {

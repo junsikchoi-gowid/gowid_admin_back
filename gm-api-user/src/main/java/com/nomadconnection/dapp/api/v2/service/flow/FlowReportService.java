@@ -244,9 +244,12 @@ public class FlowReportService {
                 () -> new BaseException(ResultType.NOT_FOUND)
         );
 
-        resAccount.favorite(dto.getFavorite());
+        if( !ObjectUtils.isEmpty(dto.getFavorite())){
+            resAccount.favorite(dto.getFavorite());
+        }
 
-        if(!dto.getEnabled()){
+
+        if( !ObjectUtils.isEmpty(dto.getEnabled()) && !dto.getEnabled()){
             resAccount.status(ResAccountStatus.DELETE);
         }
 

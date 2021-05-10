@@ -23,7 +23,7 @@ import java.io.IOException;
 @RequestMapping(ScrapingController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "스크래핑", description = ScrapingController.URI.BASE)
+@Api(tags = "[03] 스크래핑", description = ScrapingController.URI.BASE)
 public class ScrapingController {
 
     public static class URI {

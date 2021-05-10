@@ -20,7 +20,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequiredArgsConstructor
 @CrossOrigin(allowCredentials = "true")
 @RequestMapping(QuotabookController.URI.BASE)
-@Api(tags = "Quotabook 연동", description = QuotabookController.URI.BASE)
+@Api(tags = "[07] Quotabook 연동", description = QuotabookController.URI.BASE)
 public class QuotabookController {
 
     public static class URI {

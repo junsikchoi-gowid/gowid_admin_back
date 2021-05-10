@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(FaqController.URI.BASE)
 @RequiredArgsConstructor
-@Api(tags = "회원관리", description = FaqController.URI.BASE)
+@Api(tags = "[02] 회원관리", description = FaqController.URI.BASE)
 public class FaqController {
 
     public static class URI {

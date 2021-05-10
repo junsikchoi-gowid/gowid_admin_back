@@ -17,7 +17,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequestMapping(ExternalController.URI.BASE)
 @RequiredArgsConstructor
 @CrossOrigin(allowCredentials = "true")
-@Api(tags = "외부연결", description = ExternalController.URI.BASE)
+@Api(tags = "[07] 외부연결", description = ExternalController.URI.BASE)
 public class ExternalLinkController {
 
     public static class URI {

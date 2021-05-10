@@ -22,10 +22,13 @@ import javax.validation.Valid;
 @RestController("ScrapingV2Controller")
 @CrossOrigin(allowCredentials = "true")
 @RequiredArgsConstructor
-@RequestMapping("/codef/v2")
-@Api(tags = "CodeF 스크래핑 V2")
+@RequestMapping(ScrapingController.URI.BASE)
+@Api(tags = "[04] CodeF 스크래핑 V2", description = ScrapingController.URI.BASE)
 public class ScrapingController {
 
+	public static class URI {
+		public static final String BASE = "/codef/v2";
+	}
 	private final ScrapingService scrapingService;
 	private final FinancialStatementsService financialStatementsService;
 	private final CardIssuanceInfoService cardIssuanceInfoService;

@@ -22,7 +22,7 @@ import java.io.IOException;
 @RequestMapping(BankController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "은행", description = BankController.URI.BASE)
+@Api(tags = "[04] 은행", description = BankController.URI.BASE)
 public class BankController {
 
 	public static class URI {

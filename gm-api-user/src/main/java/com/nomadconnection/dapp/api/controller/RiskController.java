@@ -19,7 +19,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequestMapping(RiskController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "리스크", description = RiskController.URI.BASE)
+@Api(tags = "[04] 리스크", description = RiskController.URI.BASE)
 public class RiskController {
 
 	public static class URI {

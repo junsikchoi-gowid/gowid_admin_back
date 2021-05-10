@@ -1,9 +1,11 @@
 package com.nomadconnection.dapp.api.v2.controller.scraping;
 
+import com.nomadconnection.dapp.api.controller.UserEtcController;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.service.lotte.LotteIssuanceService;
 import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
+import com.nomadconnection.dapp.api.v2.controller.flow.FlowBaseController;
 import com.nomadconnection.dapp.api.v2.dto.ImageReqDto;
 import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
 import com.nomadconnection.dapp.api.v2.service.scraping.RecoveryService;
@@ -21,9 +23,12 @@ import javax.validation.Valid;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/recovery")
-@Api(tags = "CodeF 수동처리 스크래핑")
+@RequestMapping(RecoveryController.URI.BASE)
+@Api(tags = "[03] CodeF 수동처리 스크래핑" , description = RecoveryController.URI.BASE)
 public class RecoveryController {
+	public static class URI {
+		public static final String BASE = "/recovery";
+	}
 
 	private final RecoveryService recoveryService;
 

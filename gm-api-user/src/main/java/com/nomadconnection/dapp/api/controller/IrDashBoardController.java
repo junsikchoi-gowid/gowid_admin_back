@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(IrDashBoardController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "Ir 게시판", description = IrDashBoardController.URI.BASE)
+@Api(tags = "[08] Ir 게시판", description = IrDashBoardController.URI.BASE)
 public class IrDashBoardController {
 
 	public static class URI {

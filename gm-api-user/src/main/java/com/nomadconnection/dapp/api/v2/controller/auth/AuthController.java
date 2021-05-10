@@ -23,7 +23,7 @@ import javax.validation.constraints.Email;
 @RestController("AuthV2Controller")
 @RequestMapping(AuthController.URI.BASE)
 @RequiredArgsConstructor
-@Api(tags = "인증 v2", description = AuthController.URI.BASE)
+@Api(tags = "[02] 인증 v2", description = AuthController.URI.BASE)
 @Validated
 public class AuthController {
 
