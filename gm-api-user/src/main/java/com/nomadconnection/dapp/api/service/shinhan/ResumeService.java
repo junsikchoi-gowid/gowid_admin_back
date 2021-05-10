@@ -89,6 +89,7 @@ public class ResumeService {
 
         asyncService.run(() -> procResume(request, cardIssuanceInfo.cardType()));
 
+        updateIssuanceStatus(request);
         log.debug("## response 1600 => " + response.toString());
         updateIssuanceStatus(request);
 
