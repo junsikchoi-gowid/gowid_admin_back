@@ -19,7 +19,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @RestController
 @RequestMapping(ConsentController.URI.BASE)
 @RequiredArgsConstructor
-@Api(tags = "회원관리", description = ConsentController.URI.BASE)
+@Api(tags = "[02] 회원관리", description = ConsentController.URI.BASE)
 public class ConsentController {
 
     public static class URI {

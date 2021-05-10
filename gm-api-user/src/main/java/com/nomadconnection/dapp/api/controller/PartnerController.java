@@ -5,6 +5,7 @@ import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.service.BankService;
 import com.nomadconnection.dapp.api.service.PartnerService;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(PartnerController.URI.BASE)
 @RequiredArgsConstructor
+@Api(tags = "[06] 외부 연동 API ", description = PartnerController.URI.BASE)
 public class PartnerController {
     public static class URI {
         public static final String BASE = "/partner/v1/{externalId}";

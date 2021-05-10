@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping(AccessManageController.URI.BASE)
 @RequiredArgsConstructor
-@Api(tags = "연동관리")
+@Api(tags = "[02] 연동관리", description = AccessManageController.URI.BASE)
 @Validated
 public class AccessManageController {
 

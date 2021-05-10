@@ -22,7 +22,7 @@ import java.io.IOException;
 @RequestMapping(KcbController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "kcb 휴대폰 인증", description = KcbController.URI.BASE)
+@Api(tags = "[06] kcb 휴대폰 인증", description = KcbController.URI.BASE)
 public class KcbController {
 
     public static class URI {

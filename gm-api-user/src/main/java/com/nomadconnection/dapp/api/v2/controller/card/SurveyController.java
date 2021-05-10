@@ -18,7 +18,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @CrossOrigin(allowCredentials = "true")
 @RequiredArgsConstructor
 @RequestMapping(SurveyController.URI.BASE)
-@Api(tags = "사용자", description = UserController.URI.BASE)
+@Api(tags = "[02] 사용자", description = UserController.URI.BASE)
 public class SurveyController {
 
 	public static class URI {

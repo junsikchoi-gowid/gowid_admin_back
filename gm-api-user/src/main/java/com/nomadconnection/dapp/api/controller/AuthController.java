@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping(AuthController.URI.BASE)
 @RequiredArgsConstructor
-@Api(tags = "인증", description = AuthController.URI.BASE)
+@Api(tags = "[02] 인증", description = AuthController.URI.BASE)
 @Validated
 public class AuthController {
 

@@ -33,7 +33,7 @@ import java.util.List;
 @RequestMapping(CommonCardControllerV2.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "카드사공통 법인카드 발급")
+@Api(tags = "[04] 법인카드 발급 공통 V2", description = CommonCardControllerV2.URI.BASE)
 public class CommonCardControllerV2 {
     public static class URI {
         public static final String BASE = "/card/v2";

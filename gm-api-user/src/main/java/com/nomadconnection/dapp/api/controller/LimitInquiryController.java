@@ -17,7 +17,7 @@ import javax.validation.Valid;
 @CrossOrigin(allowCredentials = "true")
 @RequiredArgsConstructor
 @RequestMapping(LimitInquiryController.URI.BASE)
-@Api(tags = "한도조회", description = LimitInquiryController.URI.BASE)
+@Api(tags = "[06] 한도조회", description = LimitInquiryController.URI.BASE)
 public class LimitInquiryController {
 
     public static class URI {

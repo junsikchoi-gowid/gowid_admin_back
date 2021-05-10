@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(ExternalController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "외부연결", description = ExternalController.URI.BASE)
+@Api(tags = "[07] 외부연결", description = ExternalController.URI.BASE)
 public class ExternalController {
 
 	public static class URI {

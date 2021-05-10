@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(ImageController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "이미지생성")
+@Api(tags = "[06] 이미지생성", description = ImageController.URI.BASE)
 public class ImageController {
 
 	public static class URI {

@@ -23,7 +23,7 @@ import javax.validation.Valid;
 @RequestMapping(SaasTrackerAdminController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "SaaS Tracker", description = SaasTrackerAdminController.URI.BASE)
+@Api(tags = "[05] SaaS Tracker", description = SaasTrackerAdminController.URI.BASE)
 public class SaasTrackerAdminController {
 
     public static class URI {

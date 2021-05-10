@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(UserEtcController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "회원관리", description = UserEtcController.URI.BASE)
+@Api(tags = "[02] 회원관리", description = UserEtcController.URI.BASE)
 public class UserEtcController {
 
     public static class URI {

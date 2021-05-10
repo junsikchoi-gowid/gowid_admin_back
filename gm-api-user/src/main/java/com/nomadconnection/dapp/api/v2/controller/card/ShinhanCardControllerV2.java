@@ -33,7 +33,7 @@ import static java.net.URI.create;
 @CrossOrigin(allowCredentials = "true")
 @RequestMapping(ShinhanCardControllerV2.URI.BASE)
 @RequiredArgsConstructor
-@Api(tags = "신한 법인카드 발급", description = ShinhanCardControllerV2.URI.BASE)
+@Api(tags = "[04] 신한 법인카드 발급", description = ShinhanCardControllerV2.URI.BASE)
 public class ShinhanCardControllerV2 {
 
     public static class URI {

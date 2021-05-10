@@ -168,7 +168,7 @@ public class AccessManageService {
                     .desc2(dto.getDesc2())
                     .issuer(dto.getIssuer())
                     .serialNumber(dto.getSerial())
-                    // .idxCorp()
+                    .corp(user.corp())
                     .status(ConnectedMngStatus.NORMAL)
                     .build()
             );

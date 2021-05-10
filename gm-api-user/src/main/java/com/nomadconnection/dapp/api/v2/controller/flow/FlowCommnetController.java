@@ -30,7 +30,6 @@ import static com.nomadconnection.dapp.core.exception.response.GowidResponse.ok;
 @CrossOrigin(allowCredentials = "true")
 @RequiredArgsConstructor
 @RestController
-@Api(tags = {"FlowCash"},  value = "FlowCash" )
 @RequestMapping(FlowBaseController.URI.BASE)
 @Validated
 @SuppressWarnings("unchecked")

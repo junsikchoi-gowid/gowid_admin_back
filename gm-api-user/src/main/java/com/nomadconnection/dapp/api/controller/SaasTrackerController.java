@@ -22,7 +22,7 @@ import java.util.Map;
 @RequestMapping(SaasTrackerController.URI.BASE)
 @RequiredArgsConstructor
 @Validated
-@Api(tags = "SaaS Tracker", description = SaasTrackerController.URI.BASE)
+@Api(tags = "[05] SaaS Tracker", description = SaasTrackerController.URI.BASE)
 public class SaasTrackerController {
 
 	public static class URI {
