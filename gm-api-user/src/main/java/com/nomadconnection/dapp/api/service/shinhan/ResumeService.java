@@ -89,6 +89,7 @@ public class ResumeService {
 
         asyncService.run(() -> procResume(request, cardIssuanceInfo.cardType()));
 
+        updateIssuanceStatus(request);
         log.debug("## response 1600 => " + response.toString());
 
         return response;
@@ -193,7 +194,6 @@ public class ResumeService {
 
         shinhanGwRpc.request1800(requestRpc, idxUser);
 
-        updateIssuanceStatus(request);
         log.debug("## 1800 end");
     }
 
