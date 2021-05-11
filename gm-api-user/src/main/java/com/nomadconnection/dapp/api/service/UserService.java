@@ -330,16 +330,21 @@ public class UserService {
 		// validation end
 
 		User user = getUser(idx);
+		String orgEmail = user.email();
 
-		user.email(dto.getEmail());
-		user.mdn(dto.getMdn());
-		user.name(dto.getUserName());
-		user.reception().setIsSendEmail(dto.getIsSendEmail());
-		user.reception().setIsSendSms(dto.getIsSendSms());
+		if(StringUtils.hasText(dto.getEmail())) { user.email(dto.getEmail()); }
+		if(StringUtils.hasText(dto.getMdn())) { user.mdn(dto.getMdn()); }
+		if(StringUtils.hasText(dto.getUserName())) { user.name(dto.getUserName()); }
+		if(dto.getIsSendEmail() != null) {user.reception().setIsSendEmail(dto.getIsSendEmail()); }
+		if(dto.getIsSendSms() != null) { user.reception().setIsSendSms(dto.getIsSendSms()); }
 
-		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.data(repoUser.save(user))
-				.build());
+		try {
+			expenseService.updateExpenseUserProfile(orgEmail, dto.getUserName(), dto.getMdn(), dto.getEmail());
+		} catch (Exception e) {
+			log.error(e.getMessage()); // just skip to throw exception
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().build());
 	}
 
 	/**

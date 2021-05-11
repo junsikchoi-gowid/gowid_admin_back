@@ -29,4 +29,8 @@ public class ExpenseService {
     public UserRes updateExpenseUserCredential(String email, String password) {
         return expenseRpc.requestUpdateCredential(email, password);
     }
+
+    public UserRes updateExpenseUserProfile(String email, String userName, String mobile, String newEmail) {
+        return expenseRpc.requestUpdateUserProfile(email, userName, mobile, newEmail);
+    }
 }
