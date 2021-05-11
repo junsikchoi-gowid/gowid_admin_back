@@ -45,6 +45,7 @@ import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 import org.hibernate.Hibernate;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -262,7 +263,7 @@ public class FlowReportService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Page<FlowDto.FlowAccountHistoryDto> getFlowAccountHistory(FlowDto.SearchFlowAccountHistory searchDto, Pageable pageable) {
 
         Page<FlowDto.FlowAccountHistoryDto> flowAccountHistoryList;
@@ -282,10 +283,6 @@ public class FlowReportService {
                     .searchAllResAccountHistoryLikeList(accountList, searchDto.getFrom(), searchDto.getTo(), searchDto.getSearchWord(), pageable)
                     .map(FlowDto.FlowAccountHistoryDto::from);
         }
-
-        flowAccountHistoryList.forEach(
-                flowAccountHistoryDto -> Hibernate.initialize(flowAccountHistoryDto.flowTagConfig)
-        );
 
         return flowAccountHistoryList;
     }
@@ -397,11 +394,11 @@ public class FlowReportService {
                 cell.setCellStyle(styleMoneyFormat);
                 cell.setCellValue(GowidUtils.doubleTypeGet(dataDto.getResAfterTranBalance()));
 
-                if (!ObjectUtils.isEmpty(dataDto.getFlowTagConfig())) {
+                if (!ObjectUtils.isEmpty(dataDto.getFlowTagConfigdto())) {
                     cell = row.createCell(indexCol++);
-                    cell.setCellValue(GowidUtils.getEmptyStringToString(dataDto.getFlowTagConfig().codeLv3()));
+                    cell.setCellValue(GowidUtils.getEmptyStringToString(dataDto.getFlowTagConfigdto().getCodeLv3()));
                     cell = row.createCell(indexCol++);
-                    cell.setCellValue(GowidUtils.getEmptyStringToString(dataDto.getFlowTagConfig().codeLv4()));
+                    cell.setCellValue(GowidUtils.getEmptyStringToString(dataDto.getFlowTagConfigdto().getCodeLv4()));
                 } else {
                     cell = row.createCell(indexCol++);
                     cell.setCellValue("");
@@ -570,17 +567,22 @@ public class FlowReportService {
 
         ResAccount resAccount = repoConnectedMng.accountUpdateTime(corp);
         ResAccountHistory resAccountHistory = repoConnectedMng.accountHistoryUpdateTime(corp);
+        LocalDateTime reportTime = LocalDateTime.now();
+
 
         if( flowReportMonth == null){
             procCreateReport(corp);
+            reportTime = resAccountHistory.getUpdatedAt();
+
         }else if (flowReportMonth != null && resAccount != null && resAccountHistory != null) {
             if (flowReportMonth.getUpdatedAt().isBefore(resAccount.getUpdatedAt())
                     || flowReportMonth.getUpdatedAt().isBefore(resAccountHistory.getUpdatedAt())) {
                 procCreateReport(corp);
+                reportTime = resAccountHistory.getUpdatedAt();
             }
         }
 
-        return FlowDto.FlowReportDto.builder().createdAt(resAccountHistory.getUpdatedAt()).build();
+        return FlowDto.FlowReportDto.builder().createdAt(reportTime).build();
     }
 
     @Transactional
@@ -602,32 +604,35 @@ public class FlowReportService {
 
                     if (ObjectUtils.isEmpty(dto.getIdxFlowTagConfig())) {
 
-                        String flowCode;
-                        flowCode = "B000";
-                        if (dto.getFlowIn().equals(0L)) {
-                            flowCode = "A000";
-                        }
+                        flowTagConfig = repoFlowTagConfig.findByCorpAndFlowCodeAndCode4(corp, "FLOW", "A000");
+                        repoFlowTagMonth.save(FlowTagMonth.builder()
+                                .corp(corp)
+                                .flowTagConfig(flowTagConfig.get())
+                                .flowDate(dto.getMonth())
+                                .flowTotal(GowidUtils.doubleTypeGet(String.valueOf(dto.getFlowIn())))
+                                .build());
 
-                        flowTagConfig = repoFlowTagConfig.findByCorpAndFlowCodeAndCode4(corp, "FLOW", flowCode);
+                        flowTagConfig = repoFlowTagConfig.findByCorpAndFlowCodeAndCode4(corp, "FLOW", "B000");
+
+                        repoFlowTagMonth.save(FlowTagMonth.builder()
+                                .corp(corp)
+                                .flowTagConfig(flowTagConfig.get())
+                                .flowDate(dto.getMonth())
+                                .flowTotal(GowidUtils.doubleTypeGet(String.valueOf(dto.getFlowOut())))
+                                .build());
                     } else {
-                        log.debug("dto.getIdxFlowTagConfig() = {} ", dto.getIdxFlowTagConfig());
                         flowTagConfig = repoFlowTagConfig.findById(dto.getIdxFlowTagConfig());
+                        long total = dto.getFlowIn() + dto.getFlowOut();
 
-                        log.debug("flowTagConfig() = {} ", flowTagConfig.get().code4());
+                        FlowTagMonth flowTagMonth = FlowTagMonth.builder()
+                                .corp(corp)
+                                .flowTagConfig(flowTagConfig.get())
+                                .flowDate(dto.getMonth())
+                                .flowTotal(GowidUtils.doubleTypeGet(String.valueOf(total)))
+                                .build();
+
+                        repoFlowTagMonth.save(flowTagMonth);
                     }
-
-                    long total = dto.getFlowIn() + dto.getFlowOut();
-
-                    FlowTagMonth flowTagMonth = FlowTagMonth.builder()
-                            .corp(corp)
-                            .flowTagConfig(flowTagConfig.get())
-                            .flowDate(dto.getMonth())
-                            .flowTotal(GowidUtils.doubleTypeGet(String.valueOf(total)))
-                            .build();
-
-                    log.debug("flowTagMonth() = {} , {} , {}", flowTagConfig.get().idx(), dto.getMonth(), total );
-
-                    repoFlowTagMonth.save(flowTagMonth);
                 });
 
         LocalDate startDate = LocalDate.now().minusYears(1);

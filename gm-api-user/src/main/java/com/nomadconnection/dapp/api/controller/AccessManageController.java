@@ -36,7 +36,7 @@ public class AccessManageController {
         public static final String CONNECTEDID = "/connected-id"; // connectedId
         public static final String CONNECTEDID_PUT = "/connected-id/{idxConnectedMng}"; // connectedId - 사용중지
         public static final String CONNECTEDID_IDXCORP = "/connected-id/{idxConnectedMng}/corp"; // connectedId, corpType
-        public static final String CONNECTEDID_STOP = "/connected-id/stop";
+        public static final String CONNECTEDID_STOP = "/connected-id/stop"; // 기관 삭제
     }
 
     private final AccessManageService accessManageService;

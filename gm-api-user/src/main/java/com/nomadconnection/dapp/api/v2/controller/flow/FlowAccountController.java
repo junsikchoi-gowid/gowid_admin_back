@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -82,7 +83,11 @@ public class FlowAccountController extends FlowBaseController {
     @ApiPageable
     public GowidResponse<Page<FlowDto.FlowAccountHistoryDto>> getAccountHistory(@ApiIgnore @CurrentUser CustomUser user,
                                                                                 @ModelAttribute FlowDto.SearchFlowAccountHistory searchDto,
-                                                                                @PageableDefault(size = 100, sort = "updatedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+                                                                                @PageableDefault(size = 100)
+                                                                                @SortDefault.SortDefaults({
+                                                                                        @SortDefault(sort = "resAccountTrDate", direction = Sort.Direction.DESC),
+                                                                                        @SortDefault(sort = "resAccountTrTime", direction = Sort.Direction.DESC)})
+                                                                                        Pageable pageable) {
 
         log.info("[getAccountHistory] user = {}, corp = {} ", user.idx(), user.corp().idx());
 

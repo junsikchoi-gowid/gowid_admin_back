@@ -121,17 +121,13 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
     interface CMonthInOutStaticsDto {
         Long getFlowIn();
         Long getFlowOut();
-        String getMonth();
     }
     @Query(value = "SELECT  " +
             " SUM(IFNULL(CAST(resAccountIn AS SIGNED ),0)) AS flowIn, " +
-            " SUM(IFNULL(CAST(resAccountOut AS SIGNED ),0)) AS flowOut,  " +
-            " SUBSTR(resAccountTrDate,1,6) AS month  " +
+            " SUM(IFNULL(CAST(resAccountOut AS SIGNED ),0)) AS flowOut " +
             " FROM ResAccountHistory " +
             " WHERE resAccount IN (:resAccountList) " +
-            " AND resAccountTrDate >= :from AND resAccountTrDate <= :to" +
-            " GROUP BY SUBSTR(resAccountTrDate,1,6) " +
-            " ORDER BY month ",
+            " AND resAccountTrDate >= :from AND resAccountTrDate <= :to",
             nativeQuery = true)
     CMonthInOutStaticsDto monthInOutStatics(@Param("resAccountList") List<String> resAccountList
             , @Param("from") String from

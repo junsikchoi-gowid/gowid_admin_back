@@ -206,7 +206,7 @@ public class AccessManageService {
         if(objConnectedMng.isPresent()){
             if( objConnectedMng.get().idxUser().equals(user.idx())){
                 connectedMng = objConnectedMng.get();
-                connectedMng.status(ConnectedMngStatus.STOP);
+                connectedMng.status(ConnectedMngStatus.DELETE);
                 connectedMng = repoConnectedMng.save(connectedMng);
             }
         }
@@ -366,13 +366,13 @@ public class AccessManageService {
                 connectedMng.connectedId()
                 , organization
                 , connectedMngStatusList
-        )).ifPresent(resConCorpList -> resConCorpList.status(ResConCorpListStatus.STOP));
+        )).ifPresent(resConCorpList -> resConCorpList.status(ResConCorpListStatus.DELETE));
 
         Optional<ConnectedMng> connectedMng = repoConnectedMng.findById(idxConnectedMng);
         if(repoResConCorpList.findByConnectedIdAndStatusIn(connectedMng.get().connectedId(), connectedMngStatusList).size() < 1){
             connectedMng.ifPresent(
                     connectedMng1 -> {
-                        connectedMng1.status(ConnectedMngStatus.STOP);
+                        connectedMng1.status(ConnectedMngStatus.DELETE);
                     }
             );
         }
