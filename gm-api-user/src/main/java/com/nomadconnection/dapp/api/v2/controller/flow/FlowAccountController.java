@@ -114,13 +114,11 @@ public class FlowAccountController extends FlowBaseController {
     @ApiOperation(value = "계좌거래내역 다운로드", notes = "hasRole : CBT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = URI.ACCOUNT_HISTORY_EXCEL)
-    @ApiPageable
-    ResponseEntity<ByteArrayResource>getExcelAccountHistory(@ApiIgnore @CurrentUser CustomUser user, HttpServletResponse response,
-                                                 @ModelAttribute FlowDto.SearchFlowAccountHistory searchDto,
-                                                 @PageableDefault(size = 50000, sort = "updatedAt", direction = Sort.Direction.DESC) Pageable pageable) throws IOException {
+    ResponseEntity<ByteArrayResource>getExcelAccountHistory(@ApiIgnore @CurrentUser CustomUser user,
+                                                            @ModelAttribute FlowDto.SearchFlowAccountHistory searchDto) throws IOException {
 
 
-        FlowDto.FlowExcelPath flowExcelPath = flowReportService.getExcelFlowAccountHistory(user.corp().idx(), searchDto, pageable);
+        FlowDto.FlowExcelPath flowExcelPath = flowReportService.getExcelFlowAccountHistory(user.corp().idx(), searchDto);
 
         final ByteArrayResource resource = new ByteArrayResource(flowExcelPath.file);
 

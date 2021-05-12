@@ -85,6 +85,7 @@ public class FlowReportService {
     private static final DateTimeFormatter DATEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final String FLOW_PATH = "/flow/gowidapi/";
 
+
     @Transactional(readOnly = true)
     public List<FlowDto.FlowReportByPeriodDto> getReportStatusMonth(Long idxCorp, String toDate) {
 
@@ -94,7 +95,7 @@ public class FlowReportService {
         toDate = now.format(DateTimeFormatter.ofPattern("yyyyMM"));
         String fromDate = now.minusMonths(6).format(DateTimeFormatter.ofPattern("yyyyMM"));
 
-        return repoFlowReportMonth.findByCorpAndFlowDateBetween(corp, fromDate, toDate).
+        return repoFlowReportMonth.findByCorpAndFlowDateBetweenOrderByFlowDateAsc(corp, fromDate, toDate).
                 stream().map(FlowDto.FlowReportByPeriodDto::from).collect(Collectors.toList());
     }
 
@@ -134,7 +135,7 @@ public class FlowReportService {
         LocalDate now = LocalDate.parse(toDate, DATEFORMATTER);
         String fromDate = now.minusMonths(6).format(DateTimeFormatter.ofPattern("yyyyMM"));
 
-        return repoFlowReportMonth.findByCorpAndFlowDateBetween(corp, fromDate, toDate)
+        return repoFlowReportMonth.findByCorpAndFlowDateBetweenOrderByFlowDateAsc(corp, fromDate, toDate)
                 .stream().map(FlowDto.FlowCashFluctuationDto::from).collect(Collectors.toList());
     }
 
@@ -288,24 +289,23 @@ public class FlowReportService {
     }
 
     @Transactional(readOnly = true)
-    public FlowDto.FlowExcelPath getExcelFlowAccountHistory(Long idxCorp, FlowDto.SearchFlowAccountHistory searchDto, Pageable pageable) throws IOException {
-
+    public FlowDto.FlowExcelPath getExcelFlowAccountHistory(Long idxCorp, FlowDto.SearchFlowAccountHistory searchDto) throws IOException {
         List<FlowDto.FlowAccountHistoryDto> flowAccountHistoryList;
 
         List<String> accountList = searchDto.getArrayResAccount().stream().map(o -> o.replaceAll("-", "")).collect(Collectors.toList());
 
         if (!ObjectUtils.isEmpty(searchDto.getInOutType()) && searchDto.getInOutType().toLowerCase().equals("in")) {
             flowAccountHistoryList = repoResAccountHistory
-                    .searchInResAccountHistoryLikeList(accountList, searchDto.getTo(), searchDto.getFrom(), searchDto.getSearchWord(), pageable)
-                    .map(FlowDto.FlowAccountHistoryDto::from).getContent();
+                    .excelInResAccountHistoryLikeList(accountList, searchDto.getFrom(), searchDto.getTo(), searchDto.getSearchWord()).stream()
+                    .map(FlowDto.FlowAccountHistoryDto::from).collect(Collectors.toList());
         } else if (!ObjectUtils.isEmpty(searchDto.getInOutType()) && searchDto.getInOutType().toLowerCase().equals("out")) {
             flowAccountHistoryList = repoResAccountHistory
-                    .searchOutResAccountHistoryLikeList(accountList, searchDto.getTo(), searchDto.getFrom(), searchDto.getSearchWord(), pageable)
-                    .map(FlowDto.FlowAccountHistoryDto::from).getContent();
+                    .excelOutResAccountHistoryLikeList(accountList, searchDto.getFrom(), searchDto.getTo(), searchDto.getSearchWord()).stream()
+                    .map(FlowDto.FlowAccountHistoryDto::from).collect(Collectors.toList());
         } else {
             flowAccountHistoryList = repoResAccountHistory
-                    .searchAllResAccountHistoryLikeList(accountList, searchDto.getTo(), searchDto.getFrom(), searchDto.getSearchWord(), pageable)
-                    .map(FlowDto.FlowAccountHistoryDto::from).getContent();
+                    .excelAllResAccountHistoryLikeList(accountList, searchDto.getFrom(), searchDto.getTo(), searchDto.getSearchWord()).stream()
+                    .map(FlowDto.FlowAccountHistoryDto::from).collect(Collectors.toList());
         }
 
         String fileName= createListToExcel(idxCorp, flowAccountHistoryList, searchDto);
@@ -410,7 +410,7 @@ public class FlowReportService {
                 cell.setCellValue(dataDto.getMemo());
 
             }
-            String orgFileName = searchDto.getTo() + "_" + searchDto.getFrom() + "_" + idxCorp + ".xlsx";
+            String orgFileName = idxCorp + "_history_" + LocalDateTime.now().toString() + ".xlsx";
             fileDownLoadPath = FLOW_PATH + orgFileName;
             fos = new FileOutputStream(fileDownLoadPath);
             workbook.write(fos);
@@ -765,18 +765,18 @@ public class FlowReportService {
 
         int rowIndex = 1;
         String[] cell1 = { flowCashFluctuationList.get(3).getFlowDate()
-                , flowCashFluctuationList.get(2).getFlowDate()
-                , flowCashFluctuationList.get(1).getFlowDate()
-                , flowCashFluctuationList.get(0).getFlowDate()};
+                , flowCashFluctuationList.get(4).getFlowDate()
+                , flowCashFluctuationList.get(5).getFlowDate()
+                , flowCashFluctuationList.get(6).getFlowDate()};
 
-        Double[] cell2 = { flowCashFluctuationList.get(1).getFlowTotal()
-                , flowCashFluctuationList.get(2).getFlowTotal()
-                , flowCashFluctuationList.get(3).getFlowTotal()
+        Double[] cell2 = { flowCashFluctuationList.get(3).getFlowTotal()
                 , flowCashFluctuationList.get(4).getFlowTotal()
-                , flowCashFluctuationList.get(1).getFlowTotal() +
-                flowCashFluctuationList.get(2).getFlowTotal() +
-                flowCashFluctuationList.get(3).getFlowTotal() +
-                flowCashFluctuationList.get(4).getFlowTotal()
+                , flowCashFluctuationList.get(5).getFlowTotal()
+                , flowCashFluctuationList.get(6).getFlowTotal()
+                , flowCashFluctuationList.get(3).getFlowTotal() +
+                flowCashFluctuationList.get(4).getFlowTotal() +
+                flowCashFluctuationList.get(5).getFlowTotal() +
+                flowCashFluctuationList.get(6).getFlowTotal()
         };
 
         try {
@@ -911,7 +911,7 @@ public class FlowReportService {
                 cell.setCellValue(Long.valueOf(NumberUtils.doubleToString(dto.getBeforesum())));
 
             }
-            String orgFileName = idxCorp + flowCashFluctuationList.get(0).getFlowDate() + ".xlsx";
+            String orgFileName = idxCorp + "_report_" + LocalDateTime.now().toString() + ".xlsx";
             fileDownLoadPath = FLOW_PATH + orgFileName;
             fos = new FileOutputStream(fileDownLoadPath);
             workbook.write(fos);
