@@ -136,4 +136,36 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
 
 
 
+    @Query(value = "SELECT R.* FROM ResAccountHistory R WHERE " +
+            " resAccountTrDate >= :from AND resAccountTrDate <= :to" +
+            " and resAccount IN (:resAccountList)" +
+            " and (:searchWord is null or (concat_ws(resAccountDesc1 , resAccountDesc2 , resAccountDesc3 , resAccountDesc4, memo, tagValue )  like concat('%',:searchWord,'%') ))" +
+            " order by resAccountTrDate desc, resAccountTrTime desc ",
+            nativeQuery = true)
+    List<ResAccountHistory> excelAllResAccountHistoryLikeList(
+            @Param("resAccountList") List<String> resAccountList,
+            @Param("from") String from, @Param("to") String to,
+            @Param("searchWord") String searchWord);
+
+    @Query(value = "SELECT R.* FROM ResAccountHistory R WHERE " +
+            " resAccountTrDate >= :from AND resAccountTrDate <= :to" +
+            " and resAccount IN (:resAccountList) AND resAccountIn = '0' AND resAccountOut <> '0' " +
+            " and (:searchWord is null or (concat_ws(resAccountDesc1 , resAccountDesc2 , resAccountDesc3 , resAccountDesc4, memo, tagValue )  like concat('%',:searchWord,'%') ))" +
+            " order by resAccountTrDate desc, resAccountTrTime desc ",
+            nativeQuery = true)
+    List<ResAccountHistory> excelInResAccountHistoryLikeList(
+            @Param("resAccountList") List<String> resAccountList,
+            @Param("from") String from, @Param("to") String to,
+            @Param("searchWord") String searchWord);
+
+    @Query(value = "SELECT R.* FROM ResAccountHistory R WHERE " +
+            " resAccountTrDate >= :from AND resAccountTrDate <= :to" +
+            " and resAccount IN (:resAccountList) AND resAccountIn = '0' AND resAccountOut <> '0' " +
+            " and (:searchWord is null or (concat_ws(resAccountDesc1 , resAccountDesc2 , resAccountDesc3 , resAccountDesc4, memo, tagValue )  like concat('%',:searchWord,'%') ))" +
+            " order by resAccountTrDate desc, resAccountTrTime desc ",
+            nativeQuery = true)
+    List<ResAccountHistory> excelOutResAccountHistoryLikeList(
+            @Param("resAccountList") List<String> resAccountList,
+            @Param("from") String from, @Param("to") String to,
+            @Param("searchWord") String searchWord);
 }

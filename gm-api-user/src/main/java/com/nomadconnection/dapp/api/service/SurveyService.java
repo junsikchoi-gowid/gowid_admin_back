@@ -5,8 +5,10 @@ import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.exception.api.NotRegisteredException;
 import com.nomadconnection.dapp.api.exception.survey.SurveyAlreadyExistException;
 import com.nomadconnection.dapp.api.exception.survey.SurveyNotRegisteredException;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.etc.Survey;
 import com.nomadconnection.dapp.core.domain.etc.SurveyAnswer;
+import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.etc.SurveyAnswerRepository;
 import com.nomadconnection.dapp.core.domain.repository.etc.SurveyRepository;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -31,6 +33,7 @@ public class SurveyService {
 
 	private final SurveyRepository surveyRepository;
 	private final SurveyAnswerRepository surveyAnswerRepository;
+	private final CorpRepository corpRepository;
 
 	private final String[] NOT_EXISTS_DETAIL = {"NONE", "TEXT"};
 	private final String DEFAULT_SURVEY = "DEFAULT";
@@ -53,9 +56,20 @@ public class SurveyService {
 			.key(contents.getTitle()).title(contents.getTitleName()).answers(answers).build();
 	}
 
+	@Transactional(readOnly = true)
 	public List<SurveyDto> findAnswerByTitle(User user, String title) throws NotRegisteredException {
+		User contractor;
+
+		if(user.corp() == null) {
+			contractor = user;
+		} else {
+			Long idxCorp = user.corp().idx();
+			Optional<Corp> corp = corpRepository.findById(idxCorp);
+			contractor = corp.isPresent() ? corp.get().user(): user;
+		}
+
 		Survey survey = findSurveyTitle(title);
-		List<SurveyAnswer> surveyAnswers = surveyAnswerRepository.findAllByUserAndTitle(user, survey.getTitle()).orElseThrow(
+		List<SurveyAnswer> surveyAnswers = surveyAnswerRepository.findAllByUserAndTitle(contractor, survey.getTitle()).orElseThrow(
 			() -> new NotRegisteredException(ErrorCode.Api.NOT_FOUND));
 		return SurveyDto.from(surveyAnswers);
 	}
