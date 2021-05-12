@@ -46,7 +46,10 @@ public class AccessManageService {
     private final ScrapingService scrapingService;
 
     private final String urlPath = CommonConstant.getRequestDomain();
-    private final List<ConnectedMngStatus> connectedMngStatusList
+    private final List<ResConCorpListStatus> resConCorpListStatuses
+            = Arrays.asList(ResConCorpListStatus.NORMAL, ResConCorpListStatus.ERROR, ResConCorpListStatus.STOP);
+
+    private final List<ConnectedMngStatus> connectedMngStatuses
             = Arrays.asList(ConnectedMngStatus.NORMAL, ConnectedMngStatus.ERROR, ConnectedMngStatus.STOP);
 
     @Transactional
@@ -58,7 +61,7 @@ public class AccessManageService {
     @Transactional
     public List<ConnectedMngDto> getConnectedIdNormal(CustomUser user) {
 
-        return repoConnectedMng.findByIdxUserAndStatusInOrderByCreatedAtDesc(user.idx(), connectedMngStatusList)
+        return repoConnectedMng.findByIdxUserAndStatusInOrderByCreatedAtDesc(user.idx(), connectedMngStatuses)
                 .stream().map(ConnectedMngDto::from).collect(Collectors.toList());
     }
 
@@ -240,13 +243,14 @@ public class AccessManageService {
             idxConnectedIdList.add(connectedMng.idx());
         }
 
-        List<ConnectedMngStatus> statusList = Arrays.asList(ConnectedMngStatus.NORMAL, ConnectedMngStatus.ERROR, ConnectedMngStatus.STOP);
+        List<ConnectedMngStatus> connectedMngStatuses = Arrays.asList(ConnectedMngStatus.NORMAL, ConnectedMngStatus.ERROR, ConnectedMngStatus.STOP);
+        List<ResConCorpListStatus> resConCorpListStatus = Arrays.asList(ResConCorpListStatus.NORMAL, ResConCorpListStatus.ERROR, ResConCorpListStatus.STOP);
         List<AccessManageDto.ResConCorpListDto> resConCorpListDtoList = new ArrayList<>();
-        List<ResConCorpListRepository.distinctData> distinctData = repoResConCorpList.findDistinctByConnectedIdInAndStatusIn(connectedIdList, statusList);
+        List<ResConCorpListRepository.distinctData> distinctData = repoResConCorpList.findDistinctByConnectedIdInAndStatusIn(connectedIdList, resConCorpListStatus);
 
         for( ResConCorpListRepository.distinctData obj : distinctData ){
             List<ResConCorpList> resConCorpListList = repoResConCorpList.findByConnectedIdInAndStatusInAndBusinessTypeAndOrganization(
-                    connectedIdList, statusList, obj.getBusinessType(), obj.getOrganization());
+                    connectedIdList, resConCorpListStatus, obj.getBusinessType(), obj.getOrganization());
 
             ResConCorpListStatus status = ResConCorpListStatus.ERROR;
 
@@ -365,11 +369,11 @@ public class AccessManageService {
         repoConnectedMng.findByIdxAndIdxUser(idxConnectedMng, customUser.idx()).flatMap(connectedMng -> repoResConCorpList.findByConnectedIdAndOrganizationAndStatusIn(
                 connectedMng.connectedId()
                 , organization
-                , connectedMngStatusList
+                , resConCorpListStatuses
         )).ifPresent(resConCorpList -> resConCorpList.status(ResConCorpListStatus.DELETE));
 
         Optional<ConnectedMng> connectedMng = repoConnectedMng.findById(idxConnectedMng);
-        if(repoResConCorpList.findByConnectedIdAndStatusIn(connectedMng.get().connectedId(), connectedMngStatusList).size() < 1){
+        if(repoResConCorpList.findByConnectedIdAndStatusIn(connectedMng.get().connectedId(), resConCorpListStatuses).size() < 1){
             connectedMng.ifPresent(
                     connectedMng1 -> {
                         connectedMng1.status(ConnectedMngStatus.DELETE);

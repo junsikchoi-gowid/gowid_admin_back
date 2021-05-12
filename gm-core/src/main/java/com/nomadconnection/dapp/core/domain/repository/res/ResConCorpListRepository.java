@@ -2,6 +2,7 @@ package com.nomadconnection.dapp.core.domain.repository.res;
 
 import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
+import com.nomadconnection.dapp.core.domain.res.ResConCorpListStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,15 +21,15 @@ public interface ResConCorpListRepository extends JpaRepository<ResConCorpList, 
         String getBusinessType();
         String getOrganization();
     }
-    List<distinctData> findDistinctByConnectedIdInAndStatusIn(List<String> connectedIdList,List<ConnectedMngStatus> statusList);
+    List<distinctData> findDistinctByConnectedIdInAndStatusIn(List<String> connectedIdList,List<ResConCorpListStatus> statusList);
 
-    List<ResConCorpList> findByConnectedIdInAndStatusInAndBusinessTypeAndOrganization(List<String> connectedIdList,List<ConnectedMngStatus> statusList, String BusinessType, String organization);
+    List<ResConCorpList> findByConnectedIdInAndStatusInAndBusinessTypeAndOrganization(List<String> connectedIdList,List<ResConCorpListStatus> statusList, String BusinessType, String organization);
 
-    ResConCorpList findTopByConnectedIdInAndStatusInAndBusinessTypeAndOrganizationOrderByCreatedAtDesc(List<String> connectedIdList,List<ConnectedMngStatus> statusList, String BusinessType, String organization);
+    ResConCorpList findTopByConnectedIdInAndStatusInAndBusinessTypeAndOrganizationOrderByCreatedAtDesc(List<String> connectedIdList,List<ResConCorpListStatus> statusList, String BusinessType, String organization);
 
-    Optional<ResConCorpList> findByConnectedIdAndOrganizationAndStatusIn(String connectedId, String organization, List<ConnectedMngStatus> connectedMngStatusList);
+    Optional<ResConCorpList> findByConnectedIdAndOrganizationAndStatusIn(String connectedId, String organization, List<ResConCorpListStatus> statusList);
 
-    List<ResConCorpList> findByConnectedIdAndStatusIn(String connectedId, List<ConnectedMngStatus> connectedMngStatusList);
+    List<ResConCorpList> findByConnectedIdAndStatusIn(String connectedId, List<ResConCorpListStatus> statusList);
 
     Optional<ResConCorpList> findByIdx(Long idx);
 
