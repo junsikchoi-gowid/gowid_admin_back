@@ -388,7 +388,9 @@ public class CommonCardServiceV2 {
     @Transactional(readOnly = true)
     public List<CardIssuanceDto.CardIssuanceInfoRes> getCards(Long idxUser) {
         User user = findUser(idxUser);
-        Optional<List<CardIssuanceInfo>> cardIssuanceInfos = repoCardIssuance.findAllByUser(user);
+        Corp corp = user.corp();
+        Optional<List<CardIssuanceInfo>> cardIssuanceInfos =
+                corp != null ? repoCardIssuance.findAllByCorp(corp) : repoCardIssuance.findAllByUser(user);
         List<CardIssuanceDto.ConsentRes> consents = getConsentRes(idxUser);
 
         List<CardIssuanceDto.CardIssuanceInfoRes> response =
@@ -931,8 +933,8 @@ public class CommonCardServiceV2 {
     }
 
     private String changeOldDriverLicenseErrorCode(String code, String message){
-        final String OLD_DRIVER_LICENSE_CODE = "999";
-        final String OLD_DRIVER_LICENSE_MSG = "예전 면허";
+        String OLD_DRIVER_LICENSE_CODE = "999";
+        String OLD_DRIVER_LICENSE_MSG = "예전 면허";
         if(message.contains(OLD_DRIVER_LICENSE_MSG)){
             code = OLD_DRIVER_LICENSE_CODE;
         }
