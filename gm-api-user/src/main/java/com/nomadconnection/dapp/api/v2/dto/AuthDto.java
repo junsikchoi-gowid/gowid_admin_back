@@ -44,6 +44,9 @@ public class AuthDto {
 		@ApiModelProperty("비밀번호")
 		private String password;
 
+		@ApiModelProperty("임시비밀번호여부")
+		private boolean hasTmpPassword;
+
 		@Override
 		public String toString() {
 			return String.format("%s(password=********)", getClass().getSimpleName());

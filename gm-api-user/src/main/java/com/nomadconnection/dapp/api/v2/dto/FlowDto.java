@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.api.v2.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
@@ -209,7 +210,7 @@ public class FlowDto {
 
         @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
         @ApiModelProperty(value = "idx 계정과목코드 ", example = "-")
-        public FlowTagConfig flowTagConfig;
+        public FlowTagConfigDto flowTagConfigdto;
 
         @ApiModelProperty(value = "계정과목코드", example = "-")
         public String tagValue;
@@ -218,6 +219,12 @@ public class FlowDto {
         public String memo;
 
         public static FlowAccountHistoryDto from (ResAccountHistory dto){
+
+            FlowTagConfigDto obj = null;
+            if( !ObjectUtils.isEmpty(dto.flowTagConfig())){
+                obj = FlowTagConfigDto.from(dto.flowTagConfig());
+            }
+
             return FlowAccountHistoryDto.builder()
                     .idx(dto.idx())
                     .resAccount(dto.resAccount())
@@ -229,7 +236,7 @@ public class FlowDto {
                     .resAccountDesc2(dto.resAccountDesc2())
                     .resAccountDesc3(dto.resAccountDesc3())
                     .resAccountDesc4(dto.resAccountDesc4())
-                    .flowTagConfig(dto.flowTagConfig())
+                    .flowTagConfigdto(obj)
                     .tagValue(dto.tagValue())
                     .memo(dto.memo())
                     .build();

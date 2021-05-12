@@ -97,6 +97,9 @@ public class UserDto {
 		@ApiModelProperty("멤버역할")
 		private Role role;
 
+		@ApiModelProperty("임시비밀번호여부")
+		private boolean hasTmpPassword;
+
 		@Override
 		public String toString() {
 			return String.format("%s(email=%s, password=********)", getClass().getSimpleName(), email);

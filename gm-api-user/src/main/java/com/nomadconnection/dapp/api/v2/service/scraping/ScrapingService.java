@@ -290,16 +290,21 @@ public class ScrapingService {
 				user.corp(corp);
 				userService.saveUser(user);
 
+				ConnectedMng connectedMng = repoConnectedMng.findByConnectedId(connectedId);
+				connectedMng.corp(corp);
+				repoConnectedMng.save(connectedMng);
+
 				String licenseNo = corp.resCompanyIdentityNo();
 				imageService.sendCorpLicenseImage(user.cardCompany(), response, licenseNo);
 			} else {
 				if (connectedId != null) {
 					repoResBatchList.save(ResBatchList.builder()
-						.connectedId(connectedId)
-						.errCode(code)
-						.errMessage(message)
-						.idxUser(user.idx())
-						.build());
+							.connectedId(connectedId)
+							.errCode(code)
+							.errMessage(message)
+							.idxUser(user.idx())
+							.idxCorp(user.corp().idx())
+							.build());
 				}
 				log.error("[scrapCorpLicense] $user={}, $code={}, $message={} ", user.email(), code, message);
 				slackNotiService.sendSlackNotification(getScrapingSlackMessage(user, scrapingResultService.getCodeAndMessage(scrapingResponse), ScrapingType.CORP_LICENSE),

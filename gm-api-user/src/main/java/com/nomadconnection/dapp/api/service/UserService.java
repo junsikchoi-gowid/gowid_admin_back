@@ -22,6 +22,7 @@ import com.nomadconnection.dapp.core.domain.embed.Authentication;
 import com.nomadconnection.dapp.core.domain.embed.UserReception;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.StockholderFileRepository;
+import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CeoInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpBranchRepository;
@@ -33,7 +34,6 @@ import com.nomadconnection.dapp.core.domain.repository.risk.RiskRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.AuthorityRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.EventsRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
-import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.risk.Risk;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
 import com.nomadconnection.dapp.core.domain.user.*;
@@ -161,7 +161,7 @@ public class UserService {
 					.consent(false)
 					.email(member.getEmail())
 					.password(encoder.encode(plainPassword))
-					.hasTmpPassword(true)
+					.hasTmpPassword(member.isHasTmpPassword())
 					.name(member.getName())
 					.mdn(null)
 					.reception(new UserReception(false, false))
@@ -330,16 +330,21 @@ public class UserService {
 		// validation end
 
 		User user = getUser(idx);
+		String orgEmail = user.email();
 
-		user.email(dto.getEmail());
-		user.mdn(dto.getMdn());
-		user.name(dto.getUserName());
-		user.reception().setIsSendEmail(dto.getIsSendEmail());
-		user.reception().setIsSendSms(dto.getIsSendSms());
+		if(StringUtils.hasText(dto.getEmail())) { user.email(dto.getEmail()); }
+		if(StringUtils.hasText(dto.getMdn())) { user.mdn(dto.getMdn()); }
+		if(StringUtils.hasText(dto.getUserName())) { user.name(dto.getUserName()); }
+		if(dto.getIsSendEmail() != null) {user.reception().setIsSendEmail(dto.getIsSendEmail()); }
+		if(dto.getIsSendSms() != null) { user.reception().setIsSendSms(dto.getIsSendSms()); }
 
-		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.data(repoUser.save(user))
-				.build());
+		try {
+			expenseService.updateExpenseUserProfile(orgEmail, dto.getUserName(), dto.getMdn(), dto.getEmail());
+		} catch (Exception e) {
+			log.error(e.getMessage()); // just skip to throw exception
+		}
+
+		return ResponseEntity.ok().body(BusinessResponse.builder().build());
 	}
 
 	/**

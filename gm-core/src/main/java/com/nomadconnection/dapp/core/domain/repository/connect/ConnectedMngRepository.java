@@ -33,6 +33,8 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 	@Query(value = "select count(idx) from ResAccount where connectedId in ( select connectedId from ConnectedMng where idxUser = :idxUser)" ,nativeQuery = true)
 	Integer findResAccountCount(@Param("idxUser")Long idxUser);
 
+    ConnectedMng findByConnectedId(String connectedId);
+
     interface ConnectedMngDto {
 		Long getIdx();
 		String getConnectedId();

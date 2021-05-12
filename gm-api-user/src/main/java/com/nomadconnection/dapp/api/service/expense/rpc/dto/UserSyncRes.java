@@ -14,4 +14,5 @@ public class UserSyncRes {
     private String memberEmail;
     private String memberRoleType;
     private String name;
+    private Boolean isInvitedUser;
 }

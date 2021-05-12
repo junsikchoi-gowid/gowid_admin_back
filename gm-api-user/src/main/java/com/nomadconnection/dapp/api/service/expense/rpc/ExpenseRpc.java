@@ -36,6 +36,13 @@ public class ExpenseRpc {
         return commonRpc.requestApi(url, HttpMethod.PATCH, getHeaderMap(), userSyncReq, UserRes.class);
     }
 
+    public UserRes requestUpdateUserProfile(String email, String userName, String mobile, String newEmail) {
+        String url = expenseConfig.getDomainUrl() + expenseConfig.getUserUrl() + "/" + email + "/profile";
+        UserProfileReq userProfileReq = new UserProfileReq(newEmail, userName, mobile);
+
+        return commonRpc.requestApi(url, HttpMethod.PATCH, getHeaderMap(), userProfileReq, UserRes.class);
+    }
+
     private Map<String, String> getHeaderMap() {
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("apiKey", expenseConfig.getApiKey());

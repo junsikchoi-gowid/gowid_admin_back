@@ -89,7 +89,7 @@ public class AuthService {
 		}
 
 		if(user != null) {
-			updatePasswordForSync(dto.getEmail(), AuthDto.PasswordSync.builder().password(dto.getPassword()).build());
+			updatePasswordForSync(dto.getEmail(), new AuthDto.PasswordSync(dto.getPassword(), expenseUser.getIsInvitedUser()));
 		} else {
 			User adminUser = userService.findByEmail(expenseUser.getContractorEmail());
 			if(adminUser == null) {
@@ -102,6 +102,7 @@ public class AuthService {
 					UserDto.MemberRegister.builder()
 					.email(dto.getEmail())
 					.password(dto.getPassword())
+					.hasTmpPassword(expenseUser.getIsInvitedUser())
 					.name(expenseUser.getName())
 					.role(Role.valueOf(roleType))
 					.build();
@@ -209,7 +210,7 @@ public class AuthService {
 
 		User user = userService.findByEmail(email);
 		user.password(authValidator.encodePassword(password));
-		user.hasTmpPassword(false);
+		user.hasTmpPassword(dto.isHasTmpPassword());
 		userService.saveUser(user);
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()
