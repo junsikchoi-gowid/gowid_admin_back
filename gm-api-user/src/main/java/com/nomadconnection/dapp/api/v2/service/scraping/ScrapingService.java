@@ -81,13 +81,14 @@ public class ScrapingService {
 	@Transactional(rollbackFor = Exception.class)
 	public void scrap(Long userIdx, AccountNt dto) throws Exception {
 		User user = userService.getUser(userIdx);
-		createAccount(user, dto); // 국세청 - 공인인증서 증명(계정 등록(커넥티드아이디 발급))
+		ConnectedMng connectedMng = createAccount(user, dto); // 국세청 - 공인인증서 증명(계정 등록(커넥티드아이디 발급))
 		addAccount(user, dto); // codef - 은행계좌 등록
-		scrapCorpLicense(user, dto.getCardType());   // 국세청 - 사업자등록증
+		Corp corp = scrapCorpLicense(user, dto.getCardType());   // 국세청 - 사업자등록증
 		scrapCorpRegistration(user, dto.getCardType()); // 대법원 - 등기부등본
+		repoConnectedMng.save(connectedMng.corp(corp)); // connectedMng에 corp 저장
 	}
 
-	private void createAccount(User user, AccountNt dto) throws Exception {
+	private ConnectedMng createAccount(User user, AccountNt dto) throws Exception {
 		HashMap<String, Object> body = new HashMap<>();
 		List<HashMap<String, Object>> accounts = new ArrayList<>();
 		HashMap<String, Object> account;
@@ -115,8 +116,9 @@ public class ScrapingService {
 		String message = scrapingResponse.getMessage();
 		String connectedId = scrapingResponse.getConnectedId();
 
+		ConnectedMng connectedMng;
 		if (code.equals(ResponseCode.CF00000.getCode()) || code.equals(ResponseCode.CF04012.getCode())) {
-			repoConnectedMng.save(ConnectedMng.builder()
+			connectedMng = repoConnectedMng.save(ConnectedMng.builder()
 				.connectedId(connectedId)
 				.idxUser(user.idx())
 				.name(dto.getName())
@@ -140,6 +142,7 @@ public class ScrapingService {
 				(CardType.GOWID.equals(dto.getCardType()) ? slackNotiService.getSlackProgressUrl() : slackNotiService.getSlackKisedUrl()));
 			throw new CodefApiException(ResponseCode.findByCode(code));
 		}
+		return connectedMng;
 	}
 
 	@Deprecated
@@ -224,7 +227,7 @@ public class ScrapingService {
 		}
 	}
 
-	public void scrapCorpLicense(User user, CardType cardType) throws Exception {
+	public Corp scrapCorpLicense(User user, CardType cardType) throws Exception {
 		try {
 			String connectedId = scrapingResultService.getResponseDto().getConnectedId();
 			String response = codefApiService.requestScrapCorpLicense(connectedId, user.email());
@@ -232,11 +235,10 @@ public class ScrapingService {
 			String code = scrapingResponse.getCode();
 			String message = scrapingResponse.getMessage();
 			connectedId = scrapingResponse.getConnectedId();
-
+			Corp corp;
 			if (isScrapingSuccess(code)) {
 				JSONObject jsonData = scrapingResponse.getScrapingResponse()[1];
 				String resCompanyIdentityNo = GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo");
-				Corp corp;
 
 				if (CardType.KISED.equals(cardType)) {
 					if (!ScrapingCommonUtils.isKisedCorp(resCompanyIdentityNo)) {
@@ -288,8 +290,7 @@ public class ScrapingService {
 				}
 
 				user.corp(corp);
-				userService.saveUser(user); 
-
+				userService.saveUser(user);
 
 				String licenseNo = corp.resCompanyIdentityNo();
 				imageService.sendCorpLicenseImage(user.cardCompany(), response, licenseNo);
@@ -311,6 +312,7 @@ public class ScrapingService {
 				}
 				throw new CodefApiException(ResponseCode.findByCode(code));
 			}
+			return corp;
 		} catch (Exception e) {
 			log.error("scrapCorpLicense {}", e);
 			throw e;
@@ -440,6 +442,4 @@ public class ScrapingService {
 			log.error("[scrapCorpRegistration] $user={}, $code={}, $message={}, $resIssueYn={} $transactionId={} "
 				, user.email(), scrapingResponse.getCode(), scrapingResponse.getMessage(), resIssueYn, scrapingResponse.getTransactionId());
 		}
-
-
 }
