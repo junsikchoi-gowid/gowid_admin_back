@@ -291,7 +291,6 @@ public class ScrapingService {
 				userService.saveUser(user);
 
 				ConnectedMng connectedMng = repoConnectedMng.findByConnectedId(connectedId);
-				connectedMng.corp(corp);
 				repoConnectedMng.save(connectedMng);
 
 				String licenseNo = corp.resCompanyIdentityNo();
