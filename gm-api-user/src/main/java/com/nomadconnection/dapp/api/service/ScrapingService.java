@@ -94,6 +94,8 @@ public class ScrapingService {
 
     private final List<ConnectedMngStatus> connectedMngStatusList
             = Arrays.asList(ConnectedMngStatus.NORMAL, ConnectedMngStatus.ERROR);
+    private final List<ResConCorpListStatus> resConCorpListStatuses
+            = Arrays.asList(ResConCorpListStatus.NORMAL, ResConCorpListStatus.ERROR);
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -2219,7 +2221,7 @@ public class ScrapingService {
 
         if( connectedMngList.size() > 0 ){
             resConCorpList = repoResConCorpList.findTopByConnectedIdInAndStatusInAndBusinessTypeAndOrganizationOrderByCreatedAtDesc(
-                    connectedIdList, connectedMngStatusList, "NT", "0002"
+                    connectedIdList, resConCorpListStatuses, "NT", "0002"
             );
         }
 
