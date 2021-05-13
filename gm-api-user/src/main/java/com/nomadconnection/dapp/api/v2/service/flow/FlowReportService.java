@@ -85,7 +85,6 @@ public class FlowReportService {
     private static final DateTimeFormatter DATEFORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final String FLOW_PATH = "/flow/gowidapi/";
 
-
     @Transactional(readOnly = true)
     public List<FlowDto.FlowReportByPeriodDto> getReportStatusMonth(Long idxCorp, String toDate) {
 
@@ -93,7 +92,7 @@ public class FlowReportService {
 
         LocalDate now = LocalDate.parse(toDate, DATEFORMATTER);
         toDate = now.format(DateTimeFormatter.ofPattern("yyyyMM"));
-        String fromDate = now.minusMonths(6).format(DateTimeFormatter.ofPattern("yyyyMM"));
+        String fromDate = now.minusMonths(10).format(DateTimeFormatter.ofPattern("yyyyMM"));
 
         return repoFlowReportMonth.findByCorpAndFlowDateBetweenOrderByFlowDateAsc(corp, fromDate, toDate).
                 stream().map(FlowDto.FlowReportByPeriodDto::from).collect(Collectors.toList());
@@ -587,7 +586,10 @@ public class FlowReportService {
 
     @Transactional
     void procCreateReport(Corp corp) {
+        log.debug(" corp= {}", corp.idx() );
         List<ResAccount> arrayResAccount = repoConnectedMng.accountList(corp);
+
+        log.debug(" arrayResAccount= {}", arrayResAccount );
         List<String> arrayAccount = arrayResAccount.stream().map(ResAccount::resAccount).collect(Collectors.toList());
 
         String localDateTime = LocalDateTime.now().minusYears(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -643,7 +645,11 @@ public class FlowReportService {
             log.debug("startdate = {}" , startDate );
 
             String flowDate = startDate.format(DateTimeFormatter.ofPattern("yyyyMM"));
-            String lastDaty = YearMonth.from(startDate).atEndOfMonth().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            String balanceDate = YearMonth.from(startDate).atEndOfMonth().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+            if( Integer.parseInt(balanceDate) > Integer.parseInt(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))) ){
+                balanceDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            }
 
             FlowReportMonth flowReportMonth = repoFlowReportMonth.findByCorpAndFlowDate(corp, flowDate).orElseGet(
                     () -> FlowReportMonth.builder()
@@ -664,7 +670,7 @@ public class FlowReportService {
                     .flowDate(flowDate)
                     .flowIn(ObjectUtils.isEmpty(dto)?0.0:GowidUtils.doubleTypeGet(dto.getFlowIn().toString()))
                     .flowOut(ObjectUtils.isEmpty(dto)?0.0:GowidUtils.doubleTypeGet(dto.getFlowOut().toString()))
-                    .flowTotal(repoResAccount.recentBalanceCorp(corp.idx(), lastDaty));
+                    .flowTotal(repoResAccount.recentBalanceCorp(corp.idx(), balanceDate));
 
             repoFlowReportMonth.save(flowReportMonth);
         }
