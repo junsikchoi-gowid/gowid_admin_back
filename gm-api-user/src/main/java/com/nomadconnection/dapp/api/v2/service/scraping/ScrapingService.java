@@ -288,10 +288,8 @@ public class ScrapingService {
 				}
 
 				user.corp(corp);
-				userService.saveUser(user);
+				userService.saveUser(user); 
 
-				ConnectedMng connectedMng = repoConnectedMng.findByConnectedId(connectedId);
-				repoConnectedMng.save(connectedMng);
 
 				String licenseNo = corp.resCompanyIdentityNo();
 				imageService.sendCorpLicenseImage(user.cardCompany(), response, licenseNo);
