@@ -10,10 +10,12 @@ import com.nomadconnection.dapp.api.dto.lotte.enums.LotteUserStatus;
 import com.nomadconnection.dapp.api.dto.lotte.enums.Lotte_CardKind;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
 import com.nomadconnection.dapp.api.exception.EntityNotFoundException;
+import com.nomadconnection.dapp.api.exception.UserNotFoundException;
 import com.nomadconnection.dapp.api.exception.api.BadRequestException;
 import com.nomadconnection.dapp.api.service.CorpService;
 import com.nomadconnection.dapp.api.service.lotte.rpc.LotteGwRpc;
 import com.nomadconnection.dapp.api.util.CommonUtil;
+import com.nomadconnection.dapp.api.v2.service.scraping.FullTextService;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeType;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
@@ -21,12 +23,9 @@ import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1000;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1100;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_D1200;
 import com.nomadconnection.dapp.core.domain.lotte.Lotte_GatewayTransactionIdx;
-import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
-import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.StockholderFileRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.CommonCodeDetailRepository;
 import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.repository.consent.ConsentMappingRepository;
-import com.nomadconnection.dapp.core.domain.repository.corp.CeoInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1000Repository;
 import com.nomadconnection.dapp.core.domain.repository.lotte.Lotte_D1100Repository;
@@ -62,12 +61,9 @@ import static com.nomadconnection.dapp.api.v2.utils.CardCommonUtils.isStockholde
 public class LotteCardServiceV2 {
     private final UserRepository repoUser;
     private final CorpRepository repoCorp;
-    private final CardIssuanceInfoRepository repoCardIssuanceInfo;
     private final ConsentMappingRepository repoConsentMapping;
-    private final StockholderFileRepository repoFile;
     private final RiskRepository repoRisk;
     private final RiskConfigRepository repoRiskConfig;
-    private final CeoInfoRepository repoCeoInfo;
     private final ConnectedMngRepository repoConnectedMng;
     private final Lotte_D1000Repository repoD1000;
     private final Lotte_D1100Repository repoD1100;
@@ -78,6 +74,7 @@ public class LotteCardServiceV2 {
     private final LotteGwRpc lotteGwRpc;
     private final CorpService corpService;
     private final ShinhanCardServiceV2 shinhanCardService;
+    private final FullTextService fullTextService;
 
 
     public Lotte_D1100 updateD1100Corp(Long idxCorp, CardIssuanceDto.RegisterCorporation dto) {
@@ -249,6 +246,44 @@ public class LotteCardServiceV2 {
         return repoD1100.save(d1100
             .setVtbCfHvYn(verifiedVentureYn)
             .setIvArYn(vcYn));
+    }
+
+    /**
+     * 롯데카드 기회원 초기화
+     *
+     * @param idxUser     등록하는 User idx
+     */
+    @Transactional(noRollbackFor = Exception.class)
+    public void initAlreadyMember(Long idxUser) {
+        User user = repoUser.findById(idxUser).orElseThrow(
+            () -> UserNotFoundException.builder().id(idxUser).build()
+        );
+        if (!ObjectUtils.isEmpty(user.corp())) {
+            Long idxCorp = user.corp().idx();
+            fullTextService.deleteAllShinhanFulltext(idxCorp);
+            fullTextService.deleteAllLotteFulltext(idxCorp);
+            repoRisk.deleteByCorpIdx(idxCorp);
+            if (!ObjectUtils.isEmpty(user.corp().riskConfig())) {
+                user.corp().riskConfig().user(null);
+                user.corp().riskConfig().corp(null);
+                user.corp().riskConfig(null);
+                repoRiskConfig.deleteByCorpIdx(idxCorp);
+            }
+            user.corp().user(null);
+            for (CardIssuanceInfo cardIssuanceInfo : user.corp().cardIssuanceInfo()) {
+                if (CardType.GOWID.equals(cardIssuanceInfo.cardType())) {
+                    cardIssuanceInfo.corp(null);
+                    cardIssuanceInfo.issuanceDepth(IssuanceDepth.SELECT_CARD);
+                    cardIssuanceInfo.cardCompany(null);
+                }
+            }
+            repoConnectedMng.deleteAllByUserIdx(idxUser);
+            user.corp(null);
+            repoCorp.deleteCorpByIdx(idxCorp);
+        }
+        repoConsentMapping.deleteAllByUserIdx(idxUser);
+        user.cardCompany(null);
+        repoUser.save(user);
     }
 
     /**
