@@ -236,8 +236,8 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c\n" +
             ") a where a.y >  date_format(date_add(now(), INTERVAL - 3 year), '%Y%m')\n" +
             ") L\n" +
-            "join ResAccount R \n" +
-            "join ConnectedMng cm on R.connectedId = cm.connectedId and idxUser = :idxUser\n" +
+            "join ResAccount R on R.status in ('NORMAL', 'ERROR') \n" +
+            "join ConnectedMng cm on R.connectedId = cm.connectedId and idxUser = :idxUser and cm.status in ('NORMAL', 'ERROR') \n" +
             ") main\n" +
             ") A \n" +
             ") comm where ((errCode is null or errCode != 'CF-00000') and Date_Format(startDay , '%Y%m') >= Date_Format(STR_TO_DATE(comm.searchStartDate, '%Y%m') , '%Y%m')) " +
