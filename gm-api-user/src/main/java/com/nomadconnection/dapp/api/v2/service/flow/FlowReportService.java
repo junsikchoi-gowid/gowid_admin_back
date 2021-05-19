@@ -92,7 +92,7 @@ public class FlowReportService {
 
         LocalDate now = LocalDate.parse(toDate, DATEFORMATTER);
         toDate = now.format(DateTimeFormatter.ofPattern("yyyyMM"));
-        String fromDate = now.minusMonths(10).format(DateTimeFormatter.ofPattern("yyyyMM"));
+        String fromDate = now.minusMonths(12).format(DateTimeFormatter.ofPattern("yyyyMM"));
 
         return repoFlowReportMonth.findByCorpAndFlowDateBetweenOrderByFlowDateAsc(corp, fromDate, toDate).
                 stream().map(FlowDto.FlowReportByPeriodDto::from).collect(Collectors.toList());
@@ -664,12 +664,25 @@ public class FlowReportService {
             ResAccountHistoryRepository.CMonthInOutStaticsDto dto =
                     repoResAccountHistory.monthInOutStatics(arrayAccount, flowDate.concat("00"), flowDate.concat("32"));
 
+            Double flowIn = 0.0;
+            Double flowOut = 0.0;
+
+            if(!ObjectUtils.isEmpty(dto)){
+                if(!ObjectUtils.isEmpty(dto.getFlowIn())){
+                    flowIn = GowidUtils.doubleTypeGet(dto.getFlowIn().toString());
+                }
+
+                if(!ObjectUtils.isEmpty(dto.getFlowOut())){
+                    flowOut = GowidUtils.doubleTypeGet(dto.getFlowOut().toString());
+                }
+
+            }
 
             flowReportMonth.corp(corp)
                     .idx(flowReportMonth.idx())
                     .flowDate(flowDate)
-                    .flowIn(ObjectUtils.isEmpty(dto)?0.0:GowidUtils.doubleTypeGet(dto.getFlowIn().toString()))
-                    .flowOut(ObjectUtils.isEmpty(dto)?0.0:GowidUtils.doubleTypeGet(dto.getFlowOut().toString()))
+                    .flowIn(flowIn)
+                    .flowOut(flowOut)
                     .flowTotal(repoResAccount.recentBalanceCorp(corp.idx(), balanceDate));
 
             repoFlowReportMonth.save(flowReportMonth);
