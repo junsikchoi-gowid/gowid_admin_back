@@ -113,6 +113,7 @@ public class BankController {
 		return service.nickname(dto);
 	}
 
+	@Deprecated
 	@ApiOperation(value = "계좌 + 거래내역 스크래핑", notes = "" + "\n")
 	@GetMapping( URI.CHECK_ACCOUNT )
 	public ResponseEntity CheckAccount(@ApiIgnore @CurrentUser CustomUser user) throws IOException, InterruptedException {

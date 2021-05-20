@@ -86,7 +86,6 @@ public class AccessManageService {
                     .build());
         }
 
-        BusinessResponse.Normal normal = BusinessResponse.Normal.builder().build();
         HashMap<String, Object> bodyMap = new HashMap<>();
         List<HashMap<String, Object>> list = new ArrayList<>();
         HashMap<String, Object> accountMap1;
@@ -134,8 +133,6 @@ public class AccessManageService {
 
         Long idxConnectedId = saveConnectedId(list,bodyMap,user,dto);
 
-        // 계좌추가 + 1년치 데이터 가져오기
-        // scrapingService.scrapingRegister1YearAll2(user.idx(), user.corp().idx());
         scrapingService.scraping3Years(null, user.idx(), idxCorp);
 
         return idxConnectedId;

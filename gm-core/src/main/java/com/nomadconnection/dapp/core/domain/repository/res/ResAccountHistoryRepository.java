@@ -123,8 +123,8 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
         Long getFlowOut();
     }
     @Query(value = "SELECT  " +
-            " SUM(IFNULL(CAST(resAccountIn AS SIGNED ),0)) AS flowIn, " +
-            " SUM(IFNULL(CAST(resAccountOut AS SIGNED ),0)) AS flowOut " +
+            " IFNULL(SUM(IFNULL(CAST(resAccountIn AS SIGNED ),0)),0) AS flowIn, " +
+            " IFNULL(SUM(IFNULL(CAST(resAccountOut AS SIGNED ),0)),0) AS flowOut " +
             " FROM ResAccountHistory " +
             " WHERE resAccount IN (:resAccountList) " +
             " AND resAccountTrDate >= :from AND resAccountTrDate <= :to",

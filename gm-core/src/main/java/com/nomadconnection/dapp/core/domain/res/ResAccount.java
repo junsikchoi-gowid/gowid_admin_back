@@ -3,10 +3,8 @@ package com.nomadconnection.dapp.core.domain.res;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
-import com.nomadconnection.dapp.core.domain.corp.Corp;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -36,14 +34,18 @@ public class ResAccount extends BaseTime {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(20)  DEFAULT 'NORMAL' COMMENT '상태'")
-    private ResAccountStatus status;
+    @Builder.Default
+    private ResAccountStatus status = ResAccountStatus.NORMAL;
+
     private String statusDesc; // 상태내역
 
     @Column(columnDefinition = "bit(1) DEFAULT TRUE COMMENT '즐겨찾기 보유여부'")
-    private Boolean favorite;
+    @Builder.Default
+    private Boolean favorite = false;
 
     @Column(columnDefinition = "DATETIME default 99991231010101 comment '즐겨찾기 수정시간'")
-    private LocalDateTime favoriteDate;
+    @Builder.Default
+    private LocalDateTime favoriteDate = LocalDateTime.now();
 
     //todo 향후 연결처리해줘야함
     @ManyToOne(fetch = FetchType.LAZY)

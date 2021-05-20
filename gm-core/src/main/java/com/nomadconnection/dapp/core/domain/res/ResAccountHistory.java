@@ -24,6 +24,7 @@ public class ResAccountHistory extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
     private Long idx;
+
     private String resAccount; // 계좌번호
     private String resAccountTrDate;           // 거래일자
     private String resAccountTrTime;           // 거래시각

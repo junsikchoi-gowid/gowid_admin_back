@@ -299,11 +299,12 @@ public class UserService {
 			for (CardIssuanceInfo cardIssuanceInfo : user.corp().cardIssuanceInfo()) {
 				cardIssuanceInfo.corp(null);
 			}
+			repoConnectdMng.deleteAllByUserIdx(idxUser);
+
 			user.corp(null);
 			repoCorp.deleteCorpByIdx(idxCorp);
 		}
 		repoCardIssuanceInfo.deleteAllByUserIdx(idxUser);
-		repoConnectdMng.deleteAllByUserIdx(idxUser);
 		repoConsentMapping.deleteAllByUserIdx(idxUser);
 		user.cardCompany(null);
 		user.isReset(true);

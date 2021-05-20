@@ -15,6 +15,7 @@ import com.nomadconnection.dapp.core.domain.repository.res.ResConCorpListReposit
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
+import com.nomadconnection.dapp.core.domain.res.ResAccountTypeStatus;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpListStatus;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -98,7 +99,7 @@ public class CodefService {
 											.idx(idxTemp)
 											.connectedId(connId)
 											.organization(s)
-											.type("DepositTrust")
+											.type(ResAccountTypeStatus.DepositTrust.getStatus())
 											.searchStartDate(startDate)
 											.resAccountStartDate(GowidUtils.getEmptyStringToString(obj,"resAccountStartDate"))
 											.resAccount(GowidUtils.getEmptyStringToString(obj, "resAccount"))
@@ -131,7 +132,7 @@ public class CodefService {
 											.idx(idxTemp)
 											.connectedId(connId)
 											.organization(s)
-											.type("Loan")
+											.type(ResAccountTypeStatus.Loan.getStatus())
 											.searchStartDate(startDate)
 											.resAccountStartDate(GowidUtils.getEmptyStringToString(obj,"resAccountStartDate"))
 											.resAccount(obj.get("resAccount").toString())
@@ -164,7 +165,7 @@ public class CodefService {
 											.idx(idxTemp)
 											.connectedId(connId)
 											.organization(s)
-											.type("ResForeignCurrency")
+											.type(ResAccountTypeStatus.ForeignCurrency.getStatus())
 											.searchStartDate(startDate)
 											.resAccountStartDate(GowidUtils.getEmptyStringToString(obj,"resAccountStartDate"))
 											.resAccount(obj.get("resAccount").toString())
@@ -197,7 +198,7 @@ public class CodefService {
 											.idx(idxTemp)
 											.connectedId(connId)
 											.organization(s)
-											.type("ResFund")
+											.type(ResAccountTypeStatus.Fund.getStatus())
 											.searchStartDate(startDate)
 											.resAccountStartDate(GowidUtils.getEmptyStringToString(obj,"resAccountStartDate"))
 											.resAccount(obj.get("resAccount").toString())
@@ -313,6 +314,7 @@ public class CodefService {
 								.message(GowidUtils.getEmptyStringToString(obj, "message"))
 								.connectedId(connectedId)
 								.status(ResConCorpListStatus.NORMAL)
+								.idxCorp(idxCorp)
 								.build()
 				);
 			});
@@ -384,7 +386,7 @@ public class CodefService {
 			}
 
 			// 은행 추가
-			ProcAddConnectedId(jsonObject, connectedId, null);
+			ProcAddConnectedId(jsonObject, connectedId, user.corp().idx());
 		}
 
 		return ResponseEntity.ok().body(BusinessResponse.builder()

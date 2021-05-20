@@ -32,12 +32,13 @@ public class LotteCardControllerV2 {
         public static final String BASE = "/card/v2/lotte";
         public static final String APPLY = "/apply";
         public static final String NEW = "/new";
+        public static final String INIT = "/init";
     }
 
     private final LotteCardServiceV2 lotteCardService;
     private final LotteIssuanceService issuanceService;
 
-    @ApiOperation(value = "법인카드 발급 신규대상자 확인")
+    @ApiOperation(value = "롯데카드 발급 신규대상자 확인")
     @PostMapping(URI.NEW)
     public ResponseEntity<StatusDto> verifyNewMember(
         @ApiIgnore @CurrentUser CustomUser user) {
@@ -45,6 +46,18 @@ public class LotteCardControllerV2 {
             log.info("([ verifyNewMember ]) $user='{}'", user);
         }
         return ResponseEntity.ok().body(lotteCardService.verifyNewMember(user.idx()));
+    }
+
+    @ApiOperation(value = "롯데카드 기회원 초기화")
+    @DeleteMapping(URI.INIT)
+    public ResponseEntity<StatusDto> initAlreadyMember(
+        @ApiIgnore @CurrentUser CustomUser user) {
+        if (log.isInfoEnabled()) {
+            log.info("([ initAlreadyMember ]) $user='{}'", user);
+        }
+        lotteCardService.initAlreadyMember(user.idx());
+
+        return ResponseEntity.ok().build();
     }
 
     @ApiOperation(value = "법인카드 발급 신청")
