@@ -208,14 +208,23 @@ public class UserService {
 
 		if(memberInfo.getRole() != null) {
 			Set<Authority> list = targetUser.authorities();
-			list.clear();
+
+			//TODO hyuntak to refactor this
+			Authority a = new Authority(new Long(Role.ROLE_MASTER.ordinal()+1), Role.ROLE_MASTER);
+			Authority b = new Authority(new Long(Role.ROLE_VIEWER.ordinal()+1), Role.ROLE_VIEWER);
+			Authority c = new Authority(new Long(Role.ROLE_EXPENSE_MANAGER.ordinal()+1), Role.ROLE_EXPENSE_MANAGER);
+			Authority d = new Authority(new Long(Role.ROLE_MEMBER.ordinal()+1), Role.ROLE_MEMBER);
+			list.remove(a);
+			list.remove(b);
+			list.remove(c);
+			list.remove(d);
+
 			list.add(
 					repoAuthority.findByRole(memberInfo.getRole()).orElseThrow(
 							() -> new RuntimeException(memberInfo.getRole() + " NOT FOUND")
 					));
 			targetUser.authorities(list);
 		}
-
 		return repoUser.save(targetUser);
 	}
 
