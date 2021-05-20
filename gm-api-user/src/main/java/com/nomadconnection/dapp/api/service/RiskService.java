@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
@@ -153,7 +154,13 @@ public class RiskService {
 		risk.user(user);
 		risk.corp(corp);
 
-		risk.recentBalance(repoResAccount.findRecentBalance(idxUser, calcDate));
+		// 당일 한도는 계좌 정보중 상태값이 Normal 의 경우만 가져와서 합산함
+		if( !ObjectUtils.isEmpty(calcDate) && calcDate.equals(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE).replace("-",""))){
+			risk.recentBalance(repoResAccount.findRecentBalanceToDay(corp.idx()));
+		}else {
+			risk.recentBalance(repoResAccount.findRecentBalance(idxUser, calcDate));
+		}
+
 		risk.actualBalance(risk.recentBalance());
 
 		CardIssuanceInfo cardIssuanceInfo = cardIssuanceInfoService.findByUserOrElseThrow(user, CardType.GOWID);
