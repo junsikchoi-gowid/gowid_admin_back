@@ -188,7 +188,7 @@ public class UserController {
 		return service.getBrandCorp(user.idx()); 
 	}
 
-	@Secured({"ROLE_MASTER","ROLE_VIEWER"})
+	@Secured({"ROLE_MASTER","ROLE_VIEWER", "ROLE_EXPENSE_MANAGER"})
 	@ApiOperation(value = "Brand 회원가입 법인정보 추가정보")
 	@GetMapping(path = URI.REGISTRATION_CORP_BRANCH)
 	public ResponseEntity<CorpDto.CorpInfoDto> getBrandCorpBranch(@ApiIgnore @CurrentUser CustomUser user){
