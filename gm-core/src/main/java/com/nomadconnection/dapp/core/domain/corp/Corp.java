@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.limit.LimitRecalculation;
 import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
+import com.nomadconnection.dapp.core.domain.user.Authority;
 import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -12,7 +13,9 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -78,4 +81,10 @@ public class Corp extends BaseTime {
     @Enumerated(EnumType.STRING)
     private CorpStatus status; // pending/denied/approved
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "CorpAuthoritiesMapping",
+            joinColumns = @JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "FK_Corp_CorpAuthoritiesMapping")),
+            inverseJoinColumns = @JoinColumn(name = "idxAuthority", foreignKey = @ForeignKey(name = "FK_CorpAuthority_CorpAuthoritiesMapping")))
+    @Builder.Default
+    private Set<Authority> authorities = new HashSet<>();
 }

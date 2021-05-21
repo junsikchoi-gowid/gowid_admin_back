@@ -32,17 +32,17 @@ public class ScrapingController {
         public static final String SCRAPING_ACCOUNT = "/account-all";    // 은행 기업 보유계좌 + 거래내역
         public static final String STOP_CORP = "/stopcorp";    // 입출금 거래내역
         public static final String STOP = "/stop";    // 입출금 거래내역
+        public static final String CONNECTEDID_ACCOUNT_REFRESH = "/connectedid-account-refresh";    // 인증서 연결 계좌 가져오기
     }
 
     private final ScrapingService service;
 
-    @ApiOperation(value = "최근 1년 거래내역 가져오기", notes = "" + "\n")
+    @ApiOperation(value = "최근 3년 거래내역 가져오기", notes = "" + "\n")
     @GetMapping(URI.SCRAPING_ACCOUNT)
     public ResponseEntity scrapingRegister(@ApiIgnore @CurrentUser CustomUser user, @RequestParam Long idxCorp) {
         if (log.isInfoEnabled()) {
             log.info("([ scrapingRegister ]) $user='{}' $idxCorp='{}'", user, idxCorp);
         }
-        // return service.scrapingRegister1YearAll2(user.idx(), idxCorp);
         service.scraping3Years(null, null, idxCorp);
 
         return ResponseEntity.ok().body(
@@ -74,5 +74,11 @@ public class ScrapingController {
     public ResponseEntity scrapingAccount(@ApiIgnore @CurrentUser CustomUser user, @RequestParam String idxAccount
             , @RequestParam String strStart, @RequestParam String strEnd) throws ParseException, IOException, InterruptedException {
         return service.scrapingAccount(user.idx(), idxAccount ,strStart , strEnd);
+    }
+
+    @ApiOperation(value = "인증서 연결 계좌 정보 새로가져오기", notes = "" + "\n")
+    @GetMapping( URI.CONNECTEDID_ACCOUNT_REFRESH )
+    public ResponseEntity connectedidAccountRefresh(@ApiIgnore @CurrentUser CustomUser user, @RequestParam String connId) throws ParseException{
+        return service.scrapingBank(connId);
     }
 }

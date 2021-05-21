@@ -515,8 +515,8 @@ public class UserService {
 				.build());
 	}
 
-
-	private TokenDto.TokenSet issueTokenSet(AccountDto dto) {
+	@Transactional(readOnly = true)
+	public TokenDto.TokenSet issueTokenSet(AccountDto dto) {
 		User user = findByEmail(dto.getEmail());
 		if (!encoder.matches(dto.getPassword(), user.password())) {
 			throw UnauthorizedException.builder()
@@ -529,7 +529,11 @@ public class UserService {
 		boolean corpMapping = StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = StringUtils.isEmpty(user.cardCompany());
 
-		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role);
+		Corp corp = user.corp();
+		Set<Authority> authrities = user.authorities();
+		if(!ObjectUtils.isEmpty(user.corp().authorities())) authrities.addAll(corp.authorities());
+
+		return jwt.issue(dto.getEmail(), authrities, user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role);
 	}
 
 	@Transactional(rollbackFor = Exception.class)

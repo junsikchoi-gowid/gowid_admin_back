@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.api.dto.AuthDto;
 import com.nomadconnection.dapp.api.exception.ExpiredException;
 import com.nomadconnection.dapp.api.exception.UnauthorizedException;
 import com.nomadconnection.dapp.api.exception.UserNotFoundException;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.user.Authority;
@@ -16,6 +17,7 @@ import com.nomadconnection.dapp.jwt.exception.UnacceptableJwtException;
 import com.nomadconnection.dapp.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -153,12 +155,15 @@ public class AuthService {
 	 * @param dto 계정정보 - 아이디, 비밀번호
 	 * @return 인증토큰(세트) - 인증토큰, 갱신토큰, 발급일시, 만료일시(인증토큰), 만료일시(갱신토큰), 부가정보(권한, ...)
 	 */
+	@Transactional(readOnly = true)
 	public TokenDto.TokenSet issueTokenSet(AccountDto dto) {
 		User user = repoUser.findByAuthentication_EnabledAndEmail(true, dto.getEmail()).orElseThrow(
 				() -> UserNotFoundException.builder()
 						.email(dto.getEmail())
 						.build()
 		);
+
+
 		Role role = Authority.from(user.authorities());
 
 		if (!encoder.matches(dto.getPassword(), user.password())) {
@@ -170,7 +175,11 @@ public class AuthService {
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 
-		return jwt.issue(dto.getEmail(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
+		Corp corp = user.corp();
+		Set<Authority> authrities = user.authorities();
+		if(!ObjectUtils.isEmpty(user.corp().authorities())) authrities.addAll(corp.authorities());
+
+		return jwt.issue(dto.getEmail(), authrities, user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
 	}
 
 	/**
