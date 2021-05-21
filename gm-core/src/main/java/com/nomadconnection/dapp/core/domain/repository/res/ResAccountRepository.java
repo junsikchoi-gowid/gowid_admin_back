@@ -1,5 +1,6 @@
 package com.nomadconnection.dapp.core.domain.repository.res;
 
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.ResAccountCustomRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.res.ResAccountHistory;
@@ -253,6 +254,16 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
                 "        AND resAccountDeposit IN ('10', '11', '12', '13', '14')) z", nativeQuery = true)
     Double findRecentBalance(@Param("idxUser") Long idxUser, @Param("setDate") String setDate);
 
+
+    @Query(value =" select ifnull(sum(if(r.resAccountCurrency = 'KRW', r.resAccountBalance, r.resAccountBalance * a.receiving)),0) as balance " +
+            "from  ResAccount r " +
+            "    inner join (select receiving, country, max(date)  from ResExchangeRate group by country) a on a.country = r.resAccountCurrency " +
+            "    inner join ResConCorpList rccl on rccl.connectedId = r.connectedId and rccl.status in ('NORMAL','ERROR') and r.organization = rccl.organization " +
+            "    inner join ConnectedMng cm on cm.connectedId = rccl.connectedId and cm.status in ('NORMAL','ERROR') and cm.idxCorp = :idxCorp " +
+            "where r.status in ('NORMAL','ERROR')\n" +
+            "    AND r.resAccountDeposit IN ('10', '11', '12', '13', '14', '20') " +
+            "    and (r.resOverdraftAcctYN is null or r.resOverdraftAcctYN = 0 )  ", nativeQuery = true)
+    Double findRecentBalanceToDay(@Param("idxCorp") Long idxCorp);
 
     interface CaccountHistoryDto {
         String getResAccount();
