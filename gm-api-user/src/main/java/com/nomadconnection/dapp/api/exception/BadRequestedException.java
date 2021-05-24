@@ -13,7 +13,6 @@ public class BadRequestedException extends RuntimeException {
 
     public enum Category {
         EXCESS_UPLOAD_FILE_LENGTH,
-        INVALID_UPLOAD_FILE_SIZE,
         INVALID_CEO_IDENTIFICATION,
         NOT_ALLOWED_EXTENSION
     }

@@ -87,7 +87,7 @@ public class AuthService {
 	 * @param dto 계정정보 - 아이디, 비밀번호
 	 * @return 인증토큰(세트) - 인증토큰, 갱신토큰, 발급일시, 만료일시(인증토큰), 만료일시(갱신토큰), 부가정보(권한, ...)
 	 */
-	@Transactional(readOnly = true)
+	@Transactional(rollbackFor = Exception.class)
 	public TokenDto.TokenSet issueTokenSet(AccountDto dto) {
 		User user = userService.getEnabledUserByEmailIfNotExistError(dto.getEmail());
 

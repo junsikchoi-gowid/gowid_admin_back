@@ -586,15 +586,6 @@ public class IssuanceService {
         return signatureHistoryRepository.save(signatureHistory);
     }
 
-    private String changeOldDriverLicenseErrorCode(String code, String message){
-        String OLD_DRIVER_LICENSE_CODE = "999";
-        String OLD_DRIVER_LICENSE_MSG = "예전 면허";
-        if(message.contains(OLD_DRIVER_LICENSE_MSG)){
-            code = OLD_DRIVER_LICENSE_CODE;
-        }
-        return code;
-    }
-
     public DataPart1200 makeDataPart1200(Long corpIdx){
         D1200 d1200 = d1200Repository.findFirstByIdxCorpOrderByUpdatedAtDesc(corpIdx).orElseGet(
             () -> D1200.builder().build()
