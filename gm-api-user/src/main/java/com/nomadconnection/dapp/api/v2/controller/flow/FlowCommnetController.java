@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.nomadconnection.dapp.api.v2.dto.FlowDto;
 import com.nomadconnection.dapp.api.v2.service.flow.FlowReportService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.exception.response.GowidResponse;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
@@ -42,7 +43,7 @@ public class FlowCommnetController extends FlowBaseController {
  
     private final FlowReportService flowReportService;
 
-    @PreAuthorize("hasRole('COMMENT') and hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation( value = "Comment 저장" , notes = "hasRole : CBT, COMMENT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @PostMapping(value = URI.COMMENT)
@@ -52,10 +53,14 @@ public class FlowCommnetController extends FlowBaseController {
 
         log.info("[postReportComment] user = {}, corp = {} " ,user.idx(), user.corp().idx());
 
-        return ok(flowReportService.saveComment(user, message, file));
+        if(user.corp().authorities().stream().anyMatch(o -> (o.role().equals(Role.ROLE_CBT) || o.role().equals(Role.ROLE_COMMENT)))){
+            return ok(flowReportService.saveComment(user, message, file));
+        }else{
+            return ok();
+        }
     }
 
-    @PreAuthorize("hasRole('COMMENT') and hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation( value = "Comment ", notes = "hasRole : CBT, COMMENT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @DeleteMapping(value = URI.COMMENT + "/{idx}")
@@ -64,10 +69,14 @@ public class FlowCommnetController extends FlowBaseController {
 
         log.info("[putReportComment] user = {}, corp = {} " ,user.idx(), user.corp().idx());
 
-        return ok(flowReportService.delComment(user, idx));
+        if(user.corp().authorities().stream().anyMatch(o -> (o.role().equals(Role.ROLE_CBT) || o.role().equals(Role.ROLE_COMMENT)))){
+            return ok(flowReportService.delComment(user, idx));
+        }else{
+            return ok();
+        }
     }
 
-    @PreAuthorize("hasRole('COMMENT') and hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation( value = "Comment", notes = "hasRole : CBT, COMMENT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = URI.COMMENT)
@@ -75,12 +84,15 @@ public class FlowCommnetController extends FlowBaseController {
 
         log.info("[getReportComment] user = {}, corp = {} " ,user.idx(), user.corp().idx());
 
-        List<FlowDto.FlowCommentDto> list = flowReportService.getReportComment(user);
-
-        return ok(list);
+        if(user.corp().authorities().stream().anyMatch(o -> (o.role().equals(Role.ROLE_CBT) || o.role().equals(Role.ROLE_COMMENT)))){
+            List<FlowDto.FlowCommentDto> list = flowReportService.getReportComment(user);
+            return ok(list);
+        }else{
+            return ok();
+        }
     }
 
-    @PreAuthorize("hasRole('COMMENT') and hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation( value = "last comment data", notes = "hasRole : CBT, COMMENT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = URI.COMMENT_LAST)
@@ -88,12 +100,15 @@ public class FlowCommnetController extends FlowBaseController {
 
         log.info("[getReportComment] user = {}, corp = {} " ,user.idx(), user.corp().idx());
 
-        FlowDto.FlowCommentLastDto data = flowReportService.getReportCommentLast(user);
-
-        return ok(data);
+        if(user.corp().authorities().stream().anyMatch(o -> (o.role().equals(Role.ROLE_CBT) || o.role().equals(Role.ROLE_COMMENT)))){
+            FlowDto.FlowCommentLastDto data = flowReportService.getReportCommentLast(user);
+            return ok(data);
+        }else{
+            return ok();
+        }
     }
 
-    @PreAuthorize("hasRole('COMMENT') and hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation( value = "Comment File Download", notes = "hasRole : CBT, COMMENT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = URI.COMMENT_FILE + "/{idx}")
@@ -101,27 +116,33 @@ public class FlowCommnetController extends FlowBaseController {
 
         log.info("[getCommentFile] user = {}, corp = {} " ,user.idx(), user.corp().idx());
 
-        S3Object s3Object = flowReportService.getCommentFile(idx);
-        String fileName = flowReportService.getComment(idx);
+        if(user.corp().authorities().stream().anyMatch(o -> (o.role().equals(Role.ROLE_CBT) || o.role().equals(Role.ROLE_COMMENT)))){
+            S3Object s3Object = flowReportService.getCommentFile(idx);
+            String fileName = flowReportService.getComment(idx);
 
-        byte[] content = null;
+            byte[] content = null;
 
-        final S3ObjectInputStream stream = s3Object.getObjectContent();
-        try {
-            content = IOUtils.toByteArray(stream);
-            s3Object.close();
-        } catch(final IOException ex) {
-            log.info("IO Error Message= " + ex.getMessage());
+            final S3ObjectInputStream stream = s3Object.getObjectContent();
+            try {
+                content = IOUtils.toByteArray(stream);
+                s3Object.close();
+            } catch(final IOException ex) {
+                log.info("IO Error Message= " + ex.getMessage());
+            }
+
+            final byte[] data = content;
+            final ByteArrayResource resource = new ByteArrayResource(data);
+            return ResponseEntity
+                    .ok()
+                    .contentLength(data.length)
+                    .header("Content-Transfer-Encoding", "binary")
+                    .header("Content-type", "application/octet-stream")
+                    .header("Content-disposition", "attachment; filename=\"" + URLEncoder.encode( fileName, "UTF-8") + "\"")
+                    .body(resource);
+
+        }else{
+            return ResponseEntity
+                    .ok().body(null);
         }
-
-        final byte[] data = content;
-        final ByteArrayResource resource = new ByteArrayResource(data);
-        return ResponseEntity
-                .ok()
-                .contentLength(data.length)
-                .header("Content-Transfer-Encoding", "binary")
-                .header("Content-type", "application/octet-stream")
-                .header("Content-disposition", "attachment; filename=\"" + URLEncoder.encode( fileName, "UTF-8") + "\"")
-                .body(resource);
     }
 }

@@ -217,10 +217,11 @@ public class ScrapingService {
 		} else {
 			if (connectedId != null) {
 				repoResBatchList.save(ResBatchList.builder()
-					.connectedId(connectedId)
-					.errCode(code)
-					.errMessage(message)
-					.idxUser(user.idx())
+						.connectedId(connectedId)
+						.errCode(code)
+						.errMessage(message)
+						.idxUser(user.idx())
+						.idxCorp(user.corp().idx())
 					.build());
 			}
 			log.error("[addAccount] $user={}, $code={}, $message={} ", user.email(), code, message);
@@ -408,12 +409,13 @@ public class ScrapingService {
 		private void saveResBatchList (User user, ScrapingResponse scrapingResponse){
 			if (scrapingResponse.getConnectedId() != null) {
 				repoResBatchList.save(ResBatchList.builder()
-					.connectedId(scrapingResponse.getConnectedId())
-					.transactionId(scrapingResponse.getTransactionId())
-					.errCode(scrapingResponse.getCode())
-					.errMessage(scrapingResponse.getMessage())
-					.idxUser(user.idx())
-					.build());
+						.connectedId(scrapingResponse.getConnectedId())
+						.transactionId(scrapingResponse.getTransactionId())
+						.errCode(scrapingResponse.getCode())
+						.errMessage(scrapingResponse.getMessage())
+						.idxUser(user.idx())
+						.idxCorp(user.corp().idx())
+						.build());
 			}
 		}
 

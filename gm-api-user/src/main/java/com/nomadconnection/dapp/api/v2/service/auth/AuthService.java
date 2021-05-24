@@ -11,6 +11,7 @@ import com.nomadconnection.dapp.api.service.expense.ExpenseService;
 import com.nomadconnection.dapp.api.service.expense.rpc.dto.UserSyncRes;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.v2.dto.AuthDto;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.user.Authority;
 import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.domain.user.User;
@@ -23,15 +24,18 @@ import com.nomadconnection.dapp.redis.enums.RedisKey;
 import com.nomadconnection.dapp.redis.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static com.nomadconnection.dapp.api.enums.EmailTemplate.*;
 import static com.nomadconnection.dapp.api.enums.VerifyCode.PASSWORD_RESET;
@@ -53,13 +57,18 @@ public class AuthService {
 	@Value("${auth.email.expire-time}")
 	private int expireTime;
 
+
 	private TokenDto.TokenSet createToken(User user) {
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 
 		Role role = Authority.from(user.authorities());
 
-		return jwt.issue(user.email(), user.authorities(), user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
+		Corp corp = user.corp();
+		Set<Authority> authrities = user.authorities();
+		if(!ObjectUtils.isEmpty(user.corp().authorities())) authrities.addAll( corp.authorities());
+
+		return jwt.issue(user.email(), authrities, user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
 	}
 
 	/**
@@ -75,6 +84,7 @@ public class AuthService {
 	 * @param dto 계정정보 - 아이디, 비밀번호
 	 * @return 인증토큰(세트) - 인증토큰, 갱신토큰, 발급일시, 만료일시(인증토큰), 만료일시(갱신토큰), 부가정보(권한, ...)
 	 */
+	@Transactional(readOnly = true)
 	public TokenDto.TokenSet issueTokenSet(AccountDto dto) {
 		User user = userService.getEnabledUserByEmailIfNotExistError(dto.getEmail());
 

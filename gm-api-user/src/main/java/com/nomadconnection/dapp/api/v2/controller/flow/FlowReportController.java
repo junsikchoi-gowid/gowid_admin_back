@@ -6,6 +6,7 @@ import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.v2.dto.FlowDto;
 import com.nomadconnection.dapp.api.v2.service.flow.FlowReportService;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.exception.response.GowidResponse;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
@@ -44,7 +45,7 @@ public class FlowReportController extends FlowBaseController {
  
     private final FlowReportService flowReportService;
 
-    @PreAuthorize("hasRole('ROLE_CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation( value = "현황 월별 내역 ", notes = "hasRole : ROLE_CBT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = URI.REPORT_MONTH_STATUS)
@@ -53,14 +54,16 @@ public class FlowReportController extends FlowBaseController {
 
         log.info("[getReportStatusMonth] user = {}, corp = {} " ,user.idx(), user.corp().idx());
 
-        if(searchDate.isEmpty()) searchDate = CommonUtil.getNowYYYYMMDD();
-        
-        List<FlowDto.FlowReportByPeriodDto> list = flowReportService.getReportStatusMonth(user.corp().idx(), searchDate);
-
-        return ok(list);
+        if(user.corp().authorities().stream().anyMatch(o -> o.role().equals(Role.ROLE_CBT))){
+            if(searchDate.isEmpty()) searchDate = CommonUtil.getNowYYYYMMDD();
+            List<FlowDto.FlowReportByPeriodDto> list = flowReportService.getReportStatusMonth(user.corp().idx(), searchDate);
+            return ok(list);
+        }else {
+            return ok();
+        }
     }
 
-    @PreAuthorize("hasRole('ROLE_CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation( value = "현황 계정별 내역(-3월~당월)", notes = "hasRole : ROLE_CBT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = URI.REPORT_MONTH_TABLE)
@@ -69,14 +72,16 @@ public class FlowReportController extends FlowBaseController {
 
         log.info("[getReportTableMonth] user = {}, corp = {} " ,user.idx(), user.corp().idx());
 
-        if(searchDate.isEmpty()) searchDate = CommonUtil.getNowYYYYMMDD();
-
-        FlowDto.FlowCashInfo data = flowReportService.getReportTableMonth(user.corp().idx(), searchDate);
-
-        return ok(data);
+        if(user.corp().authorities().stream().anyMatch(o -> o.role().equals(Role.ROLE_CBT))){
+            if(searchDate.isEmpty()) searchDate = CommonUtil.getNowYYYYMMDD();
+            FlowDto.FlowCashInfo data = flowReportService.getReportTableMonth(user.corp().idx(), searchDate);
+            return ok(data);
+        }else{
+            return ok();
+        }
     }
 
-    @PreAuthorize("hasRole('ROLE_CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation( value = "현황 계정별 내역(-3월~당월) 엑셀 다운로드", notes = "hasRole : ROLE_CBT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = URI.REPORT_MONTH_TABLE_FILE)
@@ -85,24 +90,25 @@ public class FlowReportController extends FlowBaseController {
 
         log.info("[getReportTableMonthFile] user = {}, corp = {} " ,user.idx(), user.corp().idx());
 
-        if(searchDate.isEmpty()) searchDate = CommonUtil.getNowYYYYMMDD();
-
-        FlowDto.FlowExcelPath flowExcelPath = flowReportService.getReportTableMonthFile(user.corp().idx(), searchDate);
-
-        final ByteArrayResource resource = new ByteArrayResource(flowExcelPath.file);
-
-        return ResponseEntity
-                .ok()
-                .contentLength(flowExcelPath.file.length)
-                .header("Content-Transfer-Encoding", "binary")
-                .header("Content-type", "application/octet-stream")
-                .header("Content-disposition", "attachment; filename=\"" + URLEncoder.encode(flowExcelPath.fileName, "UTF-8") + "\"")
-                .body(resource);
+        if(user.corp().authorities().stream().anyMatch(o -> o.role().equals(Role.ROLE_CBT))){
+            if(searchDate.isEmpty()) searchDate = CommonUtil.getNowYYYYMMDD();
+            FlowDto.FlowExcelPath flowExcelPath = flowReportService.getReportTableMonthFile(user.corp().idx(), searchDate);
+            final ByteArrayResource resource = new ByteArrayResource(flowExcelPath.file);
+            return ResponseEntity
+                    .ok()
+                    .contentLength(flowExcelPath.file.length)
+                    .header("Content-Transfer-Encoding", "binary")
+                    .header("Content-type", "application/octet-stream")
+                    .header("Content-disposition", "attachment; filename=\"" + URLEncoder.encode(flowExcelPath.fileName, "UTF-8") + "\"")
+                    .body(resource);
+        }else{
+            return ResponseEntity.ok().body(null);
+        }
     }
 
 
 
-    @PreAuthorize("hasRole('ROLE_CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation( value = "통계데이터 생성", notes = "hasRole : ROLE_CBT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = URI.REPORT)
@@ -110,9 +116,11 @@ public class FlowReportController extends FlowBaseController {
 
         log.info("[getReportTableMonth] user = {}, corp = {} " ,user.idx(), user.corp().idx());
 
-        FlowDto.FlowReportDto data = flowReportService.createReport(user.corp());
-
-        return ok(data);
+        if(user.corp().authorities().stream().anyMatch(o -> o.role().equals(Role.ROLE_CBT))){
+            FlowDto.FlowReportDto data = flowReportService.createReport(user.corp());
+            return ok(data);
+        }else {
+            return ok();
+        }
     }
-
 }
