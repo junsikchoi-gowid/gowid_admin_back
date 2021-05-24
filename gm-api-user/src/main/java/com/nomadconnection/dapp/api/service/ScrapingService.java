@@ -1503,15 +1503,15 @@ public class ScrapingService {
     }
 
     @Async("executor1")
-    public void runExecutor(Long idxUser){
+    public void runExecutor(Long idxCorp){
         // scraping10Years(idxUser);
-        scraping3Years(null, idxUser, null);
+        scraping3Years(null, null, idxCorp);
     }
 
     @Async("executor1")
-    public void runExecutorRisk(Long idxUser){
+    public void runExecutorRisk(Long idxCorp){
 
-        serviceRisk.saveRisk45(idxUser, null,"");
+        serviceRisk.saveRisk45(null, idxCorp,"");
     }
 
     /**

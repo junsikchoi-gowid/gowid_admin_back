@@ -31,15 +31,15 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "    ifnull(b.errCode ,'') as errCode, \n" +
             "    ifnull(b.errMessage ,'') as errMessage, \n" +
             "    ifnull(b.resBatchType ,'') as resBatchType, \n" +
-            "    (select count(*) from ResAccount where resAccountDeposit = 99 and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser )) as errTypeCnt , \n" +
-            "    (select count(*) from ResAccount where resAccountDeposit != 99 and connectedId in (select connectedId from ConnectedMng where idxUser = :idxUser )) as total , \n" +
+            "    (select count(*) from ResAccount where resAccountDeposit = 99 and connectedId in (select connectedId from ConnectedMng where idxCorp = :idxCorp )) as errTypeCnt , \n" +
+            "    (select count(*) from ResAccount where resAccountDeposit != 99 and connectedId in (select connectedId from ConnectedMng where idxCorp = :idxCorp )) as total , \n" +
             "    (select count(distinct account) from ResBatchList where a.idx = idxResBatch and resBatchType = 1) as progressCnt, \n" +
             "    (select count(distinct account) from ResBatchList where a.idx = idxResBatch and errCode <> 'CF-00000' and resBatchType = 1 ) as errorCnt \n" +
             "from \n" +
             "    (select  idx,  TIMESTAMPDIFF(MINUTE,   now() ,   r.updatedAt) * -1 As min,   endFlag   \n" +
             "    from ResBatch r     \n" +
             "    where \n" +
-            "        idxUser = :idxUser\n" +
+            "       idxCorp = :idxCorp\n" +
             "    order by \n" +
             "        updatedAt desc limit 1 ) a       \n" +
             "left join \n" +
@@ -48,7 +48,7 @@ public interface ResBatchRepository extends JpaRepository<ResBatch, Long> {
             "        and b.errCode <> 'CF-00000'  \n" +
             "        and resBatchType = 1  \n" +
             "limit 1 ",nativeQuery = true)
-    List<ResBatchRepository.CResBatchDto> findRefresh(@Param("idxUser") Long idxUser);
+    List<ResBatchRepository.CResBatchDto> findRefresh(@Param("idxCorp") Long idxCorp);
 
     @Query(value = "select comm.searchStartDate \n" +
             ", if(Date_Format(searchStartDate , '%Y%m') = Date_Format(startDay , '%Y%m'), searchStartDate, startDay) startDay\n" +

@@ -1,6 +1,7 @@
 package com.nomadconnection.dapp.api.service;
 
 import com.nomadconnection.dapp.api.config.CronConfig;
+import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResBatchRepository;
 import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
@@ -41,8 +42,8 @@ public class SchedulerService {
     private void schedule() {
         log.debug("schedule start");
         if( cronConfig.getEnabled().equals("true")){
-            repoUser.findByAuthentication_Enabled(true).forEach( user -> {
-                List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(user.idx());
+            repoCorp.findAll().forEach( corp -> {
+                List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(corp.idx());
                 boolean boolSchedule = true;
                 if(returnData.size()>0 && Integer.parseInt(returnData.get(0).getMin()) < 3){
                     return;
@@ -50,7 +51,7 @@ public class SchedulerService {
                 try {
                     Thread.sleep(1000);
                     String ip = InetAddress.getLocalHost().getHostAddress();
-                    if(( (Integer.parseInt(ip.substring(ip.length()-1)) + Integer.parseInt(user.idx().toString())) % 2) < 1){
+                    if(( (Integer.parseInt(ip.substring(ip.length()-1)) + Integer.parseInt(corp.idx().toString())) % 2) < 1){
                         boolSchedule = false ;
                     }
 
@@ -59,7 +60,7 @@ public class SchedulerService {
                 }
 
                 if(boolSchedule) {
-                    service.runExecutor(user.idx());
+                    service.runExecutor(corp.idx());
                 }
             });
         }
@@ -78,18 +79,18 @@ public class SchedulerService {
     private void schedule_risk() {
         log.debug("schedule_risk start");
         if( riskEnabled ){
-            repoUser.findByAuthentication_Enabled(true).forEach( user -> {
-                if(boolSchedule(user)) {
-                     service.runExecutorRisk(user.idx());
+            repoCorp.findAll().forEach( corp -> {
+                if(boolSchedule(corp)) {
+                     service.runExecutorRisk(corp.idx());
                 }
             });
         }
     }
 
-    private boolean boolSchedule(User user) {
+    private boolean boolSchedule(Corp corp) {
         try {
             String ip = InetAddress.getLocalHost().getHostAddress();
-            if(( (Integer.parseInt(ip.substring(ip.length()-1)) + Integer.parseInt(user.idx().toString())) % 2) < 1){
+            if(( (Integer.parseInt(ip.substring(ip.length()-1)) + Integer.parseInt(corp.idx().toString())) % 2) < 1){
                 return false;
             }
         } catch (Exception e) {
