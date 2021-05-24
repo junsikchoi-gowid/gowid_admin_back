@@ -17,6 +17,7 @@ import com.nomadconnection.dapp.api.service.GwUploadService;
 import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.v2.dto.cardissuanceinfo.IssuanceDepthResponseDto;
+import com.nomadconnection.dapp.api.v2.enums.CeoVerifyCode;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
@@ -933,10 +934,9 @@ public class CommonCardServiceV2 {
     }
 
     private String changeOldDriverLicenseErrorCode(String code, String message){
-        String OLD_DRIVER_LICENSE_CODE = "999";
         String OLD_DRIVER_LICENSE_MSG = "예전 면허";
         if(message.contains(OLD_DRIVER_LICENSE_MSG)){
-            code = OLD_DRIVER_LICENSE_CODE;
+            code = CeoVerifyCode.OLD_DRIVER_LICENSE_CODE.getCode();
         }
         return code;
     }
@@ -952,7 +952,7 @@ public class CommonCardServiceV2 {
             && !checkCeo(d1000.getD018(), d1000.getD019(), dto);
 
         if (isValidCeoInfo) {
-            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, "MISMATCH_CEO");
+            throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED, CeoVerifyCode.MISMATCHED_CEO_WITH_CORP_REGISTRATION.getCode());
         }
     }
 
