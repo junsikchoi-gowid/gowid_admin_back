@@ -82,8 +82,9 @@ public class ScrapingService {
 	public void scrap(Long userIdx, AccountNt dto) throws Exception {
 		User user = userService.getUser(userIdx);
 		ConnectedMng connectedMng = createAccount(user, dto); // 국세청 - 공인인증서 증명(계정 등록(커넥티드아이디 발급))
-		addAccount(user, dto); // codef - 은행계좌 등록
 		Corp corp = scrapCorpLicense(user, dto.getCardType());   // 국세청 - 사업자등록증
+
+		addAccount(user, dto, corp); // codef - 은행계좌 등록
 		scrapCorpRegistration(user, dto.getCardType()); // 대법원 - 등기부등본
 		repoConnectedMng.save(connectedMng.corp(corp)); // connectedMng에 corp 저장
 	}
@@ -199,7 +200,7 @@ public class ScrapingService {
 		}
 	}
 
-	private void addAccount(User user, AccountNt dto) {
+	private void addAccount(User user, AccountNt dto, Corp corp) {
 		String connectedId = scrapingResultService.getResponseDto().getConnectedId();
 		JSONObject response = codefApiService.requestAddAccount(dto, connectedId, user.email());
 
@@ -221,7 +222,7 @@ public class ScrapingService {
 						.errCode(code)
 						.errMessage(message)
 						.idxUser(user.idx())
-						.idxCorp(user.corp().idx())
+						.idxCorp(corp.idx())
 					.build());
 			}
 			log.error("[addAccount] $user={}, $code={}, $message={} ", user.email(), code, message);
