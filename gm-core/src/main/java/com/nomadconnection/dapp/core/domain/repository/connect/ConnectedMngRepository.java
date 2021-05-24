@@ -11,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,12 +29,9 @@ public interface ConnectedMngRepository extends JpaRepository<ConnectedMng, Long
 	@Query(value = "select ifnull(max(a),0) from (select if(endFlag is null , 0 , endFlag) a from ResBatch where idxCorp = :idxCorp order by idx desc limit 1 ) a " ,nativeQuery = true)
 	Integer findRefresh(@Param("idxCorp")Long idxCorp);
 
-	@Query(value = "select count(idx) from ResAccount where connectedId in ( select connectedId from ConnectedMng where idxUser = :idxUser)" ,nativeQuery = true)
-	Integer findResAccountCount(@Param("idxUser")Long idxUser);
+	List<ConnectedMng> findByCorpAndStatusIn(Corp corp, List<ConnectedMngStatus> resConCorpListStatuses);
 
-    ConnectedMng findByConnectedId(String connectedId);
-
-    interface ConnectedMngDto {
+	interface ConnectedMngDto {
 		Long getIdx();
 		String getConnectedId();
 		Long getIdxUser();

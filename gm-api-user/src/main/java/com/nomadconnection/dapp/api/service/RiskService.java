@@ -69,7 +69,7 @@ public class RiskService {
 
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity<?> saveRisk(Long idxUser, Long idxCorp, String calcDate) {
+	public ResponseEntity saveRisk(Long idxUser, Long idxCorp, String calcDate) {
 
 		return ResponseEntity.ok().body(
 				BusinessResponse.builder()

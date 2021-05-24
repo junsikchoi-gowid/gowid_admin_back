@@ -29,6 +29,7 @@ import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResBatchListRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResConCorpListRepository;
 import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
+import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ResBatchList;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpListStatus;
@@ -38,6 +39,7 @@ import com.nomadconnection.dapp.core.dto.response.ErrorCode;
 import com.nomadconnection.dapp.core.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.http.ResponseEntity;
@@ -63,6 +65,7 @@ import static com.nomadconnection.dapp.api.v2.utils.ScrapingCommonUtils.isScrapi
 public class ScrapingService {
 
 	private final ConnectedMngRepository repoConnectedMng;
+	private final UserRepository repoUser;
 	private final CorpRepository repoCorp;
 	private final ResConCorpListRepository repoResConCorpList;
 	private final CommonCodeDetailRepository commonCodeDetailRepository;
@@ -231,6 +234,8 @@ public class ScrapingService {
 
 	public Corp scrapCorpLicense(User user, CardType cardType) throws Exception {
 		try {
+			user = findUserInfo(user.idx());
+
 			String connectedId = scrapingResultService.getResponseDto().getConnectedId();
 			String response = codefApiService.requestScrapCorpLicense(connectedId, user.email());
 			ScrapingResponse scrapingResponse = scrapingResultService.getApiResult(response);
@@ -267,6 +272,7 @@ public class ScrapingService {
 					log.info("[scrapCorpLicense] $user={}, $message=Corp is not Business", user.email());
 					throw new CorpNotBusinessException(ErrorCode.Api.CORP_NOT_BUSINESS);
 				} else {
+					User finalUser = user;
 					corp = repoCorp.findByResCompanyIdentityNo(GowidUtils.getEmptyStringToString(jsonData, "resCompanyIdentityNo")).orElseGet(
 						() -> Corp.builder()
 							.resJointRepresentativeNm(GowidUtils.getEmptyStringToString(jsonData, "resJointRepresentativeNm"))
@@ -285,7 +291,7 @@ public class ScrapingService {
 							.resUserIdentiyNo(GowidUtils.getEmptyStringToString(jsonData, "resUserIdentiyNo"))
 							.resUserNm(GowidUtils.getEmptyStringToString(jsonData, "resUserNm"))
 							.status(CorpStatus.PENDING)
-							.user(user)
+							.user(finalUser)
 							.build()
 					);
 					repoCorp.save(corp);
@@ -319,6 +325,11 @@ public class ScrapingService {
 			log.error("scrapCorpLicense {}", e);
 			throw e;
 		}
+	}
+
+	@Transactional(readOnly = true)
+	User findUserInfo(Long idxUser) {
+		return repoUser.findById(idxUser).get();
 	}
 
 	public void scrapCorpRegistration(User user, CardType cardType) throws Exception {
@@ -409,6 +420,9 @@ public class ScrapingService {
 
 		private void saveResBatchList (User user, ScrapingResponse scrapingResponse){
 			if (scrapingResponse.getConnectedId() != null) {
+
+				user = findUserInfo(user.idx());
+
 				repoResBatchList.save(ResBatchList.builder()
 						.connectedId(scrapingResponse.getConnectedId())
 						.transactionId(scrapingResponse.getTransactionId())

@@ -1,9 +1,7 @@
 package com.nomadconnection.dapp.core.domain.repository.res;
 
-import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.repository.querydsl.ResAccountCustomRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
-import com.nomadconnection.dapp.core.domain.res.ResAccountHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -73,6 +71,17 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
     @Modifying
     @Query("delete from ResAccount where resAccount = :resAccount")
     void deleteByResAccount(@Param("resAccount") String resAccount);
+
+    @Transactional
+    @Modifying
+    @Query("update ResAccount set status = 'ERROR' where status = 'NORMAL' " +
+            " and connectedId in (select connectedId from ConnectedMng where idxCorp = :idxCorp ) ")
+    int accountStatusError(@Param("idxCorp") Long idxCorp);
+
+    @Transactional
+    @Modifying
+    @Query("update ResBatch set endFlag = true where idxUser = :idxUser and endFlag = false ")
+    int endBatchUser(@Param("idxUser") Long idxUser);
 
     Optional<ResAccount> findTopByResAccountAndResAccountCurrency(String resAccount, String resAccountCurrency);
 
@@ -260,7 +269,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
             "    inner join (select receiving, country, max(date)  from ResExchangeRate group by country) a on a.country = r.resAccountCurrency " +
             "    inner join ResConCorpList rccl on rccl.connectedId = r.connectedId and rccl.status in ('NORMAL','ERROR') and r.organization = rccl.organization " +
             "    inner join ConnectedMng cm on cm.connectedId = rccl.connectedId and cm.status in ('NORMAL','ERROR') and cm.idxCorp = :idxCorp " +
-            "where r.status in ('NORMAL','ERROR')\n" +
+            "where r.status in ('NORMAL')\n" +
             "    AND r.resAccountDeposit IN ('10', '11', '12', '13', '14', '20') " +
             "    and (r.resOverdraftAcctYN is null or r.resOverdraftAcctYN = 0 )  ", nativeQuery = true)
     Double findRecentBalanceToDay(@Param("idxCorp") Long idxCorp);
