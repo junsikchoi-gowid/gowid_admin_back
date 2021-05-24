@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.v2.dto.FlowDto;
 import com.nomadconnection.dapp.api.v2.service.flow.FlowReportService;
 import com.nomadconnection.dapp.core.annotation.ApiPageable;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.exception.response.GowidResponse;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
@@ -47,7 +48,7 @@ public class FlowAccountController extends FlowBaseController {
 
     private final FlowReportService flowReportService;
 
-    @PreAuthorize("hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation(value = "계좌정보", notes = "hasRole : CBT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = FlowAccountController.URI.ACCOUNT)
@@ -56,12 +57,16 @@ public class FlowAccountController extends FlowBaseController {
 
         log.info("[getFlowAccount] user = {}, corp = {} ", user.idx(), user.corp().idx());
 
-        List<FlowDto.FlowAccountDto> dto = flowReportService.getFlowAccount(user.corp().idx(), searchFlowAccount);
+        List<FlowDto.FlowAccountDto> dto = null;
+                
+        if(user.corp().authorities().stream().anyMatch(o -> o.role().equals(Role.ROLE_CBT))){
+             dto = flowReportService.getFlowAccount(user.corp().idx(), searchFlowAccount);    
+        }
 
         return ok(dto);
     }
 
-    @PreAuthorize("hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation(value = "계좌정보 즐겨찾기 저장", notes = "hasRole : CBT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @PostMapping(value = FlowAccountController.URI.ACCOUNT + "/{idx}")
@@ -71,12 +76,17 @@ public class FlowAccountController extends FlowBaseController {
 
         log.info("[postAccount] user = {}, corp = {} ", user.idx(), user.corp().idx());
 
-        FlowDto.FlowAccountDto data = flowReportService.saveAccount(dto, idx);
+        FlowDto.FlowAccountDto data = null;
+
+        if(user.corp().authorities().stream().anyMatch(o -> o.role().equals(Role.ROLE_CBT))){
+            data = flowReportService.saveAccount(dto, idx);
+        }
+
 
         return ok(data);
     }
 
-    @PreAuthorize("hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation(value = "계좌거래내역", notes = "hasRole : CBT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = FlowAccountController.URI.ACCOUNT_HISTORY)
@@ -91,12 +101,16 @@ public class FlowAccountController extends FlowBaseController {
 
         log.info("[getAccountHistory] user = {}, corp = {} ", user.idx(), user.corp().idx());
 
-        Page<FlowDto.FlowAccountHistoryDto> list = flowReportService.getFlowAccountHistory(searchDto, pageable);
+        Page<FlowDto.FlowAccountHistoryDto> list = null;
+        if(user.corp().authorities().stream().anyMatch(o -> o.role().equals(Role.ROLE_CBT))){
+            list = flowReportService.getFlowAccountHistory(searchDto, pageable);
+        }
+
 
         return ok(list);
     }
 
-    @PreAuthorize("hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation(value = "계좌거래내역", notes = "hasRole : CBT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @PostMapping(value = FlowAccountController.URI.ACCOUNT_HISTORY)
@@ -105,12 +119,15 @@ public class FlowAccountController extends FlowBaseController {
 
         log.info("[postAccountHistory] user = {}, corp = {} ", user.idx(), user.corp().idx());
 
-        FlowDto.FlowAccountHistoryDto data = flowReportService.saveAccountHistory(dto);
-
-        return ok(data);
+        if(user.corp().authorities().stream().anyMatch(o -> o.role().equals(Role.ROLE_CBT))){
+            FlowDto.FlowAccountHistoryDto data = flowReportService.saveAccountHistory(dto);
+            return ok(data);
+        }else {
+            return ok();
+        }
     }
 
-    @PreAuthorize("hasRole('CBT') and hasAnyRole('MASTER','VIEWER')")
+    @PreAuthorize("hasAnyRole('MASTER','VIEWER')")
     @ApiOperation(value = "계좌거래내역 다운로드", notes = "hasRole : CBT "+ "\n"
             + "hasAnyRole : MASTER, VIEWER " + "\n" )
     @GetMapping(value = URI.ACCOUNT_HISTORY_EXCEL)
@@ -118,16 +135,20 @@ public class FlowAccountController extends FlowBaseController {
                                                             @ModelAttribute FlowDto.SearchFlowAccountHistory searchDto) throws IOException {
 
 
-        FlowDto.FlowExcelPath flowExcelPath = flowReportService.getExcelFlowAccountHistory(user.corp().idx(), searchDto);
+        if(user.corp().authorities().stream().anyMatch(o -> o.role().equals(Role.ROLE_CBT))){
+            FlowDto.FlowExcelPath flowExcelPath = flowReportService.getExcelFlowAccountHistory(user.corp().idx(), searchDto);
 
-        final ByteArrayResource resource = new ByteArrayResource(flowExcelPath.file);
+            final ByteArrayResource resource = new ByteArrayResource(flowExcelPath.file);
 
-        return ResponseEntity
-                .ok()
-                .contentLength(flowExcelPath.file.length)
-                .header("Content-Transfer-Encoding", "binary")
-                .header("Content-type", "application/octet-stream")
-                .header("Content-disposition", "attachment; filename=\"" + URLEncoder.encode(flowExcelPath.fileName, "UTF-8") + "\"")
-                .body(resource);
+            return ResponseEntity
+                    .ok()
+                    .contentLength(flowExcelPath.file.length)
+                    .header("Content-Transfer-Encoding", "binary")
+                    .header("Content-type", "application/octet-stream")
+                    .header("Content-disposition", "attachment; filename=\"" + URLEncoder.encode(flowExcelPath.fileName, "UTF-8") + "\"")
+                    .body(resource);
+        }else {
+            return ResponseEntity.ok().body(null);
+        }
     }
 }

@@ -81,7 +81,7 @@ public class Corp extends BaseTime {
     @Enumerated(EnumType.STRING)
     private CorpStatus status; // pending/denied/approved
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "CorpAuthoritiesMapping",
             joinColumns = @JoinColumn(name = "idxCorp", foreignKey = @ForeignKey(name = "FK_Corp_CorpAuthoritiesMapping")),
             inverseJoinColumns = @JoinColumn(name = "idxAuthority", foreignKey = @ForeignKey(name = "FK_CorpAuthority_CorpAuthoritiesMapping")))
