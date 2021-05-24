@@ -64,9 +64,12 @@ public class AuthService {
 
 		Role role = Authority.from(user.authorities());
 
-		Corp corp = user.corp();
 		Set<Authority> authrities = user.authorities();
-		if(!ObjectUtils.isEmpty(user.corp().authorities())) authrities.addAll( corp.authorities());
+
+		if(!ObjectUtils.isEmpty(user.corp())){
+			Corp corp = user.corp();
+			if(!ObjectUtils.isEmpty(user.corp().authorities())) authrities.addAll(corp.authorities());
+		}
 
 		return jwt.issue(user.email(), authrities, user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
 	}

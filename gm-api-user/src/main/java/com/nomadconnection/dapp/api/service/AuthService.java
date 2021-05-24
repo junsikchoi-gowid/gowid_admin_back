@@ -175,9 +175,11 @@ public class AuthService {
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 
-		Corp corp = user.corp();
 		Set<Authority> authrities = user.authorities();
-		if(!ObjectUtils.isEmpty(user.corp().authorities())) authrities.addAll(corp.authorities());
+
+		if(!ObjectUtils.isEmpty(user.corp())){
+			if(!ObjectUtils.isEmpty(user.corp().authorities())) authrities.addAll(user.corp().authorities());
+		}
 
 		return jwt.issue(dto.getEmail(), authrities, user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
 	}
@@ -209,6 +211,10 @@ public class AuthService {
 		Long idxCorp = user.corp() == null ? null: user.corp().idx();
 
 		Set<Authority> authorities = user.authorities();
+
+		if(!ObjectUtils.isEmpty(user.corp())){
+			if(!ObjectUtils.isEmpty(user.corp().authorities())) authorities.addAll(user.corp().authorities());
+		}
 
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
