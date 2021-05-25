@@ -11,13 +11,13 @@ import java.util.Map;
 
 @Slf4j
 @Service
-@SuppressWarnings("DuplicatedCode")
 public class CommonRpcService {
 
     public <T> ResponseEntity<T> requestApi(String url, HttpMethod httpMethod, Object bodyParams, Class<T> responseType, HttpHeaders headers, RestTemplate restTemplate) throws IOException {
         log.debug("## Request [{}] {}", httpMethod, url);
         log.debug("## Request header ==> {}", JsonUtil.generateClassToJson(headers));
-        log.debug("## Request body ==> {}", JsonUtil.generateClassToJson(bodyParams));
+        // TODO hyuntak 리팩토링 대상
+        log.debug("## Request body ==> {}", bodyParams.toString());
 
         ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, new HttpEntity<>(bodyParams, headers), responseType);
         log.info("## Response ==> {}", JsonUtil.generateClassToJson(response));
