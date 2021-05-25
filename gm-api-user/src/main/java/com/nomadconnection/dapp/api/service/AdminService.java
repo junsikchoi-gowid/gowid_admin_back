@@ -249,7 +249,7 @@ public class AdminService {
 
             resAccountPage.getContent().forEach(
                     o -> {
-                        List<ResBatchRepository.CResBatchDto> data = repoResBatch.findRefresh(o.idxUser);
+                        List<ResBatchRepository.CResBatchDto> data = repoResBatch.findRefreshUser(o.idxUser);
                         o.setSuccessAccountCnt(String.valueOf(Integer.parseInt(data.get(0).getTotal()) - Integer.parseInt(data.get(0).getErrorCnt())));
                         o.setAllAccountCnt(data.get(0).getTotal());
                         o.setProcessAccountCnt(data.get(0).getProgressCnt());
