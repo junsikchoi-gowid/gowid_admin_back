@@ -13,9 +13,11 @@ import com.nomadconnection.dapp.core.domain.repository.user.UserRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.res.ResBatchList;
 import com.nomadconnection.dapp.core.domain.user.Role;
+import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -262,7 +264,7 @@ public class BankService {
 	}
 
 	public ResponseEntity checkAccount(Long idx) throws InterruptedException {
-		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idx);
+		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefreshUser(idx);
 		if(returnData.size()>0 && Integer.valueOf(returnData.get(0).getMin()) < 3){
 			return ResponseEntity.ok().body(BusinessResponse.builder().normal(
 					BusinessResponse.Normal.builder()
@@ -276,7 +278,7 @@ public class BankService {
 
 	public ResponseEntity checkAccountList(Long idx) throws InterruptedException {
 
-		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idx);
+		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefreshUser(idx);
 		if(returnData.size()>0 && Integer.valueOf(returnData.get(0).getMin()) < 3){
 			return ResponseEntity.ok().body(BusinessResponse.builder().normal(
 					BusinessResponse.Normal.builder()
@@ -295,11 +297,14 @@ public class BankService {
 	}
 
 
+	@Transactional(readOnly = true)
 	public ResponseEntity refresh(Long idxUser, Long idxCorp) {
 
 		idxUser = getaLong(idxUser, idxCorp);
+		User user = repoUser.findById(idxUser).get();
 
-		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(idxUser);
+		List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefreshUser(user.idx());
+
 		return ResponseEntity.ok().body(BusinessResponse.builder().data(returnData).build());
 	}
 

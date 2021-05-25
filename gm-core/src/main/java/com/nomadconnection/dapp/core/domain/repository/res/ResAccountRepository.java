@@ -267,7 +267,7 @@ public interface ResAccountRepository extends JpaRepository<ResAccount, Long>, R
     @Query(value =" select ifnull(sum(if(r.resAccountCurrency = 'KRW', r.resAccountBalance, r.resAccountBalance * a.receiving)),0) as balance " +
             "from  ResAccount r " +
             "    inner join (select receiving, country, max(date)  from ResExchangeRate group by country) a on a.country = r.resAccountCurrency " +
-            "    inner join ResConCorpList rccl on rccl.connectedId = r.connectedId and rccl.status in ('NORMAL','ERROR') and r.organization = rccl.organization " +
+            "    inner join ResConCorpList rccl on rccl.connectedId = r.connectedId and rccl.status in ('NORMAL','ERROR') and r.organization = rccl.organization and rccl.businessType = 'BK' " +
             "    inner join ConnectedMng cm on cm.connectedId = rccl.connectedId and cm.status in ('NORMAL','ERROR') and cm.idxCorp = :idxCorp " +
             "where r.status in ('NORMAL')\n" +
             "    AND r.resAccountDeposit IN ('10', '11', '12', '13', '14', '20') " +

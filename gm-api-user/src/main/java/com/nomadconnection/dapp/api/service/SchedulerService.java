@@ -43,7 +43,7 @@ public class SchedulerService {
         log.debug("schedule start");
         if( cronConfig.getEnabled().equals("true")){
             repoCorp.findAll().forEach( corp -> {
-                List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefresh(corp.idx());
+                List<ResBatchRepository.CResBatchDto> returnData = repoResBatch.findRefreshCorp(corp.idx());
                 boolean boolSchedule = true;
                 if(returnData.size()>0 && Integer.parseInt(returnData.get(0).getMin()) < 3){
                     return;
