@@ -34,7 +34,6 @@ import com.nomadconnection.dapp.core.security.CustomUser;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -1504,15 +1503,15 @@ public class ScrapingService {
     }
 
     @Async("executor1")
-    public void runExecutor(Long idxUser){
+    public void runExecutor(Long idxCorp){
         // scraping10Years(idxUser);
-        scraping3Years(null, idxUser, null);
+        scraping3Years(null, null, idxCorp);
     }
 
     @Async("executor1")
-    public void runExecutorRisk(Long idxUser){
+    public void runExecutorRisk(Long idxCorp){
 
-        serviceRisk.saveRisk45(idxUser, null,"");
+        serviceRisk.saveRisk45(null, idxCorp,"");
     }
 
     /**
@@ -1542,6 +1541,9 @@ public class ScrapingService {
 
     public boolean scrapingBatch(Long idxUser, Long idxCorp, Long idxResBatchParent){
 
+        // 계좌정보 상태값 Error로 변경
+        scrapingAccountError(idxUser);
+
         // 은행계좌정보
         scrapingBatchAccount(idxUser,idxResBatchParent);
 
@@ -1557,6 +1559,11 @@ public class ScrapingService {
         scrapingBatchHistory(idxUser, idxResBatchParent, repoResBatch.find10yearMonth(idxUser, true));
 
         return true;
+    }
+
+    private void scrapingAccountError(Long idxUser) {
+        Corp corp = repoCorp.findById(repoCorp.searchIdxCorp(idxUser)).get();
+        repoResAccount.accountStatusError(corp.idx());
     }
 
     void scrapingBatchTaxInvoice(Long idxUser, Long idxResBatchParent) {
@@ -1616,7 +1623,7 @@ public class ScrapingService {
                             repoResBatchList.save(
                                     ResBatchList.builder()
                                             .idxUser(idxUser)
-                                            .idxCorp(user.corp().idx())
+                                            .idxCorp(corp.idx())
                                             .idxResBatch(idxResBatchParent)
                                             .resBatchType(ResBatchType.NT)
                                             .connectedId(resConCorpList.connectedId())
@@ -1732,51 +1739,52 @@ public class ScrapingService {
 
     private void scrapingBatchAccount(Long idxUser, Long idxResBatchParent) {
 
-        User user = repoUser.findById(idxUser).orElseThrow(
-                () -> UserNotFoundException.builder().build()
-        );
+        User user = findUserInfo(idxUser);
 
-        for( ConnectedMng connectedMng : getConnectedMng(idxUser)){
-            if(connectedMng.status().equals(ConnectedMngStatus.NORMAL)){
-                for( ResConCorpList resConCorpList : repoResConCorpList.findByConnectedId(connectedMng.connectedId())){
-                    if(resConCorpList.status().equals(ConnectedMngStatus.NORMAL) && resConCorpList.businessType().equals("BK") ){
-                        Long idxResBatchList = checkProcess(connectedMng.connectedId(), idxResBatchParent, idxUser);
+        for( ConnectedMng connectedMng : repoConnectedMng.findByCorpAndStatusIn(user.corp(), connectedMngStatusList )){
+            for( ResConCorpList resConCorpList : repoResConCorpList.findByConnectedIdAndStatusIn(connectedMng.connectedId(), resConCorpListStatuses)){
+                if(resConCorpList.businessType().equals("BK")){
+                    Long idxResBatchList = checkProcess(connectedMng.connectedId(), idxResBatchParent, idxUser);
 
-                        JSONObject[] strResult = getBatchAccountList(
-                                connectedMng.connectedId(),
-                                resConCorpList.organization(),
-                                idxResBatchParent
-                        );
+                    JSONObject[] strResult = getBatchAccountList(
+                            connectedMng.connectedId(),
+                            resConCorpList.organization(),
+                            idxResBatchParent
+                    );
 
-                        if(checkCode(strResult[0])) {
-                            JSONObject jsonData = strResult[1];
-                            JSONArray jsonArrayResDepositTrust = (JSONArray) jsonData.get("resDepositTrust");
-                            JSONArray jsonArrayResForeignCurrency = (JSONArray) jsonData.get("resForeignCurrency");
-                            JSONArray jsonArrayResFund = (JSONArray) jsonData.get("resFund");
-                            JSONArray jsonArrayResLoan = (JSONArray) jsonData.get("resLoan");
+                    if(checkCode(strResult[0])) {
+                        JSONObject jsonData = strResult[1];
+                        JSONArray jsonArrayResDepositTrust = (JSONArray) jsonData.get("resDepositTrust");
+                        JSONArray jsonArrayResForeignCurrency = (JSONArray) jsonData.get("resForeignCurrency");
+                        JSONArray jsonArrayResFund = (JSONArray) jsonData.get("resFund");
+                        JSONArray jsonArrayResLoan = (JSONArray) jsonData.get("resLoan");
 
-                            String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0, 6).concat("01");
+                        String startDate = LocalDate.now().minusYears(1).format(DateTimeFormatter.BASIC_ISO_DATE).substring(0, 6).concat("01");
 
-                            if (jsonArrayResDepositTrust.size() > 0) {
-                                saveJsonDataToResAccount(ResAccountTypeStatus.DepositTrust.getStatus(), jsonArrayResDepositTrust, connectedMng.connectedId(), resConCorpList.organization(), startDate);
-                            }
+                        if (jsonArrayResDepositTrust.size() > 0) {
+                            saveJsonDataToResAccount(ResAccountTypeStatus.DepositTrust.getStatus(), jsonArrayResDepositTrust, connectedMng.connectedId(), resConCorpList.organization(), startDate);
+                        }
 
-                            if (jsonArrayResForeignCurrency.size() > 0) {
-                                saveJsonDataToResAccount(ResAccountTypeStatus.ForeignCurrency.getStatus(), jsonArrayResForeignCurrency, connectedMng.connectedId(), resConCorpList.organization(), startDate);
-                            }
+                        if (jsonArrayResForeignCurrency.size() > 0) {
+                            saveJsonDataToResAccount(ResAccountTypeStatus.ForeignCurrency.getStatus(), jsonArrayResForeignCurrency, connectedMng.connectedId(), resConCorpList.organization(), startDate);
+                        }
 
-                            if (jsonArrayResFund.size() > 0) {
-                                saveJsonDataToResAccount(ResAccountTypeStatus.Fund.getStatus(), jsonArrayResFund, connectedMng.connectedId(), resConCorpList.organization(), startDate);
-                            }
+                        if (jsonArrayResFund.size() > 0) {
+                            saveJsonDataToResAccount(ResAccountTypeStatus.Fund.getStatus(), jsonArrayResFund, connectedMng.connectedId(), resConCorpList.organization(), startDate);
+                        }
 
-                            if(jsonArrayResLoan.size() > 0) {
-                                saveJsonDataToResAccount(ResAccountTypeStatus.Loan.getStatus(), jsonArrayResLoan, connectedMng.connectedId(), resConCorpList.organization(), startDate);
-                            }
+                        if(jsonArrayResLoan.size() > 0) {
+                            saveJsonDataToResAccount(ResAccountTypeStatus.Loan.getStatus(), jsonArrayResLoan, connectedMng.connectedId(), resConCorpList.organization(), startDate);
                         }
                     }
                 }
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    User findUserInfo(Long idxUser) {
+        return repoUser.findById(idxUser).get();
     }
 
     void scrapingBatchHistory_v2(Long idxUser, Long idxCorp, Long idxResBatchParent) throws Exception {
@@ -2004,6 +2012,7 @@ public class ScrapingService {
                     );
                 }
 
+                resAccount.status(ResAccountStatus.NORMAL);
                 resAccount.connectedId(connectedId);
                 resAccount.searchStartDate(startDate);
                 resAccount.resAccountStartDate(GowidUtils.getEmptyStringToString(obj, "resAccountStartDate"));
@@ -2286,6 +2295,9 @@ public class ScrapingService {
                     e.printStackTrace();
                     endFlag = false;
                 }finally {
+
+                    user = findUserInfo(user.idx());
+
                     repoResBatchList.save(
                             ResBatchList.builder()
                                     .idxUser(user.idx())

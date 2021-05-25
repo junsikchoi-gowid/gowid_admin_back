@@ -69,7 +69,7 @@ public class RiskService {
 
 
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity<?> saveRisk(Long idxUser, Long idxCorp, String calcDate) {
+	public ResponseEntity saveRisk(Long idxUser, Long idxCorp, String calcDate) {
 
 		return ResponseEntity.ok().body(
 				BusinessResponse.builder()
@@ -79,36 +79,27 @@ public class RiskService {
 
 	@Transactional(rollbackFor = Exception.class)
 	public Risk saveRiskData(Long idxUser, Long idxCorp, String calcDate) {
-		Corp corp;
-		Long finalIdxUser = idxUser;
-		User userAuth = findUser(finalIdxUser);
-		User user;
+		Corp corp = null;
+		User user = null;
 
-		if(idxCorp != null && userAuth.authorities().stream().noneMatch(o-> o.role().equals(Role.GOWID_ADMIN))) {
+		if(idxUser == null && idxCorp == null ){
 			throw UserNotFoundException.builder().build();
-		}else if(idxCorp != null && userAuth.authorities().stream().anyMatch(o-> o.role().equals(Role.GOWID_ADMIN))){
-			corp = repoCorp.findById(idxCorp).orElseThrow(
-					() -> CorpNotRegisteredException.builder().account(idxCorp.toString()).build()
-			);
-			Corp finalCorp = corp;
-			user = repoUser.findById(repoCorp.searchIdxUser(idxCorp)).orElseThrow(
-					() -> UserNotFoundException.builder().id(finalCorp.user().idx()).build()
-			);
-
-			idxUser = repoCorp.searchIdxUser(idxCorp);
-		}else{
-			user = repoUser.findById(idxUser).orElseThrow(
-					() -> UserNotFoundException.builder()
-							.id(finalIdxUser)
-							.build()
-			);
+		}else if(idxCorp != null){
+			corp = repoCorp.findById(idxCorp).get();
+			user = corp.user();
+			idxUser = user.idx();
+		}else if(idxUser != null){
+			user = repoUser.findById(idxUser).get();
 			corp = user.corp();
+			idxUser = user.idx();
 		}
 
 		if(StringUtils.isEmpty(calcDate)){
 			calcDate = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
 		}
 
+		User finalUser = user;
+		Corp finalCorp = corp;
 		RiskConfig riskconfig = repoRiskConfig.findByUserAndEnabled(user, true).orElseGet(
 				() -> RiskConfig.builder()
 						.depositGuarantee(0F)
@@ -121,8 +112,8 @@ public class RiskService {
 						.calculatedLimit("0")
 						.grantLimit("0")
 						.hopeLimit("0")
-						.user(user)
-						.corp(corp)
+						.user(finalUser)
+						.corp(finalCorp)
 						.build()
 		);
 
@@ -214,7 +205,7 @@ public class RiskService {
 
 	@Transactional(readOnly = true)
 	public String getCardLimit(Long idxUser) {
-		User user = findUser(idxUser);
+		User user =  repoUser.findById(idxUser).get();
 		double cardLimit = repoRisk.findCardLimitNowFirst(idxUser, CommonUtil.getNowYYYYMMDD());
 		double maxLimit = Double.parseDouble(
 			repoCommonCodeDetail.getByCodeAndCode1(CommonCodeType.CARD_LIMIT, user.cardCompany().getName()).value1());
@@ -224,16 +215,6 @@ public class RiskService {
 
 		return cardLimit + "";
 	}
-
-	@Transactional(readOnly = true)
-	User findUser(Long idx_user) {
-		return repoUser.findById(idx_user).orElseThrow(
-				() -> UserNotFoundException.builder()
-						.id(idx_user)
-						.build()
-		);
-	}
-
 
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity<?> saveRisk45(Long idxUser, Long idxCorp, String calcDate) {
