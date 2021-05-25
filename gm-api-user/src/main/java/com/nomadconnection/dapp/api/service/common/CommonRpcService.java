@@ -4,6 +4,7 @@ import com.nomadconnection.dapp.api.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class CommonRpcService {
         log.debug("## Request [{}] {}", httpMethod, url);
         log.debug("## Request header ==> {}", JsonUtil.generateClassToJson(headers));
         // TODO hyuntak 리팩토링 대상
-        log.debug("## Request body ==> {}", bodyParams.toString());
+        log.debug("## Request body ==> {}", ObjectUtils.isEmpty(bodyParams) ? null : bodyParams.toString());
 
         ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, new HttpEntity<>(bodyParams, headers), responseType);
         log.info("## Response ==> {}", JsonUtil.generateClassToJson(response));
