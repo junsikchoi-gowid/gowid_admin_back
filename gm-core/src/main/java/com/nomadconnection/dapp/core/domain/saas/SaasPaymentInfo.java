@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -75,4 +76,6 @@ public class SaasPaymentInfo extends BaseTime {
     @JoinColumn(name = "idxSaasPaymentManageInfo", foreignKey = @ForeignKey(name = "FK_SaasPaymentManageInfo_SaasPaymentInfo"))
     private SaasPaymentManageInfo saasPaymentManageInfo;
 
+    @OneToMany(mappedBy = "saasPaymentInfo")
+    private List<SaasCheckInfo> saasCheckInfos;
 }

@@ -20,6 +20,7 @@ import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.nomadconnection.dapp.api.dto.Notification.SlackNotiDto.SaasTrackerNotiReq.getSlackSaasTrackerMessage;
@@ -37,6 +38,8 @@ public class SaasTrackerService {
 	private final SaasPaymentInfoRepository repoSaasPaymentInfo;
 	private final SaasInfoRepository repoSaasInfo;
 	private final SaasPaymentManageInfoRepository repoSaasPaymentManageInfo;
+	private final SaasCheckCategoryRepository repoSaasCheckCategory;
+	private final SaasCheckInfoRepository repoSaasCheckInfo;
 
 	private final CorpService corpService;
 	private final UserService userService;
@@ -560,8 +563,6 @@ public class SaasTrackerService {
 		}
 	}
 
-
-
 	@Transactional(rollbackFor = Exception.class)
 	public ResponseEntity getSaasPaymentDetailInfo(Long userIdx, Long saasInfoIdx) {
 
@@ -571,9 +572,6 @@ public class SaasTrackerService {
 		User user = userService.getUser(userIdx);
 		SaasInfo saasInfo = findSaasInfo(saasInfoIdx);
 		List<SaasPaymentInfo> saasPaymentInfos = repoSaasPaymentInfo.findAllByUserAndSaasInfoOrderByDisabledAscCurrentPaymentDateDesc(user, saasInfo);
-
-
-
 
 		try {
 
@@ -751,7 +749,17 @@ public class SaasTrackerService {
 
 			paymentInfo.expirationDate(req.getExpirationDate());
 			paymentInfo.memo(req.getMemo());
-			if(!ObjectUtils.isEmpty(req.getDisabled())) paymentInfo.disabled(req.getDisabled());
+			if(!ObjectUtils.isEmpty(req.getDisabled())) {
+				paymentInfo.disabled(req.getDisabled());
+				this.updateActiveSubscription(paymentInfo, req.getDisabled());	// 결제수단 사용 여부에 따른 구독여부 처리
+			}
+
+			String oldExpirationDate = StringUtils.isEmpty(paymentInfo.expirationDate()) ? "0" : paymentInfo.expirationDate();
+			if((!StringUtils.isEmpty(req.getExpirationDate())
+				&& Integer.parseInt(oldExpirationDate) < Integer.parseInt(req.getExpirationDate())))  {
+				SaasCheckCategory checkCategory = repoSaasCheckCategory.findById(SaasCheckType.NEED_CANCEL.getCode()).orElseThrow(() -> new NoSuchElementException());
+				repoSaasCheckInfo.deleteBySaasCheckCategoryAndSaasPaymentInfo(checkCategory, paymentInfo);
+			}
 
 			log.info(">>>>> updateSaasInfo.complete");
 			return ResponseEntity.ok().body(BusinessResponse.builder()
@@ -766,6 +774,47 @@ public class SaasTrackerService {
 		}catch(Exception e) {
 			log.error(e.getMessage(), e);
 			throw new SystemException(ErrorCode.Api.INTERNAL_ERROR);
+		}
+	}
+
+	private void updateActiveSubscription(SaasPaymentInfo saasPaymentInfo, Boolean disabled) {
+		List<SaasPaymentInfo> allPaymentInfoList = repoSaasPaymentInfo.findAllByUserAndSaasInfo(saasPaymentInfo.user(), saasPaymentInfo.saasInfo());
+		if(disabled) {	// 사용안함으로 변경 시((조건에 따라) 구독만료 처리)
+			if(allPaymentInfoList.size() > 1) {
+				// 하나의 SaaS에 여러 결제건이 있을 경우
+				if(allPaymentInfoList.size() == allPaymentInfoList.stream().filter(v -> v.disabled() && v.paymentType() != SaasPaymentType.ONE_TIME.getCode()).count()) {	// 모두가 disable일 경우
+					AtomicReference<String> a = new AtomicReference<>("0");
+					allPaymentInfoList.stream().filter(f -> !StringUtils.isEmpty(f.paymentScheduleDate())).max(Comparator.comparing(SaasPaymentInfo::paymentScheduleDate)).ifPresent(v -> {
+						a.set(v.paymentScheduleDate());
+					}); // 마지막 결제 예정일 조회(미분류, 비정기는 없음)
+					if((StringUtils.isEmpty(a) ? 0 : Integer.parseInt(a.get())) <= Integer.parseInt(CommonUtil.getNowYYYYMMDD())) {
+						allPaymentInfoList.forEach(info -> {
+							info.activeSubscription(false);	// 결제 예정일이 오늘보다 이전이면 구독해지
+						});
+					}
+				}
+			}else {
+				// 하나의 SaaS에 하나의 결제건만 있을 경우
+				SaasPaymentType paymentType = SaasPaymentType.getType(saasPaymentInfo.paymentType());
+				switch(paymentType) {
+					case UNCATEGORIZED:	// 미분류
+					case IRREGULAR:		// 비정기
+					case MONTHLY:		// 월결제
+					case QUARTER:		// 분기결제
+					case YEARLY:		// 연결제
+						String paymentScheduleDate = saasPaymentInfo.paymentScheduleDate();	// 결제 예정일 조회(미분류, 비정기는 없음)
+						if((StringUtils.isEmpty(paymentScheduleDate) ? 0 : Integer.parseInt(paymentScheduleDate)) <= Integer.parseInt(CommonUtil.getNowYYYYMMDD())) {
+							saasPaymentInfo.activeSubscription(false);
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		}else {	// 사용함으로 변경 시(구독 처리)
+			allPaymentInfoList.forEach(info -> {
+				info.activeSubscription(true);
+			});
 		}
 	}
 
