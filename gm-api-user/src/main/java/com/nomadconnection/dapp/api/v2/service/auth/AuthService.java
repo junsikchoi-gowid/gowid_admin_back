@@ -25,6 +25,7 @@ import com.nomadconnection.dapp.redis.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.xmlbeans.impl.xb.xsdschema.Public;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,9 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.nomadconnection.dapp.api.enums.EmailTemplate.*;
 import static com.nomadconnection.dapp.api.enums.VerifyCode.PASSWORD_RESET;
@@ -63,15 +62,14 @@ public class AuthService {
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 
 		Role role = Authority.from(user.authorities());
-
-		Set<Authority> authrities = user.authorities();
+		Set<Authority> authorities = new HashSet<>();
+		authorities.addAll(user.authorities());
 
 		if(!ObjectUtils.isEmpty(user.corp())){
-			Corp corp = user.corp();
-			if(!ObjectUtils.isEmpty(user.corp().authorities())) authrities.addAll(corp.authorities());
+			if(!ObjectUtils.isEmpty(user.corp().authorities())) authorities.addAll(user.corp().authorities());
 		}
 
-		return jwt.issue(user.email(), authrities, user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
+		return jwt.issue(user.email(), authorities, user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
 	}
 
 	/**
@@ -104,7 +102,7 @@ public class AuthService {
 		if(user != null) {
 			updatePasswordForSync(dto.getEmail(), new AuthDto.PasswordSync(dto.getPassword(), expenseUser.getIsInvitedUser()));
 		} else {
-			User adminUser = userService.findByEmail(expenseUser.getContractorEmail());
+ 			User adminUser = userService.findByEmail(expenseUser.getContractorEmail());
 			if(adminUser == null) {
 				throw new NotRegisteredException(ErrorCode.Api.AUTHENTICATION_FAILURE);
 			}
@@ -119,10 +117,9 @@ public class AuthService {
 					.name(expenseUser.getName())
 					.role(Role.valueOf(roleType))
 					.build();
-			userService.addMember(adminUser.idx(), syncMember);
+			user = userService.addMemberUser(adminUser.idx(), syncMember);
 		}
 
-		user = userService.getEnabledUserByEmailIfNotExistError(dto.getEmail());
 		return createToken(user);
 	}
 

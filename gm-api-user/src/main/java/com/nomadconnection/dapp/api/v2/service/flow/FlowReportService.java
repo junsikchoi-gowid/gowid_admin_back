@@ -164,26 +164,32 @@ public class FlowReportService {
     @Transactional
     public FlowDto.FlowTagConfigDto addFlowTagConfig(FlowDto.FlowTagConfigDto dto, Corp corp) {
 
-        if (repoFlowTagConfig.findByCorpAndCodeLv3AndCodeLv4(corp, dto.getCodeLv3().trim(), dto.getCodeLv4().trim()).isPresent() || !ObjectUtils.isEmpty(dto.code4)) {
-            throw new DuplicatedException("duplicated codeLv4 = " + dto.codeLv4);
+        if (!ObjectUtils.isEmpty(dto.code4)) {
+            throw BadRequestedException.builder().build();
         }
 
-        FlowTagConfig flowTagConfig = repoFlowTagConfig.save(
-                        FlowTagConfig.builder()
-                                .corp(corp)
-                                .flowCode(dto.flowCode)
-                                .code1(dto.code1)
-                                .code2(dto.code2)
-                                .code3(dto.code3)
-                                .code4(dto.code4)
-                                .codeLv1(dto.codeLv1)
-                                .codeLv2(dto.codeLv2)
-                                .codeLv3(dto.codeLv3)
-                                .codeLv4(dto.codeLv4)
-                                .codeDesc(dto.codeDesc)
-                                .tagOrder(dto.tagOrder)
-                                .enabled(dto.enabled)
-                                .build());
+        FlowTagConfig flowTagConfig = repoFlowTagConfig.findByCorpAndCodeLv3AndCodeLv4(corp, dto.getCodeLv3().trim(), dto.getCodeLv4().trim());
+
+        if (flowTagConfig != null) {
+            flowTagConfig.deleteYn(false);
+        }else{
+            flowTagConfig = repoFlowTagConfig.save(
+                    FlowTagConfig.builder()
+                            .corp(corp)
+                            .flowCode(dto.flowCode)
+                            .code1(dto.code1)
+                            .code2(dto.code2)
+                            .code3(dto.code3)
+                            .code4(dto.code4)
+                            .codeLv1(dto.codeLv1)
+                            .codeLv2(dto.codeLv2)
+                            .codeLv3(dto.codeLv3)
+                            .codeLv4(dto.codeLv4)
+                            .codeDesc(dto.codeDesc)
+                            .tagOrder(dto.tagOrder)
+                            .enabled(dto.enabled)
+                            .build());
+        }
 
         return FlowDto.FlowTagConfigDto.builder().idx(flowTagConfig.idx()).build();
     }
@@ -269,6 +275,7 @@ public class FlowReportService {
         Page<FlowDto.FlowAccountHistoryDto> flowAccountHistoryList;
 
         List<String> accountList = searchDto.getArrayResAccount().stream().map(o -> o.replaceAll("-", "")).collect(Collectors.toList());
+
 
         if (searchDto.getInOutType().toLowerCase().equals("in")) {
             flowAccountHistoryList = repoResAccountHistory

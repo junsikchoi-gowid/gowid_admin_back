@@ -185,6 +185,53 @@ public class UserService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
+	public User addMemberUser(Long idxAdminUser, UserDto.MemberRegister member) {
+		Long idxCorp = getCorpIdx(idxAdminUser);
+
+		if(idxCorp == null) {
+			throw new BadRequestException(ErrorCode.Api.CORP_IS_NOT_REGISTERED);
+		}
+		User adminUser = getUser(idxAdminUser);
+
+		try {
+			findByEmail(member.getEmail());
+			throw AlreadyExistException.builder()
+					.category("email")
+					.resource(member.getEmail())
+					.build();
+		} catch (UserNotFoundException e){
+			Corp corp = repoCorp.findById(idxCorp)
+					.orElseThrow(() -> new BadRequestException(ErrorCode.Api.CORP_NOT_BUSINESS));
+			String plainPassword = member.getPassword();
+
+			User user = User.builder()
+					.consent(false)
+					.email(member.getEmail())
+					.password(encoder.encode(plainPassword))
+					.hasTmpPassword(member.isHasTmpPassword())
+					.name(member.getName())
+					.mdn(null)
+					.reception(new UserReception(false, false))
+					.authentication(new Authentication())
+					.authorities(Collections.singleton(
+							repoAuthority.findByRole(member.getRole()).orElseThrow(
+									() -> new RuntimeException(member.getRole() + " NOT FOUND")
+							)))
+					.corpName(corp.resCompanyNm())
+					.cardCompany(adminUser.cardCompany())
+					.position(null)
+					.build();
+
+			user.corp(corp);
+			repoUser.save(user);
+
+			return user;
+		} catch(Exception e) {
+			throw e;
+		}
+	}
+
+	@Transactional(rollbackFor = Exception.class)
 	public User changeMemberInfo(Long idxAdminUser, String email, UserDto.MemberRegister memberInfo) {
 		User adminUser = repoUser.findById(idxAdminUser).orElseThrow(() -> UserNotFoundException.builder().build());
 		User targetUser = findByEmail(email);
@@ -529,13 +576,14 @@ public class UserService {
 		boolean corpMapping = StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = StringUtils.isEmpty(user.cardCompany());
 
-		Set<Authority> authrities = user.authorities();
+		Set<Authority> authorities = new HashSet<>();
+		authorities.addAll(user.authorities());
 
 		if(!ObjectUtils.isEmpty(user.corp())){
-			if(!ObjectUtils.isEmpty(user.corp().authorities())) authrities.addAll(user.corp().authorities());
+			if(!ObjectUtils.isEmpty(user.corp().authorities())) authorities.addAll(user.corp().authorities());
 		}
 
-		return jwt.issue(dto.getEmail(), authrities, user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role);
+		return jwt.issue(dto.getEmail(), authorities, user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role);
 	}
 
 	@Transactional(rollbackFor = Exception.class)

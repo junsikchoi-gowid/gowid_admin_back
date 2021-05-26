@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -175,13 +176,14 @@ public class AuthService {
 		boolean corpMapping = !StringUtils.isEmpty(user.corp());
 		boolean cardCompanyMapping = !StringUtils.isEmpty(user.cardCompany());
 
-		Set<Authority> authrities = user.authorities();
+		Set<Authority> authorities = new HashSet<>();
+		authorities.addAll(user.authorities());
 
 		if(!ObjectUtils.isEmpty(user.corp())){
-			if(!ObjectUtils.isEmpty(user.corp().authorities())) authrities.addAll(user.corp().authorities());
+			if(!ObjectUtils.isEmpty(user.corp().authorities())) authorities.addAll(user.corp().authorities());
 		}
 
-		return jwt.issue(dto.getEmail(), authrities, user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
+		return jwt.issue(dto.getEmail(), authorities, user.idx(), corpMapping, cardCompanyMapping, user.hasTmpPassword(), role.name());
 	}
 
 	/**
@@ -210,7 +212,8 @@ public class AuthService {
 		User user = serviceUser.getUser(idxUser);
 		Long idxCorp = user.corp() == null ? null: user.corp().idx();
 
-		Set<Authority> authorities = user.authorities();
+		Set<Authority> authorities = new HashSet<>();
+		authorities.addAll(user.authorities());
 
 		if(!ObjectUtils.isEmpty(user.corp())){
 			if(!ObjectUtils.isEmpty(user.corp().authorities())) authorities.addAll(user.corp().authorities());
