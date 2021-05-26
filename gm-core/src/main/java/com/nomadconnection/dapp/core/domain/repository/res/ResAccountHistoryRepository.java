@@ -62,7 +62,7 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
             " and (:searchWord is null or (concat_ws(resAccountDesc1 , resAccountDesc2 , resAccountDesc3 , resAccountDesc4, memo, tagValue )  like concat('%',:searchWord,'%') ))",
             countQuery = "SELECT R.* FROM ResAccountHistory R WHERE " +
                     " resAccountTrDate >= :from AND resAccountTrDate <= :to" +
-                    " resAccount IN (:resAccountList) " +
+                    " and resAccount IN (:resAccountList) " +
                     " and (:searchWord is null or (concat_ws(resAccountDesc1 , resAccountDesc2 , resAccountDesc3 , resAccountDesc4, memo, tagValue )  like concat('%',:searchWord,'%') ))",
             nativeQuery = true)
     Page<ResAccountHistory> searchAllResAccountHistoryLikeList(
@@ -77,7 +77,7 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
             " and (:searchWord is null or (concat_ws(resAccountDesc1 , resAccountDesc2 , resAccountDesc3 , resAccountDesc4, memo, tagValue )  like concat('%',:searchWord,'%') ))",
             countQuery = "SELECT R.** FROM ResAccountHistory R WHERE " +
                     " resAccountTrDate >= :from AND resAccountTrDate <= :to" +
-                    " resAccount IN (:resAccountList) AND resAccountIn = '0' AND resAccountOut <> '0' " +
+                    " and resAccount IN (:resAccountList) AND resAccountIn = '0' AND resAccountOut <> '0' " +
                     " and (:searchWord is null or (concat_ws(resAccountDesc1 , resAccountDesc2 , resAccountDesc3 , resAccountDesc4, memo, tagValue )  like concat('%',:searchWord,'%') ))",
             nativeQuery = true)
     Page<ResAccountHistory> searchInResAccountHistoryLikeList(
@@ -92,7 +92,7 @@ public interface ResAccountHistoryRepository extends JpaRepository<ResAccountHis
             " and (:searchWord is null or (concat_ws(resAccountDesc1 , resAccountDesc2 , resAccountDesc3 , resAccountDesc4, memo, tagValue )  like concat('%',:searchWord,'%') ))",
             countQuery = "SELECT R.* FROM ResAccountHistory R WHERE " +
                     " resAccountTrDate >= :from AND resAccountTrDate <= :to" +
-                    " resAccount IN (:resAccountList) AND resAccountIn <> '0' AND resAccountOut ='0' " +
+                    " and resAccount IN (:resAccountList) AND resAccountIn <> '0' AND resAccountOut ='0' " +
                     " and (:searchWord is null or (concat_ws(resAccountDesc1 , resAccountDesc2 , resAccountDesc3 , resAccountDesc4, memo, tagValue )  like concat('%',:searchWord,'%') ))",
             nativeQuery = true)
     Page<ResAccountHistory> searchOutResAccountHistoryLikeList(
