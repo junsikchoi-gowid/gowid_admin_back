@@ -139,7 +139,6 @@ class SaasTrackerServiceTests extends AbstractSpringBootTest {
 		service.updateSaasTrackerProgress(467L, 3);
 	}
 
-
 	@Test
 	@Order(12)
 	@DisplayName("SaaS 목록 조회")
@@ -154,6 +153,12 @@ class SaasTrackerServiceTests extends AbstractSpringBootTest {
 		SaasTrackerDto.UpdateSaasPaymentInfoReq req = new SaasTrackerDto.UpdateSaasPaymentInfoReq();
 		req.setPaymentType(2);
 		service.updateSaasPaymentInfo(66L, 2078L, req);
+	}
 
+	@Test
+	@Order(14)
+	@DisplayName("SaaS 체크 리스트 수정")
+	void updateSaasPaymentInfoForChecklist() {
+		service.updateSaasPaymentInfo(467L, 5130L, SaasTrackerDto.UpdateSaasPaymentInfoReq.builder().expirationDate("202106").build());
 	}
 }
