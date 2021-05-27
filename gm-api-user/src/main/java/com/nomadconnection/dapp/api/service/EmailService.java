@@ -32,7 +32,6 @@ public class EmailService {
 	private final JavaMailSenderImpl sender;
 	private final ITemplateEngine templateEngine;
 	private final EmailRepository repository;
-	private final CardIssuanceInfoRepository cardIssuanceInfoRepository;
 
 	public void send(EmailDto emailDto){
 		MimeMessagePreparator preparator = mimeMessage -> {
@@ -75,7 +74,7 @@ public class EmailService {
 				helper.setFrom(emailConfig.getSender());
 				helper.setTo(emailConfig.getSender());
 				helper.setSubject("[Gowid] 신한카드 심사완료 " + emailDto.getCompanyName());
-				helper.setText(templateEngine.process("mail-template-issuance-approve2", context), true);
+				helper.setText(templateEngine.process("mail-template-issuance-approve", context), true);
 			}
 		};
 		sender.send(preparator);
@@ -116,6 +115,42 @@ public class EmailService {
 			log.info("[ sendReceiptEmail ] send done");
 		} catch (Exception e) {
 			log.error("[ sendReceiptEmail ] Error Occur! {}", e);
+		}
+	}
+
+	public void sendKisedReceiptEmail(String licenseNo, String issuanceCounts, String targetStatus,
+	                             SurveyDto surveyResult, String arrivalAddr) {
+		try {
+			log.info("[ sendKisedReceiptEmail ] findTopByLicenseNo {}", licenseNo);
+			EmailDto emailDto = repository.findTopByLicenseNo(licenseNo);
+			log.info("[ sendKisedReceiptEmail ] emailDto {}", emailDto);
+			MimeMessagePreparator preparator = mimeMessage -> {
+				MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+				{
+					Context context = new Context();
+					{
+						context.setVariable("licenseNo", emailDto.getLicenseNo());
+						context.setVariable("companyName", emailDto.getCompanyName());
+						context.setVariable("hopeLimit", emailDto.getHopeLimit());
+						context.setVariable("grantLimit", emailDto.getGrantLimit());
+						context.setVariable("email", emailDto.getEmail());
+						context.setVariable("issuanceCount", issuanceCounts);
+						context.setVariable("targetStatus", targetStatus);
+						context.setVariable("arrivalAddr", arrivalAddr);
+						context.setVariable("surveyResult", surveyResult);
+					}
+
+					helper.setFrom(emailConfig.getSender());
+					helper.setTo("lhjang@gowid.com");
+					helper.setSubject("[Gowid] 창진원카드 접수완료 " + emailDto.getCompanyName());
+					helper.setText(templateEngine.process("mail-template-issuance-receipt-kised", context), true);
+				}
+			};
+			log.info("[ sendKisedReceiptEmail ] send start");
+			sender.send(preparator);
+			log.info("[ sendKisedReceiptEmail ] send done");
+		} catch (Exception e) {
+			log.error("[ sendKisedReceiptEmail ] Error Occur! {}", e);
 		}
 	}
 

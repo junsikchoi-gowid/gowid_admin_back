@@ -193,8 +193,14 @@ public class IssuanceService {
         Map<String, String> issuanceCounts = new HashMap<>();
         issuanceCounts.put("counts", d1100.getD039());
         SurveyDto surveyResult = surveyService.findAnswerByUser(userCorp.user());
-        emailService.sendReceiptEmail(resultOfD1200.getD001(), issuanceCounts, CardCompany.SHINHAN, resultOfD1200.getD003(),
-            surveyResult, d1100.getD033() + " " + d1100.getD034());
+
+        if(CardType.GOWID.equals(cardType)){
+            emailService.sendReceiptEmail(resultOfD1200.getD001(), issuanceCounts, CardCompany.SHINHAN, resultOfD1200.getD003(),
+                surveyResult, d1100.getD033() + " " + d1100.getD034());
+        } else if(CardType.KISED.equals(cardType)){
+            emailService.sendKisedReceiptEmail(resultOfD1200.getD001(), d1100.getD039(), resultOfD1200.getD003(),
+                surveyResult, d1100.getD033() + " " + d1100.getD034());
+        }
         log.debug("## receipt email sent. biz no = " + resultOfD1200.getD001());
     }
 
