@@ -7,6 +7,7 @@ import com.nomadconnection.dapp.codef.io.dto.Common;
 import com.nomadconnection.dapp.codef.io.helper.ApiRequest;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import com.nomadconnection.dapp.codef.io.helper.RSAUtil;
+import com.nomadconnection.dapp.codef.io.helper.ResponseCode;
 import com.nomadconnection.dapp.codef.io.sandbox.bk.KR_BK_1_B_001;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMng;
 import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
@@ -20,6 +21,7 @@ import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpListStatus;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.response.BusinessResponse;
+import com.nomadconnection.dapp.core.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -322,9 +324,8 @@ public class CodefService {
 	}
 
 
-	@SneakyThrows
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity registerAccountAddCreate(Common.Account dto, Long idxUser){
+	public List<BankDto.ResAccountDto> registerAccountAddCreate(Common.Account dto, Long idxUser) throws Exception{
 
 		User user = repoUser.findById(idxUser).orElseThrow(() -> UserNotFoundException.builder().build());
 
@@ -358,7 +359,6 @@ public class CodefService {
 		String strResultData = jsonObject.get("data").toString();
 
 		String code = (((JSONObject)jsonParse.parse(strResultCode)).get("code")).toString();
-		normal.setKey(code);
 		String connectedId;
 
 		if(code.equals("CF-00000") || code.equals("CF-04012")) {
@@ -387,11 +387,11 @@ public class CodefService {
 
 			// 은행 추가
 			ProcAddConnectedId(jsonObject, connectedId, user.corp().idx());
+		}else {
+			throw new NotFoundException(ResponseCode.findByCode(code).getScrapingMessageGroup().getMessage());
 		}
 
-		return ResponseEntity.ok().body(BusinessResponse.builder()
-				.normal(normal)
-				.data(resAccount).build());
+		return resAccount;
 	}
 
 
