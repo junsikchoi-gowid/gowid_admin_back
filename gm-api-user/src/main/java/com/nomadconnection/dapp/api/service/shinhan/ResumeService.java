@@ -87,7 +87,7 @@ public class ResumeService {
             return response;
         }
 
-        asyncService.run(() -> procResume(request, cardIssuanceInfo.cardType()));
+        procResume(request, cardIssuanceInfo.cardType());
         log.debug("## response 1600 => " + response.toString());
         updateIssuanceStatus(request);
         log.debug("## response 1600 => " + response.toString());
@@ -106,7 +106,6 @@ public class ResumeService {
         return response;
     }
 
-    @Async
     void procResume(CardIssuanceDto.ResumeReq request, CardType cardType) {
         log.debug("## start thread for 1100/1800 ");
         SignatureHistory signatureHistory = getSignatureHistory(request);
@@ -114,9 +113,9 @@ public class ResumeService {
         proc1800(request, signatureHistory, signatureHistory.getUserIdx());  // 1800(전자서명값전달)
 
         sendApprovedEmail(request, signatureHistory.getCorpIdx(), cardType);
+        updateIssuanceStatus(request);
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public CardIssuanceInfo updateIssuanceStatus(CardIssuanceDto.ResumeReq request) {
         D1200 d1200 = d1200Service.getD1200ByApplicationDateAndApplicationNum(request.getD001(), request.getD002());
         CardIssuanceInfo cardIssuanceInfo = d1200.getCardIssuanceInfo();
