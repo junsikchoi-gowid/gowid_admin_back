@@ -1,7 +1,5 @@
 package com.nomadconnection.dapp.api.v2.controller.flow;
 
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.nomadconnection.dapp.api.util.CommonUtil;
 import com.nomadconnection.dapp.api.v2.dto.FlowDto;
 import com.nomadconnection.dapp.api.v2.service.flow.FlowReportService;
@@ -9,11 +7,9 @@ import com.nomadconnection.dapp.core.annotation.CurrentUser;
 import com.nomadconnection.dapp.core.domain.user.Role;
 import com.nomadconnection.dapp.core.exception.response.GowidResponse;
 import com.nomadconnection.dapp.core.security.CustomUser;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,11 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
-import static com.nomadconnection.dapp.core.exception.response.GowidResponse.*;
+import static com.nomadconnection.dapp.core.exception.response.GowidResponse.ok;
 
 @Slf4j
 @CrossOrigin(allowCredentials = "true")

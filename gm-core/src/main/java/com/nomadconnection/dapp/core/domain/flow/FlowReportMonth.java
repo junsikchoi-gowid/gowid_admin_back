@@ -2,12 +2,10 @@ package com.nomadconnection.dapp.core.domain.flow;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
-import io.swagger.annotations.OAuth2Definition;
 import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 
 @Getter
 @Setter

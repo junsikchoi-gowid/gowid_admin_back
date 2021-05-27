@@ -1,17 +1,15 @@
 package com.nomadconnection.dapp.codef.io.helper;
 
+import org.json.simple.parser.JSONParser;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.json.simple.parser.JSONParser;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 
 /**
  * HTTP 호출을 위한 재사용 클래스

@@ -1,11 +1,9 @@
 package com.nomadconnection.dapp.api.v2.controller.scraping;
 
-import com.nomadconnection.dapp.api.controller.UserEtcController;
 import com.nomadconnection.dapp.api.dto.CardIssuanceDto;
 import com.nomadconnection.dapp.api.dto.gateway.ApiResponse;
 import com.nomadconnection.dapp.api.service.lotte.LotteIssuanceService;
 import com.nomadconnection.dapp.api.service.shinhan.IssuanceService;
-import com.nomadconnection.dapp.api.v2.controller.flow.FlowBaseController;
 import com.nomadconnection.dapp.api.v2.dto.ImageReqDto;
 import com.nomadconnection.dapp.api.v2.enums.ScrapingType;
 import com.nomadconnection.dapp.api.v2.service.scraping.RecoveryService;

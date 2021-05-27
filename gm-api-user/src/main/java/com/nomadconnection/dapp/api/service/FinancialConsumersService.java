@@ -3,7 +3,6 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.dto.FinancialConsumersResponseDto;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.FinancialConsumers;
 import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

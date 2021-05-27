@@ -2,7 +2,6 @@ package com.nomadconnection.dapp.core.domain.repository.shinhan;
 
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
 import com.nomadconnection.dapp.core.domain.shinhan.D1200;
-import com.nomadconnection.dapp.core.domain.shinhan.D1400;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

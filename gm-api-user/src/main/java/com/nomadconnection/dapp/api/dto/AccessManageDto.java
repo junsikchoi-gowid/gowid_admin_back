@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.api.dto;
 
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
-import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpListStatus;
 import io.swagger.annotations.ApiModelProperty;

@@ -7,8 +7,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.services.s3.transfer.Download;
 import com.nomadconnection.dapp.api.config.AwsS3Config;
 import com.nomadconnection.dapp.api.exception.BadRequestedException;
 import com.nomadconnection.dapp.api.exception.CorpNotRegisteredException;
@@ -19,15 +17,14 @@ import com.nomadconnection.dapp.api.service.AwsS3Service;
 import com.nomadconnection.dapp.api.v2.dto.FlowDto;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.flow.*;
+import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.repository.corp.CorpRepository;
 import com.nomadconnection.dapp.core.domain.repository.flow.*;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountHistoryRepository;
 import com.nomadconnection.dapp.core.domain.repository.res.ResAccountRepository;
-import com.nomadconnection.dapp.core.domain.repository.connect.ConnectedMngRepository;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
 import com.nomadconnection.dapp.core.domain.res.ResAccountHistory;
 import com.nomadconnection.dapp.core.domain.res.ResAccountStatus;
-import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.exception.BaseException;
 import com.nomadconnection.dapp.core.exception.DuplicatedException;
 import com.nomadconnection.dapp.core.exception.NotFoundException;
@@ -38,16 +35,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.xmlbeans.impl.xb.xsdschema.Public;
-import org.hibernate.Hibernate;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -56,15 +49,17 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import java.io.IOException;
 
 @Slf4j
 @Service
@@ -827,9 +822,9 @@ public class FlowReportService {
 
             CreationHelper ch = workbook.getCreationHelper();
 
-            styleDefault = workbook.createCellStyle();;
-            styleTitle = workbook.createCellStyle();;
-            styleMoneyFormat = workbook.createCellStyle();;
+            styleDefault = workbook.createCellStyle();
+            styleTitle = workbook.createCellStyle();
+            styleMoneyFormat = workbook.createCellStyle();
 
             styleDefault.setBorderTop(BorderStyle.THIN);
             styleDefault.setBorderLeft(BorderStyle.THIN);

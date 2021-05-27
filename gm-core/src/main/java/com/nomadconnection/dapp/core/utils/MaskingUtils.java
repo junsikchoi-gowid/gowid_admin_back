@@ -1,4 +1,4 @@
-package com.nomadconnection.dapp.codef.io.utils;
+package com.nomadconnection.dapp.core.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;

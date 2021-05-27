@@ -3,7 +3,6 @@ package com.nomadconnection.dapp.core.domain.res;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
-import com.nomadconnection.dapp.core.domain.corp.Corp;
 import com.nomadconnection.dapp.core.domain.flow.FlowTagConfig;
 import lombok.*;
 import lombok.experimental.Accessors;

@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.api.v2.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.nomadconnection.dapp.api.helper.GowidUtils;
