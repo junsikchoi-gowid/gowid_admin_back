@@ -44,6 +44,7 @@ public class SecuKeypad {
     @SuppressWarnings(value = "unchecked")
     public static void loggingKeyPadSession(HttpServletRequest request) {
         HttpSession session = request.getSession();
+        session.setMaxInactiveInterval(60 * 60);
         Map<String, String> map3 = (Map<String, String>) session.getAttribute(PluginFreeConst.PLUGINFREE_SESSION_KEY);
 
         StringBuilder builder = new StringBuilder();
