@@ -2,7 +2,6 @@ package com.nomadconnection.dapp.core.domain.res;
 
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
-import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import lombok.*;
 import lombok.experimental.Accessors;
 

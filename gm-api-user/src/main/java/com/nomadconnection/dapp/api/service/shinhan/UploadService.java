@@ -13,7 +13,6 @@ import com.nomadconnection.dapp.api.v2.service.kised.ConfirmationFileService;
 import com.nomadconnection.dapp.api.v2.utils.StreamUtils;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardIssuanceInfo;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.CardType;
 import com.nomadconnection.dapp.core.domain.kised.ConfirmationFile;
 import com.nomadconnection.dapp.core.domain.kised.Kised;
 import com.nomadconnection.dapp.core.domain.user.User;

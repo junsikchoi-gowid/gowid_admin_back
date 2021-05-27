@@ -1,9 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Gowid</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link
             href="https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,700&display=swap"
             rel="stylesheet"
@@ -17,6 +18,7 @@
             padding: 0;
             font-family: "Noto Sans KR", sans-serif !important;
         }
+
         #bodyTable {
             padding-top: 40px;
             padding-right: 0;
@@ -24,15 +26,18 @@
             padding-left: 0;
             background-color: #ffffff;
         }
+
         img,
         a img {
             border: 0;
             outline: none;
             text-decoration: none;
         }
+
         .imageFix {
             display: block;
         }
+
         table,
         td {
             border-collapse: collapse;
@@ -42,9 +47,11 @@
         .ReadMsgBody {
             width: 100%;
         }
+
         .ExternalClass {
             width: 100%;
         }
+
         .ExternalClass,
         .ExternalClass p,
         .ExternalClass span,
@@ -59,9 +66,11 @@
             mso-table-lspace: 0pt;
             mso-table-rspace: 0pt;
         }
+
         img {
             -ms-interpolation-mode: bicubic;
         }
+
         body,
         table,
         td,
@@ -72,21 +81,25 @@
             -ms-text-size-adjust: 100%;
             -webkit-text-size-adjust: 100%;
         }
+
         .responsive-width {
             width: 600px;
         }
+
         .responsive-inner {
             padding-top: 40px;
             padding-right: 32px;
             padding-bottom: 40px;
             padding-left: 32px;
         }
+
         .responsive-logo {
             padding-top: 0;
             padding-right: 0;
             padding-bottom: 40px;
             padding-left: 0;
         }
+
         .responsive-font {
             font-size: 18px;
         }
@@ -98,21 +111,25 @@
                 padding-bottom: 16px;
                 padding-left: 16px;
             }
+
             .responsive-width {
                 width: 100%;
             }
+
             .responsive-inner {
                 padding-top: 32px;
                 padding-right: 16px;
                 padding-bottom: 32px;
                 padding-left: 16px;
             }
+
             .responsive-logo {
                 padding-top: 0;
                 padding-right: 0;
                 padding-bottom: 28px;
                 padding-left: 0;
             }
+
             .responsive-font {
                 font-size: 20px;
             }
@@ -173,6 +190,8 @@
                                     사업자번호 : <span th:text="${licenseNo}"></span><br/>
                                     부여한도 : <span th:text="${grantLimit}"></span><br/>
                                     희망한도 : <span th:text="${hopeLimit}"></span><br/>
+                                    발급매수 : <span th:text="${issuanceCount}"></span><br/>
+                                    신규대상여부 : <span th:text="${targetStatus}"></span><br/>
                                 </td>
                             </tr>
                             <tr>
@@ -247,7 +266,7 @@
                                 <td
                                         style="padding-top: 4px; padding-right: 0; padding-bottom: 4px; padding-left: 0; word-break: keep-all;"
                                 >
-                                    COPYRIGHT &copy; 2017 DAYLI Financial Group. ALL RIGHTS
+                                    COPYRIGHT &copy; 2021 GOWID. ALL RIGHTS
                                     RESERVED.
                                 </td>
                             </tr>

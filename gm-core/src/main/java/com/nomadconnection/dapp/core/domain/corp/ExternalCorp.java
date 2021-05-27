@@ -1,8 +1,6 @@
 package com.nomadconnection.dapp.core.domain.corp;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
-import com.nomadconnection.dapp.core.domain.risk.RiskConfig;
-import com.nomadconnection.dapp.core.domain.user.User;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicInsert;

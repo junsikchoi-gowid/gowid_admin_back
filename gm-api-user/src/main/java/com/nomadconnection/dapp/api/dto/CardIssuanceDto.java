@@ -2,12 +2,12 @@ package com.nomadconnection.dapp.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nomadconnection.dapp.api.dto.shinhan.DataPart1600;
-import com.nomadconnection.dapp.api.util.MaskingUtils;
 import com.nomadconnection.dapp.api.v2.dto.kised.KisedResponseDto;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.*;
 import com.nomadconnection.dapp.core.domain.common.CommonCodeDetail;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
+import com.nomadconnection.dapp.core.utils.MaskingUtils;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import lombok.experimental.Accessors;

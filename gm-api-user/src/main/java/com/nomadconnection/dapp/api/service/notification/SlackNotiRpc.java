@@ -3,7 +3,6 @@ package com.nomadconnection.dapp.api.service.notification;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nomadconnection.dapp.api.config.SlackNotiConfig;
 import com.nomadconnection.dapp.api.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package com.nomadconnection.dapp.api.dto;
 
-import com.nomadconnection.dapp.api.util.MaskingUtils;
 import com.nomadconnection.dapp.core.domain.res.ResAccount;
+import com.nomadconnection.dapp.core.utils.MaskingUtils;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

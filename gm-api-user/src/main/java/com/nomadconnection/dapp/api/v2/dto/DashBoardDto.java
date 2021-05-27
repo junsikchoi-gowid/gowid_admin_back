@@ -4,9 +4,6 @@ import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import lombok.*;
 
-import java.net.Inet4Address;
-import java.time.LocalDateTime;
-
 @Getter
 @Builder
 @NoArgsConstructor

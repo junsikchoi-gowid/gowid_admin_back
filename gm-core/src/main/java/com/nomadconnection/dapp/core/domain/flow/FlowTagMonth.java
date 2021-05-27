@@ -4,10 +4,8 @@ import com.nomadconnection.dapp.core.domain.audit.BaseTime;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.hibernate.type.FloatType;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 
 @Getter
 @Setter

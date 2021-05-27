@@ -1,6 +1,5 @@
 package com.nomadconnection.dapp.core.domain.repository.res;
 
-import com.nomadconnection.dapp.core.domain.common.ConnectedMngStatus;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpList;
 import com.nomadconnection.dapp.core.domain.res.ResConCorpListStatus;
 import org.springframework.data.jpa.repository.JpaRepository;

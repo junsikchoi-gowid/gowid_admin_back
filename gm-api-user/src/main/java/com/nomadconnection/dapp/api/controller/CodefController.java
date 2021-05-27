@@ -1,8 +1,10 @@
 package com.nomadconnection.dapp.api.controller;
 
+import com.nomadconnection.dapp.api.dto.BankDto;
 import com.nomadconnection.dapp.api.service.CodefService;
 import com.nomadconnection.dapp.codef.io.dto.Common;
 import com.nomadconnection.dapp.core.annotation.CurrentUser;
+import com.nomadconnection.dapp.core.exception.response.GowidResponse;
 import com.nomadconnection.dapp.core.security.CustomUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @Slf4j
@@ -69,13 +72,14 @@ public class CodefController {
 			"\n ### Remarks" +
 			"\n")
 	@PostMapping(URI.ACCOUNT_ADD)
-	public ResponseEntity registerAccountAdd(
+	public GowidResponse<List<BankDto.ResAccountDto>> registerAccountAdd(
 			@ApiIgnore @CurrentUser CustomUser user,
-			@RequestBody Common.Account dto) {
+			@RequestBody Common.Account dto) throws Exception {
 		if (log.isInfoEnabled()) {
 			log.info("([ Codef registerAccountAdd ]) $user='{}' $dto='{}'", user, dto);
 		}
-		return service.registerAccountAddCreate(dto, user.idx());
+
+		return GowidResponse.ok(service.registerAccountAddCreate(dto, user.idx()));
 	}
 
 	@ApiOperation(value = "인증서 등록(레퍼런스 추가)", notes = "" +

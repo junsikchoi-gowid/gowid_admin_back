@@ -1,14 +1,10 @@
 package com.nomadconnection.dapp.core.dto.flow;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.nomadconnection.dapp.core.domain.card.CardCompany;
-import com.nomadconnection.dapp.core.domain.cardIssuanceInfo.IssuanceStatus;
 import com.nomadconnection.dapp.core.domain.corp.Corp;
-import com.nomadconnection.dapp.core.domain.limit.ReviewStatus;
-import lombok.*;
-
-import javax.persistence.Column;
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder

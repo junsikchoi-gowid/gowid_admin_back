@@ -1,7 +1,6 @@
 package com.nomadconnection.dapp.core.domain.shinhan;
 
 import com.nomadconnection.dapp.core.domain.audit.BaseTime;
-import com.nomadconnection.dapp.core.domain.card.CardCompany;
 import lombok.*;
 
 import javax.persistence.*;

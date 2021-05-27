@@ -3,9 +3,7 @@ package com.nomadconnection.dapp.codef.io.sandbox.bk;
 import com.nomadconnection.dapp.codef.io.helper.ApiRequest;
 import com.nomadconnection.dapp.codef.io.helper.CommonConstant;
 import lombok.SneakyThrows;
-import org.json.simple.parser.ParseException;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 public class KR_BK_1_B_002 {
