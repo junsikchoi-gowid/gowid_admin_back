@@ -3,7 +3,6 @@ package com.nomadconnection.dapp.api.service;
 import com.nomadconnection.dapp.api.config.EmailConfig;
 import com.nomadconnection.dapp.api.dto.SurveyDto;
 import com.nomadconnection.dapp.core.domain.card.CardCompany;
-import com.nomadconnection.dapp.core.domain.repository.cardIssuanceInfo.CardIssuanceInfoRepository;
 import com.nomadconnection.dapp.core.domain.repository.common.EmailRepository;
 import com.nomadconnection.dapp.core.domain.user.User;
 import com.nomadconnection.dapp.core.dto.EmailDto;
@@ -141,7 +140,7 @@ public class EmailService {
 					}
 
 					helper.setFrom(emailConfig.getSender());
-					helper.setTo("lhjang@gowid.com");
+					helper.setTo(emailConfig.getSender());
 					helper.setSubject("[Gowid] 창진원카드 접수완료 " + emailDto.getCompanyName());
 					helper.setText(templateEngine.process("mail-template-issuance-receipt-kised", context), true);
 				}
