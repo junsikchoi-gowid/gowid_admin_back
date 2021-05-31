@@ -223,7 +223,7 @@ public class SaasTrackerService {
 		Long forecastPaymentAvg = this.getSaasUsageAvgAtMonth(idxUser, dateYYYYMM, isCurrent);
 		Long scheduledPaymentAtMonth = repoSaasPaymentInfo.getScheduledPriceSumAtMonth(idxUser, dateYYYYMM + "01", dateYYYYMM + "31");
 
-		return SaasTrackerDto.UsageSumsByPaymentRes.builder().pdate(dateYYYYMM).psum(forecastPaymentAvg + (ObjectUtils.isEmpty(scheduledPaymentAtMonth) ? 0L : scheduledPaymentAtMonth)).build();
+		return SaasTrackerDto.UsageSumsByPaymentRes.builder().pdate(dateYYYYMM).psum((ObjectUtils.isEmpty(forecastPaymentAvg) ? 0L : forecastPaymentAvg) + (ObjectUtils.isEmpty(scheduledPaymentAtMonth) ? 0L : scheduledPaymentAtMonth)).build();
 	}
 
 	private Long getSaasUsageAvgAtMonth(Long idxUser, String dateYYYYMM, boolean isCurrent) {
