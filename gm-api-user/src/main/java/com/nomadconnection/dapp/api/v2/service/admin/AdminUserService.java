@@ -22,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 
 @Slf4j
 @Service
@@ -68,6 +70,7 @@ public class AdminUserService {
         if(!EmailValidator.isValid(dto.getEmail())) {
             throw new BadRequestException(ErrorCode.Api.VALIDATION_FAILED);
         }
+        String orgEmail = user.email();
 
         if(userRepository.findByAuthentication_EnabledAndEmailAndIdxNot(true, dto.getEmail(), idxUser).isPresent()) {
             throw AlreadyExistException.builder()
@@ -76,12 +79,19 @@ public class AdminUserService {
                 .build();
         }
 
-        userRepository.save(user.name(dto.getUserName())
-            .mdn(dto.getPhone())
-            .corpName(dto.getCorpName())
-            .position(dto.getPosition())
-            .email(dto.getEmail())
-        );
+        Optional.ofNullable(dto.getUserName()).ifPresent(user::name);
+        Optional.ofNullable(dto.getEmail()).ifPresent(user::email);
+        Optional.ofNullable(dto.getPhone()).ifPresent(user::mdn);
+        Optional.ofNullable(dto.getCorpName()).ifPresent(user::corpName);
+        Optional.ofNullable(dto.getPosition()).ifPresent(user::position);
+
+        userRepository.save(user);
+
+        try {
+            expenseRpc.requestUpdateUserProfile(orgEmail, dto.getUserName(), dto.getPhone(), dto.getEmail());
+        } catch (Exception e) {
+            log.warn("[updateUserInfo] Fail to update user info of expense service: {}", orgEmail);
+        }
 
         return ResponseEntity.ok().body(
             BusinessResponse.builder().build()
